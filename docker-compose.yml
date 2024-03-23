@@ -1,0 +1,32 @@
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: .config/dev.Dockerfile
+        env_file:
+            - ./.env
+        container_name: vatsim-radar
+        expose:
+            - 8080
+            - 9229
+        command: /frontend/.config/command.sh
+        ports:
+            - "8080:8080"
+        volumes:
+            - ".:/frontend:rw"
+        depends_on:
+            - db
+        restart: always
+
+    db:
+        image: mysql
+        cap_add:
+            - SYS_NICE
+        restart: always
+        environment:
+            - MYSQL_DATABASE=radar
+            - MYSQL_ROOT_PASSWORD=localhost
+        ports:
+            - '3306:3306'
+        volumes:
+            - .config/db:/var/lib/mysql
