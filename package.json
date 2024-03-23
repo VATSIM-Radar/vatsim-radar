@@ -28,7 +28,7 @@
     "@nuxtjs/eslint-module": "^4.1.0",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/stylelint-plugin": "^2.1.0",
-    "@types/eslint": "^8",
+    "@types/eslint": "^8.56.6",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.11.30",
     "eslint": "^8.57.0",
