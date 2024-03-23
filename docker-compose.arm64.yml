@@ -1,0 +1,7 @@
+#ЭТОТ ФАЙЛ СПРОЕЦИРОВАН ДЛЯ DEV ОКРУЖЕНИЯ
+
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: .config/dev-arm64.Dockerfile

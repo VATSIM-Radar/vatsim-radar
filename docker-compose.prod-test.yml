@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+    frontend:
+        build:
+            context: .
+            dockerfile: .config/Dockerfile
+        env_file:
+            - ./.env
+        container_name: vatsim-radar-prod
+        expose:
+            - 8080
+            - 9229
+        ports:
+            - "8080:8080"
+        volumes:
+            - ".:/frontend:rw"
