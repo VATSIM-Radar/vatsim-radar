@@ -5,6 +5,10 @@
   rebaseWhen: "behind-base-branch",
   "packageRules": [
     {
+      "matchPackageNames": ["node", "arm64v8/node"],
+      "versioning": "node"
+    },
+    {
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": [
