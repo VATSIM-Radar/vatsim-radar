@@ -1852,7 +1852,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/eslint@npm:^8, @types/eslint@npm:^8.4.5, @types/eslint@npm:^8.56.5":
+"@types/eslint@npm:^8.4.5, @types/eslint@npm:^8.56.5, @types/eslint@npm:^8.56.6":
   version: 8.56.6
   resolution: "@types/eslint@npm:8.56.6"
   dependencies:
@@ -7536,7 +7536,7 @@ __metadata:
     "@pinia/nuxt": "npm:^0.5.1"
     "@prisma/client": "npm:^5.11.0"
     "@stylistic/stylelint-plugin": "npm:^2.1.0"
-    "@types/eslint": "npm:^8"
+    "@types/eslint": "npm:^8.56.6"
     "@types/jsonwebtoken": "npm:^9.0.6"
     "@types/node": "npm:^20.11.30"
     eslint: "npm:^8.57.0"
