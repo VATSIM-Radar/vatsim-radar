@@ -15,7 +15,8 @@ services:
         volumes:
             - ".:/frontend:rw"
         depends_on:
-            - db
+            db:
+                condition: service_healthy
         restart: always
 
     db:
@@ -24,9 +25,14 @@ services:
             - SYS_NICE
         restart: always
         environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
             - MYSQL_DATABASE=radar
             - MYSQL_ROOT_PASSWORD=localhost
         ports:
             - '3306:3306'
+        healthcheck:
+            test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+            timeout: 5s
+            retries: 40
         volumes:
             - .config/db:/var/lib/mysql

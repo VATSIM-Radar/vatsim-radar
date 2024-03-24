@@ -20,5 +20,7 @@ fi
 
 yarn
 cd /frontend
+npx prisma generate
+npx prisma migrate deploy
 rm -rf /tmp/nitro/worker-*
 exec yarn dev --qr=false

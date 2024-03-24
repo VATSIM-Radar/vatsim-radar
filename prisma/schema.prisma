@@ -7,8 +7,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Test {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+model User {
+  id            Int            @id @default(autoincrement())
+  navigraphUser NavigraphUser?
+  tokens        UserToken[]
+}
+
+model UserToken {
+  id                Int      @id @default(autoincrement())
+  accessToken       String   @unique
+  accessTokenExpire DateTime
+  refreshMaxDate    DateTime
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id])
+}
+
+model NavigraphAuth {
+  id       Int    @id @default(autoincrement())
+  state    String
+  verifier String
+}
+
+model NavigraphUser {
+  id                String   @id
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
+  accessToken       String   @db.Text
+  accessTokenExpire DateTime
+  refreshToken      String
+  hasFms            Boolean
 }
