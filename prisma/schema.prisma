@@ -8,9 +8,10 @@ datasource db {
 }
 
 model User {
-  id            Int            @id @default(autoincrement())
-  navigraphUser NavigraphUser?
-  tokens        UserToken[]
+  id        Int            @id @default(autoincrement())
+  navigraph NavigraphUser?
+  vatsim    VatsimUser?
+  tokens    UserToken[]
 }
 
 model UserToken {
@@ -22,10 +23,16 @@ model UserToken {
   user              User     @relation(fields: [userId], references: [id])
 }
 
-model NavigraphAuth {
-  id       Int    @id @default(autoincrement())
-  state    String
-  verifier String
+enum AuthType {
+  NAVIGRAPH
+  VATSIM
+}
+
+model Auth {
+  id       Int      @id @default(autoincrement())
+  state    String   @unique
+  type     AuthType
+  verifier String?
 }
 
 model NavigraphUser {
@@ -36,4 +43,14 @@ model NavigraphUser {
   accessTokenExpire DateTime
   refreshToken      String
   hasFms            Boolean
+}
+
+model VatsimUser {
+  id                String   @id
+  accessToken       String   @db.Text
+  accessTokenExpire DateTime
+  refreshToken      String   @db.Text
+  fullName          String
+  userId            Int      @unique
+  user              User     @relation(fields: [userId], references: [id])
 }

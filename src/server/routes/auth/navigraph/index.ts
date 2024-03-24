@@ -2,12 +2,13 @@ import jwksClient from 'jwks-rsa';
 import jsonwebtoken from 'jsonwebtoken';
 import type { GetPublicKeyOrSecret } from 'jsonwebtoken';
 import { ofetch } from 'ofetch';
-import { prisma } from '~/utils/prisma';
-import { getNavigraphRedirectUri } from '~/utils/navigraph';
+import { prisma } from '~/utils/backend/prisma';
+import { getNavigraphRedirectUri } from '~/utils/backend/navigraph';
 import { createError, getCookie } from 'h3';
-import { handleH3Exception } from '~/utils/h3';
+import { handleH3Exception } from '~/utils/backend/h3';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
+import { findUserByCookie } from '~/utils/backend/user';
 
 const client = jwksClient({
     cache: true,
@@ -40,17 +41,20 @@ export default defineEventHandler(async (event) => {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
 
-        const { id: verifierId, verifier } = await prisma.navigraphAuth.findFirstOrThrow({
+        const { id: verifierId, verifier } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,
                 verifier: true,
             },
             where: {
                 state: query.state ?? '',
+                NOT: {
+                    verifier: null,
+                },
             },
         });
 
-        await prisma.navigraphAuth.delete({ where: { id: verifierId } });
+        await prisma.auth.delete({ where: { id: verifierId } });
 
         const params = new URLSearchParams();
         params.set('grant_type', 'authorization_code');
@@ -58,7 +62,7 @@ export default defineEventHandler(async (event) => {
         params.set('redirect_uri', getNavigraphRedirectUri());
         params.set('client_id', config.NAVIGRAPH_CLIENT_ID);
         params.set('client_secret', config.NAVIGRAPH_CLIENT_SECRET);
-        params.set('code_verifier', verifier);
+        params.set('code_verifier', verifier!);
 
         const token = await ofetch<{
             access_token: string
@@ -118,24 +122,7 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        const cookie = getCookie(event, 'access-token');
-
-        let user: RequiredDBUser | null | undefined;
-        if (cookie) {
-            const token = await prisma.userToken.findFirst({
-                select: {
-                    user: true,
-                },
-                where: {
-                    accessToken: cookie,
-                    accessTokenExpire: {
-                        gte: new Date(),
-                    },
-                },
-            });
-
-            if (token) user = token.user;
-        }
+        let user = await findUserByCookie(event);
 
         if (navigraphUser) {
             await prisma.navigraphUser.update({

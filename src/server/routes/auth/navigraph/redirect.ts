@@ -1,6 +1,7 @@
-import { getNavigraphCodeChallenge, getNavigraphCodeVerifier, getNavigraphRedirectUri } from '~/utils/navigraph';
-import { prisma } from '~/utils/prisma';
+import { getNavigraphCodeChallenge, getNavigraphCodeVerifier, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
+import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
+import { AuthType } from '@prisma/client';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
@@ -17,10 +18,11 @@ export default defineEventHandler(async (event) => {
     url.searchParams.set('code_challenge', getNavigraphCodeChallenge(verifier));
     url.searchParams.set('code_challenge_method', 'S256');
 
-    await prisma.navigraphAuth.create({
+    await prisma.auth.create({
         data: {
             state,
             verifier,
+            type: AuthType.NAVIGRAPH,
         },
     });
 

@@ -1,8 +1,8 @@
-import { prisma } from '~/utils/prisma';
+import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
 import type { H3Event } from 'h3';
 import { setCookie } from 'h3';
-import type { User } from '.prisma/client';
+import type { User } from '@prisma/client';
 
 export function createDBUser() {
     return prisma.user.create({
