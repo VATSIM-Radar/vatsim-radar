@@ -8,7 +8,13 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "recreateDb": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && rm -rf .config/db && docker compose down"
+    "recreateDb": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && rm -rf .config/db && docker compose down",
+    "lint:ts": "eslint --ext \".js,.ts,.vue\" ./src",
+    "lint:ts:fix": "eslint --fix --ext \".js,.ts,.vue\" ./src",
+    "stylelint": "stylelint --max-warnings=0 ./src/**/*{.css,scss,.vue}",
+    "stylelint:fix": "stylelint --fix ./src/**/*{.css,scss,.vue}",
+    "lint:fix": "yarn stylelint:fix && yarn lint:ts:fix",
+    "lint": "yarn stylelint && yarn lint:ts"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
