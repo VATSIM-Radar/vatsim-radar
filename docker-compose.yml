@@ -33,6 +33,7 @@ services:
         healthcheck:
             test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
             timeout: 5s
+            interval: 5s
             retries: 40
         volumes:
             - .config/db:/var/lib/mysql

@@ -41,7 +41,12 @@ export default defineNuxtConfig({
         '@pinia/nuxt',
         '@nuxtjs/eslint-module',
         '@nuxtjs/stylelint-module',
+        'vue-yandex-maps/nuxt',
     ],
+    yandexMaps: {
+        apikey: '9fa90fbc-ce5f-4dc9-ae6d-433e0ec7338b',
+        lang: 'en_US',
+    },
     eslint: {
         emitError: true,
         emitWarning: true,
