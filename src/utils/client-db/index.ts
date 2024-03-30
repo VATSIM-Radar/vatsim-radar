@@ -9,10 +9,13 @@ interface ClientDB extends DBSchema {
     };
 }
 
-export const clientDB = import.meta.server
-    ? null as unknown as IDBPDatabase<ClientDB>
-    : await openDB<ClientDB>('vatsim-radar', 1, {
+// eslint-disable-next-line import/no-mutable-exports
+export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
+
+export async function initClientDB() {
+    clientDB = await openDB<ClientDB>('vatsim-radar', 1, {
         upgrade(db) {
             db.createObjectStore('vatspy');
         },
     });
+}

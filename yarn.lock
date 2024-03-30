@@ -7599,6 +7599,7 @@ __metadata:
     stylelint-config-standard: "npm:^36.0.0"
     typescript: "npm:^5.4.3"
     ua-parser-js: "npm:2.0.0-beta.2"
+    vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.21"
     vue-router: "npm:^4.3.0"
     vue-tsc: "npm:^1.8.27"
@@ -9855,7 +9856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"svgo@npm:^3.2.0":
+"svgo@npm:^3.0.2, svgo@npm:^3.2.0":
   version: 3.2.0
   resolution: "svgo@npm:3.2.0"
   dependencies:
@@ -10644,6 +10645,17 @@ __metadata:
   peerDependencies:
     vite: ^3.0.0-0 || ^4.0.0-0 || ^5.0.0-0
   checksum: 10c0/a1bf6bd2ec11828b1195a4a3f5e2498bb5f0b98431097853979be8108e8193e8e2847760656a41bf0d55a3f2c78af355fdfba9284ada31bbb3d551dec6ba52e7
+  languageName: node
+  linkType: hard
+
+"vite-svg-loader@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "vite-svg-loader@npm:5.1.0"
+  dependencies:
+    svgo: "npm:^3.0.2"
+  peerDependencies:
+    vue: ">=3.2.13"
+  checksum: 10c0/39f218db6384aec56ec6fb9517723eaee49701225688e1d5f5132f0730605a9e59201464911b19cbfdc647caebacf4c8737dffe2472cd815ebb6645c2292993c
   languageName: node
   linkType: hard
 

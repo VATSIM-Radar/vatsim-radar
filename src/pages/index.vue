@@ -4,20 +4,52 @@
             :settings="{
                 location: {
                     center: [37.617633, 55.755820],
-                    zoom: 2
+                    zoom: 4,
                 },
+                theme: 'dark',
             }"
         >
             <yandex-map-default-features-layer/>
-            <yandex-map-default-scheme-layer/>
+            <yandex-map-spherical-mercator-projection/>
+            <yandex-map-tile-data-source :settings="dataSourceProps"/>
+            <yandex-map-layer :settings="layerProps"/>
 
-            <template v-if="ready">
+            <div v-if="ready" :key="dataStore.vatsim.data?.general.update_timestamp">
                 <yandex-map-feature
-                    v-for="(fir, index) in dataStore.vatspy!.data.firs"
-                    :key="fir.icao+index"
-                    :settings="{...fir.feature, style: {fillOpacity: 0, stroke: [{color: '#000', width: 1, opacity: 0.2}]}, properties: {...fir.feature.properties, hint: fir.feature.id}}"
+                    v-for="(fir) in dataStore.vatspy!.data.firs"
+                    :key="fir.name+fir.callsign"
+                    :settings="{...fir.feature, hideOutsideViewport: true, style: {zIndex: 1, fillOpacity: 0, stroke: [{color: '#fff', width: 1, opacity: 0.1}]}}"
                 />
-            </template>
+                <yandex-map-marker
+                    v-for="(pilot) in dataStore.vatsim.data!.pilots"
+                    :key="pilot.cid"
+                    :settings="{coordinates: [pilot.longitude, pilot.latitude], hideOutsideViewport: true}"
+                    position="top-center left-center"
+                >
+                    <div
+                        class="pilot"
+                        :style="{
+                            '--heading': `${pilot.heading}deg`
+                        }"
+                    >
+                        <airplane-icon/>
+                    </div>
+                </yandex-map-marker>
+                <template v-for="(uir, index) in atcBounds" :key="uir.name || index">
+                    <yandex-map-feature
+                        v-for="(fir) in uir.firs"
+                        :key="fir.name+fir.callsign"
+                        :settings="{...fir.feature, hideOutsideViewport: true, properties: {hint: fir.callsign || fir.boundary || fir.name || 'nope'}, style: {zIndex: 2, fillOpacity: 0.05}}"
+                    />
+                </template>
+                <yandex-map-hint hint-property="hint">
+                    <template #default="{content}">
+                        <div class="hint">
+                            {{ content }}
+                        </div>
+                    </template>
+                </yandex-map-hint>
+            </div>
         </yandex-map>
     </div>
 </template>
@@ -26,18 +58,56 @@
 import {
     YandexMap,
     YandexMapDefaultFeaturesLayer,
-    YandexMapDefaultSchemeLayer,
     YandexMapFeature,
+    YandexMapHint,
+    YandexMapLayer,
+    YandexMapMarker,
+    YandexMapSphericalMercatorProjection,
+    YandexMapTileDataSource,
 } from 'vue-yandex-maps';
 import { useDataStore } from '~/store/data';
 import type { VatsimData } from '~/types/data/vatsim';
 import { clientDB } from '~/utils/client-db';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
+import type { YMapLayerProps, YMapTileDataSourceProps } from '@yandex/ymaps3-types';
+import { useATCBounds } from '~/composables/atc';
+import AirplaneIcon from '@/assets/airplane.svg?component';
 
 const ready = ref(false);
 const dataStore = useDataStore();
+const atcBounds = useATCBounds();
 
 let interval: NodeJS.Timeout | null = null;
+
+const dataSourceProps: YMapTileDataSourceProps = {
+    id: 'custom',
+    copyrights: ['© OpenStreetMap contributors', '© CartoDB'],
+    raster: {
+        type: 'ground',
+        fetchTile: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{{z}}/{{x}}/{{y}}.png',
+    },
+    zoomRange: {
+        min: 3,
+        max: 19,
+    },
+    clampMapZoom: true,
+};
+/*
+    A text identifier is used to link the data source and the layer.
+    Be careful, the identifier for the data source is set in the id field,
+    and the source field is used when transferring to the layer
+*/
+const layerProps: YMapLayerProps = {
+    id: 'customLayer',
+    source: 'custom',
+    type: 'ground',
+    options: {
+        raster: {
+            awaitAllTilesOnFirstDisplay: true,
+        },
+    },
+    zIndex: 0,
+};
 
 onMounted(async () => {
     //Data is not yet ready
@@ -58,7 +128,7 @@ onMounted(async () => {
     }
 
     await Promise.all([
-        (async function() {
+        (async function () {
             let vatspy = await clientDB.get('vatspy', 'index');
             if (!vatspy || vatspy.version !== dataStore.versions!.vatspy) {
                 vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
@@ -67,7 +137,7 @@ onMounted(async () => {
 
             dataStore.vatspy = shallowReactive(vatspy);
         }()),
-        (async function() {
+        (async function () {
             const [vatsimData] = await Promise.all([
                 $fetch<VatsimData>('/data/vatsim/data'),
             ]);
@@ -124,5 +194,13 @@ await useAsyncData(async () => {
     border: 1px solid black;
     opacity: 0.7;
     white-space: nowrap;
+}
+
+.pilot {
+    width: 20px;
+    color: forestgreen;
+    border-radius: 20px 20px 5px 5px;
+    transform: rotate(var(--heading));
+    transform-origin: center;
 }
 </style>

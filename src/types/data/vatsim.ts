@@ -13,7 +13,7 @@ export interface VatsimPilot {
     pilot_rating: number;
     military_rating: number;
     latitude: number;
-    longtitude: number;
+    longitude: number;
     altitude: number;
     groundspeed: number;
     transponder: string;
@@ -73,9 +73,16 @@ export interface VatsimPrefile {
     last_updated: string;
 }
 
-export interface VatsimInfo {
+export interface VatsimInfoDefault {
     id: number;
     short: string;
+}
+
+export interface VatsimInfoLong extends VatsimInfoDefault {
+    long: string;
+}
+
+export interface VatsimInfoLongName extends VatsimInfoDefault {
     long_name: string;
 }
 
@@ -86,15 +93,15 @@ export interface VatsimData {
     atis: VatsimController[];
     servers: VatsimServers[];
     prefiles: VatsimPrefile[];
-    facilities: VatsimInfo[];
-    ratings: VatsimInfo[];
-    pilot_ratings: VatsimInfo[];
-    military_ratings: VatsimInfo[];
+    facilities: VatsimInfoLong[];
+    ratings: VatsimInfoLong[];
+    pilot_ratings: VatsimInfoLongName[];
+    military_ratings: VatsimInfoLongName[];
 }
 
 export type VatsimRegularData = {
     general: VatsimGeneral;
-    pilots: Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_mb' | 'qnh_i_hb' | 'flight_plan' | 'logon_time' | 'last_updated'>[];
+    pilots: Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_mb' | 'qnh_i_hb' | 'flight_plan' | 'last_updated'>[];
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimController, 'server' | 'last_updated'>[];
     prefiles: Omit<VatsimPrefile, 'flight_plan' | 'last_updated'>[];

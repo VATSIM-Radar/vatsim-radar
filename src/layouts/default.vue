@@ -4,6 +4,16 @@
     </div>
 </template>
 
+<script lang="ts" setup>
+import { useAsyncData } from '#app';
+import { initClientDB } from '~/utils/client-db';
+
+await useAsyncData(async () => {
+    if (!import.meta.client) return;
+    await initClientDB();
+});
+</script>
+
 <style lang="scss">
 html, body {
     padding: 0;

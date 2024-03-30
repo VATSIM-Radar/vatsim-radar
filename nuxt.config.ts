@@ -1,3 +1,5 @@
+import svgLoader from 'vite-svg-loader';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     app: {
@@ -78,5 +80,31 @@ export default defineNuxtConfig({
     },
     typescript: {
         typeCheck: true,
+    },
+    vite: {
+        plugins: [
+            svgLoader({
+                defaultImport: 'url',
+                svgoConfig: {
+                    plugins: [
+                        {
+                            name: 'preset-default',
+                            params: {
+                                overrides: {
+                                    removeViewBox: false,
+                                },
+                            },
+                        },
+                        'removeDimensions',
+                        {
+                            name: 'convertColors',
+                            params: {
+                                currentColor: true,
+                            },
+                        },
+                    ],
+                },
+            }),
+        ],
     },
 });

@@ -47,7 +47,6 @@ export default defineNitroPlugin((app) => {
                         qnh_mb: true,
                         qnh_i_hb: true,
                         flight_plan: true,
-                        logon_time: true,
                         last_updated: true,
                     },
                     controllers: {
