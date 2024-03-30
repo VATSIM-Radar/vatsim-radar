@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { VatSpyAPIData, VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { VatsimData } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 

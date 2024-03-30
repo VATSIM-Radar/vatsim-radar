@@ -53,6 +53,7 @@ export default defineNitroPlugin((app) => {
     CronJob.from({
         cronTime: '0 * * * *',
         runOnInit: true,
+        start: true,
         onTick: async () => {
             const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/');
             if (radarStorage.vatspy.version === data.current_commit_hash) return;

@@ -1,6 +1,6 @@
 import type { DBSchema, IDBPDatabase } from 'idb';
 import { openDB } from 'idb';
-import type { VatSpyAPIData, VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAPIData } from '~/types/data/vatspy';
 
 interface ClientDB extends DBSchema {
     vatspy: {

@@ -15,15 +15,8 @@
                 <yandex-map-feature
                     v-for="(fir, index) in dataStore.vatspy!.data.firs"
                     :key="fir.icao+index"
-                    :settings="{...fir.feature, hideOutsideViewport: true, properties: {...fir.feature.properties, hint: fir.feature.id}}"
+                    :settings="{...fir.feature, style: {fillOpacity: 0, stroke: [{color: '#000', width: 1, opacity: 0.2}]}, properties: {...fir.feature.properties, hint: fir.feature.id}}"
                 />
-                <yandex-map-hint hint-property="hint">
-                    <template #default="{content}">
-                        <div class="hint">
-                            {{ content }}
-                        </div>
-                    </template>
-                </yandex-map-hint>
             </template>
         </yandex-map>
     </div>
@@ -35,7 +28,6 @@ import {
     YandexMapDefaultFeaturesLayer,
     YandexMapDefaultSchemeLayer,
     YandexMapFeature,
-    YandexMapHint,
 } from 'vue-yandex-maps';
 import { useDataStore } from '~/store/data';
 import type { VatsimData } from '~/types/data/vatsim';
@@ -87,6 +79,7 @@ onMounted(async () => {
         dataStore.versions = await $fetch('/data/versions');
         if (dataStore.versions?.vatsim.data !== dataStore.vatsim.data?.general.update_timestamp) {
             dataStore.vatsim.data = Object.assign(dataStore.vatsim.data ?? {}, await $fetch<VatsimData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`));
+            dataStore.vatsim.data.general.update_timestamp = dataStore.versions!.vatsim.data;
         }
     }, 1000);
 

@@ -56,8 +56,6 @@ export interface VatsimController {
     logon_time: string;
 }
 
-export type VatsimATIS = VatsimController
-
 export interface VatsimServers {
     ident: string;
     hostname_or_ip: string;
@@ -85,7 +83,7 @@ export interface VatsimData {
     general: VatsimGeneral;
     pilots: VatsimPilot[];
     controllers: VatsimController[];
-    atis: VatsimATIS[];
+    atis: VatsimController[];
     servers: VatsimServers[];
     prefiles: VatsimPrefile[];
     facilities: VatsimInfo[];
@@ -94,4 +92,57 @@ export interface VatsimData {
     military_ratings: VatsimInfo[];
 }
 
-export type VatsimDataShort = Pick<VatsimData, 'pilots' | 'controllers' | 'atis' | 'prefiles'>
+export type VatsimRegularData = {
+    general: VatsimGeneral;
+    pilots: Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_mb' | 'qnh_i_hb' | 'flight_plan' | 'logon_time' | 'last_updated'>[];
+    controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
+    atis: Omit<VatsimController, 'server' | 'last_updated'>[];
+    prefiles: Omit<VatsimPrefile, 'flight_plan' | 'last_updated'>[];
+} & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
+
+export type VatsimRegularDataShort = Pick<VatsimRegularData, 'pilots' | 'controllers' | 'atis' | 'prefiles'>
+
+export interface VatsimDivision {
+    id: string;
+    name: string;
+    parentregion: string;
+    subdivisionallowed: number;
+}
+
+export interface VatsimSubDivision {
+    code: string;
+    fullname: string;
+    parentdivision: string;
+}
+
+export enum VatsimEventType {
+    Event = 'Event',
+    Exam = 'Controller Examination',
+    VASOPS = 'VASOPS Event'
+}
+
+export interface VatsimEvent {
+    id: number;
+    type: VatsimEventType;
+    name: string;
+    link: string;
+    organisers: {
+        region: string | null
+        division: string | null
+        subdivision: string | null
+        organized_by_vatsim: boolean
+    }[];
+    airports: {
+        icao: string
+    }[];
+    routes: {
+        departure: string
+        arrival: string
+        route: string
+    }[];
+    start_time: string;
+    end_time: string;
+    short_description: string;
+    description: string;
+    banner: string;
+}
