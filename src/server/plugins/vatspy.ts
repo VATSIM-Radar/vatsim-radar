@@ -4,13 +4,7 @@ import { CronJob } from 'cron';
 import { radarStorage } from '~/utils/backend/storage';
 import type { GenericFeature, GenericMultiPolygonGeometry } from '@yandex/ymaps3-types/common/types/geojson';
 import type { LngLat } from '@yandex/ymaps3-types/common/types';
-
-interface VatSpyResponse {
-    current_commit_hash: string
-    fir_boundaries_dat_url: string
-    fir_boundaries_geojson_url: string
-    vatspy_dat_url: string
-}
+import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({ sections, dat }: {
     sections: S
@@ -53,41 +47,6 @@ function parseDatFile<S extends Record<string, { title: string, children: Record
     }
 
     return result;
-}
-
-export interface VatSpyData {
-    id: string
-    countries: {
-        country: string
-        code: string
-        callsign?: string
-    }[]
-    airports: {
-        icao: string
-        name: string
-        lat: number
-        lon: number
-        iata?: string
-        fir?: string
-        isPseudo: boolean
-    }[]
-    firs: {
-        icao: string
-        name: string
-        callsign?: string
-        boundary?: string
-        isOceanic: boolean
-        lon: number
-        lat: number
-        region: string
-        division: string
-        feature: GenericFeature<LngLat>
-    }[]
-    uirs: {
-        icao: string
-        name: string
-        firs: string
-    }[]
 }
 
 export default defineNitroPlugin((app) => {

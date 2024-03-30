@@ -4,9 +4,8 @@ import type { GetPublicKeyOrSecret } from 'jsonwebtoken';
 import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/backend/prisma';
 import { getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { createError, getCookie } from 'h3';
+import { createError } from 'h3';
 import { handleH3Exception } from '~/utils/backend/h3';
-import type { RequiredDBUser } from '~/utils/db/user';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
 
