@@ -1,3 +1,5 @@
+import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
+
 export interface VatsimGeneral {
     version: number;
     update_timestamp: string;
@@ -51,9 +53,13 @@ export interface VatsimController {
     rating: number;
     server: string;
     visual_range: number;
-    text_atis: string[];
+    text_atis: string[] | null;
     last_updated: string;
     logon_time: string;
+}
+
+export interface VatsimATIS extends VatsimController {
+    atis_code?: string;
 }
 
 export interface VatsimServers {
@@ -90,7 +96,7 @@ export interface VatsimData {
     general: VatsimGeneral;
     pilots: VatsimPilot[];
     controllers: VatsimController[];
-    atis: VatsimController[];
+    atis: VatsimATIS[];
     servers: VatsimServers[];
     prefiles: VatsimPrefile[];
     facilities: VatsimInfoLong[];
@@ -99,15 +105,23 @@ export interface VatsimData {
     military_ratings: VatsimInfoLongName[];
 }
 
-export type VatsimRegularData = {
+export type VatsimShortenedData = {
     general: VatsimGeneral;
     pilots: Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_mb' | 'qnh_i_hb' | 'flight_plan' | 'last_updated'>[];
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
-    atis: Omit<VatsimController, 'server' | 'last_updated'>[];
+    atis: Omit<VatsimATIS, 'server' | 'last_updated' | 'facility'>[];
     prefiles: Omit<VatsimPrefile, 'flight_plan' | 'last_updated'>[];
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
 
-export type VatsimRegularDataShort = Pick<VatsimRegularData, 'pilots' | 'controllers' | 'atis' | 'prefiles'>
+export type VatsimShortenedPilot = VatsimShortenedData['pilots'][0]
+export type VatsimShortenedController = VatsimShortenedData['atis'][0]
+
+export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {
+    locals: VatSpyDataLocalATC[],
+    firs: VatSpyDataFeature[]
+}
+
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'pilots' | 'locals' | 'firs' | 'prefiles'>
 
 export interface VatsimDivision {
     id: string;

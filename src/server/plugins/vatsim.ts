@@ -2,6 +2,7 @@ import { CronJob } from 'cron';
 import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
+import { getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 
 let abort: AbortController | null = null;
 
@@ -36,6 +37,7 @@ export default defineNitroPlugin((app) => {
         start: true,
         runOnInit: true,
         onTick: async () => {
+            if (!radarStorage.vatspy.data) return;
             try {
                 abort?.abort();
                 abort = new AbortController();
@@ -56,12 +58,15 @@ export default defineNitroPlugin((app) => {
                     atis: {
                         server: true,
                         last_updated: true,
+                        facility: true,
                     },
                     prefiles: {
                         flight_plan: true,
                         last_updated: true,
                     },
                 });
+                radarStorage.vatsim.firs = getATCBounds();
+                radarStorage.vatsim.locals = getLocalATC();
             }
             catch (e) {
                 console.error(e);

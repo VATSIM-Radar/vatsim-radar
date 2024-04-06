@@ -1,5 +1,5 @@
-import type { GenericFeature } from '@yandex/ymaps3-types/common/types/geojson';
-import type { LngLat } from '@yandex/ymaps3-types/common/types';
+import type { Feature } from 'geojson';
+import type { VatsimShortenedController, VatsimShortenedData } from '~/types/data/vatsim';
 
 export interface VatSpyResponse {
     current_commit_hash: string;
@@ -39,7 +39,7 @@ export interface VatSpyData {
         lat: number
         region: string
         division: string
-        feature: GenericFeature<LngLat>
+        feature: Feature
     }[];
     uirs: {
         icao: string
@@ -51,5 +51,15 @@ export interface VatSpyData {
 export interface VatSpyDataFeature {
     icao?: string;
     name?: string;
-    firs: VatSpyData['firs'];
+    controller?: VatsimShortenedController;
+    firs: { boundaryId: string, controller?: VatsimShortenedController }[];
+}
+
+export interface VatSpyDataLocalATC {
+    atc: VatsimShortenedController
+    isATIS: boolean
+    airport: {
+        icao: string
+        iata?: string
+    }
 }

@@ -5,7 +5,7 @@ import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/backend/prisma';
 import { getNavigraphRedirectUri } from '~/utils/backend/navigraph';
 import { createError } from 'h3';
-import { handleH3Exception } from '~/utils/backend/h3';
+import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
 
@@ -122,6 +122,13 @@ export default defineEventHandler(async (event) => {
         });
 
         let user = await findUserByCookie(event);
+        if (!user) {
+            return handleH3Error({
+                event,
+                statusCode: 401,
+                statusMessage: 'You should be authorized via Vatsim in order to link Navigraph account',
+            });
+        }
 
         if (navigraphUser) {
             await prisma.navigraphUser.update({

@@ -2,11 +2,13 @@ import type { PartialRecord } from '~/types';
 import { ofetch } from 'ofetch';
 import { CronJob } from 'cron';
 import { radarStorage } from '~/utils/backend/storage';
-import type { GenericFeature, GenericMultiPolygonGeometry } from '@yandex/ymaps3-types/common/types/geojson';
-import type { LngLat } from '@yandex/ymaps3-types/common/types';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
+import type { Feature, MultiPolygon } from 'geojson';
 
-function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({ sections, dat }: {
+function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
+    sections,
+    dat,
+}: {
     sections: S
     dat: string
 }): {
@@ -65,9 +67,9 @@ export default defineNitroPlugin((app) => {
 
             const geojson = JSON.parse(geo) as {
                 features: Array<
-                    Omit<GenericFeature<LngLat>, 'properties' | 'geometry'> & {
+                    Omit<Feature, 'properties' | 'geometry'> & {
                     properties: Record<string, string>
-                    geometry: GenericMultiPolygonGeometry<LngLat>
+                    geometry: MultiPolygon
                 }>
             };
 
@@ -155,6 +157,7 @@ export default defineNitroPlugin((app) => {
                                 type: boundary.type,
                                 id: boundary.properties.id + index,
                                 geometry: boundary.geometry,
+                                properties: {},
                             },
                         });
                     });

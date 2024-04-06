@@ -1,6 +1,6 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { getServerVatsimLiveData, radarStorage } from '~/utils/backend/storage';
 import { validateDataReady } from '~/utils/backend/h3';
-import type { VatsimRegularData, VatsimRegularDataShort } from '~/types/data/vatsim';
+import type { VatsimLiveDataShort } from '~/types/data/vatsim';
 
 export default defineEventHandler((event) => {
     if (!validateDataReady(event)) return;
@@ -9,11 +9,11 @@ export default defineEventHandler((event) => {
     if (isShort) {
         return {
             pilots: radarStorage.vatsim.regularData!.pilots,
-            controllers: radarStorage.vatsim.regularData!.controllers,
-            atis: radarStorage.vatsim.regularData!.atis,
+            firs: radarStorage.vatsim.firs,
+            locals: radarStorage.vatsim.locals,
             prefiles: radarStorage.vatsim.regularData!.prefiles,
-        } satisfies VatsimRegularDataShort;
+        } satisfies VatsimLiveDataShort;
     }
 
-    return radarStorage.vatsim.regularData as VatsimRegularData;
+    return getServerVatsimLiveData();
 });
