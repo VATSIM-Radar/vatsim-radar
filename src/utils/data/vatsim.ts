@@ -14,8 +14,8 @@ export const useFacilitiesIds = () => {
     };
 };
 
-function findFacility(name: string) {
-    return radarStorage.vatspy.data!.firs.filter(x => x.icao === name || x.callsign === name);
+function findFacility(name: string, controller: VatsimShortenedController) {
+    return radarStorage.vatspy.data!.firs.filter(x => (x.icao === name || x.callsign === name) && (x.name.includes('Oceanic') ? true : !x.isOceanic));
 }
 
 function findUir(name: string, controller: VatsimShortenedController): VatSpyDataFeature | undefined {
@@ -24,7 +24,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
     if (!uir) return;
 
     const firs = uir.firs.split(',');
-    const uirFeatures = radarStorage.vatspy.data!.firs.filter(x => firs.includes(x.callsign ?? x.icao ?? ''));
+    const uirFeatures = radarStorage.vatspy.data!.firs.filter(x => firs.includes(x.callsign ?? x.icao ?? '') && (x.name.includes('Oceanic') ? x.isOceanic : !x.isOceanic));
     if (!uirFeatures?.length) return;
 
     return {
@@ -84,8 +84,8 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
             if (uir) return uir;
         }
 
-        let feature = findFacility(regularName);
-        if (!feature.length) feature = findFacility(firstName);
+        let feature = findFacility(regularName, atc);
+        if (!feature.length) feature = findFacility(firstName, atc);
 
         if (!feature.length) {
             let uir = findUir(regularName, atc);

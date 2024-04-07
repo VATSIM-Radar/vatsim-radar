@@ -15,7 +15,7 @@ export default defineNuxtConfig({
         server: true,
     },
     experimental: {
-        asyncContext: false,
+        asyncContext: true,
         clientFallback: false,
         defaults: {
             useAsyncData: {
@@ -77,6 +77,13 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     vite: {
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    additionalData: `@use "~/scss/colors.scss" as *;@use "~/scss/variables.scss" as *;`,
+                },
+            },
+        },
         plugins: [
             svgLoader({
                 defaultImport: 'url',

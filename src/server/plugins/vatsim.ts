@@ -42,14 +42,15 @@ export default defineNitroPlugin((app) => {
                 abort?.abort();
                 abort = new AbortController();
                 radarStorage.vatsim.data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', { signal: abort.signal });
-                radarStorage.vatsim.regularData = excludeKeys(radarStorage.vatsim.data, {
+                const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
                         server: true,
                         transponder: true,
                         qnh_mb: true,
-                        qnh_i_hb: true,
+                        qnh_i_hg: true,
                         flight_plan: true,
                         last_updated: true,
+                        logon_time: true,
                     },
                     controllers: {
                         server: true,
@@ -58,13 +59,25 @@ export default defineNitroPlugin((app) => {
                     atis: {
                         server: true,
                         last_updated: true,
-                        facility: true,
                     },
                     prefiles: {
                         flight_plan: true,
                         last_updated: true,
                     },
                 });
+
+                radarStorage.vatsim.regularData = {
+                    ...regularData,
+                    pilots: regularData.pilots.map((x) => {
+                        const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
+                        return {
+                            ...x,
+                            aircraft_faa: origPilot.flight_plan?.aircraft_faa,
+                            departure: origPilot.flight_plan?.departure,
+                            arrival: origPilot.flight_plan?.arrival,
+                        };
+                    }),
+                };
                 radarStorage.vatsim.firs = getATCBounds();
                 radarStorage.vatsim.locals = getLocalATC();
             }

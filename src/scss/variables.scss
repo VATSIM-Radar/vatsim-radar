@@ -1,0 +1,32 @@
+$defaultFont: Montserrat, Arial, sans-serif;
+$openSansFont: OpenSans, sans-serif;
+
+@mixin mobile() {
+    @media all and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin mobileOnly() {
+    @media all and (max-width: 699px) {
+        @content;
+    }
+}
+
+@mixin tablet() {
+    @media all and (min-width: 700px) and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin pc() {
+    @media all and (min-width: 1366px) {
+        @content;
+    }
+}
+
+@mixin hover() {
+    @media (any-hover: hover) and (hover: hover) {
+        @content;
+    }
+}

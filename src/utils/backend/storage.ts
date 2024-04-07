@@ -24,29 +24,37 @@ export const radarStorage = {
     },
 };
 
+export function getRadarStorage() {
+    const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
+    if (event) return event.context.radarStorage;
+    return radarStorage;
+}
+
 export function isDataReady() {
-    return !!radarStorage.vatspy && !!radarStorage.vatsim.data;
+    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data;
 }
 
 export function getDataVersions(): VatDataVersions {
     return {
-        vatspy: radarStorage.vatspy!.version,
+        vatspy: getRadarStorage().vatspy!.version,
         vatsim: {
-            data: radarStorage.vatsim.data!.general.update_timestamp,
+            data: getRadarStorage().vatsim.data!.general.update_timestamp,
         },
     };
 }
 
 export function getServerVatsimLiveData(): VatsimLiveData {
+    const storage = getRadarStorage();
+
     return {
-        general: radarStorage.vatsim.regularData!.general,
-        pilots: radarStorage.vatsim.regularData!.pilots,
-        firs: radarStorage.vatsim.firs,
-        locals: radarStorage.vatsim.locals,
-        prefiles: radarStorage.vatsim.regularData!.prefiles,
-        facilities: radarStorage.vatsim.regularData!.facilities,
-        ratings: radarStorage.vatsim.regularData!.ratings,
-        pilot_ratings: radarStorage.vatsim.regularData!.pilot_ratings,
-        military_ratings: radarStorage.vatsim.regularData!.military_ratings,
+        general: storage.vatsim.regularData!.general,
+        pilots: storage.vatsim.regularData!.pilots,
+        firs: storage.vatsim.firs,
+        locals: storage.vatsim.locals,
+        prefiles: storage.vatsim.regularData!.prefiles,
+        facilities: storage.vatsim.regularData!.facilities,
+        ratings: storage.vatsim.regularData!.ratings,
+        pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
+        military_ratings: storage.vatsim.regularData!.military_ratings,
     };
 }

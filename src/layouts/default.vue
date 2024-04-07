@@ -5,12 +5,27 @@
 </template>
 
 <script lang="ts" setup>
-import { useAsyncData } from '#app';
-import { initClientDB } from '~/utils/client-db';
+import { useStore } from '~/store';
 
-await useAsyncData(async () => {
-    if (!import.meta.client) return;
-    await initClientDB();
+const store = useStore();
+
+useHead(() => {
+    const theme = store.theme;
+    const css = Object
+        .entries({
+            ...radarColors,
+            ...(theme === 'default' ? {} : radarThemes[theme]),
+        })
+        .filter(([key]) => key.endsWith('Rgb'))
+        .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
+        .join(';');
+
+    return {
+        style: [{
+            key: 'radarStyles',
+            innerHTML: `:root {${ css }}`,
+        }],
+    };
 });
 </script>
 
@@ -19,6 +34,6 @@ html, body {
     padding: 0;
     margin: 0;
     font-family: Arial, sans-serif;
-    color: #fff;
+    color: $neutral150;
 }
 </style>

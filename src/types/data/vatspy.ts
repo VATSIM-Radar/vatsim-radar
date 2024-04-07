@@ -1,5 +1,5 @@
-import type { Feature } from 'geojson';
-import type { VatsimShortenedController, VatsimShortenedData } from '~/types/data/vatsim';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { Feature, MultiPolygon } from 'geojson';
 
 export interface VatSpyResponse {
     current_commit_hash: string;
@@ -39,7 +39,7 @@ export interface VatSpyData {
         lat: number
         region: string
         division: string
-        feature: Feature
+        feature: Feature<MultiPolygon>
     }[];
     uirs: {
         icao: string

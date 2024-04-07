@@ -1,0 +1,108 @@
+<template>
+    <div class="info-block" :class="{'info-block--button': isButton}" :style="{'--text-align': textAlign}">
+        <div class="info-block_top" v-if="$slots.top || topItems.length">
+            <template v-if="topItems.length">
+                <template v-for="(item, index) in topItems" :key="item">
+                    <div class="info-block__separator" v-if="index > 0">
+                        <ellipse-icon/>
+                    </div>
+                    <div class="info-block__content">
+                        <slot name="top" :item="item" v-if="$slots.top"/>
+                        <template v-else>
+                            {{ item }}
+                        </template>
+                    </div>
+                </template>
+            </template>
+            <div class="info-block__content" v-else>
+                <slot name="top" />
+            </div>
+        </div>
+        <div class="info-block_bottom" v-if="$slots.bottom || bottomItems.length">
+            <template v-if="bottomItems.length">
+                <template v-for="(item, index) in bottomItems" :key="item">
+                    <div class="info-block__separator" v-if="index > 0">
+                        <ellipse-icon/>
+                    </div>
+                    <div class="info-block__content">
+                        <slot name="bottom" :item="item" v-if="$slots.bottom"/>
+                        <template v-else>
+                            {{ item }}
+                        </template>
+                    </div>
+                </template>
+            </template>
+            <div class="info-block__content" v-else>
+                <slot name="bottom" />
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import type { PropType } from 'vue';
+import EllipseIcon from '@/assets/ellipse.svg?component';
+
+defineProps({
+    textAlign: {
+        type: String as PropType<'left' | 'center' | 'right'>,
+        default: 'left',
+    },
+    topItems: {
+        type: Array as PropType<string[]>,
+        default: () => [],
+    },
+    bottomItems: {
+        type: Array as PropType<string[]>,
+        default: () => [],
+    },
+    isButton: {
+        type: Boolean,
+        default: false,
+    },
+});
+</script>
+
+<style scoped lang="scss">
+.info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: $neutral950;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    transition: 0.3s;
+    text-align: var(--text-align);
+
+    @include hover {
+        &:hover {
+            background: $neutral850;
+        }
+    }
+
+    &--button {
+        background: $neutral900;
+        cursor: pointer;
+    }
+
+    &_top {
+        font-weight: 600;
+    }
+
+    &_top, &_bottom {
+        display: flex;
+        gap: 8px;
+        justify-content: space-between;
+
+        :deep(>*) {
+            width: 100%;
+        }
+    }
+
+    &__separator {
+        color: varToRgba('neutral1000', 0.5);;
+    }
+}
+</style>
