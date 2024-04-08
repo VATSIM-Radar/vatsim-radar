@@ -76,15 +76,15 @@ defineProps({
     transition: 0.3s;
     text-align: var(--text-align);
 
-    @include hover {
-        &:hover {
-            background: $neutral850;
-        }
-    }
-
     &--button {
         background: $neutral900;
         cursor: pointer;
+
+        @include hover {
+            &:hover {
+                background: $neutral850;
+            }
+        }
     }
 
     &_top {
@@ -94,15 +94,15 @@ defineProps({
     &_top, &_bottom {
         display: flex;
         gap: 8px;
-        justify-content: space-between;
-
-        :deep(>*) {
-            width: 100%;
-        }
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
 
     &__separator {
-        color: varToRgba('neutral1000', 0.5);;
+        color: varToRgba('neutral150', 0.5);
+        width: 4px;
+        min-width: 4px;
     }
 }
 </style>

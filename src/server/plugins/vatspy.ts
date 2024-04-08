@@ -4,6 +4,7 @@ import { CronJob } from 'cron';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import type { Feature, MultiPolygon } from 'geojson';
+import { fromLonLat } from 'ol/proj';
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
     sections,
@@ -146,11 +147,13 @@ export default defineNitroPlugin((app) => {
                             return x;
                         })))) as any;
 
+                        const coordinate = fromLonLat([+boundary.properties.label_lon, +boundary.properties.label_lat]);
+
                         result.firs.push({
                             ...value as Required<typeof value>,
                             isOceanic: boundary.properties.oceanic === '1',
-                            lon: +boundary.properties.label_lon,
-                            lat: +boundary.properties.label_lat,
+                            lon: coordinate[0],
+                            lat: coordinate[1],
                             region: boundary.properties.region,
                             division: boundary.properties.division,
                             feature: {

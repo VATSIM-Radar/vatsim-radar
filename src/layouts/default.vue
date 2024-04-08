@@ -36,4 +36,8 @@ html, body {
     font-family: Arial, sans-serif;
     color: $neutral150;
 }
+
+svg,img {
+    display: block;
+}
 </style>

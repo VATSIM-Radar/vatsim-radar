@@ -13,3 +13,7 @@ export const useFacilitiesNames = () => {
         CTR: dataStore.vatsim.data?.facilities.find(x => x.short === 'CTR')?.long ?? '',
     };
 };
+
+export function parseCyrillic(text: string) {
+    return decodeURIComponent(escape(text));
+}

@@ -17,13 +17,11 @@ services:
         depends_on:
             db:
                 condition: service_healthy
-        restart: always
 
     db:
         image: mysql
         cap_add:
             - SYS_NICE
-        restart: always
         environment:
             - MYSQL_ALLOW_EMPTY_PASSWORD=yes
             - MYSQL_DATABASE=radar

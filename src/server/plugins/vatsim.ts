@@ -3,6 +3,8 @@ import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getATCBounds, getLocalATC } from '~/utils/data/vatsim';
+import { fromLonLat } from 'ol/proj';
+import { fr } from 'cronstrue/dist/i18n/locales/fr';
 
 let abort: AbortController | null = null;
 
@@ -41,7 +43,16 @@ export default defineNitroPlugin((app) => {
             try {
                 abort?.abort();
                 abort = new AbortController();
-                radarStorage.vatsim.data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', { signal: abort.signal });
+                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', { signal: abort.signal });
+                if (radarStorage.vatsim.data?.general) {
+                    if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() > new Date(data.general.update_timestamp).getTime()) return;
+                }
+                radarStorage.vatsim.data = data;
+                for (const pilot of data.pilots) {
+                    const coords = fromLonLat([pilot.longitude, pilot.latitude]);
+                    pilot.longitude = coords[0];
+                    pilot.latitude = coords[1];
+                }
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
                         server: true,

@@ -97,7 +97,6 @@ import type VectorSource from 'ol/source/Vector';
 import type { Map } from 'ol';
 import { Feature, Overlay } from 'ol';
 import { Point } from 'ol/geom';
-import { fromLonLat } from 'ol/proj';
 import { Icon, Style } from 'ol/style';
 import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
 import { useDataStore } from '~/store/data';
@@ -143,7 +142,7 @@ function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
 }
 
-const getCoordinates = computed(() => fromLonLat([props.aircraft.longitude, props.aircraft.latitude]));
+const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
 const depAirport = computed(() => getAirportByIcao(props.aircraft.departure));
 const arrAirport = computed(() => getAirportByIcao(props.aircraft.arrival));
 
