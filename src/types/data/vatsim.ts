@@ -75,6 +75,8 @@ export interface VatsimPrefile {
     cid: number;
     name: string;
     callsign: string;
+    departure: string
+    arrival: string
     flight_plan: VatsimPilotFlightPlan;
     last_updated: string;
 }

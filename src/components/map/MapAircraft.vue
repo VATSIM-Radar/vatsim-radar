@@ -3,10 +3,17 @@
         <slot/>
     </template>
     <template v-else>
-        <div v-show="false" v-if="props.isHovered">
+        <map-overlay
+            class="aircraft-overlay"
+            :model-value="props.isHovered"
+            :settings="{
+                position: getCoordinates,
+                offset: [15, -15]
+            }"
+            :z-index="20"
+        >
             <div
                 class="aircraft-hover"
-                ref="hoverContainer"
                 @mouseover="hoveredOverlay = true"
                 @mouseleave="hoveredOverlay = false"
             >
@@ -32,7 +39,7 @@
                             </div>
                         </template>
                     </common-info-block>
-                    <div class="aircraft-hover__section" v-if="depAirport">
+                    <div class="aircraft-hover__section" v-if="aircraft.departure">
                         <div class="aircraft-hover__section_title">
                             From
                         </div>
@@ -40,12 +47,12 @@
                             <template #top>
                                 {{ aircraft.departure }}
                             </template>
-                            <template #bottom>
+                            <template #bottom v-if="depAirport">
                                 {{ depAirport.name }}
                             </template>
                         </common-info-block>
                     </div>
-                    <div class="aircraft-hover__section" v-if="arrAirport">
+                    <div class="aircraft-hover__section" v-if="aircraft.arrival">
                         <div class="aircraft-hover__section_title">
                             To
                         </div>
@@ -53,7 +60,7 @@
                             <template #top>
                                 {{ aircraft.arrival }}
                             </template>
-                            <template #bottom>
+                            <template #bottom v-if="arrAirport">
                                 {{ arrAirport.name }}
                             </template>
                         </common-info-block>
@@ -78,14 +85,23 @@
                     </common-info-block>
                 </div>
             </div>
-        </div>
-        <div v-show="false" v-if="showLabel">
-            <div class="aircraft-label" ref="labelContainer" @mouseover="hovered = true" @mouseleave="hovered = false">
+        </map-overlay>
+        <map-overlay
+            class="aircraft-overlay"
+            :model-value="showLabel"
+            :settings="{
+                position: getCoordinates,
+                offset: [0, 15]
+            }"
+            :z-index="19"
+            persistent
+        >
+            <div class="aircraft-label" @mouseover="hovered = true" @mouseleave="hovered = false">
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
                 </div>
             </div>
-        </div>
+        </map-overlay>
     </template>
 </template>
 
@@ -94,12 +110,10 @@ import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
-import type { Map } from 'ol';
-import { Feature, Overlay } from 'ol';
+import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { Icon, Style } from 'ol/style';
 import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
-import { useDataStore } from '~/store/data';
 import { sleep } from '~/utils';
 
 const props = defineProps({
@@ -126,17 +140,10 @@ const emit = defineEmits({
     },
 });
 
-const hoverContainer = ref<HTMLDivElement | null>();
-const labelContainer = ref<HTMLDivElement | null>();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
-const store = useDataStore();
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
-const map = inject<ShallowRef<Map | null>>('map')!;
 let feature: Feature | undefined;
-
-let hoverOverlay: Overlay | undefined;
-let labelOverlay: Overlay | undefined;
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -198,7 +205,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-watch(labelContainer, (val) => {
+watch(() => props.showLabel, (val) => {
     if (!val) {
         hovered.value = false;
     }
@@ -206,57 +213,10 @@ watch(labelContainer, (val) => {
 
 watch([computed(() => props.aircraft?.heading), getCoordinates], init);
 
-watch(computed(() => [props.showLabel, props.isHovered, store.vatsim.data!.general.update_timestamp]), async () => {
-    if (!props.showLabel && labelOverlay) {
-        map.value?.removeOverlay(labelOverlay);
-        labelOverlay = undefined;
-        return;
-    }
-
-    if (!props.isHovered && hoverOverlay) {
-        map.value?.removeOverlay(hoverOverlay);
-        hoverOverlay = undefined;
-        return;
-    }
-
-    if (!props.showLabel && !props.isHovered) return;
-    await nextTick();
-
-    if (!hoverOverlay && props.isHovered) {
-        hoverOverlay = new Overlay({
-            position: getCoordinates.value,
-            offset: [15, -15],
-            element: hoverContainer.value!,
-            className: 'ol-overlay-container ol-selectable aircraft-hover-container',
-        });
-        map.value?.addOverlay(hoverOverlay);
-    }
-
-    if (props.showLabel) {
-        if (labelOverlay) {
-            labelOverlay.setPosition(getCoordinates.value);
-        }
-        else {
-            labelOverlay = new Overlay({
-                position: getCoordinates.value,
-                offset: [0, 15],
-                element: labelContainer.value!,
-                className: 'ol-overlay-container ol-selectable aircraft-label-container',
-            });
-            map.value?.addOverlay(labelOverlay);
-        }
-    }
-}, {
-    immediate: true,
-});
-
 onBeforeUnmount(() => {
     if (feature) {
         vectorSource.value?.removeFeature(feature);
     }
-
-    if (hoverOverlay) map.value?.removeOverlay(hoverOverlay);
-    if (labelOverlay) map.value?.removeOverlay(labelOverlay);
 });
 </script>
 

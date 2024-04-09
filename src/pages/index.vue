@@ -5,6 +5,7 @@
         <template v-if="ready">
             <map-aircraft-list/>
             <map-sectors-list/>
+            <map-airports-list/>
         </template>
     </div>
 </template>
@@ -16,7 +17,7 @@ import '@@/node_modules/ol/ol.css';
 import { clientDB } from '~/utils/client-db';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import { Map, View } from 'ol';
-import { fromLonLat, Projection } from 'ol/proj';
+import { fromLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
 import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/MapSectorsList.vue';

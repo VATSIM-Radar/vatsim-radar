@@ -47,12 +47,25 @@ export default defineNitroPlugin((app) => {
                 if (radarStorage.vatsim.data?.general) {
                     if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() > new Date(data.general.update_timestamp).getTime()) return;
                 }
+
+                data.pilots = data.pilots.map((x) => {
+                    const coords = fromLonLat([x.longitude, x.latitude]);
+
+                    return {
+                        ...x,
+                        longitude: coords[0],
+                        latitude: coords[1],
+                    };
+                });
+
+                data.prefiles = data.prefiles.map(x => ({
+                    ...x,
+                    departure: x.flight_plan?.departure,
+                    arrival: x.flight_plan?.arrival,
+                }));
+
                 radarStorage.vatsim.data = data;
-                for (const pilot of data.pilots) {
-                    const coords = fromLonLat([pilot.longitude, pilot.latitude]);
-                    pilot.longitude = coords[0];
-                    pilot.latitude = coords[1];
-                }
+
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
                         server: true,

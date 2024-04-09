@@ -125,18 +125,23 @@ export default defineNitroPlugin((app) => {
 
             result.airports = parsedDat.airports
                 .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)
-                .map(value => ({
-                    ...value as Required<typeof value>,
-                    lat: +value.lat!,
-                    lon: +value.lon!,
-                    isPseudo: value.isPseudo === '1',
-                }));
+                .map((value) => {
+                    const lonlat = fromLonLat([+value.lon!, +value.lat!]);
+
+                    return {
+                        ...value as Required<typeof value>,
+                        lat: lonlat[1],
+                        lon: lonlat[0],
+                        isPseudo: value.isPseudo === '1',
+                    };
+                });
 
             result.firs = [];
             parsedDat.firs
                 .filter(value => value.icao && value.name)
                 .forEach((value) => {
-                    const boundaries = geojson.features.filter(x => x.properties?.id === (value.boundary || value.icao));
+                    let boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
+                    if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
                     if (!boundaries.length) throw new Error(`FIR didn't find it's feature in geojson (${ value.icao })`);
 
                     boundaries.forEach((boundary, index) => {

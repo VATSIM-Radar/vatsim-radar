@@ -1,8 +1,19 @@
 <template>
     <slot v-if="!controllers.length"/>
-    <div v-else v-show="false">
+    <map-overlay
+        :model-value="!!controllers.length"
+        :popup="isHovered"
+        persistent
+        v-else
+        :settings="{
+            position: [fir.lon, fir.lat],
+            positioning: 'center-center',
+        }"
+        :z-index="15"
+        :active-z-index="20"
+    >
         <!-- @todo click for touch -->
-        <div class="sector-atc" ref="atcContainer" @mouseover="isHovered = true" @mouseleave="isHovered = false">
+        <div class="sector-atc" @mouseover="$nextTick(() => isHovered = true)" @mouseleave="isHovered = false">
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
@@ -11,7 +22,9 @@
                     {{ fir.icao }}
                 </div>
             </div>
-            <div class="sector-atc_popup" v-if="isHovered">
+        </div>
+        <template #popup>
+            <div class="sector-atc_popup" v-if="isHovered" @mouseover="$nextTick(() => isHovered = true)" @mouseleave="isHovered = false">
                 <div class="sector-atc_popup_title">
                     {{ getATCFullName }}
                 </div>
@@ -37,8 +50,8 @@
                     </template>
                 </common-info-block>
             </div>
-        </div>
-    </div>
+        </template>
+    </map-overlay>
 </template>
 
 <script setup lang="ts">
@@ -46,8 +59,7 @@ import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import { useDataStore } from '~/store/data';
 import type VectorSource from 'ol/source/Vector';
-import type { Feature, Map } from 'ol';
-import { Overlay } from 'ol';
+import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import { fromLonLat } from 'ol/proj';
 import type { VatSpyData } from '~/types/data/vatspy';
@@ -62,39 +74,27 @@ const props = defineProps({
 });
 
 const dataStore = useDataStore();
-const map = inject<ShallowRef<Map | null>>('map')!;
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
-const atcContainer = ref<HTMLDivElement | null>(null);
 const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
-let controllerOverlay: Overlay | undefined;
 
 const atc = computed(() => dataStore.vatsim.data?.firs.filter(x => x.firs.some(x => x.boundaryId === props.fir.feature.id)) ?? []);
 
-const locals = computed(() => atc.value.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id)));
-const globals = computed(() => atc.value.filter(x => x.controller));
+const locals = computed(() => {
+    const filtered = atc.value.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id));
+
+    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+});
+
+const globals = computed(() => {
+    const filtered = atc.value.filter(x => x.controller);
+
+    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+});
 
 const controllers = computed(() => {
     return locals.value.length ? locals.value : globals.value;
-});
-
-watch(() => controllers.value.length, async (val) => {
-    if (!val && controllerOverlay) {
-        map.value!.removeOverlay(controllerOverlay);
-        return;
-    }
-
-    await nextTick();
-    controllerOverlay = new Overlay({
-        position: [props.fir.lon, props.fir.lat],
-        positioning: 'center-center',
-        element: atcContainer.value!,
-        className: 'ol-overlay-container ol-selectable fir-hover-container',
-    });
-    map.value!.addOverlay(controllerOverlay);
-}, {
-    immediate: true,
 });
 
 const getATCFullName = computed(() => {
@@ -169,16 +169,7 @@ const init = () => {
 onMounted(init);
 
 watch(() => props.fir.feature, init);
-watch([atc, isHovered], () => {
-    const controllerElement = atcContainer.value?.parentElement;
-    if (isHovered.value) {
-        controllerElement?.classList.add('fir-hover-container--hovered');
-    }
-    else {
-        controllerElement?.classList.remove('fir-hover-container--hovered');
-    }
-    init();
-});
+watch(atc, init);
 
 onBeforeUnmount(() => {
     if (localFeature) {
@@ -186,9 +177,6 @@ onBeforeUnmount(() => {
     }
     if (rootFeature) {
         vectorSource.value?.removeFeature(rootFeature);
-    }
-    if (controllerOverlay) {
-        map.value!.removeOverlay(controllerOverlay);
     }
 });
 </script>
