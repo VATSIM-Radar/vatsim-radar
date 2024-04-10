@@ -78,7 +78,9 @@ watch([overlay, isPopupOpen, zIndex], () => {
     }
 });
 
-watch([model, popup, computed(() => store.openOverlayId)], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
+const openOverlayId = computed(() => store.openOverlayId);
+
+watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
         overlay.value = new Overlay({
@@ -117,7 +119,9 @@ watch([model, popup, computed(() => store.openOverlayId)], async ([, popupVal], 
     immediate: true,
 });
 
-watch(() => props.settings?.position, (val) => {
+const position = computed(() => props.settings?.position);
+
+watch(position, (val) => {
     if (!val) return;
     if (overlay.value) overlay.value.setPosition(val);
 });

@@ -1,8 +1,8 @@
 <template>
-    <slot v-if="!isVisible && !locals.length"/>
+    <slot v-if="!isVisible && !localAtc.length"/>
     <template v-else>
         <map-overlay
-            v-if="locals.length"
+            v-if="localAtc.length"
             :popup="!!hoveredFacility"
             @update:popup="!$event ? hoveredFacility = false : undefined"
             :settings="{position: [airport.lon, airport.lat], positioning: 'top-left'}"
@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { PropType, ShallowRef } from 'vue';
-import type { MapAirport } from '~/types/map';
+import type { MapAircraft, MapAirport } from '~/types/map';
 import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
@@ -129,12 +129,20 @@ const props = defineProps({
         required: true,
     },
     aircrafts: {
-        type: Object as PropType<MapAirport['aircrafts']>,
+        type: Object as PropType<MapAircraft>,
         required: true,
     },
     isVisible: {
         type: Boolean,
         default: false,
+    },
+    localAtc: {
+        type: Array as PropType<VatsimShortenedController[]>,
+        required: true,
+    },
+    arrAtc: {
+        type: Array as PropType<VatsimShortenedController[]>,
+        required: true,
     },
 });
 
@@ -143,39 +151,33 @@ const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const aircraftHoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
 
-const atc = computed(() => dataStore.vatsim.data!.locals.filter(x => x.airport.icao === props.airport.icao || x.airport.icao === props.airport.iata));
-const facilities = useFacilitiesIds();
-
-const locals = computed(() => atc.value.filter(x => x.isATIS || x.atc.facility === facilities.DEL || x.atc.facility === facilities.TWR || x.atc.facility === facilities.GND));
 const localsFacilities = computed(() => {
     const facilities: {facility: number, atc: VatsimShortenedController[]}[] = [];
 
-    for (const local of locals.value) {
-        const existingFacility = facilities.find(x => x.facility === (local.isATIS ? -1 : local.atc.facility));
+    for (const local of props.localAtc) {
+        const existingFacility = facilities.find(x => x.facility === (local.atis_code ? -1 : local.facility));
         if (!existingFacility) {
             facilities.push({
-                facility: local.isATIS ? -1 : local.atc.facility,
-                atc: [local.atc],
+                facility: local.atis_code ? -1 : local.facility,
+                atc: [local],
             });
             continue;
         }
 
-        existingFacility.atc.push(local.atc);
+        existingFacility.atc.push(local);
     }
 
     return sortControllersByPosition(facilities);
 });
 
-const arrAtc = computed(() => atc.value.filter(x => !x.isATIS && x.atc.facility === facilities.APP));
-
 const hoveredAirplanes = computed(() => {
     switch (aircraftHoveredType.value) {
         case 'groundDep':
-            return dataStore.vatsim.data!.pilots.filter(x => props.aircrafts?.groundDep?.includes(x.cid));
+            return props.aircrafts?.groundDep ?? [];
         case 'groundArr':
-            return dataStore.vatsim.data!.pilots.filter(x => props.aircrafts?.groundArr?.includes(x.cid));
+            return props.aircrafts?.groundArr ?? [];
         case 'prefiles':
-            return dataStore.vatsim.data!.prefiles.filter(x => props.aircrafts?.prefiles?.includes(x.cid));
+            return props.aircrafts?.prefiles ?? [];
     }
 
     return [];
@@ -184,15 +186,42 @@ const hoveredAirplanes = computed(() => {
 let feature: Feature | null = null;
 let arrFeature: Feature | null = null;
 
+function initAirport() {
+    feature = new Feature({
+        geometry: new Point([props.airport.lon, props.airport.lat]),
+    });
+
+    feature.setStyle(new Style({
+        text: new Text({
+            font: '12px Arial',
+            text: props.airport.icao,
+            fill: new Fill({
+                color: 'rgba(230, 230, 235, 0.8)',
+            }),
+        }),
+    }));
+
+    vectorSource.value?.addFeature(feature);
+}
+
 onMounted(() => {
-    watch(() => arrAtc.value.length, (val) => {
-        if (!val) {
-            if (arrFeature) {
-                vectorSource.value?.removeFeature(arrFeature);
-                arrFeature.dispose();
-            }
-            return;
+    const atcLength = computed(() => props.localAtc.length);
+
+    watch(atcLength, (val) => {
+        if (!val && arrFeature) {
+            vectorSource.value?.removeFeature(arrFeature);
+            arrFeature.dispose();
         }
+
+        if (!val && !feature) {
+            return initAirport();
+        }
+        else if (val && feature) {
+            vectorSource.value?.removeFeature(feature);
+            feature.dispose();
+        }
+
+        if (arrFeature) return;
 
         arrFeature = new Feature({
             geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
@@ -218,22 +247,6 @@ onMounted(() => {
     }, {
         immediate: true,
     });
-
-    feature = new Feature({
-        geometry: new Point([props.airport.lon, props.airport.lat]),
-    });
-
-    feature.setStyle(new Style({
-        text: new Text({
-            font: '12px Arial',
-            text: props.airport.icao,
-            fill: new Fill({
-                color: 'rgba(230, 230, 235, 0.8)',
-            }),
-        }),
-    }));
-
-    vectorSource.value?.addFeature(feature);
 });
 
 onBeforeUnmount(() => {

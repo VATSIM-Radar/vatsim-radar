@@ -1,10 +1,12 @@
 <template>
     <map-airport
-        v-for="{airport, aircrafts} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
+        v-for="{airport, aircrafts, localAtc, arrAtc} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
         :key="airport.icao"
         :airport="airport"
         :aircrafts="aircrafts"
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
+        :local-atc="localAtc"
+        :arr-atc="arrAtc"
     />
 </template>
 
@@ -14,8 +16,11 @@ import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
-import { isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useStore } from '~/store';
+import type { MapAircraft  } from '~/types/map';
+
+import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -50,21 +55,68 @@ watch(map, (val) => {
     }
 
     val.addLayer(vectorLayer);
-    val.on('moveend', setVisibleAirports);
 }, {
     immediate: true,
 });
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
-    map.value?.un('moveend', setVisibleAirports);
 });
 
 const getAirportsList = computed(() => {
-    return dataStore.vatsim.data?.airports.map(x => ({
-        aircrafts: x.aircrafts,
+    const facilities = useFacilitiesIds();
+    const airports = dataStore.vatsim.data?.airports.map(x => ({
+        aircrafts: {} as MapAircraft,
+        aircraftsList: x.aircrafts,
+        aircraftsCids: Object.values(x.aircrafts).flatMap(x => x),
         airport: dataStore.vatspy!.data.airports.find(y => y.icao === x.icao)!,
-    })).filter(x => x.airport) ?? [];
+        localAtc: [] as VatsimShortenedController[],
+        arrAtc: [] as VatsimShortenedController[],
+    })).filter(x => x.airport && x.aircraftsCids.length) ?? [];
+
+    for (const pilot of dataStore.vatsim.data!.pilots) {
+        const airport = airports.find(x => x.aircraftsCids.includes(pilot.cid));
+        if (!airport) continue;
+
+        if (airport.aircraftsList.departures?.includes(pilot.cid) && !airport.aircrafts.departures) airport.aircrafts.departures = true;
+        if (airport.aircraftsList.arrivals?.includes(pilot.cid) && !airport.aircrafts.arrivals) airport.aircrafts.arrivals = true;
+
+        if (airport.aircraftsList.groundArr?.includes(pilot.cid)) {
+            if (!airport.aircrafts.groundArr) airport.aircrafts.groundArr = [pilot];
+            else (airport.aircrafts.groundArr as VatsimShortenedAircraft[]).push(pilot);
+        }
+
+        if (airport.aircraftsList.groundDep?.includes(pilot.cid)) {
+            if (!airport.aircrafts.groundDep) airport.aircrafts.groundDep = [pilot];
+            else (airport.aircrafts.groundDep as VatsimShortenedAircraft[]).push(pilot);
+        }
+    }
+
+    for (const pilot of dataStore.vatsim.data!.prefiles) {
+        const airport = airports.find(x => x.aircraftsCids.includes(pilot.cid));
+        if (!airport) continue;
+
+        if (airport.aircraftsList.prefiles?.includes(pilot.cid)) {
+            if (!airport.aircrafts.prefiles) airport.aircrafts.prefiles = [pilot];
+            else (airport.aircrafts.prefiles as VatsimShortenedPrefile[]).push(pilot);
+        }
+    }
+
+    for (const atc of dataStore.vatsim.data!.locals) {
+        const airport = airports.find(x => (x.airport.iata && x.airport.iata === atc.airport.iata) || x.airport.icao === atc.airport.icao);
+        if (!airport) continue;
+
+        const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
+        if (isArr) {
+            airport.arrAtc.push(atc.atc);
+            continue;
+        }
+
+        const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
+        if (isLocal) airport.localAtc.push(atc.atc);
+    }
+
+    return airports;
 });
 
 function setVisibleAirports() {
@@ -83,7 +135,11 @@ function setVisibleAirports() {
     visibleAirports.value = airports.map(x => x.airport.icao);
 }
 
-watch(() => dataStore.vatsim.data?.general.update_timestamp, () => {
+attachMoveEnd(setVisibleAirports);
+
+const timestamp = computed(() => dataStore.vatsim.data?.general.update_timestamp);
+
+watch(timestamp, () => {
     setVisibleAirports();
 }, {
     immediate: true,

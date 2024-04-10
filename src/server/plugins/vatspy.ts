@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromLonLat } from 'ol/proj';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 1,
+    'v2403.1': 7,
 };
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
@@ -72,11 +72,7 @@ export default defineNitroPlugin((app) => {
             ]);
 
             const geojson = JSON.parse(geo) as {
-                features: Array<
-                    Omit<Feature, 'properties' | 'geometry'> & {
-                    properties: Record<string, string>
-                    geometry: MultiPolygon
-                }>
+                features: Feature<MultiPolygon>[]
             };
 
             const result = {} as VatSpyData;
@@ -157,18 +153,18 @@ export default defineNitroPlugin((app) => {
                             return x;
                         })))) as any;
 
-                        const coordinate = fromLonLat([+boundary.properties.label_lon, +boundary.properties.label_lat]);
+                        const coordinate = fromLonLat([+boundary.properties!.label_lon, +boundary.properties!.label_lat]);
 
                         result.firs.push({
                             ...value as Required<typeof value>,
-                            isOceanic: boundary.properties.oceanic === '1',
+                            isOceanic: boundary.properties!.oceanic === '1',
                             lon: coordinate[0],
                             lat: coordinate[1],
-                            region: boundary.properties.region,
-                            division: boundary.properties.division,
+                            region: boundary.properties!.region,
+                            division: boundary.properties!.division,
                             feature: {
                                 type: boundary.type,
-                                id: boundary.properties.id + index,
+                                id: boundary.properties!.id + index,
                                 geometry: boundary.geometry,
                                 properties: {},
                             },

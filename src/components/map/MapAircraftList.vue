@@ -19,7 +19,7 @@ import { useDataStore } from '~/store/data';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
@@ -69,8 +69,9 @@ function setVisiblePilots() {
     }) ?? [];
 }
 
-watch(() => dataStore.vatsim.data?.general.update_timestamp, () => {
-    setVisiblePilots();
+const timestamp = computed(() => dataStore.vatsim.data?.general.update_timestamp);
+
+watch(timestamp, () => {
     handleMoveEnd();
 }, {
     immediate: true,
@@ -113,6 +114,8 @@ function handleMoveEnd() {
     showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)).length === 1).map(x => x.cid);
 }
 
+attachMoveEnd(handleMoveEnd);
+
 watch(map, (val) => {
     if (!val) return;
 
@@ -142,8 +145,6 @@ watch(map, (val) => {
 
     //TODO: turn this off on non-PC devices
     //val.on('pointermove', handlePointerMove);
-
-    val.on('moveend', handleMoveEnd);
 }, {
     immediate: true,
 });
@@ -151,6 +152,5 @@ watch(map, (val) => {
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     map.value?.un('pointermove', handlePointerMove);
-    map.value?.on('moveend', handleMoveEnd);
 });
 </script>

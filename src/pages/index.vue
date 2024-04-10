@@ -5,7 +5,7 @@
         <template v-if="ready">
             <map-aircraft-list/>
             <map-sectors-list/>
-            <map-airports-list/>
+            <map-airports-list />
         </template>
     </div>
 </template>
@@ -52,11 +52,27 @@ onMounted(async () => {
         dataStore.versions = await $fetch('/data/versions');
     }
 
+    const view = new View({
+        center: fromLonLat([37.617633, 55.755820]),
+        zoom: 2,
+        multiWorld: false,
+    });
+
     await Promise.all([
         (async function () {
             let vatspy = await clientDB.get('vatspy', 'index');
             if (!vatspy || vatspy.version !== dataStore.versions!.vatspy) {
                 vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
+                vatspy.data.firs = vatspy.data.firs.map(x => ({
+                    ...x,
+                    feature: {
+                        ...x.feature,
+                        geometry: {
+                            ...x.feature.geometry,
+                            coordinates: x.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x, view.getProjection())))),
+                        },
+                    },
+                }));
                 await clientDB.put('vatspy', vatspy, 'index');
             }
 
@@ -67,25 +83,29 @@ onMounted(async () => {
             const [vatsimData] = await Promise.all([
                 $fetch<VatsimLiveData>('/data/vatsim/data'),
             ]);
-            dataStore.vatsim.data = shallowReactive(vatsimData);
+            dataStore.vatsim.data = vatsimData;
         }()),
     ]);
 
     interval = setInterval(async () => {
-        dataStore.versions = await $fetch('/data/versions');
-        if (dataStore.versions?.vatsim.data !== dataStore.vatsim.data?.general.update_timestamp) {
-            dataStore.vatsim.data = Object.assign(dataStore.vatsim.data ?? {}, await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`));
-            dataStore.vatsim.data.general.update_timestamp = dataStore.versions!.vatsim.data;
+        const versions = await $fetch('/data/versions');
+
+        if (versions && versions.vatsim.data !== dataStore.vatsim.data?.general.update_timestamp) {
+            dataStore.versions = versions;
+
+            if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
+
+            const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`);
+            for (const key in data) {
+                //@ts-ignore
+                dataStore.vatsim.data[key] = data[key];
+            }
+
+            dataStore.vatsim.data!.general.update_timestamp = dataStore.versions!.vatsim.data;
         }
     }, 3000);
 
     ready.value = true;
-
-    const view = new View({
-        center: fromLonLat([37.617633, 55.755820]),
-        zoom: 2,
-        multiWorld: false,
-    });
 
     map.value = new Map({
         target: mapContainer.value!,

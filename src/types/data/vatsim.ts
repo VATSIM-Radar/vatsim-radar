@@ -115,6 +115,7 @@ export type VatsimShortenedData = {
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
 
 export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0]
+export type VatsimShortenedPrefile = VatsimShortenedData['prefiles'][0]
 export type VatsimShortenedController = VatsimShortenedData['atis'][0]
 
 export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {

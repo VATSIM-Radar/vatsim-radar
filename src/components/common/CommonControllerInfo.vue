@@ -196,6 +196,7 @@ const getATCTime = (controller: VatsimShortenedController) => {
             gap: 4px;
             font-weight: 300;
             width: 100%;
+            margin-top: 4px;
         }
     }
 }

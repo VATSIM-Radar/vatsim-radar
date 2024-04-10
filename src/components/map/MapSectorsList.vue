@@ -1,8 +1,9 @@
 <template>
     <map-sector
-        v-for="(sector, index) in dataStore.vatspy?.data.firs"
-        :key="sector.feature.id as string + index"
-        :fir="sector"
+        v-for="(sector, index) in firs"
+        :key="sector.fir.feature.id as string + index"
+        :fir="sector.fir"
+        :atc="sector.atc"
     />
 </template>
 
@@ -19,6 +20,14 @@ const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
+
+const firs = computed(() => {
+    const list = dataStore.vatspy!.data.firs;
+    return list.map(fir => ({
+        fir,
+        atc: dataStore.vatsim.data?.firs.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id)) ?? [],
+    }));
+});
 
 watch(map, (val) => {
     if (!val) return;

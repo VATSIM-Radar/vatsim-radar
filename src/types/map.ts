@@ -1,3 +1,6 @@
+import type { PartialRecord } from '~/types/index';
+import type { VatsimShortenedPrefile } from '~/types/data/vatsim';
+
 export interface MapAirport {
     icao: string;
     aircrafts: Partial<{
@@ -8,3 +11,5 @@ export interface MapAirport {
         arrivals: number[]
     }>
 }
+
+export type MapAircraft = PartialRecord<keyof Pick<MapAirport['aircrafts'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]> & PartialRecord<keyof Pick<MapAirport['aircrafts'], 'departures' | 'arrivals'>, boolean>

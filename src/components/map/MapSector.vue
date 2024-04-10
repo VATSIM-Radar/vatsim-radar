@@ -1,7 +1,7 @@
 <template>
     <slot v-if="!controllers.length"/>
     <map-overlay
-        :model-value="!!controllers.length"
+        model-value
         :popup="isHovered"
         @update:overlay="!$event ? isHovered = false : undefined"
         persistent
@@ -42,12 +42,16 @@ import { useDataStore } from '~/store/data';
 import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
+import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { fromLonLat } from 'ol/proj';
-import type { VatSpyData } from '~/types/data/vatspy';
 
 const props = defineProps({
     fir: {
         type: Object as PropType<VatSpyData['firs'][0]>,
+        required: true,
+    },
+    atc: {
+        type: Array as PropType<VatSpyDataFeature[]>,
         required: true,
     },
 });
@@ -58,16 +62,14 @@ const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
-const atc = computed(() => dataStore.vatsim.data?.firs.filter(x => x.firs.some(x => x.boundaryId === props.fir.feature.id)) ?? []);
-
 const locals = computed(() => {
-    const filtered = atc.value.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id));
+    const filtered = props.atc.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id));
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });
 
 const globals = computed(() => {
-    const filtered = atc.value.filter(x => x.controller);
+    const filtered = props.atc.filter(x => x.controller);
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });
@@ -83,27 +85,19 @@ const getATCFullName = computed(() => {
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 
+const geoJson = new GeoJSON();
+
 const init = () => {
     if (!vectorSource.value) return;
 
     const localFeatureType = isHovered.value ? 'hovered' : (locals.value.length && !globals.value.length) ? 'local' : 'default';
     const rootFeatureType = isHovered.value ? 'hovered' : 'root';
 
-    const geoJson = new GeoJSON();
-
-    const featureWithXY = {
-        ...props.fir.feature,
-        geometry: {
-            ...props.fir.feature.geometry,
-            coordinates: props.fir.feature?.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x)))),
-        },
-    };
-
     if (!localFeature) {
         localFeature = geoJson.readFeature({
-            ...featureWithXY,
+            ...props.fir.feature,
             properties: {
-                ...(featureWithXY.properties ?? {}),
+                ...(props.fir.feature.properties ?? {}),
                 type: localFeatureType,
             },
         });
@@ -118,10 +112,10 @@ const init = () => {
 
     if (!rootFeature && globals.value.length) {
         rootFeature = geoJson.readFeature({
-            ...featureWithXY,
-            id: `${ featureWithXY.id }-root`,
+            ...props.fir.feature,
+            id: `${ props.fir.feature.id }-root`,
             properties: {
-                ...(featureWithXY.properties ?? {}),
+                ...(props.fir.feature.properties ?? {}),
                 type: rootFeatureType,
             },
         });
@@ -141,9 +135,7 @@ const init = () => {
 
 onMounted(init);
 
-const featureComputed = computed(() => props.fir?.feature);
-
-watch([atc, featureComputed, isHovered], init);
+watch([() => props.atc, isHovered], init);
 
 onBeforeUnmount(() => {
     if (localFeature) {

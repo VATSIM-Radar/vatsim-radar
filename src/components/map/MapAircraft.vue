@@ -206,7 +206,9 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-watch(() => props.showLabel, (val) => {
+const showLabel = computed(() => props.showLabel);
+
+watch(showLabel, (val) => {
     if (!val) {
         hovered.value = false;
     }
