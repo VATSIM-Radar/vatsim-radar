@@ -5,6 +5,7 @@ export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
 
     return {
+        ATIS: -1,
         OBS: dataStore.vatsim.data?.facilities.find(x => x.short === 'OBS')?.id ?? -1,
         FSS: dataStore.vatsim.data?.facilities.find(x => x.short === 'FSS')?.id ?? -1,
         DEL: dataStore.vatsim.data?.facilities.find(x => x.short === 'DEL')?.id ?? -1,
@@ -37,17 +38,18 @@ export function getControllerPositionColor(controller: VatsimShortenedController
     return radarColors.neutral800;
 }
 
-export function sortControllersByPosition(controllers: VatsimShortenedController[]): VatsimShortenedController[] {
+export function sortControllersByPosition<T extends {facility: number, [key: string]: any}>(facilities: T[]): T[] {
     const ids = useFacilitiesIds();
 
     const getPositionIndex = (position: number) => {
         if (position === ids.DEL) return 0;
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
+        if (position === ids.ATIS) return 3;
         return 3;
     };
 
-    return controllers.slice().sort((a, b) => {
-        return getPositionIndex(a.facility) > getPositionIndex(b.facility) ? -1 : 1;
+    return facilities.slice().sort((a, b) => {
+        return getPositionIndex(a.facility) > getPositionIndex(b.facility) ? 1 : -1;
     });
 }

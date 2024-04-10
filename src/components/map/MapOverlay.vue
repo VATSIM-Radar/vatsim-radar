@@ -78,10 +78,11 @@ watch([overlay, isPopupOpen, zIndex], () => {
     }
 });
 
-watch([model, popup, computed(() => store.openOverlayId)], async (_, [,, oldOverlayId]) => {
+watch([model, popup, computed(() => store.openOverlayId)], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
         overlay.value = new Overlay({
+            stopEvent: false,
             ...props.settings,
             element: overlayElement.value!,
         });
@@ -103,8 +104,11 @@ watch([model, popup, computed(() => store.openOverlayId)], async (_, [,, oldOver
         return;
     }
 
-    if (popup.value && oldOverlayId !== popupId) {
+    if (!oldPopupVal && popupVal && oldOverlayId !== popupId) {
         store.openOverlayId = popupId;
+    }
+    else if (popup.value && store.openOverlayId !== popupId) {
+        popup.value = false;
     }
     else if (!popup.value && store.openOverlayId === popupId) {
         store.openOverlayId = null;

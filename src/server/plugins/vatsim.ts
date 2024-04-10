@@ -58,7 +58,7 @@ export default defineNitroPlugin((app) => {
                     };
                 }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
 
-                data.prefiles = data.prefiles.filter((x, index) => !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
+                data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;
 

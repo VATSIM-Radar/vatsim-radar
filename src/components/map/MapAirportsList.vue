@@ -1,5 +1,11 @@
 <template>
-    <map-airport v-for="{airport, aircrafts} in getAirportsList" :key="airport.icao" :airport="airport" :aircrafts="aircrafts" :is-visible="visibleAirports.includes(airport.icao)"/>
+    <map-airport
+        v-for="{airport, aircrafts} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
+        :key="airport.icao"
+        :airport="airport"
+        :aircrafts="aircrafts"
+        :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
+    />
 </template>
 
 <script setup lang="ts">
@@ -9,6 +15,7 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { isPointInExtent } from '~/composables';
+import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -61,13 +68,18 @@ const getAirportsList = computed(() => {
 });
 
 function setVisibleAirports() {
-    let airports = getAirportsList.value.filter((x) => {
+    const extent = useStore().extent.slice();
+    extent[0] -= 5000;
+    extent[1] -= 5000;
+    extent[2] += 5000;
+    extent[3] += 5000;
+
+    const airports = getAirportsList.value.filter((x) => {
         const coordinates = [x.airport.lon, x.airport.lat];
 
-        return isPointInExtent(coordinates);
+        return isPointInExtent(coordinates, extent);
     }) ?? [];
 
-    if (airports.length > 100) airports = [];
     visibleAirports.value = airports.map(x => x.airport.icao);
 }
 

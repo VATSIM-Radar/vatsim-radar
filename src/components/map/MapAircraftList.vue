@@ -141,7 +141,7 @@ watch(map, (val) => {
     val.addLayer(vectorLayer);
 
     //TODO: turn this off on non-PC devices
-    val.on('pointermove', handlePointerMove);
+    //val.on('pointermove', handlePointerMove);
 
     val.on('moveend', handleMoveEnd);
 }, {

@@ -166,7 +166,12 @@ export function getAirportsList() {
             }
 
             if (pilot.flight_plan.arrival) {
-                if (pilot.flight_plan.arrival === pilot.flight_plan.departure && statuses[0]) statuses[1] = statuses[0];
+                if (pilot.flight_plan.arrival === pilot.flight_plan.departure && statuses[0]) {
+                    statuses[1] = {
+                        airport: statuses[0].airport,
+                        status: 'arrivals',
+                    };
+                }
                 else {
                     const arrivalAirport = dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
 

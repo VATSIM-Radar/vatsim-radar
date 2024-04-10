@@ -1,28 +1,76 @@
 <template>
-    <slot v-if="!isVisible"/>
+    <slot v-if="!isVisible && !locals.length"/>
     <template v-else>
-        <map-overlay v-if="aircrafts.groundDep?.length || aircrafts.groundArr?.length || aircrafts.prefiles?.length" :settings="{position: [airport.lon, airport.lat], offset: [50,0], positioning: 'center-right'}" persistent :z-index="hoveredType ? 21 : 15">
-            <div class="airport-counts" @mouseleave="hoveredType = null">
-                <div class="airport-counts_item airport-counts_item--groundDep" v-if="aircrafts.groundDep?.length" @mouseover="$nextTick(() => hoveredType = 'groundDep')">
+        <map-overlay
+            v-if="locals.length"
+            :popup="!!hoveredFacility"
+            @update:popup="!$event ? hoveredFacility = false : undefined"
+            :settings="{position: [airport.lon, airport.lat], positioning: 'top-left'}"
+            persistent
+            :z-index="15"
+            :active-z-index="21"
+        >
+            <div class="airport">
+                <div class="airport_title">
+                    {{ airport.icao }}
+                </div>
+                <div class="airport_facilities">
+                    <div
+                        class="airport_facilities_facility"
+                        v-for="local in localsFacilities"
+                        :key="local.facility"
+                        :style="{background: getControllerPositionColor(local.atc[0])}"
+                    >
+                        {{ local.facility === -1 ? 'A' : dataStore.vatsim.data?.facilities.find(x => x.id === local.facility)?.short.slice(0,1) }}
+                    </div>
+                </div>
+            </div>
+        </map-overlay>
+        <map-overlay
+            v-else-if="isVisible && (aircrafts.groundDep?.length || aircrafts.groundArr?.length || aircrafts.prefiles?.length)"
+            :popup="!!aircraftHoveredType"
+            @update:popup="!$event ? aircraftHoveredType = null : undefined"
+            :settings="{position: [airport.lon, airport.lat], offset: [50,0], positioning: 'center-right'}"
+            persistent
+            :z-index="15"
+            :active-z-index="21"
+        >
+            <div class="airport-counts" @mouseleave="aircraftHoveredType = null">
+                <div
+                    class="airport-counts_item airport-counts_item--groundDep"
+                    v-if="aircrafts.groundDep?.length"
+                    @mouseover="$nextTick(() => aircraftHoveredType = 'groundDep')"
+                >
                     {{ aircrafts.groundDep.length }}
                 </div>
-                <div class="airport-counts_item airport-counts_item--prefiles" v-if="aircrafts.prefiles?.length" @mouseover="$nextTick(() => hoveredType = 'prefiles')">
+                <div
+                    class="airport-counts_item airport-counts_item--prefiles"
+                    v-if="aircrafts.prefiles?.length"
+                    @mouseover="$nextTick(() => aircraftHoveredType = 'prefiles')"
+                >
                     {{ aircrafts.prefiles.length }}
                 </div>
-                <div class="airport-counts_item airport-counts_item--groundArr" v-if="aircrafts.groundArr?.length" @mouseover="$nextTick(() => hoveredType = 'groundArr')">
+                <div
+                    class="airport-counts_item airport-counts_item--groundArr"
+                    v-if="aircrafts.groundArr?.length"
+                    @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
+                >
                     {{ aircrafts.groundArr.length }}
                 </div>
                 <common-popup-block class="airport-counts__airplanes" v-if="hoveredAirplanes.length">
                     <template #title>
-                        <div class="airport-counts__airplanes_title" :class="[`airport-counts__airplanes_title--${hoveredType}`]">
+                        <div
+                            class="airport-counts__airplanes_title"
+                            :class="[`airport-counts__airplanes_title--${aircraftHoveredType}`]"
+                        >
                             {{ airport.icao }}
-                            <template v-if="hoveredType === 'groundDep'">
+                            <template v-if="aircraftHoveredType === 'groundDep'">
                                 Departures
                             </template>
-                            <template v-else-if="hoveredType === 'groundArr'">
+                            <template v-else-if="aircraftHoveredType === 'groundArr'">
                                 Arrivals
                             </template>
-                            <template v-else-if="hoveredType === 'prefiles'">
+                            <template v-else-if="aircraftHoveredType === 'prefiles'">
                                 Prefiles
                             </template>
                         </div>
@@ -67,9 +115,13 @@ import type { PropType, ShallowRef } from 'vue';
 import type { MapAirport } from '~/types/map';
 import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
-import { Point } from 'ol/geom';
-import { Fill, Style, Text } from 'ol/style';
+import { Circle, Point } from 'ol/geom';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import { useDataStore } from '~/store/data';
+import { fromCircle } from 'ol/geom/Polygon';
+import { toRadians } from 'ol/math';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import { sortControllersByPosition } from '~/composables/atc';
 
 const props = defineProps({
     airport: {
@@ -88,9 +140,36 @@ const props = defineProps({
 
 const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
-const hoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
+const aircraftHoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
+const hoveredFacility = ref<boolean | number>(false);
+
+const atc = computed(() => dataStore.vatsim.data!.locals.filter(x => x.airport.icao === props.airport.icao || x.airport.icao === props.airport.iata));
+const facilities = useFacilitiesIds();
+
+const locals = computed(() => atc.value.filter(x => x.isATIS || x.atc.facility === facilities.DEL || x.atc.facility === facilities.TWR || x.atc.facility === facilities.GND));
+const localsFacilities = computed(() => {
+    const facilities: {facility: number, atc: VatsimShortenedController[]}[] = [];
+
+    for (const local of locals.value) {
+        const existingFacility = facilities.find(x => x.facility === (local.isATIS ? -1 : local.atc.facility));
+        if (!existingFacility) {
+            facilities.push({
+                facility: local.isATIS ? -1 : local.atc.facility,
+                atc: [local.atc],
+            });
+            continue;
+        }
+
+        existingFacility.atc.push(local.atc);
+    }
+
+    return sortControllersByPosition(facilities);
+});
+
+const arrAtc = computed(() => atc.value.filter(x => !x.isATIS && x.atc.facility === facilities.APP));
+
 const hoveredAirplanes = computed(() => {
-    switch (hoveredType.value) {
+    switch (aircraftHoveredType.value) {
         case 'groundDep':
             return dataStore.vatsim.data!.pilots.filter(x => props.aircrafts?.groundDep?.includes(x.cid));
         case 'groundArr':
@@ -101,9 +180,45 @@ const hoveredAirplanes = computed(() => {
 
     return [];
 });
+
 let feature: Feature | null = null;
+let arrFeature: Feature | null = null;
 
 onMounted(() => {
+    watch(() => arrAtc.value.length, (val) => {
+        if (!val) {
+            if (arrFeature) {
+                vectorSource.value?.removeFeature(arrFeature);
+                arrFeature.dispose();
+            }
+            return;
+        }
+
+        arrFeature = new Feature({
+            geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+        });
+        arrFeature.setStyle(new Style({
+            stroke: new Stroke({
+                color: '#3B6CEC',
+                width: 2,
+            }),
+            text: new Text({
+                font: 'bold 14px Arial',
+                text: props.airport.icao,
+                placement: 'line',
+                offsetY: -10,
+                textAlign: 'center',
+                maxAngle: toRadians(20),
+                fill: new Fill({
+                    color: '#3B6CEC',
+                }),
+            }),
+        }));
+        vectorSource.value?.addFeature(arrFeature);
+    }, {
+        immediate: true,
+    });
+
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat]),
     });
@@ -125,6 +240,11 @@ onBeforeUnmount(() => {
     if (feature) {
         vectorSource.value?.removeFeature(feature);
         feature.dispose();
+    }
+
+    if (arrFeature) {
+        vectorSource.value?.removeFeature(arrFeature);
+        arrFeature.dispose();
     }
 });
 </script>
@@ -213,6 +333,48 @@ onBeforeUnmount(() => {
             display: flex;
             flex-direction: column;
             gap: 4px;
+        }
+    }
+}
+
+.airport {
+background: varToRgba('neutral800', 0.5);
+    color: $neutral150;
+    padding: 4px;
+    border-radius: 4px;
+    font-size: 11px;
+    text-align: center;
+    cursor: initial;
+
+    &_title {
+        cursor: pointer;
+    }
+
+    &_facilities {
+        display: flex;
+        justify-content: center;
+        margin-top: 4px;
+        font-weight: 600;
+        color: $neutral0;
+
+        &_facility {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+
+            &:first-child {
+                border-radius: 4px 0 0 4px;
+            }
+            &:last-child {
+                border-radius: 0 4px 4px 0;
+            }
+
+            &:only-child {
+                border-radius: 4px;
+            }
         }
     }
 }
