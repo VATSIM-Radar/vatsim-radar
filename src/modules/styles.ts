@@ -6,11 +6,13 @@ export const colorsList = {
     neutral950: '#F2F2F7',
     neutral900: '#EDEDF2',
     neutral850: '#E6E6EB',
+    neutral800: '#D3D3E5',
 
     neutral0: '#131316',
     neutral50: '#18181B',
     neutral100: '#202024',
     neutral150: '#252528',
+    neutral200: '#333340',
 
     primary400: '#5987FF',
     primary500: '#3B6CEC',
@@ -18,6 +20,7 @@ export const colorsList = {
 
     success500: '#008856',
     warning500: '#E8CA4C',
+    warning600: '#F2BA49',
     error500: '#CB421C',
 };
 
@@ -29,11 +32,13 @@ export const themesList = {
         neutral50: '#F2F2F7',
         neutral100: '#EDEDF2',
         neutral150: '#E6E6EB',
+        neutral200: '#D3D3E5',
 
         neutral1000: '#131316',
         neutral950: '#18181B',
         neutral900: '#202024',
         neutral850: '#252528',
+        neutral800: '#333340',
     },
 } satisfies Record<string, PartialRecord<ColorsList, string>>;
 
@@ -70,7 +75,7 @@ export default defineNuxtModule((_, nuxt) => {
             const rgbString = rgb.join(', ');
 
             if (i === 0) {
-                variables[color] = `rgb(var(--${ color }), ${ rgbString }))`;
+                variables[color] = `rgb(var(--${ color }, ${ rgbString }))`;
                 variables[`${ color }Rgb`] = rgb;
                 variables[`${ color }Hex`] = value;
 
@@ -79,7 +84,7 @@ export default defineNuxtModule((_, nuxt) => {
                     if (!themes[theme][color] && colors[color]) {
                         const rgb = colorToRgb(colors[color]!);
                         const rgbString = rgb.join(', ');
-                        themes[theme][color] = `rgb(var(--${ color }), ${ rgbString }))`;
+                        themes[theme][color] = `rgb(var(--${ color }, ${ rgbString }))`;
                         variables[`${ color }Rgb`] = rgb;
                         variables[`${ color }Hex`] = value;
                     }

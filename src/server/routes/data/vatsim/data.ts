@@ -12,6 +12,7 @@ export default defineEventHandler((event) => {
             firs: radarStorage.vatsim.firs,
             locals: radarStorage.vatsim.locals,
             prefiles: radarStorage.vatsim.regularData!.prefiles,
+            airports: radarStorage.vatsim.airports,
         } satisfies VatsimLiveDataShort;
     }
 

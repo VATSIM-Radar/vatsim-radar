@@ -62,7 +62,11 @@ const isPopupOpen = computed(() => {
     return store.openOverlayId === popupId;
 });
 
-watch([overlay, isPopupOpen], () => {
+const zIndex = computed(() => {
+    return props.zIndex;
+});
+
+watch([overlay, isPopupOpen, zIndex], () => {
     const element = overlayElement.value?.parentElement;
     if (!element || !props.zIndex) return;
 
@@ -95,6 +99,7 @@ watch([model, popup, computed(() => store.openOverlayId)], async (_, [,, oldOver
         map.value!.removeOverlay(overlay.value);
         overlay.value.dispose();
         overlay.value = null;
+        if (store.openOverlayId === id) store.openOverlayId = null;
         return;
     }
 
@@ -118,8 +123,8 @@ onBeforeUnmount(() => {
         map.value!.removeOverlay(overlay.value);
         overlay.value.dispose();
         overlay.value = null;
-
-        if (store.openOverlayId === overlay.value) store.openOverlayId = null;
     }
+
+    if (store.openOverlayId === id) store.openOverlayId = null;
 });
 </script>

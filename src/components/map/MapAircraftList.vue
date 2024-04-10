@@ -20,19 +20,23 @@ import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { isPointInExtent } from '~/composables';
+import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
+const store = useStore();
 const dataStore = useDataStore();
 
 const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref(false);
 const showAircraftLabel = ref<number[]>([]);
 
-function getPilotsForPixel(pixel: Pixel, tolerance = 15) {
+function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = false) {
     const overlaysCoordinates: number[][] = [];
+
+    if (exitOnAnyOverlay && store.openOverlayId && !store.openPilotOverlay) return [];
 
     map.value!.getOverlays().forEach((overlay) => {
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
@@ -75,7 +79,7 @@ watch(() => dataStore.vatsim.data?.general.update_timestamp, () => {
 function handlePointerMove(e: MapBrowserEvent<any>) {
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
-    const features = getPilotsForPixel(eventPixel) ?? [];
+    const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
     if (features.length !== 1) {
         if (!isManualHover.value) {
@@ -99,7 +103,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 function handleMoveEnd() {
     setVisiblePilots();
 
-    if (visiblePilots.value.length > 200 || visiblePilots.value.length === 0) {
+    if (visiblePilots.value.length > 100 || visiblePilots.value.length === 0) {
         if (showAircraftLabel.value.length) {
             showAircraftLabel.value = [];
         }

@@ -7,5 +7,6 @@ export const useStore = defineStore('index', {
         theme: 'default' as ThemesList,
         extent: [0, 0, 0, 0] as Extent,
         openOverlayId: null as string | null,
+        openPilotOverlay: false,
     }),
 });

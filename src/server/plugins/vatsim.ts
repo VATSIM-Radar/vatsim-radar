@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { getATCBounds, getLocalATC } from '~/utils/data/vatsim';
+import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { fromLonLat } from 'ol/proj';
 import { fr } from 'cronstrue/dist/i18n/locales/fr';
 
@@ -56,13 +56,9 @@ export default defineNitroPlugin((app) => {
                         longitude: coords[0],
                         latitude: coords[1],
                     };
-                });
+                }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
 
-                data.prefiles = data.prefiles.map(x => ({
-                    ...x,
-                    departure: x.flight_plan?.departure,
-                    arrival: x.flight_plan?.arrival,
-                }));
+                data.prefiles = data.prefiles.filter((x, index) => !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;
 
@@ -101,9 +97,19 @@ export default defineNitroPlugin((app) => {
                             arrival: origPilot.flight_plan?.arrival,
                         };
                     }),
+                    prefiles: regularData.prefiles.map((x) => {
+                        const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
+                        return {
+                            ...x,
+                            aircraft_faa: origPilot.flight_plan?.aircraft_faa,
+                            departure: origPilot.flight_plan?.departure,
+                            arrival: origPilot.flight_plan?.arrival,
+                        };
+                    }),
                 };
                 radarStorage.vatsim.firs = getATCBounds();
                 radarStorage.vatsim.locals = getLocalATC();
+                radarStorage.vatsim.airports = getAirportsList();
             }
             catch (e) {
                 console.error(e);

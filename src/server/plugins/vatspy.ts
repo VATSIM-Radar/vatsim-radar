@@ -6,6 +6,10 @@ import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import type { Feature, MultiPolygon } from 'geojson';
 import { fromLonLat } from 'ol/proj';
 
+const revisions: Record<string, number> = {
+    'v2403.1': 1,
+};
+
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
     sections,
     dat,
@@ -59,6 +63,7 @@ export default defineNitroPlugin((app) => {
         start: true,
         onTick: async () => {
             const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/');
+            if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
             if (radarStorage.vatspy.version === data.current_commit_hash) return;
 
             const [dat, geo] = await Promise.all([

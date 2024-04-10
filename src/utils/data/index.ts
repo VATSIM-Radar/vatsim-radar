@@ -14,7 +14,7 @@ export const useFacilitiesNames = () => {
     };
 };
 
-const decoder = new TextDecoder('windows-1251');
+const decoder = new TextDecoder('utf-8');
 
 export function parseCyrillic(text: string) {
     return decoder.decode(new Uint8Array([...text].map(char => char.charCodeAt(0))));

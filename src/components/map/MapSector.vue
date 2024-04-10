@@ -3,6 +3,7 @@
     <map-overlay
         :model-value="!!controllers.length"
         :popup="isHovered"
+        @update:overlay="!$event ? isHovered = false : undefined"
         persistent
         v-else
         :settings="{
@@ -11,9 +12,10 @@
         }"
         :z-index="15"
         :active-z-index="20"
+        @mouseleave="isHovered = false"
     >
         <!-- @todo click for touch -->
-        <div class="sector-atc" @mouseover="$nextTick(() => isHovered = true)" @mouseleave="isHovered = false">
+        <div class="sector-atc" @mouseover="$nextTick(() => isHovered = true)">
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
@@ -23,33 +25,12 @@
                 </div>
             </div>
         </div>
-        <template #popup>
-            <div class="sector-atc_popup" v-if="isHovered" @mouseover="$nextTick(() => isHovered = true)" @mouseleave="isHovered = false">
-                <div class="sector-atc_popup_title">
+        <template #popup v-if="isHovered">
+            <common-controller-info :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]" show-atis>
+                <template #title>
                     {{ getATCFullName }}
-                </div>
-                <common-info-block
-                    class="sector-atc_popup_atc"
-                    v-for="(controller) in [...locals, ...globals]"
-                    :key="controller.controller!.cid"
-                    is-button
-                    :top-items="[
-                        controller.controller!.callsign,
-                        controller.controller!.frequency,
-                        controller.controller!.name,
-                        dataStore.vatsim.data!.ratings.find(x => x.id === controller.controller!.rating)?.short ?? '',
-                        getATCTime(controller.controller!),
-                    ]"
-                >
-                    <template #bottom v-if="controller.controller?.text_atis?.length">
-                        <div class="sector-atc_popup_atc__atis">
-                            <div class="sector-atc_popup_atc__atis_line" v-for="atis in controller.controller.text_atis" :key="atis">
-                                {{ parseCyrillic(atis) }}<br>
-                            </div>
-                        </div>
-                    </template>
-                </common-info-block>
-            </div>
+                </template>
+            </common-controller-info>
         </template>
     </map-overlay>
 </template>
@@ -63,8 +44,6 @@ import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import { fromLonLat } from 'ol/proj';
 import type { VatSpyData } from '~/types/data/vatspy';
-import { parseCyrillic } from '~/utils/data';
-import type { VatsimShortenedController } from '~/types/data/vatsim';
 
 const props = defineProps({
     fir: {
@@ -103,12 +82,6 @@ const getATCFullName = computed(() => {
     if (!country) return prop.name;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
-
-const getATCTime = (controller: VatsimShortenedController) => {
-    const diff = (Date.now() - new Date(controller.logon_time).getTime()) / (1000 * 60);
-
-    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
-};
 
 const init = () => {
     if (!vectorSource.value) return;
@@ -168,15 +141,18 @@ const init = () => {
 
 onMounted(init);
 
-watch(() => props.fir.feature, init);
-watch(atc, init);
+const featureComputed = computed(() => props.fir?.feature);
+
+watch([atc, featureComputed, isHovered], init);
 
 onBeforeUnmount(() => {
     if (localFeature) {
         vectorSource.value?.removeFeature(localFeature);
+        localFeature.dispose();
     }
     if (rootFeature) {
         vectorSource.value?.removeFeature(rootFeature);
+        rootFeature.dispose();
     }
 });
 </script>
@@ -207,33 +183,6 @@ onBeforeUnmount(() => {
 
         &_sub {
             color: varToRgba('neutral150', 0.5);
-        }
-    }
-
-    &_popup {
-        padding: 8px;
-        border-radius: 8px;
-        background: $neutral1000;
-        position: absolute;
-        z-index: 20;
-        width: max-content;
-        margin: 5px 0 0 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
-        &_title {
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        &_atc {
-            &__atis {
-                display: flex;
-                flex-direction: column;
-                gap: 5px;
-                max-width: 350px;
-            }
         }
     }
 }

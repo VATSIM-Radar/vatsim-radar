@@ -10,21 +10,20 @@
                 position: getCoordinates,
                 offset: [15, -15]
             }"
+            @update:overlay="store.openPilotOverlay = !!$event"
             :z-index="20"
         >
-            <div
+            <common-popup-block
                 class="aircraft-hover"
                 @mouseover="hoveredOverlay = true"
                 @mouseleave="hoveredOverlay = false"
             >
-                <div class="aircraft-hover_header">
-                    <div class="aircraft-hover_header_logo">
-                        {{ aircraft.callsign }}
-                    </div>
-                    <div class="aircraft-hover_header_type" v-if="aircraft.aircraft_faa">
-                        {{ aircraft.aircraft_faa }}
-                    </div>
-                </div>
+                <template #title>
+                    {{ aircraft.callsign }}
+                </template>
+                <template #additionalTitle v-if="aircraft.aircraft_faa">
+                    {{ aircraft.aircraft_faa }}
+                </template>
                 <div class="aircraft-hover_body">
                     <common-info-block class="aircraft-hover__pilot" is-button>
                         <template #bottom>
@@ -43,7 +42,7 @@
                         <div class="aircraft-hover__section_title">
                             From
                         </div>
-                        <common-info-block class="aircraft-hover__section_content" text-align="center" is-button>
+                        <common-info-block class="aircraft-hover__section_content" is-button>
                             <template #top>
                                 {{ aircraft.departure }}
                             </template>
@@ -56,7 +55,7 @@
                         <div class="aircraft-hover__section_title">
                             To
                         </div>
-                        <common-info-block class="aircraft-hover__section_content" text-align="center" is-button>
+                        <common-info-block class="aircraft-hover__section_content" is-button>
                             <template #top>
                                 {{ aircraft.arrival }}
                             </template>
@@ -66,8 +65,8 @@
                         </common-info-block>
                     </div>
                 </div>
-                <div class="aircraft-hover_footer" v-if="aircraft.groundspeed">
-                    <common-info-block v-if="aircraft.groundspeed" text-align="center">
+                <div class="aircraft-hover_footer">
+                    <common-info-block v-if="typeof aircraft.groundspeed === 'number'" text-align="center">
                         <template #top>
                             Ground Speed
                         </template>
@@ -75,7 +74,7 @@
                             {{ aircraft.groundspeed }} kts
                         </template>
                     </common-info-block>
-                    <common-info-block v-if="aircraft.altitude" text-align="center">
+                    <common-info-block v-if="typeof aircraft.altitude === 'number'" text-align="center">
                         <template #top>
                             Altitude
                         </template>
@@ -84,7 +83,7 @@
                         </template>
                     </common-info-block>
                 </div>
-            </div>
+            </common-popup-block>
         </map-overlay>
         <map-overlay
             class="aircraft-overlay"
@@ -115,6 +114,7 @@ import { Point } from 'ol/geom';
 import { Icon, Style } from 'ol/style';
 import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
 import { sleep } from '~/utils';
+import { useStore } from '~/store';
 
 const props = defineProps({
     aircraft: {
@@ -144,6 +144,7 @@ const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 let feature: Feature | undefined;
+const store = useStore();
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -211,9 +212,11 @@ watch(() => props.showLabel, (val) => {
     }
 });
 
-watch([computed(() => props.aircraft?.heading), getCoordinates], init);
+const headingComputed = computed(() => props.aircraft?.heading);
+watch([headingComputed, getCoordinates], init);
 
 onBeforeUnmount(() => {
+    if (store.openPilotOverlay) store.openPilotOverlay = false;
     if (feature) {
         vectorSource.value?.removeFeature(feature);
     }
@@ -241,25 +244,6 @@ onBeforeUnmount(() => {
     flex-direction: column;
     gap: 8px;
     font-size: 13px;
-
-    &_header {
-        padding-bottom: 8px;
-        border-bottom: 1px solid $neutral850;
-        display: flex;
-        align-items: center;
-
-        &_logo {
-            color: $primary500;
-            font-weight: 700;
-            font-size: 17px;
-        }
-
-        &_type {
-            padding-left: 16px;
-            margin-left: 16px;
-            border-left: 1px solid $neutral850;
-        }
-    }
 
     &__pilot_content, &__section {
         display: grid;

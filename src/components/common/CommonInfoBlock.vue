@@ -2,12 +2,12 @@
     <div class="info-block" :class="{'info-block--button': isButton}" :style="{'--text-align': textAlign}">
         <div class="info-block_top" v-if="$slots.top || topItems.length">
             <template v-if="topItems.length">
-                <template v-for="(item, index) in topItems" :key="item">
+                <template v-for="(item, index) in topItems.filter(x => !!x)" :key="item">
                     <div class="info-block__separator" v-if="index > 0">
                         <ellipse-icon/>
                     </div>
                     <div class="info-block__content">
-                        <slot name="top" :item="item" v-if="$slots.top"/>
+                        <slot name="top" :item="item" :index="index" v-if="$slots.top"/>
                         <template v-else>
                             {{ item }}
                         </template>
@@ -20,12 +20,12 @@
         </div>
         <div class="info-block_bottom" v-if="$slots.bottom || bottomItems.length">
             <template v-if="bottomItems.length">
-                <template v-for="(item, index) in bottomItems" :key="item">
+                <template v-for="(item, index) in bottomItems.filter(x => !!x)" :key="item">
                     <div class="info-block__separator" v-if="index > 0">
                         <ellipse-icon/>
                     </div>
                     <div class="info-block__content">
-                        <slot name="bottom" :item="item" v-if="$slots.bottom"/>
+                        <slot name="bottom" :item="item" :index="index" v-if="$slots.bottom"/>
                         <template v-else>
                             {{ item }}
                         </template>
@@ -49,11 +49,11 @@ defineProps({
         default: 'left',
     },
     topItems: {
-        type: Array as PropType<string[]>,
+        type: Array as PropType<Array<string | null | undefined>>,
         default: () => [],
     },
     bottomItems: {
-        type: Array as PropType<string[]>,
+        type: Array as PropType<Array<string | null | undefined>>,
         default: () => [],
     },
     isButton: {
@@ -61,6 +61,11 @@ defineProps({
         default: false,
     },
 });
+
+defineSlots<{
+    top(props: {item?: string | null, index?: number}): any
+    bottom(props: {item?: string | null, index?: number}): any
+}>();
 </script>
 
 <style scoped lang="scss">
@@ -97,6 +102,10 @@ defineProps({
         align-items: center;
         justify-content: flex-start;
         flex-wrap: wrap;
+
+        >*:only-child {
+            width: 100%;
+        }
     }
 
     &__separator {

@@ -1,116 +1,79 @@
 <template>
-    <map-overlay v-for="airport in getAirportsList" :key="airport.icao" :settings="{ position: [airport.lon, airport.lat] }" :model-value="true" persistent>
-        {{ airport.icao }} {{ airport.aircrafts.groundDep?.length }}
-    </map-overlay>
+    <map-airport v-for="{airport, aircrafts} in getAirportsList" :key="airport.icao" :airport="airport" :aircrafts="aircrafts" :is-visible="visibleAirports.includes(airport.icao)"/>
 </template>
 
 <script setup lang="ts">
 import { useDataStore } from '~/store/data';
-import type { MapAirport } from '~/types/map';
-import type { Coordinate } from 'ol/coordinate';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
-import type { VatSpyData } from '~/types/data/vatspy';
+import VectorSource from 'ol/source/Vector';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
+import VectorLayer from 'ol/layer/Vector';
+import { isPointInExtent } from '~/composables';
 
+let vectorLayer: VectorLayer<any>;
+const vectorSource = shallowRef<VectorSource | null>(null);
+provide('vector-source', vectorSource);
+const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
+const visibleAirports = shallowRef<string[]>([]);
 
-const groundZone = 5000;
+watch(map, (val) => {
+    if (!val) return;
 
-function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft): boolean {
-    return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;
-}
+    let hasLayer = false;
+    val.getLayers().forEach((layer) => {
+        if (hasLayer) return;
+        hasLayer = layer.getProperties().type === 'airports';
+    });
+    if (hasLayer) return;
 
-let gotList: MapAirport[] = [];
+    if (!vectorLayer) {
+        vectorSource.value = new VectorSource({
+            features: [],
+            wrapX: false,
+        });
 
-const getAirportsList = computed(() => {
-    if (gotList.length) return gotList;
-    const airports: MapAirport[] = [];
-    const dataAirports = dataStore.vatspy!.data.airports.filter(x => !x.isPseudo);
-    const pilots = dataStore.vatsim.data!.pilots;
-
-    function addPilotToList(status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0], pilot: number) {
-        let existingAirport = airports.find(x => x.icao === airport.icao);
-        if (!existingAirport) {
-            existingAirport = {
-                icao: airport.icao,
-                elevation: 0,
-                lon: airport.lon,
-                lat: airport.lat,
-                name: airport.name,
-                aircrafts: {
-                    [status]: [pilot],
-                },
-            };
-            airports.push(existingAirport);
-            return;
-        }
-
-        const existingArr = existingAirport.aircrafts[status];
-
-        if (!existingArr) {
-            existingAirport.aircrafts[status] = [pilot];
-        }
-        else existingArr.push(pilot);
+        vectorLayer = new VectorLayer({
+            source: vectorSource.value,
+            zIndex: 2,
+            properties: {
+                type: 'airports',
+            },
+        });
     }
 
-    pilots.forEach((pilot) => {
-        const statuses: Array<{status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0]}> = [];
+    val.addLayer(vectorLayer);
+    val.on('moveend', setVisibleAirports);
+}, {
+    immediate: true,
+});
 
-        if (!pilot.departure) {
-            const groundAirport = dataAirports.find(x => isAircraftOnGround([x.lon, x.lat], pilot));
-            //We don't know where the pilot is :(
-            if (!groundAirport) return;
+onBeforeUnmount(() => {
+    if (vectorLayer) map.value?.removeLayer(vectorLayer);
+    map.value?.un('moveend', setVisibleAirports);
+});
 
-            statuses.push({
-                status: 'groundDep',
-                airport: groundAirport,
-            });
-        }
-        else {
-            const departureAirport = dataAirports.find(x => x.icao === pilot.departure);
+const getAirportsList = computed(() => {
+    return dataStore.vatsim.data?.airports.map(x => ({
+        aircrafts: x.aircrafts,
+        airport: dataStore.vatspy!.data.airports.find(y => y.icao === x.icao)!,
+    })).filter(x => x.airport) ?? [];
+});
 
-            if (departureAirport) {
-                const groundAirport = isAircraftOnGround([departureAirport.lon, departureAirport.lat], pilot);
-                statuses.push({
-                    status: groundAirport ? 'groundDep' : 'departures',
-                    airport: departureAirport,
-                });
-            }
+function setVisibleAirports() {
+    let airports = getAirportsList.value.filter((x) => {
+        const coordinates = [x.airport.lon, x.airport.lat];
 
-            if (pilot.arrival) {
-                if (pilot.arrival === pilot.departure && statuses[0]) statuses[1] = statuses[0];
-                else {
-                    const arrivalAirport = dataAirports.find(x => x.icao === pilot.arrival);
+        return isPointInExtent(coordinates);
+    }) ?? [];
 
-                    if (arrivalAirport) {
-                        const groundAirport = isAircraftOnGround([arrivalAirport.lon, arrivalAirport.lat], pilot);
-                        statuses.push({
-                            status: groundAirport ? 'groundArr' : 'arrivals',
-                            airport: arrivalAirport,
-                        });
-                    }
-                }
-            }
-        }
+    if (airports.length > 100) airports = [];
+    visibleAirports.value = airports.map(x => x.airport.icao);
+}
 
-        statuses.forEach((status) => {
-            addPilotToList(status.status, status.airport, pilot.cid);
-        });
-    });
-
-    dataStore.vatsim.data!.prefiles.filter(x => x.departure || x.arrival).forEach((prefile) => {
-        if (prefile.departure) {
-            const airport = dataAirports.find(x => x.icao === prefile.departure);
-            if (airport) addPilotToList('prefiles', airport, prefile.cid);
-        }
-
-        if (prefile.arrival && prefile.arrival !== prefile.departure) {
-            const airport = dataAirports.find(x => x.icao === prefile.arrival);
-            if (airport) addPilotToList('prefiles', airport, prefile.cid);
-        }
-    });
-
-    gotList = airports;
-
-    return airports;
+watch(() => dataStore.vatsim.data?.general.update_timestamp, () => {
+    setVisibleAirports();
+}, {
+    immediate: true,
 });
 </script>

@@ -1,6 +1,8 @@
-import type { VatsimShortenedController } from '~/types/data/vatsim';
-import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
+import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
+import type { MapAirport } from '~/types/map';
+import type { Coordinate } from 'ol/coordinate';
 
 export const useFacilitiesIds = () => {
     return {
@@ -106,3 +108,90 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
         };
     });
 };
+
+const groundZone = 5000;
+
+function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft): boolean {
+    return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;
+}
+
+export function getAirportsList() {
+    const airports: MapAirport[] = [];
+    const dataAirports = radarStorage.vatspy.data!.airports.filter(x => !x.isPseudo);
+    const pilots = radarStorage.vatsim.data!.pilots;
+
+    function addPilotToList(status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0], pilot: number) {
+        let existingAirport = airports.find(x => x.icao === airport.icao);
+        if (!existingAirport) {
+            existingAirport = {
+                icao: airport.icao,
+                aircrafts: {
+                    [status]: [pilot],
+                },
+            };
+            airports.push(existingAirport);
+            return;
+        }
+
+        const existingArr = existingAirport.aircrafts[status];
+
+        if (!existingArr) {
+            existingAirport.aircrafts[status] = [pilot];
+        }
+        else existingArr.push(pilot);
+    }
+
+    pilots.forEach((pilot) => {
+        const statuses: Array<{status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0]}> = [];
+
+        if (!pilot.flight_plan?.departure) {
+            const groundAirport = dataAirports.find(x => isAircraftOnGround([x.lon, x.lat], pilot));
+            //We don't know where the pilot is :(
+            if (!groundAirport) return;
+
+            statuses.push({
+                status: 'groundDep',
+                airport: groundAirport,
+            });
+        }
+        else {
+            const departureAirport = dataAirports.find(x => x.icao === pilot.flight_plan!.departure);
+
+            if (departureAirport) {
+                const groundAirport = pilot.groundspeed < 50 && isAircraftOnGround([departureAirport.lon, departureAirport.lat], pilot);
+                statuses.push({
+                    status: groundAirport ? 'groundDep' : 'departures',
+                    airport: departureAirport,
+                });
+            }
+
+            if (pilot.flight_plan.arrival) {
+                if (pilot.flight_plan.arrival === pilot.flight_plan.departure && statuses[0]) statuses[1] = statuses[0];
+                else {
+                    const arrivalAirport = dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
+
+                    if (arrivalAirport) {
+                        const groundAirport = pilot.groundspeed < 50 && isAircraftOnGround([arrivalAirport.lon, arrivalAirport.lat], pilot);
+                        statuses.push({
+                            status: groundAirport ? 'groundArr' : 'arrivals',
+                            airport: arrivalAirport,
+                        });
+                    }
+                }
+            }
+        }
+
+        statuses.forEach((status) => {
+            addPilotToList(status.status, status.airport, pilot.cid);
+        });
+    });
+
+    radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach((prefile) => {
+        if (prefile.departure) {
+            const airport = dataAirports.find(x => x.icao === prefile.departure);
+            if (airport) addPilotToList('prefiles', airport, prefile.cid);
+        }
+    });
+
+    return airports;
+}

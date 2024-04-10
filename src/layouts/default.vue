@@ -40,4 +40,30 @@ html, body {
 svg,img {
     display: block;
 }
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: $neutral800 var(--bg-color, $neutral1000);
+}
+
+* {
+    &::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+        appearance: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $neutral800;
+        border-radius: 10px;
+        border: 3px solid var(--bg-color, $neutral1000);
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--bg-color, $neutral1000);
+    }
+}
 </style>

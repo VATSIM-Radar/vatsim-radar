@@ -1,4 +1,5 @@
 import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
+import type { MapAirport } from '~/types/map';
 
 export interface VatsimGeneral {
     version: number;
@@ -75,8 +76,6 @@ export interface VatsimPrefile {
     cid: number;
     name: string;
     callsign: string;
-    departure: string
-    arrival: string
     flight_plan: VatsimPilotFlightPlan;
     last_updated: string;
 }
@@ -112,7 +111,7 @@ export type VatsimShortenedData = {
     pilots: Array<Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_mb' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> & Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'departure' | 'arrival'>>>;
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
-    prefiles: Omit<VatsimPrefile, 'flight_plan' | 'last_updated'>[];
+    prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'departure' | 'arrival'>>>;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
 
 export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0]
@@ -121,9 +120,10 @@ export type VatsimShortenedController = VatsimShortenedData['atis'][0]
 export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {
     locals: VatSpyDataLocalATC[],
     firs: VatSpyDataFeature[]
+    airports: MapAirport[]
 }
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'pilots' | 'locals' | 'firs' | 'prefiles'>
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>
 
 export interface VatsimDivision {
     id: string;
