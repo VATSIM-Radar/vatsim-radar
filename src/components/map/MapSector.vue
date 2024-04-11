@@ -26,7 +26,7 @@
             </div>
         </div>
         <template #popup v-if="isHovered">
-            <common-controller-info :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]" show-atis>
+            <common-controller-info absolute :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]" show-atis>
                 <template #title>
                     {{ getATCFullName }}
                 </template>
@@ -38,12 +38,10 @@
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
-import { useDataStore } from '~/store/data';
 import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
-import { fromLonLat } from 'ol/proj';
 
 const props = defineProps({
     fir: {
@@ -80,7 +78,7 @@ const controllers = computed(() => {
 
 const getATCFullName = computed(() => {
     const prop = !locals.value.length ? globals.value[0] ?? props.fir : props.fir;
-    const country = dataStore.vatspy?.data.countries.find(x => x.code === prop.icao?.slice(0, 2));
+    const country = dataStore.vatspy.value?.data.countries.find(x => x.code === prop.icao?.slice(0, 2));
     if (!country) return prop.name;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });

@@ -80,6 +80,21 @@ watch([overlay, isPopupOpen, zIndex], () => {
 
 const openOverlayId = computed(() => store.openOverlayId);
 
+function recreateOverlay(stopEvent: boolean) {
+    //@ts-expect-error
+    if (!overlay.value || stopEvent === overlay.value.stopEvent) return;
+    if (!overlay.value) return;
+
+    map.value!.removeOverlay(overlay.value);
+    overlay.value.dispose();
+    overlay.value = new Overlay({
+        stopEvent,
+        ...props.settings,
+        element: overlayElement.value!,
+    });
+    map.value!.addOverlay(overlay.value);
+}
+
 watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
@@ -120,10 +135,28 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
 });
 
 const position = computed(() => props.settings?.position);
+const positioning = computed(() => props.settings?.positioning);
+const offset = computed(() => props.settings?.offset);
+const stopEvent = computed(() => props.settings?.stopEvent);
 
 watch(position, (val) => {
     if (!val) return;
     if (overlay.value) overlay.value.setPosition(val);
+});
+
+watch(positioning, (val) => {
+    if (!val) return;
+    if (overlay.value) overlay.value.setPositioning(val);
+});
+
+watch(offset, (val) => {
+    if (!val) return;
+    if (overlay.value) overlay.value.setOffset(val);
+});
+
+watch(stopEvent, (val) => {
+    if (val === undefined) return;
+    recreateOverlay(val);
 });
 
 onBeforeUnmount(() => {

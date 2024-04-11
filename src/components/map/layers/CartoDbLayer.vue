@@ -19,7 +19,7 @@ watch(map, (val) => {
             source: new XYZ({
                 attributions: '© <a href="http://cartodb.com/attributions" target="_blank">CartoDB</a>',
                 url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
-                wrapX: false,
+                wrapX: true,
             }),
             zIndex: 0,
         });

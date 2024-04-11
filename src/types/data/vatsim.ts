@@ -60,6 +60,7 @@ export interface VatsimController {
 }
 
 export interface VatsimATIS extends VatsimController {
+    isATIS?: boolean
     atis_code?: string;
 }
 

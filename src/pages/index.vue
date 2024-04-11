@@ -3,7 +3,7 @@
         <div class="map_container" ref="mapContainer"/>
         <carto-db-layer/>
         <template v-if="ready">
-            <map-aircraft-list/>
+            <map-aircraft-list />
             <map-sectors-list/>
             <map-airports-list />
         </template>
@@ -11,7 +11,6 @@
 </template>
 
 <script setup lang="ts">
-import { useDataStore } from '~/store/data';
 import type { VatsimLiveData } from '~/types/data/vatsim';
 import '@@/node_modules/ol/ol.css';
 import { clientDB } from '~/utils/client-db';
@@ -23,6 +22,7 @@ import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/MapAircraftList.vue';
 import { useStore } from '~/store';
+import { setVatsimDataStore } from '~/composables/data';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const map = shallowRef<Map | null>(null);
@@ -36,7 +36,7 @@ let interval: NodeJS.Timeout | null = null;
 
 onMounted(async () => {
     //Data is not yet ready
-    if (!dataStore.versions) {
+    if (!store.dataReady) {
         await new Promise<void>((resolve) => {
             const interval = setInterval(async () => {
                 const { ready } = await $fetch('/data/status');
@@ -48,8 +48,9 @@ onMounted(async () => {
         });
     }
 
-    if (!dataStore.versions) {
-        dataStore.versions = await $fetch('/data/versions');
+    if (!dataStore.versions.value) {
+        dataStore.versions.value = await $fetch('/data/versions');
+        dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
     }
 
     const view = new View({
@@ -61,7 +62,7 @@ onMounted(async () => {
     await Promise.all([
         (async function () {
             let vatspy = await clientDB.get('vatspy', 'index');
-            if (!vatspy || vatspy.version !== dataStore.versions!.vatspy) {
+            if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
                 vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
                 vatspy.data.firs = vatspy.data.firs.map(x => ({
                     ...x,
@@ -76,36 +77,38 @@ onMounted(async () => {
                 await clientDB.put('vatspy', vatspy, 'index');
             }
 
-            dataStore.vatspy = shallowReactive(vatspy);
+            dataStore.vatspy.value = vatspy;
         }()),
         (async function () {
-            if (dataStore.vatsim.data) return;
             const [vatsimData] = await Promise.all([
                 $fetch<VatsimLiveData>('/data/vatsim/data'),
             ]);
-            dataStore.vatsim.data = vatsimData;
+            setVatsimDataStore(vatsimData);
         }()),
     ]);
 
     interval = setInterval(async () => {
         const versions = await $fetch('/data/versions');
 
-        if (versions && versions.vatsim.data !== dataStore.vatsim.data?.general.update_timestamp) {
-            dataStore.versions = versions;
+        if (versions && versions.vatsim.data !== dataStore.vatsim.updateTimestamp.value) {
+            dataStore.versions.value = versions;
 
             if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
             const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`);
-            for (const key in data) {
-                //@ts-ignore
-                dataStore.vatsim.data[key] = data[key];
-            }
+            setVatsimDataStore(data);
 
-            dataStore.vatsim.data!.general.update_timestamp = dataStore.versions!.vatsim.data;
+            dataStore.vatsim.data.general.value!.update_timestamp = dataStore.versions.value!.vatsim.data;
+            dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
         }
     }, 3000);
 
     ready.value = true;
+
+    const projectionExtent = view.getProjection().getExtent().slice();
+
+    projectionExtent[0] *= 1.2;
+    projectionExtent[2] *= 1.2;
 
     map.value = new Map({
         target: mapContainer.value!,
@@ -118,8 +121,9 @@ onMounted(async () => {
         view: new View({
             center: fromLonLat([37.617633, 55.755820]),
             zoom: 2,
+            minZoom: 3,
             multiWorld: false,
-            extent: view.getProjection().getExtent(),
+            extent: projectionExtent,
         }),
     });
 
@@ -145,13 +149,10 @@ await useAsyncData(async () => {
         if (import.meta.server) {
             const {
                 isDataReady,
-                getDataVersions,
-                getServerVatsimLiveData,
             } = await import('~/utils/backend/storage');
             if (!isDataReady()) return;
 
-            dataStore.vatsim.data = getServerVatsimLiveData();
-            dataStore.versions = getDataVersions();
+            store.dataReady = true;
             return true;
         }
 

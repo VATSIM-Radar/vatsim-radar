@@ -1,0 +1,211 @@
+<template>
+    <map-overlay
+        v-if="!hide && (aircrafts.groundDep?.length || aircrafts.groundArr?.length || aircrafts.prefiles?.length)"
+        :popup="!!aircraftHoveredType"
+        @update:popup="!$event ? aircraftHoveredType = null : undefined"
+        :settings="{position: [airport.lon, airport.lat], offset, stopEvent: !!aircraftHoveredType, positioning: 'top-left'}"
+        persistent
+        :z-index="15"
+        :active-z-index="21"
+    >
+        <div class="airport-counts" @mouseleave="aircraftHoveredType = null">
+            <div
+                class="airport-counts_item airport-counts_item--groundDep"
+                v-if="aircrafts.groundDep?.length"
+                @mouseover="$nextTick(() => aircraftHoveredType = 'groundDep')"
+            >
+                {{ aircrafts.groundDep.length }}
+            </div>
+            <div
+                class="airport-counts_item airport-counts_item--prefiles"
+                v-if="aircrafts.prefiles?.length"
+                @mouseover="$nextTick(() => aircraftHoveredType = 'prefiles')"
+            >
+                {{ aircrafts.prefiles.length }}
+            </div>
+            <div
+                class="airport-counts_item airport-counts_item--groundArr"
+                v-if="aircrafts.groundArr?.length"
+                @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
+            >
+                {{ aircrafts.groundArr.length }}
+            </div>
+            <common-popup-block class="airport-counts__airplanes" v-if="hoveredAirplanes.length">
+                <template #title>
+                    <div
+                        class="airport-counts__airplanes_title"
+                        :class="[`airport-counts__airplanes_title--${aircraftHoveredType}`]"
+                    >
+                        {{ airport.icao }}
+                        <template v-if="aircraftHoveredType === 'groundDep'">
+                            Departures
+                        </template>
+                        <template v-else-if="aircraftHoveredType === 'groundArr'">
+                            Arrivals
+                        </template>
+                        <template v-else-if="aircraftHoveredType === 'prefiles'">
+                            Prefiles
+                        </template>
+                    </div>
+                </template>
+                <div class="airport-counts__airplanes_list">
+                    <common-info-block
+                        :top-items="[
+                            aircraft.callsign,
+                            aircraft.aircraft_faa,
+                            aircraft.arrival || null,
+                            aircraft.name,
+                        ]"
+                        v-for="aircraft in hoveredAirplanes"
+                        :key="aircraft.cid"
+                        is-button
+                    >
+                        <template #top="{item, index}">
+                            <div class="airport-counts__popup-callsign" v-if="index === 0">
+                                {{ item }}
+                            </div>
+                            <template v-else-if="index === 2">
+                                <span class="airport-counts__popup-info">
+                                    to
+                                </span>
+                                {{ item }}
+                            </template>
+                            <div class="airport-counts__popup-info" v-else>
+                                {{ item }}
+                            </div>
+                        </template>
+                    </common-info-block>
+                </div>
+            </common-popup-block>
+        </div>
+    </map-overlay>
+</template>
+
+<script setup lang="ts">
+import type { PropType } from 'vue';
+import type { MapAircraft, MapAirport } from '~/types/map';
+import type { VatSpyData } from '~/types/data/vatspy';
+
+const props = defineProps({
+    airport: {
+        type: Object as PropType<VatSpyData['airports'][0]>,
+        required: true,
+    },
+    aircrafts: {
+        type: Object as PropType<MapAircraft>,
+        required: true,
+    },
+    hide: {
+        type: Boolean,
+        default: false,
+    },
+    offset: {
+        type: Array as PropType<number[]>,
+        default: () => [25, -20],
+    },
+});
+
+const aircraftHoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
+
+const hoveredAirplanes = computed(() => {
+    switch (aircraftHoveredType.value) {
+        case 'groundDep':
+            return props.aircrafts?.groundDep ?? [];
+        case 'groundArr':
+            return props.aircrafts?.groundArr ?? [];
+        case 'prefiles':
+            return props.aircrafts?.prefiles ?? [];
+    }
+
+    return [];
+});
+</script>
+
+<style scoped lang="scss">
+.airport-counts {
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+    position: relative;
+
+    .airport-counts_item, .airport-counts__airplanes_title {
+        &--groundDep {
+            color: $success500;
+        }
+
+        &--prefiles {
+            color: $neutral200;
+        }
+
+        &--groundArr {
+            color: $error500;
+        }
+    }
+
+    &__popup-callsign {
+        color: $primary500
+    }
+
+    &__popup-info {
+        font-weight: 400;
+    }
+
+    &_item {
+        font-size: 11px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        line-height: 100%;
+        cursor: pointer;
+
+        &::before {
+            content: '';
+            display: block;
+            position: relative;
+        }
+
+        &--groundDep {
+            &::before {
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-bottom: 6px solid currentColor;
+                border-top: 6px solid transparent;
+                top: -2px;
+            }
+        }
+
+        &--prefiles {
+            &::before {
+                width: 12px;
+                height: 5px;
+                background: currentColor;
+            }
+        }
+
+        &--groundArr {
+            &::before {
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-bottom: 6px solid transparent;
+                border-top: 6px solid currentColor;
+                top: 2px;
+            }
+        }
+    }
+
+    &__airplanes {
+        position: absolute;
+        top: 0;
+        left: 100%;
+        width: max-content;
+
+        &_list {
+            max-height: 360px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+    }
+}
+</style>

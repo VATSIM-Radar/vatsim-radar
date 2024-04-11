@@ -15,7 +15,6 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
-import { useDataStore } from '~/store/data';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
@@ -46,7 +45,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
         }
     });
 
-    return dataStore.vatsim.data?.pilots.filter((x) => {
+    return dataStore.vatsim.data.pilots.value.filter((x) => {
         const pilotPixel = aircraftCoordsToPixel(x);
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
@@ -62,16 +61,14 @@ function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft) {
 const visiblePilots = shallowRef<VatsimShortenedAircraft[]>([]);
 
 function setVisiblePilots() {
-    visiblePilots.value = dataStore.vatsim.data?.pilots.filter((x) => {
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
         const coordinates = [x.longitude, x.latitude];
 
         return isPointInExtent(coordinates);
     }) ?? [];
 }
 
-const timestamp = computed(() => dataStore.vatsim.data?.general.update_timestamp);
-
-watch(timestamp, () => {
+watch(dataStore.vatsim.updateTimestamp, () => {
     handleMoveEnd();
 }, {
     immediate: true,
@@ -137,14 +134,13 @@ watch(map, (val) => {
             properties: {
                 type: 'aircrafts',
             },
-            zIndex: 5,
+            zIndex: 6,
         });
     }
 
     val.addLayer(vectorLayer);
 
-    //TODO: turn this off on non-PC devices
-    //val.on('pointermove', handlePointerMove);
+    val.on('pointermove', handlePointerMove);
 }, {
     immediate: true,
 });

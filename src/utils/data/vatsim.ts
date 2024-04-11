@@ -59,7 +59,10 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
         return {
-            atc,
+            atc: {
+                ...atc,
+                isATIS: atc.callsign.endsWith('ATIS'),
+            },
             airport: {
                 icao: airport.icao,
                 iata: airport.iata,

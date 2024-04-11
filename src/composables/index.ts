@@ -1,13 +1,12 @@
 import type { Coordinate } from 'ol/coordinate';
 import { containsCoordinate  } from 'ol/extent';
-import type { Extent } from 'ol/extent';
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { sleep } from '~/utils';
 
-export function isPointInExtent(point: Coordinate, extent?: Extent) {
-    return containsCoordinate(useStore().extent, point);
+export function isPointInExtent(point: Coordinate, extent = useStore().extent) {
+    return containsCoordinate(extent, point);
 }
 
 export function attachMoveEnd(callback: (event: any) => unknown) {
@@ -23,7 +22,7 @@ export function attachMoveEnd(callback: (event: any) => unknown) {
     const endHandler = async (e: any) => {
         if (!moveStarted) return;
         moveStarted = false;
-        await sleep(500);
+        await sleep(300);
         if (moveStarted) return;
         callback(e);
     };

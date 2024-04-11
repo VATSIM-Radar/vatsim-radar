@@ -1,6 +1,7 @@
 <template>
     <div
         class="atc-popup-container"
+        :style="{position: absolute ? 'absolute' : undefined}"
     >
         <common-popup-block class="atc-popup">
             <template #title>
@@ -9,78 +10,81 @@
             <template #additionalTitle v-if="$slots.additionalTitle">
                 <slot name="additionalTitle"/>
             </template>
-            <common-info-block
-                class="atc-popup_atc"
-                v-for="(controller) in controllers"
-                :key="controller.cid"
-                is-button
-                :top-items="[
-                    controller.callsign,
-                    controller.name,
-                    controller.frequency,
-                    showAtis ? undefined : getATCTime(controller),
-                ]"
-            >
-                <template #top="{item, index}">
-                    <template v-if="index === 0 && showFacility">
-                        <div class="atc-popup__position">
-                            <div
-                                class="atc-popup__position_facility"
-                                :style="{background: getControllerPositionColor(controller)}"
+            <div class="atc-popup_list">
+                <common-info-block
+                    class="atc-popup_atc"
+                    v-for="(controller, index) in controllers"
+                    :key="controller.cid+index"
+                    is-button
+                    :top-items="[
+                        controller.callsign,
+                        controller.name,
+                        controller.frequency,
+                        showAtis ? undefined : getATCTime(controller),
+                        showAtis && controller.atis_code ? `Info ${controller.atis_code}` : undefined,
+                    ]"
+                >
+                    <template #top="{item, index}">
+                        <template v-if="index === 0 && showFacility">
+                            <div class="atc-popup__position">
+                                <div
+                                    class="atc-popup__position_facility"
+                                    :style="{background: getControllerPositionColor(controller)}"
+                                >
+                                    {{ dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
+                                </div>
+                                <div class="atc-popup__position_name">
+                                    {{ item }}
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else-if="index === 1">
+                            <div class="atc-popup__controller">
+                                <div class="atc-popup__controller_name">
+                                    {{ item }}
+                                </div>
+                                <div class="atc-popup__controller_rating">
+                                    {{
+                                        dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
+                                    }}
+                                </div>
+                            </div>
+                        </template>
+                        <template v-else-if="index === 2">
+                            <div class="atc-popup__frequency">
+                                {{ item }}
+                            </div>
+                        </template>
+                        <template v-else-if="index === 3 && !showAtis">
+                            <div class="atc-popup__time">
+                                {{ item }}
+                            </div>
+                        </template>
+                        <template v-else>
+                            {{ item }}
+                        </template>
+                    </template>
+                    <template #bottom v-if="showAtis">
+                        <ul class="atc-popup_atc__atis" v-if="controller.text_atis?.length">
+                            <li
+                                class="atc-popup_atc__atis_line"
+                                v-for="atis in getATIS(controller)"
+                                :key="atis"
                             >
-                                {{ dataStore.vatsim.data!.facilities.find(x => x.id === controller.facility)?.short }}
+                                {{ parseEncoding(atis) }}<br>
+                            </li>
+                        </ul>
+                        <div class="atc-popup_atc__time">
+                            <div class="atc-popup_atc__time_text">
+                                Time online:
                             </div>
-                            <div class="atc-popup__position_name">
-                                {{ item }}
-                            </div>
-                        </div>
-                    </template>
-                    <template v-else-if="index === 1">
-                        <div class="atc-popup__controller">
-                            <div class="atc-popup__controller_name">
-                                {{ item }}
-                            </div>
-                            <div class="atc-popup__controller_rating">
-                                {{
-                                    dataStore.vatsim.data!.ratings.find(x => x.id === controller.rating)?.short ?? ''
-                                }}
+                            <div class="atc-popup_atc__time_info">
+                                {{ getATCTime(controller) }}
                             </div>
                         </div>
                     </template>
-                    <template v-else-if="index === 2">
-                        <div class="atc-popup__frequency">
-                            {{ item }}
-                        </div>
-                    </template>
-                    <template v-else-if="index === 3">
-                        <div class="atc-popup__time">
-                            {{ item }}
-                        </div>
-                    </template>
-                    <template v-else>
-                        {{ item }}
-                    </template>
-                </template>
-                <template #bottom v-if="showAtis">
-                    <ul class="atc-popup_atc__atis" v-if="controller.text_atis?.length">
-                        <li
-                            class="atc-popup_atc__atis_line"
-                            v-for="atis in controller.text_atis"
-                            :key="atis"
-                        >
-                            {{ parseCyrillic(atis) }}<br>
-                        </li>
-                    </ul>
-                    <div class="atc-popup_atc__time">
-                        <div class="atc-popup_atc__time_text">
-                            Time online:
-                        </div>
-                        <div class="atc-popup_atc__time_info">
-                            {{ getATCTime(controller) }}
-                        </div>
-                    </div>
-                </template>
-            </common-info-block>
+                </common-info-block>
+            </div>
         </common-popup-block>
     </div>
 </template>
@@ -88,8 +92,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import { parseCyrillic } from '~/utils/data';
-import { useDataStore } from '~/store/data';
+import { parseEncoding } from '~/utils/data';
 import { getControllerPositionColor } from '~/composables/atc';
 
 defineProps({
@@ -105,6 +108,10 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    absolute: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const dataStore = useDataStore();
@@ -114,20 +121,25 @@ const getATCTime = (controller: VatsimShortenedController) => {
 
     return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
 };
+
+const getATIS = (controller: VatsimShortenedController) => {
+    if (!controller.isATIS) return controller.text_atis;
+    if (controller.text_atis && controller.text_atis.filter(x => x.replaceAll(' ', '').length > 20).length > controller.text_atis.length - 2) return [controller.text_atis.join(' ')];
+    return controller.text_atis;
+};
 </script>
 
 <style scoped lang="scss">
 .atc-popup {
     width: max-content;
-    max-width: 400px;
+    max-width: 450px;
     display: flex;
     flex-direction: column;
     gap: 4px;
 
     &-container {
-        position: absolute;
         z-index: 20;
-        padding: 5px 0 0 10px;
+        padding: 5px 0;
         cursor: initial;
     }
 
@@ -176,12 +188,19 @@ const getATCTime = (controller: VatsimShortenedController) => {
         border-radius: 4px;
     }
 
+    &_list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 400px;
+        overflow: auto;
+    }
+
     &_atc {
         &__atis {
             display: flex;
             flex-direction: column;
             gap: 5px;
-            max-width: 350px;
             padding-left: 16px;
             margin: 0;
             word-break: break-word;

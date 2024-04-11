@@ -13,7 +13,6 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { Fill, Stroke, Style } from 'ol/style';
-import { useDataStore } from '~/store/data';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -22,10 +21,10 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 
 const firs = computed(() => {
-    const list = dataStore.vatspy!.data.firs;
+    const list = dataStore.vatspy.value!.data.firs;
     return list.map(fir => ({
         fir,
-        atc: dataStore.vatsim.data?.firs.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id)) ?? [],
+        atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id)) ?? [],
     }));
 });
 

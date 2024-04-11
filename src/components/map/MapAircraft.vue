@@ -145,6 +145,7 @@ const hovered = ref(false);
 const hoveredOverlay = ref(false);
 let feature: Feature | undefined;
 const store = useStore();
+const dataStore = useDataStore();
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -214,8 +215,7 @@ watch(showLabel, (val) => {
     }
 });
 
-const headingComputed = computed(() => props.aircraft?.heading);
-watch([headingComputed, getCoordinates], init);
+watch(dataStore.vatsim.updateTimestamp, init);
 
 onBeforeUnmount(() => {
     if (store.openPilotOverlay) store.openPilotOverlay = false;

@@ -8,5 +8,6 @@ export const useStore = defineStore('index', {
         extent: [0, 0, 0, 0] as Extent,
         openOverlayId: null as string | null,
         openPilotOverlay: false,
+        dataReady: false,
     }),
 });
