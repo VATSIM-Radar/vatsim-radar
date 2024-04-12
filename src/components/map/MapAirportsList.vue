@@ -110,7 +110,36 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
         const gates: NavigraphGate[] = gateAirport.gates;
 
         for (const pilot of [...airport.aircrafts.groundDep ?? [], ...airport.aircrafts.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 35 && Math.abs(x.gate_latitude - pilot.latitude) < 35)) {
+            let pilotLon = pilot.longitude;
+            let pilotLat = pilot.latitude;
+
+            let lonAdjustment = 0; let latAdjustment = 0;
+            let direction = pilot.heading;
+
+            if (direction >= 0 && direction < 90) {
+                lonAdjustment = (1 - direction / 90) * -15;
+                latAdjustment = (direction / 90) * 15;
+            }
+            else if (direction >= 90 && direction < 180) {
+                direction -= 90;
+                lonAdjustment = (1 - direction / 90) * 15;
+                latAdjustment = (direction / 90) * 15;
+            }
+            else if (direction >= 180 && direction < 270) {
+                direction -= 180;
+                lonAdjustment = (1 - direction / 90) * 15;
+                latAdjustment = (direction / 90) * -15;
+            }
+            else {
+                direction -= 270;
+                lonAdjustment = (1 - direction / 90) * -15;
+                latAdjustment = (direction / 90) * -15;
+            }
+
+            pilotLon += latAdjustment;
+            pilotLat += lonAdjustment;
+
+            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 30 && Math.abs(x.gate_latitude - pilotLat) < 30)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                 if (index === -1) continue;
                 gates[index] = {
@@ -119,7 +148,7 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 };
             }
 
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 65 && Math.abs(x.gate_latitude - pilot.latitude) < 65)) {
+            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 60 && Math.abs(x.gate_latitude - pilotLat) < 60)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                 if (index === -1) continue;
                 gates[index] = {

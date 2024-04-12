@@ -3,7 +3,7 @@ import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
-import { fromLonLat } from 'ol/proj';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -49,7 +49,7 @@ export default defineNitroPlugin((app) => {
                 }
 
                 data.pilots = data.pilots.map((x) => {
-                    const coords = fromLonLat([x.longitude, x.latitude]);
+                    const coords = fromServerLonLat([x.longitude, x.latitude]);
 
                     return {
                         ...x,

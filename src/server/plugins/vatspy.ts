@@ -4,7 +4,7 @@ import { CronJob } from 'cron';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import type { Feature, MultiPolygon } from 'geojson';
-import { fromLonLat } from 'ol/proj';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
     'v2403.1': 7,
@@ -127,7 +127,7 @@ export default defineNitroPlugin((app) => {
             result.airports = parsedDat.airports
                 .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)
                 .map((value) => {
-                    const lonlat = fromLonLat([+value.lon!, +value.lat!]);
+                    const lonlat = fromServerLonLat([+value.lon!, +value.lat!]);
 
                     return {
                         ...value as Required<typeof value>,
@@ -153,7 +153,7 @@ export default defineNitroPlugin((app) => {
                             return x;
                         })))) as any;
 
-                        const coordinate = fromLonLat([+boundary.properties!.label_lon, +boundary.properties!.label_lat]);
+                        const coordinate = fromServerLonLat([+boundary.properties!.label_lon, +boundary.properties!.label_lat]);
 
                         result.firs.push({
                             ...value as Required<typeof value>,

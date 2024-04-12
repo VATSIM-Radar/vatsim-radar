@@ -1,8 +1,21 @@
 import { ofetch } from 'ofetch';
 import { createError } from 'h3';
+import { View } from 'ol';
+import { fromLonLat } from 'ol/proj';
+import type { Coordinate } from 'ol/coordinate';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().DOMAIN }/auth/vatsim`;
+}
+
+const view = new View({
+    multiWorld: false,
+});
+
+const projection = view.getProjection();
+
+export function fromServerLonLat(coordinate: Coordinate) {
+    return fromLonLat(coordinate, projection);
 }
 
 export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {

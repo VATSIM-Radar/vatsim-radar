@@ -9,7 +9,6 @@ interface ClientDB extends DBSchema {
     };
 }
 
-// eslint-disable-next-line import/no-mutable-exports
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
 
 export async function initClientDB() {
