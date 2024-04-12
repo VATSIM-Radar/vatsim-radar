@@ -1902,7 +1902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/adm-zip@npm:^0":
+"@types/adm-zip@npm:^0.5.5":
   version: 0.5.5
   resolution: "@types/adm-zip@npm:0.5.5"
   dependencies:
@@ -8031,7 +8031,7 @@ __metadata:
     "@pinia/nuxt": "npm:^0.5.1"
     "@prisma/client": "npm:^5.12.1"
     "@stylistic/stylelint-plugin": "npm:^2.1.1"
-    "@types/adm-zip": "npm:^0"
+    "@types/adm-zip": "npm:^0.5.5"
     "@types/eslint": "npm:^8.56.7"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
