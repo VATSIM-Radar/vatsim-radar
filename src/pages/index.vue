@@ -134,7 +134,9 @@ onMounted(async () => {
 
     store.extent = map.value!.getView().calculateExtent(map.value!.getSize());
     map.value.on('moveend', () => {
-        store.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+        const view = map.value!.getView();
+        store.zoom = view.getZoom() ?? 0;
+        store.extent = view.calculateExtent(map.value!.getSize());
     });
 });
 

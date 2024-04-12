@@ -6,6 +6,7 @@ export const useStore = defineStore('index', {
     state: () => ({
         theme: 'default' as ThemesList,
         extent: [0, 0, 0, 0] as Extent,
+        zoom: 0,
         openOverlayId: null as string | null,
         openPilotOverlay: false,
         dataReady: false,

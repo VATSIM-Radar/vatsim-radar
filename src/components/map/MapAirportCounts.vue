@@ -3,7 +3,7 @@
         v-if="!hide && (aircrafts.groundDep?.length || aircrafts.groundArr?.length || aircrafts.prefiles?.length)"
         :popup="!!aircraftHoveredType"
         @update:popup="!$event ? aircraftHoveredType = null : undefined"
-        :settings="{position: [airport.lon, airport.lat], offset, stopEvent: !!aircraftHoveredType, positioning: 'top-left'}"
+        :settings="{position: [airport.lon, airport.lat], offset, stopEvent: !!aircraftHoveredType, positioning: 'center-left'}"
         persistent
         :z-index="15"
         :active-z-index="21"
@@ -11,24 +11,24 @@
         <div class="airport-counts" @mouseleave="aircraftHoveredType = null">
             <div
                 class="airport-counts_item airport-counts_item--groundDep"
-                v-if="aircrafts.groundDep?.length"
+                :class="{'airport-counts_item--hidden': !aircrafts.groundDep?.length}"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'groundDep')"
             >
-                {{ aircrafts.groundDep.length }}
+                {{ aircrafts.groundDep?.length ?? 0 }}
             </div>
             <div
                 class="airport-counts_item airport-counts_item--prefiles"
                 v-if="aircrafts.prefiles?.length"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'prefiles')"
             >
-                {{ aircrafts.prefiles.length }}
+                {{ aircrafts.prefiles?.length ?? 0 }}
             </div>
             <div
                 class="airport-counts_item airport-counts_item--groundArr"
-                v-if="aircrafts.groundArr?.length"
+                :class="{'airport-counts_item--hidden': !aircrafts.groundArr?.length}"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
             >
-                {{ aircrafts.groundArr.length }}
+                {{ aircrafts.groundArr?.length ?? 0 }}
             </div>
             <common-popup-block class="airport-counts__airplanes" v-if="hoveredAirplanes.length">
                 <template #title>
@@ -101,7 +101,7 @@ const props = defineProps({
     },
     offset: {
         type: Array as PropType<number[]>,
-        default: () => [25, -20],
+        default: () => [25, 0],
     },
 });
 
@@ -157,6 +157,11 @@ const hoveredAirplanes = computed(() => {
         gap: 4px;
         line-height: 100%;
         cursor: pointer;
+
+        &--hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
 
         &::before {
             content: '';

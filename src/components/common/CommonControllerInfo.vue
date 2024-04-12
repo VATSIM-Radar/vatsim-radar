@@ -13,8 +13,8 @@
             <div class="atc-popup_list">
                 <common-info-block
                     class="atc-popup_atc"
-                    v-for="(controller, index) in controllers"
-                    :key="controller.cid+index"
+                    v-for="(controller, controllerIndex) in controllers"
+                    :key="controller.cid+controllerIndex"
                     is-button
                     :top-items="[
                         controller.callsign,

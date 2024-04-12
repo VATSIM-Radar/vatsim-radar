@@ -76,6 +76,7 @@ module.exports = {
         ],
         'import/order': 'off',
         'import/named': 'off',
+        'import/no-mutable-exports': 'off',
         'prefer-const': ['error', { destructuring: 'all' }],
         camelcase: ['off'],
         'func-call-spacing': 'off',

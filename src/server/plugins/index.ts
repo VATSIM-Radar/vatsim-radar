@@ -1,13 +1,13 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady } from '~/utils/backend/storage';
 
 export default defineNitroPlugin((app) => {
     app.hooks.hook('request', (event) => {
-        event.context.radarStorage = radarStorage;
+        event.context.radarStorageReady = isDataReady();
     });
 });
 
 declare module 'h3' {
     interface H3EventContext {
-        radarStorage: typeof radarStorage;
+        radarStorageReady: boolean
     }
 }

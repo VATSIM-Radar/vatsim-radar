@@ -52,7 +52,7 @@
     <map-airport-counts
         :aircrafts="aircrafts"
         :airport="airport"
-        :offset="localAtc.length ? [localATCOffsetX, 0] : undefined"
+        :offset="localAtc.length ? [localATCOffsetX, 10] : undefined"
         :hide="!isVisible"
     />
     <map-overlay
@@ -75,7 +75,8 @@
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
-import { Feature } from 'ol';
+import { Feature  } from 'ol';
+import type { Map } from 'ol';
 import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
@@ -84,6 +85,7 @@ import { toRadians } from 'ol/math';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/MapAirportCounts.vue';
+import type { NavigraphGate } from '~/types/data/navigraph';
 
 const props = defineProps({
     airport: {
@@ -93,6 +95,9 @@ const props = defineProps({
     aircrafts: {
         type: Object as PropType<MapAircraft>,
         required: true,
+    },
+    gates: {
+        type: Array as PropType<NavigraphGate[] | undefined>,
     },
     isVisible: {
         type: Boolean,
@@ -158,6 +163,7 @@ const localsFacilities = computed(() => {
 
 let feature: Feature | null = null;
 let arrFeature: Feature | null = null;
+let gatesFeatures: Feature[] = [];
 
 function initAirport() {
     feature = new Feature({
@@ -180,6 +186,7 @@ function initAirport() {
 onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);
     const atcLength = computed(() => props.arrAtc.length);
+    const gates = computed(() => props.gates);
 
     watch(localsLength, (val) => {
         if (!val && !feature) {
@@ -228,6 +235,67 @@ onMounted(() => {
     }, {
         immediate: true,
     });
+
+    watch(gates, (val) => {
+        if (!val?.length) {
+            gatesFeatures.forEach((feature) => {
+                vectorSource.value?.removeFeature(feature);
+                feature.dispose();
+            });
+            return;
+        }
+
+        for (const gate of gatesFeatures) {
+            if (!gates.value?.find(x => x.gate_identifier === gate.getProperties().identifier)) {
+                vectorSource.value?.removeFeature(gate);
+                gate.dispose();
+            }
+        }
+
+        gatesFeatures = gatesFeatures.filter(x => gates.value?.some(y => y.gate_identifier === x.getProperties().identifier));
+
+        for (const gate of gates.value ?? []) {
+            const color = gate.trulyOccupied ? 'rgba(203, 66, 28, 0.8)' : gate.maybeOccupied ? 'rgba(232, 202, 76, 0.8)' : 'rgba(0, 136, 86, 0.8)';
+
+            const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
+            if (existingFeature) {
+                const style = existingFeature.getStyle() as Style;
+                if (style.getText()?.getFill()?.getColor() !== color) {
+                    existingFeature.setStyle(new Style({
+                        text: new Text({
+                            font: '14px Arial',
+                            text: gate.name || gate.gate_identifier,
+                            textAlign: 'center',
+                            fill: new Fill({
+                                color,
+                            }),
+                        }),
+                    }));
+                }
+            }
+            else {
+                const feature = new Feature({
+                    geometry: new Point([gate.gate_longitude, gate.gate_latitude]),
+                    identifier: gate.gate_identifier,
+                });
+
+                feature.setStyle(new Style({
+                    text: new Text({
+                        font: '14px Arial',
+                        text: gate.name || gate.gate_identifier,
+                        textAlign: 'center',
+                        fill: new Fill({
+                            color,
+                        }),
+                    }),
+                }));
+                gatesFeatures.push(feature);
+                vectorSource.value?.addFeature(feature);
+            }
+        }
+    }, {
+        immediate: true,
+    });
 });
 
 onBeforeUnmount(() => {
@@ -240,6 +308,11 @@ onBeforeUnmount(() => {
         vectorSource.value?.removeFeature(arrFeature);
         arrFeature.dispose();
     }
+
+    gatesFeatures.forEach((feature) => {
+        vectorSource.value?.removeFeature(feature);
+        feature.dispose();
+    });
 });
 </script>
 
