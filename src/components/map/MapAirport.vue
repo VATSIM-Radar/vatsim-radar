@@ -76,7 +76,6 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
 import { Feature  } from 'ol';
-import type { Map } from 'ol';
 import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';

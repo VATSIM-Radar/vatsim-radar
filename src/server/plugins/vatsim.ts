@@ -4,9 +4,6 @@ import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from 
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { fromLonLat } from 'ol/proj';
-import { fr } from 'cronstrue/dist/i18n/locales/fr';
-
-let abort: AbortController | null = null;
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -34,18 +31,21 @@ function excludeKeys<S extends {
 }
 
 export default defineNitroPlugin((app) => {
+    let latestFinished = 0;
+    let isInProgress = false;
+
     CronJob.from({
-        cronTime: '*/5 * * * * *',
+        cronTime: '* * * * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
-            if (!radarStorage.vatspy.data) return;
+            if (!radarStorage.vatspy.data || isInProgress || Date.now() - latestFinished < 1000) return;
             try {
-                abort?.abort();
-                abort = new AbortController();
-                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', { signal: abort.signal });
+                isInProgress = true;
+                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json');
+
                 if (radarStorage.vatsim.data?.general) {
-                    if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() > new Date(data.general.update_timestamp).getTime()) return;
+                    if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() >= new Date(data.general.update_timestamp).getTime()) return;
                 }
 
                 data.pilots = data.pilots.map((x) => {
@@ -115,7 +115,8 @@ export default defineNitroPlugin((app) => {
                 console.error(e);
             }
             finally {
-                abort = null;
+                isInProgress = false;
+                latestFinished = Date.now();
             }
         },
     });
