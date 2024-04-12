@@ -46,7 +46,7 @@
       }
     ],
     "custom-property-pattern": null,
-    "no-global-function-names": null,
+    "scss/no-global-function-names": null,
     "keyframes-name-pattern": null,
     "import-notation": null,
     "media-feature-range-notation": null,
