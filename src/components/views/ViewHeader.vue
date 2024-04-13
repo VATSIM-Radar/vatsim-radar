@@ -20,9 +20,12 @@
         </div>
         <div class="header_right header__sections">
             <div class="header__sections_section">
-                <common-button size="S" href="/auth/vatsim/redirect">
+                <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
                     Connect Vatsim
                 </common-button>
+                <div class="header__user" v-else>
+                    {{ store.user.fullName }}
+                </div>
             </div>
             <div class="header__sections_section">
                 <common-button size="S" type="secondary" @click="loginPopup = true">
@@ -51,7 +54,10 @@
 </template>
 
 <script setup lang="ts">
+import { useStore } from '~/store';
+
 const route = useRoute();
+const store = useStore();
 
 const buttons = computed(() => {
     return [
@@ -98,6 +104,13 @@ const loginPopup = ref(false);
         color: $primary500;
         cursor: default;
         user-select: none;
+    }
+
+    &__user {
+        color: $primary500;
+        font-size: 14px;
+        font-family: $openSansFont;
+        font-weight: 700;
     }
 
     &__sections {

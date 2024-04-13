@@ -241,6 +241,7 @@ onMounted(() => {
                 vectorSource.value?.removeFeature(feature);
                 feature.dispose();
             });
+            gatesFeatures = [];
             return;
         }
 

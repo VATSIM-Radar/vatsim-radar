@@ -12,6 +12,7 @@ model User {
   navigraph NavigraphUser?
   vatsim    VatsimUser?
   tokens    UserToken[]
+  settings  Json? @default("{}")
 }
 
 model UserToken {

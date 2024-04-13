@@ -27,26 +27,8 @@ export default defineEventHandler(async (event) => {
 
                     const coords = fromServerLonLat([parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)]);
 
-                    let name = row.name;
-                    if (name.endsWith('S') || name.endsWith('N')) {
-                        name = name.slice(0, name.length - 1);
-                    }
-
-                    if (name.endsWith('SE') || name.endsWith('NW') || name.endsWith('NE') || name.endsWith('SW')) {
-                        name = name.slice(0, name.length - 2);
-                    }
-
-                    const identicalGate = gates.find(x => x.name === name);
-
-                    if (identicalGate) {
-                        identicalGate.gate_longitude = (coords[0] + identicalGate.gate_longitude) / 2;
-                        identicalGate.gate_latitude = (coords[1] + identicalGate.gate_latitude) / 2;
-                        return;
-                    }
-
                     gates.push({
                         ...row,
-                        name,
                         gate_longitude: coords[0],
                         gate_latitude: coords[1],
                     });
@@ -62,6 +44,56 @@ export default defineEventHandler(async (event) => {
         handleH3Exception(event, e);
         return;
     }
+
+    gates.forEach((gate, index) => {
+        const nextGate = gates[index + 1];
+        const afterNextGate = gates[index + 2];
+
+        if (nextGate) {
+            const pairs = [
+                ['SE', 'NW'],
+                ['SW', 'NE'],
+                ['ES', 'WN'],
+                ['WS', 'EN'],
+                ['N', 'S'],
+                ['W', 'E'],
+            ];
+
+            for (const pair of pairs) {
+                if (
+                    (gate.name.endsWith(pair[0]) && nextGate.name.endsWith(pair[1])) ||
+                    (gate.name.endsWith(pair[1]) && nextGate.name.endsWith(pair[0]))
+                ) {
+                    gates.splice(index + 1, 1);
+                    gate.name = gate.name.slice(0, gate.name.length - pair[0].length);
+                    break;
+                }
+
+                if (
+                    (gate.name.endsWith(pair[0] + '1') && nextGate.name.endsWith(pair[0] + '2')) ||
+                    (gate.name.endsWith(pair[1] + '1') && nextGate.name.endsWith(pair[1] + '2'))
+                ) {
+                    gates.splice(index + 1, 1);
+                    gate.name = gate.name.slice(0, gate.name.length - pair[0].length - 1);
+                    break;
+                }
+            }
+
+            if (gate.name.slice(-1) === nextGate.name.slice(-2).replace('R', '').replace('L', '')) {
+                gate.gate_longitude = (gate.gate_longitude + nextGate.gate_longitude) / 2;
+                gate.gate_latitude = (gate.gate_latitude + nextGate.gate_latitude) / 2;
+                gates.splice(index + 1, 1);
+            }
+        }
+
+        if (afterNextGate) {
+            if (gate.name.slice(-1) === afterNextGate.name.slice(-2).replace('R', '').replace('L', '')) {
+                gate.gate_longitude = (gate.gate_longitude + afterNextGate.gate_longitude) / 2;
+                gate.gate_latitude = (gate.gate_latitude + afterNextGate.gate_latitude) / 2;
+                gates.splice(index + 2, 1);
+            }
+        }
+    });
 
     return gates;
 });

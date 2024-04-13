@@ -53,7 +53,7 @@
                         :top-items="[
                             aircraft.callsign,
                             aircraft.aircraft_faa,
-                            aircraft.arrival || null,
+                            (aircraftHoveredType === 'groundArr' ? aircraft.departure : aircraft.arrival) || null,
                             aircraft.name,
                         ]"
                         v-for="aircraft in hoveredAirplanes"
@@ -66,7 +66,12 @@
                             </div>
                             <template v-else-if="index === 2">
                                 <span class="airport-counts__popup-info">
-                                    to
+                                    <template v-if="aircraftHoveredType === 'groundArr'">
+                                        from
+                                    </template>
+                                    <template v-else>
+                                        to
+                                    </template>
                                 </span>
                                 {{ item }}
                             </template>

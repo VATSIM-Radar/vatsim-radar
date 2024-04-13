@@ -144,6 +144,7 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
             }
 
             let trulyOccupied = false;
+            let maybeOccupied = false;
 
             for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
@@ -159,7 +160,7 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 pilotLon += lonAdjustment;
                 pilotLat += latAdjustment;
 
-                if (pilot.callsign === 'EZY125') {
+                if (pilot.callsign === 'CLX144B') {
                     console.log(pilot.heading);
                     const feature = new Feature({
                         geometry: new Point([pilotLon, pilotLat]),
@@ -194,13 +195,26 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 }
             }
 
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
+            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 50 && Math.abs(x.gate_latitude - pilot.latitude) < 50)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                 if (index === -1) continue;
                 gates[index] = {
                     ...gates[index],
                     maybeOccupied: true,
                 };
+                maybeOccupied = true;
+            }
+
+            if (!maybeOccupied) {
+                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
+                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
+                    if (index === -1) continue;
+                    gates[index] = {
+                        ...gates[index],
+                        maybeOccupied: true,
+                    };
+                    maybeOccupied = true;
+                }
             }
         }
 

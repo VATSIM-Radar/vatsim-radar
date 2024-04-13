@@ -3,22 +3,47 @@
         <template #title>
             Roadmap
         </template>
-        <common-tabs class="roadmap_tabs" :tabs="roadmap" v-model="tab"/>
-        <div class="roadmap_description" v-if="activeRoadmap.description">
-            {{ activeRoadmap.description }}
-        </div>
-
-        <div class="roadmap_items" v-if="activeRoadmap.items.length">
-            <common-info-block class="roadmap_items_item" v-for="item in activeRoadmap.items" :key="item">
-                <template #bottom>
-                    <div class="roadmap_items_item_text">
-                        {{ item }}
-                    </div>
-                </template>
-            </common-info-block>
-        </div>
-        <div class="roadmap_complete" v-else>
-            All tasks on this stage were completed! 🎉
+        <div class="roadmap_tabs">
+            <div
+                class="roadmap_item"
+                :class="{
+                    'roadmap_item--completed': item.completed,
+                    'roadmap_item--opened': item.opened,
+                    'roadmap_item--active': item.items.some(x => typeof x === 'object' && x.status),
+                }"
+                v-for="(item, index) in roadmap"
+                :key="index"
+                @click="!item.opened ? [activeRoadmap ? activeRoadmap.opened = false : undefined, item.opened = true] : undefined"
+            >
+                <div class="roadmap_item_title">
+                    {{ item.title }}
+                </div>
+                <div class="roadmap_item_description" v-if="item.description && item.opened">
+                    {{ item.description }}
+                </div>
+                <div class="roadmap_item_items" v-if="item.opened">
+                    <common-info-block class="roadmap_item_items_block" :top-items="typeof block === 'string' ? [block] : [block.title, block.description]" v-for="(block, blockIndex) in item.items" :key="blockIndex">
+                        <template #bottom v-if="(typeof block === 'object' && block.status) || item.completed">
+                            <div class="roadmap_item_items__status" :class="[`roadmap_item_items__status--${item.completed ? 'completed' : (block as Record<string, any>).status}`]">
+                                <template v-if="typeof block === 'object' && block.status">
+                                    <template v-if="block.status === 'todo'">
+                                        TODO
+                                    </template>
+                                    <template v-else-if="block.status === 'in-progress'">
+                                        In progress
+                                    </template>
+                                    <template v-else-if="block.status === 'completed'">
+                                        Completed
+                                    </template>
+                                </template>
+                                <template v-else-if="item.completed">
+                                    Completed
+                                </template>
+                            </div>
+                        </template>
+                    </common-info-block>
+                </div>
+            </div>
         </div>
     </common-page-block>
 </template>
@@ -29,14 +54,15 @@ import CommonPageBlock from '~/components/common/CommonPageBlock.vue';
 interface Roadmap {
     title: string;
     description?: string;
-    items: string[];
+    items: Array<string | { title: string, description?: string, status?: 'todo' | 'in-progress' | 'completed' }>;
+    completed?: boolean;
+    opened?: boolean;
 }
 
-const tab = ref('stage2');
-
-const roadmap: Record<string, Roadmap> = {
-    developed: {
-        title: '☑️ Developed',
+const roadmap = reactive<Roadmap[]>([
+    {
+        title: 'Stage 1',
+        completed: true,
         items: [
             'VatSPY FIRS/UIRS API',
             'Vatsim data caching',
@@ -50,23 +76,35 @@ const roadmap: Record<string, Roadmap> = {
             'Settings',
         ],
     },
-    stage1: {
-        title: 'Stage 1',
-        items: [],
-    },
-    stage2: {
+    {
         title: 'Stage 2',
+        opened: true,
         items: [
+            {
+                title: 'Aircraft tracking',
+                status: 'in-progress',
+            },
+            {
+                title: 'Aircraft info popup',
+                status: 'in-progress',
+            },
+            {
+                title: 'ATC info popup',
+                status: 'todo',
+            },
+            {
+                title: 'Airport info popup',
+                status: 'todo',
+            },
             'Map Modes (OpenStreetMaps/Satellite/Other)',
             'Light theme',
             'Different aircraft icons',
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
-            'Pilot/ATC/Airport info popup',
             'Open Source (code only)',
         ],
     },
-    stage3: {
+    {
         title: 'Stage 3',
         items: [
             'Ability to run github repo locally',
@@ -79,7 +117,7 @@ const roadmap: Record<string, Roadmap> = {
             'Search',
         ],
     },
-    stage4: {
+    {
         title: 'Stage 4',
         items: [
             'Stats (popular now/over time)',
@@ -87,7 +125,7 @@ const roadmap: Record<string, Roadmap> = {
             'PWA',
         ],
     },
-    considering: {
+    {
         title: 'Considering',
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
@@ -103,39 +141,84 @@ const roadmap: Record<string, Roadmap> = {
             'Weather (still need to figure out from where to fetch)',
         ],
     },
-};
+]);
 
-const activeRoadmap = computed(() => roadmap[tab.value]);
+const activeRoadmap = computed(() => roadmap.find(x => x.opened));
 </script>
 
 <style scoped lang="scss">
 .roadmap {
     &_tabs {
-        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
     }
 
-    &_description {
-        font-weight: 700;
+    &_item {
         background: $neutral1000;
+        width: calc(25% / 4 - 8px);
         padding: 8px;
-        border-radius: 4px;
-        margin-bottom: 16px;
-    }
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        transition: 0.3s;
+        white-space: nowrap;
+        overflow: hidden;
 
-    &_complete {
-        background: $success500;
-        color: $neutral150;
-        padding: 8px;
-        border-radius: 4px;
-    }
+        &_title {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 32px;
+            font-family: $openSansFont;
+            font-weight: 700;
+            color: $neutral150;
+            margin-bottom: 8px;
+        }
 
-    &_items {
-        display: grid;
-        grid-template-columns: repeat(2, calc(50% - 8px));
-        gap: 16px;
+        &--active .roadmap_item_title {
+            color: $primary500;
+        }
 
-        &_item_text {
-            font-size: 16px;
+        &--completed .roadmap_item_title {
+            color: $success500;
+        }
+
+        &--opened {
+            width: 75%;
+            cursor: default;
+
+            .roadmap_item {
+                &_title {
+                    writing-mode: initial;
+                    transform: rotate(0deg);
+                }
+            }
+        }
+
+        &_items {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 4px));
+            gap: 8px;
+
+            & &_block {
+                font-size: 14px;
+            }
+
+            &__status {
+                &--todo {
+                    color: $warning500;
+                }
+
+                &--in-progress {
+                    color: $primary500;
+                }
+
+                &--completed {
+                    color: $success500;
+                }
+            }
         }
     }
 }

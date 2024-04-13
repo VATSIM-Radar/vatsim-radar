@@ -1,13 +1,15 @@
 <template>
     <div class="tabs">
-        <div
-            class="tabs_tab"
-            :class="{'tabs_tab--active': key === model}"
-            v-for="(tab, key) in tabs"
-            :key="key"
-            @click="model = key"
-        >
-            {{ tab.title }}
+        <div class="tabs_list">
+            <div
+                class="tabs_tab"
+                :class="{'tabs_tab--active': key === model}"
+                v-for="(tab, key) in tabs"
+                :key="key"
+                @click="model = key"
+            >
+                {{ tab.title }}
+            </div>
         </div>
         <div class="tabs_content" v-if="model && $slots[model]">
             <slot :name="model as any"/>
@@ -40,8 +42,12 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
 <style scoped lang="scss">
 .tabs {
-    display: flex;
     width: 100%;
+
+    &_list {
+        display: flex;
+        gap: 4px;
+    }
 
     &_tab {
         width: 100%;

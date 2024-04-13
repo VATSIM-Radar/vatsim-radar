@@ -180,6 +180,7 @@ await useAsyncData(async () => {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
+    position: relative;
 
     &_container {
         display: flex;
