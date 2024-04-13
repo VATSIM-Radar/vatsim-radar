@@ -1,10 +1,10 @@
-import type { NavigraphUser, VatsimUser } from '@prisma/client';
 import { prisma } from './prisma';
-import { getCookie, setCookie } from 'h3';
+import { getCookie } from 'h3';
 import type { H3Event } from 'h3';
-import { getDBUserToken } from '~/utils/db/user';
+import { getDBUserToken  } from '~/utils/db/user';
+import type { RequiredDBUser } from '~/utils/db/user';
 
-export async function findUserByCookie(event: H3Event) {
+export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
 
     const token = await prisma.userToken.findFirst({

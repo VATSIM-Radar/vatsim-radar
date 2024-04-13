@@ -6,7 +6,7 @@ import { fromServerLonLat } from '~/utils/backend/vatsim';
 export default defineEventHandler(async (event) => {
     const splitted = event.path.split('/');
     const icao = splitted[splitted.length - 1]?.toUpperCase();
-    const gates: NavigraphGate[] = [];
+    let gates: NavigraphGate[] = [];
 
     if (icao.length !== 4) {
         handleH3Error({
@@ -47,7 +47,6 @@ export default defineEventHandler(async (event) => {
 
     gates.forEach((gate, index) => {
         const nextGate = gates[index + 1];
-        const afterNextGate = gates[index + 2];
 
         if (nextGate) {
             const pairs = [
@@ -78,19 +77,32 @@ export default defineEventHandler(async (event) => {
                     break;
                 }
             }
-
-            if (gate.name.slice(-1) === nextGate.name.slice(-2).replace('R', '').replace('L', '')) {
-                gate.gate_longitude = (gate.gate_longitude + nextGate.gate_longitude) / 2;
-                gate.gate_latitude = (gate.gate_latitude + nextGate.gate_latitude) / 2;
-                gates.splice(index + 1, 1);
-            }
         }
 
-        if (afterNextGate) {
-            if (gate.name.slice(-1) === afterNextGate.name.slice(-2).replace('R', '').replace('L', '')) {
-                gate.gate_longitude = (gate.gate_longitude + afterNextGate.gate_longitude) / 2;
-                gate.gate_latitude = (gate.gate_latitude + afterNextGate.gate_latitude) / 2;
-                gates.splice(index + 2, 1);
+        const lrGate = gates.findIndex((x, xIndex) => index < xIndex && gate.name.slice(-1) === x.name.slice(-2).replace('R', '').replace('L', ''));
+
+        if (lrGate !== -1) {
+            gate.gate_longitude = (gate.gate_longitude + gates[lrGate].gate_longitude) / 2;
+            gate.gate_latitude = (gate.gate_latitude + gates[lrGate].gate_latitude) / 2;
+            gates.splice(lrGate, 1);
+        }
+
+        if (gate.name.endsWith('1') && gate.name !== '01') {
+            const similarGates = gates.filter(x =>
+                x.name.length === gate.name.length &&
+                x.name.startsWith(gate.name.slice(0, gate.name.length - 1)) &&
+                Math.abs(x.gate_latitude - gate.gate_latitude) < 20 &&
+                Math.abs(x.gate_longitude - gate.gate_longitude) < 20,
+            );
+
+            if (similarGates.length > 1 && similarGates.length < 9) {
+                if (similarGates.length === 2) {
+                    gate.gate_longitude = (gate.gate_longitude + gates[1].gate_longitude) / 2;
+                    gate.gate_latitude = (gate.gate_latitude + gates[1].gate_latitude) / 2;
+                }
+
+                gate.name = gate.name.slice(0, gate.name.length - 1);
+                gates = gates.filter(x => !similarGates.some(y => y.name === x.name && y.name !== gate.name));
             }
         }
     });
