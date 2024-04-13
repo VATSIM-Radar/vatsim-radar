@@ -23,6 +23,7 @@ import MapSectorsList from '~/components/map/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
+import type { VatDataVersions } from '~/types/data';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const map = shallowRef<Map | null>(null);
@@ -49,7 +50,7 @@ onMounted(async () => {
     }
 
     if (!dataStore.versions.value) {
-        dataStore.versions.value = await $fetch('/data/versions');
+        dataStore.versions.value = await $fetch<VatDataVersions>('/data/versions');
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
     }
 
@@ -88,7 +89,7 @@ onMounted(async () => {
     ]);
 
     interval = setInterval(async () => {
-        const versions = await $fetch('/data/versions');
+        const versions = await $fetch<VatDataVersions>('/data/versions');
 
         if (versions && versions.vatsim.data !== dataStore.vatsim.updateTimestamp.value) {
             dataStore.versions.value = versions;

@@ -28,13 +28,54 @@
                 </div>
             </div>
             <div class="header__sections_section">
-                <common-button size="S" type="secondary" @click="loginPopup = true">
+                <common-button size="S" type="secondary" @click="!store.user ? loginPopup = true : settingsPopup = true">
                     Settings
                 </common-button>
                 <common-button size="S" href="https://discord.gg/MtFKhMPePe" target="_blank" type="secondary">
                     Discord
                 </common-button>
             </div>
+
+            <common-info-popup
+                class="header__settings"
+                absolute
+                v-model="settingsPopup"
+                collapsible
+                :tabs="{
+                    test1: {
+                        title: 'test',
+                        sections: [
+                            {title: 'Current Flight Details', collapsible: true, key: 'test1'},
+                            {title: 'Test', key: 'test2'},
+                            {key: 'test3'}
+                        ]
+                    },
+                    test2: {
+                        title: 'Test 2',
+                        sections: [{title: 'test', key: 'test4'}]
+                    }
+                }"
+                :header-actions="['test']"
+            >
+                <template #title>
+                    Settings
+                </template>
+                <template #action-test>
+                    Test
+                </template>
+                <template #test1>
+                    Test 1
+                </template>
+                <template #test2>
+                    Test 2
+                </template>
+                <template #test3>
+                    Test 3
+                </template>
+                <template #test4>
+                    Test 4
+                </template>
+            </common-info-popup>
         </div>
         <common-popup v-model="loginPopup">
             <template #title>
@@ -81,6 +122,7 @@ const buttons = computed(() => {
 });
 
 const loginPopup = ref(false);
+const settingsPopup = ref(false);
 </script>
 
 <style scoped lang="scss">
@@ -95,6 +137,11 @@ const loginPopup = ref(false);
         display: flex;
         align-items: center;
         gap: 32px;
+    }
+
+    &_right {
+        position: relative;
+        z-index: 5;
     }
 
     &__logo {
@@ -127,6 +174,11 @@ const loginPopup = ref(false);
                 border-left: 1px solid varToRgba('neutral150', 0.2);
             }
         }
+    }
+
+    &__settings {
+        top: calc(100% + 24px);
+        right: -4px;
     }
 }
 </style>

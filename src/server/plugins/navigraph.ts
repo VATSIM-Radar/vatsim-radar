@@ -35,7 +35,7 @@ interface File {
 }
 
 async function downloadNavigraphFile({ fileUrl, path, filename }: {fileUrl: string, path: string, filename: string}) {
-    const zip = await $fetch(fileUrl, { responseType: 'arrayBuffer' }) as ArrayBuffer;
+    const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
     const admZip = new AdmZip(Buffer.from(zip));
     admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, undefined, undefined, filename);
 }

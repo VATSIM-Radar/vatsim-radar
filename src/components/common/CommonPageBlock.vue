@@ -9,10 +9,11 @@
 
 <style scoped lang="scss">
 .page-block {
-    margin: auto;
-    background: $neutral900;
+    background: $neutral950;
     padding: 16px;
     border-radius: 8px;
+    width: 100%;
+    flex: 1 0 auto;
 
     &_title {
         font-size: 32px;
