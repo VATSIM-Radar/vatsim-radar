@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import EllipseIcon from '@/assets/ellipse.svg?component';
+import EllipseIcon from 'assets/icons/ellipse.svg?component';
 
 defineProps({
     textAlign: {

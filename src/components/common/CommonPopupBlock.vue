@@ -24,7 +24,7 @@
         display: flex;
         gap: 16px;
         padding-bottom: 8px;
-        border-bottom: 1px solid $neutral850;
+        border-bottom: 1px solid varToRgba('neutral150', 0.2);
 
         &_text {
             color: $primary500;
@@ -37,7 +37,7 @@
 
         &_sub {
             padding-left: 16px;
-            border-left: 1px solid $neutral850;
+            border-left: 1px solid varToRgba('neutral150', 0.2);
             color: $neutral150;
             font-size: 13px;
         }

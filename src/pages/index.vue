@@ -131,6 +131,14 @@ onMounted(async () => {
     map.value.on('pointerdrag', function() {
         map.value!.getTargetElement().style.cursor = 'grabbing';
     });
+    map.value.on('pointermove', function() {
+        if (!store.mapCursorPointerTrigger) {
+            map.value!.getTargetElement().style.cursor = 'grab';
+        }
+        else {
+            map.value!.getTargetElement().style.cursor = 'pointer';
+        }
+    });
 
     store.extent = map.value!.getView().calculateExtent(map.value!.getSize());
     map.value.on('moveend', () => {
@@ -168,14 +176,20 @@ await useAsyncData(async () => {
 
 <style lang="scss" scoped>
 .map {
-    width: 100dvw;
-    height: 100dvh;
+    width: 100%;
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
 
     &_container {
+        display: flex;
+        flex-direction: column;
         flex: 1 0 auto;
-        background: $neutral1000;
+
+        :deep(>*) {
+            flex: 1 0 auto;
+            border-radius: 8px;
+        }
     }
 }
 

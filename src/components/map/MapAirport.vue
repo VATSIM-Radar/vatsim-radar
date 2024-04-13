@@ -3,7 +3,7 @@
         v-if="localAtc.length"
         :popup="!!hoveredFacility"
         @update:popup="!$event ? hoveredFacility = false : undefined"
-        :settings="{position: [airport.lon, airport.lat], positioning: 'top-left'}"
+        :settings="{position: [airport.lon, airport.lat], positioning: 'top-left', stopEvent: !!hoveredFacility,}"
         persistent
         :z-index="15"
         :active-z-index="21"
@@ -58,7 +58,7 @@
     <map-overlay
         v-if="isHovered"
         model-value
-        :settings="{position: [airport.lon, airport.lat + 80000], positioning: 'top-center'}"
+        :settings="{position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true}"
         :z-index="21"
         @mouseover="$emit('manualHover')"
         @mouseleave="$emit('manualHide')"
@@ -171,7 +171,7 @@ function initAirport() {
 
     feature.setStyle(new Style({
         text: new Text({
-            font: '12px Arial',
+            font: '12px Montserrat',
             text: props.airport.icao,
             fill: new Fill({
                 color: 'rgba(230, 230, 235, 0.8)',
@@ -219,7 +219,7 @@ onMounted(() => {
                 width: 2,
             }),
             text: new Text({
-                font: 'bold 14px Arial',
+                font: 'bold 14px Montserrat',
                 text: props.airport.icao,
                 placement: 'line',
                 offsetY: -10,
@@ -262,7 +262,7 @@ onMounted(() => {
                 if (style.getText()?.getFill()?.getColor() !== color) {
                     existingFeature.setStyle(new Style({
                         text: new Text({
-                            font: '14px Arial',
+                            font: '14px Montserrat',
                             text: gate.name || gate.gate_identifier,
                             textAlign: 'center',
                             fill: new Fill({
@@ -280,7 +280,7 @@ onMounted(() => {
 
                 feature.setStyle(new Style({
                     text: new Text({
-                        font: '14px Arial',
+                        font: '14px Montserrat',
                         text: gate.name || gate.gate_identifier,
                         textAlign: 'center',
                         fill: new Fill({

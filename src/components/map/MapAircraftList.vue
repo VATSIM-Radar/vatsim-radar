@@ -84,7 +84,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
             hoveredAircraft.value = null;
         }
 
-        map.value!.getTargetElement().style.cursor = 'grab';
+        if (store.mapCursorPointerTrigger === 1) store.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -94,7 +94,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     if (getPilotsForPixel(aircraftCoordsToPixel(features[0])).length === 1) {
         hoveredAircraft.value = features[0].cid;
-        map.value!.getTargetElement().style.cursor = 'pointer';
+        store.mapCursorPointerTrigger = 1;
     }
 }
 

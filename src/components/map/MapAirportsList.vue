@@ -18,13 +18,16 @@
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
+import { Feature } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useStore } from '~/store';
-import type { MapAircraft  } from '~/types/map';
+import type { MapAircraft } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { NavigraphGate } from '~/types/data/navigraph';
+import { Point } from 'ol/geom';
+import { Fill, Style, Text } from 'ol/style';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -33,13 +36,16 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const dataStore = useDataStore();
 const visibleAirports = shallowRef<string[]>([]);
-const airportsGates = shallowRef<{airport: string, gates: NavigraphGate[]}[]>([]);
+const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>([]);
 const originalGates = shallowRef<NavigraphGate[]>([]);
 const isManualHover = ref(false);
 const hoveredAirport = ref<string | null>(null);
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
-    const features = map.value!.getFeaturesAtPixel(e.pixel, { hitTolerance: 5, layerFilter: layer => layer === vectorLayer });
+    const features = map.value!.getFeaturesAtPixel(e.pixel, {
+        hitTolerance: 5,
+        layerFilter: layer => layer === vectorLayer,
+    });
 
     let isInvalid = features.length !== 1 || features[0].getProperties().type !== 'circle';
 
@@ -53,7 +59,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         if (!isManualHover.value) {
             hoveredAirport.value = null;
         }
-        map.value!.getTargetElement().style.cursor = 'grab';
+        if (store.mapCursorPointerTrigger === 2) store.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -61,7 +67,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     isManualHover.value = false;
 
     hoveredAirport.value = features[0].getProperties().icao;
-    map.value!.getTargetElement().style.cursor = 'pointer';
+    store.mapCursorPointerTrigger = 2;
 }
 
 watch(map, (val) => {
@@ -113,42 +119,82 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
             let pilotLon = pilot.longitude;
             let pilotLat = pilot.latitude;
 
-            let lonAdjustment = 0; let latAdjustment = 0;
+            let lonAdjustment = 0;
+            let latAdjustment = 0;
             let direction = pilot.heading;
 
             if (direction >= 0 && direction < 90) {
-                lonAdjustment = (1 - direction / 90) * -15;
-                latAdjustment = (direction / 90) * 15;
+                lonAdjustment = (direction / 90) * 30;
+                latAdjustment = (1 - direction / 90) * 30;
             }
             else if (direction >= 90 && direction < 180) {
                 direction -= 90;
-                lonAdjustment = (1 - direction / 90) * 15;
-                latAdjustment = (direction / 90) * 15;
+                lonAdjustment = (1 - direction / 90) * 30;
+                latAdjustment = (direction / 90) * -30;
             }
             else if (direction >= 180 && direction < 270) {
                 direction -= 180;
-                lonAdjustment = (1 - direction / 90) * 15;
-                latAdjustment = (direction / 90) * -15;
+                lonAdjustment = (direction / 90) * -30;
+                latAdjustment = (1 - direction / 90) * -30;
             }
             else {
                 direction -= 270;
-                lonAdjustment = (1 - direction / 90) * -15;
-                latAdjustment = (direction / 90) * -15;
+                lonAdjustment = (1 - direction / 90) * -30;
+                latAdjustment = (direction / 90) * 30;
             }
 
-            pilotLon += latAdjustment;
-            pilotLat += lonAdjustment;
+            let trulyOccupied = false;
 
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 30 && Math.abs(x.gate_latitude - pilotLat) < 30)) {
+            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                 if (index === -1) continue;
                 gates[index] = {
                     ...gates[index],
                     trulyOccupied: true,
                 };
+                trulyOccupied = true;
             }
 
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 60 && Math.abs(x.gate_latitude - pilotLat) < 60)) {
+            if (!trulyOccupied) {
+                pilotLon += lonAdjustment;
+                pilotLat += latAdjustment;
+
+                if (pilot.callsign === 'EZY125') {
+                    console.log(pilot.heading);
+                    const feature = new Feature({
+                        geometry: new Point([pilotLon, pilotLat]),
+                    });
+
+                    feature.setStyle(new Style({
+                        text: new Text({
+                            font: '12px Arial',
+                            text: 'Here!',
+                            fill: new Fill({
+                                color: '#3B6CEC',
+                            }),
+                        }),
+                    }));
+
+                    vectorSource.value?.addFeature(feature);
+
+                    setTimeout(() => {
+                        vectorSource.value?.removeFeature(feature);
+                        feature.dispose();
+                    }, 5000);
+                }
+
+                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
+                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
+                    if (index === -1) continue;
+                    gates[index] = {
+                        ...gates[index],
+                        trulyOccupied: true,
+                    };
+                    trulyOccupied = true;
+                }
+            }
+
+            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
                 const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                 if (index === -1) continue;
                 gates[index] = {
@@ -185,13 +231,21 @@ const getAirportsList = computed(() => {
             if (airport.aircraftsList.arrivals?.includes(pilot.cid) && !airport.aircrafts.arrivals) airport.aircrafts.arrivals = true;
 
             if (airport.aircraftsList.groundArr?.includes(pilot.cid)) {
-                if (!airport.aircrafts.groundArr) airport.aircrafts.groundArr = [pilot];
-                else (airport.aircrafts.groundArr as VatsimShortenedAircraft[]).push(pilot);
+                if (!airport.aircrafts.groundArr) {
+                    airport.aircrafts.groundArr = [pilot];
+                }
+                else {
+                    (airport.aircrafts.groundArr as VatsimShortenedAircraft[]).push(pilot);
+                }
             }
 
             if (airport.aircraftsList.groundDep?.includes(pilot.cid)) {
-                if (!airport.aircrafts.groundDep) airport.aircrafts.groundDep = [pilot];
-                else (airport.aircrafts.groundDep as VatsimShortenedAircraft[]).push(pilot);
+                if (!airport.aircrafts.groundDep) {
+                    airport.aircrafts.groundDep = [pilot];
+                }
+                else {
+                    (airport.aircrafts.groundDep as VatsimShortenedAircraft[]).push(pilot);
+                }
             }
         }
     }
@@ -201,8 +255,12 @@ const getAirportsList = computed(() => {
         if (!airport) continue;
 
         if (airport.aircraftsList.prefiles?.includes(pilot.cid)) {
-            if (!airport.aircrafts.prefiles) airport.aircrafts.prefiles = [pilot];
-            else (airport.aircrafts.prefiles as VatsimShortenedPrefile[]).push(pilot);
+            if (!airport.aircrafts.prefiles) {
+                airport.aircrafts.prefiles = [pilot];
+            }
+            else {
+                (airport.aircrafts.prefiles as VatsimShortenedPrefile[]).push(pilot);
+            }
         }
     }
 
