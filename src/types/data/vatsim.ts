@@ -6,6 +6,8 @@ export interface VatsimGeneral {
     update_timestamp: string;
     connected_clients: number;
     unique_users: number;
+    supsCount: number
+    admCount: number
 }
 
 export interface VatsimPilot {
@@ -125,7 +127,7 @@ export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> &
     airports: MapAirport[]
 }
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>
 
 export interface VatsimDivision {
     id: string;

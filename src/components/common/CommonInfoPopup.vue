@@ -77,6 +77,7 @@ interface InfoPopupSection {
     key: string;
     title?: string;
     collapsible?: boolean;
+    collapsedDefault?: boolean
 }
 
 type InfoPopupContent = Record<string, {
@@ -129,6 +130,14 @@ const activeTab = ref(props.tabs ? Object.keys(props.tabs)[0] : '');
 const getSections = computed(() => {
     if (!props.tabs) return props.sections ?? [];
     return props.tabs[activeTab.value as keyof typeof props.tabs].sections;
+});
+
+watch(getSections, (sections) => {
+    sections.forEach((section) => {
+        if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) collapsedSections.value.push(section.key);
+    });
+}, {
+    immediate: true,
 });
 </script>
 

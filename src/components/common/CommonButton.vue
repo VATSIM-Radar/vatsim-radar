@@ -5,11 +5,15 @@
         :class="[
             `button--type-${type}`,
             `button--size-${size}`,
+            `button--orientation-${orientation}`,
             {
                 'button--disabled': disabled,
                 'button--icon': !!$slots.icon && !$slots.default
             }
         ]"
+        :style="{
+            '--button-width': width,
+        }"
         :target="target"
         @click="!disabled && $emit('click', $event)"
         v-bind="getAttrs"
@@ -32,9 +36,16 @@ const props = defineProps({
     tag: {
         type: String,
     },
+    width: {
+        type: String,
+    },
     type: {
-        type: String as PropType<'primary' | 'secondary'>,
+        type: String as PropType<'primary' | 'secondary' | 'link' | 'transparent'>,
         default: 'primary',
+    },
+    orientation: {
+        type: String as PropType<'vertical' | 'horizontal'>,
+        default: 'horizontal',
     },
     disabled: {
         type: Boolean,
@@ -78,7 +89,9 @@ const getTag = computed(() => {
 
 const getAttrs = computed(() => {
     const attrs: Record<string, any> = {};
-    if (props.to) attrs.to = props.to;
+    if (props.to) {
+        attrs.to = props.to;
+    }
     else if (props.href) attrs.href = props.href;
 
     return attrs;
@@ -106,6 +119,8 @@ const getAttrs = computed(() => {
     min-height: 40px;
     text-decoration: none;
     text-align: center;
+    width: var(--button-width);
+    user-select: none;
 
     @include hover {
         transition: 0.3s;
@@ -117,6 +132,10 @@ const getAttrs = computed(() => {
         &:focus, &:active {
             background: $primary600;
         }
+    }
+
+    &_icon {
+        width: 16px;
     }
 
     &--type-secondary {
@@ -133,6 +152,25 @@ const getAttrs = computed(() => {
         }
     }
 
+    &--type-transparent {
+        background: transparent !important;
+        color: $neutral150;
+
+        @include hover {
+            &:hover {
+                color: $primary500;
+            }
+
+            &:focus, &:active {
+                color: $primary600;
+            }
+        }
+    }
+
+    &--orientation-vertical {
+        flex-direction: column;
+    }
+
     &--icon {
         width: 40px;
         height: 40px;
@@ -145,6 +183,29 @@ const getAttrs = computed(() => {
         &.button--icon {
             width: 32px;
             height: 32px;
+        }
+    }
+
+    &--type-link {
+        color: $neutral150;
+        text-decoration: underline;
+        padding: 0;
+        font-size: 10px;
+        border-radius: 0;
+        min-height: auto;
+        height: auto;
+        background: transparent !important;
+        text-align: left;
+        justify-content: flex-start;
+
+        @include hover {
+            &:hover {
+                color: $primary500;
+            }
+
+            &:focus, &:active {
+                color: $primary600;
+            }
         }
     }
 

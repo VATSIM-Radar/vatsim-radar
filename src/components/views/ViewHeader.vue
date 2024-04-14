@@ -28,11 +28,17 @@
                 </div>
             </div>
             <div class="header__sections_section">
-                <common-button size="S" type="secondary" @click="!store.user ? loginPopup = true : settingsPopup = true">
+                <common-button
+                    size="S"
+                    :type="!settingsPopup ? 'secondary' : 'primary'"
+                    @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
+                >
                     Settings
                 </common-button>
                 <common-button size="S" href="https://discord.gg/MtFKhMPePe" target="_blank" type="secondary">
-                    Discord
+                    <template #icon>
+                        <discord-icon/>
+                    </template>
                 </common-button>
             </div>
 
@@ -40,40 +46,103 @@
                 class="header__settings"
                 absolute
                 v-model="settingsPopup"
-                collapsible
-                :tabs="{
-                    test1: {
-                        title: 'test',
-                        sections: [
-                            {title: 'Current Flight Details', collapsible: true, key: 'test1'},
-                            {title: 'Test', key: 'test2'},
-                            {key: 'test3'}
-                        ]
-                    },
-                    test2: {
-                        title: 'Test 2',
-                        sections: [{title: 'test', key: 'test4'}]
-                    }
-                }"
-                :header-actions="['test']"
+                :sections="[
+                    {title: 'Vatsim Account', key: 'account'},
+                    {title: 'Follow Me Preferences', key: 'follow', collapsible: true, collapsedDefault: true},
+                    {title: 'Navigraph Account', key: 'navigraph'}
+                ]"
             >
                 <template #title>
                     Settings
                 </template>
-                <template #action-test>
-                    Test
+                <template #account>
+                    <div class="header__settings__block header__settings__block--short-gap">
+                        <common-info-block>
+                            <template #top>
+                                <div class="header__settings__two-col-block">
+                                    <div class="header__settings__two-col-block_title">
+                                        Vatsim ID
+                                    </div>
+                                    <div class="header__settings__two-col-block_text">
+                                        {{ store.user!.cid }}
+                                    </div>
+                                </div>
+                            </template>
+                        </common-info-block>
+                        <common-info-block>
+                            <template #top>
+                                <div class="header__settings__two-col-block">
+                                    <div class="header__settings__two-col-block_title">
+                                        Name
+                                    </div>
+                                    <div class="header__settings__two-col-block_text">
+                                        {{ store.user!.fullName }}
+                                    </div>
+                                </div>
+                            </template>
+                        </common-info-block>
+                        <common-button-group>
+                            <common-button :href="`https://stats.vatsim.net/stats/${store.user!.cid}`" target="_blank">
+                                My stats
+                            </common-button>
+                            <common-button class="header__settings__logout">
+                                Logout
+                            </common-button>
+                        </common-button-group>
+                        <common-button class="header__settings__delete" type="link">
+                            Delete Account
+                        </common-button>
+                    </div>
                 </template>
-                <template #test1>
-                    Test 1
+                <template #follow>
+                    <div class="header__settings__block header__settings__block--long-gap">
+                        <div class="header__settings__description">
+                            Those are placeholders that will have effect later, along with follow and pilot info popup features
+                        </div>
+                        <common-toggle v-model="settings.autoFollow">
+                            Auto-follow me
+
+                            <template #description>
+                                Enabling this will auto-open info popup with your current flight and
+                                enable tracking of it (on map load or when spawned on ground)
+                            </template>
+                        </common-toggle>
+                        <common-toggle v-model="settings.autoZoom" :disabled="!settings.autoFollow">
+                            Auto-zoom to me
+
+                            <template #description>
+                                Enabling this will also enable constant zoom to your aicraft position (differs from
+                                ground to airborne)<br><br>
+                                By default it will use last saved position
+                            </template>
+                        </common-toggle>
+                    </div>
                 </template>
-                <template #test2>
-                    Test 2
-                </template>
-                <template #test3>
-                    Test 3
-                </template>
-                <template #test4>
-                    Test 4
+                <template #navigraph>
+                    <div class="header__settings__block header__settings__block--long-gap">
+                        <common-button v-if="store.user?.hasFms === null" href="/auth/navigraph/redirect">
+                            Link Navigraph
+                        </common-button>
+                        <div class="header__settings__navigraph" :class="{'header__settings__navigraph--ultimate': store.user!.hasFms}" v-else>
+                            <div class="header__settings__navigraph_title">
+                                Status
+                            </div>
+                            <div class="header__settings__navigraph_status">
+                                <template v-if="store.user!.hasFms">
+                                    Ultimate
+                                </template>
+                                <template v-else>
+                                    Standard
+                                </template>
+                            </div>
+                            <common-button class="header__settings__navigraph_unlink" type="link">
+                                Unlink
+                            </common-button>
+                        </div>
+                        <div class="header__settings__description">
+                            Users with linked Navigraph Ultimate will receive latest AIRAC for gates, waypoints and all other Navigraph-related stuff
+                        </div>
+                    </div>
                 </template>
             </common-info-popup>
         </div>
@@ -96,6 +165,9 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
+import { defu } from 'defu';
+import type { UserSettings } from '~/utils/backend/user';
+import DiscordIcon from '@/assets/icons/discord.svg?component';
 
 const route = useRoute();
 const store = useStore();
@@ -123,6 +195,18 @@ const buttons = computed(() => {
 
 const loginPopup = ref(false);
 const settingsPopup = ref(false);
+
+const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.settings ?? {}, {
+    autoFollow: false,
+    autoZoom: false,
+}));
+
+watch(settings, () => {
+    $fetch('/user/settings', {
+        method: 'POST',
+        body: settings,
+    });
+});
 </script>
 
 <style scoped lang="scss">
@@ -179,6 +263,55 @@ const settingsPopup = ref(false);
     &__settings {
         top: calc(100% + 24px);
         right: -4px;
+
+        &__block {
+            display: flex;
+            flex-direction: column;
+
+            &--short-gap {
+                gap: 8px;
+            }
+
+            &--long-gap {
+                gap: 16px;
+            }
+        }
+
+        &__two-col-block {
+            display: grid;
+            grid-template-columns: repeat(2, 45%);
+            justify-content: space-between;
+
+            &_text {
+                font-weight: normal;
+            }
+        }
+
+        & :is(&__logout, &__delete):not(:hover, :focus, :active) {
+            color: $error500;
+        }
+
+        & &__delete {
+            justify-content: center;
+        }
+
+        &__description {
+            font-size: 12px;
+        }
+
+        &__navigraph {
+            font-weight: 600;
+            font-size: 13px;
+            gap: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: $neutral150;
+
+            &--ultimate .header__settings__navigraph_status {
+                color: $success500;
+            }
+        }
     }
 }
 </style>

@@ -28,6 +28,12 @@ export interface FullUser {
     hasFms: boolean | null
     cid: string
     fullName: string
+    settings: UserSettings
+}
+
+export interface UserSettings {
+    autoFollow?: boolean
+    autoZoom?: boolean
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
@@ -38,6 +44,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             user: {
                 select: {
                     id: true,
+                    settings: true,
                     navigraph: {
                         select: {
                             hasFms: true,
@@ -69,6 +76,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             hasFms: token.user.navigraph?.hasFms ?? null,
             cid: token.user.vatsim!.id,
             fullName: token.user.vatsim!.fullName,
+            settings: JSON.parse(token.user.settings as string) as UserSettings,
         };
     }
     return null;

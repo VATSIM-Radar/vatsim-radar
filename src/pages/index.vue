@@ -3,9 +3,9 @@
         <div class="map_container" ref="mapContainer"/>
         <carto-db-layer/>
         <template v-if="ready">
-            <map-aircraft-list />
+            <map-aircraft-list/>
             <map-sectors-list/>
-            <map-airports-list />
+            <map-airports-list/>
         </template>
     </div>
 </template>
@@ -129,10 +129,10 @@ onMounted(async () => {
     });
 
     map.value.getTargetElement().style.cursor = 'grab';
-    map.value.on('pointerdrag', function() {
+    map.value.on('pointerdrag', function () {
         map.value!.getTargetElement().style.cursor = 'grabbing';
     });
-    map.value.on('pointermove', function() {
+    map.value.on('pointermove', function () {
         if (!store.mapCursorPointerTrigger) {
             map.value!.getTargetElement().style.cursor = 'grab';
         }
@@ -193,15 +193,23 @@ await useAsyncData(async () => {
             border-radius: 8px;
         }
     }
-}
 
-.hint {
-    position: absolute;
-    transform: translate(7px, -100%);
-    padding: 4px;
-    background: white;
-    border: 1px solid black;
-    opacity: 0.7;
-    white-space: nowrap;
+    :deep(.ol-attribution) {
+        background: $neutral1000;
+
+        ul {
+            &, a {
+                color: varToRgba('neutral150', 0.2);
+            }
+
+            text-shadow: none;
+
+            @include hover {
+                a:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
 }
 </style>

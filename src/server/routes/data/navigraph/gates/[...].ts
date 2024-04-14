@@ -79,7 +79,11 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        const lrGate = gates.findIndex((x, xIndex) => index < xIndex && gate.name.slice(-1) === x.name.slice(-2).replace('R', '').replace('L', ''));
+        const lrGate = gates.findIndex((x, xIndex) =>
+            index < xIndex &&
+            (gate.name.endsWith('R') || gate.name.endsWith('L')) &&
+            gate.name.slice(-1) === x.name.slice(-2).replace('R', '').replace('L', ''),
+        );
 
         if (lrGate !== -1) {
             gate.gate_longitude = (gate.gate_longitude + gates[lrGate].gate_longitude) / 2;

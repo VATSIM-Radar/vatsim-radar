@@ -8,6 +8,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
+import type { cycles } from '~/server/plugins/navigraph';
 
 export const radarStorage = {
     vatspy: {
@@ -24,6 +25,7 @@ export const radarStorage = {
         subDivisions: [] as VatsimSubDivision[],
         events: [] as VatsimEvent[],
     },
+    navigraph: null as null | typeof cycles,
 };
 
 export function getRadarStorage() {
@@ -44,6 +46,7 @@ export function getDataVersions(): VatDataVersions {
         vatsim: {
             data: getRadarStorage().vatsim.data!.general.update_timestamp,
         },
+        navigraph: getRadarStorage().navigraph,
     };
 }
 

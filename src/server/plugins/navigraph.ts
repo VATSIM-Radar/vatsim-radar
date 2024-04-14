@@ -11,13 +11,14 @@ import {
     navigraphCurrentDb,
     navigraphOutdatedDb,
 } from '~/utils/backend/navigraph-db';
+import { radarStorage } from '~/utils/backend/storage';
 
 const accessKey = {
     token: '',
     expires: null as null | number,
 };
 
-const cycles = {
+export const cycles = {
     current: '',
     outdated: '',
 };
@@ -44,7 +45,7 @@ export default defineNitroPlugin((app) => {
     const config = useRuntimeConfig();
 
     CronJob.from({
-        cronTime: '0 0 * * *',
+        cronTime: '15 0 * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
@@ -84,6 +85,11 @@ export default defineNitroPlugin((app) => {
 
             if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 
+            cycles.current = currentCycle;
+            cycles.outdated = outdatedCycle;
+
+            radarStorage.navigraph = cycles;
+
             const _dirname = dirname(fileURLToPath(import.meta.url));
             const currentFileName = `current-${ currentCycle }.s3db`;
             const outdatedFileName = `outdated-${ outdatedCycle }.s3db`;
@@ -103,7 +109,6 @@ export default defineNitroPlugin((app) => {
                     path: dirPath,
                     filename: currentFileName,
                 });
-                cycles.current = currentCycle;
             }
 
             if (!navigraphCurrentDb) initNavigraphDB({ type: 'current', file: currentPath });
@@ -117,7 +122,6 @@ export default defineNitroPlugin((app) => {
                     path: dirPath,
                     filename: outdatedFileName,
                 });
-                cycles.outdated = outdatedCycle;
             }
 
             if (!navigraphOutdatedDb) initNavigraphDB({ type: 'outdated', file: outdatedPath });

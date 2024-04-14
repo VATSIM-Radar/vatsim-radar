@@ -58,6 +58,9 @@ export default defineNitroPlugin((app) => {
                     };
                 }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
 
+                data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
+                data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
+
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;
@@ -132,7 +135,7 @@ export default defineNitroPlugin((app) => {
     }
 
     CronJob.from({
-        cronTime: '0 0 * * *',
+        cronTime: '15 0 * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
@@ -141,7 +144,7 @@ export default defineNitroPlugin((app) => {
     });
 
     CronJob.from({
-        cronTime: '0 * * * *',
+        cronTime: '30 * * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {

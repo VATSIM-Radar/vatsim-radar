@@ -139,6 +139,7 @@ const roadmap = reactive<Roadmap[]>([
             'Websockets instead of update requests',
             'Flight ETA',
             'Weather (still need to figure out from where to fetch)',
+            'Simbrief integration',
         ],
     },
 ]);

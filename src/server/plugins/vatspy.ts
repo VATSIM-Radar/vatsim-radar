@@ -58,7 +58,7 @@ function parseDatFile<S extends Record<string, { title: string, children: Record
 
 export default defineNitroPlugin((app) => {
     CronJob.from({
-        cronTime: '0 * * * *',
+        cronTime: '15 * * * *',
         runOnInit: true,
         start: true,
         onTick: async () => {

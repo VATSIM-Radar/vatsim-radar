@@ -17,7 +17,7 @@ watch(map, (val) => {
     if (!tileLayer) {
         tileLayer = new TileLayer({
             source: new XYZ({
-                attributions: '© <a href="http://cartodb.com/attributions" target="_blank">CartoDB</a>',
+                attributions: '© <a href="https://openlayers.org/" target="_blank">OpenLayers</a> © <a href="http://cartodb.com/attributions" target="_blank">CartoDB</a>',
                 url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
                 wrapX: true,
             }),

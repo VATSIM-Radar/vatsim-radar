@@ -4,14 +4,19 @@
         <div class="app_content">
             <slot/>
         </div>
+        <div class="app_footer">
+            <view-map-footer v-if="route.path === '/'"/>
+        </div>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/ViewHeader.vue';
+import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 
 const store = useStore();
+const route = useRoute();
 
 useHead(() => {
     const theme = store.theme;
@@ -37,6 +42,10 @@ useHead(() => {
 .app_content {
     padding: 0 8px;
 }
+
+.app_footer {
+    padding: 8px 0;
+}
 </style>
 
 <style lang="scss">
@@ -58,7 +67,7 @@ html, body, #__app, #__app > .app, #__app > .app > .app_content {
     flex: 1 0 auto;
 }
 
-svg,img {
+svg, img {
     display: block;
 }
 

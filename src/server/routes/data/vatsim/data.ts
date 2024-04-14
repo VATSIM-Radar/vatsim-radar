@@ -8,6 +8,7 @@ export default defineEventHandler((event) => {
 
     if (isShort) {
         return {
+            general: radarStorage.vatsim.data!.general,
             pilots: radarStorage.vatsim.regularData!.pilots,
             firs: radarStorage.vatsim.firs,
             locals: radarStorage.vatsim.locals,

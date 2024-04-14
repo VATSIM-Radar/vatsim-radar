@@ -1,0 +1,45 @@
+services:
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./.config/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./.config/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 8080:80
+    depends_on:
+      app:
+        condition: service_healthy
+
+    app:
+      environment:
+        - PORT=4000
+        - NUXT_PORT=8080
+        - NUXT_HOST=0.0.0.0
+      env_file:
+        - ./.env
+      container_name: warp-nuxt
+      depends_on:
+        - db
+      healthcheck:
+        test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
+        interval: 1s
+        retries: 360
+
+    db:
+      image: mysql
+      cap_add:
+        - SYS_NICE
+      environment:
+        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+        - MYSQL_DATABASE=radar
+        - MYSQL_ROOT_PASSWORD=localhost
+      ports:
+        - '3306:3306'
+      healthcheck:
+        test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+        timeout: 5s
+        interval: 5s
+        retries: 40
+      volumes:
+        - /opt/db:/var/lib/mysql
