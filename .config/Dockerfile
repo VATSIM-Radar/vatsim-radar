@@ -29,6 +29,7 @@ COPY .yarnrc.yml .yarnrc.yml
 RUN yarn
 
 COPY . /radar
+RUN npx prisma generate
 RUN yarn build
 
 EXPOSE 3000
