@@ -12,13 +12,10 @@ services:
         condition: service_healthy
 
     app:
-      environment:
-        - PORT=4000
-        - NUXT_PORT=8080
-        - NUXT_HOST=0.0.0.0
       env_file:
         - ./.env
       container_name: warp-nuxt
+      image: ghcr.io/daniluk4000/vatsim-radar/production
       depends_on:
         - db
       healthcheck:
