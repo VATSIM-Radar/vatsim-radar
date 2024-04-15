@@ -12,8 +12,6 @@ services:
         condition: service_healthy
 
   app:
-    env_file:
-      - ./.env
     container_name: app
     image: ghcr.io/daniluk4000/vatsim-radar/production
     depends_on:
