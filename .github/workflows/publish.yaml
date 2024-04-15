@@ -32,4 +32,3 @@ jobs:
             --build-arg=NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" \
             --build-arg=NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" \
             --build-arg=VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
-      - name: Pull and deploy image
