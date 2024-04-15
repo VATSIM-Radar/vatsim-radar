@@ -11,32 +11,33 @@ services:
       app:
         condition: service_healthy
 
-    app:
-      env_file:
-        - ./.env
-      container_name: warp-nuxt
-      image: ghcr.io/daniluk4000/vatsim-radar/production
-      depends_on:
-        - db
-      healthcheck:
-        test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
-        interval: 1s
-        retries: 360
+  app:
+    env_file:
+      - ./.env
+    container_name: app
+    image: ghcr.io/daniluk4000/vatsim-radar/production
+    depends_on:
+      - db
+    healthcheck:
+      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
+      interval: 1s
+      retries: 360
 
-    db:
-      image: mysql
-      cap_add:
-        - SYS_NICE
-      environment:
-        - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-        - MYSQL_DATABASE=radar
-        - MYSQL_ROOT_PASSWORD=localhost
-      ports:
-        - '3306:3306'
-      healthcheck:
-        test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
-        timeout: 5s
-        interval: 5s
-        retries: 40
-      volumes:
-        - /opt/db:/var/lib/mysql
+  db:
+    image: mysql
+    container_name: db
+    cap_add:
+      - SYS_NICE
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=radar
+      - MYSQL_ROOT_PASSWORD=localhost
+    ports:
+      - '3306:3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      interval: 5s
+      retries: 40
+    volumes:
+      - /opt/db:/var/lib/mysql

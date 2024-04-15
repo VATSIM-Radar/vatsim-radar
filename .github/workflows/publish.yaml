@@ -29,7 +29,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: production
           image-tag: latest
-          pull-image: true
           dockerfile: .config/Dockerfile
           custom-args: |
             --build-arg=DOMAIN="$DOMAIN" \
