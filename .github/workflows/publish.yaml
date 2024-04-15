@@ -32,7 +32,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          tags: daniluk4000/vatsim-radar/production:latest
+          tags: ghcr.io/daniluk4000/vatsim-radar/production:latest
           push: true
           file: .config/Dockerfile
           build-args: |
@@ -45,7 +45,7 @@ jobs:
             NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
             NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
             VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
-          cache-from: type=registry,ref=daniluk4000/vatsim-radar/production:latest
+          cache-from: type=registry,ref=ghcr.io/daniluk4000/vatsim-radar/production:latest
           cache-to: type=inline
   deploy:
     runs-on: production
