@@ -36,11 +36,11 @@ jobs:
           push: true
           file: .config/Dockerfile
           build-args: |
-            DOMAIN="$DOMAIN" 
-            NAVIGRAPH_CLIENT_ID="$NAVIGRAPH_CLIENT_ID" 
-            NAVIGRAPH_SERVER_ID="$NAVIGRAPH_SERVER_ID" 
-            VATSIM_CLIENT_ID="$VATSIM_CLIENT_ID" 
-            VATSIM_ENDPOINT="$VATSIM_ENDPOINT" 
+            DOMAIN="${{ vars.DOMAIN }}" 
+            NAVIGRAPH_CLIENT_ID="${{ vars.NAVIGRAPH_CLIENT_ID }}" 
+            NAVIGRAPH_SERVER_ID="${{ vars.NAVIGRAPH_SERVER_ID }}" 
+            VATSIM_CLIENT_ID="${{ vars.VATSIM_CLIENT_ID }}" 
+            VATSIM_ENDPOINT="${{ vars.VATSIM_ENDPOINT }}" 
             DATABASE_URL="${{ secrets.DATABASE_URL }}" 
             NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
             NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
