@@ -16,8 +16,8 @@ jobs:
       - uses: ./.github/actions/codecheck
   push:
     runs-on: ubuntu-latest
-#    needs:
-#      - check
+    needs:
+      - check
     permissions:
       contents: read
       packages: write
@@ -71,6 +71,6 @@ jobs:
       - name: Deploy
         shell: bash
         run: docker compose -f docker-compose.prod.yml up -d
-#      - name: Clear
-#        shell: bash
-#        run: docker system prune --force && docker system prune --volumes --force
+      - name: Clear
+        shell: bash
+        run: docker system prune --force && docker system prune --volumes --force
