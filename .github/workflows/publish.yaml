@@ -30,15 +30,15 @@ jobs:
           image-name: production
           image-tag: latest
           dockerfile: .config/Dockerfile
-          custom-args: |
-            --build-arg=DOMAIN="$DOMAIN" \
-            --build-arg=NAVIGRAPH_CLIENT_ID="$NAVIGRAPH_CLIENT_ID" \
-            --build-arg=NAVIGRAPH_SERVER_ID="$NAVIGRAPH_SERVER_ID" \
-            --build-arg=VATSIM_CLIENT_ID="$VATSIM_CLIENT_ID" \
-            --build-arg=VATSIM_ENDPOINT="$VATSIM_ENDPOINT" \
-            --build-arg=DATABASE_URL="${{ secrets.DATABASE_URL }}" \
-            --build-arg=NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" \
-            --build-arg=NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" \
+          custom-args: >
+            --build-arg=DOMAIN="$DOMAIN" 
+            --build-arg=NAVIGRAPH_CLIENT_ID="$NAVIGRAPH_CLIENT_ID" 
+            --build-arg=NAVIGRAPH_SERVER_ID="$NAVIGRAPH_SERVER_ID" 
+            --build-arg=VATSIM_CLIENT_ID="$VATSIM_CLIENT_ID" 
+            --build-arg=VATSIM_ENDPOINT="$VATSIM_ENDPOINT" 
+            --build-arg=DATABASE_URL="${{ secrets.DATABASE_URL }}" 
+            --build-arg=NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
+            --build-arg=NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
             --build-arg=VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
   deploy:
     runs-on: production
