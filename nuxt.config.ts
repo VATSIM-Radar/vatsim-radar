@@ -6,6 +6,11 @@ export default defineNuxtConfig({
         buildAssetsDir: '/static/',
         rootId: '__app',
     },
+    build: {
+        transpile: [
+            'ol',
+        ],
+    },
     srcDir: 'src/',
     devtools: {
         enabled: false,

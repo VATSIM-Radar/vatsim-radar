@@ -42,6 +42,8 @@ jobs:
             --build-arg=VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
   deploy:
     runs-on: production
+    needs:
+      - push
     permissions:
       contents: read
       packages: read
@@ -64,4 +66,4 @@ jobs:
         run: docker compose -f docker-compose.prod.yml up -d
       - name: Clear
         shell: bash
-        run: docker system prune --all --force && docker system prune --volumes --force
+        run: docker system prune --force && docker system prune --volumes --force
