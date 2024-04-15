@@ -23,23 +23,30 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - name: Build image
-        uses: VaultVulp/gp-docker-action@1.6.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          image-name: production
-          image-tag: latest
-          dockerfile: .config/Dockerfile
-          custom-args: >
-            --build-arg=DOMAIN="$DOMAIN" 
-            --build-arg=NAVIGRAPH_CLIENT_ID="$NAVIGRAPH_CLIENT_ID" 
-            --build-arg=NAVIGRAPH_SERVER_ID="$NAVIGRAPH_SERVER_ID" 
-            --build-arg=VATSIM_CLIENT_ID="$VATSIM_CLIENT_ID" 
-            --build-arg=VATSIM_ENDPOINT="$VATSIM_ENDPOINT" 
-            --build-arg=DATABASE_URL="${{ secrets.DATABASE_URL }}" 
-            --build-arg=NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
-            --build-arg=NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
-            --build-arg=VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          tags: daniluk4000/vatsim-radar/production:latest
+          push: true
+          file: .config/Dockerfile
+          build-args: |
+            DOMAIN="$DOMAIN" 
+            NAVIGRAPH_CLIENT_ID="$NAVIGRAPH_CLIENT_ID" 
+            NAVIGRAPH_SERVER_ID="$NAVIGRAPH_SERVER_ID" 
+            VATSIM_CLIENT_ID="$VATSIM_CLIENT_ID" 
+            VATSIM_ENDPOINT="$VATSIM_ENDPOINT" 
+            DATABASE_URL="${{ secrets.DATABASE_URL }}" 
+            NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
+            NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
+            VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
+          cache-from: type=registry,ref=daniluk4000/vatsim-radar/production:latest
+          cache-to: type=inline
   deploy:
     runs-on: production
     needs:
