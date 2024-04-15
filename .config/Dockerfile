@@ -1,5 +1,5 @@
 FROM node:20.12.2
-WORKDIR /frontend
+WORKDIR /radar
 
 ARG DOMAIN
 ARG NAVIGRAPH_CLIENT_ID
@@ -23,13 +23,13 @@ ENV DATABASE_URL=${DATABASE_URL}
 
 COPY package.json package.json
 COPY yarn.lock yarn.lock
-COPY .yarn /frontend/.yarn/
+COPY .yarn /radar/.yarn/
 COPY .yarnrc.yml .yarnrc.yml
 
 RUN yarn
 
-COPY . /frontend
+COPY . /radar
 RUN yarn build
 
 EXPOSE 3000
-CMD ["node", "/frontend/.output/server/index.mjs"]
+CMD ["node", "/radar/.output/server/index.mjs"]

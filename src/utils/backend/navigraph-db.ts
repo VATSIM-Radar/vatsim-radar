@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-named-as-default
 import sqlite3 from 'sqlite3';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;

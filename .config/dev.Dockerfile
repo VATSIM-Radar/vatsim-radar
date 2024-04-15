@@ -1,4 +1,4 @@
 FROM node:20.12.2
-WORKDIR /frontend
+WORKDIR /radar
 
-COPY . /frontend
+COPY . /radar

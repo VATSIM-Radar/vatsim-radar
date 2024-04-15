@@ -9,11 +9,11 @@ services:
         expose:
             - 8080
             - 9229
-        command: /frontend/.config/command.sh
+        command: /radar/.config/command.sh
         ports:
             - "8080:8080"
         volumes:
-            - ".:/frontend:rw"
+            - ".:/radar:rw"
         depends_on:
             db:
                 condition: service_healthy
