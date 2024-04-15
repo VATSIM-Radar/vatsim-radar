@@ -1,39 +1,9 @@
-import jwksClient from 'jwks-rsa';
-import jsonwebtoken from 'jsonwebtoken';
-import type { GetPublicKeyOrSecret } from 'jsonwebtoken';
 import { ofetch } from 'ofetch';
 import { prisma } from '~/utils/backend/prisma';
-import { getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { createError } from 'h3';
+import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
-
-const client = jwksClient({
-    cache: true,
-    jwksRequestsPerMinute: 10,
-    jwksUri: 'https://identity.api.navigraph.com/.well-known/jwks',
-    rateLimit: true,
-});
-
-const tokenValidationOptions = {
-    clockTolerance: 300,
-    issuer: 'https://identity.api.navigraph.com',
-};
-
-interface JwtToken {
-    iss: string
-    aud: string
-    exp: number
-    nbf: number
-    client_id: string
-    scope: string[]
-    sub: string
-    auth_time: string
-    idp: string
-    amr: string[]
-    subscriptions: string[]
-}
 
 export default defineEventHandler(async (event) => {
     try {
@@ -76,35 +46,7 @@ export default defineEventHandler(async (event) => {
             body: params.toString(),
         });
 
-        const jwt = await new Promise<JwtToken>((resolve, reject) => {
-            try {
-                const publicCertificate: GetPublicKeyOrSecret = async (header, callback) => {
-                    try {
-                        const signingKey = await client.getSigningKey(header.kid);
-                        callback(null, 'publicKey' in signingKey ? signingKey.publicKey : signingKey.rsaPublicKey);
-                    }
-                    catch (e) {
-                        reject(e);
-                    }
-                };
-
-                // eslint-disable-next-line import/no-named-as-default-member
-                jsonwebtoken.verify(token.access_token, publicCertificate, tokenValidationOptions, (error, decodedAndVerifiedToken) => {
-                    if (error) {
-                        reject(createError({
-                            statusMessage: 'Token validation failed',
-                            status: 401,
-                        }));
-                    }
-                    else {
-                        resolve(decodedAndVerifiedToken as JwtToken);
-                    }
-                });
-            }
-            catch (e) {
-                reject(e);
-            }
-        });
+        const jwt = await getNavigraphGwtResult(token.access_token);
 
         const expires = new Date(Date.now() + token.expires_in * 1000);
 

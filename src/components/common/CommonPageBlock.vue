@@ -1,10 +1,10 @@
 <template>
-    <common-container class="page-block">
+    <div class="page-block">
         <div class="page-block_title" v-if="$slots.title">
             <slot name="title"/>
         </div>
         <slot/>
-    </common-container>
+    </div>
 </template>
 
 <style scoped lang="scss">

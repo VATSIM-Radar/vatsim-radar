@@ -1,9 +1,12 @@
-import { navigraphCurrentDb } from '~/utils/backend/navigraph-db';
+import { navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph-db';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 
 export default defineEventHandler(async (event) => {
+    const user = await findAndRefreshFullUserByCookie(event);
+
     const splitted = event.path.split('/');
     const icao = splitted[splitted.length - 1]?.toUpperCase();
     let gates: NavigraphGate[] = [];
@@ -19,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         await new Promise<void>((resolve, reject) => {
-            navigraphCurrentDb?.each(
+            (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
                 `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_gate WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,
                 { ':icao': icao },
                 (err, row: any) => {

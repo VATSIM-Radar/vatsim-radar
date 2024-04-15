@@ -1,43 +1,48 @@
 <template>
-    <footer class="map-footer">
+    <footer class="map-footer" v-if="dataStore.vatsim.updateTimestamp.value">
         <div class="map-footer_left">
             <div class="map-footer_left_section map-footer__airac" v-if="dataStore.versions.value?.navigraph">
                 AIRAC {{
                     dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
                 }}
             </div>
-            <div class="map-footer_left_section map-footer__connections">
-                <div class="map-footer__connections_title">
-                    <span>{{ getCounts.total }}</span> total connections
-                </div>
-                <div class="map-footer__connections_info">
-                    <div class="map-footer__connections_info_item">
-                        <span>{{ getCounts.pilots }}</span> pilots
+            <div class="map-footer_left_section">
+                <div class="map-footer__connections">
+                    <div class="map-footer__connections_title">
+                        <span>{{ getCounts.total }}</span> total connections
                     </div>
-                    <div class="map-footer__connections_info_item">
-                        <span>{{ getCounts.firs }}</span> sector /
-                        <span>{{ getCounts.atc }}</span> local atc
-                    </div>
-                    <div class="map-footer__connections_info_item" v-if="getCounts.sups">
-                        <span>{{ getCounts.sups }}</span>
-                        <template v-if="getCounts.sups > 1">
-                            supervisors
-                        </template>
-                        <template v-else>
-                            supervisor
-                        </template>
-                    </div>
-                    <div class="map-footer__connections_info_item" v-if="getCounts.adm">
-                        <span>{{ getCounts.adm }}</span>
-                        <template v-if="getCounts.adm > 1">
-                            admins
-                        </template>
-                        <template v-else>
-                            admin
-                        </template>
+                    <div class="map-footer__connections_info">
+                        <div class="map-footer__connections_info_item">
+                            <span>{{ getCounts.pilots }}</span> pilots
+                        </div>
+                        <div class="map-footer__connections_info_item">
+                            <span>{{ getCounts.firs }}</span> sector /
+                            <span>{{ getCounts.atc }}</span> local atc
+                        </div>
+                        <div class="map-footer__connections_info_item" v-if="getCounts.sups">
+                            <span>{{ getCounts.sups }}</span>
+                            <template v-if="getCounts.sups > 1">
+                                supervisors
+                            </template>
+                            <template v-else>
+                                supervisor
+                            </template>
+                        </div>
+                        <div class="map-footer__connections_info_item" v-if="getCounts.adm">
+                            <span>{{ getCounts.adm }}</span>
+                            <template v-if="getCounts.adm > 1">
+                                admins
+                            </template>
+                            <template v-else>
+                                admin
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
+            <nuxt-link to="/privacy-policy" class="map-footer_left_section map-footer__privacy-policy">
+                Privacy Policy
+            </nuxt-link>
         </div>
         <div class="map-footer_right" v-if="getLastUpdated">
             Vatsim data time: {{ getLastUpdated }}
@@ -154,6 +159,11 @@ const getLastUpdated = computed(() => {
         padding: 8px 16px;
         border-radius: 8px;
         font-weight: 300;
+    }
+
+    &__privacy-policy {
+        color: $neutral150;
+        opacity: 0.5;
     }
 }
 </style>

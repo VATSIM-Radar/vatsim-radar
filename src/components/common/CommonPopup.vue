@@ -107,6 +107,7 @@ onBeforeUnmount(() => {
     font-style: normal;
     line-height: 125%;
     text-align: left;
+    z-index: 100;
 
     &--appear {
         &-enter-active >, &-leave-active > {

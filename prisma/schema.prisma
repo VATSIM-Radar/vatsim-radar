@@ -21,7 +21,7 @@ model UserToken {
   accessTokenExpire DateTime
   refreshMaxDate    DateTime
   userId            Int
-  user              User     @relation(fields: [userId], references: [id])
+  user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
 enum AuthType {
@@ -39,7 +39,7 @@ model Auth {
 model NavigraphUser {
   id                String   @id
   userId            Int      @unique
-  user              User     @relation(fields: [userId], references: [id])
+  user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
   accessToken       String   @db.Text
   accessTokenExpire DateTime
   refreshToken      String
@@ -53,5 +53,5 @@ model VatsimUser {
   refreshToken      String   @db.Text
   fullName          String
   userId            Int      @unique
-  user              User     @relation(fields: [userId], references: [id])
+  user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
 }

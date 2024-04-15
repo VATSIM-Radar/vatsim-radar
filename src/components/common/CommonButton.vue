@@ -210,7 +210,7 @@ const getAttrs = computed(() => {
     }
 
     &--disabled {
-        opacity: 0.8;
+        opacity: 0.5;
         pointer-events: none;
         cursor: default;
     }

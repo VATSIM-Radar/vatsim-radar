@@ -6,6 +6,9 @@
         </div>
         <div class="app_footer">
             <view-map-footer v-if="route.path === '/'"/>
+            <nuxt-link to="/privacy-policy" class="app_footer_policy" v-else>
+                Privacy Policy
+            </nuxt-link>
         </div>
     </div>
 </template>
@@ -30,6 +33,10 @@ useHead(() => {
         .join(';');
 
     return {
+        titleTemplate(title) {
+            if (!title) return 'Vatsim Radar';
+            return `${ title } | Vatsim Radar`;
+        },
         style: [{
             key: 'radarStyles',
             innerHTML: `:root {${ css }}`,
@@ -45,6 +52,16 @@ useHead(() => {
 
 .app_footer {
     padding: 8px 0;
+    display: flex;
+    flex-direction: column;
+
+    &_policy {
+        display: block;
+        color: $neutral150;
+        opacity: 0.5;
+        align-self: flex-end;
+        padding: 0 10px;
+    }
 }
 </style>
 

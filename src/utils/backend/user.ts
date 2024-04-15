@@ -3,6 +3,7 @@ import { getCookie } from 'h3';
 import type { H3Event } from 'h3';
 import { getDBUserToken  } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
+import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -12,7 +13,7 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
             user: true,
         },
         where: {
-            accessToken: cookie,
+            accessToken: cookie ?? '',
             accessTokenExpire: {
                 gte: new Date(),
             },
@@ -47,6 +48,9 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                     settings: true,
                     navigraph: {
                         select: {
+                            accessToken: true,
+                            accessTokenExpire: true,
+                            refreshToken: true,
                             hasFms: true,
                         },
                     },
@@ -62,15 +66,44 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             refreshMaxDate: true,
         },
         where: {
-            accessToken: cookie,
+            accessToken: cookie ?? '',
         },
     });
 
-    if (token && token.accessTokenExpire.getTime() < Date.now()) {
-        getDBUserToken(event, token.user, token);
-    }
-
     if (token) {
+        if (token.accessTokenExpire.getTime() < Date.now()) {
+            await getDBUserToken(event, token.user, token);
+        }
+
+        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now()) {
+            try {
+                const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
+                const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
+
+                const hasFms = !!jwt.subscriptions?.includes('fmsdata');
+                await prisma.navigraphUser.update({
+                    where: {
+                        userId: token.user.id,
+                    },
+                    data: {
+                        accessToken: refreshedToken.access_token,
+                        accessTokenExpire: new Date(Date.now() + refreshedToken.expires_in * 1000),
+                        refreshToken: refreshedToken.refresh_token,
+                        hasFms,
+                    },
+                });
+                token.user.navigraph.hasFms = hasFms;
+            }
+            catch (e) {
+                await prisma.navigraphUser.delete({
+                    where: {
+                        userId: token.user.id,
+                    },
+                });
+                token.user.navigraph = null;
+            }
+        }
+
         return {
             id: token.user.id,
             hasFms: token.user.navigraph?.hasFms ?? null,

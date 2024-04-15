@@ -1,9 +1,9 @@
 <template>
     <header class="header">
         <div class="header_left">
-            <div class="header__logo">
+            <nuxt-link to="/" class="header__logo">
                 Vatsim Radar
-            </div>
+            </nuxt-link>
             <div class="header__sections">
                 <div class="header__sections_section header__buttons">
                     <common-button
@@ -85,11 +85,11 @@
                             <common-button :href="`https://stats.vatsim.net/stats/${store.user!.cid}`" target="_blank">
                                 My stats
                             </common-button>
-                            <common-button class="header__settings__logout">
+                            <common-button class="header__settings__logout" href="/user/logout">
                                 Logout
                             </common-button>
                         </common-button-group>
-                        <common-button class="header__settings__delete" type="link">
+                        <common-button class="header__settings__delete" type="link" @click="deletePopup = true">
                             Delete Account
                         </common-button>
                     </div>
@@ -135,7 +135,7 @@
                                     Standard
                                 </template>
                             </div>
-                            <common-button class="header__settings__navigraph_unlink" type="link">
+                            <common-button class="header__settings__navigraph_unlink" type="link" @click="deleteNavigraphPopup = true">
                                 Unlink
                             </common-button>
                         </div>
@@ -157,6 +157,36 @@
                 </common-button>
                 <common-button href="/auth/vatsim/redirect">
                     Wilco
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup v-model="deletePopup">
+            <template #title>
+                Account Deletion
+            </template>
+            Are you completely sure you want to delete your account?<br><br>
+            <strong>You will not be able to cancel this action</strong>. All your Vatsim Radar information and preferences will be permanently lost.
+            <template #actions>
+                <common-button @click="deleteAccount" type="secondary">
+                    Permanently delete account
+                </common-button>
+                <common-button @click="deletePopup = false">
+                    Cancel that please
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup v-model="deleteNavigraphPopup">
+            <template #title>
+                Navigraph Account Unlink
+            </template>
+            Are you sure you want to unlink your Navigraph account?<br><br>
+            Well, you can always link that again later anyway.
+            <template #actions>
+                <common-button @click="deleteNavigraphAccount" type="secondary">
+                    Unlink Navigraph account
+                </common-button>
+                <common-button @click="deleteNavigraphPopup = false">
+                    Nah, I'm good
                 </common-button>
             </template>
         </common-popup>
@@ -195,11 +225,28 @@ const buttons = computed(() => {
 
 const loginPopup = ref(false);
 const settingsPopup = ref(false);
+const deletePopup = ref(false);
+const deleteNavigraphPopup = ref(false);
 
 const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.settings ?? {}, {
     autoFollow: false,
     autoZoom: false,
 }));
+
+const deleteAccount = async () => {
+    await $fetch('/user/delete', {
+        method: 'POST',
+    });
+    location.reload();
+};
+
+const deleteNavigraphAccount = async () => {
+    await $fetch('/user/unlink-navigraph', {
+        method: 'POST',
+    });
+    store.user!.hasFms = null;
+    deleteNavigraphPopup.value = false;
+};
 
 watch(settings, () => {
     $fetch('/user/settings', {
@@ -233,8 +280,8 @@ watch(settings, () => {
         font-weight: 700;
         font-family: $openSansFont;
         color: $primary500;
-        cursor: default;
         user-select: none;
+        text-decoration: none;
     }
 
     &__user {
