@@ -34,4 +34,4 @@ RUN npx prisma generate
 RUN yarn build
 
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && node /radar/.output/server/index.mjs"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node /radar/.output/server/index.mjs"]
