@@ -141,6 +141,7 @@ const roadmap = reactive<Roadmap[]>([
             'Flight ETA',
             'Weather (still need to figure out from where to fetch)',
             'Simbrief integration',
+            'ATC/Booking notification for active flight',
         ],
     },
 ]);

@@ -4,8 +4,11 @@ import type { H3Event } from 'h3';
 import { setCookie } from 'h3';
 import type { User, UserToken } from '@prisma/client';
 
-export function createDBUser() {
+export function createDBUser({ discordId }: {discordId?: string | null} = {}) {
     return prisma.user.create({
+        data: {
+            discordId,
+        },
         select: {
             id: true,
         },

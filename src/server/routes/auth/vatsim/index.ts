@@ -3,15 +3,17 @@ import { handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
 import { findUserByCookie } from '~/utils/backend/user';
+import { discordClient, discordRoleId, discordServerId } from '~/server/plugins/discord';
 
 export default defineEventHandler(async (event) => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
 
-        const { id: verifierId } = await prisma.auth.findFirstOrThrow({
+        const { id: verifierId, discordId } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,
+                discordId: true,
             },
             where: {
                 state: query.state ?? '',
@@ -31,6 +33,7 @@ export default defineEventHandler(async (event) => {
                 user: {
                     select: {
                         id: true,
+                        discordId: true,
                     },
                 },
             },
@@ -40,6 +43,22 @@ export default defineEventHandler(async (event) => {
         });
 
         let user = await findUserByCookie(event);
+
+        if (discordId) {
+            await prisma.user.updateMany({
+                where: {
+                    discordId,
+                },
+                data: {
+                    discordId: null,
+                },
+            });
+
+            const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(discordId);
+            if (user) {
+                await user.roles.set([discordRoleId]);
+            }
+        }
 
         if (vatsimUserClient) {
             await prisma.vatsimUser.update({
@@ -54,6 +73,17 @@ export default defineEventHandler(async (event) => {
                 },
             });
 
+            if (discordId) {
+                await prisma.user.update({
+                    where: {
+                        id: vatsimUserClient.user.id,
+                    },
+                    data: {
+                        discordId,
+                    },
+                });
+            }
+
             if (!user) {
                 await getDBUserToken(event, vatsimUserClient.user);
             }
@@ -61,7 +91,7 @@ export default defineEventHandler(async (event) => {
         }
 
         if (!user) {
-            user = await createDBUser();
+            user = await createDBUser({ discordId });
             await getDBUserToken(event, user);
         }
 

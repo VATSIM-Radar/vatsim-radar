@@ -11,8 +11,9 @@ model User {
   id        Int            @id @default(autoincrement())
   navigraph NavigraphUser?
   vatsim    VatsimUser?
+  discordId String?
   tokens    UserToken[]
-  settings  Json? @default("{}")
+  settings  Json?          @default("{}")
 }
 
 model UserToken {
@@ -30,10 +31,11 @@ enum AuthType {
 }
 
 model Auth {
-  id       Int      @id @default(autoincrement())
-  state    String   @unique
-  type     AuthType
-  verifier String?
+  id        Int      @id @default(autoincrement())
+  state     String   @unique
+  type      AuthType
+  discordId String?
+  verifier  String?
 }
 
 model NavigraphUser {

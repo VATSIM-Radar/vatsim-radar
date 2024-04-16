@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Auth` MODIFY `type` ENUM('NAVIGRAPH', 'VATSIM', 'DISCORD') NOT NULL;

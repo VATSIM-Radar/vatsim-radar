@@ -90,13 +90,13 @@ export default defineNitroPlugin((app) => {
 
             radarStorage.navigraph = cycles;
 
-            const _dirname = dirname(fileURLToPath(import.meta.url));
+            const _dirname = '/radar/src/server/plugins';
             const currentFileName = `current-${ currentCycle }.s3db`;
             const outdatedFileName = `outdated-${ outdatedCycle }.s3db`;
 
-            const dirPath = join(_dirname, '../../src/data');
-            const currentPath = join(_dirname, `../../src/data/${ currentFileName }`);
-            const outdatedPath = join(_dirname, `../../src/data/${ outdatedFileName }`);
+            const dirPath = join(_dirname, '../../data');
+            const currentPath = join(_dirname, `../../data/${ currentFileName }`);
+            const outdatedPath = join(_dirname, `../../data/${ outdatedFileName }`);
 
             const filesInPath = readdirSync(dirPath, { withFileTypes: true });
 

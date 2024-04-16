@@ -22,6 +22,7 @@
     "@prisma/client": "^5.12.1",
     "adm-zip": "^0.5.12",
     "cron": "^3.1.7",
+    "discord.js": "^14.14.1",
     "idb": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
@@ -32,7 +33,7 @@
     "sqlite3": "^5.1.7",
     "ua-parser-js": "2.0.0-beta.2",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.4.22",
+    "vue": "^3.4.23",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {

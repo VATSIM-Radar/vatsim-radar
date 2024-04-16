@@ -7,9 +7,11 @@ export default defineNuxtConfig({
         rootId: '__app',
     },
     build: {
-        transpile: [
-            'ol',
-        ],
+        transpile: process.env.NODE_ENV === 'development'
+            ? []
+            : [
+                'ol',
+            ],
     },
     srcDir: 'src/',
     devtools: {
@@ -42,6 +44,9 @@ export default defineNuxtConfig({
         VATSIM_ENDPOINT: process.env.VATSIM_ENDPOINT,
 
         DOMAIN: process.env.DOMAIN,
+
+        DISCORD_CLIEND_ID: process.env.DISCORD_CLIEND_ID,
+        DISCORD_TOKEN: process.env.DISCORD_TOKEN,
     },
     modules: [
         '@nuxt/devtools',
