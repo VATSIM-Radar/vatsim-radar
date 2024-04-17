@@ -7,7 +7,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "nuxt preview",
+    "preview": "node .output/server/index.mjs",
     "postinstall": "nuxt prepare",
     "recreateDb": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && rm -rf .config/db && docker compose down",
     "lint:ts": "eslint --ext \".js,.ts,.vue\" ./src",

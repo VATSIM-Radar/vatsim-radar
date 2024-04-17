@@ -2,21 +2,23 @@ import { Client, EmbedBuilder, GatewayIntentBits, PermissionFlagsBits, REST, Rou
 import { prisma } from '~/utils/backend/prisma';
 import { AuthType } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-//@ts-expect-error
-import Changelog from '@@/CHANGELOG.md';
-import { version } from '@@/package.json' assert {type: 'json'};
+import { readFileSync } from 'node:fs';
+import { join } from 'path';
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds] });
 export const discordServerId = '1223649894191992914';
 export const discordReleasesChannelId = '1229392327282397194';
 export const discordRoleId = '1229887891442761748';
 
+const changelog = readFileSync(join(process.cwd(), 'CHANGELOG.md'), 'utf-8');
+const json = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8'));
+
 function parseMarkdown() {
     let CHANGELOG: string | null = null;
 
-    if (Changelog.includes(`# ${ version }`)) {
-        CHANGELOG = Changelog
-            .split(`# ${ version }`)[1]
+    if (changelog.includes(`# ${ json.version }`)) {
+        CHANGELOG = changelog
+            .split(`# ${ json.version }`)[1]
             .split(/^#\s.*/gm)[0];
     }
 
