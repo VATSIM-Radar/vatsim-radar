@@ -5,13 +5,18 @@
 ## Changes
 
 - Roadmap redesign
-- Added icons to header
+- Icons in header
 - 404/500 pages
+- Service version in footer
 
 ### Improved zoom experience
 
 - Overlays should stop opening when hovering on very busy map area
 - Overlays will stop opening when you're zooming or moving map
+
+## Bug fixes
+
+- ATIS is no longer displayed as TWR in airport facility overlay
 
 ## Technical features
 

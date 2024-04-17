@@ -31,7 +31,7 @@
                                     class="atc-popup__position_facility"
                                     :style="{background: getControllerPositionColor(controller)}"
                                 >
-                                    {{ dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
+                                    {{ controller.isATIS ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                                 </div>
                                 <div class="atc-popup__position_name">
                                     {{ item }}
