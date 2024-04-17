@@ -27,7 +27,7 @@ function parseMarkdown() {
 }
 
 export default defineNitroPlugin(async (app) => {
-    app.hooks.hook('request', async (event) => {
+    app.hooks.hook('request', (event) => {
         event.context.radarVersion = json.version;
     });
 
