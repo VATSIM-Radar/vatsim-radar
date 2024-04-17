@@ -137,7 +137,7 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
 const position = computed(() => props.settings?.position);
 const positioning = computed(() => props.settings?.positioning);
 const offset = computed(() => props.settings?.offset);
-const stopEvent = computed(() => props.settings?.stopEvent);
+const stopEvent = computed(() => props.settings?.stopEvent && store.canShowOverlay);
 
 watch(position, (val) => {
     if (!val) return;

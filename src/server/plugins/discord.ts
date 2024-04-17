@@ -18,7 +18,7 @@ function parseMarkdown() {
 
     if (changelog.includes(`# ${ json.version }`)) {
         CHANGELOG = changelog
-            .split(`# ${ json.version }`)[1]
+            .split(`## Update v${ json.version } has just been released!`)[1]
             .split(/^#\s.*/gm)[0];
         CHANGELOG = `# ${ json.version }\n${ CHANGELOG }`;
     }
@@ -127,6 +127,6 @@ export default defineNitroPlugin(async (app) => {
 
 declare module 'h3' {
     interface H3EventContext {
-        radarVersion?: string
+        radarVersion?: string;
     }
 }
