@@ -28,7 +28,7 @@
 
 <script setup lang="ts">
 import { sleep } from '~/utils';
-import CloseIcon from 'assets/icons/close.svg?component';
+import CloseIcon from 'assets/icons/basic/close.svg?component';
 
 const props = defineProps({
     disableTeleport: {

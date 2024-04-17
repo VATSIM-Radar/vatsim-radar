@@ -156,34 +156,34 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 trulyOccupied = true;
             }
 
-            if (!trulyOccupied) {
-                pilotLon += lonAdjustment;
-                pilotLat += latAdjustment;
+            pilotLon += lonAdjustment;
+            pilotLat += latAdjustment;
 
-                if (pilot.callsign === 'CLX144B') {
-                    console.log(pilot.heading);
-                    const feature = new Feature({
-                        geometry: new Point([pilotLon, pilotLat]),
-                    });
+            if (pilot.callsign === 'QAC3404') {
+                console.log(pilot.heading);
+                const feature = new Feature({
+                    geometry: new Point([pilotLon, pilotLat]),
+                });
 
-                    feature.setStyle(new Style({
-                        text: new Text({
-                            font: '12px Arial',
-                            text: 'Here!',
-                            fill: new Fill({
-                                color: '#3B6CEC',
-                            }),
+                feature.setStyle(new Style({
+                    text: new Text({
+                        font: '12px Arial',
+                        text: 'Here!',
+                        fill: new Fill({
+                            color: '#3B6CEC',
                         }),
-                    }));
+                    }),
+                }));
 
-                    vectorSource.value?.addFeature(feature);
+                vectorSource.value?.addFeature(feature);
 
-                    setTimeout(() => {
-                        vectorSource.value?.removeFeature(feature);
-                        feature.dispose();
-                    }, 5000);
-                }
+                setTimeout(() => {
+                    vectorSource.value?.removeFeature(feature);
+                    feature.dispose();
+                }, 5000);
+            }
 
+            if (!trulyOccupied) {
                 for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
                     const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
                     if (index === -1) continue;
@@ -191,7 +191,6 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                         ...gates[index],
                         trulyOccupied: true,
                     };
-                    trulyOccupied = true;
                 }
             }
 

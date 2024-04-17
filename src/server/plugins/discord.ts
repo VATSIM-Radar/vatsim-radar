@@ -20,12 +20,17 @@ function parseMarkdown() {
         CHANGELOG = changelog
             .split(`# ${ json.version }`)[1]
             .split(/^#\s.*/gm)[0];
+        CHANGELOG = `# ${ json.version }\n${ CHANGELOG }`;
     }
 
     return CHANGELOG;
 }
 
 export default defineNitroPlugin(async (app) => {
+    app.hooks.hook('request', async (event) => {
+        event.context.radarVersion = json.version;
+    });
+
     if (import.meta.dev) return;
     const config = useRuntimeConfig();
 
@@ -119,3 +124,9 @@ export default defineNitroPlugin(async (app) => {
         console.error(error);
     }
 });
+
+declare module 'h3' {
+    interface H3EventContext {
+        radarVersion?: string
+    }
+}

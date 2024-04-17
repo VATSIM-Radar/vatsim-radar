@@ -1,47 +1,88 @@
 <template>
-    <common-page-block class="roadmap">
-        <template #title>
-            Roadmap
-        </template>
-        <div class="roadmap_tabs">
-            <div
-                class="roadmap_item"
-                :class="{
-                    'roadmap_item--completed': item.completed,
-                    'roadmap_item--opened': item.opened,
-                    'roadmap_item--active': item.items.some(x => typeof x === 'object' && x.status),
-                }"
-                v-for="(item, index) in roadmap"
-                :key="index"
-                @click="!item.opened ? [activeRoadmap ? activeRoadmap.opened = false : undefined, item.opened = true] : undefined"
-            >
-                <div class="roadmap_item_title">
-                    {{ item.title }}
+    <common-page-block>
+        <div class="roadmap">
+            <div class="roadmap_runway">
+                <div class="roadmap_runway_start">
+                    <roadmap-runway height="56"/>
                 </div>
-                <div class="roadmap_item_description" v-if="item.description && item.opened">
-                    {{ item.description }}
+                <div class="roadmap_runway_digits">
+                    {{ percents }}
                 </div>
-                <div class="roadmap_item_items" v-if="item.opened">
-                    <common-info-block class="roadmap_item_items_block" :top-items="typeof block === 'string' ? [block] : [block.title, block.description]" v-for="(block, blockIndex) in item.items" :key="blockIndex">
-                        <template #bottom v-if="(typeof block === 'object' && block.status) || item.completed">
-                            <div class="roadmap_item_items__status" :class="[`roadmap_item_items__status--${item.completed ? 'completed' : (block as Record<string, any>).status}`]">
-                                <template v-if="typeof block === 'object' && block.status">
-                                    <template v-if="block.status === 'todo'">
-                                        TODO
-                                    </template>
-                                    <template v-else-if="block.status === 'in-progress'">
-                                        In progress
-                                    </template>
-                                    <template v-else-if="block.status === 'completed'">
-                                        Completed
-                                    </template>
-                                </template>
-                                <template v-else-if="item.completed">
-                                    Completed
-                                </template>
+                <div class="roadmap_runway_cols">
+                    <div
+                        class="roadmap_runway_col"
+                        :class="{
+                            'roadmap_runway_col--status-completed': col.completed,
+                            'roadmap_runway_col--status-in-progress': col.items.some(x => typeof x === 'object' && (x.status === 'in-progress' || x.status === 'completed')),
+                        }"
+                        v-for="col in roadmap"
+                        :key="col.title"
+                    />
+                </div>
+                <div class="roadmap_runway_aircraft" :style="{'--percents': `${percents}%`}">
+                    <roadmap-aircraft height="32"/>
+                </div>
+            </div>
+            <div class="roadmap_cols">
+                <div
+                    class="roadmap__col"
+                    :class="{
+                        'roadmap__col--status-completed': col.completed,
+                        'roadmap__col--status-in-progress': col.items.some(x => typeof x === 'object' && (x.status === 'in-progress' || x.status === 'completed')),
+                    }"
+                    v-for="col in roadmap"
+                    :key="col.title"
+                >
+                    <div class="roadmap__col_title">
+                        {{ col.title }}
+                    </div>
+                    <div class="roadmap__item">
+                        <div class="roadmap__item_description" v-if="col.description">
+                            {{ col.description }}
+                        </div>
+                        <div class="roadmap__item_groups">
+                            <div
+                                class="roadmap__item_groups_group"
+                                v-for="group in getRoadmapGroups(col.items, col.completed)"
+                                :key="group.status"
+                            >
+                                <div class="roadmap__item_groups_group_title">
+                                    <div class="roadmap__item_groups_group_title_counter">
+                                        {{ group.items.length }}
+                                    </div>
+                                </div>
+                                <div class="roadmap__item_groups_group_items">
+                                    <div
+                                        class="roadmap__task"
+                                        :class="[`roadmap__task--status-${group.status}`]"
+                                        v-for="(item, index) in group.items"
+                                        :key="index"
+                                    >
+                                        <div class="roadmap__task_title">
+                                            {{ typeof item === 'string' ? item : item.title }}
+                                        </div>
+                                        <div
+                                            class="roadmap__task_description"
+                                            v-if="typeof item === 'object' && item.description"
+                                        >
+                                            {{ item.description }}
+                                        </div>
+                                        <div class="roadmap__task_status" v-if="group.status !== 'none'">
+                                            <template v-if="group.status === 'todo'">
+                                                Planned
+                                            </template>
+                                            <template v-else-if="group.status === 'in-progress'">
+                                                In progress
+                                            </template>
+                                            <template v-else-if="group.status === 'completed'">
+                                                Completed
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </template>
-                    </common-info-block>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -50,13 +91,22 @@
 
 <script setup lang="ts">
 import CommonPageBlock from '~/components/common/CommonPageBlock.vue';
+import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
+import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
+
+type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'none'
+
+interface Item {
+    title: string,
+    description?: string,
+    status?: ItemStatus
+}
 
 interface Roadmap {
     title: string;
     description?: string;
-    items: Array<string | { title: string, description?: string, status?: 'todo' | 'in-progress' | 'completed' }>;
+    items: Array<string | Item>;
     completed?: boolean;
-    opened?: boolean;
 }
 
 const roadmap = reactive<Roadmap[]>([
@@ -78,7 +128,6 @@ const roadmap = reactive<Roadmap[]>([
     },
     {
         title: 'Stage 2',
-        opened: true,
         items: [
             {
                 title: 'Aircraft tracking',
@@ -89,6 +138,10 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'in-progress',
             },
             {
+                title: 'Different aircraft icons',
+                status: 'in-progress',
+            },
+            {
                 title: 'ATC info popup',
                 status: 'todo',
             },
@@ -96,9 +149,12 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Airport info popup',
                 status: 'todo',
             },
+            {
+                title: 'METAR easy access',
+                status: 'todo',
+            },
             'Map Modes (OpenStreetMaps/Satellite/Other)',
             'Light theme',
-            'Different aircraft icons',
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
             'Open Source (code only)',
@@ -124,6 +180,7 @@ const roadmap = reactive<Roadmap[]>([
             'Detailed history routes (history of aircraft turns)',
             'PWA',
             'OSS development support',
+            'Flight ETA',
         ],
     },
     {
@@ -135,93 +192,251 @@ const roadmap = reactive<Roadmap[]>([
             'Visualized events traffic',
             'CTAF frequency easy access',
             'Usage of VatGlasses data',
-            'METAR easy access',
             'Google Play app',
             'Websockets instead of update requests',
-            'Flight ETA',
-            'Weather (still need to figure out from where to fetch)',
+            {
+                title: 'Weather',
+                description: 'Still need to figure out from where to fetch',
+            },
             'Simbrief integration',
             'ATC/Booking notification for active flight',
         ],
     },
 ]);
 
-const activeRoadmap = computed(() => roadmap.find(x => x.opened));
+const percents = 35;
+
+interface RoadmapGroup {
+    status: ItemStatus,
+    items: Array<Item | string>
+}
+
+function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): RoadmapGroup[] {
+    const groups: RoadmapGroup[] = [];
+
+    for (const item of items) {
+        let status = (typeof item === 'object' && item.status) ? item.status : 'none';
+        if (isCompleted) status = 'completed';
+
+        const existingGroup = groups.find(x => x.status === status);
+        if (!existingGroup) {
+            groups.push({
+                status,
+                items: [item],
+            });
+            continue;
+        }
+
+        existingGroup.items.push(item);
+    }
+
+    const statuses: Record<ItemStatus, number> = {
+        'in-progress': 1,
+        todo: 2,
+        none: 3,
+        completed: 4,
+    };
+
+    return groups.sort((a, b) => {
+        return statuses[a.status] - statuses[b.status];
+    });
+}
 </script>
 
 <style scoped lang="scss">
 .roadmap {
-    &_tabs {
+    &_runway {
+        background: $neutral900;
+        border-radius: 8px;
+        position: relative;
         display: flex;
-        justify-content: space-between;
+        align-items: center;
+        height: 56px;
+        margin-bottom: 48px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 92%;
+            left: 8%;
+            height: 1px;
+            background-image: linear-gradient(to right, $neutral800 33%, rgba(255, 255, 255, 0) 0%);
+            background-position: bottom;
+            background-size: 25px 1px;
+            background-repeat: repeat-x;
+        }
+
+        > * {
+            position: absolute;
+            z-index: 1;
+        }
+
+        &_start {
+            left: 1.7%;
+        }
+
+        &_digits {
+            left: 5%;
+            writing-mode: vertical-lr;
+            text-orientation: mixed;
+            font-weight: 300;
+            font-size: 12px;
+        }
+
+        &_cols {
+            width: 100%;
+        }
+
+        &_col {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+
+            &::before {
+                content: '';
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                border-radius: 100%;
+                background: $neutral100;
+            }
+
+            &--status-completed::before {
+                background: $success500;
+            }
+
+            &--status-in-progress::before {
+                background: $primary500
+            }
+        }
+
+        &_aircraft {
+            left: var(--percents);
+
+            @keyframes move {
+                0% {
+                    left: 0;
+                }
+
+                100% {
+                    left: var(--percents);
+                }
+            }
+
+            animation: move 5s cubic-bezier(.85,.02,.47,.98);
+            color: $neutral150;
+
+            svg :deep(path) {
+                stroke: $neutral950;
+            }
+        }
     }
 
-    &_item {
-        background: $neutral1000;
-        width: calc(25% / 4 - 8px);
-        padding: 8px;
-        border-radius: 8px;
-        cursor: pointer;
+    &_cols, .roadmap_runway_cols {
         display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
-        transition: 0.3s;
-        white-space: nowrap;
-        overflow: hidden;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    &__col {
+        width: 100%;
 
         &_title {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-size: 32px;
             font-family: $openSansFont;
             font-weight: 700;
-            color: $neutral150;
-            margin-bottom: 8px;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 16px;
         }
 
-        &--active .roadmap_item_title {
-            color: $primary500;
-        }
-
-        &--completed .roadmap_item_title {
+        &--status-completed .roadmap__col_title {
             color: $success500;
         }
 
-        &--opened {
-            width: 75%;
-            cursor: default;
+        &--status-in-progress .roadmap__col_title {
+            color: $primary500
+        }
+    }
 
-            .roadmap_item {
+    &__item {
+        padding: 16px;
+        border-radius: 16px;
+        background: $neutral900;
+
+        &_description {
+            font-size: 11px;
+            color: $neutral150;
+            margin-bottom: 16px;
+        }
+
+        &_groups {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+
+            &_group {
                 &_title {
-                    writing-mode: initial;
-                    transform: rotate(0deg);
+                    display: flex;
+                    position: relative;
+                    margin-bottom: 16px;
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        background: $neutral850;
+                        height: 1px;
+                        width: 100%;
+                        align-self: center;
+                    }
+
+                    &_counter {
+                        margin-left: 8px;
+                        background: $neutral850;
+                        padding: 0 8px;
+                        border-radius: 2px;
+                        font-size: 11px;
+                        font-weight: 600;
+                        position: relative;
+                    }
+                }
+
+                &_items {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
                 }
             }
         }
+    }
 
-        &_items {
-            display: grid;
-            grid-template-columns: repeat(2, calc(50% - 4px));
-            gap: 8px;
+    &__task {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 8px;
+        background: $neutral850;
+        font-size: 13px;
 
-            & &_block {
-                font-size: 14px;
-            }
+        &_title {
+            font-weight: 600;
+        }
 
-            &__status {
-                &--todo {
-                    color: $warning500;
-                }
+        &_status {
+            color: var(--status-color);
+        }
 
-                &--in-progress {
-                    color: $primary500;
-                }
+        &--status-todo {
+            --status-color: #{$warning600};
+        }
 
-                &--completed {
-                    color: $success500;
-                }
-            }
+        &--status-in-progress {
+            --status-color: #{$primary500};
+        }
+
+        &--status-completed {
+            --status-color: #{$success500};
         }
     }
 }

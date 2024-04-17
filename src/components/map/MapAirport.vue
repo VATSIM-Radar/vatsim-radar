@@ -30,7 +30,7 @@
                 class="airport_atc-popup"
                 :class="{'airport_atc-popup--all': hoveredFacility === true}"
                 absolute
-                v-if="hoveredFacility"
+                v-if="hoveredFacility && store.canShowOverlay"
                 :show-facility="hoveredFacility === true"
                 :show-atis="hoveredFacility !== true"
                 :controllers="hoveredFacilities"
@@ -85,6 +85,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/MapAirportCounts.vue';
 import type { NavigraphGate } from '~/types/data/navigraph';
+import { useStore } from '~/store';
 
 const props = defineProps({
     airport: {
@@ -125,6 +126,7 @@ defineEmits({
     },
 });
 
+const store = useStore();
 const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hoveredFacility = ref<boolean | number>(false);
@@ -327,6 +329,10 @@ onBeforeUnmount(() => {
     cursor: initial;
     display: flex;
     flex-direction: column;
+
+    &_title, &_facilities {
+        user-select: none;
+    }
 
     &_title {
         cursor: pointer;

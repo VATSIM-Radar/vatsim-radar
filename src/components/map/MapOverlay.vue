@@ -1,5 +1,5 @@
 <template>
-    <div v-show="false" v-if="model">
+    <div v-show="false" v-if="model && (persistent || store.canShowOverlay)">
         <div class="map-overlay" ref="overlayElement" v-bind="$attrs">
             <slot/>
             <slot name="popup" v-if="isPopupOpen"/>
@@ -59,7 +59,7 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const overlayElement = ref<HTMLDivElement | null>(null);
 
 const isPopupOpen = computed(() => {
-    return store.openOverlayId === popupId;
+    return store.openOverlayId === popupId && store.canShowOverlay;
 });
 
 const zIndex = computed(() => {

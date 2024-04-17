@@ -40,9 +40,12 @@
                     </div>
                 </div>
             </div>
-            <nuxt-link to="/privacy-policy" class="map-footer_left_section map-footer__privacy-policy">
+            <nuxt-link to="/privacy-policy" class="map-footer_left_section map-footer__text">
                 Privacy Policy
             </nuxt-link>
+            <div class="map-footer_left_section map-footer__text" v-if="store.version">
+                v{{ store.version }}
+            </div>
         </div>
         <div class="map-footer_right" v-if="getLastUpdated">
             Vatsim data time: {{ getLastUpdated }}
@@ -109,8 +112,8 @@ const getLastUpdated = computed(() => {
 
             //TODO: refactor to mixin
             &:not(:last-child) {
-                margin-right: 16px;
-                padding-right: 16px;
+                margin-right: 12px;
+                padding-right: 12px;
 
                 &::after {
                     content: '';
@@ -118,7 +121,7 @@ const getLastUpdated = computed(() => {
                     align-self: center;
                     left: 100%;
                     height: 24px;
-                    border-right: 1px solid varToRgba('neutral150', 0.2);
+                    border-right: 1px solid varToRgba('neutral150', 0.1);
                 }
             }
         }
@@ -161,9 +164,10 @@ const getLastUpdated = computed(() => {
         font-weight: 300;
     }
 
-    &__privacy-policy {
+    &__text {
         color: $neutral150;
         opacity: 0.5;
+        text-decoration-skip-ink: none;
     }
 }
 </style>

@@ -8,10 +8,17 @@ export const useStore = defineStore('index', {
         theme: 'default' as ThemesList,
         extent: [0, 0, 0, 0] as Extent,
         zoom: 0,
+        moving: false,
         openOverlayId: null as string | null,
         openPilotOverlay: false,
         dataReady: false,
         mapCursorPointerTrigger: false as false | number,
         user: null as null | FullUser,
+        version: '',
     }),
+    getters: {
+        canShowOverlay(): boolean {
+            return this.zoom > 4 && !this.moving;
+        },
+    },
 });

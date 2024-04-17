@@ -13,6 +13,9 @@
                         :disabled="button.disabled"
                         :to="button.path"
                     >
+                        <template #icon v-if="button.icon">
+                            <component :is="button.icon" />
+                        </template>
                         {{ button.text }}
                     </common-button>
                 </div>
@@ -33,7 +36,9 @@
                     :type="!settingsPopup ? 'secondary' : 'primary'"
                     @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
                 >
-                    Settings
+                    <template #icon>
+                        <settings-icon/>
+                    </template>
                 </common-button>
                 <common-button size="S" href="https://discord.gg/MtFKhMPePe" target="_blank" type="secondary">
                     <template #icon>
@@ -197,7 +202,12 @@
 import { useStore } from '~/store';
 import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
-import DiscordIcon from '@/assets/icons/discord.svg?component';
+import DiscordIcon from '@/assets/icons/header/discord.svg?component';
+import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
+import MapIcon from '@/assets/icons/kit/map.svg?component';
+import DataIcon from '@/assets/icons/kit/data.svg?component';
+import EventsIcon from '@/assets/icons/kit/event.svg?component';
+import PathIcon from '@/assets/icons/kit/path.svg?component';
 
 const route = useRoute();
 const store = useStore();
@@ -207,18 +217,22 @@ const buttons = computed(() => {
         {
             text: 'Map',
             path: '/',
+            icon: MapIcon,
         },
         {
             text: 'Events',
             disabled: true,
+            icon: EventsIcon,
         },
         {
             text: 'Stats',
             disabled: true,
+            icon: DataIcon,
         },
         {
             text: 'Roadmap',
             path: '/roadmap',
+            icon: PathIcon,
         },
     ];
 });

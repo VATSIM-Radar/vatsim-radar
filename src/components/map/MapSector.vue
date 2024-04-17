@@ -170,6 +170,7 @@ onBeforeUnmount(() => {
         text-align: center;
         position: relative;
         z-index: 10;
+        user-select: none;
 
         &_sub {
             color: varToRgba('neutral150', 0.5);

@@ -5,4 +5,5 @@ export default defineNuxtPlugin(() => {
 
     const store = useStore();
     store.user = useRequestEvent()?.context.user ?? null;
+    store.version = useRequestEvent()?.context.radarVersion ?? '';
 });

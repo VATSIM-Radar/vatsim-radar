@@ -10,8 +10,8 @@
 <style scoped lang="scss">
 .page-block {
     background: $neutral950;
-    padding: 16px;
-    border-radius: 8px;
+    padding: 24px;
+    border-radius: 16px;
     width: 100%;
     flex: 1 0 auto;
 

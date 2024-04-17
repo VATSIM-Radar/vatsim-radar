@@ -6,9 +6,14 @@
         </div>
         <div class="app_footer">
             <view-map-footer v-if="route.path === '/'"/>
-            <nuxt-link to="/privacy-policy" class="app_footer_policy" v-else>
-                Privacy Policy
-            </nuxt-link>
+            <div class="app_footer_info" v-else>
+                <nuxt-link to="/privacy-policy">
+                    Privacy Policy
+                </nuxt-link>
+                <div v-if="store.version">
+                    v{{ store.version }}
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -55,12 +60,18 @@ useHead(() => {
     display: flex;
     flex-direction: column;
 
-    &_policy {
-        display: block;
-        color: $neutral150;
+    &_info {
+        display: flex;
+        gap: 8px;
         opacity: 0.5;
         align-self: flex-end;
         padding: 0 10px;
+        font-size: 13px;
+
+        &, * {
+            color: $neutral150;
+            text-decoration-skip-ink: none;
+        }
     }
 }
 </style>
