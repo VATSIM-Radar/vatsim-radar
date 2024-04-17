@@ -42,7 +42,11 @@ export default defineNitroPlugin((app) => {
             if (!radarStorage.vatspy.data || isInProgress || Date.now() - latestFinished < 1000) return;
             try {
                 isInProgress = true;
-                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json');
+                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
+                    parseResponse(responseText) {
+                        return JSON.parse(responseText);
+                    },
+                });
 
                 if (radarStorage.vatsim.data?.general) {
                     if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() >= new Date(data.general.update_timestamp).getTime()) return;
@@ -69,7 +73,6 @@ export default defineNitroPlugin((app) => {
                     pilots: {
                         server: true,
                         transponder: true,
-                        qnh_mb: true,
                         qnh_i_hg: true,
                         flight_plan: true,
                         last_updated: true,

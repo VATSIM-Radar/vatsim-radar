@@ -6,7 +6,29 @@ import { getVatsimRedirectUri } from '~/utils/backend/vatsim';
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
 
-    const state = randomUUID();
+    let queryState = getQuery(event).state;
+    if (typeof queryState === 'string') {
+        const existingState = await prisma.auth.findFirst({
+            where: {
+                state: queryState,
+            },
+        });
+        if (!existingState) queryState = '';
+    }
+    else {
+        queryState = '';
+    }
+
+    const state = queryState || randomUUID();
+
+    if (!queryState) {
+        await prisma.auth.create({
+            data: {
+                state,
+                type: AuthType.VATSIM,
+            },
+        });
+    }
 
     const url = new URL(`${ config.VATSIM_ENDPOINT }/oauth/authorize`);
     url.searchParams.set('client_id', config.VATSIM_CLIENT_ID);
@@ -14,13 +36,6 @@ export default defineEventHandler(async (event) => {
     url.searchParams.set('scope', 'full_name');
     url.searchParams.set('state', state);
     url.searchParams.set('response_type', 'code');
-
-    await prisma.auth.create({
-        data: {
-            state,
-            type: AuthType.VATSIM,
-        },
-    });
 
     return sendRedirect(event, url.toString());
 });

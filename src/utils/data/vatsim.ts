@@ -144,13 +144,13 @@ export function getAirportsList() {
         else existingArr.push(pilot);
     }
 
-    pilots.forEach((pilot) => {
+    for (const pilot of pilots) {
         const statuses: Array<{status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0]}> = [];
+        const groundAirport = pilot.groundspeed < 50 ? dataAirports.find(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
 
         if (!pilot.flight_plan?.departure) {
-            const groundAirport = dataAirports.find(x => isAircraftOnGround([x.lon, x.lat], pilot));
             //We don't know where the pilot is :(
-            if (!groundAirport) return;
+            if (!groundAirport) continue;
 
             statuses.push({
                 status: 'groundDep',
@@ -158,12 +158,11 @@ export function getAirportsList() {
             });
         }
         else {
-            const departureAirport = dataAirports.find(x => x.icao === pilot.flight_plan!.departure);
+            const departureAirport = groundAirport?.icao === pilot.flight_plan.departure ? groundAirport : dataAirports.find(x => x.icao === pilot.flight_plan!.departure);
 
             if (departureAirport) {
-                const groundAirport = pilot.groundspeed < 50 && isAircraftOnGround([departureAirport.lon, departureAirport.lat], pilot);
                 statuses.push({
-                    status: groundAirport ? 'groundDep' : 'departures',
+                    status: groundAirport?.icao === departureAirport.icao ? 'groundDep' : 'departures',
                     airport: departureAirport,
                 });
             }
@@ -176,12 +175,11 @@ export function getAirportsList() {
                     };
                 }
                 else {
-                    const arrivalAirport = dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
+                    const arrivalAirport = groundAirport?.icao === pilot.flight_plan.arrival ? groundAirport : dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
 
                     if (arrivalAirport) {
-                        const groundAirport = pilot.groundspeed < 50 && isAircraftOnGround([arrivalAirport.lon, arrivalAirport.lat], pilot);
                         statuses.push({
-                            status: groundAirport ? 'groundArr' : 'arrivals',
+                            status: groundAirport?.icao === arrivalAirport.icao ? 'groundArr' : 'arrivals',
                             airport: arrivalAirport,
                         });
                     }
@@ -192,7 +190,7 @@ export function getAirportsList() {
         statuses.forEach((status) => {
             addPilotToList(status.status, status.airport, pilot.cid);
         });
-    });
+    }
 
     radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach((prefile) => {
         if (prefile.departure) {
