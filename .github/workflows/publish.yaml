@@ -45,6 +45,8 @@ jobs:
             NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
             NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
             VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
+            DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}"
+            DISCORD_CLIEND_ID="${{ secrets.DISCORD_CLIEND_ID }}"
           cache-from: type=registry,ref=ghcr.io/daniluk4000/vatsim-radar/production:latest
           cache-to: type=inline
   deploy:
