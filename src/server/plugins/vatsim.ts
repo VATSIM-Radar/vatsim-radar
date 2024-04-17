@@ -73,7 +73,6 @@ export default defineNitroPlugin((app) => {
                     pilots: {
                         server: true,
                         transponder: true,
-                        qnh_mb: true,
                         qnh_i_hg: true,
                         flight_plan: true,
                         last_updated: true,

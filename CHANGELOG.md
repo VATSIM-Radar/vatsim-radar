@@ -1,19 +1,17 @@
 # Changelog
 
-## 0.1.0
+# 0.1.0
 
-### New features
+This is initial release to test changelog generation and general CI/CD flow. Service is still pending Vatsim approval to announce proper testing.
 
-- Added convertation of altitude using QNH
+Anyway, you can already begin verification process by pasting `/verify` in any chat you have access to. That will save you some time in future :)
 
-### Technical features
+## New features
+
+- Aircraft altitude is now converted using its QNH
+
+## Technical features
 
 - Initial Changelog release
-- Prepared for Discord bot verification
+- Prepared Discord bot verification
 - Added releases announcements
-
-#### Test
-
-- test
-
-## 0.0.0

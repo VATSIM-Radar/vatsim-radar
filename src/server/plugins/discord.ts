@@ -4,54 +4,23 @@ import { AuthType } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 //@ts-expect-error
 import Changelog from '@@/CHANGELOG.md';
+import { version } from '@@/package.json' assert {type: 'json'};
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds] });
 export const discordServerId = '1223649894191992914';
-export const discordReleasesChannelId = '1229892121549344789';
+export const discordReleasesChannelId = '1229392327282397194';
 export const discordRoleId = '1229887891442761748';
 
 function parseMarkdown() {
-    const lines = Changelog.split('\n');
-    let heading: {
-        title: string,
-        items: Array<string | {title: string, items: string[]}>
-    } | null = null;
-    let currentSubHeading: {
-        title: string,
-        items: string[]
-    } | null = null;
+    let CHANGELOG: string | null = null;
 
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (line.startsWith('## ')) {
-            if (heading) break;
-            // Found a second-level heading
-            heading = {
-                title: line.substring(3),
-                items: [],
-            };
-        }
-        else if (line.startsWith('### ')) {
-            currentSubHeading = {
-                title: line.substring(4),
-                items: [],
-            };
-
-            if (currentSubHeading.title) {
-                heading!.items.push(currentSubHeading);
-            }
-        }
-        else if (line.startsWith('- ')) {
-            if (currentSubHeading?.title) {
-                currentSubHeading.items.push(line.substring(2));
-            }
-            else {
-                heading!.items.push(line.substring(2));
-            }
-        }
+    if (Changelog.includes(`# ${ version }`)) {
+        CHANGELOG = Changelog
+            .split(`# ${ version }`)[1]
+            .split(/^#\s.*/gm)[0];
     }
 
-    return heading;
+    return CHANGELOG;
 }
 
 export default defineNitroPlugin(async (app) => {
@@ -73,11 +42,18 @@ export default defineNitroPlugin(async (app) => {
     const rest = new REST({ version: '10' }).setToken(config.DISCORD_TOKEN);
 
     try {
-        console.log('Started refreshing application (/) commands.');
+        (async () => {
+            try {
+                console.log('Started refreshing application (/) commands.');
 
-        await rest.put(Routes.applicationCommands(config.DISCORD_CLIEND_ID), { body: commands });
+                await rest.put(Routes.applicationCommands(config.DISCORD_CLIEND_ID), { body: commands });
 
-        console.log('Successfully reloaded application (/) commands.');
+                console.log('Successfully reloaded application (/) commands.');
+            }
+            catch (e) {
+                console.error(e);
+            }
+        })();
 
         discordClient.on('ready', () => {
             console.log(`Logged in as ${ discordClient.user?.tag }!`);
@@ -122,12 +98,16 @@ export default defineNitroPlugin(async (app) => {
                 }
             }
             else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
-                await interaction.reply({
-                    content: 'test',
-                    ephemeral: true,
-                });
-
-                console.log(JSON.stringify(parseMarkdown()));
+                const release = await discordClient.channels.fetch(discordReleasesChannelId);
+                if (release && 'send' in release) {
+                    release.send({
+                        content: parseMarkdown()!,
+                    });
+                    await interaction.reply({
+                        content: 'OK',
+                        ephemeral: true,
+                    });
+                }
             }
         });
 

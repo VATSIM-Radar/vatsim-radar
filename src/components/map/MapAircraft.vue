@@ -79,7 +79,7 @@
                             Altitude
                         </template>
                         <template #bottom>
-                            {{ aircraft.altitude }} ft
+                            {{ usePilotTrueAltitude(aircraft) }} ft
                         </template>
                     </common-info-block>
                 </div>
@@ -112,7 +112,7 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { Icon, Style } from 'ol/style';
-import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
+import { getAirportByIcao, usePilotRating, usePilotTrueAltitude } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { useStore } from '~/store';
 
