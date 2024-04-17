@@ -8334,7 +8334,7 @@ __metadata:
     ua-parser-js: "npm:2.0.0-beta.2"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.23"
-    vue-router: "npm:^4.3.0"
+    vue-router: "npm:^4.3.1"
     vue-tsc: "npm:^1.8.27"
   languageName: unknown
   linkType: soft
@@ -11850,6 +11850,17 @@ __metadata:
   peerDependencies:
     vue: ^3.2.0
   checksum: 10c0/72865ad2e5e17035f1d38311caaec77759f9813f3a627553994c05c43d04ceeaf1f9325260be4c060411c49ed176035579bf4815a4c084b908688c0cc6b3cf72
+  languageName: node
+  linkType: hard
+
+"vue-router@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "vue-router@npm:4.3.1"
+  dependencies:
+    "@vue/devtools-api": "npm:^6.5.1"
+  peerDependencies:
+    vue: ^3.2.0
+  checksum: 10c0/f8c148f365c7298511fe2b0273bb62b07fe87620d44a037f41ca0be5e84ef87015b13e1a614ad000b22e304ac527b5b04e03e7d317c09a59e74e3fa90f2fc64e
   languageName: node
   linkType: hard
 
