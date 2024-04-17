@@ -54,9 +54,8 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         font-size: 15vw;
         font-weight: 700;
         background: linear-gradient(180deg, rgba(203, 66, 28, 0) 0%, #{$error500} 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
         background-clip: text;
+        -webkit-text-fill-color: transparent;
         text-fill-color: transparent;
         opacity: 0.2;
     }
