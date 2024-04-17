@@ -24,7 +24,7 @@ function parseMarkdown() {
 }
 
 export default defineNitroPlugin(async (app) => {
-    if (!import.meta.dev) return;
+    if (import.meta.dev) return;
     const config = useRuntimeConfig();
 
     const commands = [
