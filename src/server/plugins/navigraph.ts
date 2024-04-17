@@ -2,6 +2,7 @@ import { CronJob } from 'cron';
 import { existsSync, unlinkSync } from 'node:fs';
 import AdmZip from 'adm-zip';
 import { readdirSync } from 'fs';
+import { join } from 'path';
 import {
     closeNavigraphDB,
     initNavigraphDB,
@@ -9,7 +10,6 @@ import {
     navigraphOutdatedDb,
 } from '~/utils/backend/navigraph-db';
 import { radarStorage } from '~/utils/backend/storage';
-import { createResolver } from '@nuxt/kit';
 
 const accessKey = {
     token: '',
@@ -88,14 +88,14 @@ export default defineNitroPlugin((app) => {
 
             radarStorage.navigraph = cycles;
 
-            const resolver = createResolver('./src');
+            const cwd = join(process.cwd(), 'src');
 
             const currentFileName = `current-${ currentCycle }.s3db`;
             const outdatedFileName = `outdated-${ outdatedCycle }.s3db`;
 
-            const dirPath = resolver.resolve('data');
-            const currentPath = resolver.resolve(`data/${ currentFileName }`);
-            const outdatedPath = resolver.resolve(`data/${ outdatedFileName }`);
+            const dirPath = join(cwd, 'data');
+            const currentPath = join(cwd, `data/${ currentFileName }`);
+            const outdatedPath = join(cwd, `data/${ outdatedFileName }`);
 
             const filesInPath = readdirSync(dirPath, { withFileTypes: true });
 
