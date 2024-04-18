@@ -18,9 +18,9 @@ function parseMarkdown() {
 
     if (changelog.includes(`# ${ json.version }`)) {
         CHANGELOG = changelog
-            .split(`## Update v${ json.version } has just been released!`)[1]
+            .split(`# ${ json.version }`)[1]
             .split(/^#\s.*/gm)[0];
-        CHANGELOG = `# ${ json.version }\n${ CHANGELOG }`;
+        CHANGELOG = `## Update v${ json.version } has just been released!\n${ CHANGELOG }`;
     }
 
     return CHANGELOG;
