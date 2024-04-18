@@ -1,5 +1,19 @@
 # Changelog
 
+# 0.1.2
+
+This is maintenance release, mostly aimed to fix bug with no ATC displayed for airports without traffic.
+
+## Bug fixes and changes
+
+- 404 page now shows 404 layout instead of 500
+- Airports with ATC but without traffic are now displayed
+- Fake airports like MSK_APP will now also show if atc is available for them
+- Renamed Navigraph Ultimate to Unlimited
+- Removed left gap and dot from single-line ATIS for better readability and space
+- Fixed broken hover animation when airport only have one local facility (for example, atis and nothing else)
+- Renamed Prefiles title to "Flightplan Prefiles" for better understanding
+
 # 0.1.1
 
 ## Changes

@@ -44,7 +44,7 @@ function parseDatFile<S extends Record<string, { title: string, children: Record
             const itemResult = {} as PartialRecord<string, string>;
 
             keys.forEach((key, index) => {
-                const section = sections[index]?.trim();
+                const section = sections[index]?.split(';')[0]?.trim();
                 if (!section) return;
                 itemResult[key] = section;
             });

@@ -128,6 +128,7 @@ export function getAirportsList() {
         if (!existingAirport) {
             existingAirport = {
                 icao: airport.icao,
+                iata: airport.iata,
                 aircrafts: {
                     [status]: [pilot],
                 },
@@ -196,6 +197,17 @@ export function getAirportsList() {
         if (prefile.departure) {
             const airport = dataAirports.find(x => x.icao === prefile.departure);
             if (airport) addPilotToList('prefiles', airport, prefile.cid);
+        }
+    });
+
+    radarStorage.vatsim.locals.forEach((atc) => {
+        const airport = atc.airport;
+        if (!airports.some(x => x.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
+            airports.push({
+                icao: airport.icao,
+                iata: airport.iata,
+                aircrafts: {},
+            });
         }
     });
 

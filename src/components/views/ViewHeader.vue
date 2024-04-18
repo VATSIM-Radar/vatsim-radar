@@ -128,13 +128,13 @@
                         <common-button v-if="store.user?.hasFms === null" href="/auth/navigraph/redirect">
                             Link Navigraph
                         </common-button>
-                        <div class="header__settings__navigraph" :class="{'header__settings__navigraph--ultimate': store.user!.hasFms}" v-else>
+                        <div class="header__settings__navigraph" :class="{'header__settings__navigraph--unlimited': store.user!.hasFms}" v-else>
                             <div class="header__settings__navigraph_title">
                                 Status
                             </div>
                             <div class="header__settings__navigraph_status">
                                 <template v-if="store.user!.hasFms">
-                                    Ultimate
+                                    Unlimited
                                 </template>
                                 <template v-else>
                                     Standard
@@ -145,7 +145,7 @@
                             </common-button>
                         </div>
                         <div class="header__settings__description">
-                            Users with linked Navigraph Ultimate will receive latest AIRAC for gates, waypoints and all other Navigraph-related stuff
+                            Users with linked Navigraph Unlimited will receive latest AIRAC for gates, waypoints and all other Navigraph-related stuff
                         </div>
                     </div>
                 </template>
@@ -369,7 +369,7 @@ watch(settings, () => {
             align-items: center;
             color: $neutral150;
 
-            &--ultimate .header__settings__navigraph_status {
+            &--unlimited .header__settings__navigraph_status {
                 color: $success500;
             }
         }

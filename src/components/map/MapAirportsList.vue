@@ -7,9 +7,9 @@
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
         :local-atc="localAtc"
         :arr-atc="arrAtc"
-        :is-hovered="airport.icao === hoveredAirport"
+        :is-hovered="airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport"
         :gates="getAirportsGates.find(x => x.airport === airport.icao)?.gates"
-        @manualHover="[isManualHover = true, hoveredAirport = airport.icao]"
+        @manualHover="[isManualHover = true, hoveredAirport = airport.iata || airport.icao]"
         @manualHide="[isManualHover = false, hoveredAirport = null]"
     />
 </template>
@@ -50,7 +50,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     let isInvalid = features.length !== 1 || features[0].getProperties().type !== 'circle';
 
     if (!isInvalid) {
-        const airport = getAirportsList.value.find(x => x.airport.icao === features[0].getProperties().icao);
+        const airport = getAirportsList.value.find(x => features[0].getProperties().iata ? x.airport.iata === features[0].getProperties().iata : x.airport.icao === features[0].getProperties().icao);
         const pixel = map.value!.getCoordinateFromPixel(e.pixel);
         isInvalid = pixel[1] - airport!.airport.lat < 80000;
     }
@@ -66,7 +66,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     if (isManualHover.value) return;
     isManualHover.value = false;
 
-    hoveredAirport.value = features[0].getProperties().icao;
+    hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
     store.mapCursorPointerTrigger = 2;
 }
 
@@ -230,10 +230,10 @@ const getAirportsList = computed(() => {
         aircrafts: {} as MapAircraft,
         aircraftsList: x.aircrafts,
         aircraftsCids: Object.values(x.aircrafts).flatMap(x => x),
-        airport: dataStore.vatspy.value!.data.airports.find(y => y.icao === x.icao)!,
+        airport: dataStore.vatspy.value!.data.airports.find(y => y.iata ? y.iata === x.iata : y.icao === x.icao)!,
         localAtc: [] as VatsimShortenedController[],
         arrAtc: [] as VatsimShortenedController[],
-    })).filter(x => x.airport && x.aircraftsCids.length) ?? [];
+    }));
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         const foundAirports = airports.filter(x => x.aircraftsCids.includes(pilot.cid));
@@ -278,7 +278,7 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
-        const airport = airports.find(x => (x.airport.iata && x.airport.iata === atc.airport.iata) || x.airport.icao === atc.airport.icao);
+        const airport = airports.find(x => x.airport.iata ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
         if (!airport) continue;
 
         const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;

@@ -10,7 +10,7 @@
     >
         <div class="airport" @mouseleave="hoveredFacility = false">
             <div class="airport_title" @mouseover="hoveredFacility = true">
-                {{ airport.icao }}
+                {{ airportName }}
             </div>
             <div class="airport_facilities">
                 <div
@@ -166,6 +166,8 @@ let feature: Feature | null = null;
 let arrFeature: Feature | null = null;
 let gatesFeatures: Feature[] = [];
 
+const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
+
 function initAirport() {
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat]),
@@ -174,7 +176,7 @@ function initAirport() {
     feature.setStyle(new Style({
         text: new Text({
             font: '12px Montserrat',
-            text: props.airport.icao,
+            text: airportName.value,
             fill: new Fill({
                 color: 'rgba(230, 230, 235, 0.8)',
             }),
@@ -213,6 +215,7 @@ onMounted(() => {
         arrFeature = new Feature({
             geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
             icao: props.airport.icao,
+            iata: props.airport.iata,
             type: 'circle',
         });
         arrFeature.setStyle(new Style({
@@ -222,7 +225,7 @@ onMounted(() => {
             }),
             text: new Text({
                 font: 'bold 14px Montserrat',
-                text: props.airport.icao,
+                text: airportName.value,
                 placement: 'line',
                 offsetY: -10,
                 textAlign: 'center',
@@ -366,7 +369,7 @@ onBeforeUnmount(() => {
                 border-radius: 4px;
             }
 
-            &--hovered {
+            &--hovered:not(:only-child) {
                 transform: scale(1.1);
             }
         }

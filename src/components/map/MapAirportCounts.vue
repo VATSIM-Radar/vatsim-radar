@@ -44,7 +44,7 @@
                             Arrivals
                         </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
-                            Prefiles
+                            Flightplan Prefiles
                         </template>
                     </div>
                 </template>

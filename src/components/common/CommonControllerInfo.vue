@@ -204,6 +204,11 @@ const getATIS = (controller: VatsimShortenedController) => {
             padding-left: 16px;
             margin: 0;
             word-break: break-word;
+
+            &_line:only-child {
+                list-style: none;
+                margin-left: -16px;
+            }
         }
 
         &__time {

@@ -41,7 +41,7 @@
                                 Vatsim user info: account token, ID and full name
                             </li>
                             <li>
-                                Navigraph user info: account token, ID and Navigraph Ultimate subscription status
+                                Navigraph user info: account token, ID and Navigraph Unlimited subscription status
                             </li>
                             <li>
                                 User's preferences, including, but not limited to, Settings, Favourite users, Filters, and other non-3rd party related preferences
