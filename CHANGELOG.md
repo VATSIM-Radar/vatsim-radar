@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.1.3
+
+## Bug fixes
+
+- Fixed group aircraft altitude display
+
 # 0.1.2
 
 This is maintenance release, mostly aimed to fix bug with no ATC displayed for airports without traffic.
