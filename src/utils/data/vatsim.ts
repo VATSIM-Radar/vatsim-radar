@@ -66,6 +66,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
             airport: {
                 icao: airport.icao,
                 iata: airport.iata,
+                isPseudo: airport.isPseudo,
             },
             isATIS: atc.callsign.endsWith('ATIS'),
         };
@@ -129,6 +130,7 @@ export function getAirportsList() {
             existingAirport = {
                 icao: airport.icao,
                 iata: airport.iata,
+                isPseudo: airport.isPseudo,
                 aircrafts: {
                     [status]: [pilot],
                 },
@@ -142,12 +144,23 @@ export function getAirportsList() {
         if (!existingArr) {
             existingAirport.aircrafts[status] = [pilot];
         }
-        else existingArr.push(pilot);
+        else {
+            existingArr.push(pilot);
+        }
     }
 
     for (const pilot of pilots) {
-        const statuses: Array<{status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0]}> = [];
-        const groundAirport = pilot.groundspeed < 50 ? dataAirports.find(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
+        const statuses: Array<{ status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0] }> = [];
+        const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
+
+        const groundAirport = (groundAirports && groundAirports?.length > 1)
+            ? groundAirports.sort((a, b) => {
+                const aDistance = Math.sqrt(Math.pow(pilot.latitude - a.lat, 2) + Math.pow(pilot.longitude - a.lon, 2));
+                const bDistance = Math.sqrt(Math.pow(pilot.latitude - b.lat, 2) + Math.pow(pilot.longitude - b.lon, 2));
+
+                return aDistance - bDistance;
+            })[0]
+            : groundAirports?.[0] ?? null;
 
         if (!pilot.flight_plan?.departure) {
             //We don't know where the pilot is :(
@@ -168,7 +181,7 @@ export function getAirportsList() {
                 });
             }
 
-            if (pilot.flight_plan.arrival) {
+            if (pilot.flight_plan.arrival || groundAirport) {
                 if (pilot.flight_plan.arrival === pilot.flight_plan.departure && statuses[0]) {
                     statuses[1] = {
                         airport: statuses[0].airport,
@@ -179,9 +192,11 @@ export function getAirportsList() {
                     const arrivalAirport = groundAirport?.icao === pilot.flight_plan.arrival ? groundAirport : dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
 
                     if (arrivalAirport) {
+                        const isDifferentAirport = !!groundAirport && groundAirport.icao !== departureAirport?.icao;
+
                         statuses.push({
-                            status: groundAirport?.icao === arrivalAirport.icao ? 'groundArr' : 'arrivals',
-                            airport: arrivalAirport,
+                            status: isDifferentAirport || groundAirport?.icao === arrivalAirport.icao ? 'groundArr' : 'arrivals',
+                            airport: isDifferentAirport ? groundAirport! : arrivalAirport,
                         });
                     }
                 }
@@ -206,6 +221,7 @@ export function getAirportsList() {
             airports.push({
                 icao: airport.icao,
                 iata: airport.iata,
+                isPseudo: airport.isPseudo,
                 aircrafts: {},
             });
         }

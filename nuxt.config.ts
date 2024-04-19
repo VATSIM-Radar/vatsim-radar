@@ -75,6 +75,11 @@ export default defineNuxtConfig({
         devProxy: {
             host: '127.0.0.1',
         },
+        routeRules: {
+            '/discord': {
+                redirect: 'https://discord.gg/MtFKhMPePe',
+            },
+        },
     },
     devServer: {
         port: 8080,

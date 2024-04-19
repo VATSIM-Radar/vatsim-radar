@@ -40,7 +40,7 @@
                         <settings-icon/>
                     </template>
                 </common-button>
-                <common-button size="S" href="https://discord.gg/MtFKhMPePe" target="_blank" type="secondary">
+                <common-button size="S" href="/discord" target="_blank" type="secondary">
                     <template #icon>
                         <discord-icon/>
                     </template>

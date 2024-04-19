@@ -2,9 +2,20 @@
 
 # 0.1.3
 
+First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a great weekend and CTP!
+
 ## Bug fixes
 
-- Fixed group aircraft altitude display
+- Diverted to non-planned airport will now also be displayed in ground aircrafts list
+- Aircraft altitude will no longer be modified using Vatsim QNH when below FL100
+- Fixed ground aircrafts sometimes not showing in correct airport
+- Fixed rare issue when circle with dep/arr controller could suddenly disappear while still being online. If you'll encourage this later, please report it in #feedback section (must be present in VatSpy and missing in Vatsim Radar)
+- Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead of one
+
+## Technical changes
+
+- Added Navigraph to bottom right copyrights
+- Added pretty Discord link on `/discord` route
 
 # 0.1.2
 

@@ -4,6 +4,7 @@ import type { VatsimShortenedPrefile } from '~/types/data/vatsim';
 export interface MapAirport {
     icao: string;
     iata?: string;
+    isPseudo: boolean
     aircrafts: Partial<{
         groundDep: number[]
         groundArr: number[]
