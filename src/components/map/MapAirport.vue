@@ -198,6 +198,7 @@ onMounted(() => {
         else if (val && feature) {
             vectorSource.value?.removeFeature(feature);
             feature.dispose();
+            feature = null;
         }
     }, {
         immediate: true,
@@ -207,6 +208,7 @@ onMounted(() => {
         if (!val && arrFeature) {
             vectorSource.value?.removeFeature(arrFeature);
             arrFeature.dispose();
+            arrFeature = null;
             return;
         }
 
@@ -307,11 +309,13 @@ onBeforeUnmount(() => {
     if (feature) {
         vectorSource.value?.removeFeature(feature);
         feature.dispose();
+        feature = null;
     }
 
     if (arrFeature) {
         vectorSource.value?.removeFeature(arrFeature);
         arrFeature.dispose();
+        arrFeature = null;
     }
 
     gatesFeatures.forEach((feature) => {

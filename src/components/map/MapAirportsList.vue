@@ -1,7 +1,7 @@
 <template>
     <map-airport
         v-for="{airport, aircrafts, localAtc, arrAtc} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
-        :key="airport.icao"
+        :key="airport.icao + airport.iata ?? 'undefined'"
         :airport="airport"
         :aircrafts="aircrafts"
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
@@ -50,7 +50,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     let isInvalid = features.length !== 1 || features[0].getProperties().type !== 'circle';
 
     if (!isInvalid) {
-        const airport = getAirportsList.value.find(x => features[0].getProperties().iata ? x.airport.iata === features[0].getProperties().iata : x.airport.icao === features[0].getProperties().icao);
+        const airport = getAirportsList.value.find(x => (features[0].getProperties().iata || x.airport.iata) ? x.airport.iata === features[0].getProperties().iata : x.airport.icao === features[0].getProperties().icao);
         const pixel = map.value!.getCoordinateFromPixel(e.pixel);
         isInvalid = pixel[1] - airport!.airport.lat < 80000;
     }
@@ -278,7 +278,8 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
-        const airport = airports.find(x => x.airport.iata ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
+        const airport = airports.find(x => (x.airport.iata || atc.airport.iata) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
+        const icaoOnlyAirport = airports.find(x => atc.airport.isPseudo && atc.airport.iata && x.airport.icao === atc.airport.icao);
         if (!airport) continue;
 
         const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
@@ -288,7 +289,7 @@ const getAirportsList = computed(() => {
         }
 
         const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
-        if (isLocal) airport.localAtc.push(atc.atc);
+        if (isLocal) (icaoOnlyAirport || airport).localAtc.push(atc.atc);
     }
 
     return airports;

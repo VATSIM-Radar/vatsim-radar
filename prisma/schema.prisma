@@ -36,6 +36,7 @@ model Auth {
   type      AuthType
   discordId String?
   verifier  String?
+  createdAt DateTime @default(now())
 }
 
 model NavigraphUser {

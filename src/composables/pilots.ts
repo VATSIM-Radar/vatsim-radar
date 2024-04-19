@@ -17,5 +17,6 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
 }
 
 export function usePilotTrueAltitude(pilot: VatsimShortenedAircraft): number {
+    if (pilot.altitude > 9500) return pilot.altitude;
     return Math.round(pilot.altitude - (pilot.qnh_mb - 1013) * 28.9);
 }
