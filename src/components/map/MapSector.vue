@@ -9,13 +9,14 @@
         :settings="{
             position: [fir.lon, fir.lat],
             positioning: 'center-center',
+            stopEvent: isHovered,
         }"
         :z-index="15"
         :active-z-index="20"
         @mouseleave="isHovered = false"
     >
         <!-- @todo click for touch -->
-        <div class="sector-atc" @mouseover="$nextTick(() => isHovered = true)">
+        <div class="sector-atc" :class="{'sector-atc--hovered': isHovered}" @mouseover="$nextTick(() => isHovered = true)">
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
@@ -79,6 +80,7 @@ const controllers = computed(() => {
 const getATCFullName = computed(() => {
     const prop = !locals.value.length ? globals.value[0] ?? props.fir : props.fir;
     const country = dataStore.vatspy.value?.data.countries.find(x => x.code === prop.icao?.slice(0, 2));
+    if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
@@ -172,9 +174,17 @@ onBeforeUnmount(() => {
         z-index: 10;
         user-select: none;
 
+        &, &_sub {
+            transition: 0.3s;
+        }
+
         &_sub {
             color: varToRgba('neutral150', 0.5);
         }
+    }
+
+    &--hovered {
+        color: $primary500;
     }
 }
 </style>

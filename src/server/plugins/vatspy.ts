@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 8,
+    'v2403.1': 9,
 };
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
@@ -157,7 +157,7 @@ export default defineNitroPlugin((app) => {
 
                         result.firs.push({
                             ...value as Required<typeof value>,
-                            isOceanic: boundary.properties!.oceanic === '1',
+                            isOceanic: boundary.properties!.oceanic === '1' || !!value.name?.includes('Oceanic'),
                             lon: coordinate[0],
                             lat: coordinate[1],
                             region: boundary.properties!.region,

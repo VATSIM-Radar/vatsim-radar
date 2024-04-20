@@ -21,6 +21,8 @@ services:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
       interval: 1s
       retries: 360
+    volumes:
+      - /opt/radar-data:/radar/src/data
 
   db:
     image: mysql

@@ -87,10 +87,11 @@
         </map-overlay>
         <map-overlay
             class="aircraft-overlay"
+            :style="{'--imageHeight': `${imageHeight}px`}"
             :model-value="showLabel"
             :settings="{
                 position: getCoordinates,
-                offset: [0, 15]
+                offset: [0, 0]
             }"
             :z-index="19"
             persistent
@@ -115,6 +116,7 @@ import { Icon, Style } from 'ol/style';
 import { getAirportByIcao, usePilotRating, usePilotTrueAltitude } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { useStore } from '~/store';
+import { getAircraftIcon } from '~/utils/icons';
 
 const props = defineProps({
     aircraft: {
@@ -146,6 +148,7 @@ const hoveredOverlay = ref(false);
 let feature: Feature | undefined;
 const store = useStore();
 const dataStore = useDataStore();
+const imageHeight = ref(0);
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -155,7 +158,7 @@ const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.
 const depAirport = computed(() => getAirportByIcao(props.aircraft.departure));
 const arrAirport = computed(() => getAirportByIcao(props.aircraft.arrival));
 
-const init = () => {
+const init = async () => {
     if (!vectorSource.value) return;
 
     const iconFeature = feature || new Feature({
@@ -176,22 +179,46 @@ const init = () => {
         existingStyle.getImage()!.setRotation(degreesToRadians(props.aircraft.heading ?? 0));
     }
     else {
+        const icon = getAircraftIcon(props.aircraft);
+
+        const styleIcon = new Icon({
+            src: `/aircrafts/${ icon.icon }.png`,
+            width: icon.width,
+            rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        });
+
         const iconStyle = new Style({
-            image: new Icon({
-                src: '/airplane.png',
-                width: 20,
-                rotation: degreesToRadians(props.aircraft.heading ?? 0),
-                color: 'white',
-            }),
+            image: styleIcon,
             zIndex: 10,
         });
         iconFeature.setStyle(iconStyle);
+        await sleep(0);
+        imageHeight.value = styleIcon.getHeight();
     }
 
     if (!feature) vectorSource.value.addFeature(iconFeature);
 
     feature = iconFeature;
 };
+
+watch(() => props.isHovered, async (val) => {
+    if (!feature) return;
+
+    const icon = getAircraftIcon(props.aircraft);
+
+    const styleIcon = new Icon({
+        src: `/aircrafts/${ icon.icon }${ val ? '-hover' : '' }.png`,
+        width: icon.width,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+    });
+
+    feature.setStyle(new Style({
+        image: styleIcon,
+        zIndex: 10,
+    }));
+    await sleep(0);
+    imageHeight.value = styleIcon.getHeight();
+});
 
 onMounted(init);
 
@@ -290,7 +317,8 @@ onBeforeUnmount(() => {
 
 .aircraft-label {
     width: fit-content;
-    transform: translateX(-50%);
+    transform: translate(-50%, 0);
+    top: calc(var(--imageHeight) / 2);
     position: absolute;
     color: $neutral150;
     font-size: 12px;

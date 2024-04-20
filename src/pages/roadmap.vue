@@ -131,6 +131,7 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             {
                 title: 'Aircraft tracking',
+                description: 'Including center/zoom to it',
                 status: 'in-progress',
             },
             {
@@ -140,6 +141,14 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Different aircraft icons',
                 status: 'in-progress',
+            },
+            {
+                title: 'Center/zoom to entire flight button',
+                status: 'todo',
+            },
+            {
+                title: 'Center/zoom to airport button',
+                status: 'todo',
             },
             {
                 title: 'ATC info popup',
@@ -167,19 +176,30 @@ const roadmap = reactive<Roadmap[]>([
             'Detailed route',
             'Waypoints on map',
             'Events',
+            'ATC Bookings',
             'Favorite pilots/ATC',
             'Friendly mobile version',
             'Aircraft moving in Vatsim update pause',
             'Search',
+            {
+                title: 'Basic Stats',
+                description: 'Popular now etc',
+            },
         ],
     },
     {
         title: 'Stage 4',
         items: [
-            'Stats (popular now/over time)',
-            'Detailed history routes (history of aircraft turns)',
+            {
+                title: 'Detailed Stats',
+                description: 'Popular over time etc',
+            },
+            {
+                title: 'Detailed history routes',
+                description: 'History of aircraft turns + departure/arrival time save',
+            },
             'PWA',
-            'OSS development support',
+            'Proper OSS contribution support',
             'Flight ETA',
         ],
     },
@@ -200,6 +220,8 @@ const roadmap = reactive<Roadmap[]>([
             },
             'Simbrief integration',
             'ATC/Booking notification for active flight',
+            'Images or aircraft type + operator',
+            'Name of aircraft operating company',
         ],
     },
 ]);

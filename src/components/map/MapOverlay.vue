@@ -1,6 +1,6 @@
 <template>
-    <div v-show="false" v-if="model && (persistent || store.canShowOverlay)">
-        <div class="map-overlay" ref="overlayElement" v-bind="$attrs">
+    <div v-show="false" v-if="model">
+        <div class="map-overlay" ref="overlayElement" v-bind="$attrs" v-show="persistent || canShowOverlay">
             <slot/>
             <slot name="popup" v-if="isPopupOpen"/>
         </div>
@@ -59,7 +59,7 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const overlayElement = ref<HTMLDivElement | null>(null);
 
 const isPopupOpen = computed(() => {
-    return store.openOverlayId === popupId && store.canShowOverlay;
+    return store.openOverlayId === popupId && canShowOverlay.value;
 });
 
 const zIndex = computed(() => {
@@ -94,6 +94,8 @@ function recreateOverlay(stopEvent: boolean) {
     });
     map.value!.addOverlay(overlay.value);
 }
+
+const canShowOverlay = computed(() => store.canShowOverlay);
 
 watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
@@ -137,7 +139,7 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
 const position = computed(() => props.settings?.position);
 const positioning = computed(() => props.settings?.positioning);
 const offset = computed(() => props.settings?.offset);
-const stopEvent = computed(() => props.settings?.stopEvent && store.canShowOverlay);
+const stopEvent = computed(() => props.settings?.stopEvent && canShowOverlay.value);
 
 watch(position, (val) => {
     if (!val) return;

@@ -1,5 +1,24 @@
 # Changelog
 
+# 0.2.0
+
+## Features
+
+- Added new aircraft icons: A340, B777, Concorde
+- Aircraft icons now have borders around them
+- Lowered size of A320 default icon
+- Added hover-on-aircraft change
+- Sector info overlay is now also scroll-resistant
+- Updated roadmap. Check it out!
+
+## Bug fixes
+
+- Increased aircraft on ground zone detection
+- Fixed Africa oceanic FIR display
+- Fixed issue when sometimes aircraft title could disappear
+- Fixed issue when sometimes overlay would not open if you hovered during map move
+- Fixed critical bug: map radius was 8px instead of 16px!
+
 # 0.1.3
 
 First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a great weekend and CTP!

@@ -17,7 +17,14 @@ export const useFacilitiesIds = () => {
 };
 
 function findFacility(name: string, controller: VatsimShortenedController) {
-    return radarStorage.vatspy.data!.firs.filter(x => (x.icao === name || x.callsign === name) && (x.name.includes('Oceanic') ? true : !x.isOceanic));
+    return radarStorage.vatspy.data!.firs.filter((x) => {
+        if (x.icao !== name && x.callsign !== name) return false;
+
+        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.feature.id === y.feature.id && x.isOceanic === !y.isOceanic);
+        if (!duplicateFir || x.name.includes('Oceanic')) return true;
+
+        return !x.isOceanic;
+    });
 }
 
 function findUir(name: string, controller: VatsimShortenedController): VatSpyDataFeature | undefined {
@@ -26,13 +33,22 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
     if (!uir) return;
 
     const firs = uir.firs.split(',');
-    const uirFeatures = radarStorage.vatspy.data!.firs.filter(x => firs.includes(x.callsign ?? x.icao ?? '') && (x.name.includes('Oceanic') ? x.isOceanic : !x.isOceanic));
+    const uirFeatures = radarStorage.vatspy.data!.firs.filter((x) => {
+        if (!firs.includes(x.callsign ?? x.icao ?? '')) return false;
+
+        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.feature.id === y.feature.id && x.isOceanic === !y.isOceanic);
+        if (!duplicateFir) return true;
+
+        return x.name.includes('Oceanic') ? x.isOceanic : !x.isOceanic;
+    });
     if (!uirFeatures?.length) return;
 
     return {
         ...uir,
         controller,
         firs: uirFeatures.map(x => ({
+            icao: x.icao,
+            callsign: x.callsign,
             boundaryId: x.feature.id as string,
         })),
     };
@@ -106,6 +122,8 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
 
         return {
             firs: feature.map(x => ({
+                icao: x.icao,
+                callsign: x.callsign,
                 boundaryId: x.feature.id as string,
                 controller: atc,
             })),
@@ -113,7 +131,7 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
     });
 };
 
-const groundZone = 5000;
+const groundZone = 10000;
 
 function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft): boolean {
     return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;

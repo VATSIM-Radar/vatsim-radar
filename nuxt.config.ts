@@ -92,6 +92,13 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     vite: {
+        build: {
+            rollupOptions: {
+                external: [
+                    'sharp',
+                ],
+            },
+        },
         css: {
             preprocessorOptions: {
                 scss: {

@@ -98,6 +98,7 @@ export default defineNitroPlugin((app) => {
                         const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
+                            aircraft_short: origPilot.flight_plan?.aircraft_short,
                             aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                             departure: origPilot.flight_plan?.departure,
                             arrival: origPilot.flight_plan?.arrival,
@@ -107,6 +108,7 @@ export default defineNitroPlugin((app) => {
                         const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
+                            aircraft_short: origPilot.flight_plan?.aircraft_short,
                             aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                             departure: origPilot.flight_plan?.departure,
                             arrival: origPilot.flight_plan?.arrival,

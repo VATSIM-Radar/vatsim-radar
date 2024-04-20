@@ -202,7 +202,7 @@ await useAsyncData(async () => {
 
         :deep(>*) {
             flex: 1 0 auto;
-            border-radius: 8px;
+            border-radius: 16px;
         }
     }
 
