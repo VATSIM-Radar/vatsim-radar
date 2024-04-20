@@ -96,7 +96,7 @@
             :z-index="19"
             persistent
         >
-            <div class="aircraft-label" @mouseover="hovered = true" @mouseleave="hovered = false">
+            <div class="aircraft-label" @mouseover="store.canShowOverlay ? hovered = true : undefined" @mouseleave="hovered = false">
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
                 </div>
@@ -158,7 +158,7 @@ const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.
 const depAirport = computed(() => getAirportByIcao(props.aircraft.departure));
 const arrAirport = computed(() => getAirportByIcao(props.aircraft.arrival));
 
-const init = async () => {
+const init = () => {
     if (!vectorSource.value) return;
 
     const iconFeature = feature || new Feature({
@@ -192,8 +192,29 @@ const init = async () => {
             zIndex: 10,
         });
         iconFeature.setStyle(iconStyle);
-        await sleep(0);
-        imageHeight.value = styleIcon.getHeight();
+
+        new Promise<number>((resolve) => {
+            let iterations = 0;
+            const height = styleIcon.getHeight();
+            if (height) resolve(height);
+
+            const interval = setInterval(() => {
+                iterations++;
+                if (iterations > 10) {
+                    clearInterval(interval);
+                    resolve(0);
+                }
+                else {
+                    const height = styleIcon.getHeight();
+                    if (height) {
+                        clearInterval(interval);
+                        resolve(height);
+                    }
+                }
+            }, 1000);
+        }).then((num) => {
+            imageHeight.value = num;
+        });
     }
 
     if (!feature) vectorSource.value.addFeature(iconFeature);

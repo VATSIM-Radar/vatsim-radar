@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 9,
+    'v2403.1': 10,
 };
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
@@ -144,6 +144,18 @@ export default defineNitroPlugin((app) => {
                     let boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
                     if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
                     if (!boundaries.length) throw new Error(`FIR didn't find it's feature in geojson (${ value.icao })`);
+
+                    boundaries.forEach((boundary, index) => {
+                        const rootBoundary = boundaries.find((x, xIndex) => x.id === boundary.id && xIndex < index);
+                        if (rootBoundary) {
+                            rootBoundary.geometry.coordinates = [
+                                ...rootBoundary.geometry.coordinates,
+                                ...boundary.geometry.coordinates,
+                            ];
+
+                            boundaries.splice(index, 1);
+                        }
+                    });
 
                     boundaries.forEach((boundary, index) => {
                         boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map((x) => {

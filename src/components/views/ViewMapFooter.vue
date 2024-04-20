@@ -90,7 +90,7 @@ const getLastUpdated = computed(() => {
 
     const date = new Date(updateTimestamp);
 
-    return `${ datetime.format(date) }z`;
+    return `${ datetime.format(date) } Z`;
 });
 </script>
 

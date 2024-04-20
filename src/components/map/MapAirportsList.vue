@@ -55,7 +55,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         isInvalid = pixel[1] - airport!.airport.lat < 80000;
     }
 
-    if (isInvalid) {
+    if (isInvalid || !store.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAirport.value = null;
         }

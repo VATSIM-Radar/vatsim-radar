@@ -6,8 +6,8 @@ export interface VatsimGeneral {
     update_timestamp: string;
     connected_clients: number;
     unique_users: number;
-    supsCount: number
-    admCount: number
+    supsCount: number;
+    admCount: number;
 }
 
 export interface VatsimPilot {
@@ -28,6 +28,15 @@ export interface VatsimPilot {
     flight_plan?: VatsimPilotFlightPlan;
     logon_time: string;
     last_updated: string;
+}
+
+export interface VatsimExtendedPilot extends VatsimPilot {
+    status: 'depGate' | 'depTaxi' | 'climbing' | 'cruising' | 'descending' | 'arrTaxi' | 'arrGate';
+    toGoDist?: number;
+    toGoPercent?: number;
+    toGoTime?: number;
+    fir?: string;
+    airport?: string;
 }
 
 export interface VatsimPilotFlightPlan {
@@ -62,7 +71,7 @@ export interface VatsimController {
 }
 
 export interface VatsimATIS extends VatsimController {
-    isATIS?: boolean
+    isATIS?: boolean;
     atis_code?: string;
 }
 

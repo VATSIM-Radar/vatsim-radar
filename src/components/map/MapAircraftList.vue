@@ -79,7 +79,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
-    if (features.length !== 1) {
+    if (features.length !== 1 || !store.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAircraft.value = null;
         }

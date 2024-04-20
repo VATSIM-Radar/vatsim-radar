@@ -7,8 +7,7 @@
 - Added new aircraft icons: A340, B777, Concorde
 - Aircraft icons now have borders around them
 - Lowered size of A320 default icon
-- Added hover-on-aircraft change
-- Sector info overlay is now also scroll-resistant
+- Added hover-on-aircraft icon background change
 - Updated roadmap. Check it out!
 
 ## Bug fixes
@@ -18,6 +17,8 @@
 - Fixed issue when sometimes aircraft title could disappear
 - Fixed issue when sometimes overlay would not open if you hovered during map move
 - Fixed critical bug: map radius was 8px instead of 16px!
+- Disabled hover effect for high zoom levels (it seemed like overlay should open, but it never did)
+- Fixed complex zones like CZQW/CZQM
 
 # 0.1.3
 
