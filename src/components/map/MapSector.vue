@@ -9,6 +9,7 @@
         :settings="{
             position: [fir.lon, fir.lat],
             positioning: 'center-center',
+            stopEvent: isHovered,
         }"
         :z-index="15"
         :active-z-index="20"
