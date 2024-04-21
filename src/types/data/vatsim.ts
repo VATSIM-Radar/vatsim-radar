@@ -189,3 +189,21 @@ export interface VatsimEvent {
     description: string;
     banner: string;
 }
+
+export type VatsimMemberStats = Record<
+    | 'id'
+    | 'atc'
+    | 'pilot'
+    | 's1'
+    | 's2'
+    | 's3'
+    | 'c1'
+    | 'c2'
+    | 'c3'
+    | 'i1'
+    | 'i2'
+    | 'i3'
+    | 'sup'
+    | 'adm',
+    number
+>

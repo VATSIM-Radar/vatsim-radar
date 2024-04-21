@@ -172,10 +172,17 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'in-progress',
             },
             {
+                title: 'CTAF frequency easy access',
+                status: 'in-progress',
+            },
+            {
                 title: 'METAR easy access',
                 status: 'in-progress',
             },
-            'Map Modes (OpenStreetMaps/Satellite/Other)',
+            {
+                title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
+                status: 'todo',
+            },
             'Light theme',
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
@@ -213,6 +220,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             'PWA',
             'Proper OSS contribution support',
+            'Easy access to pilot stats for ATC controllers in airport popup',
         ],
     },
     {
@@ -222,7 +230,6 @@ const roadmap = reactive<Roadmap[]>([
             'History of events',
             'Filter by events aircrafts',
             'Visualized events traffic',
-            'CTAF frequency easy access',
             'Usage of VatGlasses data',
             'Google Play app',
             'Websockets instead of update requests',
@@ -358,7 +365,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                 }
             }
 
-            animation: move 5s cubic-bezier(.85,.02,.47,.98);
+            animation: move 5s cubic-bezier(.85, .02, .47, .98);
             color: $neutral150;
 
             svg :deep(path) {

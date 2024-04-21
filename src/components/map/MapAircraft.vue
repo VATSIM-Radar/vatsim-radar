@@ -338,6 +338,7 @@ onBeforeUnmount(() => {
 }
 
 .aircraft-label {
+    padding-top: 5px;
     width: fit-content;
     transform: translate(-50%, 0);
     top: calc(var(--imageHeight) / 2);
