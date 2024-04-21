@@ -4,7 +4,7 @@
 
 ## Features
 
-- Added new aircraft icons: A340, B777, Concorde
+- Added new aircraft icons: A225 Antonov, A340, A380, DC6, MD11, MD80, B777, Concorde
 - Aircraft icons now have borders around them
 - Lowered size of A320 default icon
 - Added hover-on-aircraft icon background change
