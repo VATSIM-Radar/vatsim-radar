@@ -109,6 +109,10 @@ interface Roadmap {
     completed?: boolean;
 }
 
+useHead({
+    title: 'Roadmap',
+});
+
 const roadmap = reactive<Roadmap[]>([
     {
         title: 'Stage 1',
@@ -131,16 +135,25 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             {
                 title: 'Aircraft tracking',
-                description: 'Including center/zoom to it',
-                status: 'in-progress',
+                description: 'Including center/zoom to it, any random aicraft on map',
+                status: 'completed',
             },
             {
                 title: 'Aircraft info popup',
-                status: 'in-progress',
+                status: 'completed',
+            },
+            {
+                title: 'Flight ETA',
+                status: 'completed',
             },
             {
                 title: 'Different aircraft icons',
-                status: 'in-progress',
+                description: 'Initial release with few icons',
+                status: 'completed',
+            },
+            {
+                title: 'Auto track/zoom for own flight',
+                status: 'todo',
             },
             {
                 title: 'Center/zoom to entire flight button',
@@ -148,19 +161,19 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Center/zoom to airport button',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'ATC info popup',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Airport info popup',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'METAR easy access',
-                status: 'todo',
+                status: 'in-progress',
             },
             'Map Modes (OpenStreetMaps/Satellite/Other)',
             'Light theme',
@@ -200,7 +213,6 @@ const roadmap = reactive<Roadmap[]>([
             },
             'PWA',
             'Proper OSS contribution support',
-            'Flight ETA',
         ],
     },
     {
@@ -226,7 +238,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 35;
+const percents = 37;
 
 interface RoadmapGroup {
     status: ItemStatus,

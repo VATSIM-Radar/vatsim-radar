@@ -44,6 +44,7 @@ import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useStore } from '~/store';
+import { MultiPolygon } from 'ol/geom';
 
 const props = defineProps({
     fir: {

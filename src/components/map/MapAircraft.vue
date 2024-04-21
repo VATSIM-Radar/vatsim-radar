@@ -79,7 +79,7 @@
                             Altitude
                         </template>
                         <template #bottom>
-                            {{ usePilotTrueAltitude(aircraft) }} ft
+                            {{ getPilotTrueAltitude(aircraft) }} ft
                         </template>
                     </common-info-block>
                 </div>
@@ -113,10 +113,11 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Point } from 'ol/geom';
 import { Icon, Style } from 'ol/style';
-import { getAirportByIcao, usePilotRating, usePilotTrueAltitude } from '~/composables/pilots';
+import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { useStore } from '~/store';
 import { getAircraftIcon } from '~/utils/icons';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 const props = defineProps({
     aircraft: {

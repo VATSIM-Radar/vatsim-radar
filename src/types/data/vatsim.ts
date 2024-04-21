@@ -31,20 +31,27 @@ export interface VatsimPilot {
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
-    status: 'depGate' | 'depTaxi' | 'climbing' | 'cruising' | 'descending' | 'arrTaxi' | 'arrGate';
+    status?: 'depGate' | 'depTaxi' | 'departed' | 'climbing' | 'cruising' | 'enroute' | 'descending' | 'arriving' | 'arrTaxi' | 'arrGate';
     toGoDist?: number;
     toGoPercent?: number;
     toGoTime?: number;
-    fir?: string;
+    firs?: string[];
     airport?: string;
+    cruise?: {
+        min?: number
+        planned: number
+        max?: number
+    };
 }
 
-export interface VatsimPilotFlightPlan {
+export type VatsimPilotFlightPlan = Partial<{
     flight_rules: 'I' | 'V';
     aircraft: string;
     aircraft_faa: string;
     aircraft_short: string;
     departure: string;
+    cruise_tas: string;
+    altitude: string;
     arrival: string;
     alternate: string;
     deptime: string;
@@ -54,7 +61,7 @@ export interface VatsimPilotFlightPlan {
     route: string;
     revision_id: number;
     assigned_transponder: string;
-}
+}>
 
 export interface VatsimController {
     cid: number;

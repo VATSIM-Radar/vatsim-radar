@@ -4,6 +4,11 @@ import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import { toLonLat } from 'ol/proj';
+import { getNavigraphGates } from '~/utils/backend/navigraph';
+import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
+import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { MultiPolygon } from 'ol/geom';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function calculateDistanceInNauticalMiles([lon1, lat1]: Coordinate, [lon2, lat2]: Coordinate): number {
     const earthRadiusInNauticalMiles = 3440.065;
@@ -60,24 +65,134 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
         return;
     }
 
+    const user = await findAndRefreshFullUserByCookie(event);
+
     const extendedPilot: VatsimExtendedPilot = {
         ...pilot,
-        status: 'descending',
     };
 
     if (pilot.flight_plan?.departure && pilot.flight_plan.arrival) {
         const dep = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.departure);
         const arr = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.arrival);
 
+        const groundDep = radarStorage.vatsim.airports.find(x => x.aircrafts.groundDep?.includes(pilot.cid));
+        const groundArr = radarStorage.vatsim.airports.find(x => x.aircrafts.groundArr?.includes(pilot.cid));
+
+        if (groundDep) {
+            extendedPilot.airport = groundDep.icao;
+            const gates = await getNavigraphGates({
+                user,
+                icao: groundDep.icao,
+                event,
+            });
+
+            if (!gates) return;
+
+            const check = checkIsPilotInGate(pilot, gates);
+            if (check.truly || check.maybe) {
+                extendedPilot.status = 'depGate';
+            }
+            else {
+                extendedPilot.status = 'depTaxi';
+            }
+        }
+        else if (groundArr) {
+            extendedPilot.airport = groundArr.icao;
+            const gates = await getNavigraphGates({
+                user,
+                icao: groundArr.icao,
+                event,
+            });
+
+            if (!gates) return;
+
+            const check = checkIsPilotInGate(pilot, gates);
+            if (check.truly || check.maybe) {
+                extendedPilot.status = 'arrGate';
+            }
+            else {
+                extendedPilot.status = 'arrTaxi';
+            }
+        }
+
+        let totalDist: number | null = null;
+
         if (dep && arr) {
             const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
             const depCoords = toLonLat([dep.lon, dep.lat]);
             const arrCoords = toLonLat([arr.lon, arr.lat]);
 
+            totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
             extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
             extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
             extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
+
+            if (extendedPilot.toGoDist < 60) {
+                extendedPilot.airport = arr.icao;
+                if (!extendedPilot.status) {
+                    extendedPilot.status = 'arriving';
+                }
+            }
+            else {
+                const distFromDep = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
+                if (distFromDep < 40) {
+                    extendedPilot.airport = dep.icao;
+                    if (!extendedPilot.status) {
+                        extendedPilot.status = 'departed';
+                    }
+                }
+            }
         }
+
+        if (extendedPilot.flight_plan?.altitude) {
+            extendedPilot.cruise = {
+                planned: +extendedPilot.flight_plan.altitude,
+            };
+
+            if (extendedPilot.flight_plan.route) {
+                const regex = /F(?<level>[0-9]{2,3})$/;
+
+                const stepclimbs = extendedPilot.flight_plan.route.split(' ').map((item) => {
+                    const regexResult = regex.exec(item);
+                    if (!regexResult?.groups?.level) return 0;
+                    return +regexResult.groups.level;
+                }).filter(x => !!x && x !== extendedPilot.cruise!.planned).sort((a, b) => a - b);
+                if (stepclimbs[0]) extendedPilot.cruise.min = stepclimbs[0] * 100;
+                if (stepclimbs.length > 1) extendedPilot.cruise.max = stepclimbs[stepclimbs.length - 1] * 100;
+
+                if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
+                    extendedPilot.cruise.planned = extendedPilot.cruise.min;
+                    extendedPilot.cruise.min = +extendedPilot.flight_plan.altitude;
+                }
+            }
+
+            if (getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
+                extendedPilot.status = 'cruising';
+            }
+            else if (!extendedPilot.status && totalDist && extendedPilot.toGoDist) {
+                extendedPilot.status = totalDist / 2 < extendedPilot.toGoDist ? 'climbing' : 'descending';
+            }
+        }
+    }
+
+    const list = radarStorage.vatspy.data?.firs ?? [];
+
+    const firs = list.map((fir) => {
+        const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
+        return geometry.intersectsCoordinate([pilot.longitude, pilot.latitude]) &&
+            radarStorage.vatsim.firs.find(
+                x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.feature.id) && (x.controller || x.firs.some(x => x.controller)),
+            )!;
+    }).filter(x => !!x);
+
+    if (firs.length) {
+        extendedPilot.firs = [...new Set(
+            firs.flatMap(x => x && (x.controller?.callsign || x.firs.map(x => x.controller?.callsign))).filter(x => !!x) as string[],
+        )];
+    }
+
+    if (!extendedPilot.status) {
+        extendedPilot.status = 'enroute';
     }
 
     return extendedPilot;

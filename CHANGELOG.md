@@ -19,6 +19,7 @@
 - Fixed critical bug: map radius was 8px instead of 16px!
 - Disabled hover effect for high zoom levels (it seemed like overlay should open, but it never did)
 - Fixed complex zones like CZQW/CZQM
+- Fixed duplicate fir display
 
 # 0.1.3
 

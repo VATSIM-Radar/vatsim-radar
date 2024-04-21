@@ -24,7 +24,7 @@ const firs = computed(() => {
     const list = dataStore.vatspy.value!.data.firs;
     const firs = list.map(fir => ({
         fir,
-        atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id)) ?? [],
+        atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || fir.callsign === x.callsign))) ?? [],
     }));
 
     return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && yIndex < xIndex));

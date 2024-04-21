@@ -28,6 +28,7 @@ import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortene
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
+import { adjustPilotLonLat, checkIsPilotInGate } from '~/utils/shared/vatsim';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -116,53 +117,11 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
         const gates: NavigraphGate[] = gateAirport.gates;
 
         for (const pilot of [...airport.aircrafts.groundDep ?? [], ...airport.aircrafts.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            let pilotLon = pilot.longitude;
-            let pilotLat = pilot.latitude;
-
-            let lonAdjustment = 0;
-            let latAdjustment = 0;
-            let direction = pilot.heading;
-
-            if (direction >= 0 && direction < 90) {
-                lonAdjustment = (direction / 90) * 30;
-                latAdjustment = (1 - direction / 90) * 30;
-            }
-            else if (direction >= 90 && direction < 180) {
-                direction -= 90;
-                lonAdjustment = (1 - direction / 90) * 30;
-                latAdjustment = (direction / 90) * -30;
-            }
-            else if (direction >= 180 && direction < 270) {
-                direction -= 180;
-                lonAdjustment = (direction / 90) * -30;
-                latAdjustment = (1 - direction / 90) * -30;
-            }
-            else {
-                direction -= 270;
-                lonAdjustment = (1 - direction / 90) * -30;
-                latAdjustment = (direction / 90) * 30;
-            }
-
-            let trulyOccupied = false;
-            let maybeOccupied = false;
-
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
-                const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                if (index === -1) continue;
-                gates[index] = {
-                    ...gates[index],
-                    trulyOccupied: true,
-                };
-                trulyOccupied = true;
-            }
-
-            pilotLon += lonAdjustment;
-            pilotLat += latAdjustment;
-
             if (pilot.callsign === 'QAC3404') {
+                const correct = adjustPilotLonLat(pilot);
                 console.log(pilot.heading);
                 const feature = new Feature({
-                    geometry: new Point([pilotLon, pilotLat]),
+                    geometry: new Point(correct),
                 });
 
                 feature.setStyle(new Style({
@@ -183,38 +142,7 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 }, 5000);
             }
 
-            if (!trulyOccupied) {
-                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
-                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                    if (index === -1) continue;
-                    gates[index] = {
-                        ...gates[index],
-                        trulyOccupied: true,
-                    };
-                }
-            }
-
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 50 && Math.abs(x.gate_latitude - pilot.latitude) < 50)) {
-                const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                if (index === -1) continue;
-                gates[index] = {
-                    ...gates[index],
-                    maybeOccupied: true,
-                };
-                maybeOccupied = true;
-            }
-
-            if (!maybeOccupied) {
-                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
-                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                    if (index === -1) continue;
-                    gates[index] = {
-                        ...gates[index],
-                        maybeOccupied: true,
-                    };
-                    maybeOccupied = true;
-                }
-            }
+            checkIsPilotInGate(pilot, gates);
         }
 
         return {
