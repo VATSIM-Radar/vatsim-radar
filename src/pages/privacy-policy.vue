@@ -111,10 +111,14 @@
                         User agrees to storing of his data by using Vatsim Radar
                     </li>
                     <li>
-                        Vatsim Radar will comply with deletion requests that was initialized by users of 3rd party
+                        Vatsim Radar will also comply with deletion requests that was initialized by users of 3rd party
                         systems which data is
                         stored in Persistent Database, such as Vatsim, Navigraph or Discord, within 30 days from their
                         request
+                    </li>
+                    <li>
+                        When deletion request was received from Vatsim, or user has decided to delete his account using Delete Account button, Vatsim Radar will also delete all of user's stored
+                        data, including preferences and 3rd party account connections, because they are related to this Vatsim Account
                     </li>
                 </ol>
             </li>
