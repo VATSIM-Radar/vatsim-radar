@@ -109,7 +109,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             hasFms: token.user.navigraph?.hasFms ?? null,
             cid: token.user.vatsim!.id,
             fullName: token.user.vatsim!.fullName,
-            settings: JSON.parse(token.user.settings as string) as UserSettings,
+            settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
         };
     }
     return null;
