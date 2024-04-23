@@ -56,7 +56,8 @@ export default defineEventHandler(async (event) => {
 
             const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(discordId);
             if (user) {
-                await user.roles.set([discordRoleId]);
+                await user.roles.add(discordRoleId);
+                await user.setNickname(`${ vatsimUser.personal.name_full } ${ vatsimUser.cid }`, 'Verification process');
             }
         }
 

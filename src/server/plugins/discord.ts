@@ -74,6 +74,9 @@ export default defineNitroPlugin(async (app) => {
                     where: {
                         discordId: interaction.user.id,
                     },
+                    select: {
+                        vatsim: true,
+                    },
                 });
 
                 if (existingUser) {
@@ -81,7 +84,13 @@ export default defineNitroPlugin(async (app) => {
                         content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions in <#1228745951892607070>!',
                         ephemeral: true,
                     });
-                    if ('set' in interaction.member!.roles) interaction.member!.roles.set([discordRoleId]);
+
+                    const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(interaction.user.id);
+
+                    if (user && existingUser.vatsim) {
+                        await user.roles.add(discordRoleId);
+                        await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
+                    }
                 }
                 else {
                     const state = randomUUID();
@@ -95,8 +104,7 @@ export default defineNitroPlugin(async (app) => {
                     const url = `${ config.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                     const embed = new EmbedBuilder()
                         .setURL(url)
-                        .setTitle('To authorize on Vatsim Radar, please use this link')
-                        .setDescription('This is only temporal verification for beta of Vatsim Radar. Service will be open to public later on.');
+                        .setTitle('To verify yourself and authorize on Vatsim Radar, please use this link');
 
                     await interaction.reply({
                         embeds: [embed],
