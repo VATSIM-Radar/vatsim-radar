@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 
-export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds] });
+export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 export const discordServerId = '1223649894191992914';
 export const discordReleasesChannelId = '1229392327282397194';
 export const discordRoleId = '1229887891442761748';
