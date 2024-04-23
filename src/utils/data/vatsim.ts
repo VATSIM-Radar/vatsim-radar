@@ -34,7 +34,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
 
     const firs = uir.firs.split(',');
     const uirFeatures = radarStorage.vatspy.data!.firs.filter((x) => {
-        if (!firs.includes(x.callsign ?? x.icao ?? '')) return false;
+        if (!firs.includes(x.callsign ?? '') && !firs.includes(x.icao ?? '')) return false;
 
         const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.feature.id === y.feature.id && x.isOceanic === !y.isOceanic);
         if (!duplicateFir) return true;

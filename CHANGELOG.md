@@ -20,6 +20,7 @@
 - Disabled hover effect for high zoom levels (it seemed like overlay should open, but it never did)
 - Fixed complex zones like CZQW/CZQM
 - Fixed duplicate fir display
+- Fixed cases when some of UIR (FSS) sectors would not display
 
 # 0.1.3
 
