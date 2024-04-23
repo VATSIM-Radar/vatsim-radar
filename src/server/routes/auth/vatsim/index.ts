@@ -4,6 +4,7 @@ import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
 import { findUserByCookie } from '~/utils/backend/user';
 import { discordClient, discordRoleId, discordServerId } from '~/server/plugins/discord';
+import { PermissionFlagsBits } from 'discord.js';
 
 export default defineEventHandler(async (event) => {
     try {
@@ -57,7 +58,9 @@ export default defineEventHandler(async (event) => {
             const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(discordId);
             if (user) {
                 await user.roles.add(discordRoleId);
-                await user.setNickname(`${ vatsimUser.personal.name_full } ${ vatsimUser.cid }`, 'Verification process');
+                if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
+                    await user.setNickname(`${ vatsimUser.personal.name_full } ${ vatsimUser.cid }`, 'Verification process');
+                }
             }
         }
 

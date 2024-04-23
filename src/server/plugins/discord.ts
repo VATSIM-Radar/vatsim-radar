@@ -89,7 +89,9 @@ export default defineNitroPlugin(async (app) => {
 
                     if (user && existingUser.vatsim) {
                         await user.roles.add(discordRoleId);
-                        await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
+                        if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
+                            await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
+                        }
                     }
                 }
                 else {
