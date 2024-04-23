@@ -127,6 +127,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
             extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
             extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
 
+            //TODO: 100 for apr only
             if (extendedPilot.toGoDist < 60) {
                 extendedPilot.airport = arr.icao;
                 if (!extendedPilot.status) {

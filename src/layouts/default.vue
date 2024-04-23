@@ -42,6 +42,19 @@ useHead(() => {
             if (!title) return 'Vatsim Radar';
             return `${ title } | Vatsim Radar`;
         },
+        meta: [
+            {
+                name: 'description',
+                content: 'Explore Vatsim Network, track pilots, view ATC - and more!',
+            },
+            {
+                name: 'keywords',
+                content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
+            },
+        ],
+        htmlAttrs: {
+            lang: 'en',
+        },
         style: [{
             key: 'radarStyles',
             innerHTML: `:root {${ css }}`,

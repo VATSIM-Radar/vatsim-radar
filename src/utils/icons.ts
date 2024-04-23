@@ -2,8 +2,13 @@ import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
     | 'a320'
+    | 'a318'
+    | 'a319'
+    | 'a321'
     | 'a225'
     | 'a340'
+    | 'a342'
+    | 'a343'
     | 'a380'
     | 'b777'
     | 'conc'
@@ -13,42 +18,73 @@ export type AircraftIcon =
 
 const standardCoef = 30;
 
+function getAircraftSizeByCoef(coef: number, strict = false) {
+    const size = standardCoef * coef;
+
+    if (!strict) {
+        if (size < 20) return 20;
+        if (size > 40) return 40;
+    }
+
+    return Math.round(size);
+}
+
 export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: number }> = {
     a340: {
         icon: 'a340',
-        width: standardCoef,
+        width: getAircraftSizeByCoef(1),
     },
     b777: {
         icon: 'b777',
-        width: standardCoef,
+        width: getAircraftSizeByCoef(1),
     },
     conc: {
         icon: 'conc',
-        width: Math.round(standardCoef * 0.43),
+        width: getAircraftSizeByCoef(0.43, true),
+    },
+    a318: {
+        icon: 'a318',
+        width: getAircraftSizeByCoef(0.6),
+    },
+    a319: {
+        icon: 'a318',
+        width: getAircraftSizeByCoef(0.6),
     },
     a320: {
         icon: 'a320',
-        width: Math.round(standardCoef * 0.6),
+        width: getAircraftSizeByCoef(0.6),
+    },
+    a321: {
+        icon: 'a320',
+        width: getAircraftSizeByCoef(0.6),
     },
     a225: {
         icon: 'a225',
-        width: Math.round(standardCoef * 1.46),
+        width: getAircraftSizeByCoef(1.46),
+    },
+    a342: {
+        icon: 'a342',
+        width: getAircraftSizeByCoef(1.01),
+    },
+    a343: {
+        icon: 'a343',
+        width: getAircraftSizeByCoef(1.01),
     },
     a380: {
         icon: 'a380',
-        width: Math.round(standardCoef * 1.33),
+        width: getAircraftSizeByCoef(1.33),
     },
     dc6: {
         icon: 'dc6',
-        width: Math.round(standardCoef * 0.6),
+        width: getAircraftSizeByCoef(0.6),
     },
     md11: {
         icon: 'md11',
-        width: Math.round(standardCoef * 0.85),
+        width: getAircraftSizeByCoef(0.85),
     },
     md80: {
         icon: 'md80',
-        width: Math.round(standardCoef * 0.53),
+        width: getAircraftSizeByCoef(0.53),
     },
 };
 
@@ -60,8 +96,21 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa) faa = faa.split('/')[0];
 
     switch (faa) {
+        case 'A318':
+            return aircraftIcons.a318;
+        case 'A319':
+            return aircraftIcons.a319;
+        case 'A321':
+        case 'A21N':
+            return aircraftIcons.a321;
         case 'A225':
             return aircraftIcons.a225;
+        case 'A342':
+            return aircraftIcons.a342;
+        case 'A343':
+        case 'A345':
+        case 'A346':
+            return aircraftIcons.a343;
         case 'A388':
             return aircraftIcons.a380;
         case 'DC6':
@@ -73,10 +122,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'MD83':
         case 'MD88':
             return aircraftIcons.md80;
-        case 'A342':
-        case 'A343':
-        case 'A345':
-        case 'A346':
         case 'B748':
         case 'IL96':
             return aircraftIcons.a340;

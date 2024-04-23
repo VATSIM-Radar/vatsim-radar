@@ -1,7 +1,7 @@
 <template>
     <footer class="map-footer" v-if="dataStore.vatsim.updateTimestamp.value">
         <div class="map-footer_left">
-            <div class="map-footer_left_section map-footer__airac" v-if="dataStore.versions.value?.navigraph">
+            <div class="map-footer_left_section map-footer__airac" v-if="dataStore.versions.value?.navigraph" title="Navigraph Data AIRAC">
                 AIRAC {{
                     dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
                 }}
