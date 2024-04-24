@@ -22,7 +22,7 @@
                     {{ !locals.length ? globals[0].icao : fir.icao }}
                 </div>
                 <div class="sector-atc_name_sub" v-if="globals.length">
-                    {{ fir.icao }}
+                    {{ locals.length ? globals[0].icao : fir.icao }}
                 </div>
             </div>
         </div>
@@ -92,7 +92,7 @@ const geoJson = new GeoJSON();
 const init = () => {
     if (!vectorSource.value) return;
 
-    const localFeatureType = isHovered.value ? 'hovered' : (locals.value.length && !globals.value.length) ? 'local' : 'default';
+    const localFeatureType = isHovered.value ? 'hovered' : locals.value.length ? 'local' : 'default';
     const rootFeatureType = isHovered.value ? 'hovered' : 'root';
 
     if (!localFeature) {
@@ -112,7 +112,7 @@ const init = () => {
         });
     }
 
-    if (!rootFeature && globals.value.length) {
+    if (!rootFeature && globals.value.length && !locals.value.length) {
         rootFeature = geoJson.readFeature({
             ...props.fir.feature,
             id: `${ props.fir.feature.id }-root`,
@@ -129,7 +129,7 @@ const init = () => {
             type: rootFeatureType,
         });
     }
-    else if (rootFeature && !globals.value.length) {
+    else if (rootFeature && (!globals.value.length || locals.value.length)) {
         vectorSource.value?.removeFeature(rootFeature);
         rootFeature = undefined;
     }

@@ -1,6 +1,18 @@
 <template>
     <div class="map">
         <div class="map_container" ref="mapContainer"/>
+        <div class="map_popups">
+            <div class="map_popups_list">
+                <transition-group name="map_popups_popup--appear">
+                    <map-popup
+                        class="map_popups_popup"
+                        v-for="overlay in store.overlays"
+                        :key="overlay.id"
+                        :overlay="overlay"
+                    />
+                </transition-group>
+            </div>
+        </div>
         <carto-db-layer/>
         <template v-if="ready">
             <map-aircraft-list/>
@@ -24,6 +36,7 @@ import MapAircraftList from '~/components/map/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
+import MapPopup from '~/components/map/popups/MapPopup.vue';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const map = shallowRef<Map | null>(null);
@@ -199,6 +212,7 @@ await useAsyncData(async () => {
         display: flex;
         flex-direction: column;
         flex: 1 0 auto;
+        z-index: 5;
 
         :deep(>*) {
             flex: 1 0 auto;
@@ -219,6 +233,38 @@ await useAsyncData(async () => {
             @include hover {
                 a:hover {
                     text-decoration: underline;
+                }
+            }
+        }
+    }
+
+    &_popups {
+        position: absolute;
+        width: calc(100% - 48px);
+        max-height: calc(100% - 48px);
+        left: 24px;
+        top: 24px;
+        display: flex;
+        justify-content: flex-end;
+
+        &_list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            z-index: 6;
+        }
+
+        &_popup {
+            &--appear {
+                &-enter-active,
+                &-leave-active {
+                    transition: 0.5s ease-in-out;
+                }
+
+                &-enter-from,
+                &-leave-to {
+                    opacity: 0;
+                    transform: translateX(30px);
                 }
             }
         }

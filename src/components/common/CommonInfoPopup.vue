@@ -73,7 +73,7 @@ import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ArrowTopIcon from 'assets/icons/basic/arrow-top.svg?component';
 import type { PropType } from 'vue';
 
-interface InfoPopupSection {
+export interface InfoPopupSection {
     key: string;
     title?: string;
     collapsible?: boolean;
@@ -146,10 +146,12 @@ watch(getSections, (sections) => {
     background: $neutral1000;
     padding: 16px;
     border-radius: 8px;
-    overflow: hidden;
     width: 350px;
     text-align: left;
     color: $neutral150;
+    max-height: var(--max-height);
+    overflow: auto;
+    scrollbar-gutter: stable;
 
     &--absolute {
         position: absolute;
@@ -205,13 +207,11 @@ watch(getSections, (sections) => {
     }
 
     &_content {
-        max-height: var(--max-height);
-        overflow: auto;
-        scrollbar-gutter: stable;
         margin-top: 24px;
         display: flex;
         flex-direction: column;
         gap: 16px;
+        overflow: hidden;
 
         &--collapse {
             &-enter-active, &-leave-active {

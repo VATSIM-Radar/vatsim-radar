@@ -94,6 +94,7 @@ import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getControllerPositionColor } from '~/composables/atc';
+import { getHoursAndMinutes } from '~/utils';
 
 defineProps({
     controllers: {
@@ -117,9 +118,7 @@ defineProps({
 const dataStore = useDataStore();
 
 const getATCTime = (controller: VatsimShortenedController) => {
-    const diff = (Date.now() - new Date(controller.logon_time).getTime()) / (1000 * 60);
-
-    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
+    return getHoursAndMinutes(new Date(controller.logon_time).getTime());
 };
 
 const getATIS = (controller: VatsimShortenedController) => {

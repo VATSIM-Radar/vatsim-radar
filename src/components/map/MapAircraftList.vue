@@ -98,6 +98,15 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     }
 }
 
+function handleClick(e: MapBrowserEvent<any>) {
+    const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+
+    const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+    if (features.length !== 1) return;
+
+    store.addPilotOverlay(features[0].cid.toString());
+}
+
 function handleMoveEnd() {
     setVisiblePilots();
 
@@ -141,6 +150,7 @@ watch(map, (val) => {
     val.addLayer(vectorLayer);
 
     val.on('pointermove', handlePointerMove);
+    val.on('click', handleClick);
 }, {
     immediate: true,
 });
@@ -148,5 +158,6 @@ watch(map, (val) => {
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     map.value?.un('pointermove', handlePointerMove);
+    map.value?.un('click', handleClick);
 });
 </script>

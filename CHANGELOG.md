@@ -21,6 +21,7 @@
 - Fixed complex zones like CZQW/CZQM
 - Fixed duplicate fir display
 - Fixed cases when some of UIR (FSS) sectors would not display
+- Fixed local controller display when also global (fss) controller is in operation in same sector
 
 # 0.1.3
 

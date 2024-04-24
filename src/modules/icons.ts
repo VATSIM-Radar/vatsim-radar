@@ -1,9 +1,11 @@
-import { createResolver, defineNuxtModule } from '@nuxt/kit';
+import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit';
+import type { AircraftIcon } from '../utils/icons';
 import { aircraftIcons } from '../utils/icons';
 import { colorsList } from '../modules/styles';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import sharp from 'sharp';
+import type { PartialRecord } from '~/types';
 
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);
@@ -13,10 +15,12 @@ export default defineNuxtModule(async (_, nuxt) => {
 
     const colors = [colorsList.primary500, colorsList.neutral150, colorsList.warning600];
 
+    const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon, width: number, height: number }> = {};
+
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
         const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');
 
-        await Promise.all(colors.map((color, index) => {
+        await Promise.all(colors.map(async (color, index) => {
             const iconContent = iconContents
                 .replaceAll('white', color)
                 .replaceAll('#F8F8FA', color);
@@ -35,7 +39,27 @@ export default defineNuxtModule(async (_, nuxt) => {
                 width,
             });
 
-            return sharpIcon.png().toFile(join(publicPath, `${ icon }${ iconKey }.png`));
+            const info = await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }${ iconKey }.png`));
+
+            fullList[icon as AircraftIcon] = {
+                icon: icon as AircraftIcon,
+                width,
+                height: info.height,
+            };
         }));
     }
+
+    addTemplate({
+        filename: 'radar/icons.ts',
+        getContents: () => `export const radarIcons = ${ JSON.stringify(fullList) };`,
+        write: true,
+    });
+
+    const path = resolver.resolve('../../.nuxt/radar/icons.ts');
+    addImports([
+        {
+            name: 'radarIcons',
+            from: path,
+        },
+    ]);
 });

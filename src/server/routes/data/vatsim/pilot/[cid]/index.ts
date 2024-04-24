@@ -71,108 +71,101 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
         ...pilot,
     };
 
-    if (pilot.flight_plan?.departure && pilot.flight_plan.arrival) {
-        const dep = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.departure);
-        const arr = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.arrival);
+    const groundDep = radarStorage.vatsim.airports.find(x => x.aircrafts.groundDep?.includes(pilot.cid));
+    const groundArr = radarStorage.vatsim.airports.find(x => x.aircrafts.groundArr?.includes(pilot.cid));
 
-        const groundDep = radarStorage.vatsim.airports.find(x => x.aircrafts.groundDep?.includes(pilot.cid));
-        const groundArr = radarStorage.vatsim.airports.find(x => x.aircrafts.groundArr?.includes(pilot.cid));
+    if (groundDep) {
+        extendedPilot.airport = groundDep.icao;
+        const gates = await getNavigraphGates({
+            user,
+            icao: groundDep.icao,
+            event,
+        });
 
-        if (groundDep) {
-            extendedPilot.airport = groundDep.icao;
-            const gates = await getNavigraphGates({
-                user,
-                icao: groundDep.icao,
-                event,
-            });
+        const check = gates && checkIsPilotInGate(pilot, gates);
+        if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
+            extendedPilot.status = 'depGate';
+        }
+        else {
+            extendedPilot.status = 'depTaxi';
+        }
+    }
+    else if (groundArr) {
+        extendedPilot.airport = groundArr.icao;
+        const gates = await getNavigraphGates({
+            user,
+            icao: groundArr.icao,
+            event,
+        });
 
-            if (!gates) return;
+        if (!gates) return;
 
-            const check = checkIsPilotInGate(pilot, gates);
-            if (check.truly || check.maybe) {
-                extendedPilot.status = 'depGate';
-            }
-            else {
-                extendedPilot.status = 'depTaxi';
+        const check = checkIsPilotInGate(pilot, gates);
+        if (check.truly || check.maybe) {
+            extendedPilot.status = 'arrGate';
+        }
+        else {
+            extendedPilot.status = 'arrTaxi';
+        }
+    }
+
+    let totalDist: number | null = null;
+
+    const dep = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.departure);
+    const arr = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.arrival);
+
+    if (dep && arr) {
+        const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
+        const depCoords = toLonLat([dep.lon, dep.lat]);
+        const arrCoords = toLonLat([arr.lon, arr.lat]);
+
+        totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
+        extendedPilot.depDist = calculateDistanceInNauticalMiles(depCoords, pilotCoords);
+        extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
+        extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
+        extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
+
+        if (extendedPilot.toGoDist < 100) {
+            extendedPilot.airport = arr.icao;
+            if (!extendedPilot.status && extendedPilot.toGoDist < 40) {
+                extendedPilot.status = 'arriving';
             }
         }
-        else if (groundArr) {
-            extendedPilot.airport = groundArr.icao;
-            const gates = await getNavigraphGates({
-                user,
-                icao: groundArr.icao,
-                event,
-            });
-
-            if (!gates) return;
-
-            const check = checkIsPilotInGate(pilot, gates);
-            if (check.truly || check.maybe) {
-                extendedPilot.status = 'arrGate';
+        else if (extendedPilot.depDist < 40) {
+            extendedPilot.airport = dep.icao;
+            if (!extendedPilot.status) {
+                extendedPilot.status = 'departed';
             }
-            else {
-                extendedPilot.status = 'arrTaxi';
+        }
+    }
+
+    if (extendedPilot.flight_plan?.altitude) {
+        extendedPilot.cruise = {
+            planned: +extendedPilot.flight_plan.altitude,
+        };
+
+        if (extendedPilot.flight_plan.route) {
+            const regex = /F(?<level>[0-9]{2,3})$/;
+
+            const stepclimbs = extendedPilot.flight_plan.route.split(' ').map((item) => {
+                const regexResult = regex.exec(item);
+                if (!regexResult?.groups?.level) return 0;
+                return +regexResult.groups.level;
+            }).filter(x => !!x && x !== extendedPilot.cruise!.planned).sort((a, b) => a - b);
+            if (stepclimbs[0]) extendedPilot.cruise.min = stepclimbs[0] * 100;
+            if (stepclimbs.length > 1) extendedPilot.cruise.max = stepclimbs[stepclimbs.length - 1] * 100;
+
+            if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
+                extendedPilot.cruise.planned = extendedPilot.cruise.min;
+                extendedPilot.cruise.min = +extendedPilot.flight_plan.altitude;
             }
         }
 
-        let totalDist: number | null = null;
-
-        if (dep && arr) {
-            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
-            const depCoords = toLonLat([dep.lon, dep.lat]);
-            const arrCoords = toLonLat([arr.lon, arr.lat]);
-
-            totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
-            extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
-            extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
-            extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
-
-            //TODO: 100 for apr only
-            if (extendedPilot.toGoDist < 60) {
-                extendedPilot.airport = arr.icao;
-                if (!extendedPilot.status) {
-                    extendedPilot.status = 'arriving';
-                }
-            }
-            else {
-                const distFromDep = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
-                if (distFromDep < 40) {
-                    extendedPilot.airport = dep.icao;
-                    if (!extendedPilot.status) {
-                        extendedPilot.status = 'departed';
-                    }
-                }
-            }
+        if (getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
+            extendedPilot.status = 'cruising';
         }
-
-        if (extendedPilot.flight_plan?.altitude) {
-            extendedPilot.cruise = {
-                planned: +extendedPilot.flight_plan.altitude,
-            };
-
-            if (extendedPilot.flight_plan.route) {
-                const regex = /F(?<level>[0-9]{2,3})$/;
-
-                const stepclimbs = extendedPilot.flight_plan.route.split(' ').map((item) => {
-                    const regexResult = regex.exec(item);
-                    if (!regexResult?.groups?.level) return 0;
-                    return +regexResult.groups.level;
-                }).filter(x => !!x && x !== extendedPilot.cruise!.planned).sort((a, b) => a - b);
-                if (stepclimbs[0]) extendedPilot.cruise.min = stepclimbs[0] * 100;
-                if (stepclimbs.length > 1) extendedPilot.cruise.max = stepclimbs[stepclimbs.length - 1] * 100;
-
-                if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
-                    extendedPilot.cruise.planned = extendedPilot.cruise.min;
-                    extendedPilot.cruise.min = +extendedPilot.flight_plan.altitude;
-                }
-            }
-
-            if (getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
-                extendedPilot.status = 'cruising';
-            }
-            else if (!extendedPilot.status && totalDist && extendedPilot.toGoDist) {
-                extendedPilot.status = totalDist / 2 < extendedPilot.toGoDist ? 'climbing' : 'descending';
-            }
+        else if (!extendedPilot.status && totalDist && extendedPilot.toGoDist) {
+            extendedPilot.status = totalDist / 2 < extendedPilot.toGoDist ? 'climbing' : 'descending';
         }
     }
 

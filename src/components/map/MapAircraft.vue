@@ -87,7 +87,7 @@
         </map-overlay>
         <map-overlay
             class="aircraft-overlay"
-            :style="{'--imageHeight': `${imageHeight}px`}"
+            :style="{'--imageHeight': `${radarIcons[icon.icon].height}px`}"
             :model-value="showLabel"
             :settings="{
                 position: getCoordinates,
@@ -96,7 +96,7 @@
             :z-index="19"
             persistent
         >
-            <div class="aircraft-label" @mouseover="store.canShowOverlay ? hovered = true : undefined" @mouseleave="hovered = false">
+            <div class="aircraft-label" @mouseover="store.canShowOverlay ? hovered = true : undefined" @mouseleave="hovered = false" @click="store.addPilotOverlay(aircraft.cid.toString())">
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
                 </div>
@@ -149,7 +149,6 @@ const hoveredOverlay = ref(false);
 let feature: Feature | undefined;
 const store = useStore();
 const dataStore = useDataStore();
-const imageHeight = ref(0);
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -158,6 +157,8 @@ function degreesToRadians(degrees: number) {
 const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
 const depAirport = computed(() => getAirportByIcao(props.aircraft.departure));
 const arrAirport = computed(() => getAirportByIcao(props.aircraft.arrival));
+
+const icon = computed(() => getAircraftIcon(props.aircraft));
 
 const init = () => {
     if (!vectorSource.value) return;
@@ -180,11 +181,9 @@ const init = () => {
         existingStyle.getImage()!.setRotation(degreesToRadians(props.aircraft.heading ?? 0));
     }
     else {
-        const icon = getAircraftIcon(props.aircraft);
-
         const styleIcon = new Icon({
-            src: `/aircrafts/${ icon.icon }.png`,
-            width: icon.width,
+            src: `/aircrafts/${ icon.value.icon }.png`,
+            width: icon.value.width,
             rotation: degreesToRadians(props.aircraft.heading ?? 0),
         });
 
@@ -196,8 +195,6 @@ const init = () => {
 
         new Promise<number>((resolve) => {
             let iterations = 0;
-            const height = styleIcon.getHeight();
-            if (height) resolve(height);
 
             const interval = setInterval(() => {
                 iterations++;
@@ -213,8 +210,6 @@ const init = () => {
                     }
                 }
             }, 1000);
-        }).then((num) => {
-            imageHeight.value = num;
         });
     }
 
@@ -239,7 +234,6 @@ watch(() => props.isHovered, async (val) => {
         zIndex: 10,
     }));
     await sleep(0);
-    imageHeight.value = styleIcon.getHeight();
 });
 
 onMounted(init);

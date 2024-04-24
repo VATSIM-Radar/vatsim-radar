@@ -26,6 +26,11 @@ import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 const store = useStore();
 const route = useRoute();
 
+onMounted(() => {
+    const interval = setInterval(() => store.datetime = Date.now(), 1000);
+    onBeforeUnmount(() => clearInterval(interval));
+});
+
 useHead(() => {
     const theme = store.theme;
     const css = Object
@@ -100,6 +105,7 @@ html, body {
     width: 100%;
     min-height: 100%;
     background: $neutral1000;
+    scrollbar-gutter: stable;
 }
 
 html, body, #__app, #__app > .app, #__app > .app > .app_content {

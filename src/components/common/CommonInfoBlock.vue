@@ -49,11 +49,11 @@ defineProps({
         default: 'left',
     },
     topItems: {
-        type: Array as PropType<Array<string | null | undefined>>,
+        type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
     },
     bottomItems: {
-        type: Array as PropType<Array<string | null | undefined>>,
+        type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
     },
     isButton: {
