@@ -102,14 +102,15 @@ export interface VatsimPrefile {
 
 export interface VatsimInfoDefault {
     id: number;
-    short: string;
 }
 
 export interface VatsimInfoLong extends VatsimInfoDefault {
+    short: string;
     long: string;
 }
 
 export interface VatsimInfoLongName extends VatsimInfoDefault {
+    short_name: string
     long_name: string;
 }
 

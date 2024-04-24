@@ -50,8 +50,8 @@
                             <div
                                 class="pilot__card_route_line"
                                 :class="{
-                                    'pilot__card_route_line--start': pilot.toGoPercent < 5,
-                                    'pilot__card_route_line--end': pilot.toGoPercent > 95,
+                                    'pilot__card_route_line--start': pilot.toGoPercent < 10,
+                                    'pilot__card_route_line--end': pilot.toGoPercent > 90,
                                 }"
                                 :style="{'--percent': `${ pilot.toGoPercent}%`}"
                                 v-if="pilot.toGoPercent"

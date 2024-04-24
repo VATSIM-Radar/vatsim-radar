@@ -98,7 +98,7 @@ defineSlots<{
 
     &_top, &_bottom {
         display: flex;
-        gap: 8px;
+        gap: 4px 8px;
         align-items: center;
         justify-content: flex-start;
         flex-wrap: wrap;

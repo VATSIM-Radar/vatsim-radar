@@ -121,20 +121,23 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
 
         totalDist = calculateDistanceInNauticalMiles(depCoords, arrCoords);
         extendedPilot.depDist = calculateDistanceInNauticalMiles(depCoords, pilotCoords);
-        extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
-        extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
-        extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
+        if (extendedPilot.status !== 'arrGate' && extendedPilot.status !== 'arrTaxi') {
+            extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
+            extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
+            if (extendedPilot.toGoPercent < 0) extendedPilot.toGoPercent = 0;
+            extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
 
-        if (extendedPilot.toGoDist < 100) {
-            extendedPilot.airport = arr.icao;
-            if (!extendedPilot.status && extendedPilot.toGoDist < 40) {
-                extendedPilot.status = 'arriving';
+            if (extendedPilot.toGoDist < 100) {
+                extendedPilot.airport = arr.icao;
+                if (!extendedPilot.status && extendedPilot.toGoDist < 40) {
+                    extendedPilot.status = 'arriving';
+                }
             }
-        }
-        else if (extendedPilot.depDist < 40) {
-            extendedPilot.airport = dep.icao;
-            if (!extendedPilot.status) {
-                extendedPilot.status = 'departed';
+            else if (extendedPilot.depDist < 40) {
+                extendedPilot.airport = dep.icao;
+                if (!extendedPilot.status) {
+                    extendedPilot.status = 'departed';
+                }
             }
         }
     }
