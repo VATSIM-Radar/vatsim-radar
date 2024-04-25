@@ -78,7 +78,7 @@ export default defineNitroPlugin(async (app) => {
 
                 if (existingUser) {
                     await interaction.reply({
-                        content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions in <#1228745951892607070>!',
+                        content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions on forums!',
                         ephemeral: true,
                     });
                     if ('set' in interaction.member!.roles) interaction.member!.roles.set([discordRoleId]);

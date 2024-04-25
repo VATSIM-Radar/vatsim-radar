@@ -60,11 +60,13 @@
                             </div>
                             <div class="pilot__card_route_footer">
                                 <div class="pilot__card_route_footer_left">
-                                    {{ pilot.depDist ? `${ pilot.depDist.toFixed(1) } NM,` : '' }} online
+                                    {{ pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' ? `${ pilot.depDist.toFixed(1) } NM,` : '' }} Online
                                     {{ getHoursAndMinutes(new Date(pilot.logon_time).getTime()) }}
                                 </div>
                                 <div class="pilot__card_route_footer_right" v-if="pilot.toGoDist && pilot.toGoTime">
-                                    {{ pilot.toGoDist.toFixed(1) }} NM in {{ datetime.format(new Date(pilot.toGoTime!)) }}Z
+                                    {{ pilot.toGoDist.toFixed(1) }} NM in {{
+                                        datetime.format(new Date(pilot.toGoTime!))
+                                    }}Z
                                 </div>
                             </div>
                         </div>
@@ -93,6 +95,91 @@
                 </div>
             </div>
         </template>
+        <template #flightplan>
+            <div class="pilot__content" v-if="pilot.flight_plan">
+                <template v-if="pilot.flight_plan.departure && pilot.flight_plan.arrival">
+                    <div class="pilot__cols">
+                        <div class="pilot__title">
+                            Departure
+                        </div>
+                        <div class="pilot__title">
+                            Arrival
+                        </div>
+                    </div>
+                    <div class="pilot__cols">
+                        <common-info-block
+                            text-align="center"
+                            is-button
+                            class="pilot__card"
+                            :top-items="[pilot.flight_plan.departure]"
+                            :bottom-items="[depAirport?.name]"
+                        />
+                        <common-info-block
+                            text-align="center"
+                            is-button
+                            class="pilot__card"
+                            :top-items="[pilot.flight_plan.arrival]"
+                            :bottom-items="[arrAirport?.name]"
+                        />
+                    </div>
+                    <div class="pilot__cols">
+                        <common-info-block
+                            text-align="center"
+                            class="pilot__card"
+                            :top-items="['Aircraft Type']"
+                            :bottom-items="[pilot.flight_plan.aircraft_faa]"
+                        />
+                        <common-info-block
+                            text-align="center"
+                            class="pilot__card"
+                            :top-items="['Ground Speed']"
+                            :bottom-items="[`${pilot.groundspeed} kts`]"
+                        />
+                        <common-info-block
+                            v-if="!pilot.cruise?.min && !pilot.cruise?.max"
+                            text-align="center"
+                            class="pilot__card"
+                            :top-items="['Cruise Altitude']"
+                            :bottom-items="[`${pilot.cruise?.planned} ft`]"
+                        />
+                    </div>
+                    <div class="pilot__cols" v-if="pilot.cruise?.min || pilot.cruise?.max">
+                        <common-info-block
+                            text-align="center"
+                            class="pilot__card"
+                            :top-items="['Stepclimbs (min to max)']"
+                            :bottom-items="[pilot.cruise?.min, pilot.cruise?.planned, pilot.cruise?.max]"
+                        />
+                    </div>
+                </template>
+                <div class="pilot__info" v-if="pilot.flight_plan.route">
+                    <div class="pilot__info_left">
+                        <div class="pilot__info__title">
+                            Route
+                        </div>
+                        <common-button type="link" class="pilot__info__copy" @click="copyText(pilot.flight_plan.route)">
+                            Copy
+                        </common-button>
+                    </div>
+                    <textarea :value="pilot.flight_plan.route" readonly class="pilot__info_textarea"/>
+                </div>
+                <div class="pilot__info" v-if="pilot.flight_plan.remarks">
+                    <div class="pilot__info_left">
+                        <div class="pilot__info__title">
+                            Remarks
+                        </div>
+                        <common-button
+                            type="link"
+                            class="pilot__info__copy"
+                            @click="copyText(pilot.flight_plan.remarks)"
+                        >
+                            Copy
+                        </common-button>
+                    </div>
+                    <textarea :value="pilot.flight_plan.remarks" readonly class="pilot__info_textarea"/>
+                </div>
+            </div>
+        </template>
     </common-info-popup>
 </template>
 
@@ -102,8 +189,9 @@ import type { StoreOverlayPilot } from '~/store';
 import { useStore } from '~/store';
 import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
 import type { ColorsList } from '~/modules/styles';
-import { getHoursAndMinutes } from '../../../utils';
+import { copyText, getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 
 const props = defineProps({
     overlay: {
@@ -124,6 +212,15 @@ const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const svg = shallowRef<null | any>(null);
+const dataStore = useDataStore();
+
+const depAirport = computed(() => {
+    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
+});
+
+const arrAirport = computed(() => {
+    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
+});
 
 async function loadAirlineSvg() {
     svg.value = await import((`../../../assets/icons/aircrafts/${ getAircraftIcon(pilot.value).icon }.svg?component`));
@@ -150,6 +247,10 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         });
     }
+
+    sections.push({
+        key: 'buttons',
+    });
 
     return sections;
 });
@@ -212,6 +313,10 @@ const getStatus = computed<{ color: ColorsList, title: string }>(() => {
                 title: 'Status unknown',
             };
     }
+});
+
+watch(dataStore.vatsim.updateTimestamp, async () => {
+    props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ props.overlay.key }`);
 });
 </script>
 
@@ -311,10 +416,47 @@ const getStatus = computed<{ color: ColorsList, title: string }>(() => {
 
     &__cols {
         display: flex;
-        gap: 4px;
+        gap: 8px;
 
-        >* {
+        > * {
             width: 100%;
+        }
+    }
+
+    &__title {
+        text-align: center;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    &__info {
+        display: grid;
+        grid-template-columns: 20% 75%;
+        justify-content: space-between;
+
+        &_left {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        &__title {
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        &_textarea {
+            appearance: none;
+            box-shadow: none;
+            outline: none;
+            border: none;
+            border-radius: 4px;
+            background: $neutral950;
+            font-size: 11px;
+            color: $neutral150;
+            resize: vertical;
+            padding: 8px;
+            scrollbar-gutter: stable;
         }
     }
 }

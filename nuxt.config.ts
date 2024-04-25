@@ -116,9 +116,13 @@ export default defineNuxtConfig({
                             params: {
                                 overrides: {
                                     removeViewBox: false,
+                                    cleanupIds: false,
+                                    mergePaths: false,
                                 },
                             },
                         },
+                        'convertStyleToAttrs',
+                        'reusePaths',
                         'removeDimensions',
                         {
                             name: 'convertColors',

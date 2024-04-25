@@ -7,6 +7,7 @@ import type { UserLocalSettings } from '~/types/map';
 
 export interface StoreOverlayDefault {
     id: number;
+    key: string;
     position: number | {
         x: number
         y: number
@@ -33,14 +34,19 @@ export const useStore = defineStore('index', {
         zoom: 0,
         datetime: Date.now(),
         moving: false,
+
         openOverlayId: null as string | null,
         openPilotOverlay: false,
+
         dataReady: false,
         mapCursorPointerTrigger: false as false | number,
+
         user: null as null | FullUser,
         version: '',
-        overlays: [] as StoreOverlay[],
         localSettings: {} as UserLocalSettings,
+
+        overlays: [] as StoreOverlay[],
+        openingPilotOverlay: false,
     }),
     getters: {
         canShowOverlay(): boolean {
@@ -48,7 +54,7 @@ export const useStore = defineStore('index', {
         },
     },
     actions: {
-        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'data' | 'type' | 'maxHeight' | 'sticky'>) {
+        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'maxHeight' | 'sticky'>) {
             const id = (this.overlays[this.overlays.length - 1]?.id ?? 0) + 1;
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
@@ -65,26 +71,38 @@ export const useStore = defineStore('index', {
             return this.overlays.find(x => x.id === id)!;
         },
         async addPilotOverlay(cid: string) {
-            const existingOverlay = this.overlays.find(x => x.type === 'pilot');
+            if (this.openingPilotOverlay) return;
+            this.openingPilotOverlay = true;
 
-            if (existingOverlay?.data.pilot.cid.toString() === cid) return;
-            if (existingOverlay && !existingOverlay?.sticky) this.overlays = this.overlays.filter(x => x.id !== existingOverlay.id);
+            try {
+                const existingOverlay = this.overlays.find(x => x.type === 'pilot');
 
-            const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
+                if (existingOverlay?.data.pilot.cid.toString() === cid) return;
+                if (existingOverlay && !existingOverlay?.sticky) this.overlays = this.overlays.filter(x => x.id !== existingOverlay.id);
 
-            const overlay = this.addOverlay({
-                data: {
-                    pilot,
-                    stats: {
-                        pilot: 0,
+                const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
+
+                const overlay = this.addOverlay({
+                    key: cid,
+                    data: {
+                        pilot,
+                        stats: {
+                            pilot: 0,
+                        },
                     },
-                },
-                type: 'pilot',
-                maxHeight: 45,
-                sticky: cid === this.user?.cid,
-            });
+                    type: 'pilot',
+                    maxHeight: 45,
+                    sticky: cid === this.user?.cid,
+                });
 
-            overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ cid }/stats`);
+                overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ cid }/stats`);
+            }
+            catch (e) {
+                throw e;
+            }
+            finally {
+                this.openingPilotOverlay = false;
+            }
         },
     },
 });

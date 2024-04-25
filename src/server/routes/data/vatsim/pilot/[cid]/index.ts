@@ -101,7 +101,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
         if (!gates) return;
 
         const check = checkIsPilotInGate(pilot, gates);
-        if (check.truly || check.maybe) {
+        if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
             extendedPilot.status = 'arrGate';
         }
         else {
@@ -157,6 +157,9 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
             }).filter(x => !!x && x !== extendedPilot.cruise!.planned).sort((a, b) => a - b);
             if (stepclimbs[0]) extendedPilot.cruise.min = stepclimbs[0] * 100;
             if (stepclimbs.length > 1) extendedPilot.cruise.max = stepclimbs[stepclimbs.length - 1] * 100;
+
+            if (extendedPilot.cruise.min === extendedPilot.cruise.planned) delete extendedPilot.cruise.min;
+            if (extendedPilot.cruise.max === extendedPilot.cruise.planned) delete extendedPilot.cruise.max;
 
             if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
                 extendedPilot.cruise.planned = extendedPilot.cruise.min;

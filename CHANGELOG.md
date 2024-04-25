@@ -9,6 +9,8 @@
 - Lowered size of A320 default icon
 - Added hover-on-aircraft icon background change
 - Map position is now saved from last time
+- Our great service finally has it's own logo!
+- Update verify interaction reply description to remove old forum link
 - Updated roadmap. Check it out!
 
 ## Bug fixes

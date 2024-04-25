@@ -119,6 +119,7 @@ html, body {
     min-height: 100%;
     background: $neutral1000;
     scrollbar-gutter: stable;
+    color-scheme: dark;
 }
 
 html, body, #__app, #__app > .app, #__app > .app > .app_content {
