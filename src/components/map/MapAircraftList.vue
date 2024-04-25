@@ -47,6 +47,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
     return dataStore.vatsim.data.pilots.value.filter((x) => {
         const pilotPixel = aircraftCoordsToPixel(x);
+        if (!pilotPixel) return false;
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
             Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
@@ -54,7 +55,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
     }) ?? [];
 }
 
-function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft) {
+function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft): Pixel | null {
     return map.value!.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
 }
 
@@ -92,7 +93,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     isManualHover.value = false;
 
-    if (getPilotsForPixel(aircraftCoordsToPixel(features[0])).length === 1) {
+    if (getPilotsForPixel(aircraftCoordsToPixel(features[0])!).length === 1) {
         hoveredAircraft.value = features[0].cid;
         store.mapCursorPointerTrigger = 1;
     }
@@ -117,7 +118,7 @@ function handleMoveEnd() {
         return;
     }
 
-    showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)).length === 1).map(x => x.cid);
+    showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)!).length === 1).map(x => x.cid);
 }
 
 attachMoveEnd(handleMoveEnd);

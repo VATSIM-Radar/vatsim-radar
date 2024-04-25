@@ -286,7 +286,7 @@ watch(settings, () => {
 
     &_right {
         position: relative;
-        z-index: 5;
+        z-index: 7;
     }
 
     &__logo {

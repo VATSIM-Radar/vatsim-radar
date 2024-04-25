@@ -3,6 +3,7 @@ import type { ThemesList } from '~/modules/styles';
 import type { Extent } from 'ol/extent';
 import type { FullUser } from '~/utils/backend/user';
 import type { VatsimExtendedPilot, VatsimMemberStats } from '~/types/data/vatsim';
+import type { UserLocalSettings } from '~/types/map';
 
 export interface StoreOverlayDefault {
     id: number;
@@ -39,6 +40,7 @@ export const useStore = defineStore('index', {
         user: null as null | FullUser,
         version: '',
         overlays: [] as StoreOverlay[],
+        localSettings: {} as UserLocalSettings,
     }),
     getters: {
         canShowOverlay(): boolean {

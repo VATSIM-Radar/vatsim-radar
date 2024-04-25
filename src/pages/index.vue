@@ -37,6 +37,7 @@ import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
+import { setUserLocalSettings } from '~/composables';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const map = shallowRef<Map | null>(null);
@@ -133,8 +134,8 @@ onMounted(async () => {
             }),
         ],
         view: new View({
-            center: fromLonLat([37.617633, 55.755820]),
-            zoom: 2,
+            center: store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+            zoom: store.localSettings.zoom ?? 3,
             minZoom: 3,
             multiWorld: false,
             extent: projectionExtent,
@@ -167,6 +168,11 @@ onMounted(async () => {
         const view = map.value!.getView();
         store.zoom = view.getZoom() ?? 0;
         store.extent = view.calculateExtent(map.value!.getSize());
+
+        setUserLocalSettings({
+            location: view.getCenter(),
+            zoom: view.getZoom(),
+        });
 
         await sleep(300);
         if (moving) return;

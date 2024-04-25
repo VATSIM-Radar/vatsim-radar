@@ -8,6 +8,7 @@
 - Aircraft icons now have borders around them
 - Lowered size of A320 default icon
 - Added hover-on-aircraft icon background change
+- Map position is now saved from last time
 - Updated roadmap. Check it out!
 
 ## Bug fixes

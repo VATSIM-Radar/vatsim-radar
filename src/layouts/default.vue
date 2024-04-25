@@ -22,13 +22,26 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
+import { setUserLocalSettings } from '~/composables';
 
 const store = useStore();
 const route = useRoute();
 
 onMounted(() => {
-    const interval = setInterval(() => store.datetime = Date.now(), 1000);
-    onBeforeUnmount(() => clearInterval(interval));
+    const interval = setInterval(() => {
+        store.datetime = Date.now();
+    }, 1000);
+
+    const handleStorageUpdate = () => {
+        setUserLocalSettings();
+    };
+
+    window.addEventListener('storage', handleStorageUpdate);
+
+    onBeforeUnmount(() => {
+        clearInterval(interval);
+        window.removeEventListener('storage', handleStorageUpdate);
+    });
 });
 
 useHead(() => {
