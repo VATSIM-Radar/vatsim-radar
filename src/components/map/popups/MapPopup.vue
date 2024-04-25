@@ -16,7 +16,7 @@ import type { StoreOverlay } from '~/store';
 import type { PropType } from 'vue';
 import MapPopupPilot from '~/components/map/popups/MapPopupPilot.vue';
 
-const props = defineProps({
+defineProps({
     overlay: {
         type: Object as PropType<StoreOverlay>,
         required: true,
