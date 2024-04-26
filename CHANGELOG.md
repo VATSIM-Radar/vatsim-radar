@@ -2,6 +2,23 @@
 
 # 0.2.0
 
+## Pilot overlay
+
+You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot on map, open Vatsim stats and more:
+
+- Total time on network as pilot
+- Pilot ID
+- Speed/Alt/Heading
+- Flight plan, including route and remarks plus stepclimbs
+- Share pilot to instantly open card on map for anyone visiting your link
+- View ATC where pilot currently flying - enabled by default for your own flights
+- Enable tracking to make map follow this flight
+- TODO: aircraft dep/arr airports will also be highlighted
+
+By default, overlays are replaced by pilot you open next - but you can also pin any overlay so it won't close.
+
+This card can be auto-opened, pinned and tracked for your own flight - you can enable this in settings.
+
 ## Features
 
 - Added new aircraft icons: A124, A225 Antonov, A318, A319, A321, A340, A342, A343, A380, DC6, MD11, MD80, B78X, B772, B773, B788, B789, T134, T144, T154 Concorde
@@ -11,6 +28,9 @@
 - Map position is now saved from last time
 - Our great service finally has it's own logo!
 - Update verify interaction reply description to remove old forum link
+- You are now able to see dep/arr lines on aircraft hover
+- Reduced on-hover pilot info popup height by removing full airport name
+- TODO: your own flight is now always highlighted as green on map
 - Updated roadmap. Check it out!
 
 ## Bug fixes

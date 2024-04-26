@@ -153,7 +153,15 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Auto track/zoom for own flight',
-                status: 'todo',
+                status: 'completed',
+            },
+            {
+                title: 'Move overlays across the map',
+                status: 'in-progress',
+            },
+            {
+                title: 'Pilot mouse right click menu',
+                status: 'in-progress',
             },
             {
                 title: 'Center/zoom to entire flight button',
@@ -161,23 +169,23 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Center/zoom to airport button',
-                status: 'in-progress',
+                status: 'todo',
             },
             {
                 title: 'ATC info popup',
-                status: 'in-progress',
+                status: 'todo',
             },
             {
                 title: 'Airport info popup',
-                status: 'in-progress',
+                status: 'todo',
             },
             {
                 title: 'CTAF frequency easy access',
-                status: 'in-progress',
+                status: 'todo',
             },
             {
                 title: 'METAR easy access',
-                status: 'in-progress',
+                status: 'todo',
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',

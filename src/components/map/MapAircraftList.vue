@@ -65,7 +65,7 @@ function setVisiblePilots() {
     visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
         const coordinates = [x.longitude, x.latitude];
 
-        return isPointInExtent(coordinates);
+        return store.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
 }
 

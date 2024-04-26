@@ -1,6 +1,6 @@
 <template>
     <div class="info-block" :class="{'info-block--button': isButton}" :style="{'--text-align': textAlign}">
-        <div class="info-block_top" v-if="$slots.top || topItems.filter(x => !!x).length">
+        <div class="info-block_top" v-if="$slots.top || topItems.filter(x => !!x).length" :style="{justifyContent: textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center'}">
             <template v-if="topItems.length">
                 <template v-for="(item, index) in topItems.filter(x => !!x)" :key="item">
                     <div class="info-block__separator" v-if="index > 0">

@@ -12,7 +12,8 @@ export interface StoreOverlayDefault {
         x: number
         y: number
     };
-    maxHeight: number;
+    maxHeight?: number
+    height: number
     collapsed: boolean;
     sticky: boolean;
 }
@@ -54,7 +55,7 @@ export const useStore = defineStore('index', {
         },
     },
     actions: {
-        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'maxHeight' | 'sticky'>) {
+        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'>) {
             const id = (this.overlays[this.overlays.length - 1]?.id ?? 0) + 1;
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
@@ -63,6 +64,7 @@ export const useStore = defineStore('index', {
             const newOverlay: StoreOverlay = {
                 id,
                 position: 0,
+                height: 0,
                 collapsed: false,
                 ...overlay,
             };
@@ -91,14 +93,10 @@ export const useStore = defineStore('index', {
                         },
                     },
                     type: 'pilot',
-                    maxHeight: 45,
                     sticky: cid === this.user?.cid,
                 });
 
                 overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ cid }/stats`);
-            }
-            catch (e) {
-                throw e;
             }
             finally {
                 this.openingPilotOverlay = false;

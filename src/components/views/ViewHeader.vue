@@ -105,10 +105,6 @@
                 </template>
                 <template #follow>
                     <div class="header__settings__block header__settings__block--long-gap">
-                        <div class="header__settings__description">
-                            Those are placeholders that will have effect later, along with follow and pilot info popup
-                            features
-                        </div>
                         <common-toggle v-model="settings.autoFollow">
                             Auto-follow me
 

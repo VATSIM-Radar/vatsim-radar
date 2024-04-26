@@ -1,8 +1,8 @@
 <template>
     <div class="map">
         <div class="map_container" ref="mapContainer"/>
-        <div class="map_popups">
-            <div class="map_popups_list">
+        <div class="map_popups" ref="popups" v-if="ready" :style="{'--popups-height': `${popupsHeight}px`}">
+            <div class="map_popups_list" v-if="popupsHeight">
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
                         class="map_popups_popup"
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { VatsimLiveData } from '~/types/data/vatsim';
+import type { VatsimLiveData, VatsimMemberStats } from '~/types/data/vatsim';
 import '@@/node_modules/ol/ol.css';
 import { clientDB } from '~/utils/client-db';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
@@ -33,13 +33,16 @@ import { Attribution } from 'ol/control';
 import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/MapAircraftList.vue';
-import { useStore } from '~/store';
+import {  useStore } from '~/store';
+import type { StoreOverlay } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings } from '~/composables';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
+const popups = ref<HTMLDivElement | null>(null);
+const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const ready = ref(false);
 const store = useStore();
@@ -48,6 +51,31 @@ const dataStore = useDataStore();
 provide('map', map);
 
 let interval: NodeJS.Timeout | null = null;
+
+const restoreOverlays = async () => {
+    const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
+
+    store.overlays = (await Promise.all(overlays.map(async (overlay) => {
+        if (overlay.type === 'pilot') {
+            const data = await Promise.allSettled([
+                $fetch(`/data/vatsim/pilot/${ overlay.key }`),
+                $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ overlay.key }/stats`),
+            ]);
+
+            if (!('value' in data[0])) return overlay;
+
+            return {
+                ...overlay,
+                data: {
+                    pilot: data[0].value,
+                    stats: 'value' in data[1] ? data[1].value : null,
+                },
+            };
+        }
+
+        return overlay;
+    }))).filter(x => 'data' in x && x.data) as StoreOverlay[];
+};
 
 onMounted(async () => {
     //Data is not yet ready
@@ -178,6 +206,56 @@ onMounted(async () => {
         if (moving) return;
         store.moving = false;
     });
+
+    await nextTick();
+    popupsHeight.value = popups.value?.clientHeight ?? 0;
+    const resizeObserver = new ResizeObserver(() => {
+        popupsHeight.value = popups.value?.clientHeight ?? 0;
+    });
+    resizeObserver.observe(popups.value!);
+    await restoreOverlays();
+});
+
+const overlays = computed(() => store.overlays);
+
+watch([overlays, popupsHeight], () => {
+    if (!popups.value) return;
+    const baseHeight = 56;
+    const gap = 16;
+    const collapsed = store.overlays.filter(x => x.collapsed);
+    const uncollapsed = store.overlays.filter(x => !x.collapsed);
+
+    const collapsedHeight = collapsed.length * baseHeight;
+    const totalHeight = popups.value.clientHeight - gap * (store.overlays.length - 1);
+
+    //Max 4 uncollapsed on screen
+    const minHeight = Math.floor(totalHeight / 4);
+    const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
+
+    const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
+
+    collapsed.forEach((overlay) => {
+        overlay.maxHeight = baseHeight;
+    });
+
+    uncollapsed.forEach((overlay, index) => {
+        if (index < maxUncollapsed) {
+            overlay.maxHeight = maxHeight;
+        }
+        else {
+            overlay.collapsed = true;
+        }
+    });
+
+    localStorage.setItem('overlays', JSON.stringify(
+        overlays.value.map(x => ({
+            ...x,
+            data: undefined,
+        })),
+    ));
+}, {
+    deep: true,
+    immediate: true,
 });
 
 onBeforeUnmount(() => {
@@ -247,7 +325,7 @@ await useAsyncData(async () => {
     &_popups {
         position: absolute;
         width: calc(100% - 48px);
-        max-height: calc(100% - 48px);
+        height: calc(100% - 48px);
         left: 24px;
         top: 24px;
         display: flex;
@@ -261,15 +339,22 @@ await useAsyncData(async () => {
         }
 
         &_popup {
+            max-height: 100%;
+            margin: 0;
+
             &--appear {
                 &-enter-active,
                 &-leave-active {
                     transition: 0.5s ease-in-out;
+                    overflow: hidden;
                 }
 
                 &-enter-from,
                 &-leave-to {
                     opacity: 0;
+                    max-height: 0;
+                    height: 0;
+                    margin-top: -16px;
                     transform: translateX(30px);
                 }
             }

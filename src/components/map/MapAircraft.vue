@@ -1,5 +1,5 @@
 <template>
-    <template v-if="!props.isHovered && !showLabel">
+    <template v-if="!props.isHovered && !isShowLabel">
         <slot/>
     </template>
     <template v-else>
@@ -25,7 +25,7 @@
                     {{ aircraft.aircraft_faa }}
                 </template>
                 <div class="aircraft-hover_body">
-                    <common-info-block class="aircraft-hover__pilot" is-button>
+                    <common-info-block class="aircraft-hover__pilot" is-button @click="store.addPilotOverlay(aircraft.cid.toString())">
                         <template #bottom>
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
@@ -38,57 +38,49 @@
                             </div>
                         </template>
                     </common-info-block>
-                    <div class="aircraft-hover__section" v-if="aircraft.departure">
-                        <div class="aircraft-hover__section_title">
-                            From
-                        </div>
-                        <common-info-block class="aircraft-hover__section_content" is-button>
+                    <div class="aircraft-hover_sections" v-if="aircraft.departure || aircraft.arrival">
+                        <common-info-block v-if="aircraft.departure" text-align="center" is-button>
                             <template #top>
+                                From
+                            </template>
+                            <template #bottom>
                                 {{ aircraft.departure }}
                             </template>
-                            <template #bottom v-if="depAirport">
-                                {{ depAirport.name }}
-                            </template>
                         </common-info-block>
-                    </div>
-                    <div class="aircraft-hover__section" v-if="aircraft.arrival">
-                        <div class="aircraft-hover__section_title">
-                            To
-                        </div>
-                        <common-info-block class="aircraft-hover__section_content" is-button>
+                        <common-info-block v-if="aircraft.arrival" text-align="center" is-button>
                             <template #top>
+                                To
+                            </template>
+                            <template #bottom>
                                 {{ aircraft.arrival }}
                             </template>
-                            <template #bottom v-if="arrAirport">
-                                {{ arrAirport.name }}
+                        </common-info-block>
+                    </div>
+                    <div class="aircraft-hover_sections">
+                        <common-info-block v-if="typeof aircraft.groundspeed === 'number'" text-align="center">
+                            <template #top>
+                                Ground Speed
+                            </template>
+                            <template #bottom>
+                                {{ aircraft.groundspeed }} kts
+                            </template>
+                        </common-info-block>
+                        <common-info-block v-if="typeof aircraft.altitude === 'number'" text-align="center">
+                            <template #top>
+                                Altitude
+                            </template>
+                            <template #bottom>
+                                {{ getPilotTrueAltitude(aircraft) }} ft
                             </template>
                         </common-info-block>
                     </div>
-                </div>
-                <div class="aircraft-hover_footer">
-                    <common-info-block v-if="typeof aircraft.groundspeed === 'number'" text-align="center">
-                        <template #top>
-                            Ground Speed
-                        </template>
-                        <template #bottom>
-                            {{ aircraft.groundspeed }} kts
-                        </template>
-                    </common-info-block>
-                    <common-info-block v-if="typeof aircraft.altitude === 'number'" text-align="center">
-                        <template #top>
-                            Altitude
-                        </template>
-                        <template #bottom>
-                            {{ getPilotTrueAltitude(aircraft) }} ft
-                        </template>
-                    </common-info-block>
                 </div>
             </common-popup-block>
         </map-overlay>
         <map-overlay
             class="aircraft-overlay"
             :style="{'--imageHeight': `${radarIcons[icon.icon].height}px`}"
-            :model-value="showLabel"
+            :model-value="isShowLabel"
             :settings="{
                 position: getCoordinates,
                 offset: [0, 0]
@@ -96,7 +88,12 @@
             :z-index="19"
             persistent
         >
-            <div class="aircraft-label" @mouseover="store.canShowOverlay ? hovered = true : undefined" @mouseleave="hovered = false" @click="store.addPilotOverlay(aircraft.cid.toString())">
+            <div
+                class="aircraft-label"
+                @mouseover="store.canShowOverlay ? hovered = true : undefined"
+                @mouseleave="hovered = false"
+                @click="store.addPilotOverlay(aircraft.cid.toString())"
+            >
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
                 </div>
@@ -111,9 +108,9 @@ import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
-import { Point } from 'ol/geom';
-import { Icon, Style } from 'ol/style';
-import { getAirportByIcao, usePilotRating } from '~/composables/pilots';
+import { LineString, Point } from 'ol/geom';
+import { Icon, Stroke, Style } from 'ol/style';
+import { usePilotRating } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { useStore } from '~/store';
 import { getAircraftIcon } from '~/utils/icons';
@@ -146,7 +143,10 @@ const emit = defineEmits({
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
+const isInit = ref(false);
 let feature: Feature | undefined;
+let depLine: Feature | undefined;
+let arrLine: Feature | undefined;
 const store = useStore();
 const dataStore = useDataStore();
 
@@ -155,8 +155,6 @@ function degreesToRadians(degrees: number) {
 }
 
 const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
-const depAirport = computed(() => getAirportByIcao(props.aircraft.departure));
-const arrAirport = computed(() => getAirportByIcao(props.aircraft.arrival));
 
 const icon = computed(() => getAircraftIcon(props.aircraft));
 
@@ -181,8 +179,9 @@ const init = () => {
         existingStyle.getImage()!.setRotation(degreesToRadians(props.aircraft.heading ?? 0));
     }
     else {
+        //TODO: rework to single function, add own aircraft tracking
         const styleIcon = new Icon({
-            src: `/aircrafts/${ icon.value.icon }.png`,
+            src: `/aircrafts/${ icon.value.icon }${ props.isHovered ? '-hover' : '' }.png`,
             width: icon.value.width,
             rotation: degreesToRadians(props.aircraft.heading ?? 0),
         });
@@ -216,12 +215,18 @@ const init = () => {
     if (!feature) vectorSource.value.addFeature(iconFeature);
 
     feature = iconFeature;
+    isInit.value = true;
 };
 
-watch(() => props.isHovered, async (val) => {
-    if (!feature) return;
+const activeCurrentOverlay = computed(() => store.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()));
+
+const isPropsHovered = computed(() => props.isHovered);
+
+watch([isPropsHovered, isInit], ([val]) => {
+    if (!feature || activeCurrentOverlay.value) return;
 
     const icon = getAircraftIcon(props.aircraft);
+    toggleAirportLines(val);
 
     const styleIcon = new Icon({
         src: `/aircrafts/${ icon.icon }${ val ? '-hover' : '' }.png`,
@@ -233,7 +238,110 @@ watch(() => props.isHovered, async (val) => {
         image: styleIcon,
         zIndex: 10,
     }));
-    await sleep(0);
+}, {
+    immediate: true,
+});
+
+function toggleAirportLines(value: boolean) {
+    const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
+    const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
+
+    const color = activeCurrentOverlay.value ? '#ECB549' : '#E6E6EB';
+
+    if (depAirport) {
+        const geometry = new LineString([
+            [depAirport.lon, depAirport.lat],
+            [props.aircraft?.longitude, props.aircraft?.latitude],
+        ]);
+
+        const style = new Style({
+            stroke: new Stroke({
+                color,
+                width: 1,
+            }),
+        });
+
+        if (depLine) {
+            depLine.setGeometry(geometry);
+            depLine.setStyle(style);
+        }
+        else {
+            depLine = new Feature({
+                geometry,
+            });
+
+            depLine.setStyle(style);
+
+            vectorSource.value?.addFeature(depLine);
+        }
+    }
+    else if (depLine) {
+        depLine.dispose();
+        vectorSource.value?.removeFeature(depLine);
+        depLine = undefined;
+    }
+
+    if (arrAirport) {
+        const geometry = new LineString([
+            [props.aircraft?.longitude, props.aircraft?.latitude],
+            [arrAirport.lon, arrAirport.lat],
+        ]);
+
+        const style = new Style({
+            stroke: new Stroke({
+                color,
+                width: 1,
+                lineDash: [4, 8],
+            }),
+        });
+
+        if (arrLine) {
+            arrLine.setGeometry(geometry);
+            arrLine.setStyle(style);
+        }
+        else {
+            arrLine = new Feature({
+                geometry,
+            });
+
+            arrLine.setStyle(style);
+
+            vectorSource.value?.addFeature(arrLine);
+        }
+    }
+    else if (arrLine) {
+        arrLine.dispose();
+        vectorSource.value?.removeFeature(arrLine);
+        arrLine = undefined;
+    }
+}
+
+watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp], ([val], oldValue) => {
+    if (!feature || (!val && oldValue === undefined)) return;
+
+    const icon = getAircraftIcon(props.aircraft);
+
+    const styleIcon = new Icon({
+        src: `/aircrafts/${ icon.icon }${ val ? '-active' : props.isHovered ? '-hover' : '' }.png`,
+        width: icon.width,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+    });
+
+    feature.setStyle(new Style({
+        image: styleIcon,
+        zIndex: 10,
+    }));
+
+    const status = activeCurrentOverlay.value?.data.pilot.status;
+
+    if (status && status !== 'depGate' && status !== 'depTaxi' && status !== 'arrGate' && status !== 'arrTaxi') {
+        toggleAirportLines(true);
+    }
+    else if (!props.isHovered) {
+        toggleAirportLines(false);
+    }
+}, {
+    immediate: true,
 });
 
 onMounted(init);
@@ -250,9 +358,9 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const showLabel = computed(() => props.showLabel);
+const isShowLabel = computed<boolean>(() => props.showLabel || !!activeCurrentOverlay.value);
 
-watch(showLabel, (val) => {
+watch(isShowLabel, (val) => {
     if (!val) {
         hovered.value = false;
     }
@@ -262,9 +370,9 @@ watch(dataStore.vatsim.updateTimestamp, init);
 
 onBeforeUnmount(() => {
     if (store.openPilotOverlay) store.openPilotOverlay = false;
-    if (feature) {
-        vectorSource.value?.removeFeature(feature);
-    }
+    if (feature) vectorSource.value?.removeFeature(feature);
+    if (depLine) vectorSource.value?.removeFeature(depLine);
+    if (arrLine) vectorSource.value?.removeFeature(arrLine);
 });
 </script>
 
@@ -290,28 +398,16 @@ onBeforeUnmount(() => {
     gap: 8px;
     font-size: 13px;
 
-    &__pilot_content, &__section {
+    &__pilot_content {
         display: grid;
         justify-content: space-between;
         align-items: center;
+        grid-template-columns: 40px 160px;
     }
 
     &__pilot {
-        &_content {
-            grid-template-columns: 40px 160px;
-        }
-
         &__title {
             font-weight: 600;
-        }
-    }
-
-    &__section {
-        padding-left: 8px;
-        grid-template-columns: 40px 176px;
-
-        &_title {
-            font-weight: 700;
         }
     }
 
@@ -321,11 +417,11 @@ onBeforeUnmount(() => {
         gap: 8px;
     }
 
-    &_footer {
+    &_sections {
         display: flex;
         gap: 4px;
 
-        >*{
+        > * {
             width: 100%;
         }
     }

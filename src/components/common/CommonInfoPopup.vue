@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import CloseIcon from 'assets/icons/basic/close.svg?component';
-import ArrowTopIcon from 'assets/icons/basic/arrow-top.svg?component';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { PropType } from 'vue';
 
 export interface InfoPopupSection {

@@ -2,7 +2,7 @@
     <div
         class="map-popup"
         :style="{
-            '--max-height': `${overlay.maxHeight}%`,
+            '--max-height': `${overlay.maxHeight}px`,
             '--position-x': typeof overlay.position === 'object' ? `${overlay.position.x}%` : undefined,
             '--position-y': typeof overlay.position === 'object' ? `${overlay.position.y}%` : undefined,
         }"
@@ -28,5 +28,6 @@ defineProps({
 .map-popup {
     position: relative;
     height: var(--max-height);
+    transition: 0.5s ease-in-out;
 }
 </style>

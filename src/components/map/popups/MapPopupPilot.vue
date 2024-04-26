@@ -6,6 +6,7 @@
         model-value
         @update:modelValue="!$event ? store.overlays = store.overlays.filter(x => x.id !== overlay.id) : undefined"
         :header-actions="overlay.collapsed ? ['sticky', 'track'] : []"
+        max-height="100%"
         :sections="sections"
     >
         <template #title>
@@ -147,7 +148,7 @@
                         <common-info-block
                             text-align="center"
                             class="pilot__card"
-                            :top-items="['Stepclimbs (min to max)']"
+                            :top-items="['Stepclimbs', 'Min to max']"
                             :bottom-items="[pilot.cruise?.min, pilot.cruise?.planned, pilot.cruise?.max]"
                         />
                     </div>
@@ -390,7 +391,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
                     height: 24px;
                     position: relative;
                     z-index: 1;
-                    transform: translateX(-100%) rotate(90deg);
+                    transform: translateX(-50%) rotate(90deg);
                     left: var(--percent);
 
                     :deep(path:last-child:not(:only-child)) {
