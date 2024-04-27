@@ -32,6 +32,7 @@ export interface VatsimPilot {
 
 export interface VatsimExtendedPilot extends VatsimPilot {
     status?: 'depGate' | 'depTaxi' | 'departed' | 'climbing' | 'cruising' | 'enroute' | 'descending' | 'arriving' | 'arrTaxi' | 'arrGate';
+    isOnGround?: boolean
     depDist?: number;
     toGoDist?: number;
     toGoPercent?: number;

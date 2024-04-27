@@ -23,6 +23,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
     data: {
         pilot: VatsimExtendedPilot
         stats?: Partial<VatsimMemberStats>
+        tracked?: boolean
     };
 }
 

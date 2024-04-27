@@ -89,6 +89,8 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
         else {
             extendedPilot.status = 'depTaxi';
         }
+
+        extendedPilot.isOnGround = true;
     }
     else if (groundArr) {
         extendedPilot.airport = groundArr.icao;
@@ -107,6 +109,8 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
         else {
             extendedPilot.status = 'arrTaxi';
         }
+
+        extendedPilot.isOnGround = true;
     }
 
     let totalDist: number | null = null;
@@ -167,10 +171,10 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
             }
         }
 
-        if (getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
+        if (!extendedPilot.isOnGround && getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
             extendedPilot.status = 'cruising';
         }
-        else if (!extendedPilot.status && totalDist && extendedPilot.toGoDist) {
+        else if (!extendedPilot.isOnGround && !extendedPilot.status && totalDist && extendedPilot.toGoDist) {
             extendedPilot.status = totalDist / 2 < extendedPilot.toGoDist ? 'climbing' : 'descending';
         }
     }

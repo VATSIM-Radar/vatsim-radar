@@ -164,12 +164,14 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'in-progress',
             },
             {
+                title: 'TMA approach sectors',
+                status: 'in-progress',
+            },
+            {
                 title: 'Center/zoom to entire flight button',
-                status: 'todo',
             },
             {
                 title: 'Center/zoom to airport button',
-                status: 'todo',
             },
             {
                 title: 'ATC info popup',
@@ -189,7 +191,6 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
-                status: 'todo',
             },
             'Light theme',
             'Layers (hide atc/aircraft/gates/etc)',

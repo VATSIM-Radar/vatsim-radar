@@ -355,7 +355,7 @@ await useAsyncData(async () => {
                     max-height: 0;
                     height: 0;
                     margin-top: -16px;
-                    transform: translateX(30px);
+                    transform: translate(30px, -30px);
                 }
             }
         }

@@ -60,7 +60,7 @@
                         class="info-popup__section_content"
                         v-if="!section.collapsible || !collapsedSections.includes(section.key)"
                     >
-                        <slot :name="section.key"/>
+                        <slot :name="section.key" :section="section"/>
                     </div>
                 </div>
             </div>
@@ -77,7 +77,8 @@ export interface InfoPopupSection {
     key: string;
     title?: string;
     collapsible?: boolean;
-    collapsedDefault?: boolean
+    collapsedDefault?: boolean;
+    collapsedDefaultOnce?: boolean;
 }
 
 type InfoPopupContent = Record<string, {
@@ -123,6 +124,7 @@ const collapsed = defineModel('collapsed', {
     default: false,
 });
 const collapsedSections = ref<string[]>([]);
+const collapsedOnceSections = new Set<string>([]);
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const activeTab = ref(props.tabs ? Object.keys(props.tabs)[0] : '');
@@ -134,7 +136,12 @@ const getSections = computed(() => {
 
 watch(getSections, (sections) => {
     sections.forEach((section) => {
-        if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) collapsedSections.value.push(section.key);
+        if (section.collapsedDefaultOnce && collapsedOnceSections.has(section.key)) return;
+
+        if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) {
+            collapsedSections.value.push(section.key);
+            collapsedOnceSections.add(section.key);
+        }
     });
 }, {
     immediate: true,
@@ -172,6 +179,8 @@ watch(getSections, (sections) => {
         &_actions {
             display: flex;
             gap: 16px;
+            position: relative;
+            z-index: 1;
 
             &_action {
                 display: flex;
@@ -215,7 +224,8 @@ watch(getSections, (sections) => {
 
         &--collapse {
             &-enter-active, &-leave-active {
-                transition: 0.3s;
+                transition: 0.5s ease-in-out;
+                max-height: 100%;
             }
 
             &-enter-from, &-leave-to {

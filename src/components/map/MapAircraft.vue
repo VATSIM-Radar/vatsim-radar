@@ -158,6 +158,25 @@ const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.
 
 const icon = computed(() => getAircraftIcon(props.aircraft));
 
+const setStyle = () => {
+    if (!feature) return;
+    let iconPostfix = '';
+    if (activeCurrentOverlay.value) iconPostfix = '-active';
+    else if (props.isHovered) iconPostfix = '-hover';
+
+    const styleIcon = new Icon({
+        src: `/aircrafts/${ icon.value.icon }${ iconPostfix }.png`,
+        width: icon.value.width,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+    });
+
+    const iconStyle = new Style({
+        image: styleIcon,
+        zIndex: 10,
+    });
+    feature.setStyle(iconStyle);
+};
+
 const init = () => {
     if (!vectorSource.value) return;
 
@@ -179,37 +198,7 @@ const init = () => {
         existingStyle.getImage()!.setRotation(degreesToRadians(props.aircraft.heading ?? 0));
     }
     else {
-        //TODO: rework to single function, add own aircraft tracking
-        const styleIcon = new Icon({
-            src: `/aircrafts/${ icon.value.icon }${ props.isHovered ? '-hover' : '' }.png`,
-            width: icon.value.width,
-            rotation: degreesToRadians(props.aircraft.heading ?? 0),
-        });
-
-        const iconStyle = new Style({
-            image: styleIcon,
-            zIndex: 10,
-        });
-        iconFeature.setStyle(iconStyle);
-
-        new Promise<number>((resolve) => {
-            let iterations = 0;
-
-            const interval = setInterval(() => {
-                iterations++;
-                if (iterations > 10) {
-                    clearInterval(interval);
-                    resolve(0);
-                }
-                else {
-                    const height = styleIcon.getHeight();
-                    if (height) {
-                        clearInterval(interval);
-                        resolve(height);
-                    }
-                }
-            }, 1000);
-        });
+        setStyle();
     }
 
     if (!feature) vectorSource.value.addFeature(iconFeature);
@@ -225,24 +214,21 @@ const isPropsHovered = computed(() => props.isHovered);
 watch([isPropsHovered, isInit], ([val]) => {
     if (!feature || activeCurrentOverlay.value) return;
 
-    const icon = getAircraftIcon(props.aircraft);
     toggleAirportLines(val);
-
-    const styleIcon = new Icon({
-        src: `/aircrafts/${ icon.icon }${ val ? '-hover' : '' }.png`,
-        width: icon.width,
-        rotation: degreesToRadians(props.aircraft.heading ?? 0),
-    });
-
-    feature.setStyle(new Style({
-        image: styleIcon,
-        zIndex: 10,
-    }));
+    setStyle();
 }, {
     immediate: true,
 });
 
 function toggleAirportLines(value: boolean) {
+    if (value) {
+        const isOnGround = activeCurrentOverlay.value
+            ? activeCurrentOverlay.value.data.pilot.isOnGround
+            : dataStore.vatsim.data.airports.value.some(x => x.aircrafts.groundArr?.includes(props.aircraft.cid) || x.aircrafts.groundDep?.includes(props.aircraft.cid));
+
+        if (isOnGround) value = false;
+    }
+
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
@@ -319,22 +305,9 @@ function toggleAirportLines(value: boolean) {
 watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp], ([val], oldValue) => {
     if (!feature || (!val && oldValue === undefined)) return;
 
-    const icon = getAircraftIcon(props.aircraft);
+    setStyle();
 
-    const styleIcon = new Icon({
-        src: `/aircrafts/${ icon.icon }${ val ? '-active' : props.isHovered ? '-hover' : '' }.png`,
-        width: icon.width,
-        rotation: degreesToRadians(props.aircraft.heading ?? 0),
-    });
-
-    feature.setStyle(new Style({
-        image: styleIcon,
-        zIndex: 10,
-    }));
-
-    const status = activeCurrentOverlay.value?.data.pilot.status;
-
-    if (status && status !== 'depGate' && status !== 'depTaxi' && status !== 'arrGate' && status !== 'arrTaxi') {
+    if (activeCurrentOverlay.value?.data.pilot.status && !activeCurrentOverlay.value?.data.pilot.isOnGround) {
         toggleAirportLines(true);
     }
     else if (!props.isHovered) {
