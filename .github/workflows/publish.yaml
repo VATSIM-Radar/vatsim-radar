@@ -42,8 +42,8 @@ jobs:
             VATSIM_CLIENT_ID=${{ vars.VATSIM_CLIENT_ID }}
             VATSIM_ENDPOINT=${{ vars.VATSIM_ENDPOINT }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
-            NAVIGRAPH_CLIENT_SECRET=${{ secrets.NAVIGRAPH_CLIENT_SECRET }}"
-            NAVIGRAPH_SERVER_SECRET=${{ secrets.NAVIGRAPH_SERVER_SECRET }}"
+            NAVIGRAPH_CLIENT_SECRET=${{ secrets.NAVIGRAPH_CLIENT_SECRET }}
+            NAVIGRAPH_SERVER_SECRET=${{ secrets.NAVIGRAPH_SERVER_SECRET }}
             VATSIM_CLIENT_SECRET=${{ secrets.VATSIM_CLIENT_SECRET }}
             DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
             DISCORD_CLIEND_ID=${{ secrets.DISCORD_CLIEND_ID }}
