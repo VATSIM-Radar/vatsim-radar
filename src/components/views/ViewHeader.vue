@@ -57,7 +57,7 @@
                 v-model="settingsPopup"
                 :sections="[
                     {title: 'Vatsim Account', key: 'account'},
-                    {title: 'Follow Me Preferences', key: 'follow', collapsible: true, collapsedDefault: true},
+                    {title: 'Follow Me Preferences', key: 'follow'},
                     {title: 'Navigraph Account', key: 'navigraph'}
                 ]"
             >
@@ -117,8 +117,8 @@
                             Auto-zoom to me
 
                             <template #description>
-                                Enabling this will also enable constant zoom to your aicraft position (differs from
-                                ground to airborne)<br><br>
+                                Enabling this will also zoom to your aicraft position (differs from
+                                ground to airborne) on initial spawn/site open<br><br>
                                 By default it will use last saved position
                             </template>
                         </common-toggle>

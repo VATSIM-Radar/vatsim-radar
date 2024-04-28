@@ -184,14 +184,15 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | v
     const firs = list.map((fir) => {
         const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
         return geometry.intersectsCoordinate([pilot.longitude, pilot.latitude]) &&
-            radarStorage.vatsim.firs.find(
+            radarStorage.vatsim.firs.filter(
                 x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.feature.id) && (x.controller || x.firs.some(x => x.controller)),
             )!;
     }).filter(x => !!x);
 
     if (firs.length) {
         extendedPilot.firs = [...new Set(
-            firs.flatMap(x => x && (x.controller?.callsign || x.firs.map(x => x.controller?.callsign))).filter(x => !!x) as string[],
+            //@ts-expect-error
+            firs.flatMap(x => x && x.flatMap(x => x.controller?.callsign || x.firs.map(x => x.controller?.callsign))).filter(x => !!x) as string[],
         )];
     }
 

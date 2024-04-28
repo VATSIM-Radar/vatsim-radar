@@ -1,7 +1,7 @@
 <template>
     <div
         class="atc-popup-container"
-        :style="{position: absolute ? 'absolute' : undefined}"
+        :class="{'atc-popup-container--absolute': absolute}"
     >
         <common-popup-block class="atc-popup">
             <template #title v-if="$slots.title">
@@ -130,16 +130,21 @@ const getATIS = (controller: VatsimShortenedController) => {
 
 <style scoped lang="scss">
 .atc-popup {
-    width: max-content;
-    max-width: min(450px, 100%);
     display: flex;
     flex-direction: column;
     gap: 4px;
 
     &-container {
+        width: max-content;
+        max-width: min(450px, 100%);
         z-index: 20;
         padding: 5px 0;
         cursor: initial;
+
+        &--absolute {
+            position: absolute;
+            max-width: 450px;
+        }
     }
 
     &_title {

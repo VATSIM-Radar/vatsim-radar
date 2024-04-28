@@ -5,7 +5,7 @@ import { fromLonLat } from 'ol/proj';
 import type { Coordinate } from 'ol/coordinate';
 
 export function getVatsimRedirectUri() {
-    return `${ useRuntimeConfig().DOMAIN }/auth/vatsim`;
+    return `${ useRuntimeConfig().public.DOMAIN }/auth/vatsim`;
 }
 
 const view = new View({

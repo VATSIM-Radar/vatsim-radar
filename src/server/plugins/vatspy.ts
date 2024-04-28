@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 11,
+    'v2403.1': 12,
 };
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({

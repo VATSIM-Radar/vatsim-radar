@@ -4,18 +4,25 @@
         collapsible
         v-model:collapsed="overlay.collapsed"
         model-value
-        @update:modelValue="!$event ? store.overlays = store.overlays.filter(x => x.id !== overlay.id) : undefined"
+        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
         :header-actions="['sticky', 'track']"
         max-height="100%"
         :sections="sections"
-        :style="{'--percent': `${ pilot.toGoPercent}%`}"
+        :style="{'--percent': `${ pilot.toGoPercent}%`, '--status-color': radarColors[getStatus.color]}"
     >
         <template #title>
-            <div class="pilot_header">
-                <div class="pilot_header_title">
+            <div class="pilot-header pilot_header">
+                <div class="pilot-header_title">
                     {{ pilot.callsign }}
                 </div>
-                <div class="pilot_header_status" :class="{'pilot_header_status--offline': isOffline}"/>
+                <div class="pilot-header_type" v-if="pilot.flight_plan?.flight_rules !== 'I'">
+                    VFR
+                </div>
+                <div
+                    class="pilot_header_status"
+                    :class="{'pilot_header_status--offline': isOffline}"
+                    v-if="overlay.collapsed"
+                />
                 <div class="pilot_header_line" v-if="overlay.collapsed"/>
             </div>
         </template>
@@ -49,7 +56,11 @@
         <template #[`atc-${i}`]="{section}" v-for="i in ['center', 'atis', 'app', 'ground']" :key="i">
             <div class="pilot__content">
                 <!-- @vue-ignore -->
-                <common-controller-info :controllers="section.controllers" :show-facility="section.type === 'ground'" show-atis/>
+                <common-controller-info
+                    :controllers="section.controllers"
+                    :show-facility="section.type === 'ground'"
+                    show-atis
+                />
             </div>
         </template>
         <template #flight>
@@ -73,7 +84,6 @@
                                 </div>
                                 <div
                                     class="pilot__card_route_header_status"
-                                    :style="{'--color': radarColors[getStatus.color]}"
                                 >
                                     {{ getStatus.title }}
                                 </div>
@@ -107,6 +117,20 @@
                         </div>
                     </template>
                 </common-info-block>
+                <div class="pilot__cols" v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder">
+                    <common-info-block
+                        class="pilot__card"
+                        :top-items="['Squawk set']"
+                        :bottom-items="[pilot.transponder || 'None']"
+                        text-align="center"
+                    />
+                    <common-info-block
+                        class="pilot__card"
+                        :top-items="['Squawk assigned']"
+                        :bottom-items="[pilot.flight_plan?.assigned_transponder || 'None']"
+                        text-align="center"
+                    />
+                </div>
                 <div class="pilot__cols">
                     <common-info-block
                         class="pilot__card"
@@ -131,117 +155,41 @@
             </div>
         </template>
         <template #flightplan>
-            <div class="pilot__content" v-if="pilot.flight_plan">
-                <template v-if="pilot.flight_plan.departure && pilot.flight_plan.arrival">
-                    <div class="pilot__cols">
-                        <div class="pilot__title">
-                            Departure
-                        </div>
-                        <div class="pilot__title">
-                            Arrival
-                        </div>
-                    </div>
-                    <div class="pilot__cols">
-                        <common-info-block
-                            text-align="center"
-                            is-button
-                            class="pilot__card"
-                            :top-items="[pilot.flight_plan.departure]"
-                            :bottom-items="[depAirport?.name]"
-                        />
-                        <common-info-block
-                            text-align="center"
-                            is-button
-                            class="pilot__card"
-                            :top-items="[pilot.flight_plan.arrival]"
-                            :bottom-items="[arrAirport?.name]"
-                        />
-                    </div>
-                    <div class="pilot__cols">
-                        <common-info-block
-                            text-align="center"
-                            class="pilot__card"
-                            :top-items="['Aircraft Type']"
-                            :bottom-items="[pilot.flight_plan.aircraft_faa]"
-                        />
-                        <common-info-block
-                            text-align="center"
-                            class="pilot__card"
-                            :top-items="['Ground Speed']"
-                            :bottom-items="[`${pilot.groundspeed} kts`]"
-                        />
-                        <common-info-block
-                            v-if="!pilot.cruise?.min && !pilot.cruise?.max"
-                            text-align="center"
-                            class="pilot__card"
-                            :top-items="['Cruise Altitude']"
-                            :bottom-items="[`${pilot.cruise?.planned} ft`]"
-                        />
-                    </div>
-                    <div class="pilot__cols" v-if="pilot.cruise?.min || pilot.cruise?.max">
-                        <common-info-block
-                            text-align="center"
-                            class="pilot__card"
-                            :top-items="['Stepclimbs', 'Min to max']"
-                            :bottom-items="[pilot.cruise?.min, pilot.cruise?.planned, pilot.cruise?.max]"
-                        />
-                    </div>
-                </template>
-                <div class="pilot__info" v-if="pilot.flight_plan.route">
-                    <div class="pilot__info_left">
-                        <div class="pilot__info__title">
-                            Route
-                        </div>
-                        <common-button type="link" class="pilot__info__copy" @click="copyText(pilot.flight_plan.route)">
-                            Copy
-                        </common-button>
-                    </div>
-                    <textarea :value="pilot.flight_plan.route" readonly class="pilot__info_textarea"/>
-                </div>
-                <div class="pilot__info" v-if="pilot.flight_plan.remarks">
-                    <div class="pilot__info_left">
-                        <div class="pilot__info__title">
-                            Remarks
-                        </div>
-                        <common-button
-                            type="link"
-                            class="pilot__info__copy"
-                            @click="copyText(pilot.flight_plan.remarks)"
-                        >
-                            Copy
-                        </common-button>
-                    </div>
-                    <textarea :value="pilot.flight_plan.remarks" readonly class="pilot__info_textarea"/>
-                </div>
-            </div>
+            <map-popup-flight-plan
+                class="pilot__content"
+                v-if="pilot.flight_plan"
+                :flight-plan="pilot.flight_plan"
+                :cruise="pilot.cruise"
+            />
         </template>
         <template #buttons>
             <common-button-group>
-                <common-button @click="overlay.data.tracked = !overlay.data.tracked">
+                <common-button @click="overlay.data.tracked = !overlay.data.tracked" tiotl>
                     <template #icon>
                         <track-icon
-                            class="pilot__track"
+                            class="pilot__track pilot__track--in-action"
                             :class="{'pilot__track--tracked': props.overlay?.data.tracked}"
                         />
                     </template>
-                    <template v-if="!overlay.data.tracked">
-                        Track
-                    </template>
-                    <template v-else>
-                        Tracked
-                    </template>
+                    Track
                 </common-button>
                 <common-button :disabled="overlay.data.tracked" @click="showOnMap">
                     <template #icon>
                         <map-icon/>
                     </template>
-                    Show On Map
+                    Focus
                 </common-button>
                 <common-button :href="`https://stats.vatsim.net/stats/${pilot.cid}`" target="_blank">
                     <template #icon>
                         <stats-icon/>
                     </template>
-                    Open Stats
+                    Stats
+                </common-button>
+                <common-button @click="copyText(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
+                    <template #icon>
+                        <share-icon/>
+                    </template>
+                    Link
                 </common-button>
             </common-button-group>
         </template>
@@ -250,21 +198,25 @@
 
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
-import type { StoreOverlayPilot } from '~/store';
 import { useStore } from '~/store';
 import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
 import type { ColorsList } from '~/modules/styles';
-import { copyText, getHoursAndMinutes } from '../../../utils';
+import { getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
-import TrackIcon from '@/assets/icons/kit/track.svg?component';
+import TrackIcon from 'assets/icons/kit/track.svg?component';
 import PinIcon from '@/assets/icons/kit/pin.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
 import { sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { showPilotOnMap } from '~/composables/pilots';
+import type { StoreOverlayPilot } from '~/store/map';
+import { useMapStore } from '~/store/map';
+import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 
 const props = defineProps({
     overlay: {
@@ -276,6 +228,9 @@ const props = defineProps({
 const map = inject<ShallowRef<Map | null>>('map')!;
 
 const store = useStore();
+const dataStore = useDataStore();
+const mapStore = useMapStore();
+const config = useRuntimeConfig();
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -287,24 +242,10 @@ const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const svg = shallowRef<null | any>(null);
-const dataStore = useDataStore();
 const isOffline = ref(false);
 
-const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
-});
-
-const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
-});
-
 const showOnMap = () => {
-    const view = map.value?.getView();
-
-    view?.animate({
-        center: [pilot.value.longitude, pilot.value.latitude],
-        zoom: pilot.value.isOnGround ? 16 : 7,
-    });
+    showPilotOnMap(pilot.value, map.value);
 };
 
 async function loadAirlineSvg() {
@@ -341,7 +282,10 @@ const sections = computed<InfoPopupSection[]>(() => {
     return sections;
 });
 
-type AtcPopupSection = InfoPopupSection & { type: 'center' | 'app' | 'ground' | 'atis', controllers: VatsimShortenedController[] }
+type AtcPopupSection = InfoPopupSection & {
+    type: 'center' | 'app' | 'ground' | 'atis',
+    controllers: VatsimShortenedController[]
+}
 
 const facilities = useFacilitiesIds();
 
@@ -360,7 +304,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
         sections.push({
             type: 'center',
             controllers: center,
-            title: 'Center',
+            title: 'Area Control',
             key: 'atc-center',
             collapsible: true,
             collapsedDefault: true,
@@ -393,7 +337,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
             sections.push({
                 type: 'ground',
                 controllers: ground,
-                title: 'Ground',
+                title: 'Local Control',
                 key: 'atc-ground',
                 collapsible: true,
                 collapsedDefault: true,
@@ -437,6 +381,13 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
 });
 
 const getStatus = computed<{ color: ColorsList, title: string }>(() => {
+    if (isOffline.value) {
+        return {
+            color: 'neutral800',
+            title: 'Offline',
+        };
+    }
+
     switch (pilot.value.status) {
         case 'depGate':
             return {
@@ -446,7 +397,7 @@ const getStatus = computed<{ color: ColorsList, title: string }>(() => {
         case 'depTaxi':
             return {
                 color: 'success500',
-                title: 'Departing | Taxi',
+                title: 'Departing',
             };
         case 'departed':
             return {
@@ -481,7 +432,7 @@ const getStatus = computed<{ color: ColorsList, title: string }>(() => {
         case 'arrTaxi':
             return {
                 color: 'error500',
-                title: 'Arrived | Taxi',
+                title: 'Arrived',
             };
         case 'arrGate':
             return {
@@ -516,7 +467,14 @@ function handleMouseMove() {
 }
 
 watch(() => pilot.value.last_updated, handleMouseMove);
-watch(() => props.overlay.data.tracked, handleMouseMove);
+watch(() => props.overlay.data.tracked, (val) => {
+    handleMouseMove();
+    if (val) {
+        mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach((x) => {
+            (x as StoreOverlayPilot).data.tracked = false;
+        });
+    }
+});
 
 function handlePointerDrag() {
     props.overlay.data.tracked = false;
@@ -535,39 +493,54 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .pilot {
-    &_header {
-        font-family: $openSansFont;
-        color: $primary500;
-        font-size: 17px;
-        font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 16px;
-
-        > * {
-            position: relative;
-            z-index: 2;
-        }
-
+    div.pilot_header {
         &_status {
             width: 8px;
             height: 8px;
             border-radius: 100%;
-            background: $success500;
+            background: var(--status-color);
+            position: relative;
 
-            &--offline {
-                background: $error500;
+            &:not(&--offline) {
+                @keyframes status {
+                    0% {
+                        opacity: 0;
+                        transform: scale(0);
+                    }
+
+                    60% {
+                        opacity: 0;
+                        transform: scale(0);
+                    }
+
+                    100% {
+                        opacity: 0.5;
+                        transform: scale(1);
+                    }
+                }
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    width: 12px;
+                    height: 12px;
+                    left: -2px;
+                    top: -2px;
+                    background: var(--status-color);
+                    border-radius: 100%;
+                    animation: status 1.4s alternate-reverse infinite;
+                }
             }
         }
 
         &_line {
             position: absolute;
-            width: var(--percent);
+            width: calc(var(--percent) + 32px);
             height: 56px;
             background: $neutral900;
             border-radius: 8px 0 0 8px;
             top: 0;
-            left: 0;
+            left: -16px;
             z-index: 1;
         }
     }
@@ -606,7 +579,7 @@ onBeforeUnmount(() => {
                 gap: 8px;
 
                 &_status {
-                    color: var(--color);
+                    color: var(--status-color);
                     font-size: 12px;
                 }
             }
@@ -668,50 +641,17 @@ onBeforeUnmount(() => {
         }
     }
 
-    &__title {
-        text-align: center;
-        font-weight: 600;
-        font-size: 13px;
-    }
-
-    &__info {
-        display: grid;
-        grid-template-columns: 20% 75%;
-        justify-content: space-between;
-
-        &_left {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        &__title {
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        &_textarea {
-            appearance: none;
-            box-shadow: none;
-            outline: none;
-            border: none;
-            border-radius: 4px;
-            background: $neutral950;
-            font-size: 11px;
-            color: $neutral150;
-            resize: vertical;
-            padding: 8px;
-            scrollbar-gutter: stable;
-        }
-    }
-
     &__track, &__stick {
         transition: 0.3s;
+
+        &--in-action {
+            transition-property: transform;
+        }
     }
 
     &__track--tracked {
         color: $primary500;
-        transform: translateY(2px) rotate(-45deg);
+        transform: rotate(90deg);
         transform-origin: center;
     }
 

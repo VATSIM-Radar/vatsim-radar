@@ -5,8 +5,9 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
+import { useMapStore } from '~/store/map';
 
-export function isPointInExtent(point: Coordinate, extent = useStore().extent) {
+export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
 }
 

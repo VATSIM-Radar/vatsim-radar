@@ -7,5 +7,5 @@ export default defineEventHandler((event) => {
         httpOnly: true,
     });
 
-    return sendRedirect(event, useRuntimeConfig().DOMAIN);
+    return sendRedirect(event, useRuntimeConfig().public.DOMAIN);
 });

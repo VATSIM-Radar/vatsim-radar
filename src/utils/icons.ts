@@ -1,16 +1,33 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'a300'
+    | 'a310'
     | 'a320'
     | 'a318'
     | 'a319'
     | 'a321'
     | 'a124'
     | 'a225'
+    | 'a332'
+    | 'a333'
     | 'a340'
     | 'a342'
     | 'a343'
+    | 'a359'
+    | 'a35k'
     | 'a380'
+    | 'b703'
+    | 'b712'
+    | 'b731'
+    | 'b732'
+    | 'b733'
+    | 'b734'
+    | 'b735'
+    | 'b736'
+    | 'b737'
+    | 'b738'
+    | 'b739'
     | 'b78x'
     | 'b772'
     | 'b773'
@@ -39,9 +56,61 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
 
 //TODO: calc width into local file
 export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: number }> = {
+    a300: {
+        icon: 'a300',
+        width: getAircraftSizeByCoef(0.75),
+    },
+    a310: {
+        icon: 'a310',
+        width: getAircraftSizeByCoef(0.73),
+    },
     a340: {
         icon: 'a340',
         width: getAircraftSizeByCoef(1),
+    },
+    b703: {
+        icon: 'b703',
+        width: getAircraftSizeByCoef(0.74),
+    },
+    b712: {
+        icon: 'b712',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    b731: {
+        icon: 'b731',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    b732: {
+        icon: 'b732',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    b733: {
+        icon: 'b733',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    b734: {
+        icon: 'b734',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    b735: {
+        icon: 'b735',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    b736: {
+        icon: 'b736',
+        width: getAircraftSizeByCoef(0.57),
+    },
+    b737: {
+        icon: 'b737',
+        width: getAircraftSizeByCoef(0.57),
+    },
+    b738: {
+        icon: 'b738',
+        width: getAircraftSizeByCoef(0.57),
+    },
+    b739: {
+        icon: 'b739',
+        width: getAircraftSizeByCoef(0.57),
     },
     b772: {
         icon: 'b772',
@@ -91,6 +160,14 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
         icon: 'a225',
         width: getAircraftSizeByCoef(1.46),
     },
+    a332: {
+        icon: 'a332',
+        width: getAircraftSizeByCoef(1.01),
+    },
+    a333: {
+        icon: 'a333',
+        width: getAircraftSizeByCoef(1.01),
+    },
     a342: {
         icon: 'a342',
         width: getAircraftSizeByCoef(1.01),
@@ -98,6 +175,14 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
     a343: {
         icon: 'a343',
         width: getAircraftSizeByCoef(1.01),
+    },
+    a359: {
+        icon: 'a359',
+        width: getAircraftSizeByCoef(1.08),
+    },
+    a35k: {
+        icon: 'a35k',
+        width: getAircraftSizeByCoef(1.08),
     },
     a380: {
         icon: 'a380',
@@ -137,6 +222,13 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa) faa = faa.split('/')[0];
 
     switch (faa) {
+        case 'A306':
+        case 'A3ST':
+        case 'A30B':
+        case 'A30F':
+            return aircraftIcons.a300;
+        case 'A310':
+            return aircraftIcons.a310;
         case 'A318':
             return aircraftIcons.a318;
         case 'A319':
@@ -148,12 +240,20 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.a225;
         case 'A124':
             return aircraftIcons.a124;
+        case 'A332':
+            return aircraftIcons.a332;
+        case 'A333':
+            return aircraftIcons.a333;
         case 'A342':
             return aircraftIcons.a342;
         case 'A343':
         case 'A345':
         case 'A346':
             return aircraftIcons.a343;
+        case 'A359':
+            return aircraftIcons.a359;
+        case 'A35k':
+            return aircraftIcons.a35k;
         case 'A388':
             return aircraftIcons.a380;
         case 'DC6':
@@ -168,19 +268,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B748':
         case 'IL96':
             return aircraftIcons.a340;
+        case 'B703':
+            return aircraftIcons.b703;
+        case 'B712':
+            return aircraftIcons.b712;
         case 'B773':
         case 'B77W':
             return aircraftIcons.b773;
-            //case 'A306':
-            //case 'A3ST':
         case 'B772':
         case 'B77F':
         case 'B77L':
-        case 'A30B':
-        case 'A30F':
-        case 'A310':
-        case 'A332':
-        case 'A333':
         case 'A338':
         case 'A339':
             return aircraftIcons.b772;
@@ -198,6 +295,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.t144;
         case 'T154':
             return aircraftIcons.t154;
+        case 'B731':
+        case 'B732':
+        case 'B733':
+        case 'B734':
+        case 'B735':
+        case 'B736':
+        case 'B737':
+        case 'B738':
+        case 'B739':
+            return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
     }

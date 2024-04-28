@@ -2,7 +2,20 @@
 
 # 0.2.0
 
-## Pilot overlay
+This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to improve your flight experience - please give it a shot!
+
+Closest feature after this one should be TMA approach sectors.
+
+## Highlights
+
+- 👨‍✈️ Pilot overlay (both flight and prefiles)
+- ✈️ Different aircraft icons
+- 🎯 Accuracy improvements for uirs, firs and ground aircraft detection
+- 🔧 Bug fixes and improvements
+
+## Changelog
+
+### Pilot overlay
 
 You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot on map, open Vatsim stats and more:
 
@@ -13,27 +26,30 @@ You are now able to click on any aircraft (or flightplan prefile!) to enable it'
 - Share pilot to instantly open card on map for anyone visiting your link
 - View ATC where pilot currently flying - enabled by default for your own flights
 - Enable tracking to make map follow this flight
-- TODO: aircraft dep/arr airports will also be highlighted
+- Aircraft dep/arr airports will also be highlighted
 
 By default, overlays are replaced by pilot you open next - but you can also pin any overlay so it won't close.
 
 This card can be auto-opened, pinned and tracked for your own flight - you can enable this in settings.
 
-## Features
+P.S. You are also able to open this from airport counters popup - including prefiles!
 
-- Added new aircraft icons: A124, A225 Antonov, A318, A319, A321, A340, A342, A343, A380, DC6, MD11, MD80, B78X, B772, B773, B788, B789, T134, T144, T154 Concorde
+### Features
+
+- Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712, B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
 - Aircraft icons now have borders around them
 - Lowered size of A320 default icon
 - Added hover-on-aircraft icon background change
 - Map position is now saved from last time
-- Our great service finally has it's own logo!
+- Our great service finally has its own logo!
 - Update verify interaction reply description to remove old forum link
 - You are now able to see dep/arr lines on aircraft hover
 - Reduced on-hover pilot info popup height by removing full airport name
-- TODO: your own flight is now always highlighted as green on map
+- Moved airport with atc to center position so it will look better now, especially if airport has dep/arr controller
+- Your own flight is now always highlighted as green on map
 - Updated roadmap. Check it out!
 
-## Bug fixes
+### Bug fixes
 
 - Increased aircraft on ground zone detection
 - Fixed Africa oceanic FIR display

@@ -151,7 +151,7 @@ watch(getSections, (sections) => {
 <style scoped lang="scss">
 .info-popup {
     background: $neutral1000;
-    padding: 16px;
+    padding: 0 16px 16px;
     border-radius: 8px;
     width: 350px;
     text-align: left;
@@ -168,6 +168,15 @@ watch(getSections, (sections) => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        position: sticky;
+        top: 0;
+        background: $neutral1000;
+        z-index: 1;
+        padding: 16px 0;
+
+        &:only-child {
+            padding-bottom: 0;
+        }
 
         &_title {
             font-size: 14px;
@@ -216,7 +225,7 @@ watch(getSections, (sections) => {
     }
 
     &_content {
-        margin-top: 24px;
+        margin-top: 8px;
         display: flex;
         flex-direction: column;
         gap: 16px;

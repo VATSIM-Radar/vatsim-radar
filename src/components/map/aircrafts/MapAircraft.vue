@@ -10,7 +10,7 @@
                 position: getCoordinates,
                 offset: [15, -15]
             }"
-            @update:overlay="store.openPilotOverlay = !!$event"
+            @update:overlay="mapStore.openPilotOverlay = !!$event"
             :z-index="20"
         >
             <common-popup-block
@@ -25,7 +25,7 @@
                     {{ aircraft.aircraft_faa }}
                 </template>
                 <div class="aircraft-hover_body">
-                    <common-info-block class="aircraft-hover__pilot" is-button @click="store.addPilotOverlay(aircraft.cid.toString())">
+                    <common-info-block class="aircraft-hover__pilot" is-button @click="mapStore.addPilotOverlay(aircraft.cid.toString())">
                         <template #bottom>
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
@@ -90,9 +90,9 @@
         >
             <div
                 class="aircraft-label"
-                @mouseover="store.canShowOverlay ? hovered = true : undefined"
+                @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
                 @mouseleave="hovered = false"
-                @click="store.addPilotOverlay(aircraft.cid.toString())"
+                @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
             >
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
@@ -110,11 +110,13 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom';
 import { Icon, Stroke, Style } from 'ol/style';
-import { usePilotRating } from '~/composables/pilots';
+import { isPilotOnGround, usePilotRating } from '~/composables/pilots';
 import { sleep } from '~/utils';
-import { useStore } from '~/store';
 import { getAircraftIcon } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
+import { useStore } from '~/store';
 
 const props = defineProps({
     aircraft: {
@@ -148,6 +150,7 @@ let feature: Feature | undefined;
 let depLine: Feature | undefined;
 let arrLine: Feature | undefined;
 const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 function degreesToRadians(degrees: number) {
@@ -155,13 +158,14 @@ function degreesToRadians(degrees: number) {
 }
 
 const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
-
 const icon = computed(() => getAircraftIcon(props.aircraft));
+const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
 const setStyle = () => {
     if (!feature) return;
     let iconPostfix = '';
-    if (activeCurrentOverlay.value) iconPostfix = '-active';
+    if (isSelfFlight.value) iconPostfix = '-green';
+    else if (activeCurrentOverlay.value) iconPostfix = '-active';
     else if (props.isHovered) iconPostfix = '-hover';
 
     const styleIcon = new Icon({
@@ -207,7 +211,7 @@ const init = () => {
     isInit.value = true;
 };
 
-const activeCurrentOverlay = computed(() => store.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()));
+const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
 
 const isPropsHovered = computed(() => props.isHovered);
 
@@ -222,9 +226,7 @@ watch([isPropsHovered, isInit], ([val]) => {
 
 function toggleAirportLines(value: boolean) {
     if (value) {
-        const isOnGround = activeCurrentOverlay.value
-            ? activeCurrentOverlay.value.data.pilot.isOnGround
-            : dataStore.vatsim.data.airports.value.some(x => x.aircrafts.groundArr?.includes(props.aircraft.cid) || x.aircrafts.groundDep?.includes(props.aircraft.cid));
+        const isOnGround = isPilotOnGround(props.aircraft);
 
         if (isOnGround) value = false;
     }
@@ -232,7 +234,7 @@ function toggleAirportLines(value: boolean) {
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = activeCurrentOverlay.value ? '#ECB549' : '#E6E6EB';
+    const color = isSelfFlight.value ? radarColors.success500Hex : activeCurrentOverlay.value ? radarColors.warning600Hex : radarColors.neutral150Hex;
 
     if (depAirport) {
         const geometry = new LineString([
@@ -342,7 +344,7 @@ watch(isShowLabel, (val) => {
 watch(dataStore.vatsim.updateTimestamp, init);
 
 onBeforeUnmount(() => {
-    if (store.openPilotOverlay) store.openPilotOverlay = false;
+    if (mapStore.openPilotOverlay) mapStore.openPilotOverlay = false;
     if (feature) vectorSource.value?.removeFeature(feature);
     if (depLine) vectorSource.value?.removeFeature(depLine);
     if (arrLine) vectorSource.value?.removeFeature(arrLine);

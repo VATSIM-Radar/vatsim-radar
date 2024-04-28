@@ -13,7 +13,7 @@ export default defineNuxtModule(async (_, nuxt) => {
     const iconsPath = resolver.resolve('../assets/icons/aircrafts');
     const publicPath = resolver.resolve('../public/aircrafts');
 
-    const colors = [colorsList.primary500, colorsList.neutral150, colorsList.warning600];
+    const colors = [colorsList.primary500, colorsList.neutral150, colorsList.warning600, colorsList.success500];
 
     const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon, width: number, height: number }> = {};
 
@@ -31,6 +31,9 @@ export default defineNuxtModule(async (_, nuxt) => {
                     break;
                 case 2:
                     iconKey = '-active';
+                    break;
+                case 3:
+                    iconKey = '-green';
                     break;
             }
 

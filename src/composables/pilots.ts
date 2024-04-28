@@ -1,5 +1,7 @@
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { VatsimExtendedPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { VatSpyData } from '~/types/data/vatspy';
+import type { Map } from 'ol';
+import type { ShallowRef } from 'vue';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -14,4 +16,22 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
     if (!icao) return null;
 
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
+}
+
+export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null) {
+    map = map || inject<ShallowRef<Map | null>>('map')!.value;
+    const view = map?.getView();
+
+    view?.animate({
+        center: [pilot.longitude, pilot.latitude],
+        zoom: isPilotOnGround(pilot) ? 17 : 7,
+    });
+}
+
+export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedPilot) {
+    const dataStore = useDataStore();
+
+    return 'isOnGround' in pilot
+        ? pilot.isOnGround
+        : dataStore.vatsim.data.airports.value.some(x => x.aircrafts.groundArr?.includes(pilot.cid) || x.aircrafts.groundDep?.includes(pilot.cid));
 }

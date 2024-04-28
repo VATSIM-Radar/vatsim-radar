@@ -13,6 +13,7 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { Fill, Stroke, Style } from 'ol/style';
+import MapSector from '~/components/map/sectors/MapSector.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);

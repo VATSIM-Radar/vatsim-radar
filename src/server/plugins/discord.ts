@@ -92,7 +92,7 @@ export default defineNitroPlugin(async (app) => {
                             type: AuthType.VATSIM,
                         },
                     });
-                    const url = `${ config.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                    const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                     const embed = new EmbedBuilder()
                         .setURL(url)
                         .setTitle('To authorize on Vatsim Radar, please use this link')

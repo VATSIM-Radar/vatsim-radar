@@ -157,11 +157,9 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Move overlays across the map',
-                status: 'in-progress',
             },
             {
                 title: 'Pilot mouse right click menu',
-                status: 'in-progress',
             },
             {
                 title: 'TMA approach sectors',

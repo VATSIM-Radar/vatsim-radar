@@ -47,6 +47,10 @@ export default defineComponent({
         position: relative;
         display: flex;
 
+        :deep(> .button) {
+            width: 100%;
+        }
+
         &:not(:last-child) {
             padding-right: 9px;
             margin-right: 8px;

@@ -19,13 +19,14 @@ import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
-import { useStore } from '~/store';
+import { useMapStore } from '~/store/map';
+import MapAircraft from '~/components/map/aircrafts/MapAircraft.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const hoveredAircraft = ref<number | null>(null);
@@ -35,7 +36,7 @@ const showAircraftLabel = ref<number[]>([]);
 function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = false) {
     const overlaysCoordinates: number[][] = [];
 
-    if (exitOnAnyOverlay && store.openOverlayId && !store.openPilotOverlay) return [];
+    if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
     map.value!.getOverlays().forEach((overlay) => {
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
@@ -65,7 +66,7 @@ function setVisiblePilots() {
     visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
         const coordinates = [x.longitude, x.latitude];
 
-        return store.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
+        return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
 }
 
@@ -80,12 +81,12 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
-    if (features.length !== 1 || !store.canShowOverlay) {
+    if (features.length !== 1 || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAircraft.value = null;
         }
 
-        if (store.mapCursorPointerTrigger === 1) store.mapCursorPointerTrigger = false;
+        if (mapStore.mapCursorPointerTrigger === 1) mapStore.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -95,7 +96,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     if (getPilotsForPixel(aircraftCoordsToPixel(features[0])!).length === 1) {
         hoveredAircraft.value = features[0].cid;
-        store.mapCursorPointerTrigger = 1;
+        mapStore.mapCursorPointerTrigger = 1;
     }
 }
 
@@ -105,7 +106,7 @@ function handleClick(e: MapBrowserEvent<any>) {
     const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
     if (features.length !== 1) return;
 
-    store.addPilotOverlay(features[0].cid.toString());
+    mapStore.addPilotOverlay(features[0].cid.toString());
 }
 
 function handleMoveEnd() {

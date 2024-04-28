@@ -16,7 +16,7 @@
         @mouseleave="isHovered = false"
     >
         <!-- @todo click for touch -->
-        <div class="sector-atc" :class="{'sector-atc--hovered': isHovered}" @mouseover="$nextTick(() => isHovered = store.canShowOverlay)">
+        <div class="sector-atc" :class="{'sector-atc--hovered': isHovered}" @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)">
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
@@ -43,7 +43,7 @@ import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
-import { useStore } from '~/store';
+import { useMapStore } from '~/store/map';
 
 const props = defineProps({
     fir: {
@@ -56,8 +56,8 @@ const props = defineProps({
     },
 });
 
-const store = useStore();
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
 let localFeature: Feature | undefined;

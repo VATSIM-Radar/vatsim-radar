@@ -21,7 +21,6 @@ import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
-import { useStore } from '~/store';
 import type { MapAircraft } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
@@ -29,13 +28,15 @@ import type { NavigraphGate } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
 import { adjustPilotLonLat, checkIsPilotInGate } from '~/utils/shared/vatsim';
+import { useMapStore } from '~/store/map';
+import MapAirport from '~/components/map/airports/MapAirport.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const visibleAirports = shallowRef<string[]>([]);
 const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>([]);
 const originalGates = shallowRef<NavigraphGate[]>([]);
@@ -56,11 +57,11 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         isInvalid = pixel[1] - airport!.airport.lat < 80000;
     }
 
-    if (isInvalid || !store.canShowOverlay) {
+    if (isInvalid || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAirport.value = null;
         }
-        if (store.mapCursorPointerTrigger === 2) store.mapCursorPointerTrigger = false;
+        if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -68,7 +69,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     isManualHover.value = false;
 
     hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
-    store.mapCursorPointerTrigger = 2;
+    mapStore.mapCursorPointerTrigger = 2;
 }
 
 watch(map, (val) => {
@@ -108,7 +109,7 @@ onBeforeUnmount(() => {
 });
 
 const getAirportsGates = computed<typeof airportsGates['value']>(() => {
-    if (!airportsGates.value || store.zoom < 13) return [];
+    if (!airportsGates.value || mapStore.zoom < 13) return [];
 
     return getAirportsList.value.map((airport) => {
         const gateAirport = airportsGates.value.find(x => x.airport === airport.airport.icao);
@@ -224,7 +225,7 @@ const getAirportsList = computed(() => {
 });
 
 async function setVisibleAirports() {
-    const extent = useStore().extent.slice();
+    const extent = mapStore.extent.slice();
     extent[0] -= 100000;
     extent[1] -= 100000;
     extent[2] += 100000;
