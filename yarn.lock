@@ -430,7 +430,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-parser-algorithms@npm:^2.5.0, @csstools/css-parser-algorithms@npm:^2.6.1":
+"@csstools/css-parser-algorithms@npm:^2.6.1":
   version: 2.6.1
   resolution: "@csstools/css-parser-algorithms@npm:2.6.1"
   peerDependencies:
@@ -439,14 +439,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@csstools/css-tokenizer@npm:^2.2.3, @csstools/css-tokenizer@npm:^2.2.4":
+"@csstools/css-tokenizer@npm:^2.2.4":
   version: 2.2.4
   resolution: "@csstools/css-tokenizer@npm:2.2.4"
   checksum: 10c0/23997db5874514f4b951ebd215e1e6cc8baf03adf9a35fc6fd028b84cb52aa2dc053860722108c09859a9b37b455f62b84181fe15539cd37797ea699b9ff85f0
   languageName: node
   linkType: hard
 
-"@csstools/media-query-list-parser@npm:^2.1.7, @csstools/media-query-list-parser@npm:^2.1.9":
+"@csstools/media-query-list-parser@npm:^2.1.9":
   version: 2.1.9
   resolution: "@csstools/media-query-list-parser@npm:2.1.9"
   peerDependencies:
@@ -2155,21 +2155,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/stylelint-plugin@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "@stylistic/stylelint-plugin@npm:2.1.1"
+"@stylistic/stylelint-plugin@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@stylistic/stylelint-plugin@npm:2.1.2"
   dependencies:
-    "@csstools/css-parser-algorithms": "npm:^2.5.0"
-    "@csstools/css-tokenizer": "npm:^2.2.3"
-    "@csstools/media-query-list-parser": "npm:^2.1.7"
+    "@csstools/css-parser-algorithms": "npm:^2.6.1"
+    "@csstools/css-tokenizer": "npm:^2.2.4"
+    "@csstools/media-query-list-parser": "npm:^2.1.9"
     is-plain-object: "npm:^5.0.0"
-    postcss-selector-parser: "npm:^6.0.15"
+    postcss-selector-parser: "npm:^6.0.16"
     postcss-value-parser: "npm:^4.2.0"
     style-search: "npm:^0.1.0"
-    stylelint: "npm:^16.2.1"
+    stylelint: "npm:^16.4.0"
   peerDependencies:
     stylelint: ^16.0.2
-  checksum: 10c0/008efd4dc4703021eb2ca059b59a82514393e59f5cd0f7957c4dcf60d955be04764c571f727edbe43677f4022505d44abf7851d181beb21678a9936ad16c875b
+  checksum: 10c0/b7a36f1f5c7a18d99fe7c41e081feddce5a911dc18523fb34121dd6bcd9d1c97ddad3ef69b6eb1ff7e45cd759a399a8246ca64af4d30d02ab505c69effc5798e
   languageName: node
   linkType: hard
 
@@ -3818,9 +3818,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001587, caniuse-lite@npm:^1.0.30001599":
-  version: 1.0.30001612
-  resolution: "caniuse-lite@npm:1.0.30001612"
-  checksum: 10c0/d6b405ff06f4e913bc779f9183fa68001c9d6b8526a7dd1b99c60587dd21a01aa8def3d8462cf6214f0181f1c21b9245611ff65241cf9c967fc742e86ece5065
+  version: 1.0.30001613
+  resolution: "caniuse-lite@npm:1.0.30001613"
+  checksum: 10c0/3850bf9281fd9c8302559f3d332138138ead965a933d6f253ef510ffce6ee52cb120182de1a57ba63faa203e583a4416a9d23995f5427c68067dec87c2ea664a
   languageName: node
   linkType: hard
 
@@ -8421,7 +8421,7 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.5.1"
     "@prisma/client": "npm:^5.13.0"
-    "@stylistic/stylelint-plugin": "npm:^2.1.1"
+    "@stylistic/stylelint-plugin": "npm:^2.1.2"
     "@types/adm-zip": "npm:^0.5.5"
     "@types/eslint": "npm:^8.56.10"
     "@types/geojson": "npm:^7946.0.14"
@@ -10871,7 +10871,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^16.2.1, stylelint@npm:^16.4.0":
+"stylelint@npm:^16.4.0":
   version: 16.4.0
   resolution: "stylelint@npm:16.4.0"
   dependencies:
@@ -12269,8 +12269,8 @@ __metadata:
   linkType: hard
 
 "ws@npm:^8.14.2, ws@npm:^8.16.0":
-  version: 8.16.0
-  resolution: "ws@npm:8.16.0"
+  version: 8.17.0
+  resolution: "ws@npm:8.17.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -12279,7 +12279,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 10c0/a7783bb421c648b1e622b423409cb2a58ac5839521d2f689e84bc9dc41d59379c692dd405b15a997ea1d4c0c2e5314ad707332d0c558f15232d2bc07c0b4618a
+  checksum: 10c0/55241ec93a66fdfc4bf4f8bc66c8eb038fda2c7a4ee8f6f157f2ca7dc7aa76aea0c0da0bf3adb2af390074a70a0e45456a2eaf80e581e630b75df10a64b0a990
   languageName: node
   linkType: hard
 
@@ -12326,11 +12326,11 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.3.2":
-  version: 2.4.1
-  resolution: "yaml@npm:2.4.1"
+  version: 2.4.2
+  resolution: "yaml@npm:2.4.2"
   bin:
     yaml: bin.mjs
-  checksum: 10c0/816057dbaea16a7dfb0b868ace930f143dece96bbb4c4fbb6f38aa389166f897240d9fa535dbfd6b1b0d9442416f4abcc698e63f82394d0c67b329aa6c2be576
+  checksum: 10c0/280ddb2e43ffa7d91a95738e80c8f33e860749cdc25aa6d9e4d350a28e174fd7e494e4aa023108aaee41388e451e3dc1292261d8f022aabcf90df9c63d647549
   languageName: node
   linkType: hard
 
