@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 
-export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds] });
+export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 export const discordServerId = '1223649894191992914';
 export const discordReleasesChannelId = '1229392327282397194';
 export const discordRoleId = '1229887891442761748';
@@ -74,6 +74,9 @@ export default defineNitroPlugin(async (app) => {
                     where: {
                         discordId: interaction.user.id,
                     },
+                    select: {
+                        vatsim: true,
+                    },
                 });
 
                 if (existingUser) {
@@ -81,7 +84,15 @@ export default defineNitroPlugin(async (app) => {
                         content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions on forums!',
                         ephemeral: true,
                     });
-                    if ('set' in interaction.member!.roles) interaction.member!.roles.set([discordRoleId]);
+
+                    const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(interaction.user.id);
+
+                    if (user && existingUser.vatsim) {
+                        await user.roles.add(discordRoleId);
+                        if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
+                            await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
+                        }
+                    }
                 }
                 else {
                     const state = randomUUID();
@@ -95,8 +106,7 @@ export default defineNitroPlugin(async (app) => {
                     const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                     const embed = new EmbedBuilder()
                         .setURL(url)
-                        .setTitle('To authorize on Vatsim Radar, please use this link')
-                        .setDescription('This is only temporal verification for beta of Vatsim Radar. Service will be open to public later on.');
+                        .setTitle('To verify yourself and authorize on Vatsim Radar, please use this link');
 
                     await interaction.reply({
                         embeds: [embed],
