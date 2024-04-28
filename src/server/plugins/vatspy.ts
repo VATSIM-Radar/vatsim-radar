@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 8,
+    'v2403.1': 12,
 };
 
 function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
@@ -146,6 +146,18 @@ export default defineNitroPlugin((app) => {
                     if (!boundaries.length) throw new Error(`FIR didn't find it's feature in geojson (${ value.icao })`);
 
                     boundaries.forEach((boundary, index) => {
+                        const rootBoundary = boundaries.find((x, xIndex) => x.id === boundary.id && xIndex < index && x.properties!.oceanic === boundary.properties!.oceanic);
+                        if (rootBoundary) {
+                            rootBoundary.geometry.coordinates = [
+                                ...rootBoundary.geometry.coordinates,
+                                ...boundary.geometry.coordinates,
+                            ];
+
+                            boundaries.splice(index, 1);
+                        }
+                    });
+
+                    boundaries.forEach((boundary, index) => {
                         boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map((x) => {
                             if (x === 0) return 0.01;
                             if (x === -180) return -179.9;
@@ -157,7 +169,7 @@ export default defineNitroPlugin((app) => {
 
                         result.firs.push({
                             ...value as Required<typeof value>,
-                            isOceanic: boundary.properties!.oceanic === '1',
+                            isOceanic: boundary.properties!.oceanic === '1' || !!value.name?.includes('Oceanic'),
                             lon: coordinate[0],
                             lat: coordinate[1],
                             region: boundary.properties!.region,

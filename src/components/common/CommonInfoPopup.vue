@@ -60,7 +60,7 @@
                         class="info-popup__section_content"
                         v-if="!section.collapsible || !collapsedSections.includes(section.key)"
                     >
-                        <slot :name="section.key"/>
+                        <slot :name="section.key" :section="section"/>
                     </div>
                 </div>
             </div>
@@ -70,14 +70,15 @@
 
 <script setup lang="ts">
 import CloseIcon from 'assets/icons/basic/close.svg?component';
-import ArrowTopIcon from 'assets/icons/basic/arrow-top.svg?component';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { PropType } from 'vue';
 
-interface InfoPopupSection {
+export interface InfoPopupSection {
     key: string;
     title?: string;
     collapsible?: boolean;
-    collapsedDefault?: boolean
+    collapsedDefault?: boolean;
+    collapsedDefaultOnce?: boolean;
 }
 
 type InfoPopupContent = Record<string, {
@@ -123,6 +124,7 @@ const collapsed = defineModel('collapsed', {
     default: false,
 });
 const collapsedSections = ref<string[]>([]);
+const collapsedOnceSections = new Set<string>([]);
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const activeTab = ref(props.tabs ? Object.keys(props.tabs)[0] : '');
@@ -134,7 +136,12 @@ const getSections = computed(() => {
 
 watch(getSections, (sections) => {
     sections.forEach((section) => {
-        if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) collapsedSections.value.push(section.key);
+        if (section.collapsedDefaultOnce && collapsedOnceSections.has(section.key)) return;
+
+        if (section.collapsedDefault && !collapsedSections.value.includes(section.key)) {
+            collapsedSections.value.push(section.key);
+            collapsedOnceSections.add(section.key);
+        }
     });
 }, {
     immediate: true,
@@ -144,12 +151,14 @@ watch(getSections, (sections) => {
 <style scoped lang="scss">
 .info-popup {
     background: $neutral1000;
-    padding: 16px;
+    padding: 0 16px 16px;
     border-radius: 8px;
-    overflow: hidden;
     width: 350px;
     text-align: left;
     color: $neutral150;
+    max-height: var(--max-height);
+    overflow: auto;
+    scrollbar-gutter: stable;
 
     &--absolute {
         position: absolute;
@@ -159,6 +168,15 @@ watch(getSections, (sections) => {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        position: sticky;
+        top: 0;
+        background: $neutral1000;
+        z-index: 1;
+        padding: 16px 0;
+
+        &:only-child {
+            padding-bottom: 0;
+        }
 
         &_title {
             font-size: 14px;
@@ -170,6 +188,8 @@ watch(getSections, (sections) => {
         &_actions {
             display: flex;
             gap: 16px;
+            position: relative;
+            z-index: 1;
 
             &_action {
                 display: flex;
@@ -205,17 +225,16 @@ watch(getSections, (sections) => {
     }
 
     &_content {
-        max-height: var(--max-height);
-        overflow: auto;
-        scrollbar-gutter: stable;
-        margin-top: 24px;
+        margin-top: 8px;
         display: flex;
         flex-direction: column;
         gap: 16px;
+        overflow: hidden;
 
         &--collapse {
             &-enter-active, &-leave-active {
-                transition: 0.3s;
+                transition: 0.5s ease-in-out;
+                max-height: 100%;
             }
 
             &-enter-from, &-leave-to {

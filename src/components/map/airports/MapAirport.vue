@@ -3,12 +3,12 @@
         v-if="localAtc.length"
         :popup="!!hoveredFacility"
         @update:popup="!$event ? hoveredFacility = false : undefined"
-        :settings="{position: [airport.lon, airport.lat], positioning: 'top-left', stopEvent: !!hoveredFacility,}"
+        :settings="{position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility,}"
         persistent
         :z-index="15"
         :active-z-index="21"
     >
-        <div class="airport" @mouseleave="hoveredFacility = false">
+        <div class="airport" @mouseleave="hoveredFacility = false" :style="{'--color': getAirportColor}">
             <div class="airport_title" @mouseover="hoveredFacility = true">
                 {{ airportName }}
             </div>
@@ -30,7 +30,7 @@
                 class="airport_atc-popup"
                 :class="{'airport_atc-popup--all': hoveredFacility === true}"
                 absolute
-                v-if="hoveredFacility && store.canShowOverlay"
+                v-if="hoveredFacility && mapStore.canShowOverlay"
                 :show-facility="hoveredFacility === true"
                 :show-atis="hoveredFacility !== true"
                 :controllers="hoveredFacilities"
@@ -52,7 +52,7 @@
     <map-airport-counts
         :aircrafts="aircrafts"
         :airport="airport"
-        :offset="localAtc.length ? [localATCOffsetX, 10] : undefined"
+        :offset="localAtc.length ? [localATCOffsetX, 0] : undefined"
         :hide="!isVisible"
     />
     <map-overlay
@@ -83,9 +83,9 @@ import { fromCircle } from 'ol/geom/Polygon';
 import { toRadians } from 'ol/math';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
-import MapAirportCounts from '~/components/map/MapAirportCounts.vue';
+import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphGate } from '~/types/data/navigraph';
-import { useStore } from '~/store';
+import { useMapStore } from '~/store/map';
 
 const props = defineProps({
     airport: {
@@ -126,8 +126,8 @@ defineEmits({
     },
 });
 
-const store = useStore();
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hoveredFacility = ref<boolean | number>(false);
 
@@ -139,8 +139,20 @@ const hoveredFacilities = computed(() => {
 
 const localATCOffsetX = computed(() => {
     const offset = localsFacilities.value.length * 16 + 12;
-    if (offset < 48) return 48;
-    return offset;
+    if (offset < 30) return 30;
+    return offset / 2 + 5;
+});
+
+const getAirportColor = computed(() => {
+    const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
+
+    if (!hasOverlay) {
+        if (!props.localAtc?.length) return `rgba(${ radarColors.neutral150Rgb.join(',') }, 0.8)`;
+        return radarColors.neutral150;
+    }
+
+    if (!props.localAtc?.length) return `rgba(${ radarColors.warning500Rgb.join(',') }, 0.8)`;
+    return radarColors.warning500;
 });
 
 const localsFacilities = computed(() => {
@@ -178,13 +190,27 @@ function initAirport() {
             font: '12px Montserrat',
             text: airportName.value,
             fill: new Fill({
-                color: 'rgba(230, 230, 235, 0.8)',
+                color: getAirportColor.value,
             }),
         }),
     }));
 
     vectorSource.value?.addFeature(feature);
 }
+
+watch(getAirportColor, () => {
+    if (!feature) return;
+
+    feature.setStyle(new Style({
+        text: new Text({
+            font: '12px Montserrat',
+            text: airportName.value,
+            fill: new Fill({
+                color: getAirportColor.value,
+            }),
+        }),
+    }));
+});
 
 onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);
@@ -328,7 +354,6 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .airport {
     background: varToRgba('neutral800', 0.5);
-    color: $neutral150;
     padding: 4px;
     border-radius: 4px;
     font-size: 11px;
@@ -343,6 +368,7 @@ onBeforeUnmount(() => {
 
     &_title {
         cursor: pointer;
+        color: var(--color);
     }
 
     &_facilities {

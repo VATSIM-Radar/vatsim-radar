@@ -59,6 +59,7 @@
                         v-for="aircraft in hoveredAirplanes"
                         :key="aircraft.cid"
                         is-button
+                        @click="aircraftHoveredType !== 'prefiles' ? mapStore.addPilotOverlay(aircraft.cid.toString()) : mapStore.addPrefileOverlay(aircraft.cid.toString())"
                     >
                         <template #top="{item, index}">
                             <div class="airport-counts__popup-callsign" v-if="index === 0">
@@ -90,6 +91,7 @@
 import type { PropType } from 'vue';
 import type { MapAircraft, MapAirport } from '~/types/map';
 import type { VatSpyData } from '~/types/data/vatspy';
+import { useMapStore } from '~/store/map';
 
 const props = defineProps({
     airport: {
@@ -110,6 +112,7 @@ const props = defineProps({
     },
 });
 
+const mapStore = useMapStore();
 const aircraftHoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
 
 const hoveredAirplanes = computed(() => {

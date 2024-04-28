@@ -81,7 +81,7 @@ export default defineNitroPlugin(async (app) => {
 
                 if (existingUser) {
                     await interaction.reply({
-                        content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions in <#1228745951892607070>!',
+                        content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions on forums!',
                         ephemeral: true,
                     });
 
@@ -103,7 +103,7 @@ export default defineNitroPlugin(async (app) => {
                             type: AuthType.VATSIM,
                         },
                     });
-                    const url = `${ config.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                    const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                     const embed = new EmbedBuilder()
                         .setURL(url)
                         .setTitle('To verify yourself and authorize on Vatsim Radar, please use this link');

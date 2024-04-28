@@ -1,7 +1,7 @@
 <template>
     <map-airport
         v-for="{airport, aircrafts, localAtc, arrAtc} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
-        :key="airport.icao + airport.iata ?? 'undefined'"
+        :key="airport.icao + (airport.iata ?? 'undefined')"
         :airport="airport"
         :aircrafts="aircrafts"
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
@@ -21,20 +21,22 @@ import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
-import { useStore } from '~/store';
 import type { MapAircraft } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
+import { adjustPilotLonLat, checkIsPilotInGate } from '~/utils/shared/vatsim';
+import { useMapStore } from '~/store/map';
+import MapAirport from '~/components/map/airports/MapAirport.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const visibleAirports = shallowRef<string[]>([]);
 const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>([]);
 const originalGates = shallowRef<NavigraphGate[]>([]);
@@ -55,11 +57,11 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         isInvalid = pixel[1] - airport!.airport.lat < 80000;
     }
 
-    if (isInvalid) {
+    if (isInvalid || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAirport.value = null;
         }
-        if (store.mapCursorPointerTrigger === 2) store.mapCursorPointerTrigger = false;
+        if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -67,7 +69,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     isManualHover.value = false;
 
     hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
-    store.mapCursorPointerTrigger = 2;
+    mapStore.mapCursorPointerTrigger = 2;
 }
 
 watch(map, (val) => {
@@ -107,7 +109,7 @@ onBeforeUnmount(() => {
 });
 
 const getAirportsGates = computed<typeof airportsGates['value']>(() => {
-    if (!airportsGates.value || store.zoom < 13) return [];
+    if (!airportsGates.value || mapStore.zoom < 13) return [];
 
     return getAirportsList.value.map((airport) => {
         const gateAirport = airportsGates.value.find(x => x.airport === airport.airport.icao);
@@ -116,53 +118,11 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
         const gates: NavigraphGate[] = gateAirport.gates;
 
         for (const pilot of [...airport.aircrafts.groundDep ?? [], ...airport.aircrafts.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            let pilotLon = pilot.longitude;
-            let pilotLat = pilot.latitude;
-
-            let lonAdjustment = 0;
-            let latAdjustment = 0;
-            let direction = pilot.heading;
-
-            if (direction >= 0 && direction < 90) {
-                lonAdjustment = (direction / 90) * 30;
-                latAdjustment = (1 - direction / 90) * 30;
-            }
-            else if (direction >= 90 && direction < 180) {
-                direction -= 90;
-                lonAdjustment = (1 - direction / 90) * 30;
-                latAdjustment = (direction / 90) * -30;
-            }
-            else if (direction >= 180 && direction < 270) {
-                direction -= 180;
-                lonAdjustment = (direction / 90) * -30;
-                latAdjustment = (1 - direction / 90) * -30;
-            }
-            else {
-                direction -= 270;
-                lonAdjustment = (1 - direction / 90) * -30;
-                latAdjustment = (direction / 90) * 30;
-            }
-
-            let trulyOccupied = false;
-            let maybeOccupied = false;
-
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
-                const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                if (index === -1) continue;
-                gates[index] = {
-                    ...gates[index],
-                    trulyOccupied: true,
-                };
-                trulyOccupied = true;
-            }
-
-            pilotLon += lonAdjustment;
-            pilotLat += latAdjustment;
-
             if (pilot.callsign === 'QAC3404') {
+                const correct = adjustPilotLonLat(pilot);
                 console.log(pilot.heading);
                 const feature = new Feature({
-                    geometry: new Point([pilotLon, pilotLat]),
+                    geometry: new Point(correct),
                 });
 
                 feature.setStyle(new Style({
@@ -183,38 +143,7 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
                 }, 5000);
             }
 
-            if (!trulyOccupied) {
-                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
-                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                    if (index === -1) continue;
-                    gates[index] = {
-                        ...gates[index],
-                        trulyOccupied: true,
-                    };
-                }
-            }
-
-            for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 50 && Math.abs(x.gate_latitude - pilot.latitude) < 50)) {
-                const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                if (index === -1) continue;
-                gates[index] = {
-                    ...gates[index],
-                    maybeOccupied: true,
-                };
-                maybeOccupied = true;
-            }
-
-            if (!maybeOccupied) {
-                for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
-                    const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-                    if (index === -1) continue;
-                    gates[index] = {
-                        ...gates[index],
-                        maybeOccupied: true,
-                    };
-                    maybeOccupied = true;
-                }
-            }
+            checkIsPilotInGate(pilot, gates);
         }
 
         return {
@@ -296,7 +225,7 @@ const getAirportsList = computed(() => {
 });
 
 async function setVisibleAirports() {
-    const extent = useStore().extent.slice();
+    const extent = mapStore.extent.slice();
     extent[0] -= 100000;
     extent[1] -= 100000;
     extent[2] += 100000;

@@ -1,6 +1,6 @@
 <template>
     <div class="info-block" :class="{'info-block--button': isButton}" :style="{'--text-align': textAlign}">
-        <div class="info-block_top" v-if="$slots.top || topItems.length">
+        <div class="info-block_top" v-if="$slots.top || topItems.filter(x => !!x).length" :style="{justifyContent: textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center'}">
             <template v-if="topItems.length">
                 <template v-for="(item, index) in topItems.filter(x => !!x)" :key="item">
                     <div class="info-block__separator" v-if="index > 0">
@@ -15,10 +15,14 @@
                 </template>
             </template>
             <div class="info-block__content" v-else>
-                <slot name="top" />
+                <slot name="top"/>
             </div>
         </div>
-        <div class="info-block_bottom" v-if="$slots.bottom || bottomItems.length">
+        <div
+            class="info-block_bottom"
+            :style="{justifyContent: textAlign === 'left' ? 'flex-start' : textAlign === 'right' ? 'flex-end' : 'center'}"
+            v-if="$slots.bottom || bottomItems.filter(x => !!x).length"
+        >
             <template v-if="bottomItems.length">
                 <template v-for="(item, index) in bottomItems.filter(x => !!x)" :key="item">
                     <div class="info-block__separator" v-if="index > 0">
@@ -33,7 +37,7 @@
                 </template>
             </template>
             <div class="info-block__content" v-else>
-                <slot name="bottom" />
+                <slot name="bottom"/>
             </div>
         </div>
     </div>
@@ -49,11 +53,11 @@ defineProps({
         default: 'left',
     },
     topItems: {
-        type: Array as PropType<Array<string | null | undefined>>,
+        type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
     },
     bottomItems: {
-        type: Array as PropType<Array<string | null | undefined>>,
+        type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
     },
     isButton: {
@@ -63,8 +67,8 @@ defineProps({
 });
 
 defineSlots<{
-    top(props: {item?: string | null, index?: number}): any
-    bottom(props: {item?: string | null, index?: number}): any
+    top(props: { item?: string | number | null | undefined, index?: number }): any
+    bottom(props: { item?: string | number | null | undefined, index?: number }): any
 }>();
 </script>
 
@@ -98,12 +102,12 @@ defineSlots<{
 
     &_top, &_bottom {
         display: flex;
-        gap: 8px;
+        gap: 4px 8px;
         align-items: center;
         justify-content: flex-start;
         flex-wrap: wrap;
 
-        >*:only-child {
+        > *:only-child {
             width: 100%;
         }
     }

@@ -22,9 +22,27 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
+import { setUserLocalSettings } from '~/composables';
 
 const store = useStore();
 const route = useRoute();
+
+onMounted(() => {
+    const interval = setInterval(() => {
+        store.datetime = Date.now();
+    }, 1000);
+
+    const handleStorageUpdate = () => {
+        setUserLocalSettings();
+    };
+
+    window.addEventListener('storage', handleStorageUpdate);
+
+    onBeforeUnmount(() => {
+        clearInterval(interval);
+        window.removeEventListener('storage', handleStorageUpdate);
+    });
+});
 
 useHead(() => {
     const theme = store.theme;
@@ -41,6 +59,19 @@ useHead(() => {
         titleTemplate(title) {
             if (!title) return 'Vatsim Radar';
             return `${ title } | Vatsim Radar`;
+        },
+        meta: [
+            {
+                name: 'description',
+                content: 'Explore Vatsim Network, track pilots, view ATC - and more!',
+            },
+            {
+                name: 'keywords',
+                content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
+            },
+        ],
+        htmlAttrs: {
+            lang: 'en',
         },
         style: [{
             key: 'radarStyles',
@@ -87,6 +118,8 @@ html, body {
     width: 100%;
     min-height: 100%;
     background: $neutral1000;
+    scrollbar-gutter: stable;
+    color-scheme: dark;
 }
 
 html, body, #__app, #__app > .app, #__app > .app > .app_content {

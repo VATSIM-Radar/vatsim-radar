@@ -52,7 +52,12 @@ export interface VatSpyDataFeature {
     icao?: string;
     name?: string;
     controller?: VatsimShortenedController;
-    firs: { boundaryId: string, controller?: VatsimShortenedController }[];
+    firs: {
+        icao: string,
+        callsign?: string,
+        boundaryId: string,
+        controller?: VatsimShortenedController
+    }[];
 }
 
 export interface VatSpyDataLocalATC {

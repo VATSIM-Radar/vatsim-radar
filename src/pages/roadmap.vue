@@ -109,6 +109,10 @@ interface Roadmap {
     completed?: boolean;
 }
 
+useHead({
+    title: 'Roadmap',
+});
+
 const roadmap = reactive<Roadmap[]>([
     {
         title: 'Stage 1',
@@ -131,15 +135,41 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             {
                 title: 'Aircraft tracking',
-                status: 'in-progress',
+                description: 'Including center/zoom to it, any random aicraft on map',
+                status: 'completed',
             },
             {
                 title: 'Aircraft info popup',
-                status: 'in-progress',
+                status: 'completed',
+            },
+            {
+                title: 'Flight ETA',
+                status: 'completed',
             },
             {
                 title: 'Different aircraft icons',
+                description: 'Initial release with few icons',
+                status: 'completed',
+            },
+            {
+                title: 'Auto track/zoom for own flight',
+                status: 'completed',
+            },
+            {
+                title: 'Move overlays across the map',
+            },
+            {
+                title: 'Pilot mouse right click menu',
+            },
+            {
+                title: 'TMA approach sectors',
                 status: 'in-progress',
+            },
+            {
+                title: 'Center/zoom to entire flight button',
+            },
+            {
+                title: 'Center/zoom to airport button',
             },
             {
                 title: 'ATC info popup',
@@ -150,10 +180,16 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'todo',
             },
             {
+                title: 'CTAF frequency easy access',
+                status: 'todo',
+            },
+            {
                 title: 'METAR easy access',
                 status: 'todo',
             },
-            'Map Modes (OpenStreetMaps/Satellite/Other)',
+            {
+                title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
+            },
             'Light theme',
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
@@ -167,20 +203,31 @@ const roadmap = reactive<Roadmap[]>([
             'Detailed route',
             'Waypoints on map',
             'Events',
+            'ATC Bookings',
             'Favorite pilots/ATC',
             'Friendly mobile version',
             'Aircraft moving in Vatsim update pause',
             'Search',
+            {
+                title: 'Basic Stats',
+                description: 'Popular now etc',
+            },
         ],
     },
     {
         title: 'Stage 4',
         items: [
-            'Stats (popular now/over time)',
-            'Detailed history routes (history of aircraft turns)',
+            {
+                title: 'Detailed Stats',
+                description: 'Popular over time etc',
+            },
+            {
+                title: 'Detailed history routes',
+                description: 'History of aircraft turns + departure/arrival time save',
+            },
             'PWA',
-            'OSS development support',
-            'Flight ETA',
+            'Proper OSS contribution support',
+            'Easy access to pilot stats for ATC controllers in airport popup',
         ],
     },
     {
@@ -190,7 +237,6 @@ const roadmap = reactive<Roadmap[]>([
             'History of events',
             'Filter by events aircrafts',
             'Visualized events traffic',
-            'CTAF frequency easy access',
             'Usage of VatGlasses data',
             'Google Play app',
             'Websockets instead of update requests',
@@ -200,11 +246,13 @@ const roadmap = reactive<Roadmap[]>([
             },
             'Simbrief integration',
             'ATC/Booking notification for active flight',
+            'Images or aircraft type + operator',
+            'Name of aircraft operating company',
         ],
     },
 ]);
 
-const percents = 35;
+const percents = 37;
 
 interface RoadmapGroup {
     status: ItemStatus,
@@ -324,7 +372,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                 }
             }
 
-            animation: move 5s cubic-bezier(.85,.02,.47,.98);
+            animation: move 5s cubic-bezier(.85, .02, .47, .98);
             color: $neutral150;
 
             svg :deep(path) {

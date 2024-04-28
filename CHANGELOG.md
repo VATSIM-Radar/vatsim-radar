@@ -1,5 +1,67 @@
 # Changelog
 
+# 0.2.0
+
+This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to improve your flight experience - please give it a shot!
+
+Closest feature after this one should be TMA approach sectors.
+
+## Highlights
+
+- 👨‍✈️ Pilot overlay (both flight and prefiles)
+- ✈️ Different aircraft icons
+- 🎯 Accuracy improvements for uirs, firs and ground aircraft detection
+- 🔧 Bug fixes and improvements
+
+## Changelog
+
+### Pilot overlay
+
+You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot on map, open Vatsim stats and more:
+
+- Total time on network as pilot
+- Pilot ID
+- Speed/Alt/Heading
+- Flight plan, including route and remarks plus stepclimbs
+- Share pilot to instantly open card on map for anyone visiting your link
+- View ATC where pilot currently flying - enabled by default for your own flights
+- Enable tracking to make map follow this flight
+- Aircraft dep/arr airports will also be highlighted
+
+By default, overlays are replaced by pilot you open next - but you can also pin any overlay so it won't close.
+
+This card can be auto-opened, pinned and tracked for your own flight - you can enable this in settings.
+
+P.S. You are also able to open this from airport counters popup - including prefiles!
+
+### Features
+
+- Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712, B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
+- Aircraft icons now have borders around them
+- Lowered size of A320 default icon
+- Added hover-on-aircraft icon background change
+- Map position is now saved from last time
+- Our great service finally has its own logo!
+- Update verify interaction reply description to remove old forum link
+- You are now able to see dep/arr lines on aircraft hover
+- Reduced on-hover pilot info popup height by removing full airport name
+- Moved airport with atc to center position so it will look better now, especially if airport has dep/arr controller
+- Your own flight is now always highlighted as green on map
+- Updated roadmap. Check it out!
+
+### Bug fixes
+
+- Increased aircraft on ground zone detection
+- Fixed Africa oceanic FIR display
+- Fixed issue when sometimes aircraft title could disappear
+- Fixed issue when sometimes overlay would not open if you hovered during map move
+- Fixed critical bug: map radius was 8px instead of 16px!
+- Disabled hover effect for high zoom levels (it seemed like overlay should open, but it never did)
+- Fixed complex zones like CZQW/CZQM
+- Fixed duplicate fir display
+- Fixed cases when some of UIR (FSS) sectors would not display
+- Fixed local controller display when also global (fss) controller is in operation in same sector
+
 # 0.1.3
 
 First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a great weekend and CTP!

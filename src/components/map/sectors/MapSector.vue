@@ -16,13 +16,13 @@
         @mouseleave="isHovered = false"
     >
         <!-- @todo click for touch -->
-        <div class="sector-atc" @mouseover="$nextTick(() => isHovered = true)">
+        <div class="sector-atc" :class="{'sector-atc--hovered': isHovered}" @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)">
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
                 </div>
                 <div class="sector-atc_name_sub" v-if="globals.length">
-                    {{ fir.icao }}
+                    {{ locals.length ? globals[0].icao : fir.icao }}
                 </div>
             </div>
         </div>
@@ -43,6 +43,7 @@ import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
+import { useMapStore } from '~/store/map';
 
 const props = defineProps({
     fir: {
@@ -56,6 +57,7 @@ const props = defineProps({
 });
 
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
 let localFeature: Feature | undefined;
@@ -80,6 +82,7 @@ const controllers = computed(() => {
 const getATCFullName = computed(() => {
     const prop = !locals.value.length ? globals.value[0] ?? props.fir : props.fir;
     const country = dataStore.vatspy.value?.data.countries.find(x => x.code === prop.icao?.slice(0, 2));
+    if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
@@ -89,7 +92,7 @@ const geoJson = new GeoJSON();
 const init = () => {
     if (!vectorSource.value) return;
 
-    const localFeatureType = isHovered.value ? 'hovered' : (locals.value.length && !globals.value.length) ? 'local' : 'default';
+    const localFeatureType = isHovered.value ? 'hovered' : locals.value.length ? 'local' : 'default';
     const rootFeatureType = isHovered.value ? 'hovered' : 'root';
 
     if (!localFeature) {
@@ -109,7 +112,7 @@ const init = () => {
         });
     }
 
-    if (!rootFeature && globals.value.length) {
+    if (!rootFeature && globals.value.length && !locals.value.length) {
         rootFeature = geoJson.readFeature({
             ...props.fir.feature,
             id: `${ props.fir.feature.id }-root`,
@@ -126,7 +129,7 @@ const init = () => {
             type: rootFeatureType,
         });
     }
-    else if (rootFeature && !globals.value.length) {
+    else if (rootFeature && (!globals.value.length || locals.value.length)) {
         vectorSource.value?.removeFeature(rootFeature);
         rootFeature = undefined;
     }
@@ -176,6 +179,11 @@ onBeforeUnmount(() => {
         &_sub {
             color: varToRgba('neutral150', 0.5);
         }
+    }
+
+    &--hovered .sector-atc_name {
+        color: $neutral150;
+        background: $primary500;
     }
 }
 </style>

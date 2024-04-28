@@ -2,17 +2,17 @@ import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt
 import type { PartialRecord } from '~/types';
 
 export const colorsList = {
-    neutral1000: '#F7F7FA',
-    neutral950: '#F2F2F7',
-    neutral900: '#EDEDF2',
-    neutral850: '#E6E6EB',
-    neutral800: '#D3D3E5',
+    neutral0: '#F7F7FA',
+    neutral50: '#F2F2F7',
+    neutral100: '#EDEDF2',
+    neutral150: '#E6E6EB',
+    neutral200: '#D3D3E5',
 
-    neutral0: '#131316',
-    neutral50: '#18181B',
-    neutral100: '#202024',
-    neutral150: '#252528',
-    neutral200: '#333340',
+    neutral1000: '#131316',
+    neutral950: '#18181B',
+    neutral900: '#202024',
+    neutral850: '#252528',
+    neutral800: '#333340',
 
     primary400: '#5987FF',
     primary500: '#3B6CEC',
@@ -28,17 +28,17 @@ export type ColorsList = keyof typeof colorsList
 
 export const themesList = {
     light: {
-        neutral0: '#F7F7FA',
-        neutral50: '#F2F2F7',
-        neutral100: '#EDEDF2',
-        neutral150: '#E6E6EB',
-        neutral200: '#D3D3E5',
+        neutral1000: '#F7F7FA',
+        neutral950: '#F2F2F7',
+        neutral900: '#EDEDF2',
+        neutral850: '#E6E6EB',
+        neutral800: '#D3D3E5',
 
-        neutral1000: '#131316',
-        neutral950: '#18181B',
-        neutral900: '#202024',
-        neutral850: '#252528',
-        neutral800: '#333340',
+        neutral0: '#131316',
+        neutral50: '#18181B',
+        neutral100: '#202024',
+        neutral150: '#252528',
+        neutral200: '#333340',
     },
 } satisfies Record<string, PartialRecord<ColorsList, string>>;
 
@@ -85,8 +85,8 @@ export default defineNuxtModule((_, nuxt) => {
                         const rgb = colorToRgb(colors[color]!);
                         const rgbString = rgb.join(', ');
                         themes[theme][color] = `rgb(var(--${ color }, ${ rgbString }))`;
-                        variables[`${ color }Rgb`] = rgb;
-                        variables[`${ color }Hex`] = value;
+                        themes[theme][`${ color }Rgb`] = rgb;
+                        themes[theme][`${ color }Hex`] = value;
                     }
                 }
 

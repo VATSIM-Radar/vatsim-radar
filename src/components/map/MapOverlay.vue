@@ -1,6 +1,6 @@
 <template>
-    <div v-show="false" v-if="model && (persistent || store.canShowOverlay)">
-        <div class="map-overlay" ref="overlayElement" v-bind="$attrs">
+    <div v-show="false" v-if="model">
+        <div class="map-overlay" ref="overlayElement" v-bind="$attrs" v-show="persistent || canShowOverlay">
             <slot/>
             <slot name="popup" v-if="isPopupOpen"/>
         </div>
@@ -12,7 +12,7 @@ import type { PropType, ShallowRef } from 'vue';
 import type { Options } from 'ol/Overlay';
 import { Overlay } from 'ol';
 import type { Map } from 'ol';
-import { useStore } from '~/store';
+import { useMapStore } from '~/store/map';
 
 defineOptions({
     inheritAttrs: false,
@@ -51,7 +51,7 @@ const overlay = defineModel('overlay', {
     default: null,
 });
 
-const store = useStore();
+const mapStore = useMapStore();
 
 const id = useId();
 const popupId = `${ id }-popup`;
@@ -59,7 +59,7 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const overlayElement = ref<HTMLDivElement | null>(null);
 
 const isPopupOpen = computed(() => {
-    return store.openOverlayId === popupId && store.canShowOverlay;
+    return mapStore.openOverlayId === popupId && canShowOverlay.value;
 });
 
 const zIndex = computed(() => {
@@ -78,7 +78,7 @@ watch([overlay, isPopupOpen, zIndex], () => {
     }
 });
 
-const openOverlayId = computed(() => store.openOverlayId);
+const openOverlayId = computed(() => mapStore.openOverlayId);
 
 function recreateOverlay(stopEvent: boolean) {
     //@ts-expect-error
@@ -95,6 +95,8 @@ function recreateOverlay(stopEvent: boolean) {
     map.value!.addOverlay(overlay.value);
 }
 
+const canShowOverlay = computed(() => mapStore.canShowOverlay);
+
 watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
@@ -104,10 +106,10 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
             element: overlayElement.value!,
         });
 
-        if (!props.persistent) store.openOverlayId = id;
+        if (!props.persistent) mapStore.openOverlayId = id;
         map.value!.addOverlay(overlay.value);
     }
-    else if (model.value && overlay.value && !props.persistent && store.openOverlayId !== id) {
+    else if (model.value && overlay.value && !props.persistent && mapStore.openOverlayId !== id) {
         map.value!.removeOverlay(overlay.value);
         overlay.value.dispose();
         overlay.value = null;
@@ -117,18 +119,18 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
         map.value!.removeOverlay(overlay.value);
         overlay.value.dispose();
         overlay.value = null;
-        if (store.openOverlayId === id) store.openOverlayId = null;
+        if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
         return;
     }
 
     if (!oldPopupVal && popupVal && oldOverlayId !== popupId) {
-        store.openOverlayId = popupId;
+        mapStore.openOverlayId = popupId;
     }
-    else if (popup.value && store.openOverlayId !== popupId) {
+    else if (popup.value && mapStore.openOverlayId !== popupId) {
         popup.value = false;
     }
-    else if (!popup.value && store.openOverlayId === popupId) {
-        store.openOverlayId = null;
+    else if (!popup.value && mapStore.openOverlayId === popupId) {
+        mapStore.openOverlayId = null;
     }
 }, {
     immediate: true,
@@ -137,7 +139,7 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
 const position = computed(() => props.settings?.position);
 const positioning = computed(() => props.settings?.positioning);
 const offset = computed(() => props.settings?.offset);
-const stopEvent = computed(() => props.settings?.stopEvent && store.canShowOverlay);
+const stopEvent = computed(() => props.settings?.stopEvent && canShowOverlay.value);
 
 watch(position, (val) => {
     if (!val) return;
@@ -166,6 +168,6 @@ onBeforeUnmount(() => {
         overlay.value = null;
     }
 
-    if (store.openOverlayId === id) store.openOverlayId = null;
+    if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
 });
 </script>

@@ -1,10 +1,10 @@
 <template>
     <div
         class="atc-popup-container"
-        :style="{position: absolute ? 'absolute' : undefined}"
+        :class="{'atc-popup-container--absolute': absolute}"
     >
         <common-popup-block class="atc-popup">
-            <template #title>
+            <template #title v-if="$slots.title">
                 <slot name="title"/>
             </template>
             <template #additionalTitle v-if="$slots.additionalTitle">
@@ -94,6 +94,7 @@ import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getControllerPositionColor } from '~/composables/atc';
+import { getHoursAndMinutes } from '~/utils';
 
 defineProps({
     controllers: {
@@ -117,9 +118,7 @@ defineProps({
 const dataStore = useDataStore();
 
 const getATCTime = (controller: VatsimShortenedController) => {
-    const diff = (Date.now() - new Date(controller.logon_time).getTime()) / (1000 * 60);
-
-    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
+    return getHoursAndMinutes(new Date(controller.logon_time).getTime());
 };
 
 const getATIS = (controller: VatsimShortenedController) => {
@@ -131,16 +130,21 @@ const getATIS = (controller: VatsimShortenedController) => {
 
 <style scoped lang="scss">
 .atc-popup {
-    width: max-content;
-    max-width: 450px;
     display: flex;
     flex-direction: column;
     gap: 4px;
 
     &-container {
+        width: max-content;
+        max-width: min(450px, 100%);
         z-index: 20;
         padding: 5px 0;
         cursor: initial;
+
+        &--absolute {
+            position: absolute;
+            max-width: 450px;
+        }
     }
 
     &_title {

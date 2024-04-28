@@ -19,13 +19,14 @@ import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
-import { useStore } from '~/store';
+import { useMapStore } from '~/store/map';
+import MapAircraft from '~/components/map/aircrafts/MapAircraft.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const hoveredAircraft = ref<number | null>(null);
@@ -35,7 +36,7 @@ const showAircraftLabel = ref<number[]>([]);
 function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = false) {
     const overlaysCoordinates: number[][] = [];
 
-    if (exitOnAnyOverlay && store.openOverlayId && !store.openPilotOverlay) return [];
+    if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
     map.value!.getOverlays().forEach((overlay) => {
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
@@ -47,6 +48,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
     return dataStore.vatsim.data.pilots.value.filter((x) => {
         const pilotPixel = aircraftCoordsToPixel(x);
+        if (!pilotPixel) return false;
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
             Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
@@ -54,7 +56,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
     }) ?? [];
 }
 
-function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft) {
+function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft): Pixel | null {
     return map.value!.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
 }
 
@@ -64,7 +66,7 @@ function setVisiblePilots() {
     visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
         const coordinates = [x.longitude, x.latitude];
 
-        return isPointInExtent(coordinates);
+        return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
 }
 
@@ -79,12 +81,12 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
-    if (features.length !== 1) {
+    if (features.length !== 1 || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAircraft.value = null;
         }
 
-        if (store.mapCursorPointerTrigger === 1) store.mapCursorPointerTrigger = false;
+        if (mapStore.mapCursorPointerTrigger === 1) mapStore.mapCursorPointerTrigger = false;
         return;
     }
 
@@ -92,10 +94,19 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     isManualHover.value = false;
 
-    if (getPilotsForPixel(aircraftCoordsToPixel(features[0])).length === 1) {
+    if (getPilotsForPixel(aircraftCoordsToPixel(features[0])!).length === 1) {
         hoveredAircraft.value = features[0].cid;
-        store.mapCursorPointerTrigger = 1;
+        mapStore.mapCursorPointerTrigger = 1;
     }
+}
+
+function handleClick(e: MapBrowserEvent<any>) {
+    const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+
+    const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+    if (features.length !== 1) return;
+
+    mapStore.addPilotOverlay(features[0].cid.toString());
 }
 
 function handleMoveEnd() {
@@ -108,7 +119,7 @@ function handleMoveEnd() {
         return;
     }
 
-    showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)).length === 1).map(x => x.cid);
+    showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)!).length === 1).map(x => x.cid);
 }
 
 attachMoveEnd(handleMoveEnd);
@@ -141,6 +152,7 @@ watch(map, (val) => {
     val.addLayer(vectorLayer);
 
     val.on('pointermove', handlePointerMove);
+    val.on('click', handleClick);
 }, {
     immediate: true,
 });
@@ -148,5 +160,6 @@ watch(map, (val) => {
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     map.value?.un('pointermove', handlePointerMove);
+    map.value?.un('click', handleClick);
 });
 </script>

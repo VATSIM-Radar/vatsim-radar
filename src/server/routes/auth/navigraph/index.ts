@@ -88,7 +88,7 @@ export default defineEventHandler(async (event) => {
             if (!user) {
                 await getDBUserToken(event, navigraphUser.user);
             }
-            return sendRedirect(event, config.DOMAIN);
+            return sendRedirect(event, config.public.DOMAIN);
         }
 
         if (!user) {
@@ -107,7 +107,7 @@ export default defineEventHandler(async (event) => {
             },
         });
 
-        return sendRedirect(event, config.DOMAIN);
+        return sendRedirect(event, config.public.DOMAIN);
     }
     catch (e) {
         return handleH3Exception(event, e);

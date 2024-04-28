@@ -2,7 +2,11 @@
     <header class="header">
         <div class="header_left">
             <nuxt-link to="/" class="header__logo">
-                Vatsim Radar
+                <logo-icon class="header__logo_icon"/>
+                <div class="header__logo_text">
+                    Vatsim<br>
+                    Radar
+                </div>
             </nuxt-link>
             <div class="header__sections">
                 <div class="header__sections_section header__buttons">
@@ -14,7 +18,7 @@
                         :to="button.path"
                     >
                         <template #icon v-if="button.icon">
-                            <component :is="button.icon" />
+                            <component :is="button.icon"/>
                         </template>
                         {{ button.text }}
                     </common-button>
@@ -53,7 +57,7 @@
                 v-model="settingsPopup"
                 :sections="[
                     {title: 'Vatsim Account', key: 'account'},
-                    {title: 'Follow Me Preferences', key: 'follow', collapsible: true, collapsedDefault: true},
+                    {title: 'Follow Me Preferences', key: 'follow'},
                     {title: 'Navigraph Account', key: 'navigraph'}
                 ]"
             >
@@ -101,9 +105,6 @@
                 </template>
                 <template #follow>
                     <div class="header__settings__block header__settings__block--long-gap">
-                        <div class="header__settings__description">
-                            Those are placeholders that will have effect later, along with follow and pilot info popup features
-                        </div>
                         <common-toggle v-model="settings.autoFollow">
                             Auto-follow me
 
@@ -116,8 +117,8 @@
                             Auto-zoom to me
 
                             <template #description>
-                                Enabling this will also enable constant zoom to your aicraft position (differs from
-                                ground to airborne)<br><br>
+                                Enabling this will also zoom to your aicraft position (differs from
+                                ground to airborne) on initial spawn/site open<br><br>
                                 By default it will use last saved position
                             </template>
                         </common-toggle>
@@ -128,7 +129,11 @@
                         <common-button v-if="store.user?.hasFms === null" href="/auth/navigraph/redirect">
                             Link Navigraph
                         </common-button>
-                        <div class="header__settings__navigraph" :class="{'header__settings__navigraph--unlimited': store.user!.hasFms}" v-else>
+                        <div
+                            class="header__settings__navigraph"
+                            :class="{'header__settings__navigraph--unlimited': store.user!.hasFms}"
+                            v-else
+                        >
                             <div class="header__settings__navigraph_title">
                                 Status
                             </div>
@@ -140,12 +145,17 @@
                                     Standard
                                 </template>
                             </div>
-                            <common-button class="header__settings__navigraph_unlink" type="link" @click="deleteNavigraphPopup = true">
+                            <common-button
+                                class="header__settings__navigraph_unlink"
+                                type="link"
+                                @click="deleteNavigraphPopup = true"
+                            >
                                 Unlink
                             </common-button>
                         </div>
                         <div class="header__settings__description">
-                            Users with linked Navigraph Unlimited will receive latest AIRAC for gates, waypoints and all other Navigraph-related stuff
+                            Users with linked Navigraph Unlimited will receive latest AIRAC for gates, waypoints and all
+                            other Navigraph-related stuff
                         </div>
                     </div>
                 </template>
@@ -170,7 +180,8 @@
                 Account Deletion
             </template>
             Are you completely sure you want to delete your account?<br><br>
-            <strong>You will not be able to cancel this action</strong>. All your Vatsim Radar information and preferences will be permanently lost.
+            <strong>You will not be able to cancel this action</strong>. All your Vatsim Radar information and
+            preferences will be permanently lost.
             <template #actions>
                 <common-button @click="deleteAccount" type="secondary">
                     Permanently delete account
@@ -204,6 +215,7 @@ import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
 import DiscordIcon from '@/assets/icons/header/discord.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
+import LogoIcon from '@/assets/icons/basic/logo.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import EventsIcon from '@/assets/icons/kit/event.svg?component';
@@ -286,16 +298,31 @@ watch(settings, () => {
 
     &_right {
         position: relative;
-        z-index: 5;
+        z-index: 7;
     }
 
     &__logo {
-        font-size: 31px;
+        font-size: 12px;
         font-weight: 700;
-        font-family: $openSansFont;
-        color: $primary500;
+        color: $neutral50;
         user-select: none;
         text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &_icon {
+            color: $neutral100;
+            width: 40px;
+
+            :deep(> rect) {
+                color: $primary500;
+            }
+
+            :deep(.wifi) {
+                color: $neutral950;
+            }
+        }
     }
 
     &__user {

@@ -6,8 +6,8 @@ export interface VatsimGeneral {
     update_timestamp: string;
     connected_clients: number;
     unique_users: number;
-    supsCount: number
-    admCount: number
+    supsCount: number;
+    admCount: number;
 }
 
 export interface VatsimPilot {
@@ -30,12 +30,30 @@ export interface VatsimPilot {
     last_updated: string;
 }
 
-export interface VatsimPilotFlightPlan {
+export interface VatsimExtendedPilot extends VatsimPilot {
+    status?: 'depGate' | 'depTaxi' | 'departed' | 'climbing' | 'cruising' | 'enroute' | 'descending' | 'arriving' | 'arrTaxi' | 'arrGate';
+    isOnGround?: boolean
+    depDist?: number;
+    toGoDist?: number;
+    toGoPercent?: number;
+    toGoTime?: number;
+    firs?: string[];
+    airport?: string;
+    cruise?: {
+        min?: number
+        planned: number
+        max?: number
+    };
+}
+
+export type VatsimPilotFlightPlan = Partial<{
     flight_rules: 'I' | 'V';
     aircraft: string;
     aircraft_faa: string;
     aircraft_short: string;
     departure: string;
+    cruise_tas: string;
+    altitude: string;
     arrival: string;
     alternate: string;
     deptime: string;
@@ -45,7 +63,7 @@ export interface VatsimPilotFlightPlan {
     route: string;
     revision_id: number;
     assigned_transponder: string;
-}
+}>
 
 export interface VatsimController {
     cid: number;
@@ -62,7 +80,7 @@ export interface VatsimController {
 }
 
 export interface VatsimATIS extends VatsimController {
-    isATIS?: boolean
+    isATIS?: boolean;
     atis_code?: string;
 }
 
@@ -85,14 +103,15 @@ export interface VatsimPrefile {
 
 export interface VatsimInfoDefault {
     id: number;
-    short: string;
 }
 
 export interface VatsimInfoLong extends VatsimInfoDefault {
+    short: string;
     long: string;
 }
 
 export interface VatsimInfoLongName extends VatsimInfoDefault {
+    short_name: string
     long_name: string;
 }
 
@@ -111,10 +130,10 @@ export interface VatsimData {
 
 export type VatsimShortenedData = {
     general: VatsimGeneral;
-    pilots: Array<Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> & Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'departure' | 'arrival'>>>;
+    pilots: Array<Omit<VatsimPilot, 'server' | 'transponder' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> & Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
-    prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'departure' | 'arrival'>>>;
+    prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
 
 export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0]
@@ -173,3 +192,21 @@ export interface VatsimEvent {
     description: string;
     banner: string;
 }
+
+export type VatsimMemberStats = Record<
+    | 'id'
+    | 'atc'
+    | 'pilot'
+    | 's1'
+    | 's2'
+    | 's3'
+    | 'c1'
+    | 'c2'
+    | 'c3'
+    | 'i1'
+    | 'i2'
+    | 'i3'
+    | 'sup'
+    | 'adm',
+    number
+>

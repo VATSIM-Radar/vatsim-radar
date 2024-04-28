@@ -43,10 +43,12 @@ export default defineNuxtConfig({
         VATSIM_CLIENT_SECRET: process.env.VATSIM_CLIENT_SECRET,
         VATSIM_ENDPOINT: process.env.VATSIM_ENDPOINT,
 
-        DOMAIN: process.env.DOMAIN,
-
         DISCORD_CLIEND_ID: process.env.DISCORD_CLIEND_ID,
         DISCORD_TOKEN: process.env.DISCORD_TOKEN,
+
+        public: {
+            DOMAIN: process.env.DOMAIN,
+        },
     },
     modules: [
         '@nuxt/devtools',
@@ -92,6 +94,13 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     vite: {
+        build: {
+            rollupOptions: {
+                external: [
+                    'sharp',
+                ],
+            },
+        },
         css: {
             preprocessorOptions: {
                 scss: {
@@ -109,9 +118,13 @@ export default defineNuxtConfig({
                             params: {
                                 overrides: {
                                     removeViewBox: false,
+                                    cleanupIds: false,
+                                    mergePaths: false,
                                 },
                             },
                         },
+                        'convertStyleToAttrs',
+                        'reusePaths',
                         'removeDimensions',
                         {
                             name: 'convertColors',
