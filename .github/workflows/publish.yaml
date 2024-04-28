@@ -36,17 +36,17 @@ jobs:
           push: true
           file: .config/Dockerfile
           build-args: |
-            DOMAIN="${{ vars.DOMAIN }}" 
-            NAVIGRAPH_CLIENT_ID="${{ vars.NAVIGRAPH_CLIENT_ID }}" 
-            NAVIGRAPH_SERVER_ID="${{ vars.NAVIGRAPH_SERVER_ID }}" 
-            VATSIM_CLIENT_ID="${{ vars.VATSIM_CLIENT_ID }}" 
-            VATSIM_ENDPOINT="${{ vars.VATSIM_ENDPOINT }}" 
-            DATABASE_URL="${{ secrets.DATABASE_URL }}" 
-            NAVIGRAPH_CLIENT_SECRET="${{ secrets.NAVIGRAPH_CLIENT_SECRET }}" 
-            NAVIGRAPH_SERVER_SECRET="${{ secrets.NAVIGRAPH_SERVER_SECRET }}" 
-            VATSIM_CLIENT_SECRET="${{ secrets.VATSIM_CLIENT_SECRET }}"
-            DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}"
-            DISCORD_CLIEND_ID="${{ secrets.DISCORD_CLIEND_ID }}"
+            DOMAIN=${{ vars.DOMAIN }}
+            NAVIGRAPH_CLIENT_ID=${{ vars.NAVIGRAPH_CLIENT_ID }}
+            NAVIGRAPH_SERVER_ID=${{ vars.NAVIGRAPH_SERVER_ID }}
+            VATSIM_CLIENT_ID=${{ vars.VATSIM_CLIENT_ID }}
+            VATSIM_ENDPOINT=${{ vars.VATSIM_ENDPOINT }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NAVIGRAPH_CLIENT_SECRET=${{ secrets.NAVIGRAPH_CLIENT_SECRET }}"
+            NAVIGRAPH_SERVER_SECRET=${{ secrets.NAVIGRAPH_SERVER_SECRET }}"
+            VATSIM_CLIENT_SECRET=${{ secrets.VATSIM_CLIENT_SECRET }}
+            DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+            DISCORD_CLIEND_ID=${{ secrets.DISCORD_CLIEND_ID }}
           cache-from: type=registry,ref=ghcr.io/daniluk4000/vatsim-radar/production:latest
           cache-to: type=inline
   deploy:

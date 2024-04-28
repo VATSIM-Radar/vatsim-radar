@@ -124,7 +124,8 @@ const arrAirport = computed(() => {
         gap: 8px;
 
         > * {
-            width: 100%;
+            width: 0;
+            flex: 1 1 0;
         }
     }
 

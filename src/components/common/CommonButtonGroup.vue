@@ -43,7 +43,8 @@ export default defineComponent({
     overflow: hidden;
 
     &_button {
-        width: 100%;
+        width: 0;
+        flex: 1 1 0;
         position: relative;
         display: flex;
 

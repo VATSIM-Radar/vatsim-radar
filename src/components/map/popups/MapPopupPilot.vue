@@ -561,7 +561,8 @@ onBeforeUnmount(() => {
         font-weight: 700;
 
         .pilot__card {
-            width: 100%;
+            width: 0;
+            flex: 1 1 0;
         }
     }
 
@@ -637,7 +638,8 @@ onBeforeUnmount(() => {
         gap: 8px;
 
         > * {
-            width: 100%;
+            width: 0;
+            flex: 1 1 0;
         }
     }
 

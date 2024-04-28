@@ -397,7 +397,8 @@ onBeforeUnmount(() => {
         gap: 4px;
 
         > * {
-            width: 100%;
+            width: 0;
+            flex: 1 1 0;
         }
     }
 }

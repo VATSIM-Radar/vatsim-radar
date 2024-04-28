@@ -50,7 +50,8 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
     }
 
     &_tab {
-        width: 100%;
+        width: 0;
+        flex: 1 1 0;
         background: $neutral1000;
         padding: 8px;
         border-radius: 4px;
