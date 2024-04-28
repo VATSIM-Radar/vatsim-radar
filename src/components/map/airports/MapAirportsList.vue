@@ -1,7 +1,7 @@
 <template>
     <map-airport
         v-for="{airport, aircrafts, localAtc, arrAtc} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
-        :key="airport.icao + airport.iata ?? 'undefined'"
+        :key="airport.icao + (airport.iata ?? 'undefined')"
         :airport="airport"
         :aircrafts="aircrafts"
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
