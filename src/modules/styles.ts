@@ -2,6 +2,8 @@ import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt
 import type { PartialRecord } from '~/types';
 
 export const colorsList = {
+    mapSectorBorder: '#2d2d30',
+
     neutral0: '#F7F7FA',
     neutral50: '#F2F2F7',
     neutral100: '#EDEDF2',
@@ -28,6 +30,8 @@ export type ColorsList = keyof typeof colorsList
 
 export const themesList = {
     light: {
+        mapSectorBorder: '#D3D3E5',
+
         neutral1000: '#F7F7FA',
         neutral950: '#F2F2F7',
         neutral900: '#EDEDF2',
@@ -86,11 +90,12 @@ export default defineNuxtModule((_, nuxt) => {
                         const rgbString = rgb.join(', ');
                         themes[theme][color] = `rgb(var(--${ color }, ${ rgbString }))`;
                         themes[theme][`${ color }Rgb`] = rgb;
-                        themes[theme][`${ color }Hex`] = value;
+                        themes[theme][`${ color }Hex`] = colors[color]!;
                     }
                 }
 
                 scss += `\n$${ color }Raw: toRawRGB(${ value });`;
+                scss += `\n$${ color }Orig: ${ value };`;
             }
             else if (i === 1) {
                 scss += `\ni${ color }: var(--${ color }, $${ color }Raw),`;

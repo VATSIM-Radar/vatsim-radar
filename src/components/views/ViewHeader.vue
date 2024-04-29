@@ -26,6 +26,22 @@
             </div>
         </div>
         <div class="header_right header__sections">
+            <div class="header__sections_section" v-if="false">
+                <div class="header__theme" :class="[`header__theme--${store.localSettings.theme ?? 'default'}`]">
+                    <div
+                        class="header__theme_item header__theme_item--dark"
+                        @click="setUserLocalSettings({theme: 'default'})"
+                    >
+                        <dark-theme/>
+                    </div>
+                    <div
+                        class="header__theme_item header__theme_item--light"
+                        @click="setUserLocalSettings({theme: 'light'})"
+                    >
+                        <light-theme/>
+                    </div>
+                </div>
+            </div>
             <div class="header__sections_section">
                 <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
                     Connect Vatsim
@@ -219,6 +235,8 @@ import LogoIcon from '@/assets/icons/basic/logo.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import EventsIcon from '@/assets/icons/kit/event.svg?component';
+import DarkTheme from '@/assets/icons/header/dark-theme.svg?component';
+import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
 
 const route = useRoute();
@@ -399,6 +417,31 @@ watch(settings, () => {
             &--unlimited .header__settings__navigraph_status {
                 color: $success500;
             }
+        }
+    }
+
+    &__theme {
+        display: grid;
+        height: 32px;
+        grid-template-columns: repeat(2, 45px);
+        border-radius: 8px;
+        background: $neutral900;
+        color: $neutral150;
+
+        &_item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+
+            svg {
+                width: 15px;
+            }
+        }
+
+        @at-root .header__theme--light .header__theme_item--light {
+            cursor: default;
         }
     }
 }

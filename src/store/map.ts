@@ -81,6 +81,7 @@ export const useMapStore = defineStore('map', {
 
                 const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
+                await nextTick();
 
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,
@@ -113,6 +114,7 @@ export const useMapStore = defineStore('map', {
 
                 const prefile = await $fetch(`/data/vatsim/pilot/${ cid }/prefile`);
                 this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
+                await nextTick();
 
                 return this.addOverlay({
                     key: cid,

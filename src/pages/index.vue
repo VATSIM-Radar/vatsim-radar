@@ -13,12 +13,15 @@
                 </transition-group>
             </div>
         </div>
-        <carto-db-layer/>
-        <template v-if="ready">
-            <map-aircraft-list/>
-            <map-sectors-list/>
-            <map-airports-list/>
-        </template>
+        <div :key="store.localSettings.theme ?? 'default'">
+            <carto-db-layer-light v-if="store.localSettings.theme === 'light'"/>
+            <carto-db-layer v-else/>
+            <template v-if="ready">
+                <map-aircraft-list/>
+                <map-sectors-list/>
+                <map-airports-list/>
+            </template>
+        </div>
     </div>
 </template>
 
@@ -41,6 +44,7 @@ import { setUserLocalSettings } from '~/composables';
 import {  useMapStore } from '~/store/map';
 import type { StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
+import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);

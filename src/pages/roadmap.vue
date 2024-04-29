@@ -167,6 +167,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Center/zoom to entire flight button',
+                status: 'completed',
             },
             {
                 title: 'Center/zoom to airport button',
@@ -190,7 +191,11 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
             },
-            'Light theme',
+            {
+                title: 'Light theme',
+                status: 'in-progress',
+            },
+            'Easy access to pilot stats for ATC controllers in airport popup',
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
             'Open Source (code only)',
@@ -227,7 +232,6 @@ const roadmap = reactive<Roadmap[]>([
             },
             'PWA',
             'Proper OSS contribution support',
-            'Easy access to pilot stats for ATC controllers in airport popup',
         ],
     },
     {

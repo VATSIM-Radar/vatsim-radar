@@ -162,7 +162,7 @@ const getATIS = (controller: VatsimShortenedController) => {
             text-align: center;
             padding: 2px 4px;
             border-radius: 4px;
-            color: $neutral0;
+            color: $neutral0Orig;
         }
     }
 
@@ -177,7 +177,7 @@ const getATIS = (controller: VatsimShortenedController) => {
             border-radius: 4px;
             background: $primary500;
             font-weight: 600;
-            color: $neutral150;
+            color: $neutral150Orig;
             font-size: 11px;
         }
     }

@@ -15,14 +15,14 @@
                     is-button
                     class="flight-plan__card"
                     :top-items="[flightPlan.departure]"
-                    :bottom-items="[depAirport?.name]"
+                    :bottom-items="[depAirport?.name, depCountry?.country]"
                 />
                 <common-info-block
                     text-align="center"
                     is-button
                     class="flight-plan__card"
                     :top-items="[flightPlan.arrival]"
-                    :bottom-items="[arrAirport?.name]"
+                    :bottom-items="[arrAirport?.name, arrCountry?.country]"
                 />
             </div>
             <div class="flight-plan__cols">
@@ -108,6 +108,14 @@ const depAirport = computed(() => {
 
 const arrAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.arrival);
+});
+
+const depCountry = computed(() => {
+    return dataStore.vatspy.value?.data.countries.find(x => x.code === depAirport?.value?.icao.slice(0, 2));
+});
+
+const arrCountry = computed(() => {
+    return dataStore.vatspy.value?.data.countries.find(x => x.code === arrAirport?.value?.icao.slice(0, 2));
 });
 </script>
 

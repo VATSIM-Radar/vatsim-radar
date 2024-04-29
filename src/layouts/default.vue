@@ -45,7 +45,7 @@ onMounted(() => {
 });
 
 useHead(() => {
-    const theme = store.theme;
+    const theme = store.localSettings.theme ?? 'default';
     const css = Object
         .entries({
             ...radarColors,
@@ -72,6 +72,7 @@ useHead(() => {
         ],
         htmlAttrs: {
             lang: 'en',
+            class: [`theme-${ store.localSettings.theme ?? 'default' }`],
         },
         style: [{
             key: 'radarStyles',
@@ -120,6 +121,10 @@ html, body {
     background: $neutral1000;
     scrollbar-gutter: stable;
     color-scheme: dark;
+
+    &--theme-light {
+        color-scheme: light;
+    }
 }
 
 html, body, #__app, #__app > .app, #__app > .app > .app_content {

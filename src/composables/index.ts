@@ -6,9 +6,27 @@ import type { Map } from 'ol';
 import { sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
+import type { ColorsList } from '~/modules/styles';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
+}
+
+export function getCurrentThemeHexColor(color: ColorsList) {
+    const store = useStore();
+    const theme = store.localSettings.theme ?? 'default';
+    if (theme === 'default') return radarColors[`${ color }Hex`];
+
+    //@ts-expect-error
+    return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
+}
+export function getCurrentThemeRgbColor(color: ColorsList) {
+    const store = useStore();
+    const theme = store.localSettings.theme ?? 'default';
+    if (theme === 'default') return radarColors[`${ color }Rgb`];
+
+    //@ts-expect-error
+    return radarThemes[theme][`${ color as ColorsList }Rgb`] ?? radarColors[`${ color }Rgb`];
 }
 
 export function attachMoveEnd(callback: (event: any) => unknown) {

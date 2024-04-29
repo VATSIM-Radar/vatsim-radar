@@ -86,6 +86,7 @@ import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
+import { getCurrentThemeRgbColor } from '~/composables';
 
 const props = defineProps({
     airport: {
@@ -147,7 +148,7 @@ const getAirportColor = computed(() => {
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
     if (!hasOverlay) {
-        if (!props.localAtc?.length) return `rgba(${ radarColors.neutral150Rgb.join(',') }, 0.8)`;
+        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('neutral150').join(',') }, 0.8)`;
         return radarColors.neutral150;
     }
 
@@ -376,7 +377,7 @@ onBeforeUnmount(() => {
         justify-content: center;
         margin-top: 4px;
         font-weight: 600;
-        color: $neutral0;
+        color: $neutral0Orig;
 
         &_facility {
             width: 16px;

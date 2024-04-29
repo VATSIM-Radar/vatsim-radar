@@ -1,21 +1,29 @@
 # Changelog
 
-# 0.2.0
+## 0.2.1
+
+- Removed to go percent if aircraft is on ground
+- Added country name to flightplan airport
+- Fixed error when aircraft icon was not updated in overlay when switching between aircrafts
+- Fixed error when overlay could become broken when switching between aircrafts
+- "Show ATC" checkbox will now hide of no ATC available
+
+## 0.2.0
 
 This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to improve your flight experience - please give it a shot!
 
 Closest feature after this one should be TMA approach sectors.
 
-## Highlights
+### Highlights
 
 - 👨‍✈️ Pilot overlay (both flight and prefiles)
 - ✈️ Different aircraft icons
 - 🎯 Accuracy improvements for uirs, firs and ground aircraft detection
 - 🔧 Bug fixes and improvements
 
-## Changelog
+### Changelog
 
-### Pilot overlay
+#### Pilot overlay
 
 You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot on map, open Vatsim stats and more:
 
@@ -34,7 +42,7 @@ This card can be auto-opened, pinned and tracked for your own flight - you can e
 
 P.S. You are also able to open this from airport counters popup - including prefiles!
 
-### Features
+#### Features
 
 - Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712, B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
 - Aircraft icons now have borders around them
@@ -49,7 +57,7 @@ P.S. You are also able to open this from airport counters popup - including pref
 - Your own flight is now always highlighted as green on map
 - Updated roadmap. Check it out!
 
-### Bug fixes
+#### Bug fixes
 
 - Increased aircraft on ground zone detection
 - Fixed Africa oceanic FIR display

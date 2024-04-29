@@ -97,10 +97,13 @@
                                     'pilot__card_route_line--start': pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent > 90,
                                 }"
-                                v-if="pilot.toGoPercent"
+                                v-if="pilot.toGoPercent && !pilot.isOnGround"
                             >
                                 <component :is="svg"/>
                             </div>
+                            <common-button class="pilot__card_route_open" type="link" @click="viewRoute">
+                                View route
+                            </common-button>
                             <div class="pilot__card_route_footer">
                                 <div class="pilot__card_route_footer_left">
                                     {{
@@ -217,6 +220,7 @@ import { showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
+import { boundingExtent, getCenter } from 'ol/extent';
 
 const props = defineProps({
     overlay: {
@@ -244,8 +248,31 @@ const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const svg = shallowRef<null | any>(null);
 const isOffline = ref(false);
 
+const depAirport = computed(() => {
+    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
+});
+
+const arrAirport = computed(() => {
+    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
+});
+
 const showOnMap = () => {
     showPilotOnMap(pilot.value, map.value);
+};
+
+const viewRoute = () => {
+    if (!depAirport.value || !arrAirport.value) return;
+    const extent = boundingExtent([
+        [depAirport.value.lon, depAirport.value.lat],
+        [arrAirport.value.lon, arrAirport.value.lat],
+    ]);
+
+    const view = map.value?.getView();
+
+    view?.animate({
+        center: getCenter(extent),
+        resolution: view?.getResolutionForExtent(extent) * 1.8,
+    });
 };
 
 async function loadAirlineSvg() {
@@ -256,9 +283,6 @@ loadAirlineSvg();
 
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
-        {
-            key: 'show-atc',
-        },
         ...getAtcList.value,
         {
             key: 'flight',
@@ -266,6 +290,12 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         },
     ];
+
+    if (pilot.value.airport || pilot.value.firs?.length) {
+        sections.unshift({
+            key: 'show-atc',
+        });
+    }
 
     if (pilot.value.flight_plan) {
         sections.push({
@@ -466,6 +496,7 @@ function handleMouseMove() {
     });
 }
 
+watch(() => pilot.value.cid, loadAirlineSvg);
 watch(() => pilot.value.last_updated, handleMouseMove);
 watch(() => props.overlay.data.tracked, (val) => {
     handleMouseMove();

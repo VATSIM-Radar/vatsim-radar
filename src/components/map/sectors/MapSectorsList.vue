@@ -61,7 +61,7 @@ watch(map, (val) => {
                 if (type === 'default') {
                     return new Style({
                         stroke: new Stroke({
-                            color: '#2d2d30',
+                            color: getCurrentThemeHexColor('mapSectorBorder'),
                             width: 1,
                         }),
                         zIndex: 1,

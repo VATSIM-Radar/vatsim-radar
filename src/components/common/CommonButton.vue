@@ -106,7 +106,7 @@ const getAttrs = computed(() => {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    color: $neutral50;
+    color: $neutral50Orig;
     font-size: 13px;
     font-weight: 600;
     font-family: $defaultFont;
@@ -139,6 +139,7 @@ const getAttrs = computed(() => {
     }
 
     &--type-secondary {
+        color: $neutral50;
         background: $neutral900;
 
         @include hover {
