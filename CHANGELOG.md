@@ -6,7 +6,6 @@
 - Added country name to flightplan airport
 - Fixed error when aircraft icon was not updated in overlay when switching between aircrafts
 - Fixed error when overlay could become broken when switching between aircrafts
-- "Show ATC" checkbox will now hide of no ATC available
 
 ## 0.2.0
 
