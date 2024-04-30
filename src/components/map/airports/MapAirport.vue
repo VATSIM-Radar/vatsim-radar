@@ -93,6 +93,7 @@ import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { GeoJSON } from 'ol/format';
 import type { Coordinate } from 'ol/coordinate';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 
 const props = defineProps({
     airport: {
@@ -285,6 +286,16 @@ onMounted(() => {
         immediate: true,
     });
 
+    function checkPrefixTracon(controller: VatsimShortenedController, tracon: GeoJSONFeature) {
+        if (controller.callsign.split('_').length >= 3) {
+            if (typeof tracon.properties?.prefix === 'string' && tracon.properties.prefix.split('_').length >= 2 && controller.callsign.startsWith(tracon.properties.prefix)) return true;
+
+            if (typeof tracon.properties?.prefix === 'object' && (tracon.properties?.prefix as string[])?.some(x => x.split('_').length >= 2 && controller.callsign.startsWith(x))) return true;
+        }
+
+        return false;
+    }
+
     watch(dataStore.vatsim.updateTimestamp, () => {
         if (!props.arrAtc?.length) {
             clearArrFeatures();
@@ -303,10 +314,10 @@ onMounted(() => {
                 atc: props.arrAtc.filter((y) => {
                     //To match UNKL_RW -> UNKL_R
                     if (y.callsign.split('_').length >= 3) {
-                        if (typeof x.properties?.prefix === 'string') return x.properties.prefix.split('_').length >= 2 && y.callsign.startsWith(x.properties.prefix);
-
-                        return (x.properties?.prefix as string[])?.some(x => x.split('_').length >= 2 && y.callsign.startsWith(x));
+                        if (checkPrefixTracon(y, x)) return true;
                     }
+
+                    if (dataStore.simaware.value?.data.features.some(x => checkPrefixTracon(y, x))) return false;
 
                     if (typeof x.properties?.prefix === 'string') return y.callsign.split('_')[0] === x.properties.prefix;
 
