@@ -48,7 +48,7 @@ defineProps({
 
         .pilot-header_type {
             background: $primary500;
-            color: $neutral150;
+            color: $neutral150Orig;
             font-size: 10px;
             padding: 4px 8px;
             border-radius: 4px;
