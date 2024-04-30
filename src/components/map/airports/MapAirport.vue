@@ -93,7 +93,7 @@ import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { GeoJSON } from 'ol/format';
 import type { Coordinate } from 'ol/coordinate';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 
 const props = defineProps({
     airport: {
@@ -117,6 +117,10 @@ const props = defineProps({
     },
     arrAtc: {
         type: Array as PropType<VatsimShortenedController[]>,
+        required: true,
+    },
+    features: {
+        type: Array as PropType<AirportTraconFeature[]>,
         required: true,
     },
     hoveredId: {
@@ -286,16 +290,6 @@ onMounted(() => {
         immediate: true,
     });
 
-    function checkPrefixTracon(controller: VatsimShortenedController, tracon: GeoJSONFeature) {
-        if (controller.callsign.split('_').length >= 3) {
-            if (typeof tracon.properties?.prefix === 'string' && tracon.properties.prefix.split('_').length >= 2 && controller.callsign.startsWith(tracon.properties.prefix)) return true;
-
-            if (typeof tracon.properties?.prefix === 'object' && (tracon.properties?.prefix as string[])?.some(x => x.split('_').length >= 2 && controller.callsign.startsWith(x))) return true;
-        }
-
-        return false;
-    }
-
     watch(dataStore.vatsim.updateTimestamp, () => {
         if (!props.arrAtc?.length) {
             clearArrFeatures();
@@ -309,36 +303,7 @@ onMounted(() => {
 
         const features: ArrFeature[] = [];
 
-        const tracons = dataStore.simaware.value?.data.features.map((x) => {
-            return {
-                atc: props.arrAtc.filter((y) => {
-                    //To match UNKL_RW -> UNKL_R
-                    if (y.callsign.split('_').length >= 3) {
-                        if (checkPrefixTracon(y, x)) return true;
-                    }
-
-                    if (dataStore.simaware.value?.data.features.some(x => checkPrefixTracon(y, x))) return false;
-
-                    if (typeof x.properties?.prefix === 'string') return y.callsign.split('_')[0] === x.properties.prefix;
-
-                    return (x.properties?.prefix as string[])?.some(x => y.callsign.split('_')[0] === x);
-                }),
-                feature: x,
-            };
-        }).filter(x => x.atc.length) ?? [];
-
-        //If didn't find by prefix
-        if (!tracons.length) {
-            const airport = dataStore.simaware.value?.data.features.find(x => x.properties?.id === airportName.value);
-            if (airport) {
-                tracons.push({
-                    atc: props.arrAtc,
-                    feature: airport,
-                });
-            }
-        }
-
-        if (!tracons.length) {
+        if (!props.features.length) {
             features.push({
                 id: 'circle',
                 feature: new Feature({
@@ -352,14 +317,14 @@ onMounted(() => {
             });
         }
         else {
-            const leftAtc = props.arrAtc.filter(x => !tracons.some(y => y.atc.some(y => y.cid === x.cid)));
+            const leftAtc = props.arrAtc.filter(x => !props.features.some(y => y.controllers.some(y => y.cid === x.cid)));
 
             for (const {
-                feature,
-                atc,
-            } of tracons) {
-                const geoFeature = geojson.readFeature(feature);
-                const id = JSON.stringify(feature.properties!);
+                id,
+                traconFeature,
+                controllers,
+            } of props.features) {
+                const geoFeature = geojson.readFeature(traconFeature);
 
                 geoFeature.setProperties({
                     ...(geoFeature?.getProperties() ?? {}),
@@ -373,7 +338,7 @@ onMounted(() => {
                     id,
                     feature: geoFeature,
                     controllers: [
-                        ...atc,
+                        ...controllers,
                         ...leftAtc,
                     ],
                 });
