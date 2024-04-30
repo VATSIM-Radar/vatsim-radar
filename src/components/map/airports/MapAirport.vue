@@ -250,7 +250,7 @@ function setFeatureStyle(feature: Feature) {
         }),
         text: new Text({
             font: 'bold 14px Montserrat',
-            text: airportName.value,
+            text: feature.getProperties()?._traconId || airportName.value,
             placement: 'line',
             offsetY: -10,
             textAlign: hasTracon.value ? undefined : 'center',
@@ -334,6 +334,7 @@ onMounted(() => {
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     type: 'tracon',
+                    _traconId: traconFeature.properties?.id,
                     id,
                 });
 

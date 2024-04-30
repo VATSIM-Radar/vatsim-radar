@@ -65,6 +65,20 @@ export default defineNitroPlugin((app) => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
+                /*data.controllers.push({
+                    callsign: 'REG_APP',
+                    cid: 0,
+                    facility: 5,
+                    frequency: '122.122',
+                    last_updated: '',
+                    logon_time: '',
+                    name: '',
+                    rating: 0,
+                    server: '',
+                    text_atis: ['undefined'],
+                    visual_range: 0,
+                });*/
+
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;

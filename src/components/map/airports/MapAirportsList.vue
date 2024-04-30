@@ -182,7 +182,10 @@ export interface AirportTraconFeature {
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
-    const airports = visibleAirports.value.map(({ vatsimAirport, vatspyAirport }) => ({
+    const airports = visibleAirports.value.map(({
+        vatsimAirport,
+        vatspyAirport,
+    }) => ({
         aircrafts: {} as MapAircraft,
         aircraftsList: vatsimAirport.aircrafts,
         aircraftsCids: Object.values(vatsimAirport.aircrafts).flatMap(x => x),
@@ -195,7 +198,9 @@ const getAirportsList = computed(() => {
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
         let existingSector = airport.features.find(x => x.id === id);
-        if (existingSector) existingSector.controllers.push(controller);
+        if (existingSector) {
+            existingSector.controllers.push(controller);
+        }
         else {
             existingSector = {
                 id,
@@ -268,11 +273,15 @@ const getAirportsList = computed(() => {
 
     //Strict check
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const airport = airports.find(x => x.airport.iata === sector.properties?.id || x.airport.icao === sector.properties?.id);
+        const prefixes = getTraconPrefixes(sector);
+        const airport = airports.find(x =>
+            x.airport.iata === sector.properties?.id ||
+            x.airport.icao === sector.properties?.id ||
+            prefixes.some(y => y.split('_')[0] === x.airport.icao) ||
+            prefixes.some(y => y.split('_')[0] === x.airport.iata),
+        );
 
         if (!airport?.arrAtc.length) continue;
-
-        const prefixes = getTraconPrefixes(sector);
 
         for (const controller of airport.arrAtc) {
             const splittedCallsign = controller.callsign.split('_');
