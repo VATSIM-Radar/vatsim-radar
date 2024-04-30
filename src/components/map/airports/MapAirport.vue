@@ -163,8 +163,8 @@ const getAirportColor = computed(() => {
         return radarColors.neutral150;
     }
 
-    if (!props.localAtc?.length) return `rgba(${ radarColors.warning500Rgb.join(',') }, 0.8)`;
-    return radarColors.warning500;
+    if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, 0.8)`;
+    return radarColors.warning700;
 });
 
 const localsFacilities = computed(() => {

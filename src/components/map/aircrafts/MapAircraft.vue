@@ -117,6 +117,7 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useStore } from '~/store';
+import { getCurrentThemeHexColor } from '#imports';
 
 const props = defineProps({
     aircraft: {
@@ -235,7 +236,7 @@ function toggleAirportLines(value: boolean) {
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = isSelfFlight.value ? radarColors.success500Hex : activeCurrentOverlay.value ? radarColors.warning600Hex : radarColors.neutral150Hex;
+    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('neutral150');
 
     if (depAirport) {
         const geometry = new LineString([

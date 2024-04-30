@@ -23,6 +23,7 @@ export const colorsList = {
     success500: '#008856',
     warning500: '#E8CA4C',
     warning600: '#F2BA49',
+    warning700: '#E39539',
     error500: '#CB421C',
 };
 
