@@ -163,7 +163,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'TMA approach sectors',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Center/zoom to entire flight button',
@@ -174,26 +174,26 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'ATC info popup',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Airport info popup',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'CTAF frequency easy access',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'METAR easy access',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
             },
             {
                 title: 'Light theme',
-                status: 'in-progress',
+                status: 'completed',
             },
             'Easy access to pilot stats for ATC controllers in airport popup',
             'Layers (hide atc/aircraft/gates/etc)',
@@ -256,7 +256,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 37;
+const percents = 38;
 
 interface RoadmapGroup {
     status: ItemStatus,

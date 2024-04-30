@@ -91,6 +91,7 @@ const getAttrs = computed(() => {
     const attrs: Record<string, any> = {};
     if (props.to) {
         attrs.to = props.to;
+        attrs.noPrefetch = true;
     }
     else if (props.href) attrs.href = props.href;
 

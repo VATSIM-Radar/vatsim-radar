@@ -40,7 +40,7 @@
                     </div>
                 </div>
             </div>
-            <nuxt-link to="/privacy-policy" class="map-footer_left_section map-footer__text">
+            <nuxt-link no-prefetch to="/privacy-policy" class="map-footer_left_section map-footer__text">
                 Privacy Policy
             </nuxt-link>
             <div class="map-footer_left_section map-footer__text" v-if="store.version">

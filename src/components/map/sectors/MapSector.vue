@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
     }
 
     &--hovered .sector-atc_name {
-        color: $neutral150;
+        color: $neutral150Orig;
         background: $primary500;
     }
 }

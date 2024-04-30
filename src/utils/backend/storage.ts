@@ -2,18 +2,30 @@ import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/
 import type {
     VatsimData,
     VatsimDivision,
-    VatsimEvent, VatsimLiveData,
+    VatsimEvent,
+    VatsimLiveData,
     VatsimShortenedData,
     VatsimSubDivision,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { cycles } from '~/server/plugins/navigraph';
+import type { FeatureCollection, MultiPolygon } from 'geojson';
+
+export type SimAwareData = FeatureCollection<MultiPolygon>
+export interface SimAwareAPIData {
+    version: string;
+    data: SimAwareData;
+}
 
 export const radarStorage = {
     vatspy: {
         version: '',
         data: null as null | VatSpyData,
+    },
+    simaware: {
+        version: '',
+        data: null as null | SimAwareData,
     },
     vatsim: {
         data: null as null | VatsimData,
@@ -29,15 +41,13 @@ export const radarStorage = {
 };
 
 export function getRadarStorage() {
-    const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
-    if (event) return event.context.radarStorage;
     return radarStorage;
 }
 
 export function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
-    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data;
+    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data && !!getRadarStorage().simaware.version;
 }
 
 export function getDataVersions(): VatDataVersions {
@@ -47,6 +57,7 @@ export function getDataVersions(): VatDataVersions {
             data: getRadarStorage().vatsim.data!.general.update_timestamp,
         },
         navigraph: getRadarStorage().navigraph,
+        simaware: getRadarStorage().simaware.version,
     };
 }
 

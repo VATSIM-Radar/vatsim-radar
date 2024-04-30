@@ -23,7 +23,6 @@ export type MapAircraft =
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
-    theme: ThemesList;
 }
 
 export type UserLocalSettings = Partial<IUserLocalSettings>

@@ -1,13 +1,14 @@
 <template>
     <map-airport
-        v-for="{airport, aircrafts, localAtc, arrAtc} in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
-        :key="airport.icao + (airport.iata ?? 'undefined')"
+        v-for="({airport, aircrafts, localAtc, arrAtc}, index) in getAirportsList.filter(x => visibleAirports.includes(x.airport.icao))"
+        :key="airport.icao + index + (airport.iata ?? 'undefined')"
         :airport="airport"
         :aircrafts="aircrafts"
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
         :local-atc="localAtc"
         :arr-atc="arrAtc"
         :is-hovered="airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport"
+        :hovered-pixel="hoveredPixel"
         :gates="getAirportsGates.find(x => x.airport === airport.icao)?.gates"
         @manualHover="[isManualHover = true, hoveredAirport = airport.iata || airport.icao]"
         @manualHide="[isManualHover = false, hoveredAirport = null]"
@@ -30,6 +31,7 @@ import { Fill, Style, Text } from 'ol/style';
 import { adjustPilotLonLat, checkIsPilotInGate } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
+import type { Coordinate } from 'ol/coordinate';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -42,6 +44,7 @@ const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>(
 const originalGates = shallowRef<NavigraphGate[]>([]);
 const isManualHover = ref(false);
 const hoveredAirport = ref<string | null>(null);
+const hoveredPixel = ref<Coordinate | null>(null);
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
@@ -49,17 +52,20 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         layerFilter: layer => layer === vectorLayer,
     });
 
-    let isInvalid = features.length !== 1 || features[0].getProperties().type !== 'circle';
+    let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
 
     if (!isInvalid) {
         const airport = getAirportsList.value.find(x => (features[0].getProperties().iata || x.airport.iata) ? x.airport.iata === features[0].getProperties().iata : x.airport.icao === features[0].getProperties().icao);
         const pixel = map.value!.getCoordinateFromPixel(e.pixel);
-        isInvalid = pixel[1] - airport!.airport.lat < 80000;
+        if (features[0].getProperties().type !== 'tracon') {
+            isInvalid = pixel[1] - airport!.airport.lat < 80000;
+        }
     }
 
     if (isInvalid || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAirport.value = null;
+            hoveredPixel.value = null;
         }
         if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
         return;
@@ -68,6 +74,9 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     if (isManualHover.value) return;
     isManualHover.value = false;
 
+    if (!hoveredPixel.value) {
+        hoveredPixel.value = map.value!.getCoordinateFromPixel(e.pixel);
+    }
     hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
 }
@@ -159,10 +168,12 @@ const getAirportsList = computed(() => {
         aircrafts: {} as MapAircraft,
         aircraftsList: x.aircrafts,
         aircraftsCids: Object.values(x.aircrafts).flatMap(x => x),
-        airport: dataStore.vatspy.value!.data.airports.find(y => y.iata ? y.iata === x.iata : y.icao === x.icao)!,
+        airport: dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao)!,
         localAtc: [] as VatsimShortenedController[],
         arrAtc: [] as VatsimShortenedController[],
     }));
+
+    console.log(airports.filter(x => x.airport.iata === 'SOLENT'));
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         const foundAirports = airports.filter(x => x.aircraftsCids.includes(pilot.cid));

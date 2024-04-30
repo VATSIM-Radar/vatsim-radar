@@ -167,6 +167,7 @@ const setStyle = () => {
     if (isSelfFlight.value) iconPostfix = '-green';
     else if (activeCurrentOverlay.value) iconPostfix = '-active';
     else if (props.isHovered) iconPostfix = '-hover';
+    else if (store.theme === 'light') iconPostfix = '-light';
 
     const styleIcon = new Icon({
         src: `/aircrafts/${ icon.value.icon }${ iconPostfix }.png`,

@@ -7,7 +7,7 @@
         <div class="app_footer">
             <view-map-footer v-if="route.path === '/'"/>
             <div class="app_footer_info" v-else>
-                <nuxt-link to="/privacy-policy">
+                <nuxt-link no-prefetch to="/privacy-policy">
                     Privacy Policy
                 </nuxt-link>
                 <div v-if="store.version">
@@ -45,7 +45,7 @@ onMounted(() => {
 });
 
 useHead(() => {
-    const theme = store.localSettings.theme ?? 'default';
+    const theme = store.theme ?? 'default';
     const css = Object
         .entries({
             ...radarColors,
@@ -72,7 +72,7 @@ useHead(() => {
         ],
         htmlAttrs: {
             lang: 'en',
-            class: [`theme-${ store.localSettings.theme ?? 'default' }`],
+            class: [`theme-${ store.theme ?? 'default' }`],
         },
         style: [{
             key: 'radarStyles',

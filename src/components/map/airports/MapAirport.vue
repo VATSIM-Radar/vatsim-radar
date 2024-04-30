@@ -58,7 +58,11 @@
     <map-overlay
         v-if="isHovered"
         model-value
-        :settings="{position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true}"
+        :settings="
+            isTracon ?
+                { position: hoveredPixel!, positioning: 'top-center', offset: [0, 10], stopEvent: true } :
+                { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
+        "
         :z-index="21"
         @mouseover="$emit('manualHover')"
         @mouseleave="$emit('manualHide')"
@@ -75,7 +79,7 @@
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
-import { Feature  } from 'ol';
+import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
@@ -87,6 +91,8 @@ import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor } from '~/composables';
+import { GeoJSON } from 'ol/format';
+import type { Coordinate } from 'ol/coordinate';
 
 const props = defineProps({
     airport: {
@@ -116,6 +122,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    hoveredPixel: {
+        type: Array as PropType<Coordinate | null>,
+        default: null,
+    },
 });
 
 defineEmits({
@@ -131,6 +141,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hoveredFacility = ref<boolean | number>(false);
+const isTracon = ref(false);
 
 const hoveredFacilities = computed(() => {
     if (!hoveredFacility.value) return [];
@@ -213,10 +224,41 @@ watch(getAirportColor, () => {
     }));
 });
 
+function setFeatureStyle() {
+    arrFeature?.setStyle(new Style({
+        stroke: new Stroke({
+            color: '#3B6CEC',
+            width: 2,
+        }),
+        fill: props.isHovered
+            ? new Fill({
+                color: 'rgba(59,108,236,0.2)',
+            })
+            : undefined,
+        text: new Text({
+            font: 'bold 14px Montserrat',
+            text: airportName.value,
+            placement: 'line',
+            offsetY: -10,
+            textAlign: isTracon.value ? 'left' : 'center',
+            maxAngle: isTracon.value ? undefined : toRadians(20),
+            fill: new Fill({
+                color: '#3B6CEC',
+            }),
+        }),
+    }));
+}
+
+watch(() => props.isHovered, () => {
+    setFeatureStyle();
+});
+
 onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);
     const atcLength = computed(() => props.arrAtc.length);
     const gates = computed(() => props.gates);
+
+    if (props.airport.iata === 'SOLENT') console.log(atcLength.value);
 
     watch(localsLength, (val) => {
         if (!val && !feature) {
@@ -241,29 +283,38 @@ onMounted(() => {
 
         if (!val || arrFeature) return;
 
-        arrFeature = new Feature({
-            geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
-            icao: props.airport.icao,
-            iata: props.airport.iata,
-            type: 'circle',
+        let tracon = dataStore.simaware.value?.data.features.find((x) => {
+            return props.arrAtc.some((y) => {
+                if (typeof x.properties?.prefix === 'string') return y.callsign.startsWith(x.properties.prefix);
+
+                return (x.properties?.prefix as string[])?.some(x => y.callsign.startsWith(x));
+            });
         });
-        arrFeature.setStyle(new Style({
-            stroke: new Stroke({
-                color: '#3B6CEC',
-                width: 2,
-            }),
-            text: new Text({
-                font: 'bold 14px Montserrat',
-                text: airportName.value,
-                placement: 'line',
-                offsetY: -10,
-                textAlign: 'center',
-                maxAngle: toRadians(20),
-                fill: new Fill({
-                    color: '#3B6CEC',
-                }),
-            }),
-        }));
+
+        //If didn't find by prefix
+        if (!tracon) tracon = dataStore.simaware.value?.data.features.find(x => x.properties?.id === airportName.value);
+
+        if (!tracon) {
+            arrFeature = new Feature({
+                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                icao: props.airport.icao,
+                iata: props.airport.iata,
+                type: 'circle',
+            });
+            isTracon.value = false;
+        }
+        else {
+            arrFeature = new GeoJSON().readFeature(tracon);
+            arrFeature?.setProperties({
+                ...(arrFeature?.getProperties() ?? {}),
+                icao: props.airport.icao,
+                iata: props.airport.iata,
+                type: 'tracon',
+            });
+            isTracon.value = true;
+        }
+
+        setFeatureStyle();
         vectorSource.value?.addFeature(arrFeature);
     }, {
         immediate: true,

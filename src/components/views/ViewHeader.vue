@@ -1,7 +1,7 @@
 <template>
     <header class="header">
         <div class="header_left">
-            <nuxt-link to="/" class="header__logo">
+            <nuxt-link no-prefetch to="/" class="header__logo">
                 <logo-icon class="header__logo_icon"/>
                 <div class="header__logo_text">
                     Vatsim<br>
@@ -26,17 +26,17 @@
             </div>
         </div>
         <div class="header_right header__sections">
-            <div class="header__sections_section" v-if="false">
-                <div class="header__theme" :class="[`header__theme--${store.localSettings.theme ?? 'default'}`]">
+            <div class="header__sections_section">
+                <div class="header__theme" :class="[`header__theme--${store.theme ?? 'default'}`]">
                     <div
                         class="header__theme_item header__theme_item--dark"
-                        @click="setUserLocalSettings({theme: 'default'})"
+                        @click="[theme = 'default', store.theme = theme]"
                     >
                         <dark-theme/>
                     </div>
                     <div
                         class="header__theme_item header__theme_item--light"
-                        @click="setUserLocalSettings({theme: 'light'})"
+                        @click="[theme = 'light', store.theme = theme]"
                     >
                         <light-theme/>
                     </div>
@@ -238,6 +238,7 @@ import EventsIcon from '@/assets/icons/kit/event.svg?component';
 import DarkTheme from '@/assets/icons/header/dark-theme.svg?component';
 import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
+import type { ThemesList } from '~/modules/styles';
 
 const route = useRoute();
 const store = useStore();
@@ -266,6 +267,15 @@ const buttons = computed(() => {
         },
     ];
 });
+
+const theme = useCookie<ThemesList>('theme', {
+    path: '/',
+    sameSite: 'strict',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+});
+
+store.theme = theme.value ?? 'default';
 
 const loginPopup = ref(false);
 const settingsPopup = ref(false);
@@ -297,6 +307,17 @@ watch(settings, () => {
         method: 'POST',
         body: settings,
     });
+});
+
+onMounted(() => {
+    if (!theme.value) {
+        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+            theme.value = 'light';
+        }
+        else theme.value = 'default';
+
+        store.theme = theme.value;
+    }
 });
 </script>
 
@@ -427,20 +448,68 @@ watch(settings, () => {
         border-radius: 8px;
         background: $neutral900;
         color: $neutral150;
+        position: relative;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 45px;
+            height: 100%;
+            background: $primary500;
+            border-radius: 8px;
+            transition: 0.5s ease-in-out;
+            left: 0;
+            top: 0;
+        }
 
         &_item {
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: 0.3s;
+            transition: 0.5s ease-in-out;
+            position: relative;
 
             svg {
                 width: 15px;
+
+                :deep(path) {
+                    transition: fill 0.5s ease-in-out;
+                }
+            }
+        }
+
+        &--light {
+            &::before {
+                left: 45px;
+            }
+
+            .header__theme_item--light {
+                @keyframes lightColorChange {
+                    0% {
+                        color: $neutral900Orig;
+                    }
+
+                    100% {
+                        color: $neutral900;
+                    }
+                }
+
+                color: $neutral900;
+                animation: lightColorChange 0.5s ease-in-out;
+                transform: rotate(-90deg);
+            }
+
+            .header__theme_item--dark :deep(path) {
+                fill: transparent;
             }
         }
 
         @at-root .header__theme--light .header__theme_item--light {
+            cursor: default;
+        }
+
+        @at-root .header__theme--default .header__theme_item--dark {
             cursor: default;
         }
     }

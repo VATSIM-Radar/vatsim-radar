@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.2
+
+- Added accurate TMA approach sectors based on SimAware TRACON project
+- Added light theme support. If you're using light theme on your PC, it will auto-detect it on first load
+- Added About page. You can navigate to it via attributions in bottom right corner or via Privacy policy
+- Traffic consumption has been reduced a bit
+- Fixed SOLENT radar display (as well as some other similar fake airports)
+- Added background hover effect for approach sectors
+
 ## 0.2.1
 
 - Removed to go percent if aircraft is on ground

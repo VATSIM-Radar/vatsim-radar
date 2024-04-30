@@ -1,21 +1,35 @@
 import type { DBSchema, IDBPDatabase } from 'idb';
 import { openDB } from 'idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
+import type { SimAwareAPIData } from '~/utils/backend/storage';
+
+interface VatSpyData {
+    key: 'vatspy';
+    value: VatSpyAPIData;
+}
+
+interface SimAwareData {
+    key: 'simaware';
+    value: SimAwareAPIData;
+}
 
 interface ClientDB extends DBSchema {
-    vatspy: {
-        key: string,
-        value: VatSpyAPIData
-    };
+    data: VatSpyData | SimAwareData;
 }
 
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
 
 export async function initClientDB() {
     if (clientDB) return;
-    clientDB = await openDB<ClientDB>('vatsim-radar', 1, {
+    clientDB = await openDB<ClientDB>('vatsim-radar', 2, {
         upgrade(db) {
-            db.createObjectStore('vatspy');
+            db.createObjectStore('data');
+
+            //@ts-expect-error
+            if (db.objectStoreNames.contains('vatspy')) {
+                //@ts-expect-error
+                db.deleteObjectStore('vatspy');
+            }
         },
     });
 }

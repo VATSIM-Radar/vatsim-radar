@@ -13,7 +13,7 @@ export default defineNuxtModule(async (_, nuxt) => {
     const iconsPath = resolver.resolve('../assets/icons/aircrafts');
     const publicPath = resolver.resolve('../public/aircrafts');
 
-    const colors = [colorsList.primary500, colorsList.neutral150, colorsList.warning600, colorsList.success500];
+    const colors = [colorsList.primary500, colorsList.neutral150, colorsList.warning600, colorsList.success500, colorsList.primary500];
 
     const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon, width: number, height: number }> = {};
 
@@ -21,7 +21,7 @@ export default defineNuxtModule(async (_, nuxt) => {
         const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');
 
         await Promise.all(colors.map(async (color, index) => {
-            const iconContent = iconContents
+            let iconContent = iconContents
                 .replaceAll('white', color)
                 .replaceAll('#F8F8FA', color);
             let iconKey = '';
@@ -35,7 +35,12 @@ export default defineNuxtModule(async (_, nuxt) => {
                 case 3:
                     iconKey = '-green';
                     break;
+                case 4:
+                    iconKey = '-light';
+                    break;
             }
+
+            if (index === 4) iconContent = iconContent.replaceAll('black', 'white');
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({

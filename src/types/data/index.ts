@@ -6,4 +6,5 @@ export interface VatDataVersions {
         data: string
     }
     navigraph: typeof cycles | null
+    simaware: string
 }

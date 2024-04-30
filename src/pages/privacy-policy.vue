@@ -4,6 +4,10 @@
             Privacy Policy
         </template>
 
+        Please visit <nuxt-link to="/about">
+            About Page
+        </nuxt-link> to know more about service goals and used libraries & data.
+
         <ol>
             <li>
                 General terms

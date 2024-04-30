@@ -13,8 +13,8 @@
                 </transition-group>
             </div>
         </div>
-        <div :key="store.localSettings.theme ?? 'default'">
-            <carto-db-layer-light v-if="store.localSettings.theme === 'light'"/>
+        <div :key="store.theme ?? 'default'">
+            <carto-db-layer-light v-if="store.theme === 'light'"/>
             <carto-db-layer v-else/>
             <template v-if="ready">
                 <map-aircraft-list/>
@@ -45,6 +45,7 @@ import {  useMapStore } from '~/store/map';
 import type { StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
+import type { SimAwareAPIData } from '~/utils/backend/storage';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -163,6 +164,9 @@ onMounted(async () => {
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
     }
 
+    dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
+    dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+
     const view = new View({
         center: fromLonLat([37.617633, 55.755820]),
         zoom: 2,
@@ -171,7 +175,7 @@ onMounted(async () => {
 
     await Promise.all([
         (async function () {
-            let vatspy = await clientDB.get('vatspy', 'index');
+            let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
             if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
                 vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
                 vatspy.data.firs = vatspy.data.firs.map(x => ({
@@ -184,10 +188,19 @@ onMounted(async () => {
                         },
                     },
                 }));
-                await clientDB.put('vatspy', vatspy, 'index');
+                await clientDB.put('data', vatspy, 'vatspy');
             }
 
             dataStore.vatspy.value = vatspy;
+        }()),
+        (async function () {
+            let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
+            if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
+                simaware = await $fetch<SimAwareAPIData>('/data/simaware');
+                await clientDB.put('data', simaware, 'simaware');
+            }
+
+            dataStore.simaware.value = simaware;
         }()),
         (async function () {
             const [vatsimData] = await Promise.all([
@@ -198,10 +211,10 @@ onMounted(async () => {
     ]);
 
     interval = setInterval(async () => {
-        const versions = await $fetch<VatDataVersions>('/data/versions');
+        const versions = await $fetch<VatDataVersions['vatsim']>('/data/vatsim/versions');
 
-        if (versions && versions.vatsim.data !== dataStore.vatsim.updateTimestamp.value) {
-            dataStore.versions.value = versions;
+        if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
+            dataStore.vatsim.versions.value = versions;
 
             if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
@@ -209,8 +222,8 @@ onMounted(async () => {
             setVatsimDataStore(data);
             checkAndAddOwnAircraft();
 
-            dataStore.vatsim.data.general.value!.update_timestamp = dataStore.versions.value!.vatsim.data;
-            dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+            dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
+            dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
         }
     }, 3000);
 
@@ -377,7 +390,7 @@ await useAsyncData(async () => {
 
         ul {
             &, a {
-                color: varToRgba('neutral150', 0.2);
+                color: varToRgba('neutral150', 0.4);
             }
 
             text-shadow: none;

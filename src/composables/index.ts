@@ -14,7 +14,7 @@ export function isPointInExtent(point: Coordinate, extent = useMapStore().extent
 
 export function getCurrentThemeHexColor(color: ColorsList) {
     const store = useStore();
-    const theme = store.localSettings.theme ?? 'default';
+    const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Hex`];
 
     //@ts-expect-error
@@ -22,7 +22,7 @@ export function getCurrentThemeHexColor(color: ColorsList) {
 }
 export function getCurrentThemeRgbColor(color: ColorsList) {
     const store = useStore();
-    const theme = store.localSettings.theme ?? 'default';
+    const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Rgb`];
 
     //@ts-expect-error
