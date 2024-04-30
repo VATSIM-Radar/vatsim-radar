@@ -56,10 +56,10 @@
         :hide="!isVisible"
     />
     <map-overlay
-        v-if="isHovered"
+        v-if="hoveredFeature"
         model-value
         :settings="
-            isTracon ?
+            hasTracon ?
                 { position: hoveredPixel!, positioning: 'top-center', stopEvent: true } :
                 { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
         "
@@ -67,9 +67,9 @@
         @mouseover="$emit('manualHover')"
         @mouseleave="$emit('manualHide')"
     >
-        <common-controller-info :controllers="arrAtc" show-atis>
+        <common-controller-info :controllers="hoveredFeature.controllers" show-atis>
             <template #title>
-                {{ airport.name }} Approach/Departure
+                {{ hoveredFeature.feature.getProperties()?.name ?? `${ airport.name } Approach/Departure` }}
             </template>
         </common-controller-info>
     </map-overlay>
@@ -118,9 +118,9 @@ const props = defineProps({
         type: Array as PropType<VatsimShortenedController[]>,
         required: true,
     },
-    isHovered: {
-        type: Boolean,
-        default: false,
+    hoveredId: {
+        type: String as PropType<string | null>,
+        default: null,
     },
     hoveredPixel: {
         type: Array as PropType<Coordinate | null>,
@@ -141,7 +141,6 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hoveredFacility = ref<boolean | number>(false);
-const isTracon = ref(false);
 
 const hoveredFacilities = computed(() => {
     if (!hoveredFacility.value) return [];
@@ -187,10 +186,18 @@ const localsFacilities = computed(() => {
 });
 
 let feature: Feature | null = null;
-let arrFeature: Feature | null = null;
+
+interface ArrFeature {
+    id: string,
+    controllers: VatsimShortenedController[],
+    feature: Feature
+}
+
+const arrFeatures = shallowRef<{ id: string, controllers: VatsimShortenedController[], feature: Feature }[]>([]);
 let gatesFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
+const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
 
 function initAirport() {
     feature = new Feature({
@@ -224,8 +231,12 @@ watch(getAirportColor, () => {
     }));
 });
 
-function setFeatureStyle() {
-    arrFeature?.setStyle(new Style({
+const hasTracon = computed(() => {
+    return arrFeatures.value.some(x => x.id !== 'circle');
+});
+
+function setFeatureStyle(feature: Feature) {
+    feature.setStyle(new Style({
         stroke: new Stroke({
             color: '#3B6CEC',
             width: 2,
@@ -235,8 +246,8 @@ function setFeatureStyle() {
             text: airportName.value,
             placement: 'line',
             offsetY: -10,
-            textAlign: isTracon.value ? 'left' : 'center',
-            maxAngle: isTracon.value ? undefined : toRadians(20),
+            textAlign: hasTracon.value ? undefined : 'center',
+            maxAngle: hasTracon.value ? undefined : toRadians(20),
             fill: new Fill({
                 color: '#3B6CEC',
             }),
@@ -244,12 +255,22 @@ function setFeatureStyle() {
     }));
 }
 
+function clearArrFeatures() {
+    for (const { feature } of arrFeatures.value) {
+        vectorSource.value?.removeFeature(feature);
+        feature.dispose();
+    }
+
+    arrFeatures.value = [];
+}
+
 onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);
-    const atcLength = computed(() => props.arrAtc.length);
+
+    const arrAtcLocal = shallowRef(new Set<number>());
     const gates = computed(() => props.gates);
 
-    if (props.airport.iata === 'SOLENT') console.log(atcLength.value);
+    const geojson = new GeoJSON();
 
     watch(localsLength, (val) => {
         if (!val && !feature) {
@@ -264,49 +285,96 @@ onMounted(() => {
         immediate: true,
     });
 
-    watch(atcLength, (val) => {
-        if (!val && arrFeature) {
-            vectorSource.value?.removeFeature(arrFeature);
-            arrFeature.dispose();
-            arrFeature = null;
+    watch(dataStore.vatsim.updateTimestamp, () => {
+        if (!props.arrAtc?.length) {
+            clearArrFeatures();
+
             return;
         }
 
-        if (!val || arrFeature) return;
+        if (props.arrAtc.every(x => arrAtcLocal.value.has(x.cid)) && [...arrAtcLocal.value].every(x => props.arrAtc.some(y => y.cid === x))) return;
+        arrAtcLocal.value = new Set<number>(props.arrAtc.map(x => x.cid));
+        clearArrFeatures();
 
-        let tracon = dataStore.simaware.value?.data.features.find((x) => {
-            return props.arrAtc.some((y) => {
-                if (typeof x.properties?.prefix === 'string') return y.callsign.startsWith(x.properties.prefix);
+        const features: ArrFeature[] = [];
 
-                return (x.properties?.prefix as string[])?.some(x => y.callsign.startsWith(x));
-            });
-        });
+        const tracons = dataStore.simaware.value?.data.features.map((x) => {
+            return {
+                atc: props.arrAtc.filter((y) => {
+                    //To match UNKL_RW -> UNKL_R
+                    if (y.callsign.split('_').length >= 3) {
+                        if (typeof x.properties?.prefix === 'string') return x.properties.prefix.split('_').length >= 2 && y.callsign.startsWith(x.properties.prefix);
+
+                        return (x.properties?.prefix as string[])?.some(x => x.split('_').length >= 2 && y.callsign.startsWith(x));
+                    }
+
+                    if (typeof x.properties?.prefix === 'string') return y.callsign.split('_')[0] === x.properties.prefix;
+
+                    return (x.properties?.prefix as string[])?.some(x => y.callsign.split('_')[0] === x);
+                }),
+                feature: x,
+            };
+        }).filter(x => x.atc.length) ?? [];
 
         //If didn't find by prefix
-        if (!tracon) tracon = dataStore.simaware.value?.data.features.find(x => x.properties?.id === airportName.value);
+        if (!tracons.length) {
+            const airport = dataStore.simaware.value?.data.features.find(x => x.properties?.id === airportName.value);
+            if (airport) {
+                tracons.push({
+                    atc: props.arrAtc,
+                    feature: airport,
+                });
+            }
+        }
 
-        if (!tracon) {
-            arrFeature = new Feature({
-                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
-                icao: props.airport.icao,
-                iata: props.airport.iata,
-                type: 'circle',
+        if (!tracons.length) {
+            features.push({
+                id: 'circle',
+                feature: new Feature({
+                    geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                    icao: props.airport.icao,
+                    iata: props.airport.iata,
+                    id: 'circle',
+                    type: 'circle',
+                }),
+                controllers: props.arrAtc,
             });
-            isTracon.value = false;
         }
         else {
-            arrFeature = new GeoJSON().readFeature(tracon);
-            arrFeature?.setProperties({
-                ...(arrFeature?.getProperties() ?? {}),
-                icao: props.airport.icao,
-                iata: props.airport.iata,
-                type: 'tracon',
-            });
-            isTracon.value = true;
+            const leftAtc = props.arrAtc.filter(x => !tracons.some(y => y.atc.some(y => y.cid === x.cid)));
+
+            for (const {
+                feature,
+                atc,
+            } of tracons) {
+                const geoFeature = geojson.readFeature(feature);
+                const id = JSON.stringify(feature.properties!);
+
+                geoFeature.setProperties({
+                    ...(geoFeature?.getProperties() ?? {}),
+                    icao: props.airport.icao,
+                    iata: props.airport.iata,
+                    type: 'tracon',
+                    id,
+                });
+
+                features.push({
+                    id,
+                    feature: geoFeature,
+                    controllers: [
+                        ...atc,
+                        ...leftAtc,
+                    ],
+                });
+            }
         }
 
-        setFeatureStyle();
-        vectorSource.value?.addFeature(arrFeature);
+        arrFeatures.value = features;
+
+        for (const { feature } of features) {
+            setFeatureStyle(feature);
+            vectorSource.value?.addFeature(feature);
+        }
     }, {
         immediate: true,
     });
@@ -381,11 +449,7 @@ onBeforeUnmount(() => {
         feature = null;
     }
 
-    if (arrFeature) {
-        vectorSource.value?.removeFeature(arrFeature);
-        arrFeature.dispose();
-        arrFeature = null;
-    }
+    clearArrFeatures();
 
     gatesFeatures.forEach((feature) => {
         vectorSource.value?.removeFeature(feature);

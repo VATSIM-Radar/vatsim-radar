@@ -7,7 +7,7 @@
         :is-visible="visibleAirports.length < 100 && visibleAirports.includes(airport.icao)"
         :local-atc="localAtc"
         :arr-atc="arrAtc"
-        :is-hovered="airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport"
+        :hovered-id="((airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport) && hoveredId) ? hoveredId : null"
         :hovered-pixel="hoveredPixel"
         :gates="getAirportsGates.find(x => x.airport === airport.icao)?.gates"
         @manualHover="[isManualHover = true, hoveredAirport = airport.iata || airport.icao]"
@@ -43,8 +43,10 @@ const visibleAirports = shallowRef<string[]>([]);
 const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>([]);
 const originalGates = shallowRef<NavigraphGate[]>([]);
 const isManualHover = ref(false);
+
 const hoveredAirport = ref<string | null>(null);
 const hoveredPixel = ref<Coordinate | null>(null);
+const hoveredId = ref<string | null>(null);
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
@@ -77,6 +79,8 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     if (!hoveredPixel.value) {
         hoveredPixel.value = map.value!.getCoordinateFromPixel(e.pixel);
     }
+
+    hoveredId.value = features[0].getProperties().id;
     hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
 }
