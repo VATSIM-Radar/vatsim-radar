@@ -301,10 +301,15 @@ const getAirportsList = computed(() => {
 
     //Non-strict check
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const airport = airports.find(x => x.airport.iata === sector.properties?.id || x.airport.icao === sector.properties?.id);
+        const prefixes = getTraconPrefixes(sector);
+        const airport = airports.find(x =>
+            x.airport.iata === sector.properties?.id ||
+            x.airport.icao === sector.properties?.id ||
+            prefixes.some(y => y.split('_')[0] === x.airport.icao) ||
+            prefixes.some(y => y.split('_')[0] === x.airport.iata),
+        );
         if (!airport?.arrAtc.length) continue;
 
-        const prefixes = getTraconPrefixes(sector);
         const id = JSON.stringify(sector.properties);
 
         //Only non found
@@ -369,7 +374,7 @@ async function setVisibleAirports() {
         const gatesAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
         if (!gatesAirports.every(x => airportsGates.value.some(y => y.airport === x.vatsimAirport.icao))) {
-            originalGates.value = (await Promise.all(gatesAirports.map(x => $fetch(`/data/navigraph/gates/${ x }`)))).flatMap(x => x ?? []);
+            originalGates.value = (await Promise.all(gatesAirports.map(x => $fetch(`/data/navigraph/gates/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []);
         }
 
         airportsGates.value = await Promise.all(gatesAirports.map((airport) => {

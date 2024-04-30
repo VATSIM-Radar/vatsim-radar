@@ -42,6 +42,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
 
     const token = await prisma.userToken.findFirst({
         select: {
+            id: true,
             user: {
                 select: {
                     id: true,

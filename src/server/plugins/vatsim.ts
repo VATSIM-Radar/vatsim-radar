@@ -66,7 +66,7 @@ export default defineNitroPlugin((app) => {
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
                 /*data.controllers.push({
-                    callsign: 'REG_APP',
+                    callsign: 'JFK_G_APP',
                     cid: 0,
                     facility: 5,
                     frequency: '122.122',
