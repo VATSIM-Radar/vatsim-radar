@@ -247,7 +247,7 @@ function setFeatureStyle(feature: Feature) {
             placement: 'line',
             offsetY: -10,
             textAlign: hasTracon.value ? undefined : 'center',
-            maxAngle: hasTracon.value ? undefined : toRadians(20),
+            maxAngle: toRadians(20),
             fill: new Fill({
                 color: '#3B6CEC',
             }),
