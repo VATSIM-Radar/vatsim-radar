@@ -230,11 +230,6 @@ function setFeatureStyle() {
             color: '#3B6CEC',
             width: 2,
         }),
-        fill: props.isHovered
-            ? new Fill({
-                color: 'rgba(59,108,236,0.2)',
-            })
-            : undefined,
         text: new Text({
             font: 'bold 14px Montserrat',
             text: airportName.value,
@@ -248,10 +243,6 @@ function setFeatureStyle() {
         }),
     }));
 }
-
-watch(() => props.isHovered, () => {
-    setFeatureStyle();
-});
 
 onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);

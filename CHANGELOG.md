@@ -7,7 +7,6 @@
 - Added About page. You can navigate to it via attributions in bottom right corner or via Privacy policy
 - Traffic consumption has been reduced a bit
 - Fixed SOLENT radar display (as well as some other similar fake airports)
-- Added background hover effect for approach sectors
 
 # 0.2.1
 

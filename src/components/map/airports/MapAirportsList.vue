@@ -173,8 +173,6 @@ const getAirportsList = computed(() => {
         arrAtc: [] as VatsimShortenedController[],
     }));
 
-    console.log(airports.filter(x => x.airport.iata === 'SOLENT'));
-
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         const foundAirports = airports.filter(x => x.aircraftsCids.includes(pilot.cid));
         if (!foundAirports.length) continue;

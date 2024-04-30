@@ -1,7 +1,6 @@
 import type { PartialRecord } from '~/types/index';
 import type { VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate';
-import type { ThemesList } from '~/modules/styles';
 
 export interface MapAirport {
     icao: string;
