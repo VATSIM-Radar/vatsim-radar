@@ -60,7 +60,7 @@
         model-value
         :settings="
             isTracon ?
-                { position: hoveredPixel!, positioning: 'top-center', offset: [0, 10], stopEvent: true } :
+                { position: hoveredPixel!, positioning: 'top-center', stopEvent: true } :
                 { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
         "
         :z-index="21"
