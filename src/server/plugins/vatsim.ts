@@ -67,7 +67,7 @@ export default defineNitroPlugin((app) => {
 
                 /*data.controllers.push({
                     callsign: 'JFK_G_APP',
-                    cid: 0,
+                    cid: 1,
                     facility: 5,
                     frequency: '122.122',
                     last_updated: '',

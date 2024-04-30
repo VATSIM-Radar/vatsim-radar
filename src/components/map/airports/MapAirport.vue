@@ -296,6 +296,7 @@ onMounted(() => {
     watch(dataStore.vatsim.updateTimestamp, () => {
         if (!props.arrAtc?.length) {
             clearArrFeatures();
+            arrAtcLocal.value.clear();
 
             return;
         }
