@@ -60,6 +60,7 @@
                     :controllers="section.controllers"
                     :show-facility="section.type === 'ground'"
                     show-atis
+                    small
                 />
             </div>
         </template>

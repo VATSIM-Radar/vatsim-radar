@@ -1,7 +1,10 @@
 <template>
     <div
         class="atc-popup-container"
-        :class="{'atc-popup-container--absolute': absolute}"
+        :class="{
+            'atc-popup-container--absolute': absolute,
+            'atc-popup-container--small': small,
+        }"
     >
         <common-popup-block class="atc-popup">
             <template #title v-if="$slots.title">
@@ -113,6 +116,10 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    small: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const dataStore = useDataStore();
@@ -136,14 +143,17 @@ const getATIS = (controller: VatsimShortenedController) => {
 
     &-container {
         width: max-content;
-        max-width: min(450px, 100%);
+        max-width: 450px;
         z-index: 20;
         padding: 5px 0;
         cursor: initial;
 
+        &--small {
+            max-width: min(450px, 100%);
+        }
+
         &--absolute {
             position: absolute;
-            max-width: 450px;
         }
     }
 
