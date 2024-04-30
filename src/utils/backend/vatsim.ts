@@ -3,6 +3,8 @@ import { createError } from 'h3';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import type { Coordinate } from 'ol/coordinate';
+import { radarStorage } from '~/utils/backend/storage';
+import { getTraconPrefixes } from '~/utils/shared/vatsim';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/auth/vatsim`;
@@ -75,4 +77,16 @@ export async function vatsimGetUser(token: string) {
     }
 
     return result;
+}
+
+export function findAirportSomewhere(callsign: string) {
+    let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsign || x.icao === callsign);
+    if (vatspy) return vatspy;
+
+    const simaware = radarStorage.simaware.data?.features.find(x => x.properties?.id === callsign || getTraconPrefixes(x).some(x => x.split('_')[0] === callsign));
+    if (simaware) callsign = simaware.properties?.id;
+
+    vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsign || x.icao === callsign);
+
+    return vatspy ?? simaware;
 }

@@ -1,6 +1,7 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import type { Coordinate } from 'ol/coordinate';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 
 export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot): Coordinate {
     let lonAdjustment = 0;
@@ -97,4 +98,12 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
 export function getPilotTrueAltitude(pilot: VatsimShortenedAircraft): number {
     if (pilot.altitude < 9500) return pilot.altitude;
     return Math.round(pilot.altitude - (pilot.qnh_mb - 1013) * 28.9);
+}
+
+export function getTraconPrefixes(tracon: GeoJSONFeature): string[] {
+    if (typeof tracon.properties?.prefix === 'string') return [tracon.properties.prefix];
+
+    if (typeof tracon.properties?.prefix === 'object' && Array.isArray(tracon.properties.prefix)) return tracon.properties.prefix;
+
+    return [];
 }

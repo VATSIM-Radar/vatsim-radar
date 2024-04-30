@@ -1,6 +1,6 @@
 <template>
     <map-overlay
-        v-if="localAtc.length"
+        v-if="localAtc.length && 'lon' in airport"
         :popup="!!hoveredFacility"
         @update:popup="!$event ? hoveredFacility = false : undefined"
         :settings="{position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility,}"
@@ -50,6 +50,7 @@
         </div>
     </map-overlay>
     <map-airport-counts
+        v-if="'lon' in airport"
         :aircrafts="aircrafts"
         :airport="airport"
         :offset="localAtc.length ? [localATCOffsetX, 0] : undefined"
@@ -59,7 +60,7 @@
         v-if="hoveredFeature"
         model-value
         :settings="
-            hasTracon ?
+            (hasTracon || !('lon' in airport)) ?
                 { position: hoveredPixel!, positioning: 'top-center', stopEvent: true } :
                 { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
         "
@@ -69,14 +70,14 @@
     >
         <common-controller-info :controllers="hoveredFeature.controllers" show-atis>
             <template #title>
-                {{ hoveredFeature.feature.getProperties()?.name ?? `${ airport.name } Approach/Departure` }}
+                {{ hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure` }}
             </template>
         </common-controller-info>
     </map-overlay>
 </template>
 
 <script setup lang="ts">
-import type { VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyData, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
 import { Feature } from 'ol';
@@ -97,7 +98,7 @@ import type { AirportTraconFeature } from '~/components/map/airports/MapAirports
 
 const props = defineProps({
     airport: {
-        type: Object as PropType<VatSpyData['airports'][0]>,
+        type: Object as PropType<VatSpyData['airports'][0] | VatSpyDataLocalATC['airport']>,
         required: true,
     },
     aircrafts: {
@@ -205,6 +206,7 @@ const airportName = computed(() => (props.airport.isPseudo && props.airport.iata
 const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
 
 function initAirport() {
+    if (!('lon' in props.airport)) return;
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat]),
     });
@@ -243,7 +245,7 @@ const hasTracon = computed(() => {
 function setFeatureStyle(feature: Feature) {
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: '#3B6CEC',
+            color: radarColors.primary300Hex,
             width: 2,
         }),
         text: new Text({
@@ -253,8 +255,9 @@ function setFeatureStyle(feature: Feature) {
             offsetY: -10,
             textAlign: hasTracon.value ? undefined : 'center',
             maxAngle: toRadians(20),
+            overflow: true,
             fill: new Fill({
-                color: '#3B6CEC',
+                color: radarColors.primary300Hex,
             }),
         }),
     }));
@@ -303,7 +306,7 @@ onMounted(() => {
 
         const features: ArrFeature[] = [];
 
-        if (!props.features.length) {
+        if (!props.features.length && 'lon' in props.airport) {
             features.push({
                 id: 'circle',
                 feature: new Feature({

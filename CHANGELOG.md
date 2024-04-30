@@ -1,5 +1,17 @@
 # Changelog
 
+# 0.2.3
+
+This release summaries all hotfixes that was made today. Sorry for last days release spam :)
+
+- Refactored airports data parsing for performance improvements. This fixes performance degradation introduced in today's 0.2.2 and makes performance even better than before 0.2.2
+- Added SimAware TRACON Data as second source to fix Santiago Approach and some others: they will be displayed even if missing in VatSpy data
+- Added support for multiple sectors in airport (for example, Radar and Approach operates simultaneously as different sectors in many Russian airports)
+- Added different color for approach sectors to highlight them in contrast with Area Control
+- Reworked TRACON label placement to let engine deal with it
+- Fixes for light theme
+- You would now be able to see approach label from much higher zoom. Tell me how if it looks horrible for you!
+
 # 0.2.2
 
 - Added accurate TMA approach sectors based on SimAware TRACON project

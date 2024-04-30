@@ -6,6 +6,7 @@ export interface MapAirport {
     icao: string;
     iata?: string;
     isPseudo: boolean;
+    isSimAware: boolean;
     aircrafts: Partial<{
         groundDep: number[]
         groundArr: number[]

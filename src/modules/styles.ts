@@ -16,6 +16,7 @@ export const colorsList = {
     neutral850: '#252528',
     neutral800: '#333340',
 
+    primary300: '#5ca2fd',
     primary400: '#5987FF',
     primary500: '#3B6CEC',
     primary600: '#2052D4',

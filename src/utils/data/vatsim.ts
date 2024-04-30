@@ -3,6 +3,7 @@ import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/
 import { radarStorage } from '~/utils/backend/storage';
 import type { MapAirport } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate';
+import { findAirportSomewhere } from '~/utils/backend/vatsim';
 
 export const useFacilitiesIds = () => {
     return {
@@ -71,7 +72,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
 
     return locals.map((atc) => {
         const callsignAirport = atc.callsign.split('_')[0];
-        const airport = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
+        const airport = findAirportSomewhere(callsignAirport);
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
         return {
@@ -80,9 +81,10 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
                 isATIS: atc.callsign.endsWith('ATIS'),
             },
             airport: {
-                icao: airport.icao,
-                iata: airport.iata,
-                isPseudo: airport.isPseudo,
+                icao: 'icao' in airport ? airport.icao : airport.properties!.id,
+                iata: 'icao' in airport ? airport.iata : airport.properties!.id,
+                isPseudo: !('icao' in airport),
+                isSimAware: !('icao' in airport),
             },
             isATIS: atc.callsign.endsWith('ATIS'),
         };
@@ -149,6 +151,7 @@ export function getAirportsList() {
                 icao: airport.icao,
                 iata: airport.iata,
                 isPseudo: airport.isPseudo,
+                isSimAware: false,
                 aircrafts: {
                     [status]: [pilot],
                 },
@@ -240,6 +243,7 @@ export function getAirportsList() {
                 icao: airport.icao,
                 iata: airport.iata,
                 isPseudo: airport.isPseudo,
+                isSimAware: airport.isSimAware,
                 aircrafts: {},
             });
         }

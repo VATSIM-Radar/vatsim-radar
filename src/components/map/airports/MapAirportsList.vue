@@ -29,12 +29,14 @@ import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortene
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
-import { adjustPilotLonLat, checkIsPilotInGate } from '~/utils/shared/vatsim';
+import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyData } from '~/types/data/vatspy';
+import { containsExtent } from 'ol/extent';
+import { GeoJSON } from 'ol/format';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -178,14 +180,6 @@ export interface AirportTraconFeature {
     controllers: VatsimShortenedController[],
 }
 
-function getTraconPrefixes(tracon: GeoJSONFeature): string[] {
-    if (typeof tracon.properties?.prefix === 'string') return [tracon.properties.prefix];
-
-    if (typeof tracon.properties?.prefix === 'object' && Array.isArray(tracon.properties.prefix)) return tracon.properties.prefix;
-
-    return [];
-}
-
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
     const airports = visibleAirports.value.map(({ vatsimAirport, vatspyAirport }) => ({
@@ -275,6 +269,7 @@ const getAirportsList = computed(() => {
     //Strict check
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const airport = airports.find(x => x.airport.iata === sector.properties?.id || x.airport.icao === sector.properties?.id);
+
         if (!airport?.arrAtc.length) continue;
 
         const prefixes = getTraconPrefixes(sector);
@@ -323,6 +318,8 @@ const getAirportsList = computed(() => {
     return airports;
 });
 
+const geoJson = new GeoJSON();
+
 async function setVisibleAirports() {
     const extent = mapStore.extent.slice();
     extent[0] -= 100000;
@@ -332,9 +329,24 @@ async function setVisibleAirports() {
 
     //@ts-expect-error
     visibleAirports.value = dataStore.vatsim.data.airports.value.map((x) => {
-        const airport = dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao)!;
+        const airport = x.isSimAware ? x : dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
         if (!airport) return null;
-        const coordinates = [airport.lon, airport.lat];
+
+        if (x.isSimAware) {
+            const simawareFeature = dataStore.simaware.value?.data.features.find(y => y.properties?.id === x.icao);
+            if (!simawareFeature) return null;
+
+            const feature = geoJson.readFeature(simawareFeature);
+
+            return containsExtent(extent, feature.getGeometry()!.getExtent())
+                ? {
+                    vatspyAirport: airport,
+                    vatsimAirport: x,
+                }
+                : null;
+        }
+
+        const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];
 
         return isPointInExtent(coordinates, extent)
             ? {
@@ -345,11 +357,13 @@ async function setVisibleAirports() {
     }).filter(x => !!x) ?? [];
 
     if ((map.value!.getView().getZoom() ?? 0) > 13) {
-        if (!visibleAirports.value.every(x => airportsGates.value.some(y => y.airport === x.vatsimAirport.icao))) {
-            originalGates.value = (await Promise.all(visibleAirports.value.map(x => $fetch(`/data/navigraph/gates/${ x }`)))).flatMap(x => x ?? []);
+        const gatesAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
+
+        if (!gatesAirports.every(x => airportsGates.value.some(y => y.airport === x.vatsimAirport.icao))) {
+            originalGates.value = (await Promise.all(gatesAirports.map(x => $fetch(`/data/navigraph/gates/${ x }`)))).flatMap(x => x ?? []);
         }
 
-        airportsGates.value = await Promise.all(visibleAirports.value.map((airport) => {
+        airportsGates.value = await Promise.all(gatesAirports.map((airport) => {
             const gatesWithPixel = originalGates.value.filter(x => x.airport_identifier === airport.vatsimAirport.icao).map(x => ({
                 ...x,
                 pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),

@@ -67,5 +67,6 @@ export interface VatSpyDataLocalATC {
         icao: string
         iata?: string
         isPseudo: boolean
+        isSimAware: boolean
     };
 }
