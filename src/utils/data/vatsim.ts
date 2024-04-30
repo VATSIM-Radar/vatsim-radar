@@ -235,7 +235,7 @@ export function getAirportsList() {
 
     radarStorage.vatsim.locals.forEach((atc) => {
         const airport = atc.airport;
-        if (!airports.some(x => x.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
+        if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
             airports.push({
                 icao: airport.icao,
                 iata: airport.iata,
