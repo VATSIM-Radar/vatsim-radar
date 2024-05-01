@@ -25,7 +25,11 @@
                     {{ aircraft.aircraft_faa }}
                 </template>
                 <div class="aircraft-hover_body">
-                    <common-info-block class="aircraft-hover__pilot" is-button @click="mapStore.addPilotOverlay(aircraft.cid.toString())">
+                    <common-info-block
+                        class="aircraft-hover__pilot"
+                        is-button
+                        @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
+                    >
                         <template #bottom>
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
@@ -90,6 +94,7 @@
         >
             <div
                 class="aircraft-label"
+                :class="[`aircraft-label--type${getPostfix}`]"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
                 @mouseleave="hovered = false"
                 @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
@@ -114,8 +119,8 @@ import { isPilotOnGround, usePilotRating } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
-import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { getCurrentThemeHexColor } from '#imports';
 
@@ -162,16 +167,27 @@ const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.
 const icon = computed(() => getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
-const setStyle = () => {
-    if (!feature) return;
+const getPostfix = computed(() => {
     let iconPostfix = '';
-    if (isSelfFlight.value) iconPostfix = '-green';
-    else if (activeCurrentOverlay.value) iconPostfix = '-active';
-    else if (props.isHovered) iconPostfix = '-hover';
+    if (isSelfFlight.value) {
+        iconPostfix = '-green';
+    }
+    else if (activeCurrentOverlay.value) {
+        iconPostfix = '-active';
+    }
+    else if (props.isHovered) {
+        iconPostfix = '-hover';
+    }
     else if (store.theme === 'light') iconPostfix = '-light';
 
+    return iconPostfix;
+});
+
+const setStyle = () => {
+    if (!feature) return;
+
     const styleIcon = new Icon({
-        src: `/aircrafts/${ icon.value.icon }${ iconPostfix }.png`,
+        src: `/aircrafts/${ icon.value.icon }${ getPostfix.value }.png`,
         width: icon.value.width,
         rotation: degreesToRadians(props.aircraft.heading ?? 0),
     });
@@ -406,14 +422,27 @@ onBeforeUnmount(() => {
 }
 
 .aircraft-label {
-    padding-top: 5px;
+    padding-top: 3px;
     width: fit-content;
     transform: translate(-50%, 0);
     top: calc(var(--imageHeight) / 2);
     position: absolute;
-    color: $neutral150;
-    font-size: 12px;
+    color: $primary500;
+    font-size: 11px;
     user-select: none;
     cursor: pointer;
+    font-weight: 600;
+
+    &--type-hover {
+        color: $warning500;
+    }
+
+    &--type-active {
+        color: $warning700;
+    }
+
+    &--type-green {
+        color: $success500;
+    }
 }
 </style>

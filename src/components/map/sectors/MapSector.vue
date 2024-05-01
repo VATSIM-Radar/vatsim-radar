@@ -161,6 +161,12 @@ onBeforeUnmount(() => {
 }
 </style>
 
+<style lang="scss">
+.theme-light .sector-atc_name {
+    box-shadow: 0 0 10px 2px varToRgba('neutral150', 0.15);
+}
+</style>
+
 <style lang="scss" scoped>
 .sector-atc {
     &_name {
@@ -170,7 +176,7 @@ onBeforeUnmount(() => {
         padding: 4px;
         border-radius: 4px;
         font-weight: 700;
-        font-size: 14px;
+        font-size: 13px;
         text-align: center;
         position: relative;
         z-index: 10;

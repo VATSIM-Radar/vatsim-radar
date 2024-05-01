@@ -14,11 +14,13 @@ import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapSector from '~/components/map/sectors/MapSector.vue';
+import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
+const store = useStore();
 const dataStore = useDataStore();
 
 const firs = computed(() => {
@@ -82,7 +84,7 @@ watch(map, (val) => {
                 else if (type === 'root') {
                     return new Style({
                         fill: new Fill({
-                            color: 'rgba(230, 230, 235, 0.05)',
+                            color: store.theme === 'light' ? 'rgba(25, 25, 25, 0.05)' : 'rgba(230, 230, 235, 0.05)',
                         }),
                         stroke: new Stroke({
                             color: '#272878',

@@ -60,7 +60,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
         hitTolerance: 5,
         layerFilter: layer => layer === vectorLayer,
-    });
+    }).filter(x => x.getProperties().type !== 'background');
 
     let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
 

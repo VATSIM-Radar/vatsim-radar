@@ -1,5 +1,16 @@
 # Changelog
 
+# 0.2.4
+
+- Minified ATC airport card
+- Added shadow for Area ATC card in light theme
+- Added basic hover for approach controller selection
+- Redesigned aircraft label
+- Changed aircraft hover color
+- Improved FSS color decision on light theme
+- Fixed error when your hover overlay could be replaced by approach controller overlay for no reason
+- Removed CartoDB labels to make map more clear. There will be a setting to enable them back in future
+
 # 0.2.3
 
 This release summaries all hotfixes that was made today. Sorry for last days release spam :)

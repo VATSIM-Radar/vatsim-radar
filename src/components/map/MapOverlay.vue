@@ -38,6 +38,15 @@ const props = defineProps({
     },
 });
 
+const emit = defineEmits({
+    id(id: string) {
+        return true;
+    },
+    popupId(popupId: string) {
+        return true;
+    },
+});
+
 const model = defineModel({
     type: Boolean,
     default: true,
@@ -55,6 +64,10 @@ const mapStore = useMapStore();
 
 const id = useId();
 const popupId = `${ id }-popup`;
+
+emit('id', id);
+emit('popupId', popupId);
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const overlayElement = ref<HTMLDivElement | null>(null);
 
@@ -100,6 +113,8 @@ const canShowOverlay = computed(() => mapStore.canShowOverlay);
 watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
+        if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) return;
+
         overlay.value = new Overlay({
             stopEvent: false,
             ...props.settings,
@@ -124,6 +139,8 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
     }
 
     if (!oldPopupVal && popupVal && oldOverlayId !== popupId) {
+        if (mapStore.openOverlayId && mapStore.openOverlayId && mapStore.openOverlayId !== popupId) return;
+
         mapStore.openOverlayId = popupId;
     }
     else if (popup.value && mapStore.openOverlayId !== popupId) {
@@ -169,5 +186,6 @@ onBeforeUnmount(() => {
     }
 
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
+    if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;
 });
 </script>

@@ -18,7 +18,7 @@ watch(map, (val) => {
         tileLayer = new TileLayer({
             source: new XYZ({
                 attributions: '© <a href="/about" target="_blank">3rd Party Projects</a> © <a href="http://cartodb.com/attributions" target="_blank">CartoDB</a>',
-                url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',
+                url: 'https://cartodb-basemaps-a.global.ssl.fastly.net/dark_nolabels/{z}/{x}/{y}.png',
                 wrapX: true,
             }),
             zIndex: 0,

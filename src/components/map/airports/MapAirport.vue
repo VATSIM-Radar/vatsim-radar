@@ -70,7 +70,9 @@
     >
         <common-controller-info :controllers="hoveredFeature.controllers" show-atis>
             <template #title>
-                {{ hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure` }}
+                {{
+                    hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure`
+                }}
             </template>
         </common-controller-info>
     </map-overlay>
@@ -95,6 +97,7 @@ import { getCurrentThemeRgbColor } from '~/composables';
 import { GeoJSON } from 'ol/format';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 
 const props = defineProps({
     airport: {
@@ -155,7 +158,7 @@ const hoveredFacilities = computed(() => {
 });
 
 const localATCOffsetX = computed(() => {
-    const offset = localsFacilities.value.length * 16 + 12;
+    const offset = localsFacilities.value.length * 14 + 10;
     if (offset < 30) return 30;
     return offset / 2 + 5;
 });
@@ -164,7 +167,7 @@ const getAirportColor = computed(() => {
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
     if (!hasOverlay) {
-        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('neutral150').join(',') }, 0.8)`;
+        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('neutral200').join(',') }, 0.7)`;
         return radarColors.neutral150;
     }
 
@@ -192,14 +195,16 @@ const localsFacilities = computed(() => {
 });
 
 let feature: Feature | null = null;
+let hoverFeature: Feature | null = null;
 
 interface ArrFeature {
     id: string,
     controllers: VatsimShortenedController[],
     feature: Feature
+    traconFeature?: GeoJSONFeature
 }
 
-const arrFeatures = shallowRef<{ id: string, controllers: VatsimShortenedController[], feature: Feature }[]>([]);
+const arrFeatures = shallowRef<ArrFeature[]>([]);
 let gatesFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
@@ -238,6 +243,29 @@ watch(getAirportColor, () => {
     }));
 });
 
+const geojson = new GeoJSON();
+
+watch(hoveredFeature, (val) => {
+    if (!val?.traconFeature && hoverFeature) {
+        vectorSource.value?.removeFeature(hoverFeature);
+        hoverFeature.dispose();
+        hoverFeature = null;
+    }
+    else if (val?.traconFeature && !hoverFeature) {
+        hoverFeature = geojson.readFeature(val.traconFeature);
+        hoverFeature?.setProperties({
+            ...hoverFeature?.getProperties(),
+            type: 'background',
+        });
+        hoverFeature.setStyle(new Style({
+            fill: new Fill({
+                color: `rgba(${ radarColors.primary400Rgb.join(',') }, 0.4)`,
+            }),
+        }));
+        vectorSource.value?.addFeature(hoverFeature);
+    }
+});
+
 const hasTracon = computed(() => {
     return arrFeatures.value.some(x => x.id !== 'circle');
 });
@@ -254,7 +282,7 @@ function setFeatureStyle(feature: Feature) {
             placement: 'line',
             offsetY: -10,
             textAlign: hasTracon.value ? undefined : 'center',
-            maxAngle: toRadians(20),
+            maxAngle: hasTracon.value ? toRadians(15) : toRadians(20),
             overflow: true,
             fill: new Fill({
                 color: radarColors.primary300Hex,
@@ -277,8 +305,6 @@ onMounted(() => {
 
     const arrAtcLocal = shallowRef(new Set<number>());
     const gates = computed(() => props.gates);
-
-    const geojson = new GeoJSON();
 
     watch(localsLength, (val) => {
         if (!val && !feature) {
@@ -342,6 +368,7 @@ onMounted(() => {
                 features.push({
                     id,
                     feature: geoFeature,
+                    traconFeature,
                     controllers: [
                         ...controllers,
                         ...leftAtc,
@@ -430,6 +457,12 @@ onBeforeUnmount(() => {
         feature = null;
     }
 
+    if (hoverFeature) {
+        vectorSource.value?.removeFeature(hoverFeature);
+        hoverFeature.dispose();
+        hoverFeature = null;
+    }
+
     clearArrFeatures();
 
     gatesFeatures.forEach((feature) => {
@@ -442,7 +475,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .airport {
     background: varToRgba('neutral800', 0.5);
-    padding: 4px;
+    padding: 3px;
     border-radius: 4px;
     font-size: 11px;
     text-align: center;
@@ -457,18 +490,19 @@ onBeforeUnmount(() => {
     &_title {
         cursor: pointer;
         color: var(--color);
+        font-weight: 600;
     }
 
     &_facilities {
         display: flex;
         justify-content: center;
-        margin-top: 4px;
+        margin-top: 2px;
         font-weight: 600;
         color: $neutral0Orig;
 
         &_facility {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             display: flex;
             justify-content: center;
             align-items: center;
