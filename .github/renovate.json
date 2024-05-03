@@ -1,0 +1,91 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "assignees": [
+    "daniluk4000"
+  ],
+  "enabledManagers": [
+    "npm",
+    "bun",
+    "yarn"
+  ],
+  "branchPrefix": "chore/renovate/",
+  "rebaseWhen": "behind-base-branch",
+  "commitMessageAction": "chore(deps): Update",
+  "commitMessageTopic": "dependency {{depName}}",
+  "semanticCommits": "disabled",
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "node",
+        "arm64v8/node"
+      ],
+      "versioning": "node"
+    },
+    {
+      "matchPackageNames": "@types/node",
+      "minimumReleaseAge": "1 week"
+    },
+    {
+      "matchPackageNames": "vue-tsc",
+      "allowedVersions": "<2"
+    },
+    {
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0/"
+    },
+    {
+      "matchPackageNames": [
+        "vue"
+      ],
+      "groupName": "Vue",
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
+        "nuxt"
+      ],
+      "groupName": "Nuxt",
+      "separateMinorPatch": true
+    }
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "commitMessageAction": "chore(deps): Lockfile Maintenance",
+    "schedule": [
+      "before 4am on friday"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "commitMessageSuffix": "chore(deps-security)"
+  },
+  "updateInternalDeps": true,
+  "baseBranches": [
+    "main",
+    "/^release\\/.*/"
+  ],
+  "extends": [
+    ":automergeDisabled",
+    ":dependencyDashboard",
+    "group:recommended",
+    "replacements:all",
+    "workarounds:all"
+  ],
+  "rangeStrategy": "bump",
+  "npm": {
+    "commitMessageTopic": "{{prettyDepType}} {{depName}}"
+  },
+  "updateLockFiles": true
+}
