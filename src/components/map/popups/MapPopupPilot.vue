@@ -98,7 +98,8 @@
                                     'pilot__card_route_line--start': pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent > 90,
                                 }"
-                                v-if="pilot.toGoPercent && !pilot.isOnGround"
+                                :key="svg.value"
+                                v-if="pilot.toGoPercent && !pilot.isOnGround && svg"
                             >
                                 <component :is="svg"/>
                             </div>
@@ -277,7 +278,18 @@ const viewRoute = () => {
 };
 
 async function loadAirlineSvg() {
-    svg.value = await import((`../../../assets/icons/aircrafts/${ getAircraftIcon(pilot.value).icon }.svg?component`));
+    if (!pilot.value.flight_plan?.aircraft_faa || !getAircraftIcon(pilot.value).icon) {
+        svg.value = null;
+        return;
+    }
+
+    try {
+        svg.value = await import((`../../../assets/icons/aircrafts/${ getAircraftIcon(pilot.value).icon }.svg?component`));
+    }
+    catch (e) {
+        console.error(e);
+        svg.value = null;
+    }
 }
 
 loadAirlineSvg();
@@ -497,7 +509,7 @@ function handleMouseMove() {
     });
 }
 
-watch(() => pilot.value.cid, loadAirlineSvg);
+watch(() => pilot.value.flight_plan?.aircraft_faa, loadAirlineSvg);
 watch(() => pilot.value.last_updated, handleMouseMove);
 watch(() => props.overlay.data.tracked, (val) => {
     handleMouseMove();

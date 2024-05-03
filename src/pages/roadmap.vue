@@ -206,6 +206,7 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             'Ability to run github repo locally',
             'Detailed route',
+            'Oceanic Tracks integration',
             'Waypoints on map',
             'Events',
             'ATC Bookings',

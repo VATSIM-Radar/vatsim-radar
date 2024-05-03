@@ -187,7 +187,7 @@ const setStyle = () => {
     if (!feature) return;
 
     const styleIcon = new Icon({
-        src: `/aircrafts/${ icon.value.icon }${ getPostfix.value }.png`,
+        src: `/aircrafts/${ icon.value.icon }${ getPostfix.value }.png?v=${ store.version }`,
         width: icon.value.width,
         rotation: degreesToRadians(props.aircraft.heading ?? 0),
     });
