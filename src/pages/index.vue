@@ -7,7 +7,7 @@
                     <map-popup
                         class="map_popups_popup"
                         v-for="overlay in mapStore.overlays"
-                        :key="overlay.id"
+                        :key="overlay.id+overlay.key"
                         :overlay="overlay"
                     />
                 </transition-group>
