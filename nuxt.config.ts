@@ -93,16 +93,11 @@ export default defineNuxtConfig({
     modules: [
         '@nuxt/devtools',
         '@pinia/nuxt',
-        '@nuxtjs/eslint-module',
+        '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
     ],
     eslint: {
-        emitError: true,
-        emitWarning: true,
-        failOnWarning: false,
-        failOnError: false,
-        lintOnStart: false,
-        cache: false,
+        checker: true,
     },
     stylelint: {
         files: ['src/**/*.scss', 'src/**/*.css', 'src/**/*.vue'],

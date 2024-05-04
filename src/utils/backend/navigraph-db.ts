@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-named-as-default
 import sqlite3 from 'sqlite3';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
@@ -8,12 +7,10 @@ export function initNavigraphDB({ type, file }: {type: 'current' | 'outdated', f
     closeNavigraphDB(type);
 
     if (type === 'current') {
-        // eslint-disable-next-line import/no-named-as-default-member
         navigraphCurrentDb = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
     }
 
     if (type === 'outdated') {
-        // eslint-disable-next-line import/no-named-as-default-member
         navigraphOutdatedDb = new sqlite3.Database(file, sqlite3.OPEN_READONLY);
     }
 }

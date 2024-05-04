@@ -246,6 +246,7 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 
 const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const svg = shallowRef<null | any>(null);
 const isOffline = ref(false);

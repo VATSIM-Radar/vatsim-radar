@@ -44,7 +44,7 @@ function calculateArrivalTime(current: Coordinate, dest: Coordinate, groundSpeed
     return new Date(currentTime.getTime() + timeInMillis);
 }
 
-export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | void> => {
+export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | undefined> => {
     const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({

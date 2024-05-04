@@ -2,7 +2,7 @@ import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimPrefile } from '~/types/data/vatsim';
 
-export default defineEventHandler((event): VatsimPrefile | void => {
+export default defineEventHandler((event): VatsimPrefile | undefined => {
     const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({
