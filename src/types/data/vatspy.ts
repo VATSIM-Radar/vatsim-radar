@@ -28,6 +28,7 @@ export interface VatSpyData {
         iata?: string
         fir?: string
         isPseudo: boolean
+        isIata?: boolean
     }[];
     firs: {
         icao: string

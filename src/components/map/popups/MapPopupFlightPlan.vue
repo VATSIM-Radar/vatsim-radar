@@ -103,10 +103,26 @@ const props = defineProps({
 const dataStore = useDataStore();
 
 const depAirport = computed(() => {
+    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.departure);
+    if (iataAirport) {
+        return {
+            ...iataAirport,
+            icao: iataAirport.iata!,
+        };
+    }
+
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.departure);
 });
 
 const arrAirport = computed(() => {
+    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.arrival);
+    if (iataAirport) {
+        return {
+            ...iataAirport,
+            icao: iataAirport.iata!,
+        };
+    }
+
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.arrival);
 });
 

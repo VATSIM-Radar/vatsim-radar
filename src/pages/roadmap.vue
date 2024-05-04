@@ -185,7 +185,7 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'in-progress',
             },
             {
-                title: 'METAR easy access',
+                title: 'METAR/NOTAMS easy access',
                 status: 'in-progress',
             },
             {
@@ -195,7 +195,10 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Light theme',
                 status: 'completed',
             },
-            'Easy access to pilot stats for ATC controllers in airport popup',
+            {
+                title: 'Easy access to pilot stats for ATC controllers in airport popup',
+                status: 'in-progress',
+            },
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
             'Open Source (code only)',
