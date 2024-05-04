@@ -1,5 +1,14 @@
 # Changelog
 
+# 0.2.5
+
+- Added favicon
+- Fixed error when sometimes overlay could break on aircraft type change
+- Added cache reset for airplanes icons each update
+- Added support of airports aliases
+- Improved sort of ATC on departure: approach should now be higher than area atc when on ground
+- Fixed ground airport detection when another airport is close to flight plan airport
+
 # 0.2.4
 
 - Minified ATC airport card

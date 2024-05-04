@@ -343,7 +343,15 @@ async function setVisibleAirports() {
 
     //@ts-expect-error
     visibleAirports.value = dataStore.vatsim.data.airports.value.map((x) => {
-        const airport = x.isSimAware ? x : dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
+        let airport = x.isSimAware ? x : dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
+        if (!x.isSimAware && airport?.icao !== x.icao) {
+            //@ts-expect-error
+            airport = {
+                ...airport,
+                icao: x.icao,
+                isIata: true,
+            };
+        }
         if (!airport) return null;
 
         if (x.isSimAware) {
