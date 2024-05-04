@@ -8296,6 +8296,7 @@ __metadata:
     stylelint-config-standard: "npm:^36.0.0"
     typescript: "npm:^5.4.5"
     ua-parser-js: "npm:2.0.0-beta.2"
+    vite-plugin-eslint2: "npm:^4.4.0"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.26"
     vue-router: "npm:^4.3.2"
@@ -11395,6 +11396,25 @@ __metadata:
     vue-tsc:
       optional: true
   checksum: 10c0/ae61f01b620c458e355ad05ff632e3143312e75c67acdaaa1fe5160d679283364867a4a8d6c6a3f85838f0251033275af96a1aa9b52eed227151cdbca0c996cf
+  languageName: node
+  linkType: hard
+
+"vite-plugin-eslint2@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "vite-plugin-eslint2@npm:4.4.0"
+  dependencies:
+    "@rollup/pluginutils": "npm:^5.1.0"
+    chokidar: "npm:^3.6.0"
+    debug: "npm:^4.3.4"
+  peerDependencies:
+    "@types/eslint": ^7.0.0 || ^8.0.0 || ^9.0.0-0
+    eslint: ^7.0.0 || ^8.0.0 || ^9.0.0-0
+    rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
+    vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 10c0/3666ec21e702851c8e1d437123fef3f1101f66f127ca986eb10146ebf969b2218bd3987ab95d4b91244a3a549031da3367124014f38263eb6ecb8c09b0ac228c
   languageName: node
   linkType: hard
 

@@ -79,7 +79,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
                 if (existingOverlay) return;
 
-                const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
+                const pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
 
@@ -112,7 +112,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
                 if (existingOverlay) return;
 
-                const prefile = await $fetch(`/data/vatsim/pilot/${ cid }/prefile`);
+                const prefile = await $fetch<VatsimPrefile>(`/data/vatsim/pilot/${ cid }/prefile`);
                 this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
                 await nextTick();
 

@@ -97,7 +97,9 @@ export default defineNuxtConfig({
         '@nuxtjs/stylelint-module',
     ],
     eslint: {
-        checker: true,
+        checker: {
+            configType: 'flat',
+        },
     },
     stylelint: {
         files: ['src/**/*.scss', 'src/**/*.css', 'src/**/*.vue'],
