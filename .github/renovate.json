@@ -8,7 +8,6 @@
     "bun",
     "yarn"
   ],
-  "branchPrefix": "chore/renovate/",
   "rebaseWhen": "behind-base-branch",
   "commitMessageAction": "chore(deps): Update",
   "commitMessageTopic": "dependency {{depName}}",
