@@ -26,6 +26,7 @@
                         showAtis ? undefined : getATCTime(controller),
                         showAtis && controller.atis_code ? `Info ${controller.atis_code}` : undefined,
                     ]"
+                    @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
                     <template #top="{item, index}">
                         <template v-if="index === 0 && showFacility">
@@ -98,6 +99,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getControllerPositionColor } from '~/composables/atc';
 import { getHoursAndMinutes } from '~/utils';
+import { useMapStore } from '~/store/map';
 
 defineProps({
     controllers: {
@@ -123,6 +125,7 @@ defineProps({
 });
 
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 
 const getATCTime = (controller: VatsimShortenedController) => {
     return getHoursAndMinutes(new Date(controller.logon_time).getTime());

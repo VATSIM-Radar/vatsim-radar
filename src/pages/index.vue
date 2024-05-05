@@ -95,7 +95,7 @@ const restoreOverlays = async () => {
         if (overlay.type === 'pilot') {
             const data = await Promise.allSettled([
                 $fetch(`/data/vatsim/pilot/${ overlay.key }`),
-                $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ overlay.key }/stats`),
+                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;

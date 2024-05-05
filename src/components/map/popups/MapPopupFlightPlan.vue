@@ -55,39 +55,19 @@
                 />
             </div>
         </template>
-        <div class="flight-plan__info" v-if="flightPlan.route">
-            <div class="flight-plan__info_left">
-                <div class="flight-plan__info__title">
-                    Route
-                </div>
-                <common-button type="link" class="flight-plan__info__copy" @click="copyText(flightPlan.route)">
-                    Copy
-                </common-button>
-            </div>
-            <textarea :value="flightPlan.route" readonly class="flight-plan__info_textarea"/>
-        </div>
-        <div class="flight-plan__info" v-if="flightPlan.remarks">
-            <div class="flight-plan__info_left">
-                <div class="flight-plan__info__title">
-                    Remarks
-                </div>
-                <common-button
-                    type="link"
-                    class="flight-plan__info__copy"
-                    @click="copyText(flightPlan.remarks)"
-                >
-                    Copy
-                </common-button>
-            </div>
-            <textarea :value="flightPlan.remarks" readonly class="flight-plan__info_textarea"/>
-        </div>
+        <common-copy-info-block v-if="flightPlan.route" :text="flightPlan.route">
+            Route
+        </common-copy-info-block>
+        <common-copy-info-block v-if="flightPlan.remarks" :text="flightPlan.remarks">
+            Remarks
+        </common-copy-info-block>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
-import { copyText } from '~/utils';
+import CommonCopyInfoBlock from '~/components/common/CommonCopyInfoBlock.vue';
 
 const props = defineProps({
     flightPlan: {
@@ -207,37 +187,6 @@ const arrCountry = computed(() => {
                 font-size: 11px;
                 font-weight: 400;
             }
-        }
-    }
-
-    &__info {
-        display: grid;
-        grid-template-columns: 20% 75%;
-        justify-content: space-between;
-
-        &_left {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        &__title {
-            font-weight: 600;
-            font-size: 12px;
-        }
-
-        &_textarea {
-            appearance: none;
-            box-shadow: none;
-            outline: none;
-            border: none;
-            border-radius: 4px;
-            background: $neutral950;
-            font-size: 11px;
-            color: $neutral150;
-            resize: vertical;
-            padding: 8px;
-            scrollbar-gutter: stable;
         }
     }
 }

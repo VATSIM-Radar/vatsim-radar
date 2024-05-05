@@ -32,7 +32,15 @@ export interface StoreOverlayPrefile extends StoreOverlayDefault {
     };
 }
 
-export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile
+export interface StoreOverlayAtc extends StoreOverlayDefault {
+    type: 'atc';
+    data: {
+        callsign: string
+        stats?: Partial<VatsimMemberStats>
+    };
+}
+
+export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc
 
 export const useMapStore = defineStore('map', {
     state: () => ({
@@ -96,7 +104,7 @@ export const useMapStore = defineStore('map', {
                     sticky: cid === store.user?.cid,
                 });
 
-                overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ cid }/stats`);
+                overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ cid }`);
                 return overlay;
             }
             finally {
@@ -116,13 +124,42 @@ export const useMapStore = defineStore('map', {
                 this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
                 await nextTick();
 
-                return this.addOverlay({
+                return this.addOverlay<StoreOverlayPrefile>({
                     key: cid,
                     data: {
                         prefile,
                     },
                     type: 'prefile',
                     sticky: cid === store.user?.cid,
+                });
+            }
+            finally {
+                this.openingOverlay = false;
+            }
+        },
+        async addAtcOverlay(callsign: string) {
+            if (this.openingOverlay) return;
+            this.openingOverlay = true;
+
+            try {
+                const existingOverlay = this.overlays.find(x => x.key === callsign);
+                if (existingOverlay) return;
+
+                const controller = useDataStore().vatsim.data.locals.value.find(x => x.atc.callsign === callsign);
+                if(!controller) return;
+
+                const stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.atc.cid }`);
+                this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
+                await nextTick();
+
+                return this.addOverlay<StoreOverlayAtc>({
+                    key: callsign,
+                    data: {
+                        callsign,
+                        stats,
+                    },
+                    type: 'atc',
+                    sticky: false,
                 });
             }
             finally {

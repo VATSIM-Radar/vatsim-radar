@@ -3,7 +3,7 @@ import { containsCoordinate } from 'ol/extent';
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import { sleep } from '~/utils';
+import { copyText, sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
 import type { ColorsList } from '~/modules/styles';
@@ -77,4 +77,20 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));
+}
+
+export function useCopyText() {
+    const copied = ref(false);
+
+    const copy = async (text: string) => {
+        copied.value = true;
+        await copyText(text);
+        await sleep(3000);
+        copied.value = false;
+    };
+
+    return {
+        copyState: copied,
+        copy,
+    };
 }

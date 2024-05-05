@@ -27,22 +27,14 @@
             </div>
         </template>
         <template #action-sticky>
-            <div title="Stick overlay">
-                <pin-icon
-                    height="16"
-                    class="pilot__stick"
-                    :class="{'pilot__stick--sticky': props.overlay?.sticky}"
-                    @click="overlay.sticky = !overlay.sticky"
-                />
-            </div>
+            <map-popup-pin-icon :overlay="overlay"/>
         </template>
         <template #action-track>
-            <div title="Track aircraft">
+            <div title="Track aircraft" @click="props.overlay.data.tracked = !props.overlay.data.tracked">
                 <track-icon
                     width="16"
                     class="pilot__track"
                     :class="{'pilot__track--tracked': props.overlay?.data.tracked}"
-                    @click="props.overlay.data.tracked = !props.overlay.data.tracked"
                 />
             </div>
         </template>
@@ -139,7 +131,7 @@
                 <div class="pilot__cols">
                     <common-info-block
                         class="pilot__card"
-                        :top-items="['Speed']"
+                        :top-items="['Gr Speed']"
                         :bottom-items="[`${pilot.groundspeed ?? 0} kts`]"
                         text-align="center"
                     />
@@ -190,11 +182,16 @@
                     </template>
                     Stats
                 </common-button>
-                <common-button @click="copyText(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
+                <common-button @click="copy.copy(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
                     <template #icon>
                         <share-icon/>
                     </template>
-                    Link
+                    <template v-if="copy.copyState.value">
+                        Copied!
+                    </template>
+                    <template v-else>
+                        Link
+                    </template>
                 </common-button>
             </common-button-group>
         </template>
@@ -210,7 +207,6 @@ import { getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
-import PinIcon from '@/assets/icons/kit/pin.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
@@ -223,6 +219,8 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { boundingExtent, getCenter } from 'ol/extent';
+import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
+import { useCopyText } from '~/composables';
 
 const props = defineProps({
     overlay: {
@@ -232,6 +230,7 @@ const props = defineProps({
 });
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const copy = useCopyText();
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -688,7 +687,7 @@ onBeforeUnmount(() => {
         }
     }
 
-    &__track, &__stick {
+    &__track {
         transition: 0.3s;
 
         &--in-action {
@@ -700,11 +699,6 @@ onBeforeUnmount(() => {
         color: $primary500;
         transform: rotate(90deg);
         transform-origin: center;
-    }
-
-    &__stick--sticky {
-        color: $primary500;
-        transform: rotate(45deg);
     }
 
     :deep(.atc-popup), :deep(.atc-popup-container) {

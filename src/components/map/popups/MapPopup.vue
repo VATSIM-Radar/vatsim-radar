@@ -9,6 +9,7 @@
     >
         <map-popup-pilot v-if="overlay.type === 'pilot'" :overlay="overlay"/>
         <map-popup-prefile v-else-if="overlay.type === 'prefile'" :overlay="overlay"/>
+        <map-popup-atc v-else-if="overlay.type === 'atc'" :overlay="overlay"/>
     </div>
 </template>
 
@@ -17,6 +18,7 @@ import type { PropType } from 'vue';
 import MapPopupPilot from '~/components/map/popups/MapPopupPilot.vue';
 import type { StoreOverlay } from '~/store/map';
 import MapPopupPrefile from '~/components/map/popups/MapPopupPrefile.vue';
+import MapPopupAtc from '~/components/map/popups/MapPopupAtc.vue';
 
 defineProps({
     overlay: {

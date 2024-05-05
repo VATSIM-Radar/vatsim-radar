@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.3.0
+
+## Features and improvements
+
+- You will no longer see an alert when copying something - instead you'll notice text change
+
 # 0.2.4
 
 - Minified ATC airport card
@@ -15,9 +21,12 @@
 
 This release summaries all hotfixes that was made today. Sorry for last days release spam :)
 
-- Refactored airports data parsing for performance improvements. This fixes performance degradation introduced in today's 0.2.2 and makes performance even better than before 0.2.2
-- Added SimAware TRACON Data as second source to fix Santiago Approach and some others: they will be displayed even if missing in VatSpy data
-- Added support for multiple sectors in airport (for example, Radar and Approach operates simultaneously as different sectors in many Russian airports)
+- Refactored airports data parsing for performance improvements. This fixes performance degradation introduced in
+  today's 0.2.2 and makes performance even better than before 0.2.2
+- Added SimAware TRACON Data as second source to fix Santiago Approach and some others: they will be displayed even if
+  missing in VatSpy data
+- Added support for multiple sectors in airport (for example, Radar and Approach operates simultaneously as different
+  sectors in many Russian airports)
 - Added different color for approach sectors to highlight them in contrast with Area Control
 - Reworked TRACON label placement to let engine deal with it
 - Fixes for light theme
@@ -40,7 +49,8 @@ This release summaries all hotfixes that was made today. Sorry for last days rel
 
 # 0.2.0
 
-This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to improve your flight experience - please give it a shot!
+This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to
+improve your flight experience - please give it a shot!
 
 Closest feature after this one should be TMA approach sectors.
 
@@ -55,7 +65,8 @@ Closest feature after this one should be TMA approach sectors.
 
 ### Pilot overlay
 
-You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot on map, open Vatsim stats and more:
+You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot
+on map, open Vatsim stats and more:
 
 - Total time on network as pilot
 - Pilot ID
@@ -74,7 +85,8 @@ P.S. You are also able to open this from airport counters popup - including pref
 
 ### Features
 
-- Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712, B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
+- Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712,
+  B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
 - Aircraft icons now have borders around them
 - Lowered size of A320 default icon
 - Added hover-on-aircraft icon background change
@@ -102,15 +114,18 @@ P.S. You are also able to open this from airport counters popup - including pref
 
 # 0.1.3
 
-First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a great weekend and CTP!
+First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a
+great weekend and CTP!
 
 ## Bug fixes
 
 - Diverted to non-planned airport will now also be displayed in ground aircrafts list
 - Aircraft altitude will no longer be modified using Vatsim QNH when below FL100
 - Fixed ground aircrafts sometimes not showing in correct airport
-- Fixed rare issue when circle with dep/arr controller could suddenly disappear while still being online. If you'll encourage this later, please report it in #feedback section (must be present in VatSpy and missing in Vatsim Radar)
-- Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead of one
+- Fixed rare issue when circle with dep/arr controller could suddenly disappear while still being online. If you'll
+  encourage this later, please report it in #feedback section (must be present in VatSpy and missing in Vatsim Radar)
+- Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead
+  of one
 
 ## Technical changes
 
@@ -156,7 +171,8 @@ This is maintenance release, mostly aimed to fix bug with no ATC displayed for a
 
 # 0.1.0
 
-This is initial release to test changelog generation and general CI/CD flow. Service is still pending Vatsim approval to announce proper testing.
+This is initial release to test changelog generation and general CI/CD flow. Service is still pending Vatsim approval to
+announce proper testing.
 
 ## New features
 

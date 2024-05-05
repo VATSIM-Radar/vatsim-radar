@@ -18,7 +18,6 @@ export async function copyText(text: string): Promise<void> {
             const { state } = await navigator.permissions.query({ name: 'clipboard-write' as PermissionName });
             if (state === 'granted' || state === 'prompt') {
                 await navigator.clipboard.writeText(text);
-                alert('Text has been copied to your clipboard!');
                 return;
             }
         }
@@ -40,5 +39,4 @@ export async function copyText(text: string): Promise<void> {
     if (!success) throw new Error('Was not able to copy text');
 
     document.body.removeChild(textArea);
-    alert('Text has been copied to your clipboard!');
 }
