@@ -318,10 +318,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
     const sections: AtcPopupSection[] = [];
 
     const center = pilot.value.firs
-        ? dataStore.vatsim.data.firs.value.filter((x) => {
-            if (x.controller) return pilot.value.firs!.includes(x.controller.callsign);
-            return x.firs.some(x => pilot.value.firs!.includes(x.controller?.callsign ?? ''));
-        }).flatMap(x => x.controller || x.firs.map(x => x.controller!))
+        ? dataStore.vatsim.data.firs.value.filter((x) => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
         : null;
 
     if (center?.length) {

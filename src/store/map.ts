@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import type { Extent } from 'ol/extent';
 import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
+import { findAtcByCallsign } from '~/composables/atc';
 
 export interface StoreOverlayDefault {
     id: number;
@@ -11,6 +12,7 @@ export interface StoreOverlayDefault {
         y: number
     };
     maxHeight?: number;
+    _maxHeight?: number;
     height: number;
     collapsed: boolean;
     sticky: boolean;
@@ -61,7 +63,7 @@ export const useMapStore = defineStore('map', {
         },
     },
     actions: {
-        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'>) {
+        addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
             const id = (this.overlays[this.overlays.length - 1]?.id ?? 0) + 1;
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
@@ -145,10 +147,10 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === callsign);
                 if (existingOverlay) return;
 
-                const controller = useDataStore().vatsim.data.locals.value.find(x => x.atc.callsign === callsign);
+                const controller = findAtcByCallsign(callsign);
                 if(!controller) return;
 
-                const stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.atc.cid }`);
+                const stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
                 await nextTick();
 
@@ -160,6 +162,7 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'atc',
                     sticky: false,
+                    maxHeight: 400,
                 });
             }
             finally {

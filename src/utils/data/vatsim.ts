@@ -123,11 +123,11 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
         }
 
         return {
+            controller: atc,
             firs: feature.map(x => ({
                 icao: x.icao,
                 callsign: x.callsign,
                 boundaryId: x.feature.id as string,
-                controller: atc,
             })),
         };
     });

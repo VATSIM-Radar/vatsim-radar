@@ -5,6 +5,9 @@
 ## Features and improvements
 
 - You will no longer see an alert when copying something - instead you'll notice text change
+- Reduced traffic consumption when some FSS is online or controller has multiple sectors
+- You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
+  phones (for those who uses them even when they are not yet properly supported)
 
 # 0.2.6
 

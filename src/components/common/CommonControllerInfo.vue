@@ -78,15 +78,7 @@
                                 {{ parseEncoding(atis) }}<br>
                             </li>
                         </ul>
-                        <div class="atc-popup_atc__time">
-                            <div class="atc-popup_atc__time_text">
-                                Time online:
-                            </div>
-                            <div class="atc-popup_atc__time_info">
-                                {{ getATCTime(controller) }}
-                            </div>
-                        </div>
-                    </template>
+                        <common-atc-time-online :controller="controller"/></template>
                 </common-info-block>
             </div>
         </common-popup-block>
@@ -97,7 +89,7 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import { getControllerPositionColor } from '~/composables/atc';
+import { getATCTime, getControllerPositionColor } from '~/composables/atc';
 import { getHoursAndMinutes } from '~/utils';
 import { useMapStore } from '~/store/map';
 
@@ -126,10 +118,6 @@ defineProps({
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
-
-const getATCTime = (controller: VatsimShortenedController) => {
-    return getHoursAndMinutes(new Date(controller.logon_time).getTime());
-};
 
 const getATIS = (controller: VatsimShortenedController) => {
     if (!controller.isATIS) return controller.text_atis;
@@ -199,7 +187,7 @@ const getATIS = (controller: VatsimShortenedController) => {
         color: $primary400;
     }
 
-    &_atc__time_info, &__time {
+    &__time {
         background: $neutral950;
         padding: 2px 4px;
         border-radius: 4px;
@@ -226,18 +214,6 @@ const getATIS = (controller: VatsimShortenedController) => {
                 list-style: none;
                 margin-left: -16px;
             }
-        }
-
-        &__time {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            color: $neutral150;
-            font-size: 11px;
-            gap: 4px;
-            font-weight: 300;
-            width: 100%;
-            margin-top: 4px;
         }
     }
 }

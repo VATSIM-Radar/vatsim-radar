@@ -1,7 +1,12 @@
 <template>
     <div class="map">
         <div class="map_container" ref="mapContainer"/>
-        <div class="map_popups" ref="popups" v-if="ready" :style="{'--popups-height': `${popupsHeight}px`}">
+        <div
+            class="map_popups" ref="popups" v-if="ready" :style="{
+                '--popups-height': `${popupsHeight}px`,
+                '--overlays-height': `${overlaysHeight}px`,
+            }"
+        >
             <div class="map_popups_list" v-if="popupsHeight">
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
@@ -36,16 +41,17 @@ import { Attribution } from 'ol/control';
 import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircrafts/MapAircraftList.vue';
-import {  useStore } from '~/store';
+import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings } from '~/composables';
-import {  useMapStore } from '~/store/map';
+import { useMapStore } from '~/store/map';
 import type { StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
+import { findAtcByCallsign } from '~/composables/atc';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -119,6 +125,22 @@ const restoreOverlays = async () => {
                 ...overlay,
                 data: {
                     prefile: data[0].value,
+                },
+            };
+        }
+        else if (overlay.type === 'atc') {
+            const controller = findAtcByCallsign(overlay.key);
+            if(!controller) return overlay;
+
+            const data = await Promise.allSettled([
+                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`),
+            ]);
+
+            return {
+                ...overlay,
+                data: {
+                    stats: 'value' in data[0] ? data[0].value : null,
+                    callsign: overlay.key,
                 },
             };
         }
@@ -298,16 +320,19 @@ onMounted(async () => {
 });
 
 const overlays = computed(() => mapStore.overlays);
+const overlaysGap = 16;
+const overlaysHeight = computed(() => {
+    return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+});
 
 watch([overlays, popupsHeight], () => {
     if (!popups.value) return;
     const baseHeight = 56;
-    const gap = 16;
     const collapsed = mapStore.overlays.filter(x => x.collapsed);
     const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
     const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - gap * (mapStore.overlays.length - 1);
+    const totalHeight = popups.value.clientHeight - overlaysGap * (mapStore.overlays.length - 1);
 
     //Max 4 uncollapsed on screen
     const minHeight = Math.floor(totalHeight / 4);
@@ -316,12 +341,12 @@ watch([overlays, popupsHeight], () => {
     const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
     collapsed.forEach((overlay) => {
-        overlay.maxHeight = baseHeight;
+        overlay._maxHeight = baseHeight;
     });
 
     uncollapsed.forEach((overlay, index) => {
         if (index < maxUncollapsed) {
-            overlay.maxHeight = maxHeight;
+            overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
         }
         else {
             overlay.collapsed = true;
@@ -417,6 +442,8 @@ await useAsyncData(async () => {
             flex-direction: column;
             gap: 16px;
             z-index: 6;
+            max-height: var(--overlays-height);
+            transition: 0.5s ease-in-out;
         }
 
         &_popup {

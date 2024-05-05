@@ -171,6 +171,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Center/zoom to airport button',
+                status: 'completed',
             },
             {
                 title: 'ATC info popup',

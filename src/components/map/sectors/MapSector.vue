@@ -64,13 +64,13 @@ let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
 const locals = computed(() => {
-    const filtered = props.atc.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id));
+    const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });
 
 const globals = computed(() => {
-    const filtered = props.atc.filter(x => x.controller);
+    const filtered = props.atc.filter(x => x.icao && x.controller);
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });

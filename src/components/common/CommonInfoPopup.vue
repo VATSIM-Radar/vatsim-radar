@@ -159,6 +159,8 @@ watch(getSections, (sections) => {
     max-height: var(--max-height);
     overflow: auto;
     scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
 
     &--absolute {
         position: absolute;
@@ -230,6 +232,8 @@ watch(getSections, (sections) => {
         flex-direction: column;
         gap: 16px;
         overflow: hidden;
+        justify-content: space-between;
+        flex: 1 0 auto;
 
         &--collapse {
             &-enter-active, &-leave-active {
