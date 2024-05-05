@@ -53,7 +53,7 @@
         v-if="'lon' in airport"
         :aircrafts="aircrafts"
         :airport="airport"
-        :offset="localAtc.length ? [localATCOffsetX, 0] : undefined"
+        :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
         :hide="!isVisible"
     />
     <map-overlay
@@ -213,7 +213,7 @@ const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props
 function initAirport() {
     if (!('lon' in props.airport)) return;
     feature = new Feature({
-        geometry: new Point([props.airport.lon, props.airport.lat]),
+        geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
     });
 
     feature.setStyle(new Style({

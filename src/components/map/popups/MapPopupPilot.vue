@@ -416,7 +416,11 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
             }
 
             if ((a.type === 'ground' || a.type === 'atis') && (b.type === 'ground' || b.type === 'atis')) return 0;
-            return (a.type === 'ground' || a.type === 'atis') ? -1 : 1;
+            if (a.type === 'ground' || a.type === 'atis') return -1;
+            if (b.type === 'ground' || b.type === 'atis') return 1;
+
+            if (a.type === 'app' && b.type === 'app') return 0;
+            return a.type === 'app' ? -1 : 1;
         }
 
         return 0;

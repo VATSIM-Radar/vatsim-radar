@@ -174,7 +174,7 @@ export function getAirportsList() {
         const statuses: Array<{ status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0] }> = [];
         const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
 
-        const groundAirport = (groundAirports && groundAirports?.length > 1)
+        let groundAirport = (groundAirports && groundAirports?.length > 1)
             ? groundAirports.sort((a, b) => {
                 const aDistance = Math.sqrt(Math.pow(pilot.latitude - a.lat, 2) + Math.pow(pilot.longitude - a.lon, 2));
                 const bDistance = Math.sqrt(Math.pow(pilot.latitude - b.lat, 2) + Math.pow(pilot.longitude - b.lon, 2));
@@ -182,6 +182,16 @@ export function getAirportsList() {
                 return aDistance - bDistance;
             })[0]
             : groundAirports?.[0] ?? null;
+
+        if (groundAirports && groundAirports?.length > 1 && (pilot.flight_plan?.departure || pilot.flight_plan?.arrival)) {
+            const airport = groundAirports.find(x => (
+                x.icao === pilot.flight_plan?.arrival ||
+                x.iata === pilot.flight_plan?.arrival ||
+                x.icao === pilot.flight_plan?.departure ||
+                x.iata === pilot.flight_plan?.departure
+            ));
+            if (airport) groundAirport = airport;
+        }
 
         if (!pilot.flight_plan?.departure) {
             //We don't know where the pilot is :(
@@ -193,11 +203,20 @@ export function getAirportsList() {
             });
         }
         else {
-            const departureAirport = groundAirport?.icao === pilot.flight_plan.departure ? groundAirport : dataAirports.find(x => x.icao === pilot.flight_plan!.departure);
+            let departureAirport = (groundAirport?.icao === pilot.flight_plan.departure || groundAirport?.iata === pilot.flight_plan.departure)
+                ? groundAirport
+                : dataAirports.find(x => x.iata === pilot.flight_plan!.departure || x.icao === pilot.flight_plan!.departure);
 
             if (departureAirport) {
+                if (departureAirport.icao !== departureAirport.iata && departureAirport.iata === pilot.flight_plan.departure) {
+                    departureAirport = {
+                        ...departureAirport,
+                        icao: departureAirport.iata,
+                    };
+                }
+
                 statuses.push({
-                    status: groundAirport?.icao === departureAirport.icao ? 'groundDep' : 'departures',
+                    status: (groundAirport?.icao === departureAirport.icao || (groundAirport?.iata && groundAirport?.iata === departureAirport.iata)) ? 'groundDep' : 'departures',
                     airport: departureAirport,
                 });
             }
@@ -210,13 +229,24 @@ export function getAirportsList() {
                     };
                 }
                 else {
-                    const arrivalAirport = groundAirport?.icao === pilot.flight_plan.arrival ? groundAirport : dataAirports.find(x => x.icao === pilot.flight_plan!.arrival);
+                    let arrivalAirport = (groundAirport?.icao === pilot.flight_plan.arrival || (pilot.flight_plan.arrival && groundAirport?.iata === pilot.flight_plan.arrival))
+                        ? groundAirport
+                        : dataAirports.find(x => (x.iata && x.iata === pilot.flight_plan!.arrival) || x.icao === pilot.flight_plan!.arrival);
 
                     if (arrivalAirport) {
-                        const isDifferentAirport = !!groundAirport && groundAirport.icao !== departureAirport?.icao;
+                        if (pilot.flight_plan.arrival && arrivalAirport.icao !== arrivalAirport.iata && arrivalAirport.iata === pilot.flight_plan.arrival) {
+                            arrivalAirport = {
+                                ...arrivalAirport,
+                                icao: arrivalAirport.iata,
+                            };
+                        }
+
+                        const isDifferentAirport = !!groundAirport &&
+                            groundAirport.icao !== departureAirport?.icao && (!groundAirport.iata || groundAirport.iata !== departureAirport?.iata) &&
+                            groundAirport.icao !== arrivalAirport?.icao && (!groundAirport.iata || groundAirport.iata !== arrivalAirport?.iata);
 
                         statuses.push({
-                            status: isDifferentAirport || groundAirport?.icao === arrivalAirport.icao ? 'groundArr' : 'arrivals',
+                            status: (isDifferentAirport || groundAirport?.icao === arrivalAirport.icao || (groundAirport?.iata && groundAirport?.iata === arrivalAirport.iata)) ? 'groundArr' : 'arrivals',
                             airport: isDifferentAirport ? groundAirport! : arrivalAirport,
                         });
                     }
