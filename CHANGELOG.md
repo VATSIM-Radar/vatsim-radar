@@ -6,6 +6,16 @@
 
 - You will no longer see an alert when copying something - instead you'll notice text change
 
+# 0.2.6
+
+This is a little update while we develop bigger one.
+
+I would also like to welcome all newjoiners - don't forget to `/verify` and report problems & suggestions!
+
+- Added little dot on bottom of airport without atc to highlight them on map
+- Boeing 747 family will now be displayed as a340 instead of a320 (since they don't have their own icon yet)
+- Replaced icon in pilot overlay popup in yet another attempt to stop it from crashing
+
 # 0.2.5
 
 - Added favicon

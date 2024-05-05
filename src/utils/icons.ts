@@ -265,7 +265,12 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'MD83':
         case 'MD88':
             return aircraftIcons.md80;
+        case 'B742':
+        case 'B744':
+        case 'B74F':
         case 'B748':
+        case 'B48F':
+        case 'B752':
         case 'IL96':
             return aircraftIcons.a340;
         case 'B703':

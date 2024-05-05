@@ -57,6 +57,14 @@
         :hide="!isVisible"
     />
     <map-overlay
+        v-if="!localAtc.length && 'lon' in airport"
+        :settings="{position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility,}"
+        persistent
+        :z-index="14"
+    >
+        <div class="airport-square" :style="{'--color': getAirportColor}"/>
+    </map-overlay>
+    <map-overlay
         v-if="hoveredFeature"
         model-value
         :settings="
@@ -536,5 +544,12 @@ onBeforeUnmount(() => {
             bottom: 100%;
         }
     }
+}
+
+.airport-square {
+    width: 4px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color);
 }
 </style>

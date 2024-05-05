@@ -90,10 +90,9 @@
                                     'pilot__card_route_line--start': pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent > 90,
                                 }"
-                                :key="svg.value"
-                                v-if="pilot.toGoPercent && !pilot.isOnGround && svg"
+                                v-if="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
                             >
-                                <component :is="svg"/>
+                                <img :src="`/aircrafts/${ getAircraftIcon(pilot).icon }-active.png`">
                             </div>
                             <common-button class="pilot__card_route_open" type="link" @click="viewRoute">
                                 View route
@@ -247,7 +246,6 @@ const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
-const svg = shallowRef<null | any>(null);
 const isOffline = ref(false);
 
 const depAirport = computed(() => {
@@ -276,23 +274,6 @@ const viewRoute = () => {
         resolution: view?.getResolutionForExtent(extent) * 1.8,
     });
 };
-
-async function loadAirlineSvg() {
-    if (!pilot.value.flight_plan?.aircraft_faa || !getAircraftIcon(pilot.value).icon) {
-        svg.value = null;
-        return;
-    }
-
-    try {
-        svg.value = await import((`../../../assets/icons/aircrafts/${ getAircraftIcon(pilot.value).icon }.svg?component`));
-    }
-    catch (e) {
-        console.error(e);
-        svg.value = null;
-    }
-}
-
-loadAirlineSvg();
 
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
@@ -513,7 +494,6 @@ function handleMouseMove() {
     });
 }
 
-watch(() => pilot.value.flight_plan?.aircraft_faa, loadAirlineSvg);
 watch(() => pilot.value.last_updated, handleMouseMove);
 watch(() => props.overlay.data.tracked, (val) => {
     handleMouseMove();
@@ -653,16 +633,12 @@ onBeforeUnmount(() => {
                     width: var(--percent);
                 }
 
-                svg {
+                img {
                     height: 24px;
                     position: relative;
                     z-index: 1;
                     transform: translateX(-50%) rotate(90deg);
                     left: var(--percent);
-
-                    :deep(path:last-child:not(:only-child)) {
-                        color: $neutral1000;
-                    }
                 }
 
                 &--start svg {
