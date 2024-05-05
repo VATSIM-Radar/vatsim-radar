@@ -90,7 +90,6 @@ import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getATCTime, getControllerPositionColor } from '~/composables/atc';
-import { getHoursAndMinutes } from '~/utils';
 import { useMapStore } from '~/store/map';
 
 defineProps({

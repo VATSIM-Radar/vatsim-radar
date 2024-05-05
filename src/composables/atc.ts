@@ -1,8 +1,7 @@
-import type { VatsimExtendedPilot, VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { getHoursAndMinutes } from '~/utils';
 import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
-import { isPilotOnGround } from '~/composables/pilots';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
