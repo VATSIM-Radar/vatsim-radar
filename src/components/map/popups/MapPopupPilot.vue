@@ -95,12 +95,12 @@
                             <div
                                 class="pilot__card_route_line"
                                 :class="{
-                                    'pilot__card_route_line--start': pilot.toGoPercent < 10,
-                                    'pilot__card_route_line--end': pilot.toGoPercent > 90,
+                                    'pilot__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
+                                    'pilot__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
                                 }"
-                                v-if="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
+                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
                             >
-                                <img :src="`/aircrafts/${ getAircraftIcon(pilot).icon }-active.png`">
+                                <img alt="" :src="`/aircrafts/${ getAircraftIcon(pilot).icon }-active.png`">
                             </div>
                             <common-button class="pilot__card_route_open" type="link" @click="viewRoute">
                                 View route
@@ -108,9 +108,11 @@
                             <div class="pilot__card_route_footer">
                                 <div class="pilot__card_route_footer_left">
                                     {{
-                                        pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate' ? `${ pilot.depDist.toFixed(1) } NM,` : ''
+                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ pilot.depDist.toFixed(1) } NM,` : ''
                                     }} Online
-                                    {{ getHoursAndMinutes(new Date(pilot.logon_time).getTime()) }}
+                                    <template v-if="pilot.logon_time">
+                                        {{ getHoursAndMinutes(new Date(pilot.logon_time).getTime()) }}
+                                    </template>
                                 </div>
                                 <div class="pilot__card_route_footer_right" v-if="pilot.toGoDist && pilot.toGoTime">
                                     {{ pilot.toGoDist.toFixed(1) }} NM in {{
