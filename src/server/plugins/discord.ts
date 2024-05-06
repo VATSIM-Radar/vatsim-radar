@@ -193,23 +193,7 @@ export default defineNitroPlugin(async (app) => {
                             content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions on forums! If you want to rename yourself, please use `/rename` command.',
                             ephemeral: true,
                         });
-
-                        const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(interaction.user.id);
-
-                        if (user && existingUser.vatsim) {
-                            await user.roles.add(discordRoleId);
-                            if (!user.permissions.has(PermissionFlagsBits.Administrator) && !existingUser.discordStrategy) {
-                                await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
-                                await prisma.user.updateMany({
-                                    where: {
-                                        discordId: interaction.user.id,
-                                    },
-                                    data: {
-                                        discordStrategy: DiscordStrategy.FULL_NAME,
-                                    },
-                                });
-                            }
-                        }
+                        return;
                     }
                     else {
                         const state = randomUUID();
@@ -254,11 +238,46 @@ export default defineNitroPlugin(async (app) => {
                 });
             }
             else if (interaction.commandName === 'verify') {
-                await interaction.reply({
-                    //@ts-expect-error
-                    components: [verifyRow],
-                    ephemeral: true,
+                const existingUser = await prisma.user.findFirst({
+                    where: {
+                        discordId: interaction.user.id,
+                    },
+                    select: {
+                        vatsim: true,
+                        discordStrategy: true,
+                    },
                 });
+
+                if (existingUser) {
+                    await interaction.reply({
+                        content: 'You have already been authorized. Enjoy your stay and remember to report issues & suggestions on forums! If you want to rename yourself, please use `/rename` command.',
+                        ephemeral: true,
+                    });
+
+                    const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(interaction.user.id);
+
+                    if (user && existingUser.vatsim) {
+                        await user.roles.add(discordRoleId);
+                        if (!user.permissions.has(PermissionFlagsBits.Administrator) && !existingUser.discordStrategy) {
+                            await user.setNickname(`${ existingUser.vatsim.fullName } ${ existingUser.vatsim.id }`, 'Verification process');
+                            await prisma.user.updateMany({
+                                where: {
+                                    discordId: interaction.user.id,
+                                },
+                                data: {
+                                    discordStrategy: DiscordStrategy.FULL_NAME,
+                                },
+                            });
+                        }
+                    }
+                }
+                else {
+                    await interaction.reply({
+                        //@ts-expect-error
+                        components: [verifyRow],
+                        ephemeral: true,
+                    });
+                }
             }
             else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
                 const release = await discordClient.channels.fetch(discordReleasesChannelId);

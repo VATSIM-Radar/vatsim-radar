@@ -62,10 +62,10 @@ export default defineEventHandler(async (event) => {
             if (user) {
                 await user.roles.add(config.DISCORD_ROLE_ID);
                 if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
-                    await user.setNickname(getDiscordName(discordStrategy, vatsimUser.personal.name_full, vatsimUser.cid), 'Verification process');
+                    await user.setNickname(getDiscordName(discordStrategy, vatsimUser.cid, vatsimUser.personal.name_full), 'Verification process');
                 }
                 else {
-                    console.log(getDiscordName(discordStrategy, vatsimUser.personal.name_full, vatsimUser.cid));
+                    console.log(getDiscordName(discordStrategy, vatsimUser.cid, vatsimUser.personal.name_full));
                 }
             }
         }
