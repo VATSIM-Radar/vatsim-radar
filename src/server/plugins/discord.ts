@@ -15,7 +15,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { getDiscordName } from '~/utils/backend/discord';
 
-const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
 const changelog = readFileSync(join(process.cwd(), 'CHANGELOG.md'), 'utf-8');
 const json = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8'));
