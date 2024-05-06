@@ -15,11 +15,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { getDiscordName } from '~/utils/backend/discord';
 
-export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
-export const discordServerId = '1237156746989142047';
-export const discordReleasesChannelId = '1229392327282397194';
-export const discordRoleId = '1237157417377337455';
-
 const changelog = readFileSync(join(process.cwd(), 'CHANGELOG.md'), 'utf-8');
 const json = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8'));
 
@@ -42,6 +37,11 @@ export default defineNitroPlugin(async (app) => {
     });
 
     const config = useRuntimeConfig();
+
+    const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
+    const discordServerId = config.DISCORD_SERVER_ID;
+    const discordReleasesChannelId = config.DISCORD_RELEASES_CHANNEL_ID;
+    const discordRoleId = config.DISCORD_ROLE_ID;
 
     const commands = [
         {
