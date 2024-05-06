@@ -6,6 +6,7 @@ import { prisma } from '~/utils/backend/prisma';
 const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
+    headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,
 };
 
 export default defineEventHandler(async (event) => {

@@ -8,7 +8,7 @@ import { navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigra
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
-import type { NavigraphGate } from '~/types/data/navigraph';
+import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 
 function base64URLEncode(str: Buffer) {
     return str
@@ -112,6 +112,48 @@ export function getNavigraphGwtResult(token: string) {
             reject(e);
         }
     });
+}
+
+export async function getNavigraphRunways({ user, icao, event }: {
+    user: FullUser | null,
+    icao: string,
+    event: H3Event
+}) {
+    try {
+        const runways: NavigraphRunway[] = [];
+
+        await new Promise<void>((resolve, reject) => {
+            (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
+                `SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_runways WHERE airport_identifier = :icao ORDER BY runway_identifier ASC`,
+                { ':icao': icao },
+                (err, row: any) => {
+                    if (err) return reject(err);
+
+                    const coords = fromServerLonLat([parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)]);
+
+                    runways.push({
+                        ...row,
+                        runway_latitude: coords[1],
+                        runway_longitude: coords[0],
+                        landing_threshold_elevation: parseFloat(row.landing_threshold_elevation),
+                        runway_length: parseFloat(row.runway_length),
+                        runway_width: parseFloat(row.runway_width),
+                        runway_magnetic_bearing: parseFloat(row.runway_magnetic_bearing),
+                        runway_true_bearing: parseFloat(row.runway_true_bearing),
+                    });
+                },
+                (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                },
+            );
+        });
+
+        return runways;
+    }
+    catch (e) {
+        handleH3Exception(event, e);
+    }
 }
 
 export async function getNavigraphGates({ user, icao, event }: {

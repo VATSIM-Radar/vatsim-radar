@@ -46,7 +46,7 @@
                                 Vatsim user info: account token, ID and full name
                             </li>
                             <li>
-                                Navigraph user info: account token, ID and Navigraph Unlimited subscription status
+                                Navigraph user info: account token, ID and Navigraph subscription status
                             </li>
                             <li>
                                 Discord user info: ID and relation with Vatsim account

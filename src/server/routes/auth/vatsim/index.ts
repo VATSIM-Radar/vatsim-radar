@@ -5,16 +5,18 @@ import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
 import { findUserByCookie } from '~/utils/backend/user';
 import { discordClient, discordRoleId, discordServerId } from '~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
+import { getDiscordName } from '~/utils/backend/discord';
 
 export default defineEventHandler(async (event) => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
 
-        const { id: verifierId, discordId } = await prisma.auth.findFirstOrThrow({
+        const { id: verifierId, discordId, discordStrategy } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,
                 discordId: true,
+                discordStrategy: true,
             },
             where: {
                 state: query.state ?? '',
@@ -45,13 +47,14 @@ export default defineEventHandler(async (event) => {
 
         let user = await findUserByCookie(event);
 
-        if (discordId) {
+        if (discordId && discordStrategy) {
             await prisma.user.updateMany({
                 where: {
                     discordId,
                 },
                 data: {
                     discordId: null,
+                    discordStrategy: null,
                 },
             });
 
@@ -59,7 +62,10 @@ export default defineEventHandler(async (event) => {
             if (user) {
                 await user.roles.add(discordRoleId);
                 if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
-                    await user.setNickname(`${ vatsimUser.personal.name_full } ${ vatsimUser.cid }`, 'Verification process');
+                    await user.setNickname(getDiscordName(discordStrategy, vatsimUser.personal.name_full, vatsimUser.cid), 'Verification process');
+                }
+                else {
+                    console.log(getDiscordName(discordStrategy, vatsimUser.personal.name_full, vatsimUser.cid));
                 }
             }
         }
