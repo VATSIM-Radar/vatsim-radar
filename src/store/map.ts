@@ -4,7 +4,7 @@ import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/ty
 import { useStore } from '~/store/index';
 
 export interface StoreOverlayDefault {
-    id: number;
+    id: string;
     key: string;
     position: number | {
         x: number
@@ -54,7 +54,7 @@ export const useMapStore = defineStore('map', {
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'>) {
-            const id = (this.overlays[this.overlays.length - 1]?.id ?? 0) + 1;
+            const id = crypto.randomUUID();
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
             }
@@ -76,12 +76,15 @@ export const useMapStore = defineStore('map', {
             const store = useStore();
 
             try {
-                const existingOverlay = this.overlays.find(x => x.key === cid);
-                if (existingOverlay) return;
-
+                const existingOverlay = this.overlays.find(x => x.type === 'pilot');
                 const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
-                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
+
+                if (existingOverlay) {
+                    //@ts-ignore
+                    existingOverlay.data.pilot = pilot;
+                    return;
+                }
 
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,

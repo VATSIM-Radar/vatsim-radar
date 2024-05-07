@@ -49,6 +49,7 @@ const visibleAirports = shallowRef<{
     vatsimAirport: MapAirportType,
 }[]>([]);
 const airportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runways: NavigraphRunway[] }[]>([]);
+const originalAirportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runways: NavigraphRunway[] }[]>([]);
 const isManualHover = ref(false);
 
 const hoveredAirport = ref<string | null>(null);
@@ -381,23 +382,25 @@ async function setVisibleAirports() {
     if ((map.value!.getView().getZoom() ?? 0) > 13) {
         const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
-        if (!navigraphAirports.every(x => airportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
-            airportsData.value = [
-                ...airportsData.value,
-                ...(await Promise.all(navigraphAirports.filter(x => !airportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch(`/data/navigraph/airport/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []).map((data) => {
-                    const gatesWithPixel = data.gates.map(x => ({
-                        ...x,
-                        pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
-                    }));
-
-                    return {
-                        airport: data.airport,
-                        gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel[0] - x.pixel[0]) < 15 && Math.abs(y.pixel[1] - x.pixel[1]) < 15))),
-                        runways: data.runways,
-                    };
-                }),
+        if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
+            originalAirportsData.value = [
+                ...originalAirportsData.value,
+                ...(await Promise.all(navigraphAirports.filter(x => !originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch(`/data/navigraph/airport/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []),
             ];
         }
+
+        airportsData.value = originalAirportsData.value.map((data) => {
+            const gatesWithPixel = data.gates.map(x => ({
+                ...x,
+                pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
+            }));
+
+            return {
+                airport: data.airport,
+                gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel[0] - x.pixel[0]) < 15 && Math.abs(y.pixel[1] - x.pixel[1]) < 15))),
+                runways: data.runways,
+            };
+        });
     }
 }
 

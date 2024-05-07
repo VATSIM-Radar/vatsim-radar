@@ -9,6 +9,7 @@
         max-height="100%"
         :sections="sections"
         :style="{'--percent': `${ pilot.toGoPercent}%`, '--status-color': radarColors[getStatus.color]}"
+        v-if="overlay?.data?.pilot"
     >
         <template #title>
             <div class="pilot-header pilot_header">
@@ -110,14 +111,12 @@
                                     {{
                                         (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ pilot.depDist.toFixed(1) } NM,` : ''
                                     }} Online
-                                    <template v-if="pilot.logon_time">
-                                        {{ getHoursAndMinutes(new Date(pilot.logon_time).getTime()) }}
-                                    </template>
+                                    <span v-if="pilot.logon_time">
+                                        {{ getLogonTime }}
+                                    </span>
                                 </div>
-                                <div class="pilot__card_route_footer_right" v-if="pilot.toGoDist && pilot.toGoTime">
-                                    {{ pilot.toGoDist.toFixed(1) }} NM in {{
-                                        datetime.format(new Date(pilot.toGoTime!))
-                                    }}Z
+                                <div class="pilot__card_route_footer_right" v-if="getDistAndTime">
+                                    {{ getDistAndTime }}
                                 </div>
                             </div>
                         </div>
@@ -256,6 +255,25 @@ const depAirport = computed(() => {
 
 const arrAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
+});
+
+const getDistAndTime = computed(() => {
+    try {
+        if (!pilot.value.toGoDist || !pilot.value.toGoTime) return null;
+
+        const dist = pilot.value.toGoDist.toFixed(1);
+        const date = datetime.format(new Date(pilot.value.toGoTime!));
+
+        return `${ dist } NM in ${ date }Z`;
+    }
+    catch (e) {
+        console.error(e);
+        return null;
+    }
+});
+
+const getLogonTime = computed(() => {
+    return getHoursAndMinutes(new Date(pilot.value.logon_time || 0).getTime());
 });
 
 const showOnMap = () => {
