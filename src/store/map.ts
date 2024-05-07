@@ -76,8 +76,11 @@ export const useMapStore = defineStore('map', {
             const store = useStore();
 
             try {
-                const existingOverlay = this.overlays.find(x => x.type === 'pilot');
+                const existingOverlay = this.overlays.find(x => x.key === cid);
+                if (existingOverlay) return;
+
                 const pilot = await $fetch(`/data/vatsim/pilot/${ cid }`);
+                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
 
                 if (existingOverlay) {
