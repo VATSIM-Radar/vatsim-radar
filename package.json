@@ -50,7 +50,7 @@
     "@types/node": "^20.12.10",
     "eslint": "^9.2.0",
     "postcss": "^8.4.38",
-    "postcss-html": "^1.6.0",
+    "postcss-html": "^1.7.0",
     "sass": "^1.77.0",
     "stylelint": "^16.5.0",
     "stylelint-config-recommended-scss": "^14.0.0",
@@ -60,5 +60,5 @@
     "vite-plugin-eslint2": "^4.4.0",
     "vue-tsc": "^1.8.27"
   },
-  "packageManager": "yarn@4.2.1"
+  "packageManager": "yarn@4.2.2"
 }

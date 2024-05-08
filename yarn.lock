@@ -6971,13 +6971,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-tokens@npm:^8.0.0":
-  version: 8.0.3
-  resolution: "js-tokens@npm:8.0.3"
-  checksum: 10c0/b50ba7d926b087ad31949d8155c7bc84374e0785019b17bdddeb2c4f98f5dea04ba464651fe23a8be4f7d15f50d06ce8bb536087b24ce3ebfbaea4a1dc5869f0
-  languageName: node
-  linkType: hard
-
 "js-tokens@npm:^9.0.0":
   version: 9.0.0
   resolution: "js-tokens@npm:9.0.0"
@@ -8439,7 +8432,7 @@ __metadata:
     ol-mapbox-style: "npm:^12.3.2"
     pinia: "npm:^2.1.7"
     postcss: "npm:^8.4.38"
-    postcss-html: "npm:^1.6.0"
+    postcss-html: "npm:^1.7.0"
     prisma: "npm:^5.13.0"
     sass: "npm:^1.77.0"
     sharp: "npm:^0.33.3"
@@ -9091,15 +9084,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-html@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "postcss-html@npm:1.6.0"
+"postcss-html@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "postcss-html@npm:1.7.0"
   dependencies:
     htmlparser2: "npm:^8.0.0"
-    js-tokens: "npm:^8.0.0"
+    js-tokens: "npm:^9.0.0"
     postcss: "npm:^8.4.0"
     postcss-safe-parser: "npm:^6.0.0"
-  checksum: 10c0/b7e4b69bb1ba3636554268b141ee0b10f789fcf42db83c086d637a5aead7d77385999160422fcd6ddaf5a61b72af17635aedde0035cc100be0d7e604f233e6dd
+  checksum: 10c0/5c6a7ead7ad6e2ed8427035dc7b8ee18f03b0c03684d8e59ec2b7c4d5485ebb7e026049e73bd907f3f16db6be004575706e6d25592258de1b4329b98e6845bd5
   languageName: node
   linkType: hard
 
