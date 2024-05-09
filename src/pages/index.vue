@@ -52,6 +52,7 @@ import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
+import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -141,6 +142,22 @@ const restoreOverlays = async () => {
                 data: {
                     stats: 'value' in data[0] ? data[0].value : null,
                     callsign: overlay.key,
+                },
+            };
+        }
+        else if (overlay.type === 'airport') {
+            const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === overlay.key);
+            if (!vatSpyAirport) return;
+
+            const data = await Promise.allSettled([
+                $fetch<VatsimAirportData>(`/data/vatsim/airport/${ overlay.key }`),
+            ]);
+
+            return {
+                ...overlay,
+                data: {
+                    icao: overlay.key,
+                    airport: data,
                 },
             };
         }

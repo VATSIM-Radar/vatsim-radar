@@ -3,6 +3,7 @@ import type { Extent } from 'ol/extent';
 import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
+import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -34,6 +35,14 @@ export interface StoreOverlayPrefile extends StoreOverlayDefault {
     };
 }
 
+export interface StoreOverlayAirport extends StoreOverlayDefault {
+    type: 'airport';
+    data: {
+        icao: string
+        airport: VatsimAirportData
+    };
+}
+
 export interface StoreOverlayAtc extends StoreOverlayDefault {
     type: 'atc';
     data: {
@@ -42,7 +51,7 @@ export interface StoreOverlayAtc extends StoreOverlayDefault {
     };
 }
 
-export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc
+export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport
 
 export const useMapStore = defineStore('map', {
     state: () => ({
@@ -148,7 +157,7 @@ export const useMapStore = defineStore('map', {
                 if (existingOverlay) return;
 
                 const controller = findAtcByCallsign(callsign);
-                if(!controller) return;
+                if (!controller) return;
 
                 const stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
@@ -161,6 +170,36 @@ export const useMapStore = defineStore('map', {
                         stats,
                     },
                     type: 'atc',
+                    sticky: false,
+                    maxHeight: 400,
+                });
+            }
+            finally {
+                this.openingOverlay = false;
+            }
+        },
+        async addAirportOverlay(airport: string) {
+            if (this.openingOverlay) return;
+            this.openingOverlay = true;
+
+            try {
+                const existingOverlay = this.overlays.find(x => x.key === airport);
+                if (existingOverlay) return;
+
+                const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === airport);
+                if (!vatSpyAirport) return;
+
+                const data = await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ airport }`);
+                this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
+                await nextTick();
+
+                return this.addOverlay<StoreOverlayAirport>({
+                    key: airport,
+                    data: {
+                        icao: airport,
+                        airport: data,
+                    },
+                    type: 'airport',
                     sticky: false,
                     maxHeight: 400,
                 });

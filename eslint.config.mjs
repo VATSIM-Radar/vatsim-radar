@@ -246,7 +246,8 @@ export default withNuxt([
             'vue/define-props-declaration': ['error', 'runtime'],
             'vue/valid-define-options': ['error'],
             'vue/no-deprecated-dollar-scopedslots-api': 'off',
-            '@typescript-eslint/ban-ts-comment': 'off'
+            '@typescript-eslint/ban-ts-comment': 'off',
+            'no-async-promise-executor': 'off',
         },
     },
     {

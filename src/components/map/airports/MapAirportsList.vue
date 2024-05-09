@@ -7,12 +7,13 @@
         :is-visible="visibleAirports.length < 100"
         :local-atc="localAtc"
         :arr-atc="arrAtc"
-        :hovered-id="((airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport) && hoveredId) ? hoveredId : null"
+        :is-hovered-airport="airport.icao === hoveredAirportName"
+        :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
         :hovered-pixel="hoveredPixel"
         :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
         :features
-        @manualHover="[isManualHover = true, hoveredAirport = airport.iata || airport.icao]"
-        @manualHide="[isManualHover = false, hoveredAirport = null]"
+        @manualHover="[isManualHover = true, hoveredArrAirport = airport.iata || airport.icao]"
+        @manualHide="[isManualHover = false, hoveredArrAirport = null]"
     />
 </template>
 
@@ -39,8 +40,13 @@ import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 
 let vectorLayer: VectorLayer<any>;
+let airportsLayer: VectorLayer<any>;
+
 const vectorSource = shallowRef<VectorSource | null>(null);
+const airportsSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
+provide('airports-source', airportsSource);
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -52,15 +58,39 @@ const airportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runwa
 const originalAirportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runways: NavigraphRunway[] }[]>([]);
 const isManualHover = ref(false);
 
-const hoveredAirport = ref<string | null>(null);
+const hoveredAirportName = ref<string | null>(null);
+const hoveredArrAirport = ref<string | null>(null);
 const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
+    if(mapStore.openOverlayId) return;
+
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
         hitTolerance: 5,
         layerFilter: layer => layer === vectorLayer,
     }).filter(x => x.getProperties().type !== 'background');
+
+    const airports = map.value!.getFeaturesAtPixel(e.pixel, {
+        hitTolerance: 5,
+        layerFilter: layer => layer === airportsLayer,
+    });
+
+    if(airports.length === 1) {
+        if (!mapStore.canShowOverlay) {
+            hoveredAirportName.value = null;
+            if (mapStore.mapCursorPointerTrigger === 3) mapStore.mapCursorPointerTrigger = false;
+            return;
+        }
+
+        hoveredAirportName.value = airports[0].getProperties().icao;
+        mapStore.mapCursorPointerTrigger = 3;
+        return;
+    }
+    else if(mapStore.mapCursorPointerTrigger === 3) {
+        hoveredAirportName.value = null;
+        mapStore.mapCursorPointerTrigger = false;
+    }
 
     let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
 
@@ -74,7 +104,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     if (isInvalid || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
-            hoveredAirport.value = null;
+            hoveredArrAirport.value = null;
             hoveredPixel.value = null;
         }
         if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
@@ -89,19 +119,12 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     }
 
     hoveredId.value = features[0].getProperties().id;
-    hoveredAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
+    hoveredArrAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
 }
 
 watch(map, (val) => {
     if (!val) return;
-
-    let hasLayer = false;
-    val.getLayers().forEach((layer) => {
-        if (hasLayer) return;
-        hasLayer = layer.getProperties().type === 'airports';
-    });
-    if (hasLayer) return;
 
     if (!vectorLayer) {
         vectorSource.value = new VectorSource({
@@ -113,12 +136,30 @@ watch(map, (val) => {
             source: vectorSource.value,
             zIndex: 5,
             properties: {
+                type: 'arr-atc',
+            },
+        });
+
+        val.addLayer(vectorLayer);
+    }
+
+    if (!airportsLayer) {
+        airportsSource.value = new VectorSource({
+            features: [],
+            wrapX: false,
+        });
+
+        airportsLayer = new VectorLayer({
+            source: airportsSource.value,
+            zIndex: 5,
+            properties: {
                 type: 'airports',
             },
         });
+
+        val.addLayer(airportsLayer);
     }
 
-    val.addLayer(vectorLayer);
     val.on('pointermove', handlePointerMove);
 }, {
     immediate: true,
@@ -126,6 +167,7 @@ watch(map, (val) => {
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
+    if (airportsLayer) map.value?.removeLayer(airportsLayer);
     map.value?.un('pointermove', handlePointerMove);
 });
 

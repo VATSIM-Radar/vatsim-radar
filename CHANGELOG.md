@@ -8,6 +8,8 @@
 - Reduced traffic consumption when some FSS is online or controller has multiple sectors
 - You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
   phones (for those who uses them even when they are not yet properly supported)
+- Updated ATIS encoding parse algorithm
+- Moved Boeings 74* icons to B739 icon
 
 # 0.2.7
 

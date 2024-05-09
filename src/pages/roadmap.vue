@@ -156,9 +156,6 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Move overlays across the map',
-            },
-            {
                 title: 'Pilot mouse right click menu',
             },
             {
@@ -206,21 +203,28 @@ const roadmap = reactive<Roadmap[]>([
             'Layers (hide atc/aircraft/gates/etc)',
             'Filters (filter by aircraft/dep/arr/airport)',
             'Open Source (code only)',
+            {
+                title: 'Detailed history routes',
+                description: 'History of aircraft turns',
+            },
+            {
+                title: 'Weather radar',
+            },
         ],
     },
     {
         title: 'Stage 3',
         items: [
             'Ability to run github repo locally',
-            'Detailed route',
             'Oceanic Tracks integration',
             'Waypoints on map',
+            'Detailed aircraft flight plan route',
             'Events',
             'ATC Bookings',
             'Favorite pilots/ATC',
             'Friendly mobile version',
-            'Aircraft moving in Vatsim update pause',
             'Search',
+            'Usage of VatGlasses data',
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
@@ -234,12 +238,11 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Detailed Stats',
                 description: 'Popular over time etc',
             },
-            {
-                title: 'Detailed history routes',
-                description: 'History of aircraft turns + departure/arrival time save',
-            },
             'PWA',
             'Proper OSS contribution support',
+            'Name of aircraft operating company',
+            'Aircraft moving in Vatsim update pause',
+            'Flight history, detailed flight page',
         ],
     },
     {
@@ -247,24 +250,21 @@ const roadmap = reactive<Roadmap[]>([
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
             'History of events',
-            'Filter by events aircrafts',
+            'Filter by event aircrafts',
             'Visualized events traffic',
-            'Usage of VatGlasses data',
             'Google Play app',
             'Websockets instead of update requests',
-            {
-                title: 'Weather',
-                description: 'Still need to figure out from where to fetch',
-            },
             'Simbrief integration',
             'ATC/Booking notification for active flight',
             'Images or aircraft type + operator',
-            'Name of aircraft operating company',
+            {
+                title: 'Move overlays across the map',
+            },
         ],
     },
 ]);
 
-const percents = 38;
+const percents = 40;
 
 interface RoadmapGroup {
     status: ItemStatus,

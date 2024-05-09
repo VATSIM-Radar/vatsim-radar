@@ -135,6 +135,10 @@ const props = defineProps({
         type: Array as PropType<AirportTraconFeature[]>,
         required: true,
     },
+    isHoveredAirport: {
+        type: Boolean,
+        default: false,
+    },
     hoveredId: {
         type: String as PropType<string | null>,
         default: null,
@@ -157,6 +161,7 @@ defineEmits({
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
+const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
 const hoveredFacility = ref<boolean | number>(false);
 
 const hoveredFacilities = computed(() => {
@@ -223,6 +228,8 @@ function initAirport() {
     if (!('lon' in props.airport)) return;
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
+        type: 'airport',
+        icao: props.airport.icao,
     });
 
     feature.setStyle(new Style({
@@ -235,7 +242,7 @@ function initAirport() {
         }),
     }));
 
-    vectorSource.value?.addFeature(feature);
+    airportsSource.value?.addFeature(feature);
 }
 
 watch(getAirportColor, () => {
@@ -321,7 +328,7 @@ onMounted(() => {
             return initAirport();
         }
         else if (val && feature) {
-            vectorSource.value?.removeFeature(feature);
+            airportsSource.value?.removeFeature(feature);
             feature.dispose();
             feature = null;
         }
@@ -494,7 +501,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     if (feature) {
-        vectorSource.value?.removeFeature(feature);
+        airportsSource.value?.removeFeature(feature);
         feature.dispose();
         feature = null;
     }

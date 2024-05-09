@@ -4315,6 +4315,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chardet@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "chardet@npm:2.0.0"
+  checksum: 10c0/e4d302e6116bf421d8dd0eaac09b5b3f9d88c17d9540f81ccde40e586c2a868c8a67a0dd4b1fe702f5ad63580623832884f65c43b9dffb6814e45eb005e26215
+  languageName: node
+  linkType: hard
+
 "chokidar@npm:>=3.0.0 <4.0.0, chokidar@npm:^3.5.1, chokidar@npm:^3.5.3, chokidar@npm:^3.6.0":
   version: 3.6.0
   resolution: "chokidar@npm:3.6.0"
@@ -7668,6 +7675,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"metar-taf-parser@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "metar-taf-parser@npm:9.0.0"
+  checksum: 10c0/4746b5069dfd298b625aa5c4122753515413367897f44f9271941ae131bd3a91e487c2085ce36c1dfb968b3d69cdd41df3a6b1743ea048feb94bfb238e9885c0
+  languageName: node
+  linkType: hard
+
 "micromatch@npm:^4.0.2, micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
   version: 4.0.5
   resolution: "micromatch@npm:4.0.5"
@@ -8421,12 +8435,14 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.6"
     "@types/node": "npm:^20.12.10"
     adm-zip: "npm:^0.5.12"
+    chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
     discord.js: "npm:^14.15.2"
     eslint: "npm:^9.2.0"
     idb: "npm:^8.0.0"
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
+    metar-taf-parser: "npm:^9.0.0"
     nuxt: "npm:^3.11.2"
     ol: "npm:^9.1.0"
     ol-mapbox-style: "npm:^12.3.2"
