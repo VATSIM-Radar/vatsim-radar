@@ -93,12 +93,6 @@ export const useMapStore = defineStore('map', {
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
 
-                if (existingOverlay) {
-                    //@ts-ignore
-                    existingOverlay.data.pilot = pilot;
-                    return;
-                }
-
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,
                     data: {
