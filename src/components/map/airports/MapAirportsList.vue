@@ -9,7 +9,7 @@
         :arr-atc="arrAtc"
         :hovered-id="((airport.iata ? airport.iata === hoveredAirport : airport.icao === hoveredAirport) && hoveredId) ? hoveredId : null"
         :hovered-pixel="hoveredPixel"
-        :gates="getAirportsGates.find(x => x.airport === airport.icao)?.gates"
+        :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
         :features
         @manualHover="[isManualHover = true, hoveredAirport = airport.iata || airport.icao]"
         @manualHide="[isManualHover = false, hoveredAirport = null]"
@@ -26,7 +26,7 @@ import { attachMoveEnd, isPointInExtent } from '~/composables';
 import type { MapAircraft, MapAirport as MapAirportType } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
-import type { NavigraphGate } from '~/types/data/navigraph';
+import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
 import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes } from '~/utils/shared/vatsim';
@@ -48,8 +48,8 @@ const visibleAirports = shallowRef<{
     vatspyAirport: VatSpyData['airports'][0],
     vatsimAirport: MapAirportType,
 }[]>([]);
-const airportsGates = shallowRef<{ airport: string, gates: NavigraphGate[] }[]>([]);
-const originalGates = shallowRef<NavigraphGate[]>([]);
+const airportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runways: NavigraphRunway[] }[]>([]);
+const originalAirportsData = shallowRef<{ airport: string, gates: NavigraphGate[], runways: NavigraphRunway[] }[]>([]);
 const isManualHover = ref(false);
 
 const hoveredAirport = ref<string | null>(null);
@@ -129,11 +129,11 @@ onBeforeUnmount(() => {
     map.value?.un('pointermove', handlePointerMove);
 });
 
-const getAirportsGates = computed<typeof airportsGates['value']>(() => {
-    if (!airportsGates.value || mapStore.zoom < 13) return [];
+const getAirportsData = computed<NavigraphAirportData[]>(() => {
+    if (!airportsData.value || mapStore.zoom < 13) return [];
 
     return getAirportsList.value.map((airport) => {
-        const gateAirport = airportsGates.value.find(x => x.airport === airport.airport.icao);
+        const gateAirport = airportsData.value.find(x => x.airport === airport.airport.icao);
         if (!gateAirport) return null;
 
         const gates: NavigraphGate[] = gateAirport.gates;
@@ -170,8 +170,9 @@ const getAirportsGates = computed<typeof airportsGates['value']>(() => {
         return {
             airport: gateAirport.airport,
             gates,
+            runways: gateAirport.runways,
         };
-    }).filter(x => !!x) as typeof airportsGates['value'];
+    }).filter(x => !!x) as typeof airportsData['value'];
 });
 
 export interface AirportTraconFeature {
@@ -379,23 +380,27 @@ async function setVisibleAirports() {
     }).filter(x => !!x) ?? [];
 
     if ((map.value!.getView().getZoom() ?? 0) > 13) {
-        const gatesAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
+        const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
-        if (!gatesAirports.every(x => airportsGates.value.some(y => y.airport === x.vatsimAirport.icao))) {
-            originalGates.value = (await Promise.all(gatesAirports.map(x => $fetch(`/data/navigraph/gates/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []);
+        if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
+            originalAirportsData.value = [
+                ...originalAirportsData.value,
+                ...(await Promise.all(navigraphAirports.filter(x => !originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch(`/data/navigraph/airport/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []),
+            ];
         }
 
-        airportsGates.value = await Promise.all(gatesAirports.map((airport) => {
-            const gatesWithPixel = originalGates.value.filter(x => x.airport_identifier === airport.vatsimAirport.icao).map(x => ({
+        airportsData.value = originalAirportsData.value.map((data) => {
+            const gatesWithPixel = data.gates.map(x => ({
                 ...x,
                 pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
             }));
 
             return {
-                airport: airport.vatsimAirport.icao,
+                airport: data.airport,
                 gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel[0] - x.pixel[0]) < 15 && Math.abs(y.pixel[1] - x.pixel[1]) < 15))),
+                runways: data.runways,
             };
-        }));
+        });
     }
 }
 

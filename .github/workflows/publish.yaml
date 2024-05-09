@@ -47,8 +47,9 @@ jobs:
             VATSIM_CLIENT_SECRET=${{ secrets.VATSIM_CLIENT_SECRET }}
             DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
             DISCORD_CLIEND_ID=${{ secrets.DISCORD_CLIEND_ID }}
-          cache-from: type=registry,ref=ghcr.io/daniluk4000/vatsim-radar/production:latest
-          cache-to: type=inline
+            DISCORD_SERVER_ID=${{ vars.DISCORD_SERVER_ID }}
+            DISCORD_RELEASES_CHANNEL_ID=${{ vars.DISCORD_RELEASES_CHANNEL_ID }}
+            DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
   deploy:
     runs-on: production
     needs:

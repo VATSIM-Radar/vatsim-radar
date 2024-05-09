@@ -3,18 +3,20 @@ import { handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
 import { findUserByCookie } from '~/utils/backend/user';
-import { discordClient, discordRoleId, discordServerId } from '~/server/plugins/discord';
+import { discordClient } from '~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
+import { getDiscordName } from '~/utils/backend/discord';
 
 export default defineEventHandler(async (event) => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
 
-        const { id: verifierId, discordId } = await prisma.auth.findFirstOrThrow({
+        const { id: verifierId, discordId, discordStrategy } = await prisma.auth.findFirstOrThrow({
             select: {
                 id: true,
                 discordId: true,
+                discordStrategy: true,
             },
             where: {
                 state: query.state ?? '',
@@ -45,21 +47,25 @@ export default defineEventHandler(async (event) => {
 
         let user = await findUserByCookie(event);
 
-        if (discordId) {
+        if (discordId && discordStrategy) {
             await prisma.user.updateMany({
                 where: {
                     discordId,
                 },
                 data: {
                     discordId: null,
+                    discordStrategy: null,
                 },
             });
 
-            const user = await (await discordClient.guilds.fetch(discordServerId)).members.fetch(discordId);
+            const user = await (await discordClient.guilds.fetch(config.DISCORD_SERVER_ID)).members.fetch(discordId);
             if (user) {
-                await user.roles.add(discordRoleId);
+                await user.roles.add(config.DISCORD_ROLE_ID);
                 if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
-                    await user.setNickname(`${ vatsimUser.personal.name_full } ${ vatsimUser.cid }`, 'Verification process');
+                    await user.setNickname(getDiscordName(discordStrategy, vatsimUser.cid, vatsimUser.personal.name_full), 'Verification process');
+                }
+                else {
+                    console.log(getDiscordName(discordStrategy, vatsimUser.cid, vatsimUser.personal.name_full));
                 }
             }
         }

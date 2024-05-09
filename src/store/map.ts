@@ -5,7 +5,7 @@ import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 
 export interface StoreOverlayDefault {
-    id: number;
+    id: string;
     key: string;
     position: number | {
         x: number
@@ -64,7 +64,7 @@ export const useMapStore = defineStore('map', {
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
-            const id = (this.overlays[this.overlays.length - 1]?.id ?? 0) + 1;
+            const id = crypto.randomUUID();
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
             }
@@ -92,6 +92,12 @@ export const useMapStore = defineStore('map', {
                 const pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
+
+                if (existingOverlay) {
+                    //@ts-ignore
+                    existingOverlay.data.pilot = pilot;
+                    return;
+                }
 
                 const overlay = this.addOverlay<StoreOverlayPilot>({
                     key: cid,

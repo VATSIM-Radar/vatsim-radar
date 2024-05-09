@@ -6,6 +6,7 @@
             '--position-x': typeof overlay.position === 'object' ? `${overlay.position.x}%` : undefined,
             '--position-y': typeof overlay.position === 'object' ? `${overlay.position.y}%` : undefined,
         }"
+        v-if="overlay?.data"
     >
         <map-popup-pilot v-if="overlay.type === 'pilot'" :overlay="overlay"/>
         <map-popup-prefile v-else-if="overlay.type === 'prefile'" :overlay="overlay"/>

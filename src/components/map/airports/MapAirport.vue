@@ -99,7 +99,7 @@ import { toRadians } from 'ol/math';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
-import type { NavigraphGate } from '~/types/data/navigraph';
+import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { GeoJSON } from 'ol/format';
@@ -116,8 +116,8 @@ const props = defineProps({
         type: Object as PropType<MapAircraft>,
         required: true,
     },
-    gates: {
-        type: Array as PropType<NavigraphGate[] | undefined>,
+    navigraphData: {
+        type: Object as PropType<NavigraphAirportData | undefined>,
     },
     isVisible: {
         type: Boolean,
@@ -214,6 +214,7 @@ interface ArrFeature {
 
 const arrFeatures = shallowRef<ArrFeature[]>([]);
 let gatesFeatures: Feature[] = [];
+let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
 const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
@@ -312,7 +313,8 @@ onMounted(() => {
     const localsLength = computed(() => props.localAtc.length);
 
     const arrAtcLocal = shallowRef(new Set<number>());
-    const gates = computed(() => props.gates);
+    const gates = computed(() => props.navigraphData?.gates);
+    const runways = computed(() => props.navigraphData?.runways);
 
     watch(localsLength, (val) => {
         if (!val && !feature) {
@@ -456,6 +458,38 @@ onMounted(() => {
     }, {
         immediate: true,
     });
+
+    watch(runways, (val) => {
+        if (!val) {
+            runwaysFeatures.forEach((feature) => {
+                vectorSource.value?.removeFeature(feature);
+                feature.dispose();
+            });
+            runwaysFeatures = [];
+            return;
+        }
+
+        runwaysFeatures = val.map((feature) => {
+            const runwayFeature = new Feature({
+                geometry: new Point([feature.runway_longitude, feature.runway_latitude]),
+            });
+
+            runwayFeature.setStyle(new Style({
+                text: new Text({
+                    font: 'bold 12px Montserrat',
+                    text: feature.runway_identifier.replace('RW', ''),
+                    rotation: toRadians(feature.runway_true_bearing - 180),
+                    fill: new Fill({
+                        color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.7)`,
+                    }),
+                }),
+            }));
+            vectorSource.value?.addFeature(runwayFeature);
+            return runwayFeature;
+        });
+    }, {
+        immediate: true,
+    });
 });
 
 onBeforeUnmount(() => {
@@ -474,6 +508,10 @@ onBeforeUnmount(() => {
     clearArrFeatures();
 
     gatesFeatures.forEach((feature) => {
+        vectorSource.value?.removeFeature(feature);
+        feature.dispose();
+    });
+    runwaysFeatures.forEach((feature) => {
         vectorSource.value?.removeFeature(feature);
         feature.dispose();
     });

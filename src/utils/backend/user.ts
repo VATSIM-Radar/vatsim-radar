@@ -27,6 +27,7 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
 export interface FullUser {
     id: number
     hasFms: boolean | null
+    hasCharts: boolean | null
     cid: string
     fullName: string
     settings: UserSettings
@@ -35,6 +36,7 @@ export interface FullUser {
 export interface UserSettings {
     autoFollow?: boolean
     autoZoom?: boolean
+    headerName?: string
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
@@ -53,6 +55,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                             accessTokenExpire: true,
                             refreshToken: true,
                             hasFms: true,
+                            hasCharts: true,
                         },
                     },
                     vatsim: {
@@ -82,6 +85,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                 const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
 
                 const hasFms = !!jwt.subscriptions?.includes('fmsdata');
+                const hasCharts = !!jwt.subscriptions?.includes('charts');
                 await prisma.navigraphUser.update({
                     where: {
                         userId: token.user.id,
@@ -91,9 +95,11 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                         accessTokenExpire: new Date(Date.now() + refreshedToken.expires_in * 1000),
                         refreshToken: refreshedToken.refresh_token,
                         hasFms,
+                        hasCharts,
                     },
                 });
                 token.user.navigraph.hasFms = hasFms;
+                token.user.navigraph.hasCharts = hasCharts;
             }
             catch (e) {
                 await prisma.navigraphUser.delete({
@@ -108,6 +114,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
         return {
             id: token.user.id,
             hasFms: token.user.navigraph?.hasFms ?? null,
+            hasCharts: token.user.navigraph?.hasCharts ?? null,
             cid: token.user.vatsim!.id,
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,

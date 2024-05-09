@@ -47,7 +47,7 @@
                     Connect Vatsim
                 </common-button>
                 <div class="header__user" v-else>
-                    {{ store.user.fullName }}
+                    {{ settings.headerName || store.user.fullName.split(' ')[0] }}
                 </div>
             </div>
             <div class="header__sections_section">
@@ -98,10 +98,15 @@
                             <template #top>
                                 <div class="header__settings__two-col-block">
                                     <div class="header__settings__two-col-block_title">
-                                        Name
+                                        Header Name<br>
+
+                                        <small>
+                                            Customize shown header name.
+                                            Leave to blank to use defaults.<br> Max 30 symbols.
+                                        </small>
                                     </div>
                                     <div class="header__settings__two-col-block_text">
-                                        {{ store.user!.fullName }}
+                                        <common-input-text placeholder="Enter name" :model-value="settings.headerName ?? ''" @change="settings.headerName = ($event.target as HTMLInputElement).value"/>
                                     </div>
                                 </div>
                             </template>
@@ -154,8 +159,11 @@
                                 Status
                             </div>
                             <div class="header__settings__navigraph_status">
-                                <template v-if="store.user!.hasFms">
+                                <template v-if="store.user!.hasCharts">
                                     Unlimited
+                                </template>
+                                <template v-else-if="store.user!.hasFms">
+                                    Navigraph Data
                                 </template>
                                 <template v-else>
                                     Standard
@@ -170,7 +178,7 @@
                             </common-button>
                         </div>
                         <div class="header__settings__description">
-                            Users with linked Navigraph Unlimited will receive latest AIRAC for gates, waypoints and all
+                            Users with linked Navigraph and Unlimited/Data subscription will receive latest AIRAC for gates, waypoints and all
                             other Navigraph-related stuff
                         </div>
                     </div>
@@ -373,11 +381,11 @@ onMounted(() => {
 
     &__sections {
         display: flex;
-        align-items: center;
         gap: 16px;
 
         &_section {
             display: flex;
+            align-items: center;
             gap: 16px;
 
             & + & {

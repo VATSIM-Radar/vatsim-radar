@@ -82,6 +82,7 @@ export default defineEventHandler(async (event) => {
                     accessTokenExpire: expires,
                     refreshToken: token.refresh_token,
                     hasFms: !!jwt.subscriptions?.includes('fmsdata'),
+                    hasCharts: !!jwt.subscriptions?.includes('charts'),
                 },
             });
 
@@ -104,6 +105,7 @@ export default defineEventHandler(async (event) => {
                 refreshToken: token.refresh_token,
                 userId: user.id,
                 hasFms: !!jwt.subscriptions?.includes('fmsdata'),
+                hasCharts: !!jwt.subscriptions?.includes('charts'),
             },
         });
 

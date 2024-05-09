@@ -9,6 +9,18 @@
 - You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
   phones (for those who uses them even when they are not yet properly supported)
 
+# 0.2.7
+
+- Added runways on map. Their numbers and existence depend on your Navigraph subscription (you can see used AIRAC cycle for them in footer)
+- You will now see Navigraph Data instead of Ultimate in Settings popup if you only bought data. This is cosmetic change only to reflect reality more
+
+## Privacy features
+
+- Removed full name from header
+- Completely removed name from settings
+- Added ability to customize name shown in header using settings
+- You can now rename yourself in Discord using `/rename` command
+
 # 0.2.6
 
 This is a little update while we develop bigger one.
