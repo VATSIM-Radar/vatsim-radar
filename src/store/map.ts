@@ -4,6 +4,7 @@ import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/ty
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -39,7 +40,8 @@ export interface StoreOverlayAirport extends StoreOverlayDefault {
     type: 'airport';
     data: {
         icao: string
-        airport: VatsimAirportData
+        airport?: VatsimAirportData
+        notams?: VatsimAirportDataNotam[]
     };
 }
 
@@ -60,6 +62,7 @@ export const useMapStore = defineStore('map', {
         moving: false,
         openOverlayId: null as string | null,
         openPilotOverlay: false,
+        openApproachOverlay: false,
 
         dataReady: false,
         mapCursorPointerTrigger: false as false | number,
@@ -189,20 +192,20 @@ export const useMapStore = defineStore('map', {
                 const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === airport);
                 if (!vatSpyAirport) return;
 
-                const data = await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ airport }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);
                 await nextTick();
-
-                return this.addOverlay<StoreOverlayAirport>({
+                const overlay = this.addOverlay<StoreOverlayAirport>({
                     key: airport,
                     data: {
                         icao: airport,
-                        airport: data,
                     },
                     type: 'airport',
                     sticky: false,
                     maxHeight: 400,
                 });
+
+                overlay.data.airport = await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ airport }`);
+                overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ airport }/notams`) ?? [];
             }
             finally {
                 this.openingOverlay = false;

@@ -36,14 +36,14 @@
                                     Pilot
                                 </div>
                                 <div class="aircraft-hover__pilot__text">
-                                    {{ aircraft.name }}<br>
+                                    {{ parseEncoding(aircraft.name) }}<br>
                                     {{ usePilotRating(aircraft).join(' | ') }}
                                 </div>
                             </div>
                         </template>
                     </common-info-block>
                     <div class="aircraft-hover_sections" v-if="aircraft.departure || aircraft.arrival">
-                        <common-info-block v-if="aircraft.departure" text-align="center" is-button>
+                        <common-info-block v-if="aircraft.departure" text-align="center" is-button @click="mapStore.addAirportOverlay(aircraft.departure)">
                             <template #top>
                                 From
                             </template>
@@ -51,7 +51,7 @@
                                 {{ aircraft.departure }}
                             </template>
                         </common-info-block>
-                        <common-info-block v-if="aircraft.arrival" text-align="center" is-button>
+                        <common-info-block v-if="aircraft.arrival" text-align="center" is-button @click="mapStore.addAirportOverlay(aircraft.arrival)">
                             <template #top>
                                 To
                             </template>
@@ -123,6 +123,7 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { getCurrentThemeHexColor } from '#imports';
+import { parseEncoding } from '../../../utils/data';
 
 const props = defineProps({
     aircraft: {

@@ -9,7 +9,7 @@
         :active-z-index="21"
     >
         <div class="airport" @mouseleave="hoveredFacility = false" :style="{'--color': getAirportColor}">
-            <div class="airport_title" @mouseover="hoveredFacility = true">
+            <div class="airport_title" @mouseover="hoveredFacility = true" @click="mapStore.addAirportOverlay(airport.icao)">
                 {{ airportName }}
             </div>
             <div class="airport_facilities">

@@ -12,17 +12,19 @@
             <div class="flight-plan__cols">
                 <common-info-block
                     text-align="center"
-                    is-button
+                    :is-button="!!depAirport"
                     class="flight-plan__card"
                     :top-items="[flightPlan.departure]"
                     :bottom-items="[depAirport?.name, depCountry?.country]"
+                    @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
                 />
                 <common-info-block
                     text-align="center"
-                    is-button
+                    :is-button="!!arrAirport"
                     class="flight-plan__card"
                     :top-items="[flightPlan.arrival]"
                     :bottom-items="[arrAirport?.name, arrCountry?.country]"
+                    @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
                 />
             </div>
             <div class="flight-plan__cols">
@@ -68,6 +70,7 @@
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/CommonCopyInfoBlock.vue';
+import { useMapStore } from '~/store/map';
 
 const props = defineProps({
     flightPlan: {
@@ -81,6 +84,7 @@ const props = defineProps({
 });
 
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 
 const depAirport = computed(() => {
     const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.departure);

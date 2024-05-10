@@ -33,11 +33,14 @@
                 <common-tabs class="info-popup_content_tabs" :tabs="tabs" v-if="tabs" v-model="activeTab"/>
                 <div
                     class="info-popup__section"
-                    :class="{
-                        'info-popup__section--has-title': section.title,
-                        'info-popup__section--collapsible': section.collapsible,
-                        'info-popup__section--collapsed': section.collapsible && collapsedSections.includes(section.key)
-                    }"
+                    :class="[
+                        `info-popup__section--type-${section.key}`,
+                        {
+                            'info-popup__section--has-title': section.title || $slots[`${section.key}Title`],
+                            'info-popup__section--collapsible': section.collapsible,
+                            'info-popup__section--collapsed': section.collapsible && collapsedSections.includes(section.key)
+                        }
+                    ]"
                     v-for="(section, index) in getSections"
                     :key="section.key"
                 >
@@ -46,8 +49,10 @@
                         v-if="index !== 0 || section.title || section.collapsible"
                         @click="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
                     >
-                        <div class="info-popup__section_separator_title" v-if="section.title">
-                            {{ section.title }}
+                        <div class="info-popup__section_separator_title" v-if="section.title || $slots[`${section.key}Title`]">
+                            <slot :name="`${section.key}Title`" :section="section">
+                                {{ section.title }}
+                            </slot>
                         </div>
                         <div
                             class="info-popup__section_separator_collapse"

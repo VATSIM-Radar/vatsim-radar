@@ -1,13 +1,11 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
+import { MultiPolygon } from 'ol/geom';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
-    notams?: {
-        title: string
-        content: string
-    }[];
     vatInfo?: {
         name?: string;
         altitude_m?: number
@@ -20,6 +18,7 @@ export interface VatsimAirportData {
         division_id?: string
         ctafFreq?: string;
     };
+    center: string[]
 }
 
 const caches: {
@@ -28,8 +27,6 @@ const caches: {
     taf?: string
     date: number
 }[] = [];
-
-const regex = new RegExp('<b>(?<title>.*) - (?<content>[\\s\\S]*?)<\\/PRE>', 'g');
 
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
     const icao = getRouterParam(event, 'icao')?.toUpperCase();
@@ -54,7 +51,9 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     const weatherOnly = getQuery(event).weatherOnly === '1';
 
-    const data: VatsimAirportData = {};
+    const data: VatsimAirportData = {
+        center: [],
+    };
     const promises: PromiseLike<any>[] = [];
 
     promises.push(new Promise<void>(async (resolve) => {
@@ -104,59 +103,51 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     if (!weatherOnly) {
         promises.push(new Promise<void>(async (resolve) => {
-            const { data: airportData } = await $fetch<{
-                data: VatsimAirportData['vatInfo'] & { stations: { ctaf: boolean, frequency: string }[] }
-            }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
+            try {
+                const { data: airportData } = await $fetch<{
+                    data: VatsimAirportData['vatInfo'] & { stations: { ctaf: boolean, frequency: string }[] }
+                }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
 
-            data.vatInfo = {
-                name: airportData?.name,
-                altitude_m: airportData?.altitude_m,
-                altitude_ft: airportData?.altitude_ft,
-                transition_alt: airportData?.transition_alt,
-                transition_level: airportData?.transition_level,
-                transition_level_by_atc: airportData?.transition_level_by_atc,
-                city: airportData?.city,
-                country: airportData?.country,
-                division_id: airportData?.division_id,
-                ctafFreq: airportData?.stations?.find(x => x.ctaf)?.frequency,
-            };
+                data.vatInfo = {
+                    name: airportData?.name,
+                    altitude_m: airportData?.altitude_m,
+                    altitude_ft: airportData?.altitude_ft,
+                    transition_alt: airportData?.transition_alt,
+                    transition_level: airportData?.transition_level,
+                    transition_level_by_atc: airportData?.transition_level_by_atc,
+                    city: airportData?.city,
+                    country: airportData?.country,
+                    division_id: airportData?.division_id,
+                    ctafFreq: airportData?.stations?.find(x => x.ctaf)?.frequency,
+                };
 
-            resolve();
-        }));
-
-        promises.push(new Promise<void>(async (resolve) => {
-            const formData = new FormData();
-
-            formData.set('retrieveLocId', icao);
-            formData.set('reportType', 'Report');
-            formData.set('actionType', 'notamRetrievalByICAOs');
-            formData.set('submit', 'View NOTAMs');
-
-            const html = await $fetch<string>('https://www.notams.faa.gov/dinsQueryWeb/queryRetrievalMapAction.do', {
-                headers: {
-                    'User-Agent': 'VatsimRadar/0.0',
-                },
-                method: 'POST',
-                responseType: 'text',
-                body: formData,
-            });
-
-            data.notams = [];
-
-            let result: RegExpExecArray | null;
-
-            while ((result = regex.exec(html)) !== null) {
-                data.notams.push({
-                    title: result.groups?.title?.replaceAll('</b>', '').trim() ?? '',
-                    content: result.groups?.content?.trim() ?? '',
-                });
+                resolve();
             }
-
-            resolve();
+            catch (e) {
+                console.error(e);
+                resolve();
+            }
         }));
     }
 
-    await Promise.all(promises);
+    await Promise.allSettled(promises);
+
+    const list = radarStorage.vatspy.data?.firs ?? [];
+
+    const firs = list.map((fir) => {
+        const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
+        return geometry.intersectsCoordinate([airport.lon, airport.lat]) &&
+            radarStorage.vatsim.firs.filter(
+                x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.feature.id) && x.controller,
+            )!;
+    }).filter(x => !!x);
+
+    if (firs.length) {
+        data.center = [...new Set(
+            //@ts-expect-error
+            firs.flatMap(x => x && x.map(x => x.controller?.callsign)).filter(x => !!x) as string[],
+        )];
+    }
 
     return data;
 });

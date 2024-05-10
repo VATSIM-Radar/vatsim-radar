@@ -37,6 +37,14 @@ export function getControllerPositionColor(controller: VatsimShortenedController
         return radarColors.success500;
     }
 
+    if (controller.facility === ids.APP) {
+        return radarColors.warning700;
+    }
+
+    if (controller.facility === ids.CTR) {
+        return radarColors.primary400;
+    }
+
     return radarColors.neutral800;
 }
 
@@ -48,7 +56,9 @@ export function sortControllersByPosition<T extends { facility: number, [key: st
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
         if (position === ids.ATIS) return 3;
-        return 3;
+        if (position === ids.APP) return 4;
+        if (position === ids.CTR) return 5;
+        return 5;
     };
 
     return facilities.slice().sort((a, b) => {

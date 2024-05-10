@@ -46,13 +46,14 @@ import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings } from '~/composables';
-import { useMapStore } from '~/store/map';
-import type { StoreOverlay } from '~/store/map';
+import {  useMapStore } from '~/store/map';
+import type {StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -152,6 +153,16 @@ const restoreOverlays = async () => {
             const data = await Promise.allSettled([
                 $fetch<VatsimAirportData>(`/data/vatsim/airport/${ overlay.key }`),
             ]);
+
+            if (!('value' in data[0])) return overlay;
+
+            (async function() {
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
+                if(foundOverlay) {
+                    (foundOverlay as StoreOverlayAirport).data.notams = notams;
+                }
+            })();
 
             return {
                 ...overlay,

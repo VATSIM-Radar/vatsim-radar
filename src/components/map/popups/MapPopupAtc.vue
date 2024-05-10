@@ -49,6 +49,7 @@
                     <common-info-block
                         is-button class="atc__airport_content" :top-items="[airport?.icao, country?.country]"
                         :bottom-items="[airport?.name]"
+                        @click="mapStore.addAirportOverlay(airport.icao)"
                     />
                 </div>
                 <common-atc-time-online class="atc__time-online" :controller="atc"/>
@@ -119,7 +120,7 @@ const atc = computed(() => {
 });
 
 const airport = computed(() => {
-    if (!atc.value) return;
+    if (!atc.value || atc.value.facility === facilities.CTR) return;
     return findAtcAirport(atc.value);
 });
 

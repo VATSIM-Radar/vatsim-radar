@@ -23,7 +23,7 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis ? undefined : getATCTime(controller),
+                        showAtis || !controller.logon_time ? undefined : getATCTime(controller),
                         showAtis && controller.atis_code ? `Info ${controller.atis_code}` : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
@@ -35,7 +35,7 @@
                                     class="atc-popup__position_facility"
                                     :style="{background: getControllerPositionColor(controller)}"
                                 >
-                                    {{ controller.isATIS ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
+                                    {{ controller.isATIS ? 'ATIS' : controller.facility === -1 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                                 </div>
                                 <div class="atc-popup__position_name">
                                     {{ item }}
@@ -78,7 +78,8 @@
                                 {{ parseEncoding(atis) }}<br>
                             </li>
                         </ul>
-                        <common-atc-time-online :controller="controller"/></template>
+                        <common-atc-time-online :controller="controller" v-if="controller.logon_time"/>
+                    </template>
                 </common-info-block>
             </div>
         </common-popup-block>

@@ -64,7 +64,7 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
-    if(mapStore.openOverlayId) return;
+    if (mapStore.openOverlayId && !mapStore.openApproachOverlay) return;
 
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
         hitTolerance: 5,
@@ -106,6 +106,8 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         if (!isManualHover.value) {
             hoveredArrAirport.value = null;
             hoveredPixel.value = null;
+            hoveredId.value = null;
+            mapStore.openApproachOverlay = false;
         }
         if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
         return;
@@ -121,6 +123,11 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     hoveredId.value = features[0].getProperties().id;
     hoveredArrAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
+    mapStore.openApproachOverlay = true;
+}
+
+function handleMapClick() {
+    if(hoveredAirportName.value) mapStore.addAirportOverlay(hoveredAirportName.value);
 }
 
 watch(map, (val) => {
@@ -161,6 +168,7 @@ watch(map, (val) => {
     }
 
     val.on('pointermove', handlePointerMove);
+    val.on('click', handleMapClick);
 }, {
     immediate: true,
 });
@@ -169,6 +177,7 @@ onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (airportsLayer) map.value?.removeLayer(airportsLayer);
     map.value?.un('pointermove', handlePointerMove);
+    map.value?.un('click', handleMapClick);
 });
 
 const getAirportsData = computed<NavigraphAirportData[]>(() => {

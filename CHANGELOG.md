@@ -10,6 +10,8 @@
   phones (for those who uses them even when they are not yet properly supported)
 - Updated ATIS encoding parse algorithm
 - Moved Boeings 74* icons to B739 icon
+- Added encoding parsing for pilots names
+- Approach controller popup will now close more easy
 
 # 0.2.7
 

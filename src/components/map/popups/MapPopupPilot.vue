@@ -63,7 +63,7 @@
                     <div>Pilot</div>
                     <common-info-block
                         class="pilot__card"
-                        :top-items="[pilot.name, pilot.cid]"
+                        :top-items="[parseEncoding(pilot.name), pilot.cid]"
                         :bottom-items="[...usePilotRating(pilot), stats?.pilot ? `${Math.floor(stats.pilot)}h total time` : undefined]"
                     />
                 </div>
@@ -221,6 +221,7 @@ import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { boundingExtent, getCenter } from 'ol/extent';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useCopyText } from '~/composables';
+import { parseEncoding } from '~/utils/data';
 
 const props = defineProps({
     overlay: {
