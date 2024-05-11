@@ -272,6 +272,10 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
             },
+            {
+                title: 'Gates status in airport popup',
+                description: 'It is to be decided do we really need this and where specifically',
+            },
         ],
     },
 ]);

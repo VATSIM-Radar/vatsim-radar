@@ -123,7 +123,7 @@
                         class="airport__aircraft" v-for="aircraft in displayedAircrafts" :key="aircraft.cid"
                         :bottom-items="[
                             aircraft.departure,
-                            aircraft.aircraft_faa
+                            aircraft.aircraft_faa ?? 'No flight plan'
                         ]"
                         is-button
                         @click="(aircraftsMode === 'ground' && aircraftsGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(aircraft.cid.toString()) : mapStore.addPilotOverlay(aircraft.cid.toString())"
@@ -142,7 +142,7 @@
                             </div>
                         </template>
                         <template #bottom="{item, index}">
-                            <template v-if="index === 0">
+                            <template v-if="index === 0 && aircraft.departure">
                                 <template v-if="!aircraft.isArrival">
                                     to
                                 </template>
