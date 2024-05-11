@@ -48,21 +48,22 @@ export function getControllerPositionColor(controller: VatsimShortenedController
     return radarColors.neutral800;
 }
 
-export function sortControllersByPosition<T extends { facility: number, [key: string]: any }>(facilities: T[]): T[] {
+export function sortControllersByPosition<T extends { facility: number, isATIS?: boolean, [key: string]: any }>(facilities: T[]): T[] {
     const ids = useFacilitiesIds();
 
-    const getPositionIndex = (position: number) => {
+    const getPositionIndex = (position: number, isAtis = false) => {
+        if(isAtis) return 3;
         if (position === ids.DEL) return 0;
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
         if (position === ids.ATIS) return 3;
         if (position === ids.APP) return 4;
         if (position === ids.CTR) return 5;
-        return 5;
+        return 6;
     };
 
     return facilities.slice().sort((a, b) => {
-        return getPositionIndex(a.facility) > getPositionIndex(b.facility) ? 1 : -1;
+        return getPositionIndex(a.facility, a.isATIS) > getPositionIndex(b.facility, b.isATIS) ? 1 : -1;
     });
 }
 

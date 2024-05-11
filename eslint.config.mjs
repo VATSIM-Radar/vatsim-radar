@@ -243,7 +243,7 @@ export default withNuxt([
                     order: ['defineOptions', 'defineProps', 'defineEmits', 'defineSlots'],
                 },
             ],
-            'vue/define-props-declaration': ['error', 'runtime'],
+            'vue/define-props-declaration': ['off'],
             'vue/valid-define-options': ['error'],
             'vue/no-deprecated-dollar-scopedslots-api': 'off',
             '@typescript-eslint/ban-ts-comment': 'off',

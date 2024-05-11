@@ -49,59 +49,61 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
         return;
     }
 
-    const weatherOnly = getQuery(event).weatherOnly === '1';
+    const weatherOnly = getQuery(event).requestedDataType === '1';
+    const controllersOnly = getQuery(event).requestedDataType === '2';
 
     const data: VatsimAirportData = {
         center: [],
     };
     const promises: PromiseLike<any>[] = [];
 
-    promises.push(new Promise<void>(async (resolve) => {
-        const cachedMetar = caches.find(x => x.icao === icao);
-        if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - 1000 * 60 * 5) {
-            data.metar = cachedMetar.metar;
-            data.taf = cachedMetar.taf;
-        }
-        else {
-            try {
-                const [metar, taf] = await Promise.all([
-                    $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }),
-                    $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
-                ]);
+    if(!controllersOnly) {
+        promises.push(new Promise<void>(async (resolve) => {
+            const cachedMetar = caches.find(x => x.icao === icao);
+            if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - 1000 * 60 * 5) {
+                data.metar = cachedMetar.metar;
+                data.taf = cachedMetar.taf;
+            }
+            else {
+                try {
+                    const [metar, taf] = await Promise.all([
+                        $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }),
+                        $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
+                    ]);
 
-                data.metar = metar.split('\n')[1];
-                const splitTaf = taf.split('\n');
-                data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
+                    data.metar = metar.split('\n')[1];
+                    const splitTaf = taf.split('\n');
+                    data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
 
-                if (cachedMetar) {
-                    cachedMetar.date = Date.now();
-                    cachedMetar.metar = data.metar;
-                    cachedMetar.taf = data.taf;
+                    if (cachedMetar) {
+                        cachedMetar.date = Date.now();
+                        cachedMetar.metar = data.metar;
+                        cachedMetar.taf = data.taf;
+                    }
+                    else {
+                        caches.push({
+                            icao,
+                            metar: data.metar,
+                            taf: data.taf,
+                            date: Date.now(),
+                        });
+                    }
                 }
-                else {
-                    caches.push({
-                        icao,
-                        metar: data.metar,
-                        taf: data.taf,
-                        date: Date.now(),
-                    });
+                catch (e) {
+                    if (cachedMetar?.metar) {
+                        data.metar = cachedMetar.metar;
+                    }
+
+                    if (cachedMetar?.taf) {
+                        data.taf = cachedMetar.metar;
+                    }
                 }
             }
-            catch (e) {
-                if (cachedMetar?.metar) {
-                    data.metar = cachedMetar.metar;
-                }
 
-                if (cachedMetar?.taf) {
-                    data.taf = cachedMetar.metar;
-                }
-            }
-        }
-
-        resolve();
-    }));
-
-    if (!weatherOnly) {
+            resolve();
+        }));
+    }
+    if (!weatherOnly && !controllersOnly) {
         promises.push(new Promise<void>(async (resolve) => {
             try {
                 const { data: airportData } = await $fetch<{

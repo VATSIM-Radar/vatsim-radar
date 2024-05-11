@@ -58,7 +58,7 @@
         <template #atis>
             <div class="atc__sections">
                 <common-copy-info-block
-                    class="atc__sections_section" :text="parseEncoding(atc.text_atis.join(' '))"
+                    class="atc__sections_section" :text="parseEncoding(atc.text_atis.join(' '), atc.callsign)"
                     v-if="atc.text_atis"
                 >
                     ATIS
@@ -172,7 +172,7 @@ watch(atc, (value) => {
         padding: 4px;
         border-radius: 4px;
         background: $primary500;
-        color: $neutral150;
+        color: $neutral150Orig;
         font-weight: 600;
         font-size: 11px;
         line-height: 100%;

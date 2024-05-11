@@ -8,10 +8,18 @@
 - Reduced traffic consumption when some FSS is online or controller has multiple sectors
 - You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
   phones (for those who uses them even when they are not yet properly supported)
+- Redesigned approach sector label design. You will no longer suffer from random hovers, and it will be easier to differ sectors from each other when they are close to each other
+- Reduced area sectors name size
+- Removed decimals on pilot flown & remaining miles
+
+## Bug fixes
+
 - Updated ATIS encoding parse algorithm
 - Moved Boeings 74* icons to B739 icon
 - Added encoding parsing for pilots names
-- Approach controller popup will now close more easy
+- Approach controller popup will now close more easily
+- Pilot offline status should now properly reset after (s)he's back online
+- Fixed error when aircraft was not listed in arrivals if arrival airport was same as departure
 
 # 0.2.7
 

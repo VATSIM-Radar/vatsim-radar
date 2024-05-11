@@ -1,7 +1,8 @@
 import type { VatsimExtendedPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { VatSpyData } from '~/types/data/vatspy';
-import type { Map } from 'ol';
+import type {Map} from 'ol';
 import type { ShallowRef } from 'vue';
+import type { ColorsList } from '~/modules/styles';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -34,4 +35,71 @@ export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedP
     return 'isOnGround' in pilot
         ? pilot.isOnGround
         : dataStore.vatsim.data.airports.value.some(x => x.aircrafts.groundArr?.includes(pilot.cid) || x.aircrafts.groundDep?.includes(pilot.cid));
+}
+
+export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList, title: string } {
+    if (isOffline) {
+        return {
+            color: 'neutral800',
+            title: 'Offline',
+        };
+    }
+
+    switch (status) {
+        case 'depGate':
+            return {
+                color: 'success500',
+                title: 'Departing | At gate',
+            };
+        case 'depTaxi':
+            return {
+                color: 'success500',
+                title: 'Departing',
+            };
+        case 'departed':
+            return {
+                color: 'warning500',
+                title: 'Departed',
+            };
+        case 'enroute':
+            return {
+                color: 'primary500',
+                title: 'Enroute',
+            };
+        case 'cruising':
+            return {
+                color: 'primary500',
+                title: 'Cruising',
+            };
+        case 'climbing':
+            return {
+                color: 'primary400',
+                title: 'Climbing',
+            };
+        case 'descending':
+            return {
+                color: 'primary600',
+                title: 'Descending',
+            };
+        case 'arriving':
+            return {
+                color: 'warning600',
+                title: 'Arriving',
+            };
+        case 'arrTaxi':
+            return {
+                color: 'error500',
+                title: 'Arrived',
+            };
+        case 'arrGate':
+            return {
+                color: 'error500',
+                title: 'Arrived | At gate',
+            };
+        default:
+            return {
+                color: 'neutral1000',
+                title: 'Status unknown',
+            };
+    }
 }

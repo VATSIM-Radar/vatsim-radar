@@ -201,7 +201,6 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'airport',
                     sticky: false,
-                    maxHeight: 400,
                 });
 
                 overlay.data.airport = await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ airport }`);

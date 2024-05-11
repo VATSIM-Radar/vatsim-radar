@@ -8,7 +8,7 @@
         :header-actions="['sticky', 'track']"
         max-height="100%"
         :sections="sections"
-        :style="{'--percent': `${ pilot.toGoPercent}%`, '--status-color': radarColors[getStatus.color]}"
+        :style="{'--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color]}"
         v-if="overlay?.data?.pilot"
     >
         <template #title>
@@ -101,7 +101,7 @@
                             <div class="pilot__card_route_footer">
                                 <div class="pilot__card_route_footer_left">
                                     {{
-                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ pilot.depDist.toFixed(1) } NM,` : ''
+                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(pilot.depDist) } NM,` : ''
                                     }} Online
                                     <span v-if="pilot.logon_time">
                                         {{ getLogonTime }}
@@ -202,7 +202,6 @@
 import type { PropType, ShallowRef } from 'vue';
 import { useStore } from '~/store';
 import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
-import type { ColorsList } from '~/modules/styles';
 import { getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
@@ -214,7 +213,7 @@ import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
 import { sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { showPilotOnMap } from '~/composables/pilots';
+import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
@@ -262,7 +261,7 @@ const getDistAndTime = computed(() => {
     try {
         if (!pilot.value.toGoDist || !pilot.value.toGoTime) return null;
 
-        const dist = pilot.value.toGoDist.toFixed(1);
+        const dist = Math.round(pilot.value.toGoDist);
         const date = datetime.format(new Date(pilot.value.toGoTime!));
 
         return `${ dist } NM in ${ date }Z`;
@@ -426,76 +425,14 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
     });
 });
 
-const getStatus = computed<{ color: ColorsList, title: string }>(() => {
-    if (isOffline.value) {
-        return {
-            color: 'neutral800',
-            title: 'Offline',
-        };
-    }
-
-    switch (pilot.value.status) {
-        case 'depGate':
-            return {
-                color: 'success500',
-                title: 'Departing | At gate',
-            };
-        case 'depTaxi':
-            return {
-                color: 'success500',
-                title: 'Departing',
-            };
-        case 'departed':
-            return {
-                color: 'warning500',
-                title: 'Departed',
-            };
-        case 'enroute':
-            return {
-                color: 'primary500',
-                title: 'Enroute',
-            };
-        case 'cruising':
-            return {
-                color: 'primary500',
-                title: 'Cruising',
-            };
-        case 'climbing':
-            return {
-                color: 'primary400',
-                title: 'Climbing',
-            };
-        case 'descending':
-            return {
-                color: 'primary600',
-                title: 'Descending',
-            };
-        case 'arriving':
-            return {
-                color: 'warning600',
-                title: 'Arriving',
-            };
-        case 'arrTaxi':
-            return {
-                color: 'error500',
-                title: 'Arrived',
-            };
-        case 'arrGate':
-            return {
-                color: 'error500',
-                title: 'Arrived | At gate',
-            };
-        default:
-            return {
-                color: 'neutral1000',
-                title: 'Status unknown',
-            };
-    }
+const getStatus = computed(() => {
+    return getPilotStatus(pilot.value.status, isOffline.value);
 });
 
 watch(dataStore.vatsim.updateTimestamp, async () => {
     try {
         props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ props.overlay.key }`);
+        isOffline.value = false;
     }
     catch (e: IFetchError | any) {
         if (e) {
@@ -581,13 +518,21 @@ onBeforeUnmount(() => {
 
         &_line {
             position: absolute;
-            width: calc(var(--percent) + 32px);
-            height: 56px;
-            background: $neutral900;
-            border-radius: 8px 0 0 8px;
             top: 0;
             left: -16px;
+            width: calc(100% + 32px);
             z-index: 1;
+
+            &::before {
+                content: '';
+                position: absolute;
+                width: var(--percent);
+                height: 56px;
+                background: $neutral900;
+                border-radius: 8px 0 0 8px;
+                top: 0;
+                left: 0;
+            }
         }
     }
 

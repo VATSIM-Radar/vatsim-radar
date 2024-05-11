@@ -6827,6 +6827,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jschardet@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jschardet@npm:3.1.2"
+  checksum: 10c0/dd45be21cfac964fd634ffe17a251a92f1ca8bcdd517821f8aec380f32930c1548bd60a5d664b5ba601b5f838ce8419b852a3aad1ff915ae98c3209fbc9a460c
+  languageName: node
+  linkType: hard
+
 "jsdoc-type-pratt-parser@npm:~4.0.0":
   version: 4.0.0
   resolution: "jsdoc-type-pratt-parser@npm:4.0.0"
@@ -8255,6 +8262,7 @@ __metadata:
     discord.js: "npm:^14.15.2"
     eslint: "npm:^9.2.0"
     idb: "npm:^8.0.0"
+    jschardet: "npm:^3.1.2"
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
     metar-taf-parser: "npm:^9.0.0"

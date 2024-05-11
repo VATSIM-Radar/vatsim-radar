@@ -75,7 +75,7 @@
                                 v-for="atis in getATIS(controller)"
                                 :key="atis"
                             >
-                                {{ parseEncoding(atis) }}<br>
+                                {{ parseEncoding(atis, controller.callsign) }}<br>
                             </li>
                         </ul>
                         <common-atc-time-online :controller="controller" v-if="controller.logon_time"/>
@@ -113,6 +113,10 @@ defineProps({
     small: {
         type: Boolean,
         default: false,
+    },
+    maxHeight: {
+        type: String,
+        default: '400px',
     },
 });
 
@@ -197,7 +201,7 @@ const getATIS = (controller: VatsimShortenedController) => {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        max-height: 400px;
+        max-height: v-bind(maxHeight);
         overflow: auto;
     }
 

@@ -95,10 +95,11 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
 
     if (!isInvalid) {
-        const airport = getAirportsList.value.find(x => (features[0].getProperties().iata || x.airport.iata) ? x.airport.iata === features[0].getProperties().iata : x.airport.icao === features[0].getProperties().icao);
         const pixel = map.value!.getCoordinateFromPixel(e.pixel);
-        if (features[0].getProperties().type !== 'tracon') {
-            isInvalid = pixel[1] - airport!.airport.lat < 80000;
+        const extent = features[0].getGeometry()?.getExtent();
+        if(extent){
+            const textCoord = [extent[0] + 25000, extent[3] - 25000];
+            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 10000;
         }
     }
 

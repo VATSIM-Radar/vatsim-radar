@@ -67,11 +67,7 @@
     <map-overlay
         v-if="hoveredFeature"
         model-value
-        :settings="
-            (hasTracon || !('lon' in airport)) ?
-                { position: hoveredPixel!, positioning: 'top-center', stopEvent: true } :
-                { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
-        "
+        :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: true }"
         :z-index="21"
         @mouseover="$emit('manualHover')"
         @mouseleave="$emit('manualHide')"
@@ -92,7 +88,7 @@ import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
 import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
-import { Circle, Point } from 'ol/geom';
+import { Circle, Geometry, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import { fromCircle } from 'ol/geom/Polygon';
 import { toRadians } from 'ol/math';
@@ -282,29 +278,38 @@ watch(hoveredFeature, (val) => {
     }
 });
 
-const hasTracon = computed(() => {
-    return arrFeatures.value.some(x => x.id !== 'circle');
-});
-
 function setFeatureStyle(feature: Feature) {
-    feature.setStyle(new Style({
-        stroke: new Stroke({
-            color: radarColors.primary300Hex,
-            width: 2,
-        }),
-        text: new Text({
-            font: 'bold 14px Montserrat',
-            text: feature.getProperties()?._traconId || airportName.value,
-            placement: 'line',
-            offsetY: -10,
-            textAlign: hasTracon.value ? undefined : 'center',
-            maxAngle: hasTracon.value ? toRadians(15) : toRadians(20),
-            overflow: true,
-            fill: new Fill({
+    const extent = feature.getGeometry()?.getExtent();
+    const topCoord = [extent![0] + 25000, extent![3] - 25000];
+
+    feature.setStyle([
+        new Style({
+            stroke: new Stroke({
                 color: radarColors.primary300Hex,
+                width: 2,
             }),
         }),
-    }));
+        new Style({
+            geometry: new Point(topCoord),
+            text: new Text({
+                font: 'bold 10px Montserrat',
+                text: feature.getProperties()?._traconId || airportName.value,
+                placement: 'point',
+                overflow: true,
+                fill: new Fill({
+                    color: radarColors.primary400Hex,
+                }),
+                backgroundFill: new Fill({
+                    color: getCurrentThemeHexColor('neutral900'),
+                }),
+                backgroundStroke: new Stroke({
+                    width: 1.5,
+                    color: radarColors.primary400Hex,
+                }),
+                padding: [3,1,2,3],
+            }),
+        }),
+    ]);
 }
 
 function clearArrFeatures() {
@@ -530,7 +535,7 @@ onBeforeUnmount(() => {
     background: varToRgba('neutral800', 0.5);
     padding: 3px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     text-align: center;
     cursor: initial;
     display: flex;

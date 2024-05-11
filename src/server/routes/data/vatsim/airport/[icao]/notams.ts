@@ -1,7 +1,5 @@
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
-import { MultiPolygon } from 'ol/geom';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 export interface VatsimAirportDataNotam {
         title: string

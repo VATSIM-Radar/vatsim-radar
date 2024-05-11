@@ -26,6 +26,7 @@
     "cron": "^3.1.7",
     "discord.js": "^14.15.2",
     "idb": "^8.0.0",
+    "jschardet": "^3.1.2",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "metar-taf-parser": "^9.0.0",

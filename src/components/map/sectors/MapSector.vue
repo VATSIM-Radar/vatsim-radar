@@ -171,12 +171,13 @@ onBeforeUnmount(() => {
 .sector-atc {
     &_name {
         cursor: pointer;
-        background: $neutral900;
+        background: $neutral850;
         color: $neutral150;
+        border: 1px solid varToRgba('neutral150', 0.1);
         padding: 4px;
         border-radius: 4px;
         font-weight: 700;
-        font-size: 13px;
+        font-size: 11px;
         text-align: center;
         position: relative;
         z-index: 10;

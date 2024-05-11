@@ -156,7 +156,7 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Pilot mouse right click menu',
+                title: 'Pilot/airport mouse right click menu',
             },
             {
                 title: 'TMA approach sectors',
@@ -171,7 +171,14 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Recolor aircraft setting if they have same arrival airport as you',
+                title: '"Recolor/show tracks for aircraft" setting if they have same arrival airport as you',
+                description: 'Will be available for aircraft arriving to same airport as you / arriving to selected airport',
+                status: 'todo',
+            },
+            {
+                title: 'Separate page & Fullscreen mode for airport popup',
+                description: 'Separate dashboard that allows to view much more information on screen',
+                status: 'in-progress',
             },
             {
                 title: 'ATC info popup',
@@ -191,17 +198,22 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
+                status: 'todo',
             },
             {
                 title: 'Light theme',
                 status: 'completed',
             },
             {
-                title: 'Easy access to pilot stats for ATC controllers in airport popup',
-                status: 'in-progress',
+                title: 'Easy access to pilot stats in airport popup',
+                description: 'View pilots stats directly in airport popup to determine how new they are',
+                status: 'todo',
             },
             'Layers (hide atc/aircraft/gates/etc)',
-            'Filters (filter by aircraft/dep/arr/airport)',
+            {
+                title: 'Filters (filter by aircraft/dep/arr/airport)',
+                status: 'todo',
+            },
             'Open Source (code only)',
             {
                 title: 'Detailed history routes',
@@ -239,7 +251,6 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular over time etc',
             },
             'PWA',
-            'Proper OSS contribution support',
             'Name of aircraft operating company',
             'Aircraft moving in Vatsim update pause',
             'Flight history, detailed flight page',
@@ -259,6 +270,7 @@ const roadmap = reactive<Roadmap[]>([
             'Images or aircraft type + operator',
             {
                 title: 'Move overlays across the map',
+                description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
             },
         ],
     },
