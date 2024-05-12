@@ -59,9 +59,11 @@ export function parseEncoding(text: string, callsignOrAirport?: string) {
     const toAnalyse = encoder.encode(text);
 
     if(callsignOrAirport && slugs1251.includes(callsignOrAirport.slice(0,2))) {
-        const rusResult = decoder1251.decode(toAnalyse);
+        const result = decoder1251.decode(toAnalyse);
 
-        if(rusResult.includes('Ћ') || rusResult.includes('¤') || rusResult.includes('ґ') || rusResult.includes('®')) {
+        console.log(result, text);
+
+        if(result.includes('Ћ') || result.includes('¤') || result.includes('ґ') || result.includes('®') || result.includes('©') || result.includes('Є')) {
             return decoder1251.decode(new Uint8Array([...text].map(char => char.charCodeAt(0))));
         }
     }

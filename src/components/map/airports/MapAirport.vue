@@ -291,7 +291,7 @@ function setFeatureStyle(feature: Feature) {
         new Style({
             stroke: new Stroke({
                 color: radarColors.primary300Hex,
-                width: 2,
+                width: 3,
             }),
         }),
         new Style({
@@ -302,14 +302,14 @@ function setFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.primary400Hex,
+                    color: radarColors.primary300Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('neutral900'),
                 }),
                 backgroundStroke: new Stroke({
-                    width: 1.5,
-                    color: radarColors.primary400Hex,
+                    width: 2,
+                    color: radarColors.primary300Hex,
                 }),
                 padding: [3,1,2,3],
             }),

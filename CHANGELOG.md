@@ -1,10 +1,19 @@
 # Changelog
 
+# 0.3.1
+
+- Once again improved encoding detection for cyrillic
+- Added remaining dist and ETA to airport's aircrafts list
+- Added departed/arriving statuses for airport's aircrafts list
+- Aircrafts in airport popup are now sorted by closest distance to airport
+- Increased border of approach sectors so it's now harder to miss them
+- Name of approach sector is now the same color as sector's border
+
 # 0.3.0
 
-This update adds airport overlay that you can use to get all possible info about airport you may need. 
+This update adds airport overlay that you can use to get all possible info about airport you may need.
 
-As always, remember to check Roadmap to get a hint of what's coming next! Stage 2 is getting closer to its end. 
+As always, remember to check Roadmap to get a hint of what's coming next! Stage 2 is getting closer to its end.
 
 ## Highlights
 

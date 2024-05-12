@@ -447,6 +447,12 @@ await useAsyncData(async () => {
 });
 </script>
 
+<style lang="scss">
+.app_content:only-child .map_container > * {
+    border-radius: 0;
+}
+</style>
+
 <style lang="scss" scoped>
 .map {
     width: 100%;

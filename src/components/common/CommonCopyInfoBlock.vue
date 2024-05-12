@@ -12,8 +12,16 @@
                     Copy
                 </template>
             </common-button>
+            <common-button type="link" class="copy-info_left_expand" @click="expanded = !expanded">
+                <template v-if="expanded">
+                    Collapse
+                </template>
+                <template v-else>
+                    Expand
+                </template>
+            </common-button>
         </div>
-        <textarea :value="text" readonly class="copy-info_textarea"/>
+        <textarea ref="textarea" :value="text" readonly class="copy-info_textarea"/>
     </div>
 </template>
 
@@ -29,6 +37,21 @@ defineProps({
 });
 
 const copy = useCopyText();
+const expanded = ref(false);
+const textarea = ref<HTMLTextAreaElement | null>(null);
+const initialHeight = ref(0);
+
+watch(expanded, (val) => {
+    if(!textarea.value) return;
+
+    if(val) {
+        initialHeight.value = textarea.value.clientHeight;
+        textarea.value.style.height = `${ textarea.value.scrollHeight }px`;
+    }
+    else {
+        textarea.value.style.height = 'auto';
+    }
+});
 </script>
 
 <style scoped lang="scss">
@@ -45,6 +68,11 @@ const copy = useCopyText();
         &_title {
             font-weight: 600;
             font-size: 12px;
+        }
+
+        &_expand {
+            position: sticky;
+            top: 0;
         }
     }
 

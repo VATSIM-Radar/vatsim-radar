@@ -84,7 +84,7 @@
                     </div>
                     <common-info-block class="airport__info-section_content">
                         <template #top>
-                            {{ `0${metar.hour}`.slice(-2) }}:{{ `0${metar.minute}`.slice(-2) }}Z
+                            {{ `0${ metar.hour }`.slice(-2) }}:{{ `0${ metar.minute }`.slice(-2) }}Z
                         </template>
                     </common-info-block>
                 </div>
@@ -114,7 +114,9 @@
                     </div>
                     <common-info-block class="airport__info-section_content">
                         <template #top>
-                            {{ metar.altimeter.value }} {{ metar.altimeter.unit === AltimeterUnit.HPa ? 'hPa' : 'inHG' }}
+                            {{ metar.altimeter.value }} {{
+                                metar.altimeter.unit === AltimeterUnit.HPa ? 'hPa' : 'inHG'
+                            }}
                         </template>
                     </common-info-block>
                 </div>
@@ -155,7 +157,11 @@
                         </div>
                         <common-info-block class="airport__info-section_content">
                             <template #top>
-                                {{ `0${tafMetar.start.getUTCHours()}`.slice(-2) }}:{{ `0${tafMetar.start.getUTCHours()}`.slice(-2) }}Z to {{ `0${tafMetar.end.getUTCHours()}`.slice(-2) }}:{{ `0${tafMetar.end.getUTCHours()}`.slice(-2) }}Z
+                                {{
+                                    `0${ tafMetar.start.getUTCHours() }`.slice(-2)
+                                }}:{{ `0${ tafMetar.start.getUTCHours() }`.slice(-2) }}Z to {{
+                                    `0${ tafMetar.end.getUTCHours() }`.slice(-2)
+                                }}:{{ `0${ tafMetar.end.getUTCHours() }`.slice(-2) }}Z
                             </template>
                         </common-info-block>
                     </div>
@@ -305,7 +311,9 @@
                         class="airport__aircraft" v-for="aircraft in displayedAircrafts" :key="aircraft.cid"
                         :bottom-items="[
                             aircraft.departure,
-                            aircraft.aircraft_faa ?? 'No flight plan'
+                            aircraft.aircraft_faa ?? 'No flight plan',
+                            aircraft.distance ? `${Math.round(aircraft.distance)}NM remains` : '',
+                            aircraft.eta ? `ETA ${datetime.format(aircraft.eta)}Z` : '',
                         ]"
                         is-button
                         @click="(aircraftsMode === 'ground' && aircraftsGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(aircraft.cid.toString()) : mapStore.addPilotOverlay(aircraft.cid.toString())"
@@ -373,6 +381,8 @@ import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { AltimeterUnit, parseMetar, parseTAFAsForecast, ValueIndicator } from 'metar-taf-parser';
 import { useStore } from '~/store';
+import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import { toLonLat } from 'ol/proj';
 
 const props = defineProps({
     overlay: {
@@ -385,6 +395,12 @@ const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const showAtis = ref(false);
+
+const datetime = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+});
 
 const aircraftsMode = ref<'departed' | 'ground' | 'arriving'>('ground');
 const aircraftsGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
@@ -454,31 +470,82 @@ const aircrafts = computed(() => {
     if (!vatAirport.value) return null;
 
     const list = {
-        groundDep: [] as VatsimShortenedAircraft[],
-        groundArr: [] as VatsimShortenedAircraft[],
-        prefiles: [] as VatsimShortenedPrefile[],
-        departures: [] as VatsimShortenedAircraft[],
-        arrivals: [] as VatsimShortenedAircraft[],
-    } satisfies Record<keyof MapAirport['aircrafts'], Array<VatsimShortenedAircraft | VatsimShortenedPrefile>>;
+        groundDep: [] as LocalArrivalStatus[],
+        groundArr: [] as LocalArrivalStatus[],
+        prefiles: [] as LocalArrivalStatus[],
+        departures: [] as LocalArrivalStatus[],
+        arrivals: [] as LocalArrivalStatus[],
+    } satisfies Record<keyof MapAirport['aircrafts'], Array<LocalArrivalStatus>>;
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        if (vatAirport.value.aircrafts.departures?.includes(pilot.cid)) list.departures.push(pilot);
-        if (vatAirport.value.aircrafts.arrivals?.includes(pilot.cid)) list.arrivals.push(pilot);
-        if (vatAirport.value.aircrafts.groundDep?.includes(pilot.cid)) list.groundDep.push(pilot);
-        if (vatAirport.value.aircrafts.groundArr?.includes(pilot.cid)) list.groundArr.push(pilot);
+        let distance = 0;
+        let flown = 0;
+        let eta: Date | null = null;
+
+        const arrivalAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
+
+        if (arrivalAirport) {
+            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
+            const depCoords = toLonLat([airport.value?.lon ?? 0, airport.value?.lat ?? 0]);
+            const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
+
+            distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
+            flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
+            if(pilot.groundspeed) {
+                eta = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed);
+            }
+        }
+
+        const truePilot: LocalArrivalStatus = {
+            ...pilot,
+            distance,
+            eta,
+            flown,
+            isArrival: true,
+        };
+
+        if (vatAirport.value.aircrafts.departures?.includes(pilot.cid)) {
+            list.departures.push(truePilot);
+            truePilot.isArrival = false;
+        }
+        if (vatAirport.value.aircrafts.arrivals?.includes(pilot.cid)) {
+            list.arrivals.push(truePilot);
+        }
+        if (vatAirport.value.aircrafts.groundDep?.includes(pilot.cid)) list.groundDep.push(truePilot);
+        if (vatAirport.value.aircrafts.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
     }
 
     for (const pilot of dataStore.vatsim.data.prefiles.value) {
-        if (vatAirport.value.aircrafts.prefiles?.includes(pilot.cid)) list.prefiles.push(pilot);
+        if (vatAirport.value.aircrafts.prefiles?.includes(pilot.cid)) {
+            list.prefiles.push({
+                ...pilot,
+                distance: 0,
+                flown: 0,
+                eta: null,
+                isArrival: false,
+            });
+        }
     }
 
     return list;
 });
 
-type LocalArrivalStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & { isArrival: boolean }
+type LocalArrivalStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
+    isArrival: boolean,
+    distance: number,
+    flown: number,
+    eta: Date | null
+}
 
 function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPilotStatus> {
-    if (aircraftsMode.value !== 'ground') return getPilotStatus('enroute');
+    if (aircraftsMode.value !== 'ground') {
+        if (pilot.isArrival) {
+            return getPilotStatus((pilot.distance !== 0 && pilot.distance < 40) ? 'arriving' : 'enroute');
+        }
+        else {
+            return getPilotStatus((pilot.distance !== 0 && pilot.flown < 40) ? 'departed' : 'enroute');
+        }
+    }
 
     switch (aircraftsGroundMode.value) {
         case 'depArr':
@@ -497,45 +564,24 @@ function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPi
 
 const displayedAircrafts = computed((): LocalArrivalStatus[] => {
     if (aircraftsMode.value === 'departed') {
-        return aircrafts.value?.departures.map(x => ({
-            ...x,
-            isArrival: false,
-        })) ?? [];
+        return aircrafts.value?.departures.slice().sort((a,b) => a.flown - b.flown) ?? [];
     }
     if (aircraftsMode.value === 'arriving') {
-        return aircrafts.value?.arrivals.map(x => ({
-            ...x,
-            isArrival: true,
-        })) ?? [];
+        return aircrafts.value?.arrivals.slice().sort((a,b) => a.distance - b.distance) ?? [];
     }
 
     switch (aircraftsGroundMode.value) {
         case 'depArr':
             return [
-                ...aircrafts.value?.groundDep.map(x => ({
-                    ...x,
-                    isArrival: false,
-                })) ?? [],
-                ...aircrafts.value?.groundArr.map(x => ({
-                    ...x,
-                    isArrival: true,
-                })) ?? [],
+                ...aircrafts.value?.groundDep ?? [],
+                ...aircrafts.value?.groundArr ?? [],
             ];
         case 'dep':
-            return aircrafts.value?.groundDep.map(x => ({
-                ...x,
-                isArrival: true,
-            })) ?? [];
+            return aircrafts.value?.groundDep ?? [];
         case 'arr':
-            return aircrafts.value?.groundArr.map(x => ({
-                ...x,
-                isArrival: false,
-            })) ?? [];
+            return aircrafts.value?.groundArr ?? [];
         case 'prefiles':
-            return aircrafts.value?.prefiles.map(x => ({
-                ...x,
-                isArrival: false,
-            })) ?? [];
+            return aircrafts.value?.prefiles ?? [];
     }
 
     return [];
@@ -785,7 +831,7 @@ onMounted(() => {
             max-height: 230px;
             overflow: auto;
 
-            >*:not(:first-child) {
+            > *:not(:first-child) {
                 border-top: 1px solid varToRgba('neutral150', 0.15);
                 padding-top: 8px;
             }
