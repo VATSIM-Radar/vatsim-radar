@@ -23,6 +23,7 @@
                 <div
                     class="info-popup_header_actions_action info-popup_header_actions_action--close"
                     @click="model = false"
+                    v-if="!disabled"
                 >
                     <close-icon width="14"/>
                 </div>
@@ -118,6 +119,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const model = defineModel({
@@ -159,6 +164,7 @@ watch(getSections, (sections) => {
     padding: 0 16px 16px;
     border-radius: 8px;
     width: 350px;
+    max-width: calc(100dvw - 48px);
     text-align: left;
     color: $neutral150;
     max-height: var(--max-height);

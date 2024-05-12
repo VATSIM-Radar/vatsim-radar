@@ -6,9 +6,10 @@
         model-value
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
         max-height="100%"
-        :header-actions="['counts', 'sticky']"
+        :header-actions="(store.config.airport === props.overlay.data.icao && overlay.sticky) ? ['counts'] : ['counts', 'sticky']"
         :sections
         v-if="airport"
+        :disabled="!!store.config.airport"
     >
         <template #title>
             <div class="pilot-header">
@@ -371,6 +372,7 @@ import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { AltimeterUnit, parseMetar, parseTAFAsForecast, ValueIndicator } from 'metar-taf-parser';
+import { useStore } from '~/store';
 
 const props = defineProps({
     overlay: {
@@ -379,6 +381,7 @@ const props = defineProps({
     },
 });
 
+const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const showAtis = ref(false);

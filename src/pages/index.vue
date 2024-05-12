@@ -23,8 +23,8 @@
             <carto-db-layer v-else/>
             <template v-if="ready">
                 <map-aircraft-list/>
-                <map-sectors-list/>
-                <map-airports-list/>
+                <map-sectors-list v-if="!store.config.hideSectors"/>
+                <map-airports-list v-if="!store.config.hideAirports"/>
             </template>
         </div>
     </div>
@@ -54,6 +54,8 @@ import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import {setHeader} from 'h3';
+import { boundingExtent, buffer, getCenter } from 'ol/extent';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -70,6 +72,11 @@ provide('map', map);
 let interval: NodeJS.Timeout | null = null;
 
 let initialSpawn = false;
+
+const event = useRequestEvent();
+if(event) {
+    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' localhost:* https://*.vatsimsa.com https://vatsimsa.com`);
+}
 
 async function checkAndAddOwnAircraft() {
     if (!store.user?.settings.autoFollow) return;
@@ -93,6 +100,7 @@ async function checkAndAddOwnAircraft() {
 }
 
 const restoreOverlays = async () => {
+    if(store.config.hideAllExternal) return;
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
@@ -279,10 +287,30 @@ onMounted(async () => {
 
     ready.value = true;
 
-    const projectionExtent = view.getProjection().getExtent().slice();
+    let projectionExtent = view.getProjection().getExtent().slice();
 
     projectionExtent[0] *= 1.2;
     projectionExtent[2] *= 1.2;
+
+    if(store.config.airport) {
+        const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
+
+        if(airport) {
+            projectionExtent = [
+                airport.lon - 100000,
+                airport.lat - 100000,
+                airport.lon + 100000,
+                airport.lat + 100000,
+            ];
+        }
+    }
+    else if(store.config.airports) {
+        const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
+
+        if(airports.length) {
+            projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
+        }
+    }
 
     map.value = new Map({
         target: mapContainer.value!,
@@ -293,10 +321,11 @@ onMounted(async () => {
             }),
         ],
         view: new View({
-            center: store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
-            zoom: store.localSettings.zoom ?? 3,
+            center: store.config.airports?.length ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+            zoom: store.config.airport ? 14 : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
             minZoom: 3,
             multiWorld: false,
+            showFullExtent: !!store.config.airports?.length,
             extent: projectionExtent,
         }),
     });

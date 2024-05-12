@@ -38,6 +38,7 @@ import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
+import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -50,6 +51,7 @@ provide('airports-source', airportsSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const store = useStore();
 const visibleAirports = shallowRef<{
     vatspyAirport: VatSpyData['airports'][0],
     vatsimAirport: MapAirportType,
@@ -387,6 +389,32 @@ const getAirportsList = computed(() => {
 
 const geoJson = new GeoJSON();
 
+const vatAirportsList = computed(() => {
+    let list = dataStore.vatsim.data.airports.value;
+
+    if(!store.config.airports?.length && !store.config.airport) return list;
+
+    list = list.filter(x => store.config.airport ? x.icao === store.config.airport : store.config.airports!.includes(x.icao));
+
+    for(const airport of store.config.airport ? [store.config.airport!] : store.config.airports!) {
+        if(list.some(x => x.icao === airport)) continue;
+
+        const vatspyAirport = dataStore.vatspy.value!.data.airports.find(x => x.icao === airport);
+        if(!vatspyAirport) continue;
+
+        list.push({
+            isPseudo: false,
+            isSimAware: false,
+            icao: airport!,
+            aircrafts: {},
+        });
+    }
+
+    console.log(list);
+
+    return list;
+});
+
 async function setVisibleAirports() {
     const extent = mapStore.extent.slice();
     extent[0] -= 100000;
@@ -395,7 +423,7 @@ async function setVisibleAirports() {
     extent[3] += 100000;
 
     //@ts-expect-error
-    visibleAirports.value = dataStore.vatsim.data.airports.value.map((x) => {
+    visibleAirports.value = vatAirportsList.value.map((x) => {
         let airport = x.isSimAware ? x : dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
         if (!x.isSimAware && airport?.icao !== x.icao) {
             //@ts-expect-error

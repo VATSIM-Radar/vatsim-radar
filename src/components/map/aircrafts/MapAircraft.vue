@@ -170,7 +170,7 @@ const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.use
 
 const getPostfix = computed(() => {
     let iconPostfix = '';
-    if (isSelfFlight.value) {
+    if (isSelfFlight.value || store.config.allAircraftsGreen) {
         iconPostfix = '-green';
     }
     else if (activeCurrentOverlay.value) {

@@ -182,19 +182,19 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'ATC info popup',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Airport info popup',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'CTAF frequency easy access',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
-                title: 'METAR/NOTAMS easy access',
-                status: 'in-progress',
+                title: 'METAR/TAFs/NOTAMs easy access',
+                status: 'completed',
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
@@ -268,6 +268,7 @@ const roadmap = reactive<Roadmap[]>([
             'Simbrief integration',
             'ATC/Booking notification for active flight',
             'Images or aircraft type + operator',
+            'ECFMP integration',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',

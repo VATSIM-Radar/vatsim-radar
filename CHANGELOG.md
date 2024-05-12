@@ -2,6 +2,10 @@
 
 # 0.3.0
 
+This update adds airport overlay that you can use to get all possible info about airport you may need. 
+
+As always, remember to check Roadmap to get a hint of what's coming next! Stage 2 is getting closer to its end. 
+
 ## Highlights
 
 - 🛫 Airport Overlay: click on any airport to view its info

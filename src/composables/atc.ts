@@ -2,6 +2,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { getHoursAndMinutes } from '~/utils';
 import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
+import type { VatSpyData } from '~/types/data/vatspy';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -93,14 +94,21 @@ export function findAtcAirport(atc: VatsimShortenedController) {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
 }
 
-export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
+export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
-    const airport = findAtcAirport(atc);
     if(!airport) return;
 
     view?.animate({
         center: [airport.lon, airport.lat],
         zoom: 14,
     });
+}
+
+export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
+    map = map || inject<ShallowRef<Map | null>>('map')!.value;
+    const airport = findAtcAirport(atc);
+    if(!airport) return;
+
+    showAirportOnMap(airport, map);
 }

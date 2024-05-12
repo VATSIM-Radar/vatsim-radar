@@ -17,11 +17,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import MapPopupPilot from '~/components/map/popups/MapPopupPilot.vue';
 import type { StoreOverlay } from '~/store/map';
-import MapPopupPrefile from '~/components/map/popups/MapPopupPrefile.vue';
-import MapPopupAtc from '~/components/map/popups/MapPopupAtc.vue';
-import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 
 defineProps({
     overlay: {
@@ -29,6 +25,10 @@ defineProps({
         required: true,
     },
 });
+const MapPopupPilot = defineAsyncComponent(() => import('./MapPopupPilot.vue'));
+const MapPopupPrefile = defineAsyncComponent(() => import('./MapPopupPrefile.vue'));
+const MapPopupAtc = defineAsyncComponent(() => import('./MapPopupAtc.vue'));
+const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue'));
 </script>
 
 <style scoped lang="scss">

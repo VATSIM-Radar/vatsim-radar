@@ -5,7 +5,7 @@
         v-model:collapsed="overlay.collapsed"
         model-value
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
-        :header-actions="['sticky', 'track']"
+        :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
         max-height="100%"
         :sections="sections"
         :style="{'--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color]}"
@@ -161,7 +161,7 @@
         </template>
         <template #buttons>
             <common-button-group>
-                <common-button @click="overlay.data.tracked = !overlay.data.tracked" tiotl>
+                <common-button @click="overlay.data.tracked = !overlay.data.tracked" :disabled="store.config.hideAllExternal">
                     <template #icon>
                         <track-icon
                             class="pilot__track pilot__track--in-action"
@@ -170,7 +170,7 @@
                     </template>
                     Track
                 </common-button>
-                <common-button :disabled="overlay.data.tracked" @click="showOnMap">
+                <common-button :disabled="overlay.data.tracked || store.config.hideAllExternal" @click="showOnMap">
                     <template #icon>
                         <map-icon/>
                     </template>
