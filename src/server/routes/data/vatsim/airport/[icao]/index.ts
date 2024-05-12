@@ -7,6 +7,8 @@ export interface VatsimAirportData {
     metar?: string;
     taf?: string;
     vatInfo?: {
+        icao?: string
+        iata?: string
         name?: string;
         altitude_m?: number
         altitude_ft?: number
@@ -111,6 +113,8 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
                 }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
 
                 data.vatInfo = {
+                    icao: airportData?.icao,
+                    iata: airportData?.iata,
                     name: airportData?.name,
                     altitude_m: airportData?.altitude_m,
                     altitude_ft: airportData?.altitude_ft,

@@ -168,7 +168,7 @@ const restoreOverlays = async () => {
                 ...overlay,
                 data: {
                     icao: overlay.key,
-                    airport: data,
+                    airport: data[0].value,
                 },
             };
         }

@@ -2,6 +2,34 @@
 
 # 0.3.0
 
+## Highlights
+
+- 🛫 Airport Overlay: click on any airport to view its info
+- 🔄 Redesign of approach sector label
+- 📡 ATIS encoding parsing improvements
+- 🔧 UX improvements and bug fixes
+
+## Airport Overlay
+
+You can now click on any airport to view all of its available information.
+
+Since this overlay contains probably too much info for a single popup, airport dashboard development is currently planned - you should expect it in near future.
+
+What's included:
+
+- METAR/TAF with basic info parsing
+- NOTAMS with start/expiration dates
+- Vatsim info if available with airport elevation, transition frequency and division
+- CTAF frequency if no ATC is online for US airports
+- All possible traffic list
+
+Planned in future updates:
+
+- Airport dashboard
+- Filter map by airport traffic
+- Add tracks to all of this airport traffic
+- With all pilots' stats on single screen
+
 ## Features and improvements
 
 - You will no longer see an alert when copying something - instead you'll notice text change
