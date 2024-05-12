@@ -75,7 +75,7 @@ let initialSpawn = false;
 
 const event = useRequestEvent();
 if(event) {
-    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' localhost:* https://*.vatsimsa.com https://vatsimsa.com`);
+    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' http://localhost:3000 https://*.vatsimsa.com https://vatsimsa.com`);
 }
 
 async function checkAndAddOwnAircraft() {
