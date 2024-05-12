@@ -505,13 +505,14 @@ const aircrafts = computed(() => {
         };
 
         if (vatAirport.value.aircrafts.departures?.includes(pilot.cid)) {
-            list.departures.push(truePilot);
-            truePilot.isArrival = false;
+            list.departures.push({ ...truePilot, isArrival: false });
         }
         if (vatAirport.value.aircrafts.arrivals?.includes(pilot.cid)) {
             list.arrivals.push(truePilot);
         }
-        if (vatAirport.value.aircrafts.groundDep?.includes(pilot.cid)) list.groundDep.push(truePilot);
+        if (vatAirport.value.aircrafts.groundDep?.includes(pilot.cid)) {
+            list.groundDep.push({ ...truePilot, isArrival: false });
+        }
         if (vatAirport.value.aircrafts.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
     }
 
