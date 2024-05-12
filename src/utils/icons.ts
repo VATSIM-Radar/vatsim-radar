@@ -11,7 +11,6 @@ export type AircraftIcon =
     | 'a225'
     | 'a332'
     | 'a333'
-    | 'a340'
     | 'a342'
     | 'a343'
     | 'a359'
@@ -63,10 +62,6 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
     a310: {
         icon: 'a310',
         width: getAircraftSizeByCoef(0.73),
-    },
-    a340: {
-        icon: 'a340',
-        width: getAircraftSizeByCoef(1),
     },
     b703: {
         icon: 'b703',
@@ -272,7 +267,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B48F':
         case 'B752':
         case 'IL96':
-            return aircraftIcons.a340;
+            return aircraftIcons.b739;
         case 'B703':
             return aircraftIcons.b703;
         case 'B712':

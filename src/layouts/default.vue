@@ -1,10 +1,10 @@
 <template>
     <div class="app">
-        <view-header/>
+        <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <slot/>
         </div>
-        <div class="app_footer">
+        <div class="app_footer" v-if="!store.config.hideFooter">
             <view-map-footer v-if="route.path === '/'"/>
             <div class="app_footer_info" v-else>
                 <nuxt-link no-prefetch to="/privacy-policy">
@@ -23,9 +23,12 @@ import { useStore } from '~/store';
 import ViewHeader from '~/components/views/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
+import { checkAndSetMapPreset } from '~/composables/presets';
 
 const store = useStore();
 const route = useRoute();
+
+checkAndSetMapPreset();
 
 onMounted(() => {
     const interval = setInterval(() => {

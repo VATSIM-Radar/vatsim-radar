@@ -46,6 +46,15 @@ export const themesList = {
         neutral150: '#252528',
         neutral200: '#333340',
     },
+    sa: {
+        primary300: '#008856',
+        primary400: '#008856',
+        primary500: '#008856',
+
+        warning500: '#F2BA49',
+
+        error500: '#E39539',
+    },
 } satisfies Record<string, PartialRecord<ColorsList, string>>;
 
 export type ThemesList = keyof typeof themesList | 'default'

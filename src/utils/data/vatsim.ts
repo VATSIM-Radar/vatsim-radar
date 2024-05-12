@@ -123,11 +123,11 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
         }
 
         return {
+            controller: atc,
             firs: feature.map(x => ({
                 icao: x.icao,
                 callsign: x.callsign,
                 boundaryId: x.feature.id as string,
-                controller: atc,
             })),
         };
     });
@@ -222,11 +222,19 @@ export function getAirportsList() {
             }
 
             if (pilot.flight_plan.arrival || groundAirport) {
-                if (pilot.flight_plan.arrival === pilot.flight_plan.departure && statuses[0]) {
-                    statuses[1] = {
-                        airport: statuses[0].airport,
-                        status: 'arrivals',
-                    };
+                if (pilot.flight_plan.arrival === pilot.flight_plan.departure) {
+                    if(!groundAirport && statuses[0]) {
+                        statuses[1] = {
+                            airport: statuses[0].airport,
+                            status: 'arrivals',
+                        };
+                    }
+                    else if(groundAirport && statuses[0]?.status !== 'groundDep') {
+                        statuses.push({
+                            airport: groundAirport,
+                            status: 'groundArr',
+                        });
+                    }
                 }
                 else {
                     let arrivalAirport = (groundAirport?.icao === pilot.flight_plan.arrival || (pilot.flight_plan.arrival && groundAirport?.iata === pilot.flight_plan.arrival))

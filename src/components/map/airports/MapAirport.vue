@@ -1,89 +1,88 @@
 <template>
-    <map-overlay
-        v-if="localAtc.length && 'lon' in airport"
-        :popup="!!hoveredFacility"
-        @update:popup="!$event ? hoveredFacility = false : undefined"
-        :settings="{position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility,}"
-        persistent
-        :z-index="15"
-        :active-z-index="21"
-    >
-        <div class="airport" @mouseleave="hoveredFacility = false" :style="{'--color': getAirportColor}">
-            <div class="airport_title" @mouseover="hoveredFacility = true">
-                {{ airportName }}
-            </div>
-            <div class="airport_facilities">
-                <div
-                    class="airport_facilities_facility"
-                    :class="{'airport_facilities_facility--hovered': hoveredFacility === local.facility}"
-                    v-for="local in localsFacilities"
-                    :key="local.facility"
-                    :style="{background: getControllerPositionColor(local.atc[0])}"
-                    @mouseover="hoveredFacility = local.facility"
-                >
-                    {{
-                        local.facility === -1 ? 'A' : dataStore.vatsim.data.facilities.value.find(x => x.id === local.facility)?.short.slice(0, 1)
-                    }}
+    <slot v-if="isPrimaryAirport"/>
+    <template v-else>
+        <map-overlay
+            v-if="localAtc.length && 'lon' in airport"
+            :popup="!!hoveredFacility"
+            @update:popup="!$event ? hoveredFacility = false : undefined"
+            :settings="{position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility,}"
+            persistent
+            :z-index="15"
+            :active-z-index="21"
+        >
+            <div class="airport" @mouseleave="hoveredFacility = false" :style="{'--color': getAirportColor}">
+                <div class="airport_title" @mouseover="hoveredFacility = true" @click="mapStore.addAirportOverlay(airport.icao)">
+                    {{ airportName }}
                 </div>
-            </div>
-            <common-controller-info
-                class="airport_atc-popup"
-                :class="{'airport_atc-popup--all': hoveredFacility === true}"
-                absolute
-                v-if="hoveredFacility && mapStore.canShowOverlay"
-                :show-facility="hoveredFacility === true"
-                :show-atis="hoveredFacility !== true"
-                :controllers="hoveredFacilities"
-            >
-                <template #title>
-                    {{ airport.name }}
-                    <template v-if="hoveredFacility === true">
-                        Controllers
-                    </template>
-                    <template v-else>
+                <div class="airport_facilities">
+                    <div
+                        class="airport_facilities_facility"
+                        :class="{'airport_facilities_facility--hovered': hoveredFacility === local.facility}"
+                        v-for="local in localsFacilities"
+                        :key="local.facility"
+                        :style="{background: getControllerPositionColor(local.atc[0])}"
+                        @mouseover="hoveredFacility = local.facility"
+                    >
                         {{
-                            hoveredFacility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === hoveredFacility)?.long
+                            local.facility === -1 ? 'A' : dataStore.vatsim.data.facilities.value.find(x => x.id === local.facility)?.short.slice(0, 1)
                         }}
+                    </div>
+                </div>
+                <common-controller-info
+                    class="airport_atc-popup"
+                    :class="{'airport_atc-popup--all': hoveredFacility === true}"
+                    absolute
+                    v-if="hoveredFacility && mapStore.canShowOverlay"
+                    :show-facility="hoveredFacility === true"
+                    :show-atis="hoveredFacility !== true"
+                    :controllers="hoveredFacilities"
+                >
+                    <template #title>
+                        {{ airport.name }}
+                        <template v-if="hoveredFacility === true">
+                            Controllers
+                        </template>
+                        <template v-else>
+                            {{
+                                hoveredFacility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === hoveredFacility)?.long
+                            }}
+                        </template>
                     </template>
+                </common-controller-info>
+            </div>
+        </map-overlay>
+        <map-airport-counts
+            v-if="'lon' in airport"
+            :aircrafts="aircrafts"
+            :airport="airport"
+            :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
+            :hide="!isVisible"
+        />
+        <map-overlay
+            v-if="!localAtc.length && 'lon' in airport"
+            :settings="{position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility,}"
+            persistent
+            :z-index="14"
+        >
+            <div class="airport-square" :style="{'--color': getAirportColor}"/>
+        </map-overlay>
+        <map-overlay
+            v-if="hoveredFeature"
+            model-value
+            :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: true }"
+            :z-index="21"
+            @mouseover="$emit('manualHover')"
+            @mouseleave="$emit('manualHide')"
+        >
+            <common-controller-info :controllers="hoveredFeature.controllers" show-atis>
+                <template #title>
+                    {{
+                        hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure`
+                    }}
                 </template>
             </common-controller-info>
-        </div>
-    </map-overlay>
-    <map-airport-counts
-        v-if="'lon' in airport"
-        :aircrafts="aircrafts"
-        :airport="airport"
-        :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
-        :hide="!isVisible"
-    />
-    <map-overlay
-        v-if="!localAtc.length && 'lon' in airport"
-        :settings="{position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility,}"
-        persistent
-        :z-index="14"
-    >
-        <div class="airport-square" :style="{'--color': getAirportColor}"/>
-    </map-overlay>
-    <map-overlay
-        v-if="hoveredFeature"
-        model-value
-        :settings="
-            (hasTracon || !('lon' in airport)) ?
-                { position: hoveredPixel!, positioning: 'top-center', stopEvent: true } :
-                { position: [airport.lon, airport.lat + 80000], positioning: 'top-center', stopEvent: true }
-        "
-        :z-index="21"
-        @mouseover="$emit('manualHover')"
-        @mouseleave="$emit('manualHide')"
-    >
-        <common-controller-info :controllers="hoveredFeature.controllers" show-atis>
-            <template #title>
-                {{
-                    hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure`
-                }}
-            </template>
-        </common-controller-info>
-    </map-overlay>
+        </map-overlay>
+    </template>
 </template>
 
 <script setup lang="ts">
@@ -106,6 +105,7 @@ import { GeoJSON } from 'ol/format';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import { useStore } from '~/store';
 
 const props = defineProps({
     airport: {
@@ -135,6 +135,10 @@ const props = defineProps({
         type: Array as PropType<AirportTraconFeature[]>,
         required: true,
     },
+    isHoveredAirport: {
+        type: Boolean,
+        default: false,
+    },
     hoveredId: {
         type: String as PropType<string | null>,
         default: null,
@@ -154,9 +158,11 @@ defineEmits({
     },
 });
 
+const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
+const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
 const hoveredFacility = ref<boolean | number>(false);
 
 const hoveredFacilities = computed(() => {
@@ -223,6 +229,8 @@ function initAirport() {
     if (!('lon' in props.airport)) return;
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
+        type: 'airport',
+        icao: props.airport.icao,
     });
 
     feature.setStyle(new Style({
@@ -235,7 +243,7 @@ function initAirport() {
         }),
     }));
 
-    vectorSource.value?.addFeature(feature);
+    airportsSource.value?.addFeature(feature);
 }
 
 watch(getAirportColor, () => {
@@ -275,29 +283,38 @@ watch(hoveredFeature, (val) => {
     }
 });
 
-const hasTracon = computed(() => {
-    return arrFeatures.value.some(x => x.id !== 'circle');
-});
-
 function setFeatureStyle(feature: Feature) {
-    feature.setStyle(new Style({
-        stroke: new Stroke({
-            color: radarColors.primary300Hex,
-            width: 2,
-        }),
-        text: new Text({
-            font: 'bold 14px Montserrat',
-            text: feature.getProperties()?._traconId || airportName.value,
-            placement: 'line',
-            offsetY: -10,
-            textAlign: hasTracon.value ? undefined : 'center',
-            maxAngle: hasTracon.value ? toRadians(15) : toRadians(20),
-            overflow: true,
-            fill: new Fill({
+    const extent = feature.getGeometry()?.getExtent();
+    const topCoord = [extent![0] + 25000, extent![3] - 25000];
+
+    feature.setStyle([
+        new Style({
+            stroke: new Stroke({
                 color: radarColors.primary300Hex,
+                width: 2,
             }),
         }),
-    }));
+        new Style({
+            geometry: new Point(topCoord),
+            text: new Text({
+                font: 'bold 10px Montserrat',
+                text: feature.getProperties()?._traconId || airportName.value,
+                placement: 'point',
+                overflow: true,
+                fill: new Fill({
+                    color: radarColors.primary400Hex,
+                }),
+                backgroundFill: new Fill({
+                    color: getCurrentThemeHexColor('neutral900'),
+                }),
+                backgroundStroke: new Stroke({
+                    width: 1.5,
+                    color: radarColors.primary400Hex,
+                }),
+                padding: [3,1,2,3],
+            }),
+        }),
+    ]);
 }
 
 function clearArrFeatures() {
@@ -309,7 +326,9 @@ function clearArrFeatures() {
     arrFeatures.value = [];
 }
 
-onMounted(() => {
+const isPrimaryAirport = computed(() => store.config.airport === props.airport.icao);
+
+onMounted(async () => {
     const localsLength = computed(() => props.localAtc.length);
 
     const arrAtcLocal = shallowRef(new Set<number>());
@@ -317,11 +336,13 @@ onMounted(() => {
     const runways = computed(() => props.navigraphData?.runways);
 
     watch(localsLength, (val) => {
+        if(isPrimaryAirport.value) return;
+
         if (!val && !feature) {
             return initAirport();
         }
         else if (val && feature) {
-            vectorSource.value?.removeFeature(feature);
+            airportsSource.value?.removeFeature(feature);
             feature.dispose();
             feature = null;
         }
@@ -330,7 +351,7 @@ onMounted(() => {
     });
 
     watch(dataStore.vatsim.updateTimestamp, () => {
-        if (!props.arrAtc?.length) {
+        if (!props.arrAtc?.length || isPrimaryAirport.value) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
 
@@ -490,11 +511,18 @@ onMounted(() => {
     }, {
         immediate: true,
     });
+
+    if(isPrimaryAirport.value) {
+        const overlay = await mapStore.addAirportOverlay(props.airport.icao);
+        if(overlay) {
+            overlay.sticky = true;
+        }
+    }
 });
 
 onBeforeUnmount(() => {
     if (feature) {
-        vectorSource.value?.removeFeature(feature);
+        airportsSource.value?.removeFeature(feature);
         feature.dispose();
         feature = null;
     }
@@ -523,7 +551,7 @@ onBeforeUnmount(() => {
     background: varToRgba('neutral800', 0.5);
     padding: 3px;
     border-radius: 4px;
-    font-size: 11px;
+    font-size: 10px;
     text-align: center;
     cursor: initial;
     display: flex;

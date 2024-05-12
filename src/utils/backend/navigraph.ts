@@ -95,7 +95,6 @@ export function getNavigraphGwtResult(token: string) {
                 }
             };
 
-            // eslint-disable-next-line import/no-named-as-default-member
             jsonwebtoken.verify(token, publicCertificate, tokenValidationOptions, (error, decodedAndVerifiedToken) => {
                 if (error) {
                     reject(createError({

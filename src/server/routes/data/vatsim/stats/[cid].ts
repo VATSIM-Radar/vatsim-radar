@@ -1,7 +1,7 @@
 import type { VatsimMemberStats } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
 
-export default defineEventHandler(async (event): Promise<VatsimMemberStats | void> => {
+export default defineEventHandler(async (event): Promise<VatsimMemberStats | undefined> => {
     const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({

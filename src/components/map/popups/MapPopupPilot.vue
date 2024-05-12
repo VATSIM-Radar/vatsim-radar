@@ -5,10 +5,10 @@
         v-model:collapsed="overlay.collapsed"
         model-value
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
-        :header-actions="['sticky', 'track']"
+        :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
         max-height="100%"
         :sections="sections"
-        :style="{'--percent': `${ pilot.toGoPercent}%`, '--status-color': radarColors[getStatus.color]}"
+        :style="{'--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color]}"
         v-if="overlay?.data?.pilot"
     >
         <template #title>
@@ -28,22 +28,14 @@
             </div>
         </template>
         <template #action-sticky>
-            <div title="Stick overlay">
-                <pin-icon
-                    height="16"
-                    class="pilot__stick"
-                    :class="{'pilot__stick--sticky': props.overlay?.sticky}"
-                    @click="overlay.sticky = !overlay.sticky"
-                />
-            </div>
+            <map-popup-pin-icon :overlay="overlay"/>
         </template>
         <template #action-track>
-            <div title="Track aircraft">
+            <div title="Track aircraft" @click="props.overlay.data.tracked = !props.overlay.data.tracked">
                 <track-icon
                     width="16"
                     class="pilot__track"
                     :class="{'pilot__track--tracked': props.overlay?.data.tracked}"
-                    @click="props.overlay.data.tracked = !props.overlay.data.tracked"
                 />
             </div>
         </template>
@@ -71,7 +63,7 @@
                     <div>Pilot</div>
                     <common-info-block
                         class="pilot__card"
-                        :top-items="[pilot.name, pilot.cid]"
+                        :top-items="[parseEncoding(pilot.name), pilot.cid]"
                         :bottom-items="[...usePilotRating(pilot), stats?.pilot ? `${Math.floor(stats.pilot)}h total time` : undefined]"
                     />
                 </div>
@@ -109,7 +101,7 @@
                             <div class="pilot__card_route_footer">
                                 <div class="pilot__card_route_footer_left">
                                     {{
-                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ pilot.depDist.toFixed(1) } NM,` : ''
+                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(pilot.depDist) } NM,` : ''
                                     }} Online
                                     <span v-if="pilot.logon_time">
                                         {{ getLogonTime }}
@@ -139,7 +131,7 @@
                 <div class="pilot__cols">
                     <common-info-block
                         class="pilot__card"
-                        :top-items="['Speed']"
+                        :top-items="['Gr Speed']"
                         :bottom-items="[`${pilot.groundspeed ?? 0} kts`]"
                         text-align="center"
                     />
@@ -169,7 +161,7 @@
         </template>
         <template #buttons>
             <common-button-group>
-                <common-button @click="overlay.data.tracked = !overlay.data.tracked" tiotl>
+                <common-button @click="overlay.data.tracked = !overlay.data.tracked" :disabled="store.config.hideAllExternal">
                     <template #icon>
                         <track-icon
                             class="pilot__track pilot__track--in-action"
@@ -178,7 +170,7 @@
                     </template>
                     Track
                 </common-button>
-                <common-button :disabled="overlay.data.tracked" @click="showOnMap">
+                <common-button :disabled="overlay.data.tracked || store.config.hideAllExternal" @click="showOnMap">
                     <template #icon>
                         <map-icon/>
                     </template>
@@ -190,11 +182,16 @@
                     </template>
                     Stats
                 </common-button>
-                <common-button @click="copyText(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
+                <common-button @click="copy.copy(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
                     <template #icon>
                         <share-icon/>
                     </template>
-                    Link
+                    <template v-if="copy.copyState.value">
+                        Copied!
+                    </template>
+                    <template v-else>
+                        Link
+                    </template>
                 </common-button>
             </common-button-group>
         </template>
@@ -205,12 +202,10 @@
 import type { PropType, ShallowRef } from 'vue';
 import { useStore } from '~/store';
 import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
-import type { ColorsList } from '~/modules/styles';
 import { getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
-import PinIcon from '@/assets/icons/kit/pin.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
@@ -218,11 +213,14 @@ import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
 import { sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { showPilotOnMap } from '~/composables/pilots';
+import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { boundingExtent, getCenter } from 'ol/extent';
+import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
+import { useCopyText } from '~/composables';
+import { parseEncoding } from '~/utils/data';
 
 const props = defineProps({
     overlay: {
@@ -232,6 +230,7 @@ const props = defineProps({
 });
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const copy = useCopyText();
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -246,6 +245,7 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 
 const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const isOffline = ref(false);
 
@@ -261,7 +261,7 @@ const getDistAndTime = computed(() => {
     try {
         if (!pilot.value.toGoDist || !pilot.value.toGoTime) return null;
 
-        const dist = pilot.value.toGoDist.toFixed(1);
+        const dist = Math.round(pilot.value.toGoDist);
         const date = datetime.format(new Date(pilot.value.toGoTime!));
 
         return `${ dist } NM in ${ date }Z`;
@@ -338,10 +338,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
     const sections: AtcPopupSection[] = [];
 
     const center = pilot.value.firs
-        ? dataStore.vatsim.data.firs.value.filter((x) => {
-            if (x.controller) return pilot.value.firs!.includes(x.controller.callsign);
-            return x.firs.some(x => pilot.value.firs!.includes(x.controller?.callsign ?? ''));
-        }).flatMap(x => x.controller || x.firs.map(x => x.controller!))
+        ? dataStore.vatsim.data.firs.value.filter((x) => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
         : null;
 
     if (center?.length) {
@@ -428,76 +425,14 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
     });
 });
 
-const getStatus = computed<{ color: ColorsList, title: string }>(() => {
-    if (isOffline.value) {
-        return {
-            color: 'neutral800',
-            title: 'Offline',
-        };
-    }
-
-    switch (pilot.value.status) {
-        case 'depGate':
-            return {
-                color: 'success500',
-                title: 'Departing | At gate',
-            };
-        case 'depTaxi':
-            return {
-                color: 'success500',
-                title: 'Departing',
-            };
-        case 'departed':
-            return {
-                color: 'warning500',
-                title: 'Departed',
-            };
-        case 'enroute':
-            return {
-                color: 'primary500',
-                title: 'Enroute',
-            };
-        case 'cruising':
-            return {
-                color: 'primary500',
-                title: 'Cruising',
-            };
-        case 'climbing':
-            return {
-                color: 'primary400',
-                title: 'Climbing',
-            };
-        case 'descending':
-            return {
-                color: 'primary600',
-                title: 'Descending',
-            };
-        case 'arriving':
-            return {
-                color: 'warning600',
-                title: 'Arriving',
-            };
-        case 'arrTaxi':
-            return {
-                color: 'error500',
-                title: 'Arrived',
-            };
-        case 'arrGate':
-            return {
-                color: 'error500',
-                title: 'Arrived | At gate',
-            };
-        default:
-            return {
-                color: 'neutral1000',
-                title: 'Status unknown',
-            };
-    }
+const getStatus = computed(() => {
+    return getPilotStatus(pilot.value.status, isOffline.value);
 });
 
 watch(dataStore.vatsim.updateTimestamp, async () => {
     try {
         props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ props.overlay.key }`);
+        isOffline.value = false;
     }
     catch (e: IFetchError | any) {
         if (e) {
@@ -583,13 +518,21 @@ onBeforeUnmount(() => {
 
         &_line {
             position: absolute;
-            width: calc(var(--percent) + 32px);
-            height: 56px;
-            background: $neutral900;
-            border-radius: 8px 0 0 8px;
             top: 0;
             left: -16px;
+            width: calc(100% + 32px);
             z-index: 1;
+
+            &::before {
+                content: '';
+                position: absolute;
+                width: var(--percent);
+                height: 56px;
+                background: $neutral900;
+                border-radius: 8px 0 0 8px;
+                top: 0;
+                left: 0;
+            }
         }
     }
 
@@ -687,7 +630,7 @@ onBeforeUnmount(() => {
         }
     }
 
-    &__track, &__stick {
+    &__track {
         transition: 0.3s;
 
         &--in-action {
@@ -699,11 +642,6 @@ onBeforeUnmount(() => {
         color: $primary500;
         transform: rotate(90deg);
         transform-origin: center;
-    }
-
-    &__stick--sticky {
-        color: $primary500;
-        transform: rotate(45deg);
     }
 
     :deep(.atc-popup), :deep(.atc-popup-container) {

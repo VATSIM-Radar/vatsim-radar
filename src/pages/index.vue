@@ -1,7 +1,12 @@
 <template>
     <div class="map">
         <div class="map_container" ref="mapContainer"/>
-        <div class="map_popups" ref="popups" v-if="ready" :style="{'--popups-height': `${popupsHeight}px`}">
+        <div
+            class="map_popups" ref="popups" v-if="ready" :style="{
+                '--popups-height': `${popupsHeight}px`,
+                '--overlays-height': `${overlaysHeight}px`,
+            }"
+        >
             <div class="map_popups_list" v-if="popupsHeight">
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
@@ -18,8 +23,8 @@
             <carto-db-layer v-else/>
             <template v-if="ready">
                 <map-aircraft-list/>
-                <map-sectors-list/>
-                <map-airports-list/>
+                <map-sectors-list v-if="!store.config.hideSectors"/>
+                <map-airports-list v-if="!store.config.hideAirports"/>
             </template>
         </div>
     </div>
@@ -36,16 +41,21 @@ import { Attribution } from 'ol/control';
 import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircrafts/MapAircraftList.vue';
-import {  useStore } from '~/store';
+import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings } from '~/composables';
 import {  useMapStore } from '~/store/map';
-import type { StoreOverlay } from '~/store/map';
+import type {StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
+import { findAtcByCallsign } from '~/composables/atc';
+import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import {setHeader} from 'h3';
+import { boundingExtent, buffer, getCenter } from 'ol/extent';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -62,6 +72,11 @@ provide('map', map);
 let interval: NodeJS.Timeout | null = null;
 
 let initialSpawn = false;
+
+const event = useRequestEvent();
+if(event) {
+    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' localhost:* https://*.vatsimsa.com https://vatsimsa.com`);
+}
 
 async function checkAndAddOwnAircraft() {
     if (!store.user?.settings.autoFollow) return;
@@ -85,6 +100,7 @@ async function checkAndAddOwnAircraft() {
 }
 
 const restoreOverlays = async () => {
+    if(store.config.hideAllExternal) return;
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
@@ -95,7 +111,7 @@ const restoreOverlays = async () => {
         if (overlay.type === 'pilot') {
             const data = await Promise.allSettled([
                 $fetch(`/data/vatsim/pilot/${ overlay.key }`),
-                $fetch<VatsimMemberStats>(`/data/vatsim/pilot/${ overlay.key }/stats`),
+                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -119,6 +135,48 @@ const restoreOverlays = async () => {
                 ...overlay,
                 data: {
                     prefile: data[0].value,
+                },
+            };
+        }
+        else if (overlay.type === 'atc') {
+            const controller = findAtcByCallsign(overlay.key);
+            if(!controller) return overlay;
+
+            const data = await Promise.allSettled([
+                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`),
+            ]);
+
+            return {
+                ...overlay,
+                data: {
+                    stats: 'value' in data[0] ? data[0].value : null,
+                    callsign: overlay.key,
+                },
+            };
+        }
+        else if (overlay.type === 'airport') {
+            const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === overlay.key);
+            if (!vatSpyAirport) return;
+
+            const data = await Promise.allSettled([
+                $fetch<VatsimAirportData>(`/data/vatsim/airport/${ overlay.key }`),
+            ]);
+
+            if (!('value' in data[0])) return overlay;
+
+            (async function() {
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
+                if(foundOverlay) {
+                    (foundOverlay as StoreOverlayAirport).data.notams = notams;
+                }
+            })();
+
+            return {
+                ...overlay,
+                data: {
+                    icao: overlay.key,
+                    airport: data[0].value,
                 },
             };
         }
@@ -229,10 +287,30 @@ onMounted(async () => {
 
     ready.value = true;
 
-    const projectionExtent = view.getProjection().getExtent().slice();
+    let projectionExtent = view.getProjection().getExtent().slice();
 
     projectionExtent[0] *= 1.2;
     projectionExtent[2] *= 1.2;
+
+    if(store.config.airport) {
+        const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
+
+        if(airport) {
+            projectionExtent = [
+                airport.lon - 100000,
+                airport.lat - 100000,
+                airport.lon + 100000,
+                airport.lat + 100000,
+            ];
+        }
+    }
+    else if(store.config.airports) {
+        const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
+
+        if(airports.length) {
+            projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
+        }
+    }
 
     map.value = new Map({
         target: mapContainer.value!,
@@ -243,10 +321,11 @@ onMounted(async () => {
             }),
         ],
         view: new View({
-            center: store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
-            zoom: store.localSettings.zoom ?? 3,
+            center: store.config.airports?.length ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+            zoom: store.config.airport ? 14 : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
             minZoom: 3,
             multiWorld: false,
+            showFullExtent: !!store.config.airports?.length,
             extent: projectionExtent,
         }),
     });
@@ -298,16 +377,19 @@ onMounted(async () => {
 });
 
 const overlays = computed(() => mapStore.overlays);
+const overlaysGap = 16;
+const overlaysHeight = computed(() => {
+    return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+});
 
 watch([overlays, popupsHeight], () => {
     if (!popups.value) return;
     const baseHeight = 56;
-    const gap = 16;
     const collapsed = mapStore.overlays.filter(x => x.collapsed);
     const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
     const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - gap * (mapStore.overlays.length - 1);
+    const totalHeight = popups.value.clientHeight - overlaysGap * (mapStore.overlays.length - 1);
 
     //Max 4 uncollapsed on screen
     const minHeight = Math.floor(totalHeight / 4);
@@ -316,12 +398,12 @@ watch([overlays, popupsHeight], () => {
     const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
     collapsed.forEach((overlay) => {
-        overlay.maxHeight = baseHeight;
+        overlay._maxHeight = baseHeight;
     });
 
     uncollapsed.forEach((overlay, index) => {
         if (index < maxUncollapsed) {
-            overlay.maxHeight = maxHeight;
+            overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
         }
         else {
             overlay.collapsed = true;
@@ -417,6 +499,8 @@ await useAsyncData(async () => {
             flex-direction: column;
             gap: 16px;
             z-index: 6;
+            max-height: var(--overlays-height);
+            transition: 0.5s ease-in-out;
         }
 
         &_popup {

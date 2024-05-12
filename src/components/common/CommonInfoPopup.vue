@@ -23,6 +23,7 @@
                 <div
                     class="info-popup_header_actions_action info-popup_header_actions_action--close"
                     @click="model = false"
+                    v-if="!disabled"
                 >
                     <close-icon width="14"/>
                 </div>
@@ -33,11 +34,14 @@
                 <common-tabs class="info-popup_content_tabs" :tabs="tabs" v-if="tabs" v-model="activeTab"/>
                 <div
                     class="info-popup__section"
-                    :class="{
-                        'info-popup__section--has-title': section.title,
-                        'info-popup__section--collapsible': section.collapsible,
-                        'info-popup__section--collapsed': section.collapsible && collapsedSections.includes(section.key)
-                    }"
+                    :class="[
+                        `info-popup__section--type-${section.key}`,
+                        {
+                            'info-popup__section--has-title': section.title || $slots[`${section.key}Title`],
+                            'info-popup__section--collapsible': section.collapsible,
+                            'info-popup__section--collapsed': section.collapsible && collapsedSections.includes(section.key)
+                        }
+                    ]"
                     v-for="(section, index) in getSections"
                     :key="section.key"
                 >
@@ -46,8 +50,10 @@
                         v-if="index !== 0 || section.title || section.collapsible"
                         @click="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
                     >
-                        <div class="info-popup__section_separator_title" v-if="section.title">
-                            {{ section.title }}
+                        <div class="info-popup__section_separator_title" v-if="section.title || $slots[`${section.key}Title`]">
+                            <slot :name="`${section.key}Title`" :section="section">
+                                {{ section.title }}
+                            </slot>
                         </div>
                         <div
                             class="info-popup__section_separator_collapse"
@@ -113,6 +119,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const model = defineModel({
@@ -154,11 +164,14 @@ watch(getSections, (sections) => {
     padding: 0 16px 16px;
     border-radius: 8px;
     width: 350px;
+    max-width: calc(100dvw - 48px);
     text-align: left;
     color: $neutral150;
     max-height: var(--max-height);
     overflow: auto;
     scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
 
     &--absolute {
         position: absolute;
@@ -230,6 +243,8 @@ watch(getSections, (sections) => {
         flex-direction: column;
         gap: 16px;
         overflow: hidden;
+        justify-content: space-between;
+        flex: 1 0 auto;
 
         &--collapse {
             &-enter-active, &-leave-active {

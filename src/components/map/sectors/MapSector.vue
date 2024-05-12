@@ -64,13 +64,13 @@ let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
 const locals = computed(() => {
-    const filtered = props.atc.flatMap(x => x.firs.filter(x => x.controller && x.boundaryId === props.fir.feature.id));
+    const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });
 
 const globals = computed(() => {
-    const filtered = props.atc.filter(x => x.controller);
+    const filtered = props.atc.filter(x => x.icao && x.controller);
 
     return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
 });
@@ -171,12 +171,13 @@ onBeforeUnmount(() => {
 .sector-atc {
     &_name {
         cursor: pointer;
-        background: $neutral900;
+        background: $neutral850;
         color: $neutral150;
+        border: 1px solid varToRgba('neutral150', 0.1);
         padding: 4px;
         border-radius: 4px;
         font-weight: 700;
-        font-size: 13px;
+        font-size: 11px;
         text-align: center;
         position: relative;
         z-index: 10;

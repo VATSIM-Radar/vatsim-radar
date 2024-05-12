@@ -1,5 +1,58 @@
 # Changelog
 
+# 0.3.0
+
+This update adds airport overlay that you can use to get all possible info about airport you may need. 
+
+As always, remember to check Roadmap to get a hint of what's coming next! Stage 2 is getting closer to its end. 
+
+## Highlights
+
+- 🛫 Airport Overlay: click on any airport to view its info
+- 🔄 Redesign of approach sector label
+- 📡 ATIS encoding parsing improvements
+- 🔧 UX improvements and bug fixes
+
+## Airport Overlay
+
+You can now click on any airport to view all of its available information.
+
+Since this overlay contains probably too much info for a single popup, airport dashboard development is currently planned - you should expect it in near future.
+
+What's included:
+
+- METAR/TAF with basic info parsing
+- NOTAMS with start/expiration dates
+- Vatsim info if available with airport elevation, transition frequency and division
+- CTAF frequency if no ATC is online for US airports
+- All possible traffic list
+
+Planned in future updates:
+
+- Airport dashboard
+- Filter map by airport traffic
+- Add tracks to all of this airport traffic
+- With all pilots' stats on single screen
+
+## Features and improvements
+
+- You will no longer see an alert when copying something - instead you'll notice text change
+- Reduced traffic consumption when some FSS is online or controller has multiple sectors
+- You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
+  phones (for those who uses them even when they are not yet properly supported)
+- Redesigned approach sector label design. You will no longer suffer from random hovers, and it will be easier to differ sectors from each other when they are close to each other
+- Reduced area sectors name size
+- Removed decimals on pilot flown & remaining miles
+
+## Bug fixes
+
+- Updated ATIS encoding parse algorithm
+- Moved Boeings 74* icons to B739 icon
+- Added encoding parsing for pilots names
+- Approach controller popup will now close more easily
+- Pilot offline status should now properly reset after (s)he's back online
+- Fixed error when aircraft was not listed in arrivals if arrival airport was same as departure
+
 # 0.2.7
 
 - Added runways on map. Their numbers and existence depend on your Navigraph subscription (you can see used AIRAC cycle for them in footer)

@@ -23,9 +23,10 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis ? undefined : getATCTime(controller),
+                        showAtis || !controller.logon_time ? undefined : getATCTime(controller),
                         showAtis && controller.atis_code ? `Info ${controller.atis_code}` : undefined,
                     ]"
+                    @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
                     <template #top="{item, index}">
                         <template v-if="index === 0 && showFacility">
@@ -34,7 +35,7 @@
                                     class="atc-popup__position_facility"
                                     :style="{background: getControllerPositionColor(controller)}"
                                 >
-                                    {{ controller.isATIS ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
+                                    {{ controller.isATIS ? 'ATIS' : controller.facility === -1 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                                 </div>
                                 <div class="atc-popup__position_name">
                                     {{ item }}
@@ -74,17 +75,10 @@
                                 v-for="atis in getATIS(controller)"
                                 :key="atis"
                             >
-                                {{ parseEncoding(atis) }}<br>
+                                {{ parseEncoding(atis, controller.callsign) }}<br>
                             </li>
                         </ul>
-                        <div class="atc-popup_atc__time">
-                            <div class="atc-popup_atc__time_text">
-                                Time online:
-                            </div>
-                            <div class="atc-popup_atc__time_info">
-                                {{ getATCTime(controller) }}
-                            </div>
-                        </div>
+                        <common-atc-time-online :controller="controller" v-if="controller.logon_time"/>
                     </template>
                 </common-info-block>
             </div>
@@ -96,8 +90,8 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import { getControllerPositionColor } from '~/composables/atc';
-import { getHoursAndMinutes } from '~/utils';
+import { getATCTime, getControllerPositionColor } from '~/composables/atc';
+import { useMapStore } from '~/store/map';
 
 defineProps({
     controllers: {
@@ -120,13 +114,14 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    maxHeight: {
+        type: String,
+        default: '400px',
+    },
 });
 
 const dataStore = useDataStore();
-
-const getATCTime = (controller: VatsimShortenedController) => {
-    return getHoursAndMinutes(new Date(controller.logon_time).getTime());
-};
+const mapStore = useMapStore();
 
 const getATIS = (controller: VatsimShortenedController) => {
     if (!controller.isATIS) return controller.text_atis;
@@ -196,7 +191,7 @@ const getATIS = (controller: VatsimShortenedController) => {
         color: $primary400;
     }
 
-    &_atc__time_info, &__time {
+    &__time {
         background: $neutral950;
         padding: 2px 4px;
         border-radius: 4px;
@@ -206,7 +201,7 @@ const getATIS = (controller: VatsimShortenedController) => {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        max-height: 400px;
+        max-height: v-bind(maxHeight);
         overflow: auto;
     }
 
@@ -223,18 +218,6 @@ const getATIS = (controller: VatsimShortenedController) => {
                 list-style: none;
                 margin-left: -16px;
             }
-        }
-
-        &__time {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            color: $neutral150;
-            font-size: 11px;
-            gap: 4px;
-            font-weight: 300;
-            width: 100%;
-            margin-top: 4px;
         }
     }
 }

@@ -12,7 +12,8 @@ type Data = {
     [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
 }
 
-const data:Data = {
+const data: Data = {
+    // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
     airports: shallowRef([]),
@@ -42,7 +43,7 @@ export function useDataStore() {
 
 export function setVatsimDataStore(vatsimData: VatsimLiveData) {
     for (const key in vatsimData) {
-        //@ts-ignore
+        //@ts-expect-error
         data[key].value = vatsimData[key];
     }
 }

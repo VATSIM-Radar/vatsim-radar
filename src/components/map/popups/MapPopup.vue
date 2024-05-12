@@ -2,7 +2,7 @@
     <div
         class="map-popup"
         :style="{
-            '--max-height': `${overlay.maxHeight}px`,
+            '--max-height': `${overlay._maxHeight}px`,
             '--position-x': typeof overlay.position === 'object' ? `${overlay.position.x}%` : undefined,
             '--position-y': typeof overlay.position === 'object' ? `${overlay.position.y}%` : undefined,
         }"
@@ -10,14 +10,14 @@
     >
         <map-popup-pilot v-if="overlay.type === 'pilot'" :overlay="overlay"/>
         <map-popup-prefile v-else-if="overlay.type === 'prefile'" :overlay="overlay"/>
+        <map-popup-atc v-else-if="overlay.type === 'atc'" :overlay="overlay"/>
+        <map-popup-airport v-else-if="overlay.type === 'airport'" :overlay="overlay"/>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import MapPopupPilot from '~/components/map/popups/MapPopupPilot.vue';
 import type { StoreOverlay } from '~/store/map';
-import MapPopupPrefile from '~/components/map/popups/MapPopupPrefile.vue';
 
 defineProps({
     overlay: {
@@ -25,6 +25,10 @@ defineProps({
         required: true,
     },
 });
+const MapPopupPilot = defineAsyncComponent(() => import('./MapPopupPilot.vue'));
+const MapPopupPrefile = defineAsyncComponent(() => import('./MapPopupPrefile.vue'));
+const MapPopupAtc = defineAsyncComponent(() => import('./MapPopupAtc.vue'));
+const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue'));
 </script>
 
 <style scoped lang="scss">
