@@ -424,7 +424,7 @@ const aircraftsGroundSelects: RadioItemGroup<typeof aircraftsGroundMode['value']
         value: 'dep',
     },
     {
-        text: 'Arriving',
+        text: 'Arrived',
         value: 'arr',
     },
     {
