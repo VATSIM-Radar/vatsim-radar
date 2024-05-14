@@ -261,7 +261,7 @@ const roadmap = reactive<Roadmap[]>([
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
             'History of events',
-            'Filter by event aircrafts',
+            'Filter by event aircraft',
             'Visualized events traffic',
             'Google Play app',
             'Websockets instead of update requests',

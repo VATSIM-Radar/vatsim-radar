@@ -29,13 +29,13 @@
                 >
                     <departing-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
-                        {{ aircrafts?.departures.length ?? 0 }}
+                        {{ aircraft?.departures.length ?? 0 }}
                     </div>
                 </div>
                 <div class="airport__counts_counter" :style="{'--color': `rgb(var(--neutral150))`}">
                     <ground-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
-                        {{ (aircrafts?.groundArr.length ?? 0) + (aircrafts?.groundDep.length ?? 0) }}
+                        {{ (aircraft?.groundArr.length ?? 0) + (aircraft?.groundDep.length ?? 0) }}
                     </div>
                 </div>
                 <div
@@ -44,7 +44,7 @@
                 >
                     <arriving-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
-                        {{ (aircrafts?.arrivals.length ?? 0) }}
+                        {{ (aircraft?.arrivals.length ?? 0) }}
                     </div>
                 </div>
             </div>
@@ -64,13 +64,13 @@
                 </div>
             </div>
         </template>
-        <template #aircraftsTitle>
+        <template #aircraftTitle>
             <div class="airport__section-title">
                 <div class="airport__section-title_counter">
-                    {{ displayedAircrafts.length }}
+                    {{ displayedAircraft.length }}
                 </div>
                 <div class="airport__section-title_text">
-                    Aircrafts
+                    Aircraft
                 </div>
             </div>
         </template>
@@ -273,85 +273,85 @@
             </common-button>
             <common-controller-info small :controllers="atc" show-facility :show-atis="showAtis" max-height="170px"/>
         </template>
-        <template #aircrafts>
-            <div class="airport__aircrafts-toggles">
+        <template #aircraft>
+            <div class="airport__aircraft-toggles" v-if="aircraft?.arrivals.length">
                 <common-toggle v-model="props.overlay.data.showTracks">
                     Show tracks for arriving
                 </common-toggle>
             </div>
-            <div class="airport__aircrafts">
-                <div class="airport__aircrafts_nav">
+            <div class="airport__aircraft">
+                <div class="airport__aircraft_nav">
                     <div
-                        class="airport__aircrafts_nav_item"
-                        :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'ground'}"
-                        @click="aircraftsMode = 'ground'"
+                        class="airport__aircraft_nav_item"
+                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'ground'}"
+                        @click="aircraftMode = 'ground'"
                     >
                         <ground-icon/>
                     </div>
                     <div
-                        class="airport__aircrafts_nav_item"
-                        :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'departed'}"
-                        @click="aircraftsMode = 'departed'"
+                        class="airport__aircraft_nav_item"
+                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'departed'}"
+                        @click="aircraftMode = 'departed'"
                     >
                         <departing-icon/>
                     </div>
                     <div
-                        class="airport__aircrafts_nav_item"
-                        :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'arriving'}"
-                        @click="aircraftsMode = 'arriving'"
+                        class="airport__aircraft_nav_item"
+                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'arriving'}"
+                        @click="aircraftMode = 'arriving'"
                     >
                         <arriving-icon/>
                     </div>
                 </div>
-                <div class="airport__aircrafts_list" :key="aircraftsMode">
-                    <div class="airport__aircrafts_list_title pilot-header">
+                <div class="airport__aircraft_list" :key="aircraftMode">
+                    <div class="airport__aircraft_list_title pilot-header">
                         <div class="pilot-header_title">
-                            <template v-if="aircraftsMode === 'ground'">
+                            <template v-if="aircraftMode === 'ground'">
                                 On Ground
                             </template>
-                            <template v-else-if="aircraftsMode === 'departed'">
+                            <template v-else-if="aircraftMode === 'departed'">
                                 Departed
                             </template>
-                            <template v-else-if="aircraftsMode === 'arriving'">
+                            <template v-else-if="aircraftMode === 'arriving'">
                                 Arriving
                             </template>
                         </div>
                     </div>
-                    <div class="airport__aircrafts_list_filter" v-if="aircraftsMode === 'ground'">
+                    <div class="airport__aircraft_list_filter" v-if="aircraftMode === 'ground'">
                         <common-radio-group
                             class="airport__ground-toggles"
-                            v-model="aircraftsGroundMode"
-                            :items="aircraftsGroundSelects"
+                            v-model="aircraftGroundMode"
+                            :items="aircraftGroundSelects"
                             two-cols
                         />
                     </div>
                     <common-info-block
-                        class="airport__aircraft" v-for="aircraft in displayedAircrafts" :key="aircraft.cid"
+                        class="airport__pilot" v-for="pilot in displayedAircraft" :key="pilot.cid"
                         :bottom-items="[
-                            aircraft.departure,
-                            aircraft.aircraft_faa ?? 'No flight plan',
-                            (aircraft.distance && (aircraftsMode !== 'ground' || !aircraft.isArrival)) ? `${Math.round(aircraft.distance)}NM ${aircraftsMode !== 'ground' ? 'remains' : ''}` : '',
-                            (aircraft.eta && aircraftsMode !== 'ground') ? `ETA ${datetime.format(aircraft.eta)}Z` : '',
+                            pilot.departure,
+                            pilot.aircraft_faa ?? 'No flight plan',
+                            (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${Math.round(pilot.distance)}NM ${aircraftMode !== 'ground' ? 'remains' : ''}` : '',
+                            (pilot.eta && aircraftMode !== 'ground') ? `ETA ${datetime.format(pilot.eta)}Z` : '',
                         ]"
                         is-button
-                        @click="(aircraftsMode === 'ground' && aircraftsGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(aircraft.cid.toString()) : mapStore.addPilotOverlay(aircraft.cid.toString())"
+                        @click="(aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString())"
                     >
                         <template #top>
-                            <div class="airport__aircraft_header">
-                                <div class="airport__aircraft_header_title">
-                                    {{ aircraft.callsign }}
+                            <div class="airport__pilot_header">
+                                <div class="airport__pilot_header_title">
+                                    {{ pilot.callsign }}
                                 </div>
                                 <div
-                                    class="airport__aircraft_header_status"
-                                    :style="{'--color': `rgb(var(--${getLocalPilotStatus(aircraft).color}))`}"
+                                    class="airport__pilot_header_status"
+                                    :style="{'--color': `rgb(var(--${getLocalPilotStatus(pilot).color}))`}"
                                 >
-                                    {{ getLocalPilotStatus(aircraft).title }}
+                                    {{ getLocalPilotStatus(pilot).title }}
                                 </div>
                             </div>
                         </template>
                         <template #bottom="{item, index}">
-                            <template v-if="index === 0 && aircraft.departure">
-                                <template v-if="!aircraft.isArrival">
+                            <template v-if="index === 0 && pilot.departure">
+                                <template v-if="!pilot.isArrival">
                                     to
                                 </template>
                                 <template v-else>
@@ -359,11 +359,11 @@
                                 </template>
 
                                 <strong>
-                                    <template v-if="!aircraft.isArrival">
-                                        {{ aircraft.arrival }}
+                                    <template v-if="!pilot.isArrival">
+                                        {{ pilot.arrival }}
                                     </template>
                                     <template v-else>
-                                        {{ aircraft.departure ?? airport.icao }}
+                                        {{ pilot.departure ?? airport.icao }}
                                     </template>
                                 </strong>
                             </template>
@@ -420,8 +420,8 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
-const aircraftsMode = ref<'departed' | 'ground' | 'arriving'>('ground');
-const aircraftsGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
+const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
+const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
 
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -432,7 +432,7 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
-const aircraftsGroundSelects: RadioItemGroup<typeof aircraftsGroundMode['value']>[] = [
+const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
     {
         text: 'Dep. & Arr.',
         value: 'depArr',
@@ -484,7 +484,7 @@ const isCtafOnly = computed(() => {
     return atc.value.length === 1 && atc.value[0].facility === -1;
 });
 
-const aircrafts = computed(() => {
+const aircraft = computed(() => {
     if (!vatAirport.value) return null;
 
     const list = {
@@ -493,7 +493,7 @@ const aircrafts = computed(() => {
         prefiles: [] as LocalArrivalStatus[],
         departures: [] as LocalArrivalStatus[],
         arrivals: [] as LocalArrivalStatus[],
-    } satisfies Record<keyof MapAirport['aircrafts'], Array<LocalArrivalStatus>>;
+    } satisfies Record<keyof MapAirport['aircraft'], Array<LocalArrivalStatus>>;
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         let distance = 0;
@@ -522,20 +522,20 @@ const aircrafts = computed(() => {
             isArrival: true,
         };
 
-        if (vatAirport.value.aircrafts.departures?.includes(pilot.cid)) {
+        if (vatAirport.value.aircraft.departures?.includes(pilot.cid)) {
             list.departures.push({ ...truePilot, isArrival: false });
         }
-        if (vatAirport.value.aircrafts.arrivals?.includes(pilot.cid)) {
+        if (vatAirport.value.aircraft.arrivals?.includes(pilot.cid)) {
             list.arrivals.push(truePilot);
         }
-        if (vatAirport.value.aircrafts.groundDep?.includes(pilot.cid)) {
+        if (vatAirport.value.aircraft.groundDep?.includes(pilot.cid)) {
             list.groundDep.push({ ...truePilot, isArrival: false });
         }
-        if (vatAirport.value.aircrafts.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
+        if (vatAirport.value.aircraft.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
     }
 
     for (const pilot of dataStore.vatsim.data.prefiles.value) {
-        if (vatAirport.value.aircrafts.prefiles?.includes(pilot.cid)) {
+        if (vatAirport.value.aircraft.prefiles?.includes(pilot.cid)) {
             list.prefiles.push({
                 ...pilot,
                 distance: 0,
@@ -557,7 +557,7 @@ type LocalArrivalStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
 }
 
 function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPilotStatus> {
-    if (aircraftsMode.value !== 'ground') {
+    if (aircraftMode.value !== 'ground') {
         if (pilot.isArrival) {
             return getPilotStatus((pilot.distance !== 0 && pilot.distance < 40) ? 'arriving' : 'enroute');
         }
@@ -566,7 +566,7 @@ function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPi
         }
     }
 
-    switch (aircraftsGroundMode.value) {
+    switch (aircraftGroundMode.value) {
         case 'depArr':
             return pilot.isArrival ? getPilotStatus('arrTaxi') : getPilotStatus('depTaxi');
         case 'dep':
@@ -581,26 +581,26 @@ function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPi
     }
 }
 
-const displayedAircrafts = computed((): LocalArrivalStatus[] => {
-    if (aircraftsMode.value === 'departed') {
-        return aircrafts.value?.departures.slice().sort((a,b) => a.flown - b.flown) ?? [];
+const displayedAircraft = computed((): LocalArrivalStatus[] => {
+    if (aircraftMode.value === 'departed') {
+        return aircraft.value?.departures.slice().sort((a,b) => a.flown - b.flown) ?? [];
     }
-    if (aircraftsMode.value === 'arriving') {
-        return aircrafts.value?.arrivals.slice().sort((a,b) => a.distance - b.distance) ?? [];
+    if (aircraftMode.value === 'arriving') {
+        return aircraft.value?.arrivals.slice().sort((a,b) => a.distance - b.distance) ?? [];
     }
 
-    switch (aircraftsGroundMode.value) {
+    switch (aircraftGroundMode.value) {
         case 'depArr':
             return [
-                ...aircrafts.value?.groundDep ?? [],
-                ...aircrafts.value?.groundArr ?? [],
+                ...aircraft.value?.groundDep ?? [],
+                ...aircraft.value?.groundArr ?? [],
             ];
         case 'dep':
-            return aircrafts.value?.groundDep ?? [];
+            return aircraft.value?.groundDep ?? [];
         case 'arr':
-            return aircrafts.value?.groundArr ?? [];
+            return aircraft.value?.groundArr ?? [];
         case 'prefiles':
-            return aircrafts.value?.prefiles ?? [];
+            return aircraft.value?.prefiles ?? [];
     }
 
     return [];
@@ -623,7 +623,7 @@ const taf = computed(() => {
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
         atc: {
-            title: 'ATC & Aircrafts',
+            title: 'ATC & Aircraft',
             sections: [],
         },
         info: {
@@ -678,11 +678,11 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (aircrafts.value && Object.values(aircrafts.value).some(x => x.length)) {
+    if (aircraft.value && Object.values(aircraft.value).some(x => x.length)) {
         list.atc.sections.push({
-            title: 'Aircrafts',
+            title: 'Aircraft',
             collapsible: true,
-            key: 'aircrafts',
+            key: 'aircraft',
         });
     }
 
@@ -703,9 +703,9 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
 });
 
 onMounted(() => {
-    if (!displayedAircrafts.value.length) {
-        aircraftsMode.value = 'arriving';
-        if (!displayedAircrafts.value.length) aircraftsMode.value = 'departed';
+    if (!displayedAircraft.value.length) {
+        aircraftMode.value = 'arriving';
+        if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
     }
 
     const interval = setInterval(async () => {
@@ -788,7 +788,7 @@ onMounted(() => {
         }
     }
 
-    &__aircrafts {
+    &__aircraft {
         display: grid;
         grid-template-columns: 13% 85%;
         justify-content: space-between;
@@ -837,7 +837,7 @@ onMounted(() => {
         }
     }
 
-    & &__aircraft {
+    & &__pilot {
         background: $neutral900;
 
         &_header {

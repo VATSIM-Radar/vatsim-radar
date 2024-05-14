@@ -41,7 +41,7 @@ import { fromLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
 import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
-import MapAircraftList from '~/components/map/aircrafts/MapAircraftList.vue';
+import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';

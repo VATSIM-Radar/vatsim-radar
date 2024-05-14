@@ -34,7 +34,7 @@ export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedP
 
     return 'isOnGround' in pilot
         ? pilot.isOnGround
-        : dataStore.vatsim.data.airports.value.some(x => x.aircrafts.groundArr?.includes(pilot.cid) || x.aircrafts.groundDep?.includes(pilot.cid));
+        : dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(pilot.cid) || x.aircraft.groundDep?.includes(pilot.cid));
 }
 
 export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList, title: string } {

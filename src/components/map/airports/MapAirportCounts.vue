@@ -1,6 +1,6 @@
 <template>
     <map-overlay
-        v-if="!hide && (aircrafts.groundDep?.length || aircrafts.groundArr?.length || aircrafts.prefiles?.length)"
+        v-if="!hide && (aircraft.groundDep?.length || aircraft.groundArr?.length || aircraft.prefiles?.length)"
         :popup="!!aircraftHoveredType"
         @update:popup="!$event ? aircraftHoveredType = null : undefined"
         :settings="{position: [airport.lon, airport.lat], offset, stopEvent: !!aircraftHoveredType, positioning: 'center-left'}"
@@ -11,26 +11,26 @@
         <div class="airport-counts" @mouseleave="aircraftHoveredType = null">
             <div
                 class="airport-counts_item airport-counts_item--groundDep"
-                :class="{'airport-counts_item--hidden': !aircrafts.groundDep?.length}"
+                :class="{'airport-counts_item--hidden': !aircraft.groundDep?.length}"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'groundDep')"
             >
-                {{ aircrafts.groundDep?.length ?? 0 }}
+                {{ aircraft.groundDep?.length ?? 0 }}
             </div>
             <div
                 class="airport-counts_item airport-counts_item--prefiles"
-                v-if="aircrafts.prefiles?.length"
+                v-if="aircraft.prefiles?.length"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'prefiles')"
             >
-                {{ aircrafts.prefiles?.length ?? 0 }}
+                {{ aircraft.prefiles?.length ?? 0 }}
             </div>
             <div
                 class="airport-counts_item airport-counts_item--groundArr"
-                :class="{'airport-counts_item--hidden': !aircrafts.groundArr?.length}"
+                :class="{'airport-counts_item--hidden': !aircraft.groundArr?.length}"
                 @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
             >
-                {{ aircrafts.groundArr?.length ?? 0 }}
+                {{ aircraft.groundArr?.length ?? 0 }}
             </div>
-            <common-popup-block class="airport-counts__airplanes" v-if="hoveredAirplanes.length">
+            <common-popup-block class="airport-counts__airplanes" v-if="hoveredAircraft.length">
                 <template #title>
                     <div
                         class="airport-counts__airplanes_title"
@@ -51,15 +51,15 @@
                 <div class="airport-counts__airplanes_list">
                     <common-info-block
                         :top-items="[
-                            aircraft.callsign,
-                            aircraft.aircraft_faa,
-                            (aircraftHoveredType === 'groundArr' ? aircraft.departure : aircraft.arrival) || null,
-                            aircraft.name,
+                            pilot.callsign,
+                            pilot.aircraft_faa,
+                            (aircraftHoveredType === 'groundArr' ? pilot.departure : pilot.arrival) || null,
+                            pilot.name,
                         ]"
-                        v-for="aircraft in hoveredAirplanes"
-                        :key="aircraft.cid"
+                        v-for="pilot in hoveredAircraft"
+                        :key="pilot.cid"
                         is-button
-                        @click="aircraftHoveredType !== 'prefiles' ? mapStore.addPilotOverlay(aircraft.cid.toString()) : mapStore.addPrefileOverlay(aircraft.cid.toString())"
+                        @click="aircraftHoveredType !== 'prefiles' ? mapStore.addPilotOverlay(pilot.cid.toString()) : mapStore.addPrefileOverlay(pilot.cid.toString())"
                     >
                         <template #top="{item, index}">
                             <div class="airport-counts__popup-callsign" v-if="index === 0">
@@ -98,7 +98,7 @@ const props = defineProps({
         type: Object as PropType<VatSpyData['airports'][0]>,
         required: true,
     },
-    aircrafts: {
+    aircraft: {
         type: Object as PropType<MapAircraft>,
         required: true,
     },
@@ -113,16 +113,16 @@ const props = defineProps({
 });
 
 const mapStore = useMapStore();
-const aircraftHoveredType = ref<keyof MapAirport['aircrafts'] | null>(null);
+const aircraftHoveredType = ref<keyof MapAirport['aircraft'] | null>(null);
 
-const hoveredAirplanes = computed(() => {
+const hoveredAircraft = computed(() => {
     switch (aircraftHoveredType.value) {
         case 'groundDep':
-            return props.aircrafts?.groundDep ?? [];
+            return props.aircraft?.groundDep ?? [];
         case 'groundArr':
-            return props.aircrafts?.groundArr ?? [];
+            return props.aircraft?.groundArr ?? [];
         case 'prefiles':
-            return props.aircrafts?.prefiles ?? [];
+            return props.aircraft?.prefiles ?? [];
     }
 
     return [];

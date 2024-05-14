@@ -40,8 +40,8 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
         ...pilot,
     };
 
-    const groundDep = radarStorage.vatsim.airports.find(x => x.aircrafts.groundDep?.includes(pilot.cid));
-    const groundArr = radarStorage.vatsim.airports.find(x => x.aircrafts.groundArr?.includes(pilot.cid));
+    const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(pilot.cid));
+    const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(pilot.cid));
 
     if (groundDep) {
         extendedPilot.airport = groundDep.icao;

@@ -1,9 +1,9 @@
 <template>
     <map-airport
-        v-for="({airport, aircrafts, localAtc, arrAtc, features}, index) in getAirportsList"
+        v-for="({airport, aircraft, localAtc, arrAtc, features}, index) in getAirportsList"
         :key="airport.icao + index + (airport.iata ?? 'undefined')"
         :airport="airport"
-        :aircrafts="aircrafts"
+        :aircraft="aircraft"
         :is-visible="visibleAirports.length < 100"
         :local-atc="localAtc"
         :arr-atc="arrAtc"
@@ -192,7 +192,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
 
         const gates: NavigraphGate[] = gateAirport.gates;
 
-        for (const pilot of [...airport.aircrafts.groundDep ?? [], ...airport.aircrafts.groundArr ?? []] as VatsimShortenedAircraft[]) {
+        for (const pilot of [...airport.aircraft.groundDep ?? [], ...airport.aircraft.groundArr ?? []] as VatsimShortenedAircraft[]) {
             if (pilot.callsign === 'QAC3404') {
                 const correct = adjustPilotLonLat(pilot);
                 console.log(pilot.heading);
@@ -241,9 +241,9 @@ const getAirportsList = computed(() => {
         vatsimAirport,
         vatspyAirport,
     }) => ({
-        aircrafts: {} as MapAircraft,
-        aircraftsList: vatsimAirport.aircrafts,
-        aircraftsCids: Object.values(vatsimAirport.aircrafts).flatMap(x => x),
+        aircraft: {} as MapAircraft,
+        aircraftList: vatsimAirport.aircraft,
+        aircraftCids: Object.values(vatsimAirport.aircraft).flatMap(x => x),
         airport: vatspyAirport,
         localAtc: [] as VatsimShortenedController[],
         arrAtc: [] as VatsimShortenedController[],
@@ -270,43 +270,43 @@ const getAirportsList = computed(() => {
     }
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        const foundAirports = airports.filter(x => x.aircraftsCids.includes(pilot.cid));
+        const foundAirports = airports.filter(x => x.aircraftCids.includes(pilot.cid));
         if (!foundAirports.length) continue;
 
         for (const airport of foundAirports) {
-            if (airport.aircraftsList.departures?.includes(pilot.cid) && !airport.aircrafts.departures) airport.aircrafts.departures = true;
-            if (airport.aircraftsList.arrivals?.includes(pilot.cid) && !airport.aircrafts.arrivals) airport.aircrafts.arrivals = true;
+            if (airport.aircraftList.departures?.includes(pilot.cid) && !airport.aircraft.departures) airport.aircraft.departures = true;
+            if (airport.aircraftList.arrivals?.includes(pilot.cid) && !airport.aircraft.arrivals) airport.aircraft.arrivals = true;
 
-            if (airport.aircraftsList.groundArr?.includes(pilot.cid)) {
-                if (!airport.aircrafts.groundArr) {
-                    airport.aircrafts.groundArr = [pilot];
+            if (airport.aircraftList.groundArr?.includes(pilot.cid)) {
+                if (!airport.aircraft.groundArr) {
+                    airport.aircraft.groundArr = [pilot];
                 }
                 else {
-                    (airport.aircrafts.groundArr as VatsimShortenedAircraft[]).push(pilot);
+                    (airport.aircraft.groundArr as VatsimShortenedAircraft[]).push(pilot);
                 }
             }
 
-            if (airport.aircraftsList.groundDep?.includes(pilot.cid)) {
-                if (!airport.aircrafts.groundDep) {
-                    airport.aircrafts.groundDep = [pilot];
+            if (airport.aircraftList.groundDep?.includes(pilot.cid)) {
+                if (!airport.aircraft.groundDep) {
+                    airport.aircraft.groundDep = [pilot];
                 }
                 else {
-                    (airport.aircrafts.groundDep as VatsimShortenedAircraft[]).push(pilot);
+                    (airport.aircraft.groundDep as VatsimShortenedAircraft[]).push(pilot);
                 }
             }
         }
     }
 
     for (const pilot of dataStore.vatsim.data.prefiles.value) {
-        const airport = airports.find(x => x.aircraftsCids.includes(pilot.cid));
+        const airport = airports.find(x => x.aircraftCids.includes(pilot.cid));
         if (!airport) continue;
 
-        if (airport.aircraftsList.prefiles?.includes(pilot.cid)) {
-            if (!airport.aircrafts.prefiles) {
-                airport.aircrafts.prefiles = [pilot];
+        if (airport.aircraftList.prefiles?.includes(pilot.cid)) {
+            if (!airport.aircraft.prefiles) {
+                airport.aircraft.prefiles = [pilot];
             }
             else {
-                (airport.aircrafts.prefiles as VatsimShortenedPrefile[]).push(pilot);
+                (airport.aircraft.prefiles as VatsimShortenedPrefile[]).push(pilot);
             }
         }
     }
@@ -406,7 +406,7 @@ const vatAirportsList = computed(() => {
             isPseudo: false,
             isSimAware: false,
             icao: airport!,
-            aircrafts: {},
+            aircraft: {},
         });
     }
 

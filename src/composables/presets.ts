@@ -7,7 +7,7 @@ const saPreset: SiteConfig = {
     theme: 'sa',
     hideHeader: true,
     hideFooter: true,
-    allAircraftsGreen: true,
+    allAircraftGreen: true,
     hideAllExternal: true,
 };
 

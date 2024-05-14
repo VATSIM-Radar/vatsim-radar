@@ -53,7 +53,7 @@
         </map-overlay>
         <map-airport-counts
             v-if="'lon' in airport"
-            :aircrafts="aircrafts"
+            :aircraft="aircraft"
             :airport="airport"
             :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
             :hide="!isVisible"
@@ -112,7 +112,7 @@ const props = defineProps({
         type: Object as PropType<VatSpyData['airports'][0] | VatSpyDataLocalATC['airport']>,
         required: true,
     },
-    aircrafts: {
+    aircraft: {
         type: Object as PropType<MapAircraft>,
         required: true,
     },

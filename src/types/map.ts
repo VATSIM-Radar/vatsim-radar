@@ -7,7 +7,7 @@ export interface MapAirport {
     iata?: string;
     isPseudo: boolean;
     isSimAware: boolean;
-    aircrafts: Partial<{
+    aircraft: Partial<{
         groundDep: number[]
         groundArr: number[]
         prefiles: number[]
@@ -17,8 +17,8 @@ export interface MapAirport {
 }
 
 export type MapAircraft =
-    PartialRecord<keyof Pick<MapAirport['aircrafts'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
-    & PartialRecord<keyof Pick<MapAirport['aircrafts'], 'departures' | 'arrivals'>, boolean>
+    PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
+    & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>
 
 interface IUserLocalSettings {
     location: Coordinate;

@@ -20,7 +20,7 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useMapStore } from '~/store/map';
-import MapAircraft from '~/components/map/aircrafts/MapAircraft.vue';
+import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -143,7 +143,7 @@ watch(map, (val) => {
         vectorLayer = new VectorLayer({
             source: vectorSource.value,
             properties: {
-                type: 'aircrafts',
+                type: 'aircraft',
             },
             zIndex: 6,
         });

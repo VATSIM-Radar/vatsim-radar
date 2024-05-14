@@ -9,7 +9,7 @@ export interface SiteConfig {
     theme?: ThemesList;
     hideHeader?: boolean;
     hideFooter?: boolean;
-    allAircraftsGreen?: boolean;
+    allAircraftGreen?: boolean;
     airports?: string[];
     airport?: string;
     hideAllExternal?: boolean

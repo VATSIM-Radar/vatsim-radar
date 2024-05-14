@@ -10,8 +10,8 @@ import type { PartialRecord } from '~/types';
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);
 
-    const iconsPath = resolver.resolve('../assets/icons/aircrafts');
-    const publicPath = resolver.resolve('../public/aircrafts');
+    const iconsPath = resolver.resolve('../assets/icons/aircraft');
+    const publicPath = resolver.resolve('../public/aircraft');
 
     const colors = [colorsList.primary500, colorsList.warning500, colorsList.warning700, colorsList.success500, colorsList.primary500];
 

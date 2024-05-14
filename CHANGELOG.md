@@ -18,24 +18,24 @@ I made this whole update in ~1.5 hours. Coffee magic I guess.
 
 ## Settings
 
-- New setting: auto-show airport overlay tracks for arriving aircrafts
+- New setting: auto-show airport overlay tracks for arriving aircraft
 - Reordered settings: Navigraph account link got higher
 
 ## Airport popup
 
-- Added toggle for arriving aircraft tracks. They will only be visible for aircrafts that are in sight
+- Added toggle for arriving aircraft tracks. They will only be visible for aircraft that are in sight
 - Added tabs
-- Reordered airport aircrafts buttons: ground now goes first
+- Reordered airport aircraft buttons: ground now goes first
 - Added title for clarification on left buttons
-- Removed remaining time for ground aircrafts
-- Removed ETA for arrived aircrafts
+- Removed remaining time for ground aircraft
+- Removed ETA for arrived aircraft
 
 # 0.3.1
 
 - Once again improved encoding detection for cyrillic
-- Added remaining dist and ETA to airport's aircrafts list
-- Added departed/arriving statuses for airport's aircrafts list
-- Aircrafts in airport popup are now sorted by closest distance to airport
+- Added remaining dist and ETA to airport's aircraft list
+- Added departed/arriving statuses for airport's aircraft list
+- Aircraft in airport popup are now sorted by closest distance to airport
 - Increased border of approach sectors so it's now harder to miss them
 - Name of approach sector is now the same color as sector's border
 
@@ -161,8 +161,8 @@ This release summaries all hotfixes that was made today. Sorry for last days rel
 
 - Removed to go percent if aircraft is on ground
 - Added country name to flightplan airport
-- Fixed error when aircraft icon was not updated in overlay when switching between aircrafts
-- Fixed error when overlay could become broken when switching between aircrafts
+- Fixed error when aircraft icon was not updated in overlay when switching between aircraft
+- Fixed error when overlay could become broken when switching between aircraft
 
 # 0.2.0
 
@@ -236,9 +236,9 @@ great weekend and CTP!
 
 ## Bug fixes
 
-- Diverted to non-planned airport will now also be displayed in ground aircrafts list
+- Diverted to non-planned airport will now also be displayed in ground aircraft list
 - Aircraft altitude will no longer be modified using Vatsim QNH when below FL100
-- Fixed ground aircrafts sometimes not showing in correct airport
+- Fixed ground aircraft sometimes not showing in correct airport
 - Fixed rare issue when circle with dep/arr controller could suddenly disappear while still being online. If you'll
   encourage this later, please report it in #feedback section (must be present in VatSpy and missing in Vatsim Radar)
 - Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead

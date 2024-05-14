@@ -93,7 +93,7 @@
                                 }"
                                 v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
                             >
-                                <img alt="" :src="`/aircrafts/${ getAircraftIcon(pilot).icon }-active.png`">
+                                <img alt="" :src="`/aircraft/${ getAircraftIcon(pilot).icon }-active.png`">
                             </div>
                             <common-button class="pilot__card_route_open" type="link" @click="viewRoute">
                                 View route

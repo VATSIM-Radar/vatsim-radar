@@ -144,7 +144,7 @@ export function getAirportsList() {
     const dataAirports = radarStorage.vatspy.data!.airports.filter(x => !x.isPseudo);
     const pilots = radarStorage.vatsim.data!.pilots;
 
-    function addPilotToList(status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0], pilot: number) {
+    function addPilotToList(status: keyof MapAirport['aircraft'], airport: VatSpyData['airports'][0], pilot: number) {
         let existingAirport = airports.find(x => x.icao === airport.icao);
         if (!existingAirport) {
             existingAirport = {
@@ -152,7 +152,7 @@ export function getAirportsList() {
                 iata: airport.iata,
                 isPseudo: airport.isPseudo,
                 isSimAware: false,
-                aircrafts: {
+                aircraft: {
                     [status]: [pilot],
                 },
             };
@@ -160,10 +160,10 @@ export function getAirportsList() {
             return;
         }
 
-        const existingArr = existingAirport.aircrafts[status];
+        const existingArr = existingAirport.aircraft[status];
 
         if (!existingArr) {
-            existingAirport.aircrafts[status] = [pilot];
+            existingAirport.aircraft[status] = [pilot];
         }
         else {
             existingArr.push(pilot);
@@ -171,7 +171,7 @@ export function getAirportsList() {
     }
 
     for (const pilot of pilots) {
-        const statuses: Array<{ status: keyof MapAirport['aircrafts'], airport: VatSpyData['airports'][0] }> = [];
+        const statuses: Array<{ status: keyof MapAirport['aircraft'], airport: VatSpyData['airports'][0] }> = [];
         const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
 
         let groundAirport = (groundAirports && groundAirports?.length > 1)
@@ -282,7 +282,7 @@ export function getAirportsList() {
                 iata: airport.iata,
                 isPseudo: airport.isPseudo,
                 isSimAware: airport.isSimAware,
-                aircrafts: {},
+                aircraft: {},
             });
         }
     });
