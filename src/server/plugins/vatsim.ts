@@ -65,7 +65,7 @@ export default defineNitroPlugin((app) => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
-                data.controllers.push({
+                /*data.controllers.push({
                     callsign: 'SUEO_CTR',
                     cid: 1,
                     facility: useFacilitiesIds().CTR,
@@ -77,7 +77,7 @@ export default defineNitroPlugin((app) => {
                     server: '',
                     text_atis: ['undefined'],
                     visual_range: 0,
-                });
+                });*/
 
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
