@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
+import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
