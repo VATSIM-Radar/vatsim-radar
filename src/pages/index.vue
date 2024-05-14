@@ -18,6 +18,7 @@
                 </transition-group>
             </div>
         </div>
+        <map-controls v-if="!store.config.hideAllExternal"/>
         <div :key="store.theme ?? 'default'">
             <carto-db-layer-light v-if="store.theme === 'light'"/>
             <carto-db-layer v-else/>
@@ -46,16 +47,17 @@ import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings } from '~/composables';
-import {  useMapStore } from '~/store/map';
-import type {StoreOverlayAirport, StoreOverlay } from '~/store/map';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
-import {setHeader} from 'h3';
+import { setHeader } from 'h3';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
+import { toDegrees } from 'ol/math';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -74,12 +76,12 @@ let interval: NodeJS.Timeout | null = null;
 let initialSpawn = false;
 
 const event = useRequestEvent();
-if(event) {
+if (event) {
     setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' http://localhost:3000 https://*.vatsimsa.com https://vatsimsa.com`);
 }
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow) return;
+    if (!store.user?.settings.autoFollow || store.config.hideAllExternal) return;
     let overlay = mapStore.overlays.find(x => x.key === store.user?.cid);
     if (overlay) return;
 
@@ -100,7 +102,7 @@ async function checkAndAddOwnAircraft() {
 }
 
 const restoreOverlays = async () => {
-    if(store.config.hideAllExternal) return;
+    if (store.config.hideAllExternal) return;
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
@@ -140,7 +142,7 @@ const restoreOverlays = async () => {
         }
         else if (overlay.type === 'atc') {
             const controller = findAtcByCallsign(overlay.key);
-            if(!controller) return overlay;
+            if (!controller) return overlay;
 
             const data = await Promise.allSettled([
                 $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`),
@@ -164,10 +166,10 @@ const restoreOverlays = async () => {
 
             if (!('value' in data[0])) return overlay;
 
-            (async function() {
+            (async function () {
                 const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
-                if(foundOverlay) {
+                if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
                 }
             })();
@@ -177,6 +179,7 @@ const restoreOverlays = async () => {
                 data: {
                     icao: overlay.key,
                     airport: data[0].value,
+                    showTracks: store.user?.settings.autoShowAirportTracks,
                 },
             };
         }
@@ -292,10 +295,10 @@ onMounted(async () => {
     projectionExtent[0] *= 1.2;
     projectionExtent[2] *= 1.2;
 
-    if(store.config.airport) {
+    if (store.config.airport) {
         const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
 
-        if(airport) {
+        if (airport) {
             projectionExtent = [
                 airport.lon - 100000,
                 airport.lat - 100000,
@@ -304,10 +307,10 @@ onMounted(async () => {
             ];
         }
     }
-    else if(store.config.airports) {
+    else if (store.config.airports) {
         const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
 
-        if(airports.length) {
+        if (airports.length) {
             projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
         }
     }
@@ -355,6 +358,7 @@ onMounted(async () => {
         moving = false;
         const view = map.value!.getView();
         mapStore.zoom = view.getZoom() ?? 0;
+        mapStore.rotation = toDegrees(view.getRotation() ?? 0);
         mapStore.extent = view.calculateExtent(map.value!.getSize());
 
         setUserLocalSettings({

@@ -36,6 +36,7 @@ export interface FullUser {
 export interface UserSettings {
     autoFollow?: boolean
     autoZoom?: boolean
+    autoShowAirportTracks?: boolean
     headerName?: string
 }
 

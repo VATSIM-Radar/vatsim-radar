@@ -7,9 +7,9 @@
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
         max-height="100%"
         :header-actions="(store.config.airport === props.overlay.data.icao && overlay.sticky) ? ['counts'] : ['counts', 'sticky']"
-        :sections
+        :tabs
         v-if="airport"
-        :disabled="!!store.config.airport"
+        :disabled="store.config.airport === props.overlay.data.icao"
     >
         <template #title>
             <div class="pilot-header">
@@ -274,29 +274,26 @@
             <common-controller-info small :controllers="atc" show-facility :show-atis="showAtis" max-height="170px"/>
         </template>
         <template #aircrafts>
-            <common-radio-group
-                class="airport__ground-toggles"
-                :class="{'airport__ground-toggles--hidden': aircraftsMode !== 'ground'}"
-                v-model="aircraftsGroundMode"
-                :items="aircraftsGroundSelects"
-                two-cols
-            />
-
+            <div class="airport__aircrafts-toggles">
+                <common-toggle v-model="props.overlay.data.showTracks">
+                    Show tracks for arriving
+                </common-toggle>
+            </div>
             <div class="airport__aircrafts">
                 <div class="airport__aircrafts_nav">
-                    <div
-                        class="airport__aircrafts_nav_item"
-                        :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'departed'}"
-                        @click="aircraftsMode = 'departed'"
-                    >
-                        <departing-icon/>
-                    </div>
                     <div
                         class="airport__aircrafts_nav_item"
                         :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'ground'}"
                         @click="aircraftsMode = 'ground'"
                     >
                         <ground-icon/>
+                    </div>
+                    <div
+                        class="airport__aircrafts_nav_item"
+                        :class="{'airport__aircrafts_nav_item--active': aircraftsMode === 'departed'}"
+                        @click="aircraftsMode = 'departed'"
+                    >
+                        <departing-icon/>
                     </div>
                     <div
                         class="airport__aircrafts_nav_item"
@@ -307,13 +304,34 @@
                     </div>
                 </div>
                 <div class="airport__aircrafts_list" :key="aircraftsMode">
+                    <div class="airport__aircrafts_list_title pilot-header">
+                        <div class="pilot-header_title">
+                            <template v-if="aircraftsMode === 'ground'">
+                                On Ground
+                            </template>
+                            <template v-else-if="aircraftsMode === 'departed'">
+                                Departed
+                            </template>
+                            <template v-else-if="aircraftsMode === 'arriving'">
+                                Arriving
+                            </template>
+                        </div>
+                    </div>
+                    <div class="airport__aircrafts_list_filter" v-if="aircraftsMode === 'ground'">
+                        <common-radio-group
+                            class="airport__ground-toggles"
+                            v-model="aircraftsGroundMode"
+                            :items="aircraftsGroundSelects"
+                            two-cols
+                        />
+                    </div>
                     <common-info-block
                         class="airport__aircraft" v-for="aircraft in displayedAircrafts" :key="aircraft.cid"
                         :bottom-items="[
                             aircraft.departure,
                             aircraft.aircraft_faa ?? 'No flight plan',
-                            aircraft.distance ? `${Math.round(aircraft.distance)}NM remains` : '',
-                            aircraft.eta ? `ETA ${datetime.format(aircraft.eta)}Z` : '',
+                            (aircraft.distance && (aircraftsMode !== 'ground' || !aircraft.isArrival)) ? `${Math.round(aircraft.distance)}NM ${aircraftsMode !== 'ground' ? 'remains' : ''}` : '',
+                            (aircraft.eta && aircraftsMode !== 'ground') ? `ETA ${datetime.format(aircraft.eta)}Z` : '',
                         ]"
                         is-button
                         @click="(aircraftsMode === 'ground' && aircraftsGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(aircraft.cid.toString()) : mapStore.addPilotOverlay(aircraft.cid.toString())"
@@ -372,7 +390,7 @@ import type {
     VatsimShortenedController,
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
-import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
+import type { InfoPopupContent } from '~/components/common/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 import type { RadioItemGroup } from '~/components/common/CommonRadioGroup.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
@@ -602,31 +620,38 @@ const taf = computed(() => {
     });
 });
 
-const sections = computed<InfoPopupSection[]>(() => {
-    const list: InfoPopupSection[] = [];
+const tabs = computed<InfoPopupContent>(() => {
+    const list: InfoPopupContent = {
+        atc: {
+            title: 'ATC & Aircrafts',
+            sections: [],
+        },
+        info: {
+            title: 'Airport info',
+            sections: [],
+        },
+    };
 
     if (airportInfo.value) {
-        list.push({
+        list.info.sections.push({
             title: 'Vatsim Airport Info',
             collapsible: true,
-            collapsedDefault: true,
-            collapsedDefaultOnce: true,
             key: 'airport',
         });
     }
 
     if (metar.value) {
-        list.push({
+        list.info.sections.push({
             title: 'METAR',
             collapsible: true,
-            collapsedDefault: true,
+            collapsedDefault: !!airportInfo.value,
             collapsedDefaultOnce: true,
             key: 'metar',
         });
     }
 
     if (taf.value) {
-        list.push({
+        list.info.sections.push({
             title: 'TAF',
             collapsible: true,
             collapsedDefault: true,
@@ -636,7 +661,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     }
 
     if (notams.value?.length) {
-        list.push({
+        list.info.sections.push({
             title: 'NOTAMS',
             collapsible: true,
             collapsedDefault: true,
@@ -646,7 +671,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     }
 
     if (atc.value.length) {
-        list.push({
+        list.atc.sections.push({
             title: 'Active Controllers',
             collapsible: true,
             key: 'atc',
@@ -654,12 +679,14 @@ const sections = computed<InfoPopupSection[]>(() => {
     }
 
     if (aircrafts.value && Object.values(aircrafts.value).some(x => x.length)) {
-        list.push({
+        list.atc.sections.push({
             title: 'Aircrafts',
             collapsible: true,
             key: 'aircrafts',
         });
     }
+
+    if(!list.info.sections.length) delete list.info;
 
     return list;
 });

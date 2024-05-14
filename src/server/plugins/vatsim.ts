@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
+import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
@@ -65,10 +65,10 @@ export default defineNitroPlugin((app) => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
-                /*data.controllers.push({
-                    callsign: 'JFK_G_APP',
+                data.controllers.push({
+                    callsign: 'SUEO_CTR',
                     cid: 1,
-                    facility: 5,
+                    facility: useFacilitiesIds().CTR,
                     frequency: '122.122',
                     last_updated: '',
                     logon_time: '',
@@ -77,7 +77,7 @@ export default defineNitroPlugin((app) => {
                     server: '',
                     text_atis: ['undefined'],
                     visual_range: 0,
-                });*/
+                });
 
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 

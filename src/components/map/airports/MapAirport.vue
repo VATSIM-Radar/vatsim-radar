@@ -500,6 +500,7 @@ onMounted(async () => {
                     font: 'bold 12px Montserrat',
                     text: feature.runway_identifier.replace('RW', ''),
                     rotation: toRadians(feature.runway_true_bearing),
+                    rotateWithView: true,
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.7)`,
                     }),

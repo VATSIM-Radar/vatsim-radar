@@ -42,6 +42,7 @@ export interface StoreOverlayAirport extends StoreOverlayDefault {
         icao: string
         airport?: VatsimAirportData
         notams?: VatsimAirportDataNotam[]
+        showTracks?: boolean
     };
 }
 
@@ -59,6 +60,7 @@ export const useMapStore = defineStore('map', {
     state: () => ({
         extent: [0, 0, 0, 0] as Extent,
         zoom: 0,
+        rotation: 0,
         moving: false,
         openOverlayId: null as string | null,
         openPilotOverlay: false,
@@ -185,6 +187,8 @@ export const useMapStore = defineStore('map', {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
+            const store = useStore();
+
             try {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
                 if (existingOverlay) return;
@@ -198,6 +202,7 @@ export const useMapStore = defineStore('map', {
                     key: airport,
                     data: {
                         icao: airport,
+                        showTracks: store.user?.settings.autoShowAirportTracks,
                     },
                     type: 'airport',
                     sticky: false,

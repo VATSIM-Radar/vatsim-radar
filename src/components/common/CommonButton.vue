@@ -40,7 +40,7 @@ const props = defineProps({
         type: String,
     },
     type: {
-        type: String as PropType<'primary' | 'secondary' | 'link' | 'transparent'>,
+        type: String as PropType<'primary' | 'secondary' | 'secondary-flat' | 'link' | 'transparent'>,
         default: 'primary',
     },
     orientation: {
@@ -139,10 +139,12 @@ const getAttrs = computed(() => {
         width: 16px;
     }
 
-    &--type-secondary {
+    &--type-secondary, &--type-secondary-flat {
         color: $neutral50;
         background: $neutral900;
+    }
 
+    &--type-secondary {
         @include hover {
             &:hover {
                 background: $neutral850;
@@ -150,6 +152,20 @@ const getAttrs = computed(() => {
 
             &:focus, &:active {
                 background: $neutral800;
+            }
+        }
+    }
+
+    &--type-secondary-flat {
+        @include hover {
+            &:hover {
+                background: $neutral900;
+                color: $primary500;
+            }
+
+            &:focus, &:active {
+                background: $neutral900;
+                color: $primary500;
             }
         }
     }

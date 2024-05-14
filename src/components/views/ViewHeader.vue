@@ -73,8 +73,8 @@
                 v-model="settingsPopup"
                 :sections="[
                     {title: 'Vatsim Account', key: 'account'},
-                    {title: 'Follow Me Preferences', key: 'follow'},
-                    {title: 'Navigraph Account', key: 'navigraph'}
+                    {title: 'Navigraph Account', key: 'navigraph'},
+                    {title: 'Preferences', key: 'follow'},
                 ]"
             >
                 <template #title>
@@ -102,7 +102,7 @@
 
                                         <small>
                                             Customize shown header name.
-                                            Leave to blank to use defaults.<br> Max 30 symbols.
+                                            Leave blank for defaults.
                                         </small>
                                     </div>
                                     <div class="header__settings__two-col-block_text">
@@ -141,6 +141,13 @@
                                 Enabling this will also zoom to your aicraft position (differs from
                                 ground to airborne) on initial spawn/site open<br><br>
                                 By default it will use last saved position
+                            </template>
+                        </common-toggle>
+                        <common-toggle v-model="settings.autoShowAirportTracks">
+                            Auto-show airport tracks
+
+                            <template #description>
+                                Enabling this will auto-show aircraft arrival tracks for any airport overlay you open.
                             </template>
                         </common-toggle>
                     </div>
@@ -315,6 +322,7 @@ watch(settings, () => {
         method: 'POST',
         body: settings,
     });
+    store.user!.settings = settings;
 });
 
 onMounted(() => {

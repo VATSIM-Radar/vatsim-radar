@@ -1,5 +1,35 @@
 # Changelog
 
+# 0.3.2
+
+I made this whole update in ~1.5 hours. Coffee magic I guess.
+
+## Features and improvements
+
+- Site colors have been updated a bit
+- Added scroll to roadmap items
+- Airports codes in overlay aircraft route are now also clickable
+- Added map controls to bottom left corner
+
+## Bug fixes
+
+- Fixed duplicate airports for cases like SY_GND/SY-E_GND
+- Fixed SUEO_CTR FIR display. New algo may cause new problems - please report if you see them and remember to compare firs display to VatSpy
+
+## Settings
+
+- New setting: auto-show airport overlay tracks for arriving aircrafts
+- Reordered settings: Navigraph account link got higher
+
+## Airport popup
+
+- Added toggle for arriving aircraft tracks. They will only be visible for aircrafts that are in sight
+- Added tabs
+- Reordered airport aircrafts buttons: ground now goes first
+- Added title for clarification on left buttons
+- Removed remaining time for ground aircrafts
+- Removed ETA for arrived aircrafts
+
 # 0.3.1
 
 - Once again improved encoding detection for cyrillic

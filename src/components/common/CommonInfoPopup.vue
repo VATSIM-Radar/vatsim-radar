@@ -87,7 +87,7 @@ export interface InfoPopupSection {
     collapsedDefaultOnce?: boolean;
 }
 
-type InfoPopupContent = Record<string, {
+export type InfoPopupContent = Record<string, {
     title: string,
     sections: InfoPopupSection[]
 }>

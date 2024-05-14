@@ -173,7 +173,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: '"Recolor/show tracks for aircraft" setting if they have same arrival airport as you',
                 description: 'Will be available for aircraft arriving to same airport as you / arriving to selected airport',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Separate page & Fullscreen mode for airport popup',
@@ -451,6 +451,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             display: flex;
             flex-direction: column;
             gap: 16px;
+            max-height: 65vh;
+            overflow: auto;
 
             &_group {
                 &_title {
@@ -493,7 +495,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         gap: 8px;
         padding: 8px;
         border-radius: 8px;
-        background: $neutral850;
+        background: $neutral875;
         font-size: 13px;
 
         &_title {

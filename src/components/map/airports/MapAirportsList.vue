@@ -312,7 +312,7 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
-        const airport = airports.find(x => (x.airport.iata || atc.airport.iata) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
+        const airport = airports.find(x => ((x.airport.iata || atc.airport.iata) && !airports.some(y => x.airport.lat === y.airport.lat && x.airport.lon && y.airport.lon)) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
         const icaoOnlyAirport = airports.find(x => atc.airport.isPseudo && atc.airport.iata && x.airport.icao === atc.airport.icao);
         if (!airport) continue;
 
@@ -409,8 +409,6 @@ const vatAirportsList = computed(() => {
             aircrafts: {},
         });
     }
-
-    console.log(list);
 
     return list;
 });

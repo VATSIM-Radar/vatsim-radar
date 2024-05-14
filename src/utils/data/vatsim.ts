@@ -21,7 +21,7 @@ function findFacility(name: string, controller: VatsimShortenedController) {
     return radarStorage.vatspy.data!.firs.filter((x) => {
         if (x.icao !== name && x.callsign !== name) return false;
 
-        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.feature.id === y.feature.id && x.isOceanic === !y.isOceanic);
+        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
         if (!duplicateFir || x.name.includes('Oceanic')) return true;
 
         return !x.isOceanic;
@@ -37,7 +37,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
     const uirFeatures = radarStorage.vatspy.data!.firs.filter((x) => {
         if (!firs.includes(x.callsign ?? '') && !firs.includes(x.icao ?? '')) return false;
 
-        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.feature.id === y.feature.id && x.isOceanic === !y.isOceanic);
+        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
         if (!duplicateFir) return true;
 
         return x.name.includes('Oceanic') ? x.isOceanic : !x.isOceanic;

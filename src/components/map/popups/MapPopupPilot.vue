@@ -71,19 +71,19 @@
                     <template #top>
                         <div class="pilot__card_route">
                             <div class="pilot__card_route_header">
-                                <div class="pilot__card_route_header_airport pilot__card_route_header_airport--dep">
+                                <component :is="depAirport ? CommonButton : 'div'" type="link" @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)" class="pilot__card_route_header_airport pilot__card_route_header_airport--dep">
                                     {{
                                         (pilot.flight_plan?.departure || ((pilot.status === 'depTaxi' || pilot.status === 'depGate') && pilot.airport)) || ''
                                     }}
-                                </div>
+                                </component>
                                 <div
                                     class="pilot__card_route_header_status"
                                 >
                                     {{ getStatus.title }}
                                 </div>
-                                <div class="pilot__card_route_header_airport pilot__card_route_header_airport--arr">
+                                <component :is="arrAirport ? CommonButton : 'div'" type="link" @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)" class="pilot__card_route_header_airport pilot__card_route_header_airport--arr">
                                     {{ pilot.flight_plan?.arrival || '' }}
-                                </div>
+                                </component>
                             </div>
                             <div
                                 class="pilot__card_route_line"
@@ -221,6 +221,7 @@ import { boundingExtent, getCenter } from 'ol/extent';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useCopyText } from '~/composables';
 import { parseEncoding } from '~/utils/data';
+import CommonButton from '~/components/common/CommonButton.vue';
 
 const props = defineProps({
     overlay: {
@@ -565,10 +566,13 @@ onBeforeUnmount(() => {
 
             &_header {
                 display: flex;
-                font-weight: 600;
-                font-size: 13px;
                 justify-content: space-between;
                 gap: 8px;
+
+                &, & .button {
+                    font-weight: 600;
+                    font-size: 13px;
+                }
 
                 &_status {
                     color: var(--status-color);

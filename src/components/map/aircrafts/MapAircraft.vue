@@ -176,7 +176,7 @@ const getPostfix = computed(() => {
     else if (activeCurrentOverlay.value) {
         iconPostfix = '-active';
     }
-    else if (props.isHovered) {
+    else if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) {
         iconPostfix = '-hover';
     }
     else if (store.theme === 'light') iconPostfix = '-light';
@@ -191,6 +191,7 @@ const setStyle = () => {
         src: `/aircrafts/${ icon.value.icon }${ getPostfix.value }.png?v=${ store.version }`,
         width: icon.value.width,
         rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        rotateWithView: true,
     });
 
     const iconStyle = new Style({
@@ -233,11 +234,13 @@ const init = () => {
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
 
 const isPropsHovered = computed(() => props.isHovered);
+const airportOverlayTracks = computed(() => props.aircraft.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === props.aircraft.arrival && x.data.showTracks));
+const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
 watch([isPropsHovered, isInit], ([val]) => {
     if (!feature || activeCurrentOverlay.value) return;
 
-    toggleAirportLines(val);
+    toggleAirportLines(!!airportOverlayTracks.value || val);
     setStyle();
 }, {
     immediate: true,
@@ -245,9 +248,7 @@ watch([isPropsHovered, isInit], ([val]) => {
 
 function toggleAirportLines(value: boolean) {
     if (value) {
-        const isOnGround = isPilotOnGround(props.aircraft);
-
-        if (isOnGround) value = false;
+        if (isOnGround.value) value = false;
     }
 
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
@@ -323,12 +324,12 @@ function toggleAirportLines(value: boolean) {
     }
 }
 
-watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp], ([val], oldValue) => {
-    if (!feature || (!val && oldValue === undefined)) return;
+watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOverlayTracks], ([val], oldValue) => {
+    if (!feature || (!val && oldValue === undefined && !airportOverlayTracks.value)) return;
 
     setStyle();
 
-    if (activeCurrentOverlay.value?.data.pilot.status && !activeCurrentOverlay.value?.data.pilot.isOnGround) {
+    if ((activeCurrentOverlay.value?.data.pilot.status || airportOverlayTracks.value) && !isOnGround.value) {
         toggleAirportLines(true);
     }
     else if (!props.isHovered) {
