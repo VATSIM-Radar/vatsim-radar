@@ -137,12 +137,12 @@ watch(map, (val) => {
     if (!val) return;
 
     if (!vectorLayer) {
-        vectorSource.value = new VectorSource({
+        vectorSource.value = new VectorSource<any>({
             features: [],
             wrapX: false,
         });
 
-        vectorLayer = new VectorLayer({
+        vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
             zIndex: 5,
             properties: {
@@ -154,12 +154,12 @@ watch(map, (val) => {
     }
 
     if (!airportsLayer) {
-        airportsSource.value = new VectorSource({
+        airportsSource.value = new VectorSource<any>({
             features: [],
             wrapX: false,
         });
 
-        airportsLayer = new VectorLayer({
+        airportsLayer = new VectorLayer<any>({
             source: airportsSource.value,
             zIndex: 5,
             properties: {
