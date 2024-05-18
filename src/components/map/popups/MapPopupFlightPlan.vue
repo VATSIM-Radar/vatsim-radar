@@ -27,7 +27,10 @@
                     @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
                 />
             </div>
-            <div class="flight-plan__cols" v-if="flightPlan.deptime || flightPlan.enroute_time">
+            <div
+                class="flight-plan__cols"
+                v-if="(flightPlan.deptime || flightPlan.enroute_time) && (!status || status === 'depGate' || status === 'depTaxi')"
+            >
                 <common-info-block
                     text-align="center"
                     class="flight-plan__card"
@@ -97,14 +100,18 @@ const props = defineProps({
         type: Object as PropType<VatsimExtendedPilot['cruise'] | null>,
         default: null,
     },
+    status: {
+        type: String as PropType<VatsimExtendedPilot['status'] | null>,
+        default: null,
+    },
 });
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 const convertTime = (time: string) => {
-    const hours = time.slice(0,2);
-    const minutes = time.slice(2,4);
+    const hours = time.slice(0, 2);
+    const minutes = time.slice(2, 4);
 
     return `${ hours }:${ minutes }`;
 };

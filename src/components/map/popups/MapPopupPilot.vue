@@ -157,6 +157,7 @@
                 v-if="pilot.flight_plan"
                 :flight-plan="pilot.flight_plan"
                 :cruise="pilot.cruise"
+                :status="pilot.status ?? null"
             />
         </template>
         <template #buttons>
