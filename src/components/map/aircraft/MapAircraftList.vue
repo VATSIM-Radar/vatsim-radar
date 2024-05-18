@@ -135,12 +135,12 @@ watch(map, (val) => {
     if (hasLayer) return;
 
     if (!vectorLayer) {
-        vectorSource.value = new VectorSource({
+        vectorSource.value = new VectorSource<any>({
             features: [],
             wrapX: false,
         });
 
-        vectorLayer = new VectorLayer({
+        vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
             properties: {
                 type: 'aircraft',
