@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.3.3
+
+- "View route" button will now reset "tracked" state
+- Map will no longer autofocus on you if your aircraft has already arrived
+- Flight plan will now also show planned EOBT and enroute
+
 # 0.3.2
 
 I made this whole update in ~1.5 hours. Coffee magic I guess.

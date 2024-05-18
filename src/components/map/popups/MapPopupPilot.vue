@@ -288,6 +288,8 @@ const viewRoute = () => {
         [arrAirport.value.lon, arrAirport.value.lat],
     ]);
 
+    props.overlay.data.tracked = false;
+
     const view = map.value?.getView();
 
     view?.animate({

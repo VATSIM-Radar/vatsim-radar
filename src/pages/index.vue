@@ -96,7 +96,7 @@ async function checkAndAddOwnAircraft() {
         overlay = await mapStore.addPilotOverlay(store.user.cid, true);
     }
 
-    if (overlay && overlay.type === 'pilot' && store.user.settings.autoZoom) {
+    if (overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }

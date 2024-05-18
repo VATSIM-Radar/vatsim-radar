@@ -27,6 +27,22 @@
                     @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
                 />
             </div>
+            <div class="flight-plan__cols" v-if="flightPlan.deptime || flightPlan.enroute_time">
+                <common-info-block
+                    text-align="center"
+                    class="flight-plan__card"
+                    :top-items="['Planned EOBT']"
+                    :bottom-items="[`${convertTime(flightPlan.deptime)}z`]"
+                    v-if="flightPlan.deptime"
+                />
+                <common-info-block
+                    text-align="center"
+                    class="flight-plan__card"
+                    :top-items="['Planned Enroute']"
+                    :bottom-items="[convertTime(flightPlan.enroute_time)]"
+                    v-if="flightPlan.enroute_time"
+                />
+            </div>
             <div class="flight-plan__cols">
                 <common-info-block
                     text-align="center"
@@ -85,6 +101,13 @@ const props = defineProps({
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+
+const convertTime = (time: string) => {
+    const hours = time.slice(0,2);
+    const minutes = time.slice(2,4);
+
+    return `${ hours }:${ minutes }`;
+};
 
 const depAirport = computed(() => {
     const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.departure);
