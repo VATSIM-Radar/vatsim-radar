@@ -7,6 +7,7 @@ import { copyText, sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
 import type { ColorsList } from '~/modules/styles';
+import { setHeader, getRequestHeader } from 'h3';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -93,4 +94,31 @@ export function useCopyText() {
         copyState: copied,
         copy,
     };
+}
+
+const iframeWhitelist = [
+    'localhost',
+    'vatsimsa.com',
+];
+
+export function useIframeHeader() {
+    if(import.meta.client) return;
+
+    const event = useRequestEvent();
+    if(!event) return;
+
+    const referer = getRequestHeader(event, 'referer')?.split('/');
+    let origin = referer?.[2]?.split(':')[0];
+
+    const domain = origin?.split('.');
+    if(domain) {
+        origin = domain.slice(domain.length - 2, domain.length).join('.');
+    }
+
+    if(referer && origin && iframeWhitelist.includes(origin)) {
+        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ referer.slice(0, 3).join('/') }`);
+    }
+    else {
+        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
+    }
 }

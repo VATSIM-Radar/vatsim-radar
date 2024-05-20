@@ -46,7 +46,7 @@ import { useStore } from '~/store';
 import { setVatsimDataStore } from '~/composables/data';
 import type { VatDataVersions } from '~/types/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
-import { setUserLocalSettings } from '~/composables';
+import { setUserLocalSettings, useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
@@ -75,10 +75,7 @@ let interval: NodeJS.Timeout | null = null;
 
 let initialSpawn = false;
 
-const event = useRequestEvent();
-if (event) {
-    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' http://localhost:3000 https://*.vatsimsa.com https://vatsimsa.com`);
-}
+useIframeHeader();
 
 async function checkAndAddOwnAircraft() {
     if (!store.user?.settings.autoFollow || store.config.hideAllExternal) return;
