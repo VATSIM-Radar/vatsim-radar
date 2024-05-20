@@ -66,9 +66,9 @@ export default defineNitroPlugin((app) => {
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
                 /*data.controllers.push({
-                    callsign: 'SUEO_CTR',
-                    cid: 1,
-                    facility: useFacilitiesIds().CTR,
+                    callsign: 'UBBA_S1_CTR',
+                    cid: 2,
+                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
                     frequency: '122.122',
                     last_updated: '',
                     logon_time: '',

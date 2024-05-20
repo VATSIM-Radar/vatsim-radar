@@ -91,6 +91,38 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
     }).filter(x => x);
 };
 
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: true): VatSpyDataFeature | null
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: false): VatSpyData['firs']
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: boolean) {
+    const regularName = splittedName.join('_');
+    const firstName = splittedName[0];
+    const secondName = splittedName.length === 2 && splittedName[1];
+
+    if (uir) {
+        let uir = findUir(regularName, atc);
+        if(!uir && secondName && secondName.length > 1) {
+            for (let i = 0; i < secondName.length; i++) {
+                uir = findUir(regularName.substring(0, regularName.length - 1 - i), atc);
+                if(uir) break;
+            }
+        }
+        if (!uir) uir = findUir(firstName, atc);
+        if (uir) return uir;
+        return null;
+    }
+    else {
+        let feature = findFacility(regularName, atc);
+        if(!feature.length && secondName && secondName.length > 1) {
+            for (let i = 0; i < secondName.length - 1; i++) {
+                feature = findFacility(regularName.substring(0, regularName.length - 1 - i), atc);
+                if(feature.length) break;
+            }
+        }
+        if (!feature.length) feature = findFacility(firstName, atc);
+        return feature;
+    }
+}
+
 export const getATCBounds = (): VatSpyDataFeature[] => {
     const facilities = useFacilitiesIds();
     const atcWithBounds = filterATCByType([facilities.CTR, facilities.FSS]);
@@ -99,27 +131,17 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
         let splittedName = atc.callsign.toUpperCase().replaceAll('__', '_').split('_');
         splittedName = splittedName.slice(0, splittedName.length - 1);
 
-        const regularName = splittedName.join('_');
-        const firstName = splittedName.slice(0, 1).join('_');
-
         if (atc.facility === facilities.FSS) {
-            let uir = findUir(regularName, atc);
-            if (!uir) uir = findUir(firstName, atc);
+            const uir = findUirOrFir(splittedName, atc, true);
+
             if (uir) return uir;
         }
 
-        let feature = findFacility(regularName, atc);
-        if (!feature.length) feature = findFacility(firstName, atc);
+        const feature = findUirOrFir(splittedName, atc, false);
 
         if (!feature.length) {
-            let uir = findUir(regularName, atc);
-            if (!uir) uir = findUir(firstName, atc);
-            if (uir) {
-                return uir;
-            }
-            else {
-                return [];
-            }
+            const uir = findUirOrFir(splittedName, atc, true);
+            return uir ?? [];
         }
 
         return {
