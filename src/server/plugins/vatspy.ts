@@ -143,7 +143,10 @@ export default defineNitroPlugin((app) => {
                 .forEach((value) => {
                     let boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
                     if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
-                    if (!boundaries.length) throw new Error(`FIR didn't find it's feature in geojson (${ value.icao })`);
+                    if (!boundaries.length) {
+                        console.warn(`FIR didn't find it's feature in geojson (${ value.icao }, ${ value.boundary })`);
+                        return;
+                    }
 
                     boundaries.forEach((boundary, index) => {
                         const rootBoundary = boundaries.find((x, xIndex) => x.id === boundary.id && xIndex < index && x.properties!.oceanic === boundary.properties!.oceanic);
