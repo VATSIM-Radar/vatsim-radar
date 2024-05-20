@@ -55,7 +55,6 @@ import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
-import { setHeader } from 'h3';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 
