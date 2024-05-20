@@ -449,7 +449,7 @@ await useAsyncData(async () => {
 
 <style lang="scss">
 .app_content:only-child {
-    margin: 0;
+    padding: 0;
 
     .map_container > * {
         border-radius: 0;
