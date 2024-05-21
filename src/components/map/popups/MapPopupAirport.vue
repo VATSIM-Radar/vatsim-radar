@@ -94,7 +94,7 @@
                     </div>
                     <common-info-block class="airport__info-section_content">
                         <template #top>
-                            {{ typeof metar.wind.degrees === 'number' ? `${metar.wind.degrees}°` : metar.wind.direction }}° at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
+                            {{ typeof metar.wind.degrees === 'number' ? `${metar.wind.degrees}°` : metar.wind.direction }} at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
                         </template>
                     </common-info-block>
                 </div>
