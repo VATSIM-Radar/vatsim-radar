@@ -50,9 +50,7 @@ defineProps({
 
 /* eslint vue/require-explicit-slots: 0 */
 
-defineSlots<{
-    default(props: { item: RadioItemGroup }): any;
-} & { [key: `${ string }Hint`]: (props: { item: RadioItemGroup }) => any }>();
+defineSlots<{ [key: string]: (props: { item: RadioItemGroup }) => any }>();
 
 const id = useId();
 
