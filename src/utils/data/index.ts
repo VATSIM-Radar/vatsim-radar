@@ -61,7 +61,7 @@ export function parseEncoding(text: string, callsignOrAirport?: string) {
     if (callsignOrAirport && slugs1251.includes(callsignOrAirport.slice(0, 2))) {
         const result = decoder1251.decode(toAnalyse);
 
-        if (result.includes('Ћ') || result.includes('¤') || result.includes('ґ') || result.includes('®') || result.includes('©') || result.includes('Є') || result.includes('þ') || result.includes('ð')) {
+        if (result.includes('Ћ') || result.includes('¤') || result.includes('ґ') || result.includes('®') || result.includes('©') || result.includes('Є') || result.includes('þ') || result.includes('ð') || result.includes('ð')) {
             return decoder1251.decode(new Uint8Array([...text].map(char => char.charCodeAt(0))));
         }
     }

@@ -30,7 +30,6 @@ module.exports = {
                 ],
             },
         ],
-        '@stylistic/block-closing-brace-newline-after': 'always',
         'property-no-unknown': null,
         'selector-class-pattern': null,
         'selector-id-pattern': null,
