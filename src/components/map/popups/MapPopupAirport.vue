@@ -94,7 +94,7 @@
                     </div>
                     <common-info-block class="airport__info-section_content">
                         <template #top>
-                            {{ metar.wind.degrees || metar.wind.direction }}° at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
+                            {{ typeof metar.wind.degrees === 'number' ? `${metar.wind.degrees}°` : metar.wind.direction }}° at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
                         </template>
                     </common-info-block>
                 </div>
@@ -171,7 +171,7 @@
                         </div>
                         <common-info-block class="airport__info-section_content">
                             <template #top>
-                                {{ tafMetar.wind.degrees || tafMetar.wind.direction }}° at {{ tafMetar.wind.speed }} {{ tafMetar.wind.unit || 'MPS' }}
+                                {{ typeof tafMetar.wind.degrees === 'number' ? `${tafMetar.wind.degrees}°` : tafMetar.wind.direction }} at {{ tafMetar.wind.speed }} {{ tafMetar.wind.unit || 'MPS' }}
                             </template>
                         </common-info-block>
                     </div>
