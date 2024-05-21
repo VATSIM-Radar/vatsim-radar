@@ -126,7 +126,8 @@ export default defineNuxtModule((_, nuxt) => {
             scss += `\n);@function varToRgba($colorName, $opacity) {
     @if (map-has-key($colorsMap, 'i#{$colorName}')) {
         @return rgba(map-get($colorsMap, 'i#{$colorName}'), $opacity)
-    } @else {
+    } 
+    @else {
         @return rgba(var(--#{$colorName}), $opacity)
     }
 }\n`;
