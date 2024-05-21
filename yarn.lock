@@ -8201,7 +8201,7 @@ __metadata:
     jwks-rsa: "npm:^3.1.0"
     metar-taf-parser: "npm:^9.0.1"
     nuxt: "npm:^3.11.2"
-    ol: "npm:^9.2.1"
+    ol: "npm:^9.2.2"
     ol-mapbox-style: "npm:^12.3.2"
     pinia: "npm:^2.1.7"
     postcss: "npm:^8.4.38"
@@ -8352,9 +8352,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol@npm:^9.2.1":
-  version: 9.2.1
-  resolution: "ol@npm:9.2.1"
+"ol@npm:^9.2.2":
+  version: 9.2.2
+  resolution: "ol@npm:9.2.2"
   dependencies:
     color-rgba: "npm:^3.0.0"
     color-space: "npm:^2.0.1"
@@ -8362,7 +8362,7 @@ __metadata:
     geotiff: "npm:^2.0.7"
     pbf: "npm:3.2.1"
     rbush: "npm:^3.0.1"
-  checksum: 10c0/d2a98daf75c81dbe64a2b5682ffab80f1a389f70abbdd67a5454ce0476d643b948dc6de06867ab67f5c277742bce71c2173e852367b78c6282c6cb3143088968
+  checksum: 10c0/4db2276d3293eda2e3860d8271c0ecef341dad287f9bf29dd23be4a49888cf950e68239bbb91a95d372d5279d702b0c57319231dd60d88c144d1a94341155f80
   languageName: node
   linkType: hard
 
