@@ -1,26 +1,57 @@
 <template>
-    <div class="controls" v-if="view">
-        <common-button type="secondary-flat" size="S" class="controls_item" :disabled="mapStore.zoom >= view.getMaxZoom()" @click="setZoom(true)">
+    <div
+        v-if="view"
+        class="controls"
+    >
+        <common-button
+            class="controls_item"
+            :disabled="mapStore.zoom >= view.getMaxZoom()"
+            size="S"
+            type="secondary-flat"
+            @click="setZoom(true)"
+        >
             <template #icon>
                 <plus-icon/>
             </template>
         </common-button>
-        <common-button type="secondary-flat" size="S" class="controls_item" :disabled="mapStore.zoom <= view.getMinZoom()" @click="setZoom(false)">
+        <common-button
+            class="controls_item"
+            :disabled="mapStore.zoom <= view.getMinZoom()"
+            size="S"
+            type="secondary-flat"
+            @click="setZoom(false)"
+        >
             <template #icon>
                 <minus-icon/>
             </template>
         </common-button>
-        <common-button type="secondary-flat" size="S" class="controls_item" @click="setRotate(false)">
+        <common-button
+            class="controls_item"
+            size="S"
+            type="secondary-flat"
+            @click="setRotate(false)"
+        >
             <template #icon>
                 <rotate-counterclockwise/>
             </template>
         </common-button>
-        <common-button type="secondary-flat" size="S" class="controls_item" :disabled="mapStore.rotation === 0" @click="setRotate('reset')">
+        <common-button
+            class="controls_item"
+            :disabled="mapStore.rotation === 0"
+            size="S"
+            type="secondary-flat"
+            @click="setRotate('reset')"
+        >
             <template #icon>
                 <rotate-reset/>
             </template>
         </common-button>
-        <common-button type="secondary-flat" size="S" class="controls_item" @click="setRotate(true)">
+        <common-button
+            class="controls_item"
+            size="S"
+            type="secondary-flat"
+            @click="setRotate(true)"
+        >
             <template #icon>
                 <rotate-clockwise/>
             </template>
@@ -44,15 +75,15 @@ const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
 
 const setZoom = (increase: boolean) => {
-    if(!view.value || view.value.getAnimating()) return;
+    if (!view.value || view.value.getAnimating()) return;
     let zoom = mapStore.zoom;
-    if(increase) {
+    if (increase) {
         zoom++;
-        if(zoom > view.value.getMaxZoom()) zoom = view.value.getMaxZoom();
+        if (zoom > view.value.getMaxZoom()) zoom = view.value.getMaxZoom();
     }
     else {
         zoom--;
-        if(zoom < view.value.getMinZoom()) zoom = view.value.getMinZoom();
+        if (zoom < view.value.getMinZoom()) zoom = view.value.getMinZoom();
     }
 
     view.value?.animate({
@@ -62,17 +93,17 @@ const setZoom = (increase: boolean) => {
 };
 
 const setRotate = (increase: boolean | 'reset') => {
-    if(!view.value) return;
+    if (!view.value) return;
     let rotate = toDegrees(view.value.getRotation());
-    if(increase === true) {
-        rotate+=45;
-        if(rotate > 360) rotate-=360;
+    if (increase === true) {
+        rotate += 45;
+        if (rotate > 360) rotate -= 360;
     }
-    else if(increase === false) {
-        rotate-=45;
-        if(rotate < 0) rotate+=360;
+    else if (increase === false) {
+        rotate -= 45;
+        if (rotate < 0) rotate += 360;
     }
-    else if(increase === 'reset') {
+    else if (increase === 'reset') {
         rotate = 0;
     }
 
@@ -86,11 +117,12 @@ const setRotate = (increase: boolean | 'reset') => {
 <style scoped lang="scss">
 .controls {
     position: absolute;
+    z-index: 6;
     bottom: 16px;
     left: 16px;
+
     display: flex;
     flex-direction: column;
     gap: 8px;
-    z-index: 6;
 }
 </style>

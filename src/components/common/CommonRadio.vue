@@ -1,6 +1,15 @@
 <template>
-    <label class="radio" :class="{'radio--checked': model}">
-        <input class="radio_input" type="radio" :name="name || id" v-model="model" :checked="!!model">
+    <label
+        class="radio"
+        :class="{ 'radio--checked': model }"
+    >
+        <input
+            v-model="model"
+            :checked="!!model"
+            class="radio_input"
+            :name="name || id"
+            type="radio"
+        >
         <span class="radio_icon"/>
         <span class="radio_text">
             <slot>
@@ -8,7 +17,11 @@
             </slot>
         </span>
         <span class="radio_spacer"/>
-        <common-tooltip class="radio_tooltip" v-if="hint || $slots.hint" :location="hintLocation">
+        <common-tooltip
+            v-if="hint || $slots.hint"
+            class="radio_tooltip"
+            :location="hintLocation"
+        >
             <template #activator>
                 <div class="radio__hint">
                     <question-icon/>
@@ -34,6 +47,8 @@ export interface RadioItem<T extends string | number | null = string | number | 
 
 defineProps<RadioItem & { name?: string }>();
 
+defineSlots<{ default(): any; hint(): any }>();
+
 const id = useId();
 
 const model = defineModel({
@@ -44,13 +59,16 @@ const model = defineModel({
 
 <style scoped lang="scss">
 .radio {
+    cursor: pointer;
+
     display: flex;
     align-items: center;
-    text-align: left;
+
+    padding: 4px;
+
     font-size: 12px;
     font-weight: 600;
-    cursor: pointer;
-    padding: 4px;
+    text-align: left;
 
     &--checked {
         cursor: default;
@@ -61,27 +79,33 @@ const model = defineModel({
     }
 
     &_icon {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         width: 16px;
         min-width: 16px;
         height: 16px;
-        position: relative;
+
         background: transparent;
         border: 1px solid $neutral150;
-        display: flex;
-        justify-content: center;
-        align-items: center;
 
         &, &::before {
-            transition: 0.3s;
             border-radius: 100%;
+            transition: 0.3s;
         }
 
         &::before {
             content: '';
+
+            position: absolute;
+
             width: 8px;
             height: 8px;
+
             background: transparent;
-            position: absolute;
         }
     }
 
@@ -105,8 +129,8 @@ const model = defineModel({
     }
 
     &__hint {
-        color: $primary600;
         min-width: 16px;
+        color: $primary600;
 
         svg {
             width: 16px;

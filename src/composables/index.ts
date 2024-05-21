@@ -18,7 +18,7 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Hex`];
 
-    //@ts-expect-error
+    // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
 export function getCurrentThemeRgbColor(color: ColorsList) {
@@ -26,7 +26,7 @@ export function getCurrentThemeRgbColor(color: ColorsList) {
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Rgb`];
 
-    //@ts-expect-error
+    // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Rgb`] ?? radarColors[`${ color }Rgb`];
 }
 
@@ -53,7 +53,7 @@ export function attachMoveEnd(callback: (event: any) => unknown) {
         map.value?.un('moveend', endHandler);
     });
 
-    watch(map, (val) => {
+    watch(map, val => {
         if (!map.value || registered) return;
         registered = true;
 
@@ -102,20 +102,20 @@ const iframeWhitelist = [
 ];
 
 export function useIframeHeader() {
-    if(import.meta.client) return;
+    if (import.meta.client) return;
 
     const event = useRequestEvent();
-    if(!event) return;
+    if (!event) return;
 
     const referer = getRequestHeader(event, 'referer')?.split('/');
     let origin = referer?.[2]?.split(':')[0];
 
     const domain = origin?.split('.');
-    if(domain) {
+    if (domain) {
         origin = domain.slice(domain.length - 2, domain.length).join('.');
     }
 
-    if(referer && origin && iframeWhitelist.includes(origin)) {
+    if (referer && origin && iframeWhitelist.includes(origin)) {
         setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ referer.slice(0, 3).join('/') }`);
     }
     else {

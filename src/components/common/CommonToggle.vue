@@ -1,10 +1,20 @@
 <template>
-    <div class="toggle" :class="{'toggle--toggled': model, 'toggle--disabled': disabled}" @click="model = !model">
-        <div class="toggle_label" v-if="$slots.default">
+    <div
+        class="toggle"
+        :class="{ 'toggle--toggled': model, 'toggle--disabled': disabled }"
+        @click="model = !model"
+    >
+        <div
+            v-if="$slots.default"
+            class="toggle_label"
+        >
             <div class="toggle_label_title">
                 <slot/>
             </div>
-            <div class="toggle_label_description" v-if="$slots.description">
+            <div
+                v-if="$slots.description"
+                class="toggle_label_description"
+            >
                 <slot name="description"/>
             </div>
         </div>
@@ -20,6 +30,8 @@ defineProps({
     },
 });
 
+defineSlots<{ default: () => any; description: () => any }>();
+
 const model = defineModel({
     type: Boolean,
     required: true,
@@ -28,58 +40,69 @@ const model = defineModel({
 
 <style scoped lang="scss">
 .toggle {
-    display: flex;
-    align-items: center;
-    min-height: 24px;
-    gap: 8px;
     cursor: pointer;
+
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    min-height: 24px;
+
     transition: 0.3s;
 
     &--disabled {
-        opacity: 0.5;
         pointer-events: none;
+        opacity: 0.5;
     }
 
     &_label {
-        color: $neutral150;
         font-size: 13px;
+        color: $neutral150;
 
         &_title {
             font-weight: 600;
         }
 
         &_description {
-            font-size: 10px;
             margin-top: 4px;
+            font-size: 10px;
             opacity: 0.8;
         }
     }
 
     &_toggler {
         position: relative;
+
+        display: flex;
+
         width: 32px;
         min-width: 32px;
         height: 8px;
+
         background: $neutral850;
         border-radius: 8px;
-        display: flex;
 
         &::before {
             content: '';
-            align-self: center;
-            width: 16px;
-            height: 16px;
+
             position: absolute;
             left: 0;
+
+            align-self: center;
+
+            width: 16px;
+            height: 16px;
+
             background: $neutral150;
             border-radius: 100%;
+
             transition: 0.3s ease-in-out;
         }
     }
 
     &--toggled .toggle_toggler::before {
-        background: $primary500;
         left: calc(100% - 16px);
+        background: $primary500;
     }
 }
 </style>

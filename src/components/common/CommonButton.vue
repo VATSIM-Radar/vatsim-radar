@@ -3,25 +3,31 @@
         :is="getTag"
         class="button"
         :class="[
-            `button--type-${type}`,
-            `button--size-${size}`,
-            `button--orientation-${orientation}`,
+            `button--type-${ type }`,
+            `button--size-${ size }`,
+            `button--orientation-${ orientation }`,
             {
                 'button--disabled': disabled,
-                'button--icon': !!$slots.icon && !$slots.default
-            }
+                'button--icon': !!$slots.icon && !$slots.default,
+            },
         ]"
         :style="{
             '--button-width': width,
         }"
         :target="target"
-        @click="!disabled && $emit('click', $event)"
         v-bind="getAttrs"
+        @click="!disabled && $emit('click', $event)"
     >
-        <div class="button_icon" v-if="$slots.icon">
+        <div
+            v-if="$slots.icon"
+            class="button_icon"
+        >
             <slot name="icon"/>
         </div>
-        <div class="button_content" v-if="$slots.default">
+        <div
+            v-if="$slots.default"
+            class="button_content"
+        >
             <slot name="default"/>
         </div>
     </component>
@@ -76,8 +82,8 @@ defineEmits({
 });
 
 defineSlots<{
-    default(): any
-    icon(): any
+    default(): any;
+    icon(): any;
 }>();
 
 const getTag = computed(() => {
@@ -101,27 +107,31 @@ const getAttrs = computed(() => {
 
 <style scoped lang="scss">
 .button {
-    padding: 8px 16px;
-    background: $primary500;
+    cursor: pointer;
+    user-select: none;
+
     display: flex;
-    justify-content: center;
-    align-items: center;
     gap: 12px;
-    color: $neutral50Orig;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--button-width);
+    min-height: 40px;
+    padding: 8px 16px;
+
+    font-family: $defaultFont;
     font-size: 13px;
     font-weight: 600;
-    font-family: $defaultFont;
-    appearance: none;
-    box-shadow: none;
-    outline: none;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
-    min-height: 40px;
-    text-decoration: none;
+    color: $neutral50Orig;
     text-align: center;
-    width: var(--button-width);
-    user-select: none;
+    text-decoration: none;
+
+    appearance: none;
+    background: $primary500;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+    box-shadow: none;
 
     @include hover {
         transition: 0.3s;
@@ -159,20 +169,20 @@ const getAttrs = computed(() => {
     &--type-secondary-flat {
         @include hover {
             &:hover {
-                background: $neutral900;
                 color: $primary500;
+                background: $neutral900;
             }
 
             &:focus, &:active {
-                background: $neutral900;
                 color: $primary500;
+                background: $neutral900;
             }
         }
     }
 
     &--type-transparent {
-        background: transparent !important;
         color: $neutral150;
+        background: transparent !important;
 
         @include hover {
             &:hover {
@@ -205,16 +215,19 @@ const getAttrs = computed(() => {
     }
 
     &--type-link {
-        color: $neutral150;
-        text-decoration: underline;
-        padding: 0;
-        font-size: 10px;
-        border-radius: 0;
-        min-height: auto;
-        height: auto;
-        background: transparent !important;
-        text-align: left;
         justify-content: flex-start;
+
+        height: auto;
+        min-height: auto;
+        padding: 0;
+
+        font-size: 10px;
+        color: $neutral150;
+        text-align: left;
+        text-decoration: underline;
+
+        background: transparent !important;
+        border-radius: 0;
 
         @include hover {
             &:hover {
@@ -228,9 +241,9 @@ const getAttrs = computed(() => {
     }
 
     &--disabled {
-        opacity: 0.5;
         pointer-events: none;
         cursor: default;
+        opacity: 0.5;
     }
 }
 </style>

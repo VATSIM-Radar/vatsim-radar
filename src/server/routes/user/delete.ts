@@ -2,7 +2,7 @@ import { findUserByCookie } from '~/utils/backend/user';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     try {
         const user = await findUserByCookie(event);
 

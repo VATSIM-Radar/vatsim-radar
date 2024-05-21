@@ -15,7 +15,7 @@ export default defineNuxtModule(async (_, nuxt) => {
 
     const colors = [colorsList.primary500, colorsList.warning500, colorsList.warning700, colorsList.success500, colorsList.primary500];
 
-    const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon, width: number, height: number }> = {};
+    const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon; width: number; height: number }> = {};
 
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
         const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');

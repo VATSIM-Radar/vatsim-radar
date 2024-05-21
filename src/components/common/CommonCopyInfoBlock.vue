@@ -1,10 +1,17 @@
 <template>
-    <div class="copy-info" v-if="text">
+    <div
+        v-if="text"
+        class="copy-info"
+    >
         <div class="copy-info_left">
             <div class="copy-info_left_title">
                 <slot/>
             </div>
-            <common-button type="link" class="copy-info_left_copy" @click="copy.copy(text)">
+            <common-button
+                class="copy-info_left_copy"
+                type="link"
+                @click="copy.copy(text)"
+            >
                 <template v-if="copy.copyState.value">
                     Copied!
                 </template>
@@ -12,7 +19,11 @@
                     Copy
                 </template>
             </common-button>
-            <common-button type="link" class="copy-info_left_expand" @click="expanded = !expanded">
+            <common-button
+                class="copy-info_left_expand"
+                type="link"
+                @click="expanded = !expanded"
+            >
                 <template v-if="expanded">
                     Collapse
                 </template>
@@ -21,7 +32,12 @@
                 </template>
             </common-button>
         </div>
-        <textarea ref="textarea" :value="text" readonly class="copy-info_textarea"/>
+        <textarea
+            ref="textarea"
+            class="copy-info_textarea"
+            readonly
+            :value="text"
+        />
     </div>
 </template>
 
@@ -36,15 +52,17 @@ defineProps({
     },
 });
 
+defineSlots<{ default(): any }>();
+
 const copy = useCopyText();
 const expanded = ref(false);
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const initialHeight = ref(0);
 
-watch(expanded, (val) => {
-    if(!textarea.value) return;
+watch(expanded, val => {
+    if (!textarea.value) return;
 
-    if(val) {
+    if (val) {
         initialHeight.value = textarea.value.clientHeight;
         textarea.value.style.height = `${ textarea.value.scrollHeight }px`;
     }
@@ -66,8 +84,8 @@ watch(expanded, (val) => {
         gap: 8px;
 
         &_title {
-            font-weight: 600;
             font-size: 12px;
+            font-weight: 600;
         }
 
         &_expand {
@@ -77,17 +95,20 @@ watch(expanded, (val) => {
     }
 
     &_textarea {
-        appearance: none;
-        box-shadow: none;
-        outline: none;
-        border: none;
-        border-radius: 4px;
-        background: $neutral950;
+        resize: vertical;
+        scrollbar-gutter: stable;
+
+        padding: 8px;
+
         font-size: 11px;
         color: $neutral150;
-        resize: vertical;
-        padding: 8px;
-        scrollbar-gutter: stable;
+
+        appearance: none;
+        background: $neutral950;
+        border: none;
+        border-radius: 4px;
+        outline: none;
+        box-shadow: none;
     }
 }
 </style>

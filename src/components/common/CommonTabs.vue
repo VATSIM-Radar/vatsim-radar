@@ -2,16 +2,19 @@
     <div class="tabs">
         <div class="tabs_list">
             <div
-                class="tabs_tab"
-                :class="{'tabs_tab--active': key === model}"
                 v-for="(tab, key) in tabs"
                 :key="key"
+                class="tabs_tab"
+                :class="{ 'tabs_tab--active': key === model }"
                 @click="model = key"
             >
                 {{ tab.title }}
             </div>
         </div>
-        <div class="tabs_content" v-if="model && $slots[model]">
+        <div
+            v-if="model && $slots[model]"
+            class="tabs_content"
+        >
             <slot :name="model as any"/>
         </div>
     </div>
@@ -24,6 +27,8 @@ interface Tab {
     title: string;
 }
 
+/* eslint vue/require-explicit-slots: 0 */
+
 const props = defineProps({
     tabs: {
         type: Object as PropType<Record<string, Tab>>,
@@ -32,7 +37,7 @@ const props = defineProps({
 });
 
 defineSlots<{
-    [key: string]: () => any
+    [key: string]: () => any;
 }>();
 
 const model = defineModel({ type: String });
@@ -50,32 +55,42 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
     }
 
     &_tab {
-        width: 0;
+        cursor: pointer;
+        user-select: none;
+
+        position: relative;
+
+        display: flex;
         flex: 1 1 0;
-        background: $neutral1000;
+        justify-content: center;
+
+        width: 0;
         padding: 8px;
-        border-radius: 4px;
-        font-size: 14px;
+
         font-family: $openSansFont;
+        font-size: 14px;
         font-weight: 400;
         color: $neutral150;
-        transition: 0.3s;
-        position: relative;
-        cursor: pointer;
         text-align: center;
-        user-select: none;
-        display: flex;
-        justify-content: center;
+
+        background: $neutral1000;
+        border-radius: 4px;
+
+        transition: 0.3s;
 
         &::after {
             content: '';
+
             position: absolute;
             bottom: 0;
-            transition: 0.3s;
+
+            width: 30%;
             height: 2px;
+
             background: $neutral850;
             border-radius: 4px;
-            width: 30%;
+
+            transition: 0.3s;
         }
 
         @include hover {
@@ -88,8 +103,8 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         }
 
         &--active {
-            background: $neutral950;
             cursor: default;
+            background: $neutral950;
 
             &::after {
                 width: 75%;

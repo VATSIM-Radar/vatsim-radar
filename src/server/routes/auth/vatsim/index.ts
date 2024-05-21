@@ -7,7 +7,7 @@ import { discordClient } from '~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
 import { getDiscordName } from '~/utils/backend/discord';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
         const vatsimUser = await vatsimGetUser(auth.access_token);
 
-        const expires = new Date(Date.now() + auth.expires_in * 1000);
+        const expires = new Date(Date.now() + (auth.expires_in * 1000));
 
         const vatsimUserClient = await prisma.vatsimUser.findFirst({
             select: {

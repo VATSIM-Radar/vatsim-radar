@@ -60,12 +60,12 @@ export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[
             let startDate: number | undefined;
             let endDate: number | undefined;
 
-            if(dates?.groups) {
-                if(dates?.groups?.startDate) {
+            if (dates?.groups) {
+                if (dates?.groups?.startDate) {
                     startDate = new Date(`${ dates.groups.startDate } UTC+0`).getTime();
                 }
 
-                if(dates?.groups?.endDate) {
+                if (dates?.groups?.endDate) {
                     endDate = new Date(`${ dates.groups.endDate } UTC+0`).getTime();
                 }
             }

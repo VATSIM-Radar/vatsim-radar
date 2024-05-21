@@ -1,17 +1,29 @@
 <template>
     <div
+        v-if="overlay?.data"
         class="map-popup"
         :style="{
-            '--max-height': `${overlay._maxHeight}px`,
-            '--position-x': typeof overlay.position === 'object' ? `${overlay.position.x}%` : undefined,
-            '--position-y': typeof overlay.position === 'object' ? `${overlay.position.y}%` : undefined,
+            '--max-height': `${ overlay._maxHeight }px`,
+            '--position-x': typeof overlay.position === 'object' ? `${ overlay.position.x }%` : undefined,
+            '--position-y': typeof overlay.position === 'object' ? `${ overlay.position.y }%` : undefined,
         }"
-        v-if="overlay?.data"
     >
-        <map-popup-pilot v-if="overlay.type === 'pilot'" :overlay="overlay"/>
-        <map-popup-prefile v-else-if="overlay.type === 'prefile'" :overlay="overlay"/>
-        <map-popup-atc v-else-if="overlay.type === 'atc'" :overlay="overlay"/>
-        <map-popup-airport v-else-if="overlay.type === 'airport'" :overlay="overlay"/>
+        <map-popup-pilot
+            v-if="overlay.type === 'pilot'"
+            :overlay="overlay"
+        />
+        <map-popup-prefile
+            v-else-if="overlay.type === 'prefile'"
+            :overlay="overlay"
+        />
+        <map-popup-atc
+            v-else-if="overlay.type === 'atc'"
+            :overlay="overlay"
+        />
+        <map-popup-airport
+            v-else-if="overlay.type === 'airport'"
+            :overlay="overlay"
+        />
     </div>
 </template>
 
@@ -38,13 +50,14 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue
     transition: 0.5s ease-in-out;
 
     :deep(.pilot-header) {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
         font-family: $openSansFont;
-        color: var(--status-color, $primary500);
         font-size: 17px;
         font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        color: var(--status-color, $primary500);
 
         > * {
             position: relative;
@@ -52,13 +65,15 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue
         }
 
         .pilot-header_type {
-            background: $primary500;
-            color: $neutral150Orig;
-            font-size: 10px;
             padding: 4px 8px;
-            border-radius: 4px;
+
+            font-size: 10px;
             font-weight: 600;
             line-height: 100%;
+            color: $neutral150Orig;
+
+            background: $primary500;
+            border-radius: 4px;
         }
     }
 }

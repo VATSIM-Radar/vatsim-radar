@@ -5,7 +5,7 @@ import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
 import { findUserByCookie } from '~/utils/backend/user';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     try {
         const config = useRuntimeConfig();
         const query = getQuery(event) as Record<string, string>;
@@ -34,10 +34,10 @@ export default defineEventHandler(async (event) => {
         params.set('code_verifier', verifier!);
 
         const token = await ofetch<{
-            access_token: string
-            expires_in: number
-            token_type: 'Bearer'
-            refresh_token: string
+            access_token: string;
+            expires_in: number;
+            token_type: 'Bearer';
+            refresh_token: string;
         }>('https://identity.api.navigraph.com/connect/token', {
             method: 'POST',
             headers: {
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
 
         const jwt = await getNavigraphGwtResult(token.access_token);
 
-        const expires = new Date(Date.now() + token.expires_in * 1000);
+        const expires = new Date(Date.now() + (token.expires_in * 1000));
 
         const navigraphUser = await prisma.navigraphUser.findFirst({
             select: {

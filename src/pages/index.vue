@@ -1,18 +1,27 @@
 <template>
     <div class="map">
-        <div class="map_container" ref="mapContainer"/>
         <div
-            class="map_popups" ref="popups" v-if="ready" :style="{
-                '--popups-height': `${popupsHeight}px`,
-                '--overlays-height': `${overlaysHeight}px`,
+            ref="mapContainer"
+            class="map_container"
+        />
+        <div
+            v-if="ready"
+            ref="popups"
+            class="map_popups"
+            :style="{
+                '--popups-height': `${ popupsHeight }px`,
+                '--overlays-height': `${ overlaysHeight }px`,
             }"
         >
-            <div class="map_popups_list" v-if="popupsHeight">
+            <div
+                v-if="popupsHeight"
+                class="map_popups_list"
+            >
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
-                        class="map_popups_popup"
                         v-for="overlay in mapStore.overlays"
                         :key="overlay.id+overlay.key"
+                        class="map_popups_popup"
                         :overlay="overlay"
                     />
                 </transition-group>
@@ -102,7 +111,7 @@ const restoreOverlays = async () => {
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
-    const fetchedList = (await Promise.all(overlays.map(async (overlay) => {
+    const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
@@ -162,13 +171,13 @@ const restoreOverlays = async () => {
 
             if (!('value' in data[0])) return overlay;
 
-            (async function () {
+            (async function() {
                 const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
                 }
-            })();
+            }());
 
             return {
                 ...overlay,
@@ -203,9 +212,9 @@ const restoreOverlays = async () => {
 };
 
 onMounted(async () => {
-    //Data is not yet ready
+    // Data is not yet ready
     if (!mapStore.dataReady) {
-        await new Promise<void>((resolve) => {
+        await new Promise<void>(resolve => {
             const interval = setInterval(async () => {
                 const { ready } = await $fetch('/data/status');
                 if (ready) {
@@ -231,7 +240,7 @@ onMounted(async () => {
     });
 
     await Promise.all([
-        (async function () {
+        (async function() {
             let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
             if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
                 vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
@@ -250,7 +259,7 @@ onMounted(async () => {
 
             dataStore.vatspy.value = vatspy;
         }()),
-        (async function () {
+        (async function() {
             let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
             if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
                 simaware = await $fetch<SimAwareAPIData>('/data/simaware');
@@ -259,7 +268,7 @@ onMounted(async () => {
 
             dataStore.simaware.value = simaware;
         }()),
-        (async function () {
+        (async function() {
             const [vatsimData] = await Promise.all([
                 $fetch<VatsimLiveData>('/data/vatsim/data'),
             ]);
@@ -330,10 +339,10 @@ onMounted(async () => {
     });
 
     map.value.getTargetElement().style.cursor = 'grab';
-    map.value.on('pointerdrag', function () {
+    map.value.on('pointerdrag', function() {
         map.value!.getTargetElement().style.cursor = 'grabbing';
     });
-    map.value.on('pointermove', function () {
+    map.value.on('pointermove', function() {
         if (!mapStore.mapCursorPointerTrigger) {
             map.value!.getTargetElement().style.cursor = 'grab';
         }
@@ -389,15 +398,15 @@ watch([overlays, popupsHeight], () => {
     const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
     const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - overlaysGap * (mapStore.overlays.length - 1);
+    const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
 
-    //Max 4 uncollapsed on screen
+    // Max 4 uncollapsed on screen
     const minHeight = Math.floor(totalHeight / 4);
     const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
 
     const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
-    collapsed.forEach((overlay) => {
+    collapsed.forEach(overlay => {
         overlay._maxHeight = baseHeight;
     });
 
@@ -459,17 +468,19 @@ await useAsyncData(async () => {
 
 <style lang="scss" scoped>
 .map {
-    width: 100%;
-    flex: 1 0 auto;
-    display: flex;
-    flex-direction: column;
     position: relative;
 
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+
+    width: 100%;
+
     &_container {
-        display: flex;
-        flex-direction: column;
-        flex: 1 0 auto;
         z-index: 5;
+        display: flex;
+        flex: 1 0 auto;
+        flex-direction: column;
 
         :deep(>*) {
             flex: 1 0 auto;
@@ -497,19 +508,24 @@ await useAsyncData(async () => {
 
     &_popups {
         position: absolute;
-        width: calc(100% - 48px);
-        height: calc(100% - 48px);
-        left: 24px;
         top: 24px;
+        left: 24px;
+
         display: flex;
         justify-content: flex-end;
 
+        width: calc(100% - 48px);
+        height: calc(100% - 48px);
+
         &_list {
+            z-index: 6;
+
             display: flex;
             flex-direction: column;
             gap: 16px;
-            z-index: 6;
+
             max-height: var(--overlays-height);
+
             transition: 0.5s ease-in-out;
         }
 
@@ -520,17 +536,19 @@ await useAsyncData(async () => {
             &--appear {
                 &-enter-active,
                 &-leave-active {
-                    transition: 0.5s ease-in-out;
                     overflow: hidden;
+                    transition: 0.5s ease-in-out;
                 }
 
                 &-enter-from,
                 &-leave-to {
-                    opacity: 0;
-                    max-height: 0;
-                    height: 0;
-                    margin-top: -16px;
                     transform: translate(30px, -30px);
+
+                    height: 0;
+                    max-height: 0;
+                    margin-top: -16px;
+
+                    opacity: 0;
                 }
             }
         }

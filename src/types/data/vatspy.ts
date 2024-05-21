@@ -16,36 +16,36 @@ export interface VatSpyAPIData {
 export interface VatSpyData {
     id: string;
     countries: {
-        country: string
-        code: string
-        callsign?: string
+        country: string;
+        code: string;
+        callsign?: string;
     }[];
     airports: {
-        icao: string
-        name: string
-        lat: number
-        lon: number
-        iata?: string
-        fir?: string
-        isPseudo: boolean
-        isIata?: boolean
+        icao: string;
+        name: string;
+        lat: number;
+        lon: number;
+        iata?: string;
+        fir?: string;
+        isPseudo: boolean;
+        isIata?: boolean;
     }[];
     firs: {
-        icao: string
-        name: string
-        callsign?: string
-        boundary?: string
-        isOceanic: boolean
-        lon: number
-        lat: number
-        region: string
-        division: string
-        feature: Feature<MultiPolygon>
+        icao: string;
+        name: string;
+        callsign?: string;
+        boundary?: string;
+        isOceanic: boolean;
+        lon: number;
+        lat: number;
+        region: string;
+        division: string;
+        feature: Feature<MultiPolygon>;
     }[];
     uirs: {
-        icao: string
-        name: string
-        firs: string
+        icao: string;
+        name: string;
+        firs: string;
     }[];
 }
 
@@ -54,9 +54,9 @@ export interface VatSpyDataFeature {
     name?: string;
     controller: VatsimShortenedController;
     firs: {
-        icao: string,
-        callsign?: string,
-        boundaryId: string,
+        icao: string;
+        callsign?: string;
+        boundaryId: string;
     }[];
 }
 
@@ -64,9 +64,9 @@ export interface VatSpyDataLocalATC {
     atc: VatsimShortenedController;
     isATIS: boolean;
     airport: {
-        icao: string
-        iata?: string
-        isPseudo: boolean
-        isSimAware: boolean
+        icao: string;
+        iata?: string;
+        isPseudo: boolean;
+        isSimAware: boolean;
     };
 }

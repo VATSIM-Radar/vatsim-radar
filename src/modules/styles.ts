@@ -30,7 +30,7 @@ export const colorsList = {
     error500: '#CB421C',
 };
 
-export type ColorsList = keyof typeof colorsList
+export type ColorsList = keyof typeof colorsList;
 
 export const themesList = {
     light: {
@@ -61,7 +61,7 @@ export const themesList = {
     },
 } satisfies Record<string, PartialRecord<ColorsList, string>>;
 
-export type ThemesList = keyof typeof themesList | 'default'
+export type ThemesList = keyof typeof themesList | 'default';
 
 function colorToRgb(hex: string): [r: number, g: number, b: number] {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {

@@ -10,8 +10,8 @@ export interface StoreOverlayDefault {
     id: string;
     key: string;
     position: number | {
-        x: number
-        y: number
+        x: number;
+        y: number;
     };
     maxHeight?: number;
     _maxHeight?: number;
@@ -23,38 +23,38 @@ export interface StoreOverlayDefault {
 export interface StoreOverlayPilot extends StoreOverlayDefault {
     type: 'pilot';
     data: {
-        pilot: VatsimExtendedPilot
-        stats?: Partial<VatsimMemberStats>
-        tracked?: boolean
+        pilot: VatsimExtendedPilot;
+        stats?: Partial<VatsimMemberStats>;
+        tracked?: boolean;
     };
 }
 
 export interface StoreOverlayPrefile extends StoreOverlayDefault {
     type: 'prefile';
     data: {
-        prefile: VatsimPrefile
+        prefile: VatsimPrefile;
     };
 }
 
 export interface StoreOverlayAirport extends StoreOverlayDefault {
     type: 'airport';
     data: {
-        icao: string
-        airport?: VatsimAirportData
-        notams?: VatsimAirportDataNotam[]
-        showTracks?: boolean
+        icao: string;
+        airport?: VatsimAirportData;
+        notams?: VatsimAirportDataNotam[];
+        showTracks?: boolean;
     };
 }
 
 export interface StoreOverlayAtc extends StoreOverlayDefault {
     type: 'atc';
     data: {
-        callsign: string
-        stats?: Partial<VatsimMemberStats>
+        callsign: string;
+        stats?: Partial<VatsimMemberStats>;
     };
 }
 
-export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport
+export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport;
 
 export const useMapStore = defineStore('map', {
     state: () => ({

@@ -1,33 +1,47 @@
 <template>
     <slot v-if="!controllers.length"/>
     <map-overlay
-        model-value
-        :popup="isHovered"
-        @update:overlay="!$event ? isHovered = false : undefined"
-        persistent
         v-else
+        :active-z-index="20"
+        model-value
+        persistent
+        :popup="isHovered"
         :settings="{
             position: [fir.lon, fir.lat],
             positioning: 'center-center',
             stopEvent: isHovered,
         }"
         :z-index="15"
-        :active-z-index="20"
         @mouseleave="isHovered = false"
+        @update:overlay="!$event ? isHovered = false : undefined"
     >
         <!-- @todo click for touch -->
-        <div class="sector-atc" :class="{'sector-atc--hovered': isHovered}" @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)">
+        <div
+            class="sector-atc"
+            :class="{ 'sector-atc--hovered': isHovered }"
+            @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)"
+        >
             <div class="sector-atc_name">
                 <div class="sector-atc_name_main">
                     {{ !locals.length ? globals[0].icao : fir.icao }}
                 </div>
-                <div class="sector-atc_name_sub" v-if="globals.length">
+                <div
+                    v-if="globals.length"
+                    class="sector-atc_name_sub"
+                >
                     {{ locals.length ? globals[0].icao : fir.icao }}
                 </div>
             </div>
         </div>
-        <template #popup v-if="isHovered">
-            <common-controller-info absolute :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]" show-atis>
+        <template
+            v-if="isHovered"
+            #popup
+        >
+            <common-controller-info
+                absolute
+                :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]"
+                show-atis
+            >
                 <template #title>
                     {{ getATCFullName }}
                 </template>
@@ -55,6 +69,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+defineSlots<{ default: () => any }>();
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -171,17 +187,21 @@ onBeforeUnmount(() => {
 .sector-atc {
     &_name {
         cursor: pointer;
-        background: $neutral850;
-        color: $neutral150;
-        border: 1px solid varToRgba('neutral150', 0.1);
-        padding: 4px;
-        border-radius: 4px;
-        font-weight: 700;
-        font-size: 11px;
-        text-align: center;
+        user-select: none;
+
         position: relative;
         z-index: 10;
-        user-select: none;
+
+        padding: 4px;
+
+        font-size: 11px;
+        font-weight: 700;
+        color: $neutral150;
+        text-align: center;
+
+        background: $neutral850;
+        border: 1px solid varToRgba('neutral150', 0.1);
+        border-radius: 4px;
 
         &_sub {
             color: varToRgba('neutral150', 0.5);

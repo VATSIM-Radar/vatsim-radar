@@ -1,5 +1,8 @@
 <template>
-    <component :is="tag" class="container">
+    <component
+        :is="tag"
+        class="container"
+    >
         <slot/>
     </component>
 </template>
@@ -13,7 +16,7 @@ defineProps({
 });
 
 defineSlots<{
-    default(): any
+    default(): any;
 }>();
 </script>
 
@@ -27,8 +30,8 @@ defineSlots<{
 
     position: relative;
     width: 1366px;
-    margin-left: auto;
     margin-right: auto;
+    margin-left: auto;
 
     @media all and (max-width: 319px) {
         max-width: 320px;

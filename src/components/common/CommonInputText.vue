@@ -1,17 +1,20 @@
 <template>
-    <div class="input" :class="{'input--focused': focused}">
+    <div
+        class="input"
+        :class="{ 'input--focused': focused }"
+    >
         <div class="input_container">
             <div class="input__input">
                 <input
-                    type="text"
-                    :placeholder
                     v-bind="inputAttrs"
                     v-model="model"
-                    @input="$emit('input', $event)"
+                    :placeholder
+                    type="text"
+                    @blur="focused = false"
                     @change="$emit('change', $event)"
                     @focus="focused = true"
-                    @blur="focused = false"
                     @focusout="focused = false"
+                    @input="$emit('input', $event)"
                 >
             </div>
         </div>
@@ -46,15 +49,18 @@ const model = defineModel({ type: String, default: null });
 
 <style scoped lang="scss">
 .input {
-    border-radius: 8px;
-    padding: 0 16px;
-    border: 2px solid transparent;
-    transition: 0.3s;
-    gap: 16px;
-    background: $neutral900;
-    width: 100%;
     display: flex;
+    gap: 16px;
     align-items: center;
+
+    width: 100%;
+    padding: 0 16px;
+
+    background: $neutral900;
+    border: 2px solid transparent;
+    border-radius: 8px;
+
+    transition: 0.3s;
 
     @include hover {
         &:hover {
@@ -68,20 +74,22 @@ const model = defineModel({ type: String, default: null });
 
     &__input {
         input {
-            appearance: none;
-            outline: none;
-            box-shadow: none;
-            background: none;
-            color:$neutral150;
-            font-size: 13px;
-            font-weight: 600;
             width: 100%;
             padding: 12px 0;
+
+            font-size: 13px;
+            font-weight: 600;
+            color:$neutral150;
+
+            appearance: none;
+            background: none;
             border: none;
+            outline: none;
+            box-shadow: none;
 
             &::placeholder {
-                opacity: 1;
-                color: varToRgba('neutral150', 0.5)
+                color: varToRgba('neutral150', 0.5);
+                opacity: 1
             }
         }
     }

@@ -1,7 +1,14 @@
 <template>
-    <footer class="map-footer" v-if="dataStore.vatsim.updateTimestamp.value">
+    <footer
+        v-if="dataStore.vatsim.updateTimestamp.value"
+        class="map-footer"
+    >
         <div class="map-footer_left">
-            <div class="map-footer_left_section map-footer__airac" v-if="dataStore.versions.value?.navigraph" title="Navigraph Data AIRAC">
+            <div
+                v-if="dataStore.versions.value?.navigraph"
+                class="map-footer_left_section map-footer__airac"
+                title="Navigraph Data AIRAC"
+            >
                 AIRAC {{
                     dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
                 }}
@@ -19,7 +26,10 @@
                             <span>{{ getCounts.firs }}</span> sector /
                             <span>{{ getCounts.atc }}</span> local atc
                         </div>
-                        <div class="map-footer__connections_info_item" v-if="getCounts.sups">
+                        <div
+                            v-if="getCounts.sups"
+                            class="map-footer__connections_info_item"
+                        >
                             <span>{{ getCounts.sups }}</span>
                             <template v-if="getCounts.sups > 1">
                                 supervisors
@@ -28,7 +38,10 @@
                                 supervisor
                             </template>
                         </div>
-                        <div class="map-footer__connections_info_item" v-if="getCounts.adm">
+                        <div
+                            v-if="getCounts.adm"
+                            class="map-footer__connections_info_item"
+                        >
                             <span>{{ getCounts.adm }}</span>
                             <template v-if="getCounts.adm > 1">
                                 admins
@@ -40,14 +53,24 @@
                     </div>
                 </div>
             </div>
-            <nuxt-link no-prefetch to="/privacy-policy" class="map-footer_left_section map-footer__text">
+            <nuxt-link
+                class="map-footer_left_section map-footer__text"
+                no-prefetch
+                to="/privacy-policy"
+            >
                 Privacy Policy
             </nuxt-link>
-            <div class="map-footer_left_section map-footer__text" v-if="store.version">
+            <div
+                v-if="store.version"
+                class="map-footer_left_section map-footer__text"
+            >
                 v{{ store.version }}
             </div>
         </div>
-        <div class="map-footer_right" v-if="getLastUpdated">
+        <div
+            v-if="getLastUpdated"
+            class="map-footer_right"
+        >
             Vatsim data time: {{ getLastUpdated }}
         </div>
     </footer>
@@ -96,19 +119,21 @@ const getLastUpdated = computed(() => {
 
 <style scoped lang="scss">
 .map-footer {
-    padding: 0 24px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
+    padding: 0 24px;
+
     font-size: 13px;
 
     &_left {
         display: flex;
 
         &_section {
+            position: relative;
             display: flex;
             align-items: center;
-            position: relative;
 
             //TODO: refactor to mixin
             &:not(:last-child) {
@@ -117,10 +142,14 @@ const getLastUpdated = computed(() => {
 
                 &::after {
                     content: '';
+
                     position: absolute;
-                    align-self: center;
                     left: 100%;
+
+                    align-self: center;
+
                     height: 24px;
+
                     border-right: 1px solid varToRgba('neutral150', 0.1);
                 }
             }
@@ -129,13 +158,13 @@ const getLastUpdated = computed(() => {
 
     &__connections {
         display: flex;
+        padding: 8px 16px;
         background: $neutral950;
         border-radius: 8px;
-        padding: 8px 16px;
 
         span {
-            color: $primary500;
             font-weight: 600;
+            color: $primary500;
         }
 
         &_title {
@@ -146,8 +175,8 @@ const getLastUpdated = computed(() => {
 
         &_info {
             display: flex;
-            align-items: center;
             gap: 8px;
+            align-items: center;
             font-weight: 300;
 
             &_item:not(:last-child) {
@@ -158,16 +187,16 @@ const getLastUpdated = computed(() => {
     }
 
     &_right {
-        background: $neutral950;
         padding: 8px 16px;
-        border-radius: 8px;
         font-weight: 300;
+        background: $neutral950;
+        border-radius: 8px;
     }
 
     &__text {
         color: $neutral150;
-        opacity: 0.5;
         text-decoration-skip-ink: none;
+        opacity: 0.5;
     }
 }
 </style>

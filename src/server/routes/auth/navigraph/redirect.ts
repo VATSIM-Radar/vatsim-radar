@@ -3,7 +3,7 @@ import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
 import { AuthType } from '@prisma/client';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     const verifier = getNavigraphCodeVerifier();

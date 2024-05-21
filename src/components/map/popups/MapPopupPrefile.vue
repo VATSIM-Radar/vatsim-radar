@@ -1,19 +1,22 @@
 <template>
     <common-info-popup
+        v-model:collapsed="overlay.collapsed"
         class="fpln"
         collapsible
-        v-model:collapsed="overlay.collapsed"
-        model-value
-        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
         max-height="100%"
-        :sections="[{key: 'plan'}]"
+        model-value
+        :sections="[{ key: 'plan' }]"
+        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >
         <template #title>
             <div class="pilot-header">
                 <div class="pilot-header_title">
                     {{ props.overlay.data.prefile.callsign }}
                 </div>
-                <div class="pilot-header_type" v-if="props.overlay.data.prefile.flight_plan.flight_rules !== 'I'">
+                <div
+                    v-if="props.overlay.data.prefile.flight_plan.flight_rules !== 'I'"
+                    class="pilot-header_type"
+                >
                     VFR
                 </div>
             </div>

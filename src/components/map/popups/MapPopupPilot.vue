@@ -1,41 +1,50 @@
 <template>
     <common-info-popup
+        v-if="overlay?.data?.pilot"
+        v-model:collapsed="overlay.collapsed"
         class="pilot"
         collapsible
-        v-model:collapsed="overlay.collapsed"
-        model-value
-        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
         :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
         max-height="100%"
+        model-value
         :sections="sections"
-        :style="{'--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color]}"
-        v-if="overlay?.data?.pilot"
+        :style="{ '--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color] }"
+        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
                 <div class="pilot-header_title">
                     {{ pilot.callsign }}
                 </div>
-                <div class="pilot-header_type" v-if="pilot.flight_plan?.flight_rules !== 'I'">
+                <div
+                    v-if="pilot.flight_plan?.flight_rules !== 'I'"
+                    class="pilot-header_type"
+                >
                     VFR
                 </div>
                 <div
-                    class="pilot_header_status"
-                    :class="{'pilot_header_status--offline': isOffline}"
                     v-if="overlay.collapsed"
+                    class="pilot_header_status"
+                    :class="{ 'pilot_header_status--offline': isOffline }"
                 />
-                <div class="pilot_header_line" v-if="overlay.collapsed"/>
+                <div
+                    v-if="overlay.collapsed"
+                    class="pilot_header_line"
+                />
             </div>
         </template>
         <template #action-sticky>
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
         <template #action-track>
-            <div title="Track aircraft" @click="props.overlay.data.tracked = !props.overlay.data.tracked">
+            <div
+                title="Track aircraft"
+                @click="props.overlay.data.tracked = !props.overlay.data.tracked"
+            >
                 <track-icon
-                    width="16"
                     class="pilot__track"
-                    :class="{'pilot__track--tracked': props.overlay?.data.tracked}"
+                    :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
+                    width="16"
                 />
             </div>
         </template>
@@ -46,13 +55,17 @@
                 </common-toggle>
             </div>
         </template>
-        <template #[`atc-${i}`]="{section}" v-for="i in ['center', 'atis', 'app', 'ground']" :key="i">
+        <template
+            v-for="i in ['center', 'atis', 'app', 'ground']"
+            :key="i"
+            #[`atc-${i}`]="{ section }"
+        >
             <div class="pilot__content">
                 <!-- @vue-ignore -->
                 <common-controller-info
                     :controllers="section.controllers"
-                    :show-facility="section.type === 'ground'"
                     show-atis
+                    :show-facility="section.type === 'ground'"
                     small
                 />
             </div>
@@ -62,16 +75,21 @@
                 <div class="pilot__self">
                     <div>Pilot</div>
                     <common-info-block
+                        :bottom-items="[...usePilotRating(pilot), stats?.pilot ? `${ Math.floor(stats.pilot) }h total time` : undefined]"
                         class="pilot__card"
                         :top-items="[parseEncoding(pilot.name), pilot.cid]"
-                        :bottom-items="[...usePilotRating(pilot), stats?.pilot ? `${Math.floor(stats.pilot)}h total time` : undefined]"
                     />
                 </div>
                 <common-info-block class="pilot__card">
                     <template #top>
                         <div class="pilot__card_route">
                             <div class="pilot__card_route_header">
-                                <component :is="depAirport ? CommonButton : 'div'" type="link" @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)" class="pilot__card_route_header_airport pilot__card_route_header_airport--dep">
+                                <component
+                                    :is="depAirport ? CommonButton : 'div'"
+                                    class="pilot__card_route_header_airport pilot__card_route_header_airport--dep"
+                                    type="link"
+                                    @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
+                                >
                                     {{
                                         (pilot.flight_plan?.departure || ((pilot.status === 'depTaxi' || pilot.status === 'depGate') && pilot.airport)) || ''
                                     }}
@@ -81,21 +99,33 @@
                                 >
                                     {{ getStatus.title }}
                                 </div>
-                                <component :is="arrAirport ? CommonButton : 'div'" type="link" @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)" class="pilot__card_route_header_airport pilot__card_route_header_airport--arr">
+                                <component
+                                    :is="arrAirport ? CommonButton : 'div'"
+                                    class="pilot__card_route_header_airport pilot__card_route_header_airport--arr"
+                                    type="link"
+                                    @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
+                                >
                                     {{ pilot.flight_plan?.arrival || '' }}
                                 </component>
                             </div>
                             <div
+                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
                                 class="pilot__card_route_line"
                                 :class="{
                                     'pilot__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
                                 }"
-                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
                             >
-                                <img alt="" :src="`/aircraft/${ getAircraftIcon(pilot).icon }-active.png`">
+                                <img
+                                    alt=""
+                                    :src="`/aircraft/${ getAircraftIcon(pilot).icon }-active.png`"
+                                >
                             </div>
-                            <common-button class="pilot__card_route_open" type="link" @click="viewRoute">
+                            <common-button
+                                class="pilot__card_route_open"
+                                type="link"
+                                @click="viewRoute"
+                            >
                                 View route
                             </common-button>
                             <div class="pilot__card_route_footer">
@@ -107,83 +137,98 @@
                                         {{ getLogonTime }}
                                     </span>
                                 </div>
-                                <div class="pilot__card_route_footer_right" v-if="getDistAndTime">
+                                <div
+                                    v-if="getDistAndTime"
+                                    class="pilot__card_route_footer_right"
+                                >
                                     {{ getDistAndTime }}
                                 </div>
                             </div>
                         </div>
                     </template>
                 </common-info-block>
-                <div class="pilot__cols" v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder">
+                <div
+                    v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder"
+                    class="pilot__cols"
+                >
                     <common-info-block
-                        class="pilot__card"
-                        :top-items="['Squawk set']"
                         :bottom-items="[pilot.transponder || 'None']"
+                        class="pilot__card"
                         text-align="center"
+                        :top-items="['Squawk set']"
                     />
                     <common-info-block
-                        class="pilot__card"
-                        :top-items="['Squawk assigned']"
                         :bottom-items="[pilot.flight_plan?.assigned_transponder || 'None']"
+                        class="pilot__card"
                         text-align="center"
+                        :top-items="['Squawk assigned']"
                     />
                 </div>
                 <div class="pilot__cols">
                     <common-info-block
+                        :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
                         class="pilot__card"
+                        text-align="center"
                         :top-items="['Gr Speed']"
-                        :bottom-items="[`${pilot.groundspeed ?? 0} kts`]"
-                        text-align="center"
                     />
                     <common-info-block
+                        :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
                         class="pilot__card"
-                        :top-items="['Altitude']"
-                        :bottom-items="[`${getPilotTrueAltitude(pilot)} ft`]"
+                        text-align="center"
                         :title="pilot.altitude"
-                        text-align="center"
+                        :top-items="['Altitude']"
                     />
                     <common-info-block
+                        :bottom-items="[`${ pilot.heading }°`]"
                         class="pilot__card"
-                        :top-items="['Heading']"
-                        :bottom-items="[`${pilot.heading}°`]"
                         text-align="center"
+                        :top-items="['Heading']"
                     />
                 </div>
             </div>
         </template>
         <template #flightplan>
             <map-popup-flight-plan
-                class="pilot__content"
                 v-if="pilot.flight_plan"
-                :flight-plan="pilot.flight_plan"
+                class="pilot__content"
                 :cruise="pilot.cruise"
+                :flight-plan="pilot.flight_plan"
                 :status="pilot.status ?? null"
             />
         </template>
         <template #buttons>
             <common-button-group>
-                <common-button @click="overlay.data.tracked = !overlay.data.tracked" :disabled="store.config.hideAllExternal">
+                <common-button
+                    :disabled="store.config.hideAllExternal"
+                    @click="overlay.data.tracked = !overlay.data.tracked"
+                >
                     <template #icon>
                         <track-icon
                             class="pilot__track pilot__track--in-action"
-                            :class="{'pilot__track--tracked': props.overlay?.data.tracked}"
+                            :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
                         />
                     </template>
                     Track
                 </common-button>
-                <common-button :disabled="overlay.data.tracked || store.config.hideAllExternal" @click="showOnMap">
+                <common-button
+                    :disabled="overlay.data.tracked || store.config.hideAllExternal"
+                    @click="showOnMap"
+                >
                     <template #icon>
                         <map-icon/>
                     </template>
                     Focus
                 </common-button>
-                <common-button :href="`https://stats.vatsim.net/stats/${pilot.cid}`" target="_blank">
+                <common-button
+                    :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
+                    target="_blank"
+                >
                     <template #icon>
                         <stats-icon/>
                     </template>
                     Stats
                 </common-button>
-                <common-button @click="copy.copy(`${config.public.DOMAIN}/?pilot=${pilot.cid}`)">
+                <common-button @click="copy.copy(`${ config.public.DOMAIN }/?pilot=${ pilot.cid }`)">
                     <template #icon>
                         <share-icon/>
                     </template>
@@ -331,9 +376,9 @@ const sections = computed<InfoPopupSection[]>(() => {
 });
 
 type AtcPopupSection = InfoPopupSection & {
-    type: 'center' | 'app' | 'ground' | 'atis',
-    controllers: VatsimShortenedController[]
-}
+    type: 'center' | 'app' | 'ground' | 'atis';
+    controllers: VatsimShortenedController[];
+};
 
 const facilities = useFacilitiesIds();
 
@@ -342,7 +387,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
     const sections: AtcPopupSection[] = [];
 
     const center = pilot.value.firs
-        ? dataStore.vatsim.data.firs.value.filter((x) => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
+        ? dataStore.vatsim.data.firs.value.filter(x => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
         : null;
 
     if (center?.length) {
@@ -454,10 +499,10 @@ function handleMouseMove() {
 }
 
 watch(() => pilot.value.last_updated, handleMouseMove);
-watch(() => props.overlay.data.tracked, (val) => {
+watch(() => props.overlay.data.tracked, val => {
     handleMouseMove();
     if (val) {
-        mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach((x) => {
+        mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach(x => {
             (x as StoreOverlayPilot).data.tracked = false;
         });
     }
@@ -482,39 +527,45 @@ onBeforeUnmount(() => {
 .pilot {
     div.pilot_header {
         &_status {
+            position: relative;
+
             width: 8px;
             height: 8px;
-            border-radius: 100%;
+
             background: var(--status-color);
-            position: relative;
+            border-radius: 100%;
 
             &:not(&--offline) {
                 @keyframes status {
                     0% {
-                        opacity: 0;
                         transform: scale(0);
+                        opacity: 0;
                     }
 
                     60% {
-                        opacity: 0;
                         transform: scale(0);
+                        opacity: 0;
                     }
 
                     100% {
-                        opacity: 0.5;
                         transform: scale(1);
+                        opacity: 0.5;
                     }
                 }
 
                 &::before {
                     content: '';
+
                     position: absolute;
+                    top: -2px;
+                    left: -2px;
+
                     width: 12px;
                     height: 12px;
-                    left: -2px;
-                    top: -2px;
+
                     background: var(--status-color);
                     border-radius: 100%;
+
                     animation: status 1.4s alternate-reverse infinite;
                 }
             }
@@ -522,42 +573,48 @@ onBeforeUnmount(() => {
 
         &_line {
             position: absolute;
+            z-index: 1;
             top: 0;
             left: -16px;
+
             width: calc(100% + 32px);
-            z-index: 1;
 
             &::before {
                 content: '';
+
                 position: absolute;
-                width: var(--percent);
-                height: 56px;
-                background: $neutral900;
-                border-radius: 8px 0 0 8px;
                 top: 0;
                 left: 0;
+
+                width: var(--percent);
+                height: 56px;
+
+                background: $neutral900;
+                border-radius: 8px 0 0 8px;
             }
         }
     }
 
     &__content {
+        position: relative;
+        z-index: 0;
+
         display: flex;
         flex-direction: column;
         gap: 8px;
-        position: relative;
-        z-index: 0;
     }
 
     &__self {
         display: flex;
-        align-items: center;
         gap: 16px;
+        align-items: center;
+
         font-size: 13px;
         font-weight: 700;
 
         .pilot__card {
-            width: 0;
             flex: 1 1 0;
+            width: 0;
         }
     }
 
@@ -569,46 +626,50 @@ onBeforeUnmount(() => {
 
             &_header {
                 display: flex;
-                justify-content: space-between;
                 gap: 8px;
+                justify-content: space-between;
 
                 &, & .button {
-                    font-weight: 600;
                     font-size: 13px;
+                    font-weight: 600;
                 }
 
                 &_status {
-                    color: var(--status-color);
                     font-size: 12px;
+                    color: var(--status-color);
                 }
             }
 
             &_line {
-                height: 24px;
+                position: relative;
                 display: flex;
                 align-items: center;
-                position: relative;
+                height: 24px;
 
                 &::before, &::after {
                     content: '';
+
                     position: absolute;
-                    height: 2px;
-                    border-radius: 4px;
-                    background: $neutral850;
+
                     width: 100%;
+                    height: 2px;
+
+                    background: $neutral850;
+                    border-radius: 4px;
                 }
 
                 &::after {
-                    background: $primary500;
                     width: var(--percent);
+                    background: $primary500;
                 }
 
                 img {
-                    height: 24px;
                     position: relative;
                     z-index: 1;
-                    transform: translateX(-50%) rotate(90deg);
                     left: var(--percent);
+                    transform: translateX(-50%) rotate(90deg);
+
+                    height: 24px;
                 }
 
                 &--start svg {
@@ -618,9 +679,10 @@ onBeforeUnmount(() => {
 
             &_footer {
                 display: flex;
-                justify-content: space-between;
                 gap: 8px;
                 align-items: center;
+                justify-content: space-between;
+
                 font-size: 11px;
                 font-weight: 400;
             }
@@ -632,8 +694,8 @@ onBeforeUnmount(() => {
         gap: 8px;
 
         > * {
-            width: 0;
             flex: 1 1 0;
+            width: 0;
         }
     }
 
@@ -646,9 +708,9 @@ onBeforeUnmount(() => {
     }
 
     &__track--tracked {
-        color: $primary500;
-        transform: rotate(90deg);
         transform-origin: center;
+        transform: rotate(90deg);
+        color: $primary500;
     }
 
     :deep(.atc-popup), :deep(.atc-popup-container) {

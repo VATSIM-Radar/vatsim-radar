@@ -123,7 +123,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
         if (extendedPilot.flight_plan.route) {
             const regex = /F(?<level>[0-9]{2,3})$/;
 
-            const stepclimbs = extendedPilot.flight_plan.route.split(' ').map((item) => {
+            const stepclimbs = extendedPilot.flight_plan.route.split(' ').map(item => {
                 const regexResult = regex.exec(item);
                 if (!regexResult?.groups?.level) return 0;
                 return +regexResult.groups.level;
@@ -150,7 +150,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
 
     const list = radarStorage.vatspy.data?.firs ?? [];
 
-    const firs = list.map((fir) => {
+    const firs = list.map(fir => {
         const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
         return geometry.intersectsCoordinate([pilot.longitude, pilot.latitude]) &&
             radarStorage.vatsim.firs.filter(
@@ -160,8 +160,10 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
 
     if (firs.length) {
         extendedPilot.firs = [...new Set(
-            //@ts-expect-error
-            firs.flatMap(x => x && x.map(x => x.controller?.callsign)).filter(x => !!x) as string[],
+            firs
+                // @ts-expect-error We filter that but ts goes crazy
+                .flatMap(x => x && x.map(x => x.controller?.callsign))
+                .filter(x => !!x) as string[],
         )];
     }
 

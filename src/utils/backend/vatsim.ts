@@ -39,11 +39,11 @@ export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
     }
 
     return ofetch<{
-        access_token: string
-        expires_in: number
-        token_type: 'Bearer'
-        refresh_token: string
-        scopes: string[]
+        access_token: string;
+        expires_in: number;
+        token_type: 'Bearer';
+        refresh_token: string;
+        scopes: string[];
     }>(`${ config.VATSIM_ENDPOINT }/oauth/token`, {
         method: 'POST',
         body: settings,
@@ -51,19 +51,19 @@ export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
 }
 
 export interface VatsimUser {
-    cid: string
+    cid: string;
     personal: {
-        name_first: string
-        name_last: string
-        name_full: string
-    }
+        name_first: string;
+        name_last: string;
+        name_full: string;
+    };
     oauth: {
-        token_valid: 'true' | 'false'
-    }
+        token_valid: 'true' | 'false';
+    };
 }
 
 export async function vatsimGetUser(token: string) {
-    const result = (await ofetch<{data: VatsimUser}>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
+    const result = (await ofetch<{ data: VatsimUser }>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
         headers: {
             Authorization: `Bearer ${ token }`,
         },

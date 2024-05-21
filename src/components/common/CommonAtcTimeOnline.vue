@@ -13,6 +13,7 @@
 import { getATCTime } from '~/composables/atc';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
+
 defineProps({
     controller: {
         type: Object as PropType<VatsimShortenedController>,
@@ -24,17 +25,19 @@ defineProps({
 <style scoped lang="scss">
 .atc-time {
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    color: $neutral150;
-    font-size: 11px;
     gap: 4px;
-    font-weight: 300;
+    align-items: center;
+    justify-content: flex-end;
+
     width: 100%;
 
+    font-size: 11px;
+    font-weight: 300;
+    color: $neutral150;
+
     &_info {
-        background: $neutral950;
         padding: 2px 4px;
+        background: $neutral950;
         border-radius: 4px;
     }
 }

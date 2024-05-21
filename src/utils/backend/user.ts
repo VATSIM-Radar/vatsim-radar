@@ -1,7 +1,7 @@
 import { prisma } from './prisma';
 import { getCookie } from 'h3';
 import type { H3Event } from 'h3';
-import { getDBUserToken  } from '~/utils/db/user';
+import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 
@@ -25,19 +25,19 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
 }
 
 export interface FullUser {
-    id: number
-    hasFms: boolean | null
-    hasCharts: boolean | null
-    cid: string
-    fullName: string
-    settings: UserSettings
+    id: number;
+    hasFms: boolean | null;
+    hasCharts: boolean | null;
+    cid: string;
+    fullName: string;
+    settings: UserSettings;
 }
 
 export interface UserSettings {
-    autoFollow?: boolean
-    autoZoom?: boolean
-    autoShowAirportTracks?: boolean
-    headerName?: string
+    autoFollow?: boolean;
+    autoZoom?: boolean;
+    autoShowAirportTracks?: boolean;
+    headerName?: string;
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
@@ -93,7 +93,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                     },
                     data: {
                         accessToken: refreshedToken.access_token,
-                        accessTokenExpire: new Date(Date.now() + refreshedToken.expires_in * 1000),
+                        accessTokenExpire: new Date(Date.now() + (refreshedToken.expires_in * 1000)),
                         refreshToken: refreshedToken.refresh_token,
                         hasFms,
                         hasCharts,

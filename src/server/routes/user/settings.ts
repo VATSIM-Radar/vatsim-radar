@@ -10,7 +10,7 @@ const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,
 };
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     try {
         const user = await findUserByCookie(event);
 

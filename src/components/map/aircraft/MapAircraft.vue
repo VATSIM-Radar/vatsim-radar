@@ -8,20 +8,23 @@
             :model-value="props.isHovered"
             :settings="{
                 position: getCoordinates,
-                offset: [15, -15]
+                offset: [15, -15],
             }"
-            @update:overlay="mapStore.openPilotOverlay = !!$event"
             :z-index="20"
+            @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
                 class="aircraft-hover"
-                @mouseover="hoveredOverlay = true"
                 @mouseleave="hoveredOverlay = false"
+                @mouseover="hoveredOverlay = true"
             >
                 <template #title>
                     {{ aircraft.callsign }}
                 </template>
-                <template #additionalTitle v-if="aircraft.aircraft_faa">
+                <template
+                    v-if="aircraft.aircraft_faa"
+                    #additionalTitle
+                >
                     {{ aircraft.aircraft_faa }}
                 </template>
                 <div class="aircraft-hover_body">
@@ -42,8 +45,16 @@
                             </div>
                         </template>
                     </common-info-block>
-                    <div class="aircraft-hover_sections" v-if="aircraft.departure || aircraft.arrival">
-                        <common-info-block v-if="aircraft.departure" text-align="center" is-button @click="mapStore.addAirportOverlay(aircraft.departure)">
+                    <div
+                        v-if="aircraft.departure || aircraft.arrival"
+                        class="aircraft-hover_sections"
+                    >
+                        <common-info-block
+                            v-if="aircraft.departure"
+                            is-button
+                            text-align="center"
+                            @click="mapStore.addAirportOverlay(aircraft.departure)"
+                        >
                             <template #top>
                                 From
                             </template>
@@ -51,7 +62,12 @@
                                 {{ aircraft.departure }}
                             </template>
                         </common-info-block>
-                        <common-info-block v-if="aircraft.arrival" text-align="center" is-button @click="mapStore.addAirportOverlay(aircraft.arrival)">
+                        <common-info-block
+                            v-if="aircraft.arrival"
+                            is-button
+                            text-align="center"
+                            @click="mapStore.addAirportOverlay(aircraft.arrival)"
+                        >
                             <template #top>
                                 To
                             </template>
@@ -61,7 +77,10 @@
                         </common-info-block>
                     </div>
                     <div class="aircraft-hover_sections">
-                        <common-info-block v-if="typeof aircraft.groundspeed === 'number'" text-align="center">
+                        <common-info-block
+                            v-if="typeof aircraft.groundspeed === 'number'"
+                            text-align="center"
+                        >
                             <template #top>
                                 Ground Speed
                             </template>
@@ -69,7 +88,10 @@
                                 {{ aircraft.groundspeed }} kts
                             </template>
                         </common-info-block>
-                        <common-info-block v-if="typeof aircraft.altitude === 'number'" text-align="center">
+                        <common-info-block
+                            v-if="typeof aircraft.altitude === 'number'"
+                            text-align="center"
+                        >
                             <template #top>
                                 Altitude
                             </template>
@@ -83,21 +105,21 @@
         </map-overlay>
         <map-overlay
             class="aircraft-overlay"
-            :style="{'--imageHeight': `${radarIcons[icon.icon].height}px`}"
             :model-value="isShowLabel"
+            persistent
             :settings="{
                 position: getCoordinates,
-                offset: [0, 0]
+                offset: [0, 0],
             }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px` }"
             :z-index="19"
-            persistent
         >
             <div
                 class="aircraft-label"
-                :class="[`aircraft-label--type${getPostfix}`]"
-                @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
-                @mouseleave="hovered = false"
+                :class="[`aircraft-label--type${ getPostfix }`]"
                 @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
+                @mouseleave="hovered = false"
+                @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
                 <div class="aircraft-label_text">
                     {{ aircraft.callsign }}
@@ -148,6 +170,8 @@ const emit = defineEmits({
         return true;
     },
 });
+
+defineSlots<{ default: () => any }>();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const hovered = ref(false);
@@ -355,7 +379,7 @@ watch([hovered, hoveredOverlay], async () => {
 
 const isShowLabel = computed<boolean>(() => props.showLabel || !!activeCurrentOverlay.value);
 
-watch(isShowLabel, (val) => {
+watch(isShowLabel, val => {
     if (!val) {
         hovered.value = false;
     }
@@ -384,20 +408,24 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .aircraft-hover {
     position: absolute;
-    width: 248px;
-    background: $neutral1000;
-    border-radius: 8px;
-    padding: 8px;
+
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    width: 248px;
+    padding: 8px;
+
     font-size: 13px;
+
+    background: $neutral1000;
+    border-radius: 8px;
 
     &__pilot_content {
         display: grid;
-        justify-content: space-between;
-        align-items: center;
         grid-template-columns: 40px 160px;
+        align-items: center;
+        justify-content: space-between;
     }
 
     &__pilot {
@@ -417,23 +445,26 @@ onBeforeUnmount(() => {
         gap: 4px;
 
         > * {
-            width: 0;
             flex: 1 1 0;
+            width: 0;
         }
     }
 }
 
 .aircraft-label {
-    padding-top: 3px;
-    width: fit-content;
-    transform: translate(-50%, 0);
-    top: calc(var(--imageHeight) / 2);
-    position: absolute;
-    color: $primary500;
-    font-size: 11px;
-    user-select: none;
     cursor: pointer;
+    user-select: none;
+
+    position: absolute;
+    top: calc(var(--imageHeight) / 2);
+    transform: translate(-50%, 0);
+
+    width: fit-content;
+    padding-top: 3px;
+
+    font-size: 11px;
     font-weight: 600;
+    color: $primary500;
 
     &--type-hover {
         color: $warning500;

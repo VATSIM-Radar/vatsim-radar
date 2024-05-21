@@ -12,7 +12,7 @@ export interface SiteConfig {
     allAircraftGreen?: boolean;
     airports?: string[];
     airport?: string;
-    hideAllExternal?: boolean
+    hideAllExternal?: boolean;
 }
 
 export const useStore = defineStore('index', {

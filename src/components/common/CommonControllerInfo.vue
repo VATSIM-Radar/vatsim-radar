@@ -7,33 +7,39 @@
         }"
     >
         <common-popup-block class="atc-popup">
-            <template #title v-if="$slots.title">
+            <template
+                v-if="$slots.title"
+                #title
+            >
                 <slot name="title"/>
             </template>
-            <template #additionalTitle v-if="$slots.additionalTitle">
+            <template
+                v-if="$slots.additionalTitle"
+                #additionalTitle
+            >
                 <slot name="additionalTitle"/>
             </template>
             <div class="atc-popup_list">
                 <common-info-block
-                    class="atc-popup_atc"
                     v-for="(controller, controllerIndex) in controllers"
                     :key="controller.cid+controllerIndex"
+                    class="atc-popup_atc"
                     is-button
                     :top-items="[
                         controller.callsign,
                         controller.name,
                         controller.frequency,
                         showAtis || !controller.logon_time ? undefined : getATCTime(controller),
-                        showAtis && controller.atis_code ? `Info ${controller.atis_code}` : undefined,
+                        showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
-                    <template #top="{item, index}">
+                    <template #top="{ item, index }">
                         <template v-if="index === 0 && showFacility">
                             <div class="atc-popup__position">
                                 <div
                                     class="atc-popup__position_facility"
-                                    :style="{background: getControllerPositionColor(controller)}"
+                                    :style="{ background: getControllerPositionColor(controller) }"
                                 >
                                     {{ controller.isATIS ? 'ATIS' : controller.facility === -1 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                                 </div>
@@ -68,17 +74,26 @@
                             {{ item }}
                         </template>
                     </template>
-                    <template #bottom v-if="showAtis">
-                        <ul class="atc-popup_atc__atis" v-if="controller.text_atis?.length">
+                    <template
+                        v-if="showAtis"
+                        #bottom
+                    >
+                        <ul
+                            v-if="controller.text_atis?.length"
+                            class="atc-popup_atc__atis"
+                        >
                             <li
-                                class="atc-popup_atc__atis_line"
                                 v-for="atis in getATIS(controller)"
                                 :key="atis"
+                                class="atc-popup_atc__atis_line"
                             >
                                 {{ parseEncoding(atis, controller.callsign) }}<br>
                             </li>
                         </ul>
-                        <common-atc-time-online :controller="controller" v-if="controller.logon_time"/>
+                        <common-atc-time-online
+                            v-if="controller.logon_time"
+                            :controller="controller"
+                        />
                     </template>
                 </common-info-block>
             </div>
@@ -120,6 +135,8 @@ defineProps({
     },
 });
 
+defineSlots<{ title(): any; additionalTitle(): any }>();
+
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
@@ -137,11 +154,13 @@ const getATIS = (controller: VatsimShortenedController) => {
     gap: 4px;
 
     &-container {
+        cursor: initial;
+
+        z-index: 20;
+
         width: max-content;
         max-width: 450px;
-        z-index: 20;
         padding: 5px 0;
-        cursor: initial;
 
         &--small {
             max-width: min(450px, 100%);
@@ -159,31 +178,35 @@ const getATIS = (controller: VatsimShortenedController) => {
 
     &__position {
         display: flex;
-        align-items: center;
         gap: 8px;
+        align-items: center;
 
         &_facility {
             width: 40px;
-            text-align: center;
             padding: 2px 4px;
-            border-radius: 4px;
+
             color: $neutral0Orig;
+            text-align: center;
+
+            border-radius: 4px;
         }
     }
 
     &__controller {
-        font-weight: 400;
         display: flex;
-        align-items: center;
         gap: 8px;
+        align-items: center;
+        font-weight: 400;
 
         &_rating {
             padding: 2px 4px;
-            border-radius: 4px;
-            background: $primary500;
+
+            font-size: 11px;
             font-weight: 600;
             color: $neutral150Orig;
-            font-size: 11px;
+
+            background: $primary500;
+            border-radius: 4px;
         }
     }
 
@@ -192,17 +215,18 @@ const getATIS = (controller: VatsimShortenedController) => {
     }
 
     &__time {
-        background: $neutral950;
         padding: 2px 4px;
+        background: $neutral950;
         border-radius: 4px;
     }
 
     &_list {
+        overflow: auto;
         display: flex;
         flex-direction: column;
         gap: 8px;
+
         max-height: v-bind(maxHeight);
-        overflow: auto;
     }
 
     &_atc {
@@ -210,13 +234,15 @@ const getATIS = (controller: VatsimShortenedController) => {
             display: flex;
             flex-direction: column;
             gap: 5px;
-            padding-left: 16px;
+
             margin: 0;
+            padding-left: 16px;
+
             word-break: break-word;
 
             &_line:only-child {
-                list-style: none;
                 margin-left: -16px;
+                list-style: none;
             }
         }
     }

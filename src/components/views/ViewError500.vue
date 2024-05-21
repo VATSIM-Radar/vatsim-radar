@@ -1,5 +1,8 @@
 <template>
-    <div class="error-500" :style="{'--status-code': 'statusCode' in error ? error.statusCode : 500}">
+    <div
+        class="error-500"
+        :style="{ '--status-code': 'statusCode' in error ? error.statusCode : 500 }"
+    >
         <div class="error-500_title">
             Oops!
         </div>
@@ -28,30 +31,37 @@ console.error(props.error);
 
 <style scoped lang="scss">
 .error-500 {
-    flex: 1 0 auto;
-    color: $error500;
-    font-family: $openSansFont;
     position: relative;
-    text-align: center;
+
     display: flex;
+    flex: 1 0 auto;
     flex-direction: column;
     align-items: center;
-    font-size: 2vw;
-    text-transform: uppercase;
+
     padding-top: 25dvh;
 
+    font-family: $openSansFont;
+    font-size: 2vw;
+    color: $error500;
+    text-align: center;
+    text-transform: uppercase;
+
     &::before {
-        counter-reset: variable var(--status-code);
         content: counter(variable);
+        counter-reset: variable var(--status-code);
+
         position: absolute;
         top: 0;
+
         font-size: 15vw;
         font-weight: 700;
+
+        opacity: 0.2;
         background: linear-gradient(180deg, rgba(203, 66, 28, 0) 0%, #{$error500} 100%);
         background-clip: text;
+
         -webkit-text-fill-color: transparent;
         text-fill-color: transparent;
-        opacity: 0.2;
     }
 
     &_title {
@@ -59,8 +69,8 @@ console.error(props.error);
     }
 
     &_image {
-        margin: -24px 0 24px;
         height: 38dvh;
+        margin: -24px 0 24px;
     }
 }
 </style>

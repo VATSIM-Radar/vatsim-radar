@@ -2,7 +2,7 @@ import { getServerVatsimLiveData, radarStorage } from '~/utils/backend/storage';
 import { validateDataReady } from '~/utils/backend/h3';
 import type { VatsimLiveDataShort } from '~/types/data/vatsim';
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
     const isShort = getQuery(event).short === '1';
 

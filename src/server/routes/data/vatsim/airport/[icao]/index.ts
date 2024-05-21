@@ -7,27 +7,27 @@ export interface VatsimAirportData {
     metar?: string;
     taf?: string;
     vatInfo?: {
-        icao?: string
-        iata?: string
+        icao?: string;
+        iata?: string;
         name?: string;
-        altitude_m?: number
-        altitude_ft?: number
-        transition_alt?: number
-        transition_level?: string
-        transition_level_by_atc?: boolean
-        city?: number
-        country?: string
-        division_id?: string
+        altitude_m?: number;
+        altitude_ft?: number;
+        transition_alt?: number;
+        transition_level?: string;
+        transition_level_by_atc?: boolean;
+        city?: number;
+        country?: string;
+        division_id?: string;
         ctafFreq?: string;
     };
-    center: string[]
+    center: string[];
 }
 
 const caches: {
-    icao: string
-    metar?: string
-    taf?: string
-    date: number
+    icao: string;
+    metar?: string;
+    taf?: string;
+    date: number;
 }[] = [];
 
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
@@ -59,10 +59,10 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     };
     const promises: PromiseLike<any>[] = [];
 
-    if(!controllersOnly) {
-        promises.push(new Promise<void>(async (resolve) => {
+    if (!controllersOnly) {
+        promises.push(new Promise<void>(async resolve => {
             const cachedMetar = caches.find(x => x.icao === icao);
-            if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - 1000 * 60 * 5) {
+            if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - (1000 * 60 * 5)) {
                 data.metar = cachedMetar.metar;
                 data.taf = cachedMetar.taf;
             }
@@ -106,10 +106,10 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
         }));
     }
     if (!weatherOnly && !controllersOnly) {
-        promises.push(new Promise<void>(async (resolve) => {
+        promises.push(new Promise<void>(async resolve => {
             try {
                 const { data: airportData } = await $fetch<{
-                    data: VatsimAirportData['vatInfo'] & { stations: { ctaf: boolean, frequency: string }[] }
+                    data: VatsimAirportData['vatInfo'] & { stations: { ctaf: boolean; frequency: string }[] };
                 }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
 
                 data.vatInfo = {
@@ -140,7 +140,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     const list = radarStorage.vatspy.data?.firs ?? [];
 
-    const firs = list.map((fir) => {
+    const firs = list.map(fir => {
         const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
         return geometry.intersectsCoordinate([airport.lon, airport.lat]) &&
             radarStorage.vatsim.firs.filter(
@@ -150,8 +150,10 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     if (firs.length) {
         data.center = [...new Set(
-            //@ts-expect-error
-            firs.flatMap(x => x && x.map(x => x.controller?.callsign)).filter(x => !!x) as string[],
+            firs
+                // @ts-expect-error We filter that later
+                .flatMap(x => x && x.map(x => x.controller?.callsign))
+                .filter(x => !!x) as string[],
         )];
     }
 

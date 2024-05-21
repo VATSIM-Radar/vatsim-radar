@@ -1,9 +1,12 @@
 <template>
-    <div title="Stick overlay" @click="overlay.sticky = !overlay.sticky">
+    <div
+        title="Stick overlay"
+        @click="overlay.sticky = !overlay.sticky"
+    >
         <pin-icon
-            height="16"
             class="pilot-stick"
-            :class="{'pilot-stick--sticky': overlay?.sticky}"
+            :class="{ 'pilot-stick--sticky': overlay?.sticky }"
+            height="16"
         />
     </div>
 </template>
@@ -26,8 +29,8 @@ defineProps({
     transition: 0.3s;
 
     &--sticky {
-        color: $primary500;
         transform: rotate(45deg);
+        color: $primary500;
     }
 }
 </style>

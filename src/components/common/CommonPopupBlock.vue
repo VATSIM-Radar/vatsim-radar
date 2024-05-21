@@ -1,10 +1,16 @@
 <template>
     <div class="popup-block">
-        <div class="popup-block_title" v-if="$slots.title">
+        <div
+            v-if="$slots.title"
+            class="popup-block_title"
+        >
             <div class="popup-block_title_text">
                 <slot name="title"/>
             </div>
-            <div class="popup-block_title_sub" v-if="$slots.additionalTitle">
+            <div
+                v-if="$slots.additionalTitle"
+                class="popup-block_title_sub"
+            >
                 <slot name="additionalTitle"/>
             </div>
         </div>
@@ -16,9 +22,9 @@
 
 <style scoped lang="scss">
 .popup-block {
+    padding: 8px;
     background: $neutral1000;
     border-radius: 8px;
-    padding: 8px;
 
     &_title {
         display: flex;
@@ -27,19 +33,19 @@
         border-bottom: 1px solid varToRgba('neutral150', 0.2);
 
         &_text {
-            color: $primary500;
+            font-family: $openSansFont;
             font-size: 17px;
             font-weight: 700;
-            font-family: $openSansFont;
-            letter-spacing: -1%;
             line-height: 100%;
+            color: $primary500;
+            letter-spacing: -1%;
         }
 
         &_sub {
             padding-left: 16px;
-            border-left: 1px solid varToRgba('neutral150', 0.2);
-            color: $neutral150;
             font-size: 13px;
+            color: $neutral150;
+            border-left: 1px solid varToRgba('neutral150', 0.2);
         }
     }
 

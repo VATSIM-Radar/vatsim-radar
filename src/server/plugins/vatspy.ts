@@ -10,17 +10,17 @@ const revisions: Record<string, number> = {
     'v2403.1': 13,
 };
 
-function parseDatFile<S extends Record<string, { title: string, children: Record<string, true> }>>({
+function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
     sections,
     dat,
 }: {
-    sections: S
-    dat: string
+    sections: S;
+    dat: string;
 }): {
-    [K in keyof S]: Array<{
-        [L in keyof S[K]['children']]?: string
-    }>
-} {
+        [K in keyof S]: Array<{
+            [L in keyof S[K]['children']]?: string
+        }>
+    } {
     const result = {} as ReturnType<typeof parseDatFile<S>>;
 
     for (
@@ -29,7 +29,7 @@ function parseDatFile<S extends Record<string, { title: string, children: Record
                 title,
                 children,
             },
-        ] of Object.entries(sections) as [string, { title: string, children: Record<string, true> }][]
+        ] of Object.entries(sections) as [string, { title: string; children: Record<string, true> }][]
     ) {
         const keys = Object.keys(children);
         const items = dat.split(`[${ title }]`)[1]?.split(/\n\s*\n/)[0]?.split('\n');
@@ -56,7 +56,7 @@ function parseDatFile<S extends Record<string, { title: string, children: Record
     return result;
 }
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     CronJob.from({
         cronTime: '15 * * * *',
         runOnInit: true,
@@ -72,7 +72,7 @@ export default defineNitroPlugin((app) => {
             ]);
 
             const geojson = JSON.parse(geo) as {
-                features: Feature<MultiPolygon>[]
+                features: Feature<MultiPolygon>[];
             };
 
             const result = {} as VatSpyData;
@@ -126,7 +126,7 @@ export default defineNitroPlugin((app) => {
 
             result.airports = parsedDat.airports
                 .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)
-                .map((value) => {
+                .map(value => {
                     const lonlat = fromServerLonLat([+value.lon!, +value.lat!]);
 
                     return {
@@ -140,7 +140,7 @@ export default defineNitroPlugin((app) => {
             result.firs = [];
             parsedDat.firs
                 .filter(value => value.icao && value.name)
-                .forEach((value) => {
+                .forEach(value => {
                     let boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
                     if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
                     if (!boundaries.length) {
@@ -161,7 +161,7 @@ export default defineNitroPlugin((app) => {
                     });
 
                     boundaries.forEach((boundary, index) => {
-                        boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map((x) => {
+                        boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map(x => {
                             if (x === 0) return 0.01;
                             if (x === -180) return -179.9;
                             if (x === 180) return 179.9;

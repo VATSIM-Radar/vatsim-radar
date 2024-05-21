@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { AuthType } from '@prisma/client';
 import { getVatsimRedirectUri } from '~/utils/backend/vatsim';
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
 
     let queryState = getQuery(event).state;

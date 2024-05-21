@@ -33,8 +33,8 @@ function parseMarkdown() {
     return CHANGELOG;
 }
 
-export default defineNitroPlugin(async (app) => {
-    app.hooks.hook('request', (event) => {
+export default defineNitroPlugin(async app => {
+    app.hooks.hook('request', event => {
         event.context.radarVersion = json.version;
     });
 
@@ -142,8 +142,7 @@ export default defineNitroPlugin(async (app) => {
                         });
                     }
                     else {
-                        //@ts-expect-error
-                        const foundStrategy = DiscordStrategy[interaction.values[0]];
+                        const foundStrategy = DiscordStrategy[interaction.values[0] as DiscordStrategy];
 
                         if (foundStrategy) {
                             await prisma.user.updateMany({
@@ -197,8 +196,7 @@ export default defineNitroPlugin(async (app) => {
                     }
                     else {
                         const state = randomUUID();
-                        //@ts-expect-error
-                        const foundStrategy = DiscordStrategy[interaction.values[0]];
+                        const foundStrategy = DiscordStrategy[interaction.values[0] as DiscordStrategy];
 
                         if (!foundStrategy) {
                             return await interaction.reply({
@@ -232,7 +230,7 @@ export default defineNitroPlugin(async (app) => {
 
             if (interaction.commandName === 'rename') {
                 await interaction.reply({
-                    //@ts-expect-error
+                    // @ts-expect-error Type error from Discord
                     components: [renameRow],
                     ephemeral: true,
                 });
@@ -273,7 +271,7 @@ export default defineNitroPlugin(async (app) => {
                 }
                 else {
                     await interaction.reply({
-                        //@ts-expect-error
+                        // @ts-expect-error Type error from Discord
                         components: [verifyRow],
                         ephemeral: true,
                     });

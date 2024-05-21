@@ -11,7 +11,7 @@ export default defineComponent({
 
             return h('div', {
                 class: 'button-group',
-            }, list.map((slot) => {
+            }, list.map(slot => {
                 if (!slot.props) slot.props = {};
 
                 if (!slot.props.type) {
@@ -37,31 +37,35 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .button-group {
-    background: $neutral950;
-    display: flex;
-    border-radius: 8px;
     overflow: hidden;
+    display: flex;
+    background: $neutral950;
+    border-radius: 8px;
 
     &_button {
-        width: 0;
-        flex: 1 1 0;
         position: relative;
         display: flex;
+        flex: 1 1 0;
+        width: 0;
 
         :deep(> .button) {
             width: 100%;
         }
 
         &:not(:last-child) {
-            padding-right: 9px;
             margin-right: 8px;
+            padding-right: 9px;
 
             &::after {
                 content: '';
+
                 position: absolute;
-                align-self: center;
                 left: 100%;
+
+                align-self: center;
+
                 height: 24px;
+
                 border-right: 1px solid varToRgba('neutral150', 0.2);
             }
         }

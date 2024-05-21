@@ -1,22 +1,47 @@
 <template>
-    <teleport v-if="modelValue" :disabled="disableTeleport" to="body">
+    <teleport
+        v-if="modelValue"
+        :disabled="disableTeleport"
+        to="body"
+    >
         <transition name="popup--appear">
-            <div class="popup" v-if="localValue">
-                <div class="popup_background" @click.prevent.stop="closePopup()"/>
-                <div class="popup_container" @click.stop>
-                    <div class="popup__close" @click="closePopup()">
+            <div
+                v-if="localValue"
+                class="popup"
+            >
+                <div
+                    class="popup_background"
+                    @click.prevent.stop="closePopup()"
+                />
+                <div
+                    class="popup_container"
+                    @click.stop
+                >
+                    <div
+                        class="popup__close"
+                        @click="closePopup()"
+                    >
                         <close-icon/>
                     </div>
                     <common-popup-block>
-                        <template #title v-if="$slots.title">
+                        <template
+                            v-if="$slots.title"
+                            #title
+                        >
                             <div class="popup__title">
                                 <slot name="title"/>
                             </div>
                         </template>
-                        <div class="popup__content" v-if="$slots.default">
+                        <div
+                            v-if="$slots.default"
+                            class="popup__content"
+                        >
                             <slot/>
                         </div>
-                        <div class="popup__actions" v-if="$slots.actions">
+                        <div
+                            v-if="$slots.actions"
+                            class="popup__actions"
+                        >
                             <slot name="actions"/>
                         </div>
                     </common-popup-block>
@@ -40,6 +65,9 @@ const props = defineProps({
         default: false,
     },
 });
+
+defineSlots<{ default(): any; title(): any; actions(): any }>();
+
 const model = defineModel({
     type: Boolean,
     default: false,
@@ -90,30 +118,31 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .popup {
-    width: 100dvw;
-    height: 100dvh;
-
-    @include mobile {
-        overflow-y: visible;
-    }
+    z-index: 100;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 
+    width: 100dvw;
+    height: 100dvh;
+
     font-size: 16px;
     font-weight: normal;
     font-style: normal;
     line-height: 125%;
     text-align: left;
-    z-index: 100;
+
+    @include mobile {
+        overflow-y: visible;
+    }
 
     &--appear {
         &-enter-active >, &-leave-active > {
             .popup_container {
-                transform: scale(1);
                 z-index: 100;
+                transform: scale(1);
             }
 
             .popup_container, .popup_background {
@@ -141,27 +170,34 @@ onBeforeUnmount(() => {
     }
 
     &_background {
+        cursor: pointer;
+
         width: 200dvw;
         height: 300dvh;
-        cursor: pointer;
+
         background: varToRgba('neutral1000', 0.33);
         backdrop-filter: blur(5px);
     }
 
     &_container {
+        position: relative;
+
+        max-width: 700px;
+        padding: 8px;
+
         background: $neutral1000;
         border-radius: 8px;
-        padding: 8px;
-        position: relative;
-        max-width: 700px;
     }
 
     &__close {
+        cursor: pointer;
+
         position: absolute;
-        width: 16px;
         top: 16px;
         right: 16px;
-        cursor: pointer;
+
+        width: 16px;
+
         color: varToRgba('neutral150', 0.2);
     }
 
@@ -178,8 +214,8 @@ onBeforeUnmount(() => {
         gap: 8px;
 
         :deep(>*) {
-            width: 0;
             flex: 1 1 0;
+            width: 0;
         }
 
         &:not(:first-child) {

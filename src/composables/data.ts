@@ -10,7 +10,7 @@ const simaware = shallowRef<SimAwareAPIData>();
 
 type Data = {
     [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
-}
+};
 
 const data: Data = {
     // eslint-disable-next-line vue/require-typed-ref
@@ -43,7 +43,7 @@ export function useDataStore() {
 
 export function setVatsimDataStore(vatsimData: VatsimLiveData) {
     for (const key in vatsimData) {
-        //@ts-expect-error
+        // @ts-expect-error Dynamic assignment
         data[key].value = vatsimData[key];
     }
 }

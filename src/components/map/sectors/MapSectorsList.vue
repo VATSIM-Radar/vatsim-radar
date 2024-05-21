@@ -2,8 +2,8 @@
     <map-sector
         v-for="(sector, index) in firs"
         :key="sector.fir.feature.id as string + index"
-        :fir="sector.fir"
         :atc="sector.atc"
+        :fir="sector.fir"
     />
 </template>
 
@@ -33,11 +33,11 @@ const firs = computed(() => {
     return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex));
 });
 
-watch(map, (val) => {
+watch(map, val => {
     if (!val) return;
 
     let hasLayer = false;
-    val.getLayers().forEach((layer) => {
+    val.getLayers().forEach(layer => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'sectors';
     });
@@ -55,7 +55,7 @@ watch(map, (val) => {
             properties: {
                 type: 'sectors',
             },
-            style: function (feature) {
+            style: function(feature) {
                 if (feature.getGeometry()?.getType() !== 'MultiPolygon') return;
 
                 const type = feature.getProperties().type;

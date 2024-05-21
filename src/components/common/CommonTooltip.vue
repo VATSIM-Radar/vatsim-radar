@@ -1,16 +1,22 @@
 <template>
     <div
         class="tooltip"
-        :class="[`tooltip--location-${location}`]"
-        @mouseover="model = true"
-        @mouseleave="model = false"
+        :class="[`tooltip--location-${ location }`]"
         @click="model = !model"
+        @mouseleave="model = false"
+        @mouseover="model = true"
     >
-        <div class="tooltip_activator" v-if="$slots.activator">
+        <div
+            v-if="$slots.activator"
+            class="tooltip_activator"
+        >
             <slot name="activator"/>
         </div>
         <transition name="tooltip_content--appear">
-            <div class="tooltip_content" v-if="model">
+            <div
+                v-if="model"
+                class="tooltip_content"
+            >
                 <div class="tooltip_content_icon">
                     <triangle-left-icon/>
                 </div>
@@ -37,7 +43,9 @@ defineProps({
     },
 });
 
-export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom'
+defineSlots<{ default(): any; activator(): any }>();
+
+export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom';
 
 const model = defineModel({
     type: Boolean,
@@ -56,11 +64,14 @@ const model = defineModel({
 
     &_content {
         position: absolute;
-        color: $neutral850;
-        background: currentColor;
-        padding: 4px;
-        border-radius: 8px;
         z-index: 1;
+
+        padding: 4px;
+
+        color: $neutral850;
+
+        background: currentColor;
+        border-radius: 8px;
 
         &_icon {
             position: absolute;
@@ -68,11 +79,12 @@ const model = defineModel({
         }
 
         &_text {
-            color: $neutral0;
+            width: v-bind(width);
+            padding: 8px;
+
             font-size: 11px;
             font-weight: 400;
-            padding: 8px;
-            width: v-bind(width);
+            color: $neutral0;
         }
     }
 }

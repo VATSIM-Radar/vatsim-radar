@@ -38,7 +38,7 @@ export type AircraftIcon =
     | 'md80'
     | 't134'
     | 't144'
-    | 't154'
+    | 't154';
 
 const standardCoef = 30;
 
@@ -53,8 +53,8 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     return Math.round(size);
 }
 
-//TODO: calc width into local file
-export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: number }> = {
+// TODO: calc width into local file
+export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon; width: number }> = {
     a300: {
         icon: 'a300',
         width: getAircraftSizeByCoef(0.75),
@@ -210,8 +210,8 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
 };
 
 export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
-    icon: AircraftIcon,
-    width: number
+    icon: AircraftIcon;
+    width: number;
 } {
     let faa = 'aircraft_short' in aircraft ? aircraft.aircraft_short : 'flight_plan' in aircraft ? aircraft.flight_plan?.aircraft_short : null;
     if (faa) faa = faa.split('/')[0];

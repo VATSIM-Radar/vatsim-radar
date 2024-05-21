@@ -1,18 +1,30 @@
 <template>
-    <div class="radio-group" :class="{'radio-group--two-cols': twoCols}">
+    <div
+        class="radio-group"
+        :class="{ 'radio-group--two-cols': twoCols }"
+    >
         <common-radio
             v-for="item in items"
             :key="item.value?.toString()"
             :model-value="model === item.value"
-            @update:modelValue="model = item.value"
             v-bind="item"
             :name="id"
+            @update:modelValue="model = item.value"
         >
             <template v-if="item.key && $slots[item.key]">
-                <slot :name="item.key" :item="item"/>
+                <slot
+                    :item="item"
+                    :name="item.key"
+                />
             </template>
-            <template #hint v-if="item.key && $slots[`${item.key}Hint`]">
-                <slot :name="`${item.key}Hint`" :item="item"/>
+            <template
+                v-if="item.key && $slots[`${ item.key }Hint`]"
+                #hint
+            >
+                <slot
+                    :item="item"
+                    :name="`${ item.key }Hint`"
+                />
             </template>
         </common-radio>
     </div>
@@ -25,7 +37,6 @@ import type { PropType } from 'vue';
 export interface RadioItemGroup<T extends string | number | null = string | number | null> extends RadioItem<T> {
     key?: string;
 }
-
 defineProps({
     items: {
         type: Array as PropType<RadioItemGroup[]>,
@@ -36,6 +47,12 @@ defineProps({
         default: false,
     },
 });
+
+/* eslint vue/require-explicit-slots: 0 */
+
+defineSlots<{
+    default(props: { item: RadioItemGroup }): any;
+} & { [key: `${ string }Hint`]: (props: { item: RadioItemGroup }) => any }>();
 
 const id = useId();
 

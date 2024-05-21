@@ -1,15 +1,15 @@
 <template>
     <common-info-popup
+        v-if="airport"
+        v-model:collapsed="overlay.collapsed"
         class="airport"
         collapsible
-        v-model:collapsed="overlay.collapsed"
-        model-value
-        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
-        max-height="100%"
-        :header-actions="(store.config.airport === props.overlay.data.icao && overlay.sticky) ? ['counts'] : ['counts', 'sticky']"
-        :tabs
-        v-if="airport"
         :disabled="store.config.airport === props.overlay.data.icao"
+        :header-actions="(store.config.airport === props.overlay.data.icao && overlay.sticky) ? ['counts'] : ['counts', 'sticky']"
+        max-height="100%"
+        model-value
+        :tabs
+        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >
         <template #title>
             <div class="pilot-header">
@@ -25,14 +25,17 @@
             <div class="airport__counts">
                 <div
                     class="airport__counts_counter"
-                    :style="{'--color': `rgb(var(--${getPilotStatus('depTaxi').color}))`}"
+                    :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
                 >
                     <departing-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
                         {{ aircraft?.departures.length ?? 0 }}
                     </div>
                 </div>
-                <div class="airport__counts_counter" :style="{'--color': `rgb(var(--neutral150))`}">
+                <div
+                    class="airport__counts_counter"
+                    :style="{ '--color': `rgb(var(--neutral150))` }"
+                >
                     <ground-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
                         {{ (aircraft?.groundArr.length ?? 0) + (aircraft?.groundDep.length ?? 0) }}
@@ -40,7 +43,7 @@
                 </div>
                 <div
                     class="airport__counts_counter"
-                    :style="{'--color': `rgb(var(--${getPilotStatus('arrTaxi').color}))`}"
+                    :style="{ '--color': `rgb(var(--${ getPilotStatus('arrTaxi').color }))` }"
                 >
                     <arriving-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
@@ -49,9 +52,12 @@
                 </div>
             </div>
         </template>
-        <template #atcTitle="{section}">
+        <template #atcTitle="{ section }">
             <div class="airport__section-title">
-                <div class="airport__section-title_counter" v-if="!isCtafOnly">
+                <div
+                    v-if="!isCtafOnly"
+                    class="airport__section-title_counter"
+                >
                     {{ atc.length }}
                 </div>
                 <div class="airport__section-title_text">
@@ -74,11 +80,17 @@
                 </div>
             </div>
         </template>
-        <template #metar v-if="data?.metar && metar">
+        <template
+            v-if="data?.metar && metar"
+            #metar
+        >
             <div class="airport__sections">
                 <common-copy-info-block :text="data?.metar"/>
                 <!-- TODO: refactor those duplicates -->
-                <div class="airport__info-section" v-if="metar.hour">
+                <div
+                    v-if="metar.hour"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Issued
                     </div>
@@ -88,17 +100,23 @@
                         </template>
                     </common-info-block>
                 </div>
-                <div class="airport__info-section" v-if="metar.wind">
+                <div
+                    v-if="metar.wind"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Wind
                     </div>
                     <common-info-block class="airport__info-section_content">
                         <template #top>
-                            {{ typeof metar.wind.degrees === 'number' ? `${metar.wind.degrees}°` : metar.wind.direction }} at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
+                            {{ typeof metar.wind.degrees === 'number' ? `${ metar.wind.degrees }°` : metar.wind.direction }} at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
                         </template>
                     </common-info-block>
                 </div>
-                <div class="airport__info-section" v-if="metar.temperature">
+                <div
+                    v-if="metar.temperature"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Temp
                     </div>
@@ -108,7 +126,10 @@
                         </template>
                     </common-info-block>
                 </div>
-                <div class="airport__info-section" v-if="metar.altimeter">
+                <div
+                    v-if="metar.altimeter"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         QNH
                     </div>
@@ -120,7 +141,10 @@
                         </template>
                     </common-info-block>
                 </div>
-                <div class="airport__info-section" v-if="metar.visibility">
+                <div
+                    v-if="metar.visibility"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Visibility
                     </div>
@@ -140,10 +164,17 @@
                 </div>
             </div>
         </template>
-        <template #taf v-if="data?.taf && taf">
+        <template
+            v-if="data?.taf && taf"
+            #taf
+        >
             <div class="airport__sections">
                 <common-copy-info-block :text="data?.taf"/>
-                <div class="airport__sections" v-for="(tafMetar, index) in taf.forecast" :key="index">
+                <div
+                    v-for="(tafMetar, index) in taf.forecast"
+                    :key="index"
+                    class="airport__sections"
+                >
                     <div class="airport__sections_title">
                         Entry #{{ index + 1 }}
                         <template v-if="tafMetar.type">
@@ -151,7 +182,10 @@
                         </template>
                     </div>
                     <common-copy-info-block :text="tafMetar.raw"/>
-                    <div class="airport__info-section" v-if="tafMetar.start">
+                    <div
+                        v-if="tafMetar.start"
+                        class="airport__info-section"
+                    >
                         <div class="airport__info-section_title">
                             Valid
                         </div>
@@ -165,17 +199,23 @@
                             </template>
                         </common-info-block>
                     </div>
-                    <div class="airport__info-section" v-if="tafMetar.wind">
+                    <div
+                        v-if="tafMetar.wind"
+                        class="airport__info-section"
+                    >
                         <div class="airport__info-section_title">
                             Wind
                         </div>
                         <common-info-block class="airport__info-section_content">
                             <template #top>
-                                {{ typeof tafMetar.wind.degrees === 'number' ? `${tafMetar.wind.degrees}°` : tafMetar.wind.direction }} at {{ tafMetar.wind.speed }} {{ tafMetar.wind.unit || 'MPS' }}
+                                {{ typeof tafMetar.wind.degrees === 'number' ? `${ tafMetar.wind.degrees }°` : tafMetar.wind.direction }} at {{ tafMetar.wind.speed }} {{ tafMetar.wind.unit || 'MPS' }}
                             </template>
                         </common-info-block>
                     </div>
-                    <div class="airport__info-section" v-if="tafMetar.visibility">
+                    <div
+                        v-if="tafMetar.visibility"
+                        class="airport__info-section"
+                    >
                         <div class="airport__info-section_title">
                             Visibility
                         </div>
@@ -196,11 +236,20 @@
                 </div>
             </div>
         </template>
-        <template #notams v-if="notams?.length">
+        <template
+            v-if="notams?.length"
+            #notams
+        >
             <div class="airport__sections airport__sections--notams">
                 <common-copy-info-block :text="notams.map(x => x.content).join('\n\n')"/>
-                <div v-for="(notam, index) in notams" :key="index">
-                    <span class="airport__notam-date" v-if="notam.startDate || notam.endDate">
+                <div
+                    v-for="(notam, index) in notams"
+                    :key="index"
+                >
+                    <span
+                        v-if="notam.startDate || notam.endDate"
+                        class="airport__notam-date"
+                    >
                         <template v-if="notam.startDate">
                             From <strong>{{ formatDateDime.format(notam.startDate) }}Z</strong>
                         </template>
@@ -215,38 +264,49 @@
 
             </div>
         </template>
-        <template #airport v-if="airportInfo">
+        <template
+            v-if="airportInfo"
+            #airport
+        >
             <div class="airport__sections">
                 <div class="airport__info-section">
                     <div class="airport__info-section_title">
                         Name
                     </div>
                     <common-info-block
+                        :bottom-items="[airportInfo.name]"
                         class="airport__info-section_content"
                         :top-items="[airportInfo.icao, airportInfo.iata]"
-                        :bottom-items="[airportInfo.name]"
                     />
                 </div>
-                <div class="airport__info-section" v-if="airportInfo.altitude_m">
+                <div
+                    v-if="airportInfo.altitude_m"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Elevation
                     </div>
                     <common-info-block
-                        class="airport__info-section_content" :top-items="[
-                            `${airportInfo.altitude_m} meters`,
-                            `${airportInfo.altitude_ft} feet`,
+                        class="airport__info-section_content"
+                        :top-items="[
+                            `${ airportInfo.altitude_m } meters`,
+                            `${ airportInfo.altitude_ft } feet`,
                         ]"
                     />
                 </div>
-                <div class="airport__info-section" v-if="airportInfo.transition_alt">
+                <div
+                    v-if="airportInfo.transition_alt"
+                    class="airport__info-section"
+                >
                     <div class="airport__info-section_title">
                         Transition
                     </div>
                     <common-info-block
-                        class="airport__info-section_content" :top-items="[airportInfo.transition_level?.toString()]"
                         :bottom-items="[
-                            airportInfo.transition_level_by_atc ? `Otherwise ${airportInfo.transition_alt }` : ''
+                            airportInfo.transition_level_by_atc ? `Otherwise ${ airportInfo.transition_alt }` : '',
                         ]"
+                        class="airport__info-section_content"
+                        :top-items="[airportInfo.transition_level?.toString()]"
                     />
                 </div>
                 <div class="airport__info-section">
@@ -254,27 +314,41 @@
                         Location
                     </div>
                     <common-info-block
+                        :bottom-items="[`Division ${ airportInfo.division_id }`]"
                         class="airport__info-section_content"
                         :top-items="[airportInfo.country, airportInfo.city]"
-                        :bottom-items="[`Division ${airportInfo.division_id}`]"
                     />
                 </div>
             </div>
         </template>
         <template #atc>
-            <common-toggle v-model="showAtis" v-if="!isCtafOnly">
+            <common-toggle
+                v-if="!isCtafOnly"
+                v-model="showAtis"
+            >
                 Show ATIS
             </common-toggle>
             <common-button
-                type="link" v-else target="_blank"
+                v-else
                 href="https://my.vatsim.net/learn/frequently-asked-questions/section/140"
+                target="_blank"
+                type="link"
             >
                 Learn more about CTAF trial
             </common-button>
-            <common-controller-info small :controllers="atc" show-facility :show-atis="showAtis" max-height="170px"/>
+            <common-controller-info
+                :controllers="atc"
+                max-height="170px"
+                :show-atis="showAtis"
+                show-facility
+                small
+            />
         </template>
         <template #aircraft>
-            <div class="airport__aircraft-toggles" v-if="aircraft?.arrivals.length">
+            <div
+                v-if="aircraft?.arrivals.length"
+                class="airport__aircraft-toggles"
+            >
                 <common-toggle v-model="props.overlay.data.showTracks">
                     Show tracks for arriving
                 </common-toggle>
@@ -283,27 +357,30 @@
                 <div class="airport__aircraft_nav">
                     <div
                         class="airport__aircraft_nav_item"
-                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'ground'}"
+                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'ground' }"
                         @click="aircraftMode = 'ground'"
                     >
                         <ground-icon/>
                     </div>
                     <div
                         class="airport__aircraft_nav_item"
-                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'departed'}"
+                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'departed' }"
                         @click="aircraftMode = 'departed'"
                     >
                         <departing-icon/>
                     </div>
                     <div
                         class="airport__aircraft_nav_item"
-                        :class="{'airport__aircraft_nav_item--active': aircraftMode === 'arriving'}"
+                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'arriving' }"
                         @click="aircraftMode = 'arriving'"
                     >
                         <arriving-icon/>
                     </div>
                 </div>
-                <div class="airport__aircraft_list" :key="aircraftMode">
+                <div
+                    :key="aircraftMode"
+                    class="airport__aircraft_list"
+                >
                     <div class="airport__aircraft_list_title pilot-header">
                         <div class="pilot-header_title">
                             <template v-if="aircraftMode === 'ground'">
@@ -317,22 +394,27 @@
                             </template>
                         </div>
                     </div>
-                    <div class="airport__aircraft_list_filter" v-if="aircraftMode === 'ground'">
+                    <div
+                        v-if="aircraftMode === 'ground'"
+                        class="airport__aircraft_list_filter"
+                    >
                         <common-radio-group
-                            class="airport__ground-toggles"
                             v-model="aircraftGroundMode"
+                            class="airport__ground-toggles"
                             :items="aircraftGroundSelects"
                             two-cols
                         />
                     </div>
                     <common-info-block
-                        class="airport__pilot" v-for="pilot in displayedAircraft" :key="pilot.cid"
+                        v-for="pilot in displayedAircraft"
+                        :key="pilot.cid"
                         :bottom-items="[
                             pilot.departure,
                             pilot.aircraft_faa ?? 'No flight plan',
-                            (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${Math.round(pilot.distance)}NM ${aircraftMode !== 'ground' ? 'remains' : ''}` : '',
-                            (pilot.eta && aircraftMode !== 'ground') ? `ETA ${datetime.format(pilot.eta)}Z` : '',
+                            (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
+                            (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
                         ]"
+                        class="airport__pilot"
                         is-button
                         @click="(aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString())"
                     >
@@ -343,13 +425,13 @@
                                 </div>
                                 <div
                                     class="airport__pilot_header_status"
-                                    :style="{'--color': `rgb(var(--${getLocalPilotStatus(pilot).color}))`}"
+                                    :style="{ '--color': `rgb(var(--${ getLocalPilotStatus(pilot).color }))` }"
                                 >
                                     {{ getLocalPilotStatus(pilot).title }}
                                 </div>
                             </div>
                         </template>
-                        <template #bottom="{item, index}">
+                        <template #bottom="{ item, index }">
                             <template v-if="index === 0 && pilot.departure">
                                 <template v-if="!pilot.isArrival">
                                     to
@@ -509,7 +591,7 @@ const aircraft = computed(() => {
 
             distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
             flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
-            if(pilot.groundspeed) {
+            if (pilot.groundspeed) {
                 eta = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed);
             }
         }
@@ -550,11 +632,11 @@ const aircraft = computed(() => {
 });
 
 type LocalArrivalStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
-    isArrival: boolean,
-    distance: number,
-    flown: number,
-    eta: Date | null
-}
+    isArrival: boolean;
+    distance: number;
+    flown: number;
+    eta: Date | null;
+};
 
 function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPilotStatus> {
     if (aircraftMode.value !== 'ground') {
@@ -583,10 +665,10 @@ function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPi
 
 const displayedAircraft = computed((): LocalArrivalStatus[] => {
     if (aircraftMode.value === 'departed') {
-        return aircraft.value?.departures.slice().sort((a,b) => a.flown - b.flown) ?? [];
+        return aircraft.value?.departures.slice().sort((a, b) => a.flown - b.flown) ?? [];
     }
     if (aircraftMode.value === 'arriving') {
-        return aircraft.value?.arrivals.slice().sort((a,b) => a.distance - b.distance) ?? [];
+        return aircraft.value?.arrivals.slice().sort((a, b) => a.distance - b.distance) ?? [];
     }
 
     switch (aircraftGroundMode.value) {
@@ -686,7 +768,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if(!list.info.sections.length) delete list.info;
+    if (!list.info.sections.length) delete list.info;
 
     return list;
 });
@@ -733,31 +815,33 @@ onMounted(() => {
         transition: 0.3s ease-in-out;
 
         &--hidden {
-            opacity: 0.2;
             pointer-events: none;
+            opacity: 0.2;
         }
     }
 
     &__notam-date {
+        display: block;
+        margin-bottom: 4px;
         font-size: 12px;
         line-height: 100%;
-        margin-bottom: 4px;
-        display: block;
     }
 
     &__counts {
+        cursor: initial;
+
         display: flex;
         gap: 6px;
         align-items: center;
-        font-weight: 700;
+
         font-size: 12px;
+        font-weight: 700;
         line-height: 100%;
-        cursor: initial;
 
         &_counter {
             display: flex;
-            align-items: center;
             gap: 3px;
+            align-items: center;
             color: var(--color);
 
             &_icon {
@@ -768,23 +852,25 @@ onMounted(() => {
 
     &__section-title {
         display: flex;
-        align-items: center;
         gap: 16px;
+        align-items: center;
 
         &_text {
-            background: $neutral1000;
             padding: 0 4px;
+            background: $neutral1000;
         }
 
         &_counter {
-            background: $primary500;
-            color: $neutral150Orig;
-            border-radius: 4px;
-            padding: 0 4px;
             min-width: 24px;
+            padding: 0 4px;
+
             font-size: 11px;
             font-weight: 600;
+            color: $neutral150Orig;
             text-align: center;
+
+            background: $primary500;
+            border-radius: 4px;
         }
     }
 
@@ -803,37 +889,43 @@ onMounted(() => {
             gap: 8px;
 
             &_item {
-                transition: 0.3s;
+                cursor: pointer;
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
                 width: 40px;
                 height: 40px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+
                 background: $neutral900;
                 border-radius: 8px;
-                cursor: pointer;
+
+                transition: 0.3s;
 
                 svg {
                     width: 18px;
                 }
 
                 &--active {
-                    background: $primary500;
-                    color: $neutral150Orig;
                     cursor: default;
+                    color: $neutral150Orig;
+                    background: $primary500;
                 }
             }
         }
 
         &_list {
-            background: $neutral950;
-            padding: 8px;
-            border-radius: 8px;
-            gap: 8px;
+            overflow: auto;
             display: flex;
             flex-direction: column;
+            gap: 8px;
+
             max-height: 200px;
-            overflow: auto;
+            padding: 8px;
+
+            background: $neutral950;
+            border-radius: 8px;
         }
     }
 
@@ -856,32 +948,32 @@ onMounted(() => {
         gap: 8px;
 
         &--notams {
-            max-height: 230px;
             overflow: auto;
+            max-height: 230px;
 
             > *:not(:first-child) {
-                border-top: 1px solid varToRgba('neutral150', 0.15);
                 padding-top: 8px;
+                border-top: 1px solid varToRgba('neutral150', 0.15);
             }
         }
 
         &_title {
+            padding-top: 8px;
             font-size: 13px;
             font-weight: 600;
             border-top: 1px solid varToRgba('neutral150', 0.15);
-            padding-top: 8px;
         }
     }
 
     &__info-section {
         display: grid;
         grid-template-columns: 20% 75%;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
 
         &_title {
-            font-weight: 600;
             font-size: 13px;
+            font-weight: 600;
         }
     }
 }
