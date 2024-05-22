@@ -51,19 +51,19 @@ export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
 }
 
 export interface VatsimUser {
-    cid: string
+    cid: string;
     personal: {
         name_first: string
         name_last: string
         name_full: string
-    }
+    };
     oauth: {
         token_valid: 'true' | 'false'
-    }
+    };
 }
 
 export async function vatsimGetUser(token: string) {
-    const result = (await ofetch<{data: VatsimUser}>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
+    const result = (await ofetch<{ data: VatsimUser }>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
         headers: {
             Authorization: `Bearer ${ token }`,
         },
@@ -80,13 +80,48 @@ export async function vatsimGetUser(token: string) {
 }
 
 export function findAirportSomewhere(callsign: string) {
-    let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsign || x.icao === callsign);
-    if (vatspy) return vatspy;
+    const splittedName = callsign.split('_').slice(0, 2);
+    const regularName = splittedName.join('_');
+    const callsignAirport = splittedName[0];
+    let prefix: string | undefined;
+    let simaware = radarStorage.simaware.data?.features.find(x => {
+        prefix = getTraconPrefixes(x).find(x => x === regularName);
+        return !!prefix;
+    });
 
-    const simaware = radarStorage.simaware.data?.features.find(x => x.properties?.id === callsign || getTraconPrefixes(x).some(x => x.split('_')[0] === callsign));
-    if (simaware) callsign = simaware.properties?.id;
+    if (!simaware) {
+        const secondName = splittedName[1];
 
-    vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsign || x.icao === callsign);
+        for (let i = 0; i < secondName.length; i++) {
+            simaware = radarStorage.simaware.data?.features.find(x => {
+                prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
+                return !!prefix;
+            });
+            if (simaware) break;
+        }
+
+        if(!simaware) {
+            simaware = radarStorage.simaware.data?.features.find(x => {
+                prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
+                return !!prefix;
+            });
+        }
+    }
+
+    if (simaware) {
+        simaware.properties = {
+            ...(simaware.properties ?? {}),
+            id: prefix,
+        };
+    }
+
+    let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
+    if (vatspy && simaware) {
+        vatspy = {
+            ...vatspy,
+            isSimAware: true,
+        };
+    }
 
     return vatspy ?? simaware;
 }

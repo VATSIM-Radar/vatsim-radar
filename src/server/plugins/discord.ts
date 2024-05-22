@@ -47,7 +47,7 @@ export default defineNitroPlugin(async (app) => {
     const commands = [
         {
             name: 'verify',
-            description: 'Verify yourself to access Vatsim Radar',
+            description: 'Verify yourself to access VATSIM Radar',
         },
         {
             name: 'rename',
@@ -55,7 +55,7 @@ export default defineNitroPlugin(async (app) => {
         },
         {
             name: 'release',
-            description: 'Release latest changelog of Vatsim Radar',
+            description: 'Release latest changelog of VATSIM Radar',
             default_member_permissions: PermissionFlagsBits.ManageMessages.toString(),
         },
     ];
@@ -94,7 +94,7 @@ export default defineNitroPlugin(async (app) => {
                     .setValue('FIRST_NAME'),
                 new StringSelectMenuOptionBuilder()
                     .setLabel('CID only')
-                    .setDescription('Displays nothing but your Vatsim CID')
+                    .setDescription('Displays nothing but your VATSIM CID')
                     .setValue('CID_ONLY'),
             );
 
@@ -112,7 +112,7 @@ export default defineNitroPlugin(async (app) => {
                     .setValue('FIRST_NAME'),
                 new StringSelectMenuOptionBuilder()
                     .setLabel('CID only')
-                    .setDescription('Displays nothing but your Vatsim CID')
+                    .setDescription('Displays nothing but your VATSIM CID')
                     .setValue('CID_ONLY'),
             );
 
@@ -218,7 +218,7 @@ export default defineNitroPlugin(async (app) => {
                         const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                         const embed = new EmbedBuilder()
                             .setURL(url)
-                            .setTitle('To verify yourself and authorize on Vatsim Radar, please use this link');
+                            .setTitle('To verify yourself and authorize on VATSIM Radar, please use this link');
 
                         await interaction.reply({
                             embeds: [embed],

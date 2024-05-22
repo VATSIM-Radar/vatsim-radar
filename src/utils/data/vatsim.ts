@@ -71,8 +71,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
     ];
 
     return locals.map((atc) => {
-        const callsignAirport = atc.callsign.split('_')[0];
-        const airport = findAirportSomewhere(callsignAirport);
+        const airport = findAirportSomewhere(atc.callsign);
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
         return {
@@ -84,7 +83,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
                 icao: 'icao' in airport ? airport.icao : airport.properties!.id,
                 iata: 'icao' in airport ? airport.iata : airport.properties!.id,
                 isPseudo: !('icao' in airport),
-                isSimAware: !('icao' in airport),
+                isSimAware: !('icao' in airport) || !!airport.isSimAware,
             },
             isATIS: atc.callsign.endsWith('ATIS'),
         };

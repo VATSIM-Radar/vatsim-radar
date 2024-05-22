@@ -60,13 +60,13 @@ useHead(() => {
 
     return {
         titleTemplate(title) {
-            if (!title) return 'Vatsim Radar';
-            return `${ title } | Vatsim Radar`;
+            if (!title) return 'VATSIM Radar';
+            return `${ title } | VATSIM Radar`;
         },
         meta: [
             {
                 name: 'description',
-                content: 'Explore Vatsim Network, track pilots, view ATC - and more!',
+                content: 'Explore VATSIM Network, track pilots, view ATC - and more!',
             },
             {
                 name: 'keywords',

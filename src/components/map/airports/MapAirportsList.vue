@@ -248,6 +248,7 @@ const getAirportsList = computed(() => {
         localAtc: [] as VatsimShortenedController[],
         arrAtc: [] as VatsimShortenedController[],
         features: [] as AirportTraconFeature[],
+        isSimAware: vatsimAirport.isSimAware,
     }));
 
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
@@ -312,7 +313,7 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
-        const airport = airports.find(x => ((x.airport.iata || atc.airport.iata) && !airports.some(y => x.airport.lat === y.airport.lat && x.airport.lon && y.airport.lon)) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
+        const airport = airports.find(x => ((x.airport.iata || atc.airport.iata) && (atc.airport.isSimAware || !airports.some(y => x.airport.lat === y.airport.lat && x.airport.lon && y.airport.lon))) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
         const icaoOnlyAirport = airports.find(x => atc.airport.isPseudo && atc.airport.iata && x.airport.icao === atc.airport.icao);
         if (!airport) continue;
 
@@ -330,10 +331,8 @@ const getAirportsList = computed(() => {
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const airport = airports.find(x =>
-            x.airport.iata === sector.properties?.id ||
-            x.airport.icao === sector.properties?.id ||
-            prefixes.some(y => y.split('_')[0] === x.airport.icao) ||
-            prefixes.some(y => y.split('_')[0] === x.airport.iata),
+            prefixes.some(y => y.split('_')[0] === x.airport.iata) ||
+            prefixes.some(y => y.split('_')[0] === x.airport.icao),
         );
 
         if (!airport?.arrAtc.length) continue;
@@ -358,10 +357,8 @@ const getAirportsList = computed(() => {
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const airport = airports.find(x =>
-            x.airport.iata === sector.properties?.id ||
-            x.airport.icao === sector.properties?.id ||
-            prefixes.some(y => y.split('_')[0] === x.airport.icao) ||
-            prefixes.some(y => y.split('_')[0] === x.airport.iata),
+            prefixes.some(y => y.split('_')[0] === x.airport.iata) ||
+            prefixes.some(y => y.split('_')[0] === x.airport.icao),
         );
         if (!airport?.arrAtc.length) continue;
 
@@ -434,7 +431,7 @@ async function setVisibleAirports() {
         if (!airport) return null;
 
         if (x.isSimAware) {
-            const simawareFeature = dataStore.simaware.value?.data.features.find(y => y.properties?.id === x.icao);
+            const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao)));
             if (!simawareFeature) return null;
 
             const feature = geoJson.readFeature(simawareFeature);

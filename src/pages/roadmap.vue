@@ -119,8 +119,8 @@ const roadmap = reactive<Roadmap[]>([
         completed: true,
         items: [
             'VatSPY FIRS/UIRS API',
-            'Vatsim data caching',
-            'Log in via Vatsim/Navigraph',
+            'VATSIM data caching',
+            'Log in via VATSIM/Navigraph',
             'FIRS/UIRS on map',
             'Aircraft on map',
             'ATC on map',
@@ -198,7 +198,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Light theme',
@@ -207,20 +207,24 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Easy access to pilot stats in airport popup',
                 description: 'View pilots stats directly in airport popup to determine how new they are',
-                status: 'todo',
+                status: 'in-progress',
             },
             'Layers (hide atc/aircraft/gates/etc)',
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
                 status: 'todo',
             },
-            'Open Source (code only)',
+            {
+                title: 'Open Source (code only)',
+                status: 'completed',
+            },
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
             },
             {
                 title: 'Weather radar',
+                status: 'in-progress',
             },
         ],
     },
@@ -252,7 +256,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             'PWA',
             'Name of aircraft operating company',
-            'Aircraft moving in Vatsim update pause',
+            'Aircraft moving in VATSIM update pause',
             'Flight history, detailed flight page',
         ],
     },

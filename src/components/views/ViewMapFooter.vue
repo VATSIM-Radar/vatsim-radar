@@ -48,7 +48,7 @@
             </div>
         </div>
         <div class="map-footer_right" v-if="getLastUpdated">
-            Vatsim data time: {{ getLastUpdated }}
+            VATSIM data time: {{ getLastUpdated }}
         </div>
     </footer>
 </template>
