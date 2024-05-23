@@ -31,7 +31,7 @@
     "jwks-rsa": "^3.1.0",
     "metar-taf-parser": "^9.0.1",
     "nuxt": "^3.11.2",
-    "ol": "^9.2.2",
+    "ol": "^9.2.3",
     "ol-mapbox-style": "^12.3.2",
     "pinia": "^2.1.7",
     "prisma": "^5.14.0",
