@@ -1,5 +1,20 @@
 # Changelog
 
+# 0.4.0
+
+## Features and improvements
+
+### Engine
+
+- Reworked aircraft icon render. You may notice performance to be a bit lower on very high zoom level, but icons are now more beautiful and flexible for changes - especially in light theme
+- Reduced memory consumption for sectors render. This change will be significant when many firs are currently active
+- Improved performance when moving map (will be significant on low zoom levels)
+
+## Bug fixes
+
+- Fixed RU-SC ATIS detection
+- Improved 1251 encoding detection
+
 # 0.3.3
 
 - "View route" button will now reset "tracked" state

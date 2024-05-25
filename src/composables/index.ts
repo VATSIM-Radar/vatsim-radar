@@ -2,12 +2,13 @@ import type { Coordinate } from 'ol/coordinate';
 import { containsCoordinate } from 'ol/extent';
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
+import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
 import type { ColorsList } from '~/modules/styles';
 import { setHeader, getRequestHeader } from 'h3';
+import type { Style } from 'ol/style';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -59,6 +60,57 @@ export function attachMoveEnd(callback: (event: any) => unknown) {
 
         map.value.on('movestart', startHandler);
         map.value.on('moveend', endHandler);
+    }, {
+        immediate: true,
+    });
+}
+
+export function attachPointerMove(callback: (event: any) => unknown) {
+    if (!getCurrentInstance()) throw new Error('Only can attach pointerMove on setup');
+    const moveStarted = ref(false);
+    let latestCoordinate: string | undefined;
+    let registered = false;
+    const map = inject<ShallowRef<Map | null>>('map')!;
+
+    const startHandler = async (e: any) => {
+        const coordinate = JSON.stringify(e.coordinate);
+        latestCoordinate = coordinate;
+
+        if (moveStarted) {
+            await new Promise<void>(resolve => {
+                const watcher = watch(moveStarted, async val => {
+                    await sleep(0);
+                    if (!val) {
+                        watcher();
+                        resolve();
+                    }
+                }, { immediate: true });
+            });
+
+            if (latestCoordinate !== coordinate) return;
+        }
+        try {
+            moveStarted.value = true;
+            await callback(e);
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            await sleep(300);
+            moveStarted.value = false;
+        }
+    };
+
+    onBeforeUnmount(() => {
+        map.value?.un('pointermove', startHandler);
+    });
+
+    watch(map, val => {
+        if (!map.value || registered) return;
+        registered = true;
+
+        map.value.on('pointermove', startHandler);
     }, {
         immediate: true,
     });
@@ -121,4 +173,8 @@ export function useIframeHeader() {
     else {
         setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
     }
+}
+
+export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feature): T | null {
+    return feature.getStyle() as T | null;
 }

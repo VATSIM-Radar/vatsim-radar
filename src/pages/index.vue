@@ -31,11 +31,11 @@
         <div :key="store.theme ?? 'default'">
             <carto-db-layer-light v-if="store.theme === 'light'"/>
             <carto-db-layer v-else/>
-            <template v-if="ready">
+            <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
-            </template>
+            </client-only>
         </div>
     </div>
 </template>
@@ -211,6 +211,17 @@ const restoreOverlays = async () => {
     }
 };
 
+function updateMapCursor() {
+    if (!mapStore.mapCursorPointerTrigger) {
+        map.value!.getTargetElement().style.cursor = 'grab';
+    }
+    else {
+        map.value!.getTargetElement().style.cursor = 'pointer';
+    }
+}
+
+watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
+
 onMounted(async () => {
     // Data is not yet ready
     if (!mapStore.dataReady) {
@@ -342,14 +353,7 @@ onMounted(async () => {
     map.value.on('pointerdrag', function() {
         map.value!.getTargetElement().style.cursor = 'grabbing';
     });
-    map.value.on('pointermove', function() {
-        if (!mapStore.mapCursorPointerTrigger) {
-            map.value!.getTargetElement().style.cursor = 'grab';
-        }
-        else {
-            map.value!.getTargetElement().style.cursor = 'pointer';
-        }
-    });
+    map.value.on('pointermove', updateMapCursor);
 
     mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
 

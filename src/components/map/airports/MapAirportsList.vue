@@ -170,7 +170,7 @@ watch(map, val => {
         val.addLayer(airportsLayer);
     }
 
-    val.on('pointermove', handlePointerMove);
+    attachPointerMove(handlePointerMove);
     val.on('click', handleMapClick);
 }, {
     immediate: true,

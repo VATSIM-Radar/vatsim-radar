@@ -48,6 +48,8 @@ const encoder = new TextEncoder();
 const decoder1251 = new TextDecoder('windows-1251');
 let slugs1251: string[] = [];
 
+const regex1251 = new RegExp('([Ћ¤ґ®©Єþðî])', 'i');
+
 export function parseEncoding(text: string, callsignOrAirport?: string) {
     try {
         return decodeURIComponent(escape(text));
@@ -58,10 +60,10 @@ export function parseEncoding(text: string, callsignOrAirport?: string) {
 
     const toAnalyse = encoder.encode(text);
 
-    if (callsignOrAirport && slugs1251.includes(callsignOrAirport.slice(0, 2))) {
+    if (callsignOrAirport && (slugs1251.includes(callsignOrAirport.slice(0, 2)) || callsignOrAirport.startsWith('RU'))) {
         const result = decoder1251.decode(toAnalyse);
 
-        if (result.includes('Ћ') || result.includes('¤') || result.includes('ґ') || result.includes('®') || result.includes('©') || result.includes('Є') || result.includes('þ') || result.includes('ð') || result.includes('ð')) {
+        if (regex1251.test(result)) {
             return decoder1251.decode(new Uint8Array([...text].map(char => char.charCodeAt(0))));
         }
     }

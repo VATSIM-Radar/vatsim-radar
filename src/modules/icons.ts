@@ -2,10 +2,11 @@ import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt
 import type { AircraftIcon } from '../utils/icons';
 import { aircraftIcons } from '../utils/icons';
 import { colorsList } from '../modules/styles';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'path';
 import sharp from 'sharp';
 import type { PartialRecord } from '~/types';
+import { optimize } from 'svgo';
 
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);
@@ -19,6 +20,17 @@ export default defineNuxtModule(async (_, nuxt) => {
 
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
         const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');
+
+        let svg = optimize(iconContents, {
+            plugins: [
+                'removeDimensions',
+                'reusePaths',
+            ],
+        }).data;
+
+        svg = svg.replace('<svg', `<svg width="${ width }"`);
+
+        writeFileSync(join(publicPath, `${ icon }.svg`), svg);
 
         await Promise.all(colors.map(async (color, index) => {
             let iconContent = iconContents

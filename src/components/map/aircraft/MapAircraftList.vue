@@ -46,7 +46,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
         }
     });
 
-    return dataStore.vatsim.data.pilots.value.filter(x => {
+    return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
         if (!pilotPixel) return false;
 
@@ -151,7 +151,7 @@ watch(map, val => {
 
     val.addLayer(vectorLayer);
 
-    val.on('pointermove', handlePointerMove);
+    attachPointerMove(handlePointerMove);
     val.on('click', handleClick);
 }, {
     immediate: true,
@@ -159,7 +159,6 @@ watch(map, val => {
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
-    map.value?.un('pointermove', handlePointerMove);
     map.value?.un('click', handleClick);
 });
 </script>

@@ -116,7 +116,7 @@
         >
             <div
                 class="aircraft-label"
-                :class="[`aircraft-label--type${ getPostfix }`]"
+                :class="[`aircraft-label--type-${ getStatus }`]"
                 @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
@@ -136,8 +136,8 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom';
-import { Icon, Stroke, Style } from 'ol/style';
-import { isPilotOnGround, usePilotRating } from '~/composables/pilots';
+import { isPilotOnGround, loadAircraftIcon, usePilotRating } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -146,6 +146,8 @@ import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { getCurrentThemeHexColor } from '#imports';
 import { parseEncoding } from '../../../utils/data';
+import { getFeatureStyle } from '~/composables';
+import { Stroke, Style } from 'ol/style';
 
 const props = defineProps({
     aircraft: {
@@ -192,37 +194,40 @@ const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.
 const icon = computed(() => getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
-const getPostfix = computed(() => {
-    let iconPostfix = '';
+const getStatus = computed<MapAircraftStatus>(() => {
+    let status: MapAircraftStatus = 'default';
     if (isSelfFlight.value || store.config.allAircraftGreen) {
-        iconPostfix = '-green';
+        status = 'green';
     }
     else if (activeCurrentOverlay.value) {
-        iconPostfix = '-active';
+        status = 'active';
     }
     else if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) {
-        iconPostfix = '-hover';
+        status = 'hover';
     }
-    else if (store.theme === 'light') iconPostfix = '-light';
 
-    return iconPostfix;
+    return status;
 });
 
-const setStyle = () => {
-    if (!feature) return;
+const setStyle = async (iconFeature = feature) => {
+    if (!iconFeature) return;
 
-    const styleIcon = new Icon({
-        src: `/aircraft/${ icon.value.icon }${ getPostfix.value }.png?v=${ store.version }`,
-        width: icon.value.width,
-        rotation: degreesToRadians(props.aircraft.heading ?? 0),
-        rotateWithView: true,
-    });
+    let style = getFeatureStyle(iconFeature);
 
-    const iconStyle = new Style({
-        image: styleIcon,
-        zIndex: 10,
-    });
-    feature.setStyle(iconStyle);
+    if (!style) {
+        style = new Style();
+        iconFeature.setStyle(style);
+    }
+
+    await loadAircraftIcon(
+        iconFeature,
+        icon.value.icon,
+        degreesToRadians(props.aircraft.heading ?? 0),
+        getStatus.value,
+        style,
+    );
+
+    iconFeature.changed();
 };
 
 const init = () => {
@@ -232,6 +237,9 @@ const init = () => {
         id: props.aircraft.cid,
         type: 'aircraft',
         geometry: new Point(getCoordinates.value),
+        status: getStatus.value,
+        icon: icon.value.icon,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
     });
 
     const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
@@ -240,16 +248,11 @@ const init = () => {
 
     if (feature) feature.setGeometry(new Point(getCoordinates.value));
 
-    const existingStyle = iconFeature.getStyle() as Style;
-
-    if (existingStyle) {
-        existingStyle.getImage()!.setRotation(degreesToRadians(props.aircraft.heading ?? 0));
-    }
-    else {
-        setStyle();
+    if (!feature) {
+        vectorSource.value.addFeature(iconFeature);
     }
 
-    if (!feature) vectorSource.value.addFeature(iconFeature);
+    setStyle(iconFeature);
 
     feature = iconFeature;
     isInit.value = true;
@@ -286,23 +289,25 @@ function toggleAirportLines(value: boolean) {
             [props.aircraft?.longitude, props.aircraft?.latitude],
         ]);
 
-        const style = new Style({
-            stroke: new Stroke({
-                color,
-                width: 1,
-            }),
-        });
-
         if (depLine) {
             depLine.setGeometry(geometry);
-            depLine.setStyle(style);
+
+            getFeatureStyle(depLine)?.getStroke()?.setColor(color);
+            depLine.changed();
         }
         else {
             depLine = new Feature({
                 geometry,
+                type: 'depLine',
+                color,
             });
-
-            depLine.setStyle(style);
+            depLine.setStyle(new Style({
+                stroke: new Stroke({
+                    color,
+                    width: 1,
+                    lineDash: [4, 8],
+                }),
+            }));
 
             vectorSource.value?.addFeature(depLine);
         }
@@ -319,24 +324,24 @@ function toggleAirportLines(value: boolean) {
             [arrAirport.lon, arrAirport.lat],
         ]);
 
-        const style = new Style({
-            stroke: new Stroke({
-                color,
-                width: 1,
-                lineDash: [4, 8],
-            }),
-        });
-
         if (arrLine) {
             arrLine.setGeometry(geometry);
-            arrLine.setStyle(style);
+            getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+            arrLine.changed();
         }
         else {
             arrLine = new Feature({
                 geometry,
+                type: 'arrLine',
+                color,
             });
-
-            arrLine.setStyle(style);
+            arrLine.setStyle(new Style({
+                stroke: new Stroke({
+                    color,
+                    width: 1,
+                    lineDash: [4, 8],
+                }),
+            }));
 
             vectorSource.value?.addFeature(arrLine);
         }
