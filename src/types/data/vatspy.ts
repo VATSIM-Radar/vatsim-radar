@@ -21,15 +21,15 @@ export interface VatSpyData {
         callsign?: string;
     }[];
     airports: {
-        icao: string
-        name: string
-        lat: number
-        lon: number
-        iata?: string
-        fir?: string
-        isPseudo: boolean
-        isIata?: boolean
-        isSimAware?: boolean
+        icao: string;
+        name: string;
+        lat: number;
+        lon: number;
+        iata?: string;
+        fir?: string;
+        isPseudo: boolean;
+        isIata?: boolean;
+        isSimAware?: boolean;
     }[];
     firs: {
         icao: string;

@@ -70,7 +70,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
         ...radarStorage.vatsim.regularData!.atis,
     ];
 
-    return locals.map((atc) => {
+    return locals.map(atc => {
         const airport = findAirportSomewhere(atc.callsign);
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;

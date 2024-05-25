@@ -53,7 +53,11 @@
                 </div>
             </div>
             <div class="header__sections_section">
-                <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
+                <common-button
+                    v-if="!store.user"
+                    href="/auth/vatsim/redirect"
+                    size="S"
+                >
                     Connect VATSIM
                 </common-button>
                 <div
@@ -90,9 +94,9 @@
                 absolute
                 class="header__settings"
                 :sections="[
-                    {title: 'VATSIM Account', key: 'account'},
-                    {title: 'Navigraph Account', key: 'navigraph'},
-                    {title: 'Preferences', key: 'follow'},
+                    { title: 'VATSIM Account', key: 'account' },
+                    { title: 'Navigraph Account', key: 'navigraph' },
+                    { title: 'Preferences', key: 'follow' },
                 ]"
             >
                 <template #title>

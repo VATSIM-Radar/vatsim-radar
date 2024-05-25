@@ -100,7 +100,7 @@ export function findAirportSomewhere(callsign: string) {
             if (simaware) break;
         }
 
-        if(!simaware) {
+        if (!simaware) {
             simaware = radarStorage.simaware.data?.features.find(x => {
                 prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
                 return !!prefix;

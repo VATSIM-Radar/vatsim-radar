@@ -67,7 +67,10 @@
                 v{{ store.version }}
             </div>
         </div>
-        <div class="map-footer_right" v-if="getLastUpdated">
+        <div
+            v-if="getLastUpdated"
+            class="map-footer_right"
+        >
             VATSIM data time: {{ getLastUpdated }}
         </div>
     </footer>
