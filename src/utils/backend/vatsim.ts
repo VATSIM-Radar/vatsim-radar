@@ -83,15 +83,15 @@ export function findAirportSomewhere(callsign: string) {
     const splittedName = callsign.split('_').slice(0, 2);
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
+    const secondName = splittedName[1];
+
     let prefix: string | undefined;
     let simaware = radarStorage.simaware.data?.features.find(x => {
         prefix = getTraconPrefixes(x).find(x => x === regularName);
         return !!prefix;
     });
 
-    if (!simaware) {
-        const secondName = splittedName[1];
-
+    if (!simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
             simaware = radarStorage.simaware.data?.features.find(x => {
                 prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
