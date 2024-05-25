@@ -1,1 +1,1 @@
-# Vatsim Radar
+# VATSIM Radar

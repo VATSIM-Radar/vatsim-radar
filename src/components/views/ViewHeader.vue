@@ -8,7 +8,7 @@
             >
                 <logo-icon class="header__logo_icon"/>
                 <div class="header__logo_text">
-                    Vatsim<br>
+                    VATSIM<br>
                     Radar
                 </div>
             </nuxt-link>
@@ -53,12 +53,8 @@
                 </div>
             </div>
             <div class="header__sections_section">
-                <common-button
-                    v-if="!store.user"
-                    href="/auth/vatsim/redirect"
-                    size="S"
-                >
-                    Connect Vatsim
+                <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
+                    Connect VATSIM
                 </common-button>
                 <div
                     v-else
@@ -94,9 +90,9 @@
                 absolute
                 class="header__settings"
                 :sections="[
-                    { title: 'Vatsim Account', key: 'account' },
-                    { title: 'Navigraph Account', key: 'navigraph' },
-                    { title: 'Preferences', key: 'follow' },
+                    {title: 'VATSIM Account', key: 'account'},
+                    {title: 'Navigraph Account', key: 'navigraph'},
+                    {title: 'Preferences', key: 'follow'},
                 ]"
             >
                 <template #title>
@@ -108,7 +104,7 @@
                             <template #top>
                                 <div class="header__settings__two-col-block">
                                     <div class="header__settings__two-col-block_title">
-                                        Vatsim ID
+                                        VATSIM ID
                                     </div>
                                     <div class="header__settings__two-col-block_text">
                                         {{ store.user!.cid }}
@@ -236,7 +232,7 @@
         </div>
         <common-popup v-model="loginPopup">
             <template #title>
-                Authorize via Vatsim
+                Authorize via VATSIM
             </template>
             In order to edit and save your settings, you must authorize first.
             <template #actions>
@@ -256,7 +252,7 @@
                 Account Deletion
             </template>
             Are you completely sure you want to delete your account?<br><br>
-            <strong>You will not be able to cancel this action</strong>. All your Vatsim Radar information and
+            <strong>You will not be able to cancel this action</strong>. All your VATSIM Radar information and
             preferences will be permanently lost.
             <template #actions>
                 <common-button

@@ -15,6 +15,16 @@
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
 
+# 0.3.4
+
+- Updated roadmap
+- Vatsim has been uppercased to VATSIM everywhere
+- Improved parsing logic for SimAware TRACON to some of the sectors, like SCT_APP, ESSEX_APP and CHI_X_APP
+
+  Something may not work as it did before, so please keep an eye on approach sectors renders after this update. Overlall it should work better as before and be equal to SimAware.
+
+And also previous changelogs missed that you can now open ATC card to view ATC stats. Give it a try!
+
 # 0.3.3
 
 - "View route" button will now reset "tracked" state
@@ -83,7 +93,7 @@ What's included:
 
 - METAR/TAF with basic info parsing
 - NOTAMS with start/expiration dates
-- Vatsim info if available with airport elevation, transition frequency and division
+- VATSIM info if available with airport elevation, transition frequency and division
 - CTAF frequency if no ATC is online for US airports
 - All possible traffic list
 
@@ -187,7 +197,7 @@ This release summaries all hotfixes that was made today. Sorry for last days rel
 
 # 0.2.0
 
-This update is a huge step forward for Vatsim Radar. Packed with many bugfixes and new features, this update aims to
+This update is a huge step forward for VATSIM Radar. Packed with many bugfixes and new features, this update aims to
 improve your flight experience - please give it a shot!
 
 Closest feature after this one should be TMA approach sectors.
@@ -204,7 +214,7 @@ Closest feature after this one should be TMA approach sectors.
 ### Pilot overlay
 
 You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot
-on map, open Vatsim stats and more:
+on map, open VATSIM stats and more:
 
 - Total time on network as pilot
 - Pilot ID
@@ -252,16 +262,16 @@ P.S. You are also able to open this from airport counters popup - including pref
 
 # 0.1.3
 
-First of all, I want to thank everyone for joining this server and leaving great feedback about Vatsim Radar. Have a
+First of all, I want to thank everyone for joining this server and leaving great feedback about VATSIM Radar. Have a
 great weekend and CTP!
 
 ## Bug fixes
 
 - Diverted to non-planned airport will now also be displayed in ground aircraft list
-- Aircraft altitude will no longer be modified using Vatsim QNH when below FL100
+- Aircraft altitude will no longer be modified using VATSIM QNH when below FL100
 - Fixed ground aircraft sometimes not showing in correct airport
 - Fixed rare issue when circle with dep/arr controller could suddenly disappear while still being online. If you'll
-  encourage this later, please report it in #feedback section (must be present in VatSpy and missing in Vatsim Radar)
+  encourage this later, please report it in #feedback section (must be present in VatSpy and missing in VATSIM Radar)
 - Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead
   of one
 
@@ -309,7 +319,7 @@ This is maintenance release, mostly aimed to fix bug with no ATC displayed for a
 
 # 0.1.0
 
-This is initial release to test changelog generation and general CI/CD flow. Service is still pending Vatsim approval to
+This is initial release to test changelog generation and general CI/CD flow. Service is still pending VATSIM approval to
 announce proper testing.
 
 ## New features
