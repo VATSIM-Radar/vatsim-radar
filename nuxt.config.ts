@@ -46,6 +46,11 @@ export default defineNuxtConfig({
             ],
         },
     },
+    routeRules: {
+        '/layers/carto/**': {
+            proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
+        },
+    },
     build: {
         transpile: process.env.NODE_ENV === 'development'
             ? []

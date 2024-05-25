@@ -4,6 +4,8 @@
 
 ## Features and improvements
 
+- Significantly improved map layer loading performance
+
 ### Engine
 
 - Reworked aircraft icon render. You may notice performance to be a bit lower on very high zoom level, but icons are now more beautiful and flexible for changes - especially in light theme
@@ -14,6 +16,7 @@
 
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
+- Fixed rare server crash when parsing simaware data
 
 # 0.3.4
 
