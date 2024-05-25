@@ -84,6 +84,7 @@ export function findAirportSomewhere(callsign: string) {
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];
+
     let prefix: string | undefined;
     let simaware = radarStorage.simaware.data?.features.find(x => {
         prefix = getTraconPrefixes(x).find(x => x === regularName);
