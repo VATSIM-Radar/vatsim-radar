@@ -16,7 +16,6 @@
 
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
-- Fixed rare server crash when parsing simaware data
 
 # 0.3.4
 
