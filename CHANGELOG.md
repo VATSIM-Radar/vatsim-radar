@@ -6,6 +6,7 @@
 
 - Changed route aircraft icon color
 - Added turns history (tracks) when you open pilot overlay
+- METAR/TAF/NOTAMS redesign
 
 ### Performance improvements and technical stuff
 

@@ -147,7 +147,7 @@ import { useStore } from '~/store';
 import { getCurrentThemeHexColor } from '#imports';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
-import { Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { InfluxGeojson } from '~/utils/backend/influx';
 
 const props = defineProps({
@@ -285,7 +285,7 @@ async function toggleAirportLines(value: boolean) {
 
     const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning600');
 
-    const turns = (isSelfFlight.value || activeCurrentOverlay.value) && value && await $fetch<InfluxGeojson | null | undefined>(`/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+    const turns = value && (activeCurrentOverlay.value || isSelfFlight.value) && await $fetch<InfluxGeojson | null | undefined>(`/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
         timeout: 1000 * 5,
     }).catch(console.error);
 
@@ -306,7 +306,16 @@ async function toggleAirportLines(value: boolean) {
             vectorSource.value?.removeFeature(lineFeature);
         }
         const style = new Style({
-            stroke: new Stroke({ color, width: 1.5 }),
+            stroke: new Stroke({ color, width: 2 }),
+            text: new Text({
+                font: 'bold 12px Montserrat',
+                text: props.aircraft?.callsign,
+                fill: new Fill({
+                    color,
+                }),
+                placement: 'line',
+                textBaseline: 'bottom',
+            }),
         });
 
         lineFeature = new Feature({
@@ -359,40 +368,40 @@ async function toggleAirportLines(value: boolean) {
             vectorSource.value?.removeFeature(depLine);
             depLine = undefined;
         }
+    }
 
-        if (arrAirport) {
-            const geometry = new LineString([
-                [props.aircraft?.longitude, props.aircraft?.latitude],
-                [arrAirport.lon, arrAirport.lat],
-            ]);
+    if (arrAirport) {
+        const geometry = new LineString([
+            [props.aircraft?.longitude, props.aircraft?.latitude],
+            [arrAirport.lon, arrAirport.lat],
+        ]);
 
-            if (arrLine) {
-                arrLine.setGeometry(geometry);
-                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
-                arrLine.changed();
-            }
-            else {
-                arrLine = new Feature({
-                    geometry,
-                    type: 'arrLine',
+        if (arrLine) {
+            arrLine.setGeometry(geometry);
+            getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+            arrLine.changed();
+        }
+        else {
+            arrLine = new Feature({
+                geometry,
+                type: 'arrLine',
+                color,
+            });
+            arrLine.setStyle(new Style({
+                stroke: new Stroke({
                     color,
-                });
-                arrLine.setStyle(new Style({
-                    stroke: new Stroke({
-                        color,
-                        width: 1,
-                        lineDash: [4, 8],
-                    }),
-                }));
+                    width: 1,
+                    lineDash: [4, 8],
+                }),
+            }));
 
-                vectorSource.value?.addFeature(arrLine);
-            }
+            vectorSource.value?.addFeature(arrLine);
         }
-        else if (arrLine) {
-            arrLine.dispose();
-            vectorSource.value?.removeFeature(arrLine);
-            arrLine = undefined;
-        }
+    }
+    else if (arrLine) {
+        arrLine.dispose();
+        vectorSource.value?.removeFeature(arrLine);
+        arrLine = undefined;
     }
 }
 
@@ -401,7 +410,7 @@ watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOv
 
     setStyle();
 
-    if ((activeCurrentOverlay.value?.data.pilot.status || airportOverlayTracks.value) && !isOnGround.value) {
+    if (activeCurrentOverlay.value?.data.pilot.status || airportOverlayTracks.value) {
         toggleAirportLines(true);
     }
     else if (!props.isHovered) {

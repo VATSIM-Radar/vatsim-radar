@@ -81,245 +81,28 @@
             </div>
         </template>
         <template
-            v-if="data?.metar && metar"
+            v-if="data?.metar"
             #metar
         >
-            <div class="airport__sections">
-                <common-copy-info-block :text="data?.metar"/>
-                <!-- TODO: refactor those duplicates -->
-                <div
-                    v-if="metar.hour"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Issued
-                    </div>
-                    <common-info-block class="airport__info-section_content">
-                        <template #top>
-                            {{ `0${ metar.hour }`.slice(-2) }}:{{ `0${ metar.minute }`.slice(-2) }}Z
-                        </template>
-                    </common-info-block>
-                </div>
-                <div
-                    v-if="metar.wind"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Wind
-                    </div>
-                    <common-info-block class="airport__info-section_content">
-                        <template #top>
-                            {{ typeof metar.wind.degrees === 'number' ? `${ metar.wind.degrees }°` : metar.wind.direction }} at {{ metar.wind.speed }} {{ metar.wind.unit || 'MPS' }}
-                        </template>
-                    </common-info-block>
-                </div>
-                <div
-                    v-if="metar.temperature"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Temp
-                    </div>
-                    <common-info-block class="airport__info-section_content">
-                        <template #top>
-                            {{ metar.temperature }}° C / Dew Point {{ metar.dewPoint }}° C
-                        </template>
-                    </common-info-block>
-                </div>
-                <div
-                    v-if="metar.altimeter"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        QNH
-                    </div>
-                    <common-info-block class="airport__info-section_content">
-                        <template #top>
-                            {{ metar.altimeter.value }} {{
-                                metar.altimeter.unit === AltimeterUnit.HPa ? 'hPa' : 'inHG'
-                            }}
-                        </template>
-                    </common-info-block>
-                </div>
-                <div
-                    v-if="metar.visibility"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Visibility
-                    </div>
-                    <common-info-block class="airport__info-section_content">
-                        <template #top>
-                            <template v-if="metar.visibility.indicator">
-                                <template v-if="metar.visibility.indicator === ValueIndicator.GreaterThan">
-                                    Min
-                                </template>
-                                <template v-else>
-                                    Max
-                                </template>
-                            </template>
-                            {{ metar.visibility.value }} {{ metar.visibility.unit }}
-                        </template>
-                    </common-info-block>
-                </div>
-            </div>
+            <airport-metar/>
         </template>
         <template
-            v-if="data?.taf && taf"
+            v-if="data?.taf"
             #taf
         >
-            <div class="airport__sections">
-                <common-copy-info-block :text="data?.taf"/>
-                <div
-                    v-for="(tafMetar, index) in taf.forecast"
-                    :key="index"
-                    class="airport__sections"
-                >
-                    <div class="airport__sections_title">
-                        Entry #{{ index + 1 }}
-                        <template v-if="tafMetar.type">
-                            ({{ tafMetar.type }})
-                        </template>
-                    </div>
-                    <common-copy-info-block :text="tafMetar.raw"/>
-                    <div
-                        v-if="tafMetar.start"
-                        class="airport__info-section"
-                    >
-                        <div class="airport__info-section_title">
-                            Valid
-                        </div>
-                        <common-info-block class="airport__info-section_content">
-                            <template #top>
-                                {{
-                                    `0${ tafMetar.start.getUTCHours() }`.slice(-2)
-                                }}:{{ `0${ tafMetar.start.getUTCHours() }`.slice(-2) }}Z to {{
-                                    `0${ tafMetar.end.getUTCHours() }`.slice(-2)
-                                }}:{{ `0${ tafMetar.end.getUTCHours() }`.slice(-2) }}Z
-                            </template>
-                        </common-info-block>
-                    </div>
-                    <div
-                        v-if="tafMetar.wind"
-                        class="airport__info-section"
-                    >
-                        <div class="airport__info-section_title">
-                            Wind
-                        </div>
-                        <common-info-block class="airport__info-section_content">
-                            <template #top>
-                                {{ typeof tafMetar.wind.degrees === 'number' ? `${ tafMetar.wind.degrees }°` : tafMetar.wind.direction }} at {{ tafMetar.wind.speed }} {{ tafMetar.wind.unit || 'MPS' }}
-                            </template>
-                        </common-info-block>
-                    </div>
-                    <div
-                        v-if="tafMetar.visibility"
-                        class="airport__info-section"
-                    >
-                        <div class="airport__info-section_title">
-                            Visibility
-                        </div>
-                        <common-info-block class="airport__info-section_content">
-                            <template #top>
-                                <template v-if="tafMetar.visibility.indicator">
-                                    <template v-if="tafMetar.visibility.indicator === ValueIndicator.GreaterThan">
-                                        Min
-                                    </template>
-                                    <template v-else>
-                                        Max
-                                    </template>
-                                </template>
-                                {{ tafMetar.visibility.value }} {{ tafMetar.visibility.unit }}
-                            </template>
-                        </common-info-block>
-                    </div>
-                </div>
-            </div>
+            <airport-taf/>
         </template>
         <template
             v-if="notams?.length"
             #notams
         >
-            <div class="airport__sections airport__sections--notams">
-                <common-copy-info-block :text="notams.map(x => x.content).join('\n\n')"/>
-                <div
-                    v-for="(notam, index) in notams"
-                    :key="index"
-                >
-                    <span
-                        v-if="notam.startDate || notam.endDate"
-                        class="airport__notam-date"
-                    >
-                        <template v-if="notam.startDate">
-                            From <strong>{{ formatDateDime.format(notam.startDate) }}Z</strong>
-                        </template>
-                        <template v-if="notam.endDate">
-                            To <strong>{{ formatDateDime.format(notam.endDate) }}Z</strong>
-                        </template>
-                    </span>
-                    <common-copy-info-block :text="notam.content">
-                        {{ notam.title }}<br><br>
-                    </common-copy-info-block>
-                </div>
-
-            </div>
+            <airport-notams/>
         </template>
         <template
             v-if="airportInfo"
             #airport
         >
-            <div class="airport__sections">
-                <div class="airport__info-section">
-                    <div class="airport__info-section_title">
-                        Name
-                    </div>
-                    <common-info-block
-                        :bottom-items="[airportInfo.name]"
-                        class="airport__info-section_content"
-                        :top-items="[airportInfo.icao, airportInfo.iata]"
-                    />
-                </div>
-                <div
-                    v-if="airportInfo.altitude_m"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Elevation
-                    </div>
-                    <common-info-block
-                        class="airport__info-section_content"
-                        :top-items="[
-                            `${ airportInfo.altitude_m } meters`,
-                            `${ airportInfo.altitude_ft } feet`,
-                        ]"
-                    />
-                </div>
-                <div
-                    v-if="airportInfo.transition_alt"
-                    class="airport__info-section"
-                >
-                    <div class="airport__info-section_title">
-                        Transition
-                    </div>
-                    <common-info-block
-                        :bottom-items="[
-                            airportInfo.transition_level_by_atc ? `Otherwise ${ airportInfo.transition_alt }` : '',
-                        ]"
-                        class="airport__info-section_content"
-                        :top-items="[airportInfo.transition_level?.toString()]"
-                    />
-                </div>
-                <div class="airport__info-section">
-                    <div class="airport__info-section_title">
-                        Location
-                    </div>
-                    <common-info-block
-                        :bottom-items="[`Division ${ airportInfo.division_id }`]"
-                        class="airport__info-section_content"
-                        :top-items="[airportInfo.country, airportInfo.city]"
-                    />
-                </div>
-            </div>
+            <views-airport-info/>
         </template>
         <template #atc>
             <common-toggle
@@ -479,10 +262,13 @@ import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
-import { AltimeterUnit, parseMetar, parseTAFAsForecast, ValueIndicator } from 'metar-taf-parser';
 import { useStore } from '~/store';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { toLonLat } from 'ol/proj';
+import { provideAirport } from '~/composables/airport';
+import AirportMetar from '~/components/views/airport/AirportMetar.vue';
+import AirportTaf from '~/components/views/airport/AirportTaf.vue';
+import AirportNotams from '~/components/views/airport/AirportNotams.vue';
 
 const props = defineProps({
     overlay: {
@@ -490,6 +276,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+provideAirport(computed(() => props.overlay.data));
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -504,15 +292,6 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 
 const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
 const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
-
-const formatDateDime = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    year: '2-digit',
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-});
 
 const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
     {
@@ -688,20 +467,6 @@ const displayedAircraft = computed((): LocalArrivalStatus[] => {
     return [];
 });
 
-const metar = computed(() => {
-    if (!data.value?.metar) return;
-    return parseMetar(data.value.metar, {
-        issued: new Date(),
-    });
-});
-
-const taf = computed(() => {
-    if (!data.value?.taf) return;
-    return parseTAFAsForecast(data.value.taf, {
-        issued: new Date(),
-    });
-});
-
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
         atc: {
@@ -722,7 +487,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (metar.value) {
+    if (data.value?.metar) {
         list.info.sections.push({
             title: 'METAR',
             collapsible: true,
@@ -732,7 +497,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (taf.value) {
+    if (data.value?.taf) {
         list.info.sections.push({
             title: 'TAF',
             collapsible: true,
@@ -820,13 +585,6 @@ onMounted(() => {
         }
     }
 
-    &__notam-date {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 12px;
-        line-height: 100%;
-    }
-
     &__counts {
         cursor: initial;
 
@@ -850,6 +608,7 @@ onMounted(() => {
         }
     }
 
+    /* TODO: this to component */
     &__section-title {
         display: flex;
         gap: 16px;

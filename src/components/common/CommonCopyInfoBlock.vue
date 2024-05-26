@@ -4,7 +4,10 @@
         class="copy-info"
     >
         <div class="copy-info_left">
-            <div class="copy-info_left_title">
+            <div
+                v-if="$slots.default"
+                class="copy-info_left_title"
+            >
                 <slot/>
             </div>
             <common-button
@@ -32,12 +35,15 @@
                 </template>
             </common-button>
         </div>
-        <textarea
-            ref="textarea"
-            class="copy-info_textarea"
-            readonly
-            :value="text"
-        />
+        <div class="copy-info_right __info-sections">
+            <slot name="prepend"/>
+            <textarea
+                ref="textarea"
+                class="copy-info_textarea"
+                readonly
+                :value="text"
+            />
+        </div>
     </div>
 </template>
 
@@ -52,7 +58,7 @@ defineProps({
     },
 });
 
-defineSlots<{ default(): any }>();
+defineSlots<{ default(): any; prepend(): any }>();
 
 const copy = useCopyText();
 const expanded = ref(false);
@@ -104,7 +110,7 @@ watch(expanded, val => {
         color: $neutral150;
 
         appearance: none;
-        background: $neutral950;
+        background: $neutral875;
         border: none;
         border-radius: 4px;
         outline: none;

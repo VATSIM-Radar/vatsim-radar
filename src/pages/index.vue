@@ -485,6 +485,40 @@ await useAsyncData(async () => {
         border-radius: 0;
     }
 }
+
+.__info-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &_title {
+        padding-top: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 1px solid varToRgba('neutral150', 0.15);
+    }
+}
+
+.__grid-info-sections {
+    display: grid;
+    grid-template-columns: 20% 75%;
+    align-items: center;
+    justify-content: space-between;
+
+    &_title {
+        font-size: 13px;
+    }
+}
+
+.__section-group {
+    display: flex;
+    gap: 8px;
+
+    > * {
+        flex: 1 1 0;
+        width: 0;
+    }
+}
 </style>
 
 <style lang="scss" scoped>
