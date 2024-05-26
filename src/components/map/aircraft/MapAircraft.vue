@@ -148,6 +148,8 @@ import { getCurrentThemeHexColor } from '#imports';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
 import { Stroke, Style } from 'ol/style';
+import type { InfluxGeojson } from '~/utils/backend/influx';
+import { GeoJSON } from 'ol/format';
 
 const props = defineProps({
     aircraft: {
@@ -182,6 +184,7 @@ const isInit = ref(false);
 let feature: Feature | undefined;
 let depLine: Feature | undefined;
 let arrLine: Feature | undefined;
+let lineFeature: Feature | undefined;
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -273,83 +276,122 @@ watch([isPropsHovered, isInit], ([val]) => {
     immediate: true,
 });
 
-function toggleAirportLines(value: boolean) {
+async function toggleAirportLines(value: boolean) {
     if (value) {
-        if (isOnGround.value) value = false;
+        if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) value = false;
     }
 
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('neutral150');
+    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning600');
 
-    if (depAirport) {
-        const geometry = new LineString([
-            [depAirport.lon, depAirport.lat],
-            [props.aircraft?.longitude, props.aircraft?.latitude],
-        ]);
+    const turns = (isSelfFlight.value || activeCurrentOverlay.value) && value && await $fetch<InfluxGeojson | null | undefined>(`/data/vatsim/pilot/${ props.aircraft.cid }/turns`).catch(console.error);
 
+    if (turns) {
         if (depLine) {
-            depLine.setGeometry(geometry);
-
-            getFeatureStyle(depLine)?.getStroke()?.setColor(color);
-            depLine.changed();
+            depLine.dispose();
+            vectorSource.value?.removeFeature(depLine);
+            depLine = undefined;
         }
-        else {
-            depLine = new Feature({
-                geometry,
-                type: 'depLine',
-                color,
-            });
-            depLine.setStyle(new Style({
-                stroke: new Stroke({
-                    color,
-                    width: 1,
-                    lineDash: [4, 8],
-                }),
-            }));
-
-            vectorSource.value?.addFeature(depLine);
-        }
-    }
-    else if (depLine) {
-        depLine.dispose();
-        vectorSource.value?.removeFeature(depLine);
-        depLine = undefined;
-    }
-
-    if (arrAirport) {
-        const geometry = new LineString([
-            [props.aircraft?.longitude, props.aircraft?.latitude],
-            [arrAirport.lon, arrAirport.lat],
-        ]);
 
         if (arrLine) {
-            arrLine.setGeometry(geometry);
-            getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
-            arrLine.changed();
+            arrLine.dispose();
+            vectorSource.value?.removeFeature(arrLine);
+            arrLine = undefined;
         }
-        else {
-            arrLine = new Feature({
-                geometry,
-                type: 'arrLine',
-                color,
-            });
-            arrLine.setStyle(new Style({
-                stroke: new Stroke({
-                    color,
-                    width: 1,
-                    lineDash: [4, 8],
-                }),
-            }));
 
-            vectorSource.value?.addFeature(arrLine);
+        if (lineFeature) {
+            vectorSource.value?.removeFeature(lineFeature);
         }
+        const style = new Style({
+            stroke: new Stroke({ color, width: 1.5 }),
+        });
+
+        lineFeature = new Feature({
+            geometry: new LineString([
+                [props.aircraft.longitude, props.aircraft.latitude],
+                ...turns.features.map(x => x.geometry.coordinates),
+            ]),
+        });
+        lineFeature.setStyle(style);
+
+        vectorSource.value?.addFeature(lineFeature);
     }
-    else if (arrLine) {
-        arrLine.dispose();
-        vectorSource.value?.removeFeature(arrLine);
-        arrLine = undefined;
+    else {
+        if (lineFeature) {
+            vectorSource.value?.removeFeature(lineFeature);
+            lineFeature.dispose();
+            lineFeature = undefined;
+        }
+
+        if (depAirport) {
+            const geometry = new LineString([
+                [depAirport.lon, depAirport.lat],
+                [props.aircraft?.longitude, props.aircraft?.latitude],
+            ]);
+
+            if (depLine) {
+                depLine.setGeometry(geometry);
+
+                getFeatureStyle(depLine)?.getStroke()?.setColor(color);
+                depLine.changed();
+            }
+            else {
+                depLine = new Feature({
+                    geometry,
+                    type: 'depLine',
+                    color,
+                });
+                depLine.setStyle(new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 1,
+                    }),
+                }));
+
+                vectorSource.value?.addFeature(depLine);
+            }
+        }
+        else if (depLine) {
+            depLine.dispose();
+            vectorSource.value?.removeFeature(depLine);
+            depLine = undefined;
+        }
+
+        if (arrAirport) {
+            const geometry = new LineString([
+                [props.aircraft?.longitude, props.aircraft?.latitude],
+                [arrAirport.lon, arrAirport.lat],
+            ]);
+
+            if (arrLine) {
+                arrLine.setGeometry(geometry);
+                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+                arrLine.changed();
+            }
+            else {
+                arrLine = new Feature({
+                    geometry,
+                    type: 'arrLine',
+                    color,
+                });
+                arrLine.setStyle(new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 1,
+                        lineDash: [4, 8],
+                    }),
+                }));
+
+                vectorSource.value?.addFeature(arrLine);
+            }
+        }
+        else if (arrLine) {
+            arrLine.dispose();
+            vectorSource.value?.removeFeature(arrLine);
+            arrLine = undefined;
+        }
     }
 }
 
@@ -393,6 +435,10 @@ watch(isShowLabel, val => {
 watch(dataStore.vatsim.updateTimestamp, init);
 
 onBeforeUnmount(() => {
+    if (lineFeature) {
+        vectorSource.value?.removeFeature(lineFeature);
+        lineFeature.dispose();
+    }
     if (mapStore.openPilotOverlay) mapStore.openPilotOverlay = false;
     if (feature) vectorSource.value?.removeFeature(feature);
     if (depLine) vectorSource.value?.removeFeature(depLine);

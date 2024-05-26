@@ -116,10 +116,11 @@ const svgColors = (): Record<MapAircraftStatus, string> => {
         default: getCurrentThemeHexColor('primary500'),
         green: getCurrentThemeHexColor('success500'),
         hover: getCurrentThemeHexColor('warning600'),
+        neutral: getCurrentThemeHexColor('neutral150'),
     };
 };
 
-function reColorSvg(svg: string, status: MapAircraftStatus) {
+export function reColorSvg(svg: string, status: MapAircraftStatus) {
     const store = useStore();
 
     let iconContent = svg
@@ -139,7 +140,7 @@ function svgToDataURI(svg: string) {
     return `data:image/svg+xml,${ encoded }`;
 }
 
-export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover';
+export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover' | 'neutral';
 
 export async function fetchAircraftIcon(icon: AircraftIcon) {
     const store = useStore();
@@ -159,7 +160,7 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
 }
 
 export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rotation: number, status: MapAircraftStatus, style: Style) {
-    const svg = await fetchAircraftIcon(icon);
+    const store = useStore();
 
     const image = style.getImage();
 
@@ -168,13 +169,26 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
         image.setRotation(rotation);
     }
     else {
-        style.setImage(new Icon({
-            src: svgToDataURI(reColorSvg(svg, status)),
-            width: radarIcons[icon].width,
-            rotation,
-            rotateWithView: true,
-            // @ts-expect-error Custom prop
-            status,
-        }));
+        if (status === 'default') {
+            style.setImage(new Icon({
+                src: `/aircraft/${ icon }${ store.theme === 'light' ? '-light' : '' }.png`,
+                width: radarIcons[icon].width,
+                rotation,
+                rotateWithView: true,
+                // @ts-expect-error Custom prop
+                status,
+            }));
+        }
+        else {
+            const svg = await fetchAircraftIcon(icon);
+            style.setImage(new Icon({
+                src: svgToDataURI(reColorSvg(svg, status)),
+                width: radarIcons[icon].width,
+                rotation,
+                rotateWithView: true,
+                // @ts-expect-error Custom prop
+                status,
+            }));
+        }
     }
 }

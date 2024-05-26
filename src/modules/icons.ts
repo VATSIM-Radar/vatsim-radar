@@ -14,8 +14,6 @@ export default defineNuxtModule(async (_, nuxt) => {
     const iconsPath = resolver.resolve('../assets/icons/aircraft');
     const publicPath = resolver.resolve('../public/aircraft');
 
-    const colors = [colorsList.primary500, colorsList.warning500, colorsList.warning700, colorsList.success500, colorsList.primary500];
-
     const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon; width: number; height: number }> = {};
 
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
@@ -32,27 +30,12 @@ export default defineNuxtModule(async (_, nuxt) => {
 
         writeFileSync(join(publicPath, `${ icon }.svg`), svg);
 
-        await Promise.all(colors.map(async (color, index) => {
+        for (let i = 0; i < 2; i++) {
             let iconContent = iconContents
-                .replaceAll('white', color)
-                .replaceAll('#F8F8FA', color);
-            let iconKey = '';
-            switch (index) {
-                case 1:
-                    iconKey = '-hover';
-                    break;
-                case 2:
-                    iconKey = '-active';
-                    break;
-                case 3:
-                    iconKey = '-green';
-                    break;
-                case 4:
-                    iconKey = '-light';
-                    break;
-            }
-
-            if (index === 4) iconContent = iconContent.replaceAll('black', 'white');
+                .replaceAll('white', colorsList.primary500)
+                .replaceAll('#F8F8FA', colorsList.primary500);
+            const iconKey = i === 1 ? '-light' : '';
+            if (i === 1) iconContent = iconContent.replaceAll('black', 'white');
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
@@ -66,7 +49,7 @@ export default defineNuxtModule(async (_, nuxt) => {
                 width,
                 height: info.height,
             };
-        }));
+        }
     }
 
     addTemplate({

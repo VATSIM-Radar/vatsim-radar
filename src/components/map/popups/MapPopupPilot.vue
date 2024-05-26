@@ -109,18 +109,14 @@
                                 </component>
                             </div>
                             <div
-                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa"
+                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
                                 class="pilot__card_route_line"
                                 :class="{
                                     'pilot__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
                                 }"
-                            >
-                                <img
-                                    alt=""
-                                    :src="`/aircraft/${ getAircraftIcon(pilot).icon }-active.png`"
-                                >
-                            </div>
+                                v-html="svg ? reColorSvg(svg, 'neutral') : ''"
+                            />
                             <common-button
                                 class="pilot__card_route_open"
                                 type="link"
@@ -258,8 +254,8 @@ import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
+import { fetchAircraftIcon, sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { getPilotStatus, reColorSvg, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
@@ -295,6 +291,8 @@ const stats = computed(() => props.overlay.data.stats);
 // eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
 const isOffline = ref(false);
+
+const svg = shallowRef<string | null>(null);
 
 const depAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
@@ -513,6 +511,17 @@ function handlePointerDrag() {
 }
 
 onMounted(() => {
+    watch(() => pilot.value.flight_plan?.aircraft_short, async val => {
+        if (!val) return;
+
+        const icon = getAircraftIcon(pilot.value);
+        if (!icon) return;
+
+        svg.value = await fetchAircraftIcon(icon.icon);
+    }, {
+        immediate: true,
+    });
+
     map.value?.on('pointerdrag', handlePointerDrag);
     map.value?.on('moveend', handleMouseMove);
 });
@@ -663,7 +672,7 @@ onBeforeUnmount(() => {
                     background: $primary500;
                 }
 
-                img {
+                :deep(svg) {
                     position: relative;
                     z-index: 1;
                     left: var(--percent);

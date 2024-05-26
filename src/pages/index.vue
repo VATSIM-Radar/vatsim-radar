@@ -287,20 +287,37 @@ onMounted(async () => {
         }()),
     ]);
 
+    let inProgress = false;
+
     interval = setInterval(async () => {
-        const versions = await $fetch<VatDataVersions['vatsim']>('/data/vatsim/versions');
+        if (inProgress) return;
 
-        if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
-            dataStore.vatsim.versions.value = versions;
+        try {
+            inProgress = true;
+            const versions = await $fetch<VatDataVersions['vatsim']>('/data/vatsim/versions', {
+                timeout: 1000 * 30,
+            });
 
-            if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
+            if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
+                dataStore.vatsim.versions.value = versions;
 
-            const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`);
-            setVatsimDataStore(data);
-            checkAndAddOwnAircraft();
+                if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
-            dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
-            dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+                const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
+                    timeout: 1000 * 60,
+                });
+                setVatsimDataStore(data);
+                checkAndAddOwnAircraft();
+
+                dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
+                dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            inProgress = false;
         }
     }, 3000);
 

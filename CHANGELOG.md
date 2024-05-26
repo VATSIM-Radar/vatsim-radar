@@ -4,13 +4,16 @@
 
 ## Features and improvements
 
+- Changed route aircraft icon color
+- Added turns history (tracks) when you open pilot overlay
+
+### Performance improvements and technical stuff
+
 - Significantly improved map layer loading performance
-
-### Engine
-
-- Reworked aircraft icon render. You may notice performance to be a bit lower on very high zoom level, but icons are now more beautiful and flexible for changes - especially in light theme
+- Reworked aircraft icon render - we are now able to change icon colors to be anything we want, not just predefined pngs
 - Reduced memory consumption for sectors render. This change will be significant when many firs are currently active
 - Improved performance when moving map (will be significant on low zoom levels)
+- Airports points will no longer render on >100+ airports are on screen. This should improve performance on slow devices
 
 ## Bug fixes
 

@@ -19,6 +19,8 @@
     "typecheck": "nuxt typecheck"
   },
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.33.2",
+    "@influxdata/influxdb-client-apis": "^1.33.2",
     "@pinia/nuxt": "^0.5.1",
     "@prisma/client": "^5.14.0",
     "adm-zip": "^0.5.12",
@@ -26,13 +28,11 @@
     "cron": "^3.1.7",
     "discord.js": "^14.15.2",
     "idb": "^8.0.0",
-    "jschardet": "^3.1.2",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "metar-taf-parser": "^9.0.1",
     "nuxt": "^3.11.2",
     "ol": "^9.2.3",
-    "ol-mapbox-style": "^12.3.2",
     "pinia": "^2.1.7",
     "prisma": "^5.14.0",
     "sharp": "^0.33.4",
