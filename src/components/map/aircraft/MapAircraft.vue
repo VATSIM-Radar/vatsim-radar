@@ -149,7 +149,6 @@ import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
 import { Stroke, Style } from 'ol/style';
 import type { InfluxGeojson } from '~/utils/backend/influx';
-import { GeoJSON } from 'ol/format';
 
 const props = defineProps({
     aircraft: {
