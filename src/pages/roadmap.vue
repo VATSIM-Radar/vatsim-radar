@@ -209,7 +209,10 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'View pilots stats directly in airport popup to determine how new they are',
                 status: 'in-progress',
             },
-            'Layers (hide atc/aircraft/gates/etc)',
+            {
+                title: 'Layers (hide atc/aircraft/gates/etc)',
+                status: 'todo',
+            },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
                 status: 'todo',
@@ -221,6 +224,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
+                status: 'in-progress',
             },
             {
                 title: 'Weather radar',
