@@ -91,6 +91,7 @@ export default defineNuxtConfig({
 
         public: {
             DOMAIN: process.env.DOMAIN,
+            IS_DOWN: process.env.IS_DOWN,
         },
     },
     modules: [

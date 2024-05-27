@@ -1,4 +1,9 @@
 <template>
+    <div class="header-error" v-if="config.public.IS_DOWN === 'true'">
+        Sadly, the website database is currently offline. Login and own aircraft tracking is not possible at the
+        moment. We plan to restore everything before 29 May. Our apologies for this outage, and we will ensure this
+        won't happen again in future.
+    </div>
     <header class="header">
         <div class="header_left">
             <nuxt-link no-prefetch to="/" class="header__logo">
@@ -42,7 +47,7 @@
                     </div>
                 </div>
             </div>
-            <div class="header__sections_section">
+            <div class="header__sections_section" v-if="config.public.IS_DOWN !== 'true'">
                 <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
                     Connect VATSIM
                 </common-button>
@@ -50,7 +55,7 @@
                     {{ settings.headerName || store.user.fullName.split(' ')[0] }}
                 </div>
             </div>
-            <div class="header__sections_section">
+            <div class="header__sections_section" v-if="config.public.IS_DOWN !== 'true'">
                 <common-button
                     size="S"
                     :type="!settingsPopup ? 'secondary' : 'primary'"
@@ -106,7 +111,11 @@
                                         </small>
                                     </div>
                                     <div class="header__settings__two-col-block_text">
-                                        <common-input-text placeholder="Enter name" :model-value="settings.headerName ?? ''" @change="settings.headerName = ($event.target as HTMLInputElement).value"/>
+                                        <common-input-text
+                                            placeholder="Enter name"
+                                            :model-value="settings.headerName ?? ''"
+                                            @change="settings.headerName = ($event.target as HTMLInputElement).value"
+                                        />
                                     </div>
                                 </div>
                             </template>
@@ -185,7 +194,8 @@
                             </common-button>
                         </div>
                         <div class="header__settings__description">
-                            Users with linked Navigraph and Unlimited/Data subscription will receive latest AIRAC for gates, waypoints and all
+                            Users with linked Navigraph and Unlimited/Data subscription will receive latest AIRAC for
+                            gates, waypoints and all
                             other Navigraph-related stuff
                         </div>
                     </div>
@@ -257,6 +267,7 @@ import type { ThemesList } from '~/modules/styles';
 
 const route = useRoute();
 const store = useStore();
+const config = useRuntimeConfig();
 
 const buttons = computed(() => {
     return [
@@ -330,7 +341,9 @@ onMounted(() => {
         if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
             theme.value = 'light';
         }
-        else theme.value = 'default';
+        else {
+            theme.value = 'default';
+        }
 
         store.theme = theme.value;
     }
@@ -344,6 +357,14 @@ onMounted(() => {
     align-items: center;
     height: 56px;
     padding: 8px 24px;
+
+    &-error {
+        background: $error500;
+        color: $neutral150Orig;
+        padding: 10px;
+        font-size: 12px;
+        border-radius: 0 0 10px 10px;
+    }
 
     &_left {
         display: flex;

@@ -50,8 +50,10 @@ jobs:
             DISCORD_SERVER_ID=${{ vars.DISCORD_SERVER_ID }}
             DISCORD_RELEASES_CHANNEL_ID=${{ vars.DISCORD_RELEASES_CHANNEL_ID }}
             DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
+            IS_DOWN=${{ vars.IS_DOWN }}
   deploy:
-    runs-on: production
+    #runs-on: production
+    runs-on: beget
     needs:
       - push
     permissions:
