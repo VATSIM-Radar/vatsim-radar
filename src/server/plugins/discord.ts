@@ -122,6 +122,17 @@ export default defineNitroPlugin(async app => {
         discordClient.on('interactionCreate', async (interaction): Promise<any> => {
             if (interaction.guildId !== discordServerId) return;
 
+            if (config.public.IS_DOWN === 'true') {
+                if('reply' in interaction) {
+                    await interaction.reply({
+                        content: 'Vatsim Radar authorization server is down. Please follow dev corner for updates',
+                        ephemeral: true,
+                    });
+                }
+
+                return;
+            }
+
             if (interaction.isStringSelectMenu()) {
                 if (interaction.customId === 'rename') {
                     const existingUser = await prisma.user.findFirst({

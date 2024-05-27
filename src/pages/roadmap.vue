@@ -218,7 +218,10 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'View pilots stats directly in airport popup to determine how new they are',
                 status: 'in-progress',
             },
-            'Layers (hide atc/aircraft/gates/etc)',
+            {
+                title: 'Layers (hide atc/aircraft/gates/etc)',
+                status: 'todo',
+            },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
                 status: 'todo',
@@ -230,6 +233,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
+                status: 'in-progress',
             },
             {
                 title: 'Weather radar',
@@ -242,10 +246,8 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             'Ability to run github repo locally',
             'Oceanic Tracks integration',
-            'Waypoints on map',
-            'Detailed aircraft flight plan route',
-            'Events',
-            'ATC Bookings',
+            'Waypoints on map (including aircraft submitted route)',
+            'Events/ATC Bookings',
             'Favorite pilots/ATC',
             'Friendly mobile version',
             'Search',
@@ -254,6 +256,7 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Basic Stats',
                 description: 'Popular now etc',
             },
+            'Hoppie integration',
         ],
     },
     {
@@ -266,22 +269,22 @@ const roadmap = reactive<Roadmap[]>([
             'PWA',
             'Name of aircraft operating company',
             'Aircraft moving in VATSIM update pause',
-            'Flight history, detailed flight page',
+            'Flights/atc sessions history, VATSIM user page',
+            'History of events / events traffic',
         ],
     },
     {
         title: 'Considering',
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
-            'History of events',
-            'Filter by event aircraft',
-            'Visualized events traffic',
             'Google Play app',
             'Websockets instead of update requests',
             'Simbrief integration',
             'ATC/Booking notification for active flight',
             'Images or aircraft type + operator',
             'ECFMP integration',
+            'Streamers integration',
+            '3D map view',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
