@@ -97,8 +97,9 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
-import CommonCopyInfoBlock from '~/components/common/CommonCopyInfoBlock.vue';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import { useMapStore } from '~/store/map';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     flightPlan: {

@@ -123,7 +123,7 @@ export default defineNitroPlugin(async app => {
             if (interaction.guildId !== discordServerId) return;
 
             if (config.public.IS_DOWN === 'true') {
-                if('reply' in interaction) {
+                if ('reply' in interaction) {
                     await interaction.reply({
                         content: 'Vatsim Radar authorization server is down. Please follow dev corner for updates',
                         ephemeral: true,

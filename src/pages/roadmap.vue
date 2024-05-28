@@ -99,7 +99,7 @@
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/CommonPageBlock.vue';
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 

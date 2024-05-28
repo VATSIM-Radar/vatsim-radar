@@ -35,8 +35,9 @@
 </template>
 
 <script setup lang="ts">
-import type { TooltipLocation } from '~/components/common/CommonTooltip.vue';
-import QuestionIcon from '@/assets/icons/basic/question.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import type { TooltipLocation } from '~/components/common/basic/CommonTooltip.vue';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
 export interface RadioItem<T extends string | number | null = string | number | null> {
     value: T;

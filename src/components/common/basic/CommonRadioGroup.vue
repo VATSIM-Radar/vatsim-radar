@@ -31,7 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import type { RadioItem } from '~/components/common/CommonRadio.vue';
+import CommonRadio from '~/components/common/basic/CommonRadio.vue';
+import type { RadioItem } from '~/components/common/basic/CommonRadio.vue';
 import type { PropType } from 'vue';
 
 export interface RadioItemGroup<T extends string | number | null = string | number | null> extends RadioItem<T> {

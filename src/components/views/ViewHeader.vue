@@ -1,5 +1,8 @@
 <template>
-    <div class="header-error" v-if="config.public.IS_DOWN === 'true'">
+    <div
+        v-if="config.public.IS_DOWN === 'true'"
+        class="header-error"
+    >
         Sadly, the website database is currently offline. Login and own aircraft tracking is not possible at the
         moment. We plan to restore everything before 29 May. Our apologies for this outage, and we will ensure this
         won't happen again in future.
@@ -57,7 +60,10 @@
                     </div>
                 </div>
             </div>
-            <div class="header__sections_section" v-if="config.public.IS_DOWN !== 'true'">
+            <div
+                v-if="config.public.IS_DOWN !== 'true'"
+                class="header__sections_section"
+            >
                 <common-button
                     v-if="!store.user"
                     href="/auth/vatsim/redirect"
@@ -72,14 +78,18 @@
                     {{ settings.headerName || store.user.fullName.split(' ')[0] }}
                 </div>
             </div>
-            <div class="header__sections_section" v-if="config.public.IS_DOWN !== 'true'">
+            <div
+                v-if="config.public.IS_DOWN !== 'true'"
+                class="header__sections_section"
+            >
                 <common-button
+                    href="https://github.com/daniluk4000/vatsim-radar"
                     size="S"
-                    :type="!settingsPopup ? 'secondary' : 'primary'"
-                    @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
+                    target="_blank"
+                    type="secondary"
                 >
                     <template #icon>
-                        <settings-icon/>
+                        <github-icon/>
                     </template>
                 </common-button>
                 <common-button
@@ -90,6 +100,15 @@
                 >
                     <template #icon>
                         <discord-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    size="S"
+                    :type="!settingsPopup ? 'secondary' : 'primary'"
+                    @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
+                >
+                    <template #icon>
+                        <settings-icon/>
                     </template>
                 </common-button>
             </div>
@@ -302,6 +321,7 @@ import { useStore } from '~/store';
 import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
 import DiscordIcon from '@/assets/icons/header/discord.svg?component';
+import GithubIcon from '@/assets/icons/header/github.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import LogoIcon from '@/assets/icons/basic/logo.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
@@ -311,6 +331,13 @@ import DarkTheme from '@/assets/icons/header/dark-theme.svg?component';
 import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { ThemesList } from '~/modules/styles';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -407,10 +434,12 @@ onMounted(() => {
     padding: 8px 24px;
 
     &-error {
-        background: $error500;
-        color: $neutral150Orig;
         padding: 10px;
+
         font-size: 12px;
+        color: $neutral150Orig;
+
+        background: $error500;
         border-radius: 0 0 10px 10px;
     }
 

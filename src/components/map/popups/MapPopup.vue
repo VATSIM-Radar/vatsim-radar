@@ -63,18 +63,6 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue
             position: relative;
             z-index: 2;
         }
-
-        .pilot-header_type {
-            padding: 4px 8px;
-
-            font-size: 10px;
-            font-weight: 600;
-            line-height: 100%;
-            color: $neutral150Orig;
-
-            background: $primary500;
-            border-radius: 4px;
-        }
     }
 }
 </style>

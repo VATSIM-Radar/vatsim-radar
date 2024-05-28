@@ -16,12 +16,13 @@
                 <div class="pilot-header_title">
                     {{ pilot.callsign }}
                 </div>
-                <div
+                <common-blue-bubble
                     v-if="pilot.flight_plan?.flight_rules !== 'I'"
                     class="pilot-header_type"
+                    size="M"
                 >
                     VFR
-                </div>
+                </common-blue-bubble>
                 <div
                     v-if="overlay.collapsed"
                     class="pilot_header_status"
@@ -243,7 +244,8 @@
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { useStore } from '~/store';
-import type { InfoPopupSection } from '~/components/common/CommonInfoPopup.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
 import { getHoursAndMinutes } from '../../../utils';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
@@ -263,7 +265,12 @@ import { boundingExtent, getCenter } from 'ol/extent';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useCopyText } from '~/composables';
 import { parseEncoding } from '~/utils/data';
-import CommonButton from '~/components/common/CommonButton.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
 
 const props = defineProps({
     overlay: {

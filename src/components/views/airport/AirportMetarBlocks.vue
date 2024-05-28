@@ -55,6 +55,7 @@
 import type { PropType } from 'vue';
 import { AltimeterUnit, ValueIndicator } from 'metar-taf-parser';
 import type { Forecast, IMetar, IMetarDated } from 'metar-taf-parser';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     metar: {

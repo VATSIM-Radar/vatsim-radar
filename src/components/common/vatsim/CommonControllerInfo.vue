@@ -53,11 +53,11 @@
                                 <div class="atc-popup__controller_name">
                                     {{ item }}
                                 </div>
-                                <div class="atc-popup__controller_rating">
+                                <common-blue-bubble class="atc-popup__controller_rating">
                                     {{
                                         dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
                                     }}
-                                </div>
+                                </common-blue-bubble>
                             </div>
                         </template>
                         <template v-else-if="index === 2">
@@ -107,6 +107,10 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getATCTime, getControllerPositionColor } from '~/composables/atc';
 import { useMapStore } from '~/store/map';
+import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 
 defineProps({
     controllers: {
@@ -197,17 +201,6 @@ const getATIS = (controller: VatsimShortenedController) => {
         gap: 8px;
         align-items: center;
         font-weight: 400;
-
-        &_rating {
-            padding: 2px 4px;
-
-            font-size: 11px;
-            font-weight: 600;
-            color: $neutral150Orig;
-
-            background: $primary500;
-            border-radius: 4px;
-        }
     }
 
     &__frequency {

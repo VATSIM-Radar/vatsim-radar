@@ -13,12 +13,13 @@
                 <div class="pilot-header_title">
                     {{ props.overlay.data.prefile.callsign }}
                 </div>
-                <div
+                <common-blue-bubble
                     v-if="props.overlay.data.prefile.flight_plan.flight_rules !== 'I'"
                     class="pilot-header_type"
+                    size="M"
                 >
                     VFR
-                </div>
+                </common-blue-bubble>
             </div>
         </template>
         <template #plan>
@@ -35,6 +36,7 @@ import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import type { VatsimPrefile } from '~/types/data/vatsim';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
+import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
 
 const props = defineProps({
     overlay: {

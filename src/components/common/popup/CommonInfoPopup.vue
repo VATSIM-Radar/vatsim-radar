@@ -99,6 +99,7 @@
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { PropType } from 'vue';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
 /* eslint vue/require-explicit-slots: 0 */
 

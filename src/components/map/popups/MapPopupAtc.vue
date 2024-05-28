@@ -36,12 +36,12 @@
                     :top-items="[atc.name, atc.cid]"
                 >
                     <template #bottom="{ item, index }">
-                        <div
+                        <common-blue-bubble
                             v-if="index === 0"
                             class="atc__rating"
                         >
                             {{ item }}
-                        </div>
+                        </common-blue-bubble>
                         <template v-else>
                             {{ item }}
                         </template>
@@ -118,12 +118,18 @@ import type { PropType, ShallowRef } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAtc } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
-import CommonAtcTimeOnline from '~/components/common/CommonAtcTimeOnline.vue';
+import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';
 import { findAtcAirport, showAtcOnMap } from '~/composables/atc';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
 
 const props = defineProps({
     overlay: {
@@ -188,20 +194,6 @@ watch(atc, value => {
                 }
             }
         }
-    }
-
-    &__rating {
-        min-width: 40px;
-        padding: 4px;
-
-        font-size: 11px;
-        font-weight: 600;
-        line-height: 100%;
-        color: $neutral150Orig;
-        text-align: center;
-
-        background: $primary500;
-        border-radius: 4px;
     }
 
     &__airport {

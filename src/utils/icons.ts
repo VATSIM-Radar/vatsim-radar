@@ -53,7 +53,6 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     return Math.round(size);
 }
 
-// TODO: calc width into local file
 export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon; width: number }> = {
     a300: {
         icon: 'a300',

@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/airport';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 
 const data = injectAirport();
 const notams = computed(() => data.value.notams);

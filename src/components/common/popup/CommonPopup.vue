@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { sleep } from '~/utils';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 
 const props = defineProps({
     disableTeleport: {

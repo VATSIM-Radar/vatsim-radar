@@ -20,6 +20,7 @@
 
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
+- Fixed NY_CL_FSS display, as well as other oceanic facilities detection issues
 
 # 0.3.4
 

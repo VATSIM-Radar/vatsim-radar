@@ -17,7 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import type { RadioItemGroup } from '~/components/common/CommonRadioGroup.vue';
+import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 
 type IframeVariants = 'all' | 'oedf' | 'oerk' | 'oema' | 'oejn';
 

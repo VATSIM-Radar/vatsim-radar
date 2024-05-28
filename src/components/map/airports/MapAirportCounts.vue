@@ -104,6 +104,9 @@ import type { PropType } from 'vue';
 import type { MapAircraft, MapAirport } from '~/types/map';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
+import MapOverlay from '~/components/map/MapOverlay.vue';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     airport: {

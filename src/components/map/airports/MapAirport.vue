@@ -120,6 +120,8 @@ import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { useStore } from '~/store';
+import MapOverlay from '~/components/map/MapOverlay.vue';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 
 const props = defineProps({
     airport: {

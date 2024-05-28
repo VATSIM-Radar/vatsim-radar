@@ -54,12 +54,12 @@
         </template>
         <template #atcTitle="{ section }">
             <div class="airport__section-title">
-                <div
+                <common-blue-bubble
                     v-if="!isCtafOnly"
                     class="airport__section-title_counter"
                 >
                     {{ atc.length }}
-                </div>
+                </common-blue-bubble>
                 <div class="airport__section-title_text">
                     <template v-if="!isCtafOnly">
                         {{ section.title }}
@@ -72,9 +72,9 @@
         </template>
         <template #aircraftTitle>
             <div class="airport__section-title">
-                <div class="airport__section-title_counter">
+                <common-blue-bubble class="airport__section-title_counter">
                     {{ displayedAircraft.length }}
-                </div>
+                </common-blue-bubble>
                 <div class="airport__section-title_text">
                     Aircraft
                 </div>
@@ -99,10 +99,10 @@
             <airport-notams/>
         </template>
         <template
-            v-if="airportInfo"
+            v-if="vatInfo"
             #airport
         >
-            <views-airport-info/>
+            <airport-info/>
         </template>
         <template #atc>
             <common-toggle
@@ -255,9 +255,11 @@ import type {
     VatsimShortenedController,
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
-import type { InfoPopupContent } from '~/components/common/CommonInfoPopup.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
-import type { RadioItemGroup } from '~/components/common/CommonRadioGroup.vue';
+import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
@@ -269,6 +271,12 @@ import { provideAirport } from '~/composables/airport';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
 import AirportNotams from '~/components/views/airport/AirportNotams.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import AirportInfo from '~/components/views/airport/AirportInfo.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
 
 const props = defineProps({
     overlay: {
@@ -479,7 +487,7 @@ const tabs = computed<InfoPopupContent>(() => {
         },
     };
 
-    if (airportInfo.value) {
+    if (vatInfo.value) {
         list.info.sections.push({
             title: 'VATSIM Airport Info',
             collapsible: true,
@@ -491,7 +499,7 @@ const tabs = computed<InfoPopupContent>(() => {
         list.info.sections.push({
             title: 'METAR',
             collapsible: true,
-            collapsedDefault: !!airportInfo.value,
+            collapsedDefault: !!vatInfo.value,
             collapsedDefaultOnce: true,
             key: 'metar',
         });
@@ -538,7 +546,7 @@ const tabs = computed<InfoPopupContent>(() => {
     return list;
 });
 
-const airportInfo = computed(() => {
+const vatInfo = computed(() => {
     return data.value?.vatInfo;
 });
 
@@ -617,19 +625,6 @@ onMounted(() => {
         &_text {
             padding: 0 4px;
             background: $neutral1000;
-        }
-
-        &_counter {
-            min-width: 24px;
-            padding: 0 4px;
-
-            font-size: 11px;
-            font-weight: 600;
-            color: $neutral150Orig;
-            text-align: center;
-
-            background: $primary500;
-            border-radius: 4px;
         }
     }
 

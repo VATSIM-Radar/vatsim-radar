@@ -149,6 +149,9 @@ import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { InfluxGeojson } from '~/utils/backend/influx';
+import MapOverlay from '~/components/map/MapOverlay.vue';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     aircraft: {

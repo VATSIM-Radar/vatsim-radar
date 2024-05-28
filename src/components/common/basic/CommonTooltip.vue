@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import TriangleLeftIcon from '@/assets/icons/basic/triangle-left.svg?component';
+import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
 
 defineProps({

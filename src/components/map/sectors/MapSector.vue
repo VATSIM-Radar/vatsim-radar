@@ -15,7 +15,6 @@
         @mouseleave="isHovered = false"
         @update:overlay="!$event ? isHovered = false : undefined"
     >
-        <!-- @todo click for touch -->
         <div
             class="sector-atc"
             :class="{ 'sector-atc--hovered': isHovered }"
@@ -58,6 +57,8 @@ import type { Feature } from 'ol';
 import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import MapOverlay from '~/components/map/MapOverlay.vue';
 
 const props = defineProps({
     fir: {

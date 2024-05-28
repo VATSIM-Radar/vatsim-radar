@@ -135,7 +135,6 @@ const getLastUpdated = computed(() => {
             display: flex;
             align-items: center;
 
-            //TODO: refactor to mixin
             &:not(:last-child) {
                 margin-right: 12px;
                 padding-right: 12px;

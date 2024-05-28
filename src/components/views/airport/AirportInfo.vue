@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import { injectAirport } from '~/composables/airport';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const data = injectAirport();
 

@@ -25,6 +25,7 @@
 import AirportMetarBlocks from '~/components/views/airport/AirportMetarBlocks.vue';
 import { parseTAFAsForecast } from 'metar-taf-parser';
 import { injectAirport } from '~/composables/airport';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 
 const data = injectAirport();
 
