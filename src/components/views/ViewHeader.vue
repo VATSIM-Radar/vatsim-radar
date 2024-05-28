@@ -1,7 +1,7 @@
 <template>
     <div class="header-error" v-if="config.public.IS_DOWN === 'true'">
-        Sadly, the website database is currently offline. Login and own aircraft tracking is not possible at the
-        moment. We plan to restore everything before 29 May. Our apologies for this outage, and we will ensure this
+        Website database is currently experiencing network issues. Login and own aircraft tracking are not possible at the
+        moment. We plan to restore everything before the end of the week. Our apologies for this outage, and we will ensure this
         won't happen again in future.
     </div>
     <header class="header">
