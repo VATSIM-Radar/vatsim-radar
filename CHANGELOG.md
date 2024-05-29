@@ -20,7 +20,15 @@
 
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
+
+# 0.3.5
+
+This is a small fix update while we still develop 0.4.0.
+
+- You can now close this warning message in header
 - Fixed NY_CL_FSS display, as well as other oceanic facilities detection issues
+- ATC popup will stop displaying random countries for some controllers
+- Restored Discord icon in header
 
 # 0.3.4
 

@@ -1,11 +1,13 @@
 <template>
-    <div
-        v-if="config.public.IS_DOWN === 'true'"
-        class="header-error"
-    >
-        Sadly, the website database is currently offline. Login and own aircraft tracking is not possible at the
-        moment. We plan to restore everything before 29 May. Our apologies for this outage, and we will ensure this
-        won't happen again in future.
+    <div class="header-error" v-if="config.public.IS_DOWN === 'true' && !warningClosed">
+        <div class="header-error_text">
+            Website database is currently experiencing network issues. Login and own aircraft tracking are not possible at the
+            moment. We plan to restore everything before the end of the week. Our apologies for this outage, and we will ensure this
+            won't happen again in future.
+        </div>
+        <div class="header-error_close" @click="[warningCookie=true, warningClosed=true]">
+            <close-icon/>
+        </div>
     </div>
     <header class="header">
         <div class="header_left">
@@ -104,6 +106,7 @@
                 </common-button>
                 <common-button
                     size="S"
+                    v-if="config.public.IS_DOWN !== 'true'"
                     :type="!settingsPopup ? 'secondary' : 'primary'"
                     @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
                 >
@@ -330,6 +333,7 @@ import EventsIcon from '@/assets/icons/kit/event.svg?component';
 import DarkTheme from '@/assets/icons/header/dark-theme.svg?component';
 import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
+import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import type { ThemesList } from '~/modules/styles';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
@@ -342,6 +346,13 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 const route = useRoute();
 const store = useStore();
 const config = useRuntimeConfig();
+const warningCookie = useCookie<boolean>('warning-closed', {
+    path: '/',
+    sameSite: 'strict',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 7,
+});
+const warningClosed = ref(warningCookie.value);
 
 const buttons = computed(() => {
     return [
@@ -441,6 +452,23 @@ onMounted(() => {
 
         background: $error500;
         border-radius: 0 0 10px 10px;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+
+        &_close {
+            width: 16px;
+            min-width: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+
+            @include hover {
+                &:hover {
+                    color: $neutral50Orig;
+                }
+            }
+        }
     }
 
     &_left {
