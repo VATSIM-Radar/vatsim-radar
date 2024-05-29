@@ -125,7 +125,9 @@ const airport = computed(() => {
 });
 
 const country = computed(() => {
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === airport?.value?.icao.slice(0, 2));
+    const icaoAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === airport.value?.icao && x.iata === airport.value?.iata);
+
+    return dataStore.vatspy.value?.data.countries.find(x => x.code === icaoAirport?.icao.slice(0, 2));
 });
 
 const shortRating = computed(() => {

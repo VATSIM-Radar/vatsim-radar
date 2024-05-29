@@ -22,9 +22,9 @@ function findFacility(name: string, controller: VatsimShortenedController) {
         if (x.icao !== name && x.callsign !== name) return false;
 
         const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
-        if (!duplicateFir || x.name.includes('Oceanic')) return true;
+        if (!duplicateFir) return true;
 
-        return !x.isOceanic;
+        return controller.facility === useFacilitiesIds().FSS ? x.isOceanic : !x.isOceanic;
     });
 }
 
@@ -40,7 +40,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
         const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
         if (!duplicateFir) return true;
 
-        return x.name.includes('Oceanic') ? x.isOceanic : !x.isOceanic;
+        return controller.facility === useFacilitiesIds().FSS ? x.isOceanic : !x.isOceanic;
     });
     if (!uirFeatures?.length) return;
 
