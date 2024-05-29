@@ -1,11 +1,17 @@
 <template>
-    <div class="header-error" v-if="config.public.IS_DOWN === 'true' && !warningClosed">
+    <div
+        v-if="config.public.IS_DOWN === 'true' && !warningClosed"
+        class="header-error"
+    >
         <div class="header-error_text">
             Website database is currently experiencing network issues. Login and own aircraft tracking are not possible at the
             moment. We plan to restore everything before the end of the week. Our apologies for this outage, and we will ensure this
             won't happen again in future.
         </div>
-        <div class="header-error_close" @click="[warningCookie=true, warningClosed=true]">
+        <div
+            class="header-error_close"
+            @click="[warningCookie=true, warningClosed=true]"
+        >
             <close-icon/>
         </div>
     </div>
@@ -105,8 +111,8 @@
                     </template>
                 </common-button>
                 <common-button
-                    size="S"
                     v-if="config.public.IS_DOWN !== 'true'"
+                    size="S"
                     :type="!settingsPopup ? 'secondary' : 'primary'"
                     @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
                 >
@@ -445,6 +451,11 @@ onMounted(() => {
     padding: 8px 24px;
 
     &-error {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+
         padding: 10px;
 
         font-size: 12px;
@@ -452,15 +463,11 @@ onMounted(() => {
 
         background: $error500;
         border-radius: 0 0 10px 10px;
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        justify-content: space-between;
 
         &_close {
+            cursor: pointer;
             width: 16px;
             min-width: 16px;
-            cursor: pointer;
             transition: 0.3s;
 
             @include hover {
