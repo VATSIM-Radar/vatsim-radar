@@ -87,7 +87,6 @@
                 </div>
             </div>
             <div
-                v-if="config.public.IS_DOWN !== 'true'"
                 class="header__sections_section"
             >
                 <common-button
