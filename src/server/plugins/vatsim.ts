@@ -2,7 +2,7 @@ import { CronJob } from 'cron';
 import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
+import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
@@ -82,6 +82,15 @@ export default defineNitroPlugin(app => {
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;
+
+                const positions = useFacilitiesIds();
+
+                data.controllers = data.controllers.filter(controller => {
+                    if(controller.facility === positions.OBS) return;
+                    const postfix = controller.callsign.split('_').slice(-1)[0];
+                    controller.facility = positions[postfix as keyof typeof positions] ?? -1;
+                    return controller.facility !== -1 && controller.facility !== positions.OBS;
+                });
 
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
