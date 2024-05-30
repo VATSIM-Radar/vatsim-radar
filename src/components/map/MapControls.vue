@@ -69,6 +69,7 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import { toDegrees, toRadians } from 'ol/math';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();

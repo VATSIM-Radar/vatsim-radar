@@ -131,6 +131,8 @@
 </template>
 
 <script setup lang="ts">
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+
 useHead({
     title: 'Privacy Policy',
 });

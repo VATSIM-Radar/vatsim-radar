@@ -37,6 +37,7 @@ import type { VatsimPrefile } from '~/types/data/vatsim';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
 import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 
 const props = defineProps({
     overlay: {
@@ -58,7 +59,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
                 mapStore.overlays = mapStore.overlays.filter(x => x.id !== props.overlay.id);
                 await sleep(0);
                 const pilot = dataStore.vatsim.data.pilots.value.find(x => x.cid === props.overlay?.data.prefile.cid);
-                if (pilot) mapStore.addPilotOverlay(pilot.cid.toString());
+                if (pilot) await mapStore.addPilotOverlay(pilot.cid.toString());
             }
         }
     }

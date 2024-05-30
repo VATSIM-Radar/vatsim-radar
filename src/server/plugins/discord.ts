@@ -291,7 +291,7 @@ export default defineNitroPlugin(async app => {
             else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
                 const release = await discordClient.channels.fetch(discordReleasesChannelId);
                 if (release && 'send' in release) {
-                    release.send({
+                    await release.send({
                         content: parseMarkdown()!,
                     });
                     await interaction.reply({

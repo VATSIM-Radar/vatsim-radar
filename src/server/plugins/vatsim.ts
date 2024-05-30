@@ -86,7 +86,7 @@ export default defineNitroPlugin(app => {
                 const positions = useFacilitiesIds();
 
                 data.controllers = data.controllers.filter(controller => {
-                    if(controller.facility === positions.OBS) return;
+                    if (controller.facility === positions.OBS) return;
                     const postfix = controller.callsign.split('_').slice(-1)[0];
                     controller.facility = positions[postfix as keyof typeof positions] ?? -1;
                     return controller.facility !== -1 && controller.facility !== positions.OBS;
