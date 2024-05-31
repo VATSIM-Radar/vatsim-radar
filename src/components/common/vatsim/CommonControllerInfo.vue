@@ -107,7 +107,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
 import { getATCTime, getControllerPositionColor } from '~/composables/atc';
 import { useMapStore } from '~/store/map';
-import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';

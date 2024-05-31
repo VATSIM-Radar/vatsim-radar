@@ -73,7 +73,7 @@
         <template #aircraftTitle>
             <div class="airport__section-title">
                 <common-blue-bubble class="airport__section-title_counter">
-                    {{ displayedAircraft.length }}
+                    {{ aircraftCount }}
                 </common-blue-bubble>
                 <div class="airport__section-title_text">
                     Aircraft
@@ -129,7 +129,7 @@
         </template>
         <template #aircraft>
             <div
-                v-if="aircraft?.arrivals.length"
+                v-if="vatAirport?.aircraft.arrivals?.length"
                 class="airport__aircraft-toggles"
             >
                 <common-toggle
@@ -139,109 +139,7 @@
                     Show tracks for arriving
                 </common-toggle>
             </div>
-            <div class="airport__aircraft">
-                <div class="airport__aircraft_nav">
-                    <div
-                        class="airport__aircraft_nav_item"
-                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'ground' }"
-                        @click="aircraftMode = 'ground'"
-                    >
-                        <ground-icon/>
-                    </div>
-                    <div
-                        class="airport__aircraft_nav_item"
-                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'departed' }"
-                        @click="aircraftMode = 'departed'"
-                    >
-                        <departing-icon/>
-                    </div>
-                    <div
-                        class="airport__aircraft_nav_item"
-                        :class="{ 'airport__aircraft_nav_item--active': aircraftMode === 'arriving' }"
-                        @click="aircraftMode = 'arriving'"
-                    >
-                        <arriving-icon/>
-                    </div>
-                </div>
-                <div
-                    :key="aircraftMode"
-                    class="airport__aircraft_list"
-                >
-                    <div class="airport__aircraft_list_title pilot-header">
-                        <div class="pilot-header_title">
-                            <template v-if="aircraftMode === 'ground'">
-                                On Ground
-                            </template>
-                            <template v-else-if="aircraftMode === 'departed'">
-                                Departed
-                            </template>
-                            <template v-else-if="aircraftMode === 'arriving'">
-                                Arriving
-                            </template>
-                        </div>
-                    </div>
-                    <div
-                        v-if="aircraftMode === 'ground'"
-                        class="airport__aircraft_list_filter"
-                    >
-                        <common-radio-group
-                            v-model="aircraftGroundMode"
-                            class="airport__ground-toggles"
-                            :items="aircraftGroundSelects"
-                            two-cols
-                        />
-                    </div>
-                    <common-info-block
-                        v-for="pilot in displayedAircraft"
-                        :key="pilot.cid"
-                        :bottom-items="[
-                            pilot.departure,
-                            pilot.aircraft_faa ?? 'No flight plan',
-                            (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
-                            (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
-                        ]"
-                        class="airport__pilot"
-                        is-button
-                        @click="(aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString())"
-                    >
-                        <template #top>
-                            <div class="airport__pilot_header">
-                                <div class="airport__pilot_header_title">
-                                    {{ pilot.callsign }}
-                                </div>
-                                <div
-                                    class="airport__pilot_header_status"
-                                    :style="{ '--color': `rgb(var(--${ getLocalPilotStatus(pilot).color }))` }"
-                                >
-                                    {{ getLocalPilotStatus(pilot).title }}
-                                </div>
-                            </div>
-                        </template>
-                        <template #bottom="{ item, index }">
-                            <template v-if="index === 0 && pilot.departure">
-                                <template v-if="!pilot.isArrival">
-                                    to
-                                </template>
-                                <template v-else>
-                                    from
-                                </template>
-
-                                <strong>
-                                    <template v-if="!pilot.isArrival">
-                                        {{ pilot.arrival }}
-                                    </template>
-                                    <template v-else>
-                                        {{ pilot.departure ?? airport.icao }}
-                                    </template>
-                                </strong>
-                            </template>
-                            <template v-else>
-                                {{ item }}
-                            </template>
-                        </template>
-                    </common-info-block>
-                </div>
-            </div>
+            <airport-aircraft/>
         </template>
     </common-info-popup>
 </template>
@@ -252,24 +150,18 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useDataStore } from '#imports';
-import type { MapAirport } from '~/types/map';
 import type {
     VatsimShortenedAircraft,
-    VatsimShortenedController,
-    VatsimShortenedPrefile,
+    VatsimShortenedController, VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { useStore } from '~/store';
-import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { toLonLat } from 'ol/proj';
 import { provideAirport } from '~/composables/airport';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
@@ -277,9 +169,12 @@ import AirportNotams from '~/components/views/airport/AirportNotams.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
+import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
+import type { MapAirport } from '~/types/map';
+import { toLonLat } from 'ol/proj';
+import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 
 const props = defineProps({
     overlay: {
@@ -294,34 +189,6 @@ const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const showAtis = ref(false);
-
-const datetime = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
-const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
-const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
-
-const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
-    {
-        text: 'Dep. & Arr.',
-        value: 'depArr',
-    },
-    {
-        text: 'Departing',
-        value: 'dep',
-    },
-    {
-        text: 'Arrived',
-        value: 'arr',
-    },
-    {
-        text: 'Prefiles',
-        value: 'prefiles',
-    },
-];
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === props.overlay.data.icao));
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
@@ -356,16 +223,27 @@ const isCtafOnly = computed(() => {
     return atc.value.length === 1 && atc.value[0].facility === -1;
 });
 
+const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
+
+export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
+    isArrival: boolean;
+    distance: number;
+    flown: number;
+    eta: Date | null;
+};
+
+export type AirportPopupPilotList = Record<keyof MapAirport['aircraft'], Array<AirportPopupPilotStatus>>;
+
 const aircraft = computed(() => {
     if (!vatAirport.value) return null;
 
     const list = {
-        groundDep: [] as LocalArrivalStatus[],
-        groundArr: [] as LocalArrivalStatus[],
-        prefiles: [] as LocalArrivalStatus[],
-        departures: [] as LocalArrivalStatus[],
-        arrivals: [] as LocalArrivalStatus[],
-    } satisfies Record<keyof MapAirport['aircraft'], Array<LocalArrivalStatus>>;
+        groundDep: [] as AirportPopupPilotStatus[],
+        groundArr: [] as AirportPopupPilotStatus[],
+        prefiles: [] as AirportPopupPilotStatus[],
+        departures: [] as AirportPopupPilotStatus[],
+        arrivals: [] as AirportPopupPilotStatus[],
+    } satisfies AirportPopupPilotList;
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         let distance = 0;
@@ -386,7 +264,7 @@ const aircraft = computed(() => {
             }
         }
 
-        const truePilot: LocalArrivalStatus = {
+        const truePilot: AirportPopupPilotStatus = {
             ...pilot,
             distance,
             eta,
@@ -421,62 +299,7 @@ const aircraft = computed(() => {
     return list;
 });
 
-type LocalArrivalStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
-    isArrival: boolean;
-    distance: number;
-    flown: number;
-    eta: Date | null;
-};
-
-function getLocalPilotStatus(pilot: LocalArrivalStatus): ReturnType<typeof getPilotStatus> {
-    if (aircraftMode.value !== 'ground') {
-        if (pilot.isArrival) {
-            return getPilotStatus((pilot.distance !== 0 && pilot.distance < 40) ? 'arriving' : 'enroute');
-        }
-        else {
-            return getPilotStatus((pilot.distance !== 0 && pilot.flown < 40) ? 'departed' : 'enroute');
-        }
-    }
-
-    switch (aircraftGroundMode.value) {
-        case 'depArr':
-            return pilot.isArrival ? getPilotStatus('arrTaxi') : getPilotStatus('depTaxi');
-        case 'dep':
-            return getPilotStatus('depTaxi');
-        case 'arr':
-            return getPilotStatus('arrTaxi');
-        case 'prefiles':
-            return {
-                color: 'neutral150',
-                title: 'Prefile',
-            };
-    }
-}
-
-const displayedAircraft = computed((): LocalArrivalStatus[] => {
-    if (aircraftMode.value === 'departed') {
-        return aircraft.value?.departures.slice().sort((a, b) => a.flown - b.flown) ?? [];
-    }
-    if (aircraftMode.value === 'arriving') {
-        return aircraft.value?.arrivals.slice().sort((a, b) => a.distance - b.distance) ?? [];
-    }
-
-    switch (aircraftGroundMode.value) {
-        case 'depArr':
-            return [
-                ...aircraft.value?.groundDep ?? [],
-                ...aircraft.value?.groundArr ?? [],
-            ];
-        case 'dep':
-            return aircraft.value?.groundDep ?? [];
-        case 'arr':
-            return aircraft.value?.groundArr ?? [];
-        case 'prefiles':
-            return aircraft.value?.prefiles ?? [];
-    }
-
-    return [];
-});
+provide('aircraft', aircraft);
 
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
@@ -536,7 +359,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (aircraft.value && Object.values(aircraft.value).some(x => x.length)) {
+    if (aircraftCount.value) {
         list.atc.sections.push({
             title: 'Aircraft',
             collapsible: true,
@@ -561,11 +384,6 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
 });
 
 onMounted(() => {
-    if (!displayedAircraft.value.length) {
-        aircraftMode.value = 'arriving';
-        if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
-    }
-
     const interval = setInterval(async () => {
         props.overlay.data.airport = {
             ...props.overlay.data.airport,
@@ -628,74 +446,6 @@ onMounted(() => {
         &_text {
             padding: 0 4px;
             background: $neutral1000;
-        }
-    }
-
-    &__aircraft {
-        display: grid;
-        grid-template-columns: 13% 85%;
-        justify-content: space-between;
-
-        &:not(:first-child) {
-            margin-top: 16px;
-        }
-
-        &_nav {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-
-            &_item {
-                cursor: pointer;
-
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                width: 40px;
-                height: 40px;
-
-                background: $neutral900;
-                border-radius: 8px;
-
-                transition: 0.3s;
-
-                svg {
-                    width: 18px;
-                }
-
-                &--active {
-                    cursor: default;
-                    color: $neutral150Orig;
-                    background: $primary500;
-                }
-            }
-        }
-
-        &_list {
-            overflow: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-
-            max-height: 200px;
-            padding: 8px;
-
-            background: $neutral950;
-            border-radius: 8px;
-        }
-    }
-
-    & &__pilot {
-        background: $neutral900;
-
-        &_header {
-            display: flex;
-            justify-content: space-between;
-
-            &_status {
-                color: var(--color);
-            }
         }
     }
 

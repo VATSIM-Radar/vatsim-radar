@@ -280,7 +280,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 
 const props = defineProps({

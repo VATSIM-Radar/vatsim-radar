@@ -129,7 +129,7 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 
 const props = defineProps({
     overlay: {

@@ -1,7 +1,10 @@
 <template>
     <div
         class="bubble"
-        :class="[`bubble--size-${ size }`]"
+        :class="[
+            `bubble--size-${ size }`,
+            `bubble--type-${ type }`,
+        ]"
     >
         <slot/>
     </div>
@@ -14,6 +17,10 @@ defineProps({
     size: {
         type: String as PropType<'S' | 'M'>,
         default: 'S',
+    },
+    type: {
+        type: String as PropType<'primary' | 'secondary'>,
+        default: 'primary',
     },
 });
 
@@ -37,6 +44,10 @@ defineSlots<{ default: () => any }>();
 
     &--size-M {
         padding: 4px 8px;
+    }
+
+    &--type-secondary {
+        background: $neutral875;
     }
 }
 </style>

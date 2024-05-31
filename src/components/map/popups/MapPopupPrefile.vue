@@ -36,7 +36,7 @@ import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import type { VatsimPrefile } from '~/types/data/vatsim';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 
 const props = defineProps({

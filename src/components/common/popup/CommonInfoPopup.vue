@@ -57,29 +57,19 @@
                         },
                     ]"
                 >
-                    <div
+                    <common-block-title
                         v-if="index !== 0 || section.title || section.collapsible"
                         class="info-popup__section_separator"
-                        @click="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
+                        :collapsed="!section.collapsible ? null : collapsedSections.includes(section.key)"
+                        @update:collapsed="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
                     >
-                        <div
-                            v-if="section.title || $slots[`${ section.key }Title`]"
-                            class="info-popup__section_separator_title"
+                        <slot
+                            :name="`${ section.key }Title`"
+                            :section="section"
                         >
-                            <slot
-                                :name="`${ section.key }Title`"
-                                :section="section"
-                            >
-                                {{ section.title }}
-                            </slot>
-                        </div>
-                        <div
-                            v-if="section.collapsible"
-                            class="info-popup__section_separator_collapse"
-                        >
-                            <arrow-top-icon width="14"/>
-                        </div>
-                    </div>
+                            {{ section.title }}
+                        </slot>
+                    </common-block-title>
                     <div
                         v-if="!section.collapsible || !collapsedSections.includes(section.key)"
                         class="info-popup__section_content"
@@ -100,6 +90,7 @@ import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { PropType } from 'vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 /* eslint vue/require-explicit-slots: 0 */
 
@@ -332,36 +323,6 @@ watch(getSections, sections => {
                 font-size: 12px;
                 border-radius: 4px;
             }
-
-            &_collapse {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-
-                width: 44px;
-                height: 24px;
-                padding-left: 20px;
-
-                svg {
-                    transition: 0.3s;
-                }
-
-                @include hover {
-                    &:hover {
-                        svg {
-                            color: $primary500;
-                        }
-                    }
-                }
-            }
-        }
-
-        &--collapsed .info-popup__section_separator_collapse svg {
-            transform: rotate(180deg);
-        }
-
-        &--collapsible .info-popup__section_separator {
-            cursor: pointer;
         }
     }
 }
