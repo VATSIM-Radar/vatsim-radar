@@ -7,6 +7,12 @@
 - Changed route aircraft icon color
 - Added turns history (tracks) when you open pilot overlay
 - METAR/TAF/NOTAMS redesign
+- Renamed Airport info to Info & Weather to clarify what's in there
+- Pilot ATC has been moved to separate tab
+- You can now see CTAF frequency in pilot popup
+- Added ?airport param to main page to quickly open any airport on map
+- Whole Airport ATC card has been made clickable
+- Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
 
 ### Performance improvements and technical stuff
 
@@ -20,6 +26,7 @@
 
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
+- Fixed fill of hovered approach facility not covering whole area
 
 # 0.3.5
 

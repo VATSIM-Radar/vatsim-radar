@@ -5,7 +5,10 @@
                 v-for="(tab, key) in tabs"
                 :key="key"
                 class="tabs_tab"
-                :class="{ 'tabs_tab--active': key === model }"
+                :class="{
+                    'tabs_tab--active': key === model,
+                    'tabs_tab--disabled': tab.disabled,
+                }"
                 @click="model = key"
             >
                 {{ tab.title }}
@@ -25,6 +28,7 @@ import type { PropType } from 'vue';
 
 interface Tab {
     title: string;
+    disabled?: boolean;
 }
 
 /* eslint vue/require-explicit-slots: 0 */
@@ -110,6 +114,11 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
                 width: 75%;
                 background: $primary500;
             }
+        }
+
+        &--disabled {
+            pointer-events: none;
+            opacity: 0.7;
         }
     }
 }

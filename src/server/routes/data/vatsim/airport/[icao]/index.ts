@@ -1,25 +1,13 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
 import { MultiPolygon } from 'ol/geom';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
+import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
+import { fromServerLonLat, getVatsimAirportInfo } from '~/utils/backend/vatsim';
 
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
-    vatInfo?: {
-        icao?: string;
-        iata?: string;
-        name?: string;
-        altitude_m?: number;
-        altitude_ft?: number;
-        transition_alt?: number;
-        transition_level?: string;
-        transition_level_by_atc?: boolean;
-        city?: number;
-        country?: string;
-        division_id?: string;
-        ctafFreq?: string;
-    };
+    vatInfo?: VatsimAirportInfo;
     center: string[];
 }
 
@@ -108,24 +96,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     if (!weatherOnly && !controllersOnly) {
         promises.push(new Promise<void>(async resolve => {
             try {
-                const { data: airportData } = await $fetch<{
-                    data: VatsimAirportData['vatInfo'] & { stations: { ctaf: boolean; frequency: string }[] };
-                }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
-
-                data.vatInfo = {
-                    icao: airportData?.icao,
-                    iata: airportData?.iata,
-                    name: airportData?.name,
-                    altitude_m: airportData?.altitude_m,
-                    altitude_ft: airportData?.altitude_ft,
-                    transition_alt: airportData?.transition_alt,
-                    transition_level: airportData?.transition_level,
-                    transition_level_by_atc: airportData?.transition_level_by_atc,
-                    city: airportData?.city,
-                    country: airportData?.country,
-                    division_id: airportData?.division_id,
-                    ctafFreq: airportData?.stations?.find(x => x.ctaf)?.frequency,
-                };
+                data.vatInfo = await getVatsimAirportInfo(icao);
 
                 resolve();
             }

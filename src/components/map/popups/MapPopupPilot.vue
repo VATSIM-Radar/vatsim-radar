@@ -7,8 +7,18 @@
         :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
         max-height="100%"
         model-value
-        :sections="sections"
         :style="{ '--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color] }"
+        :tabs="{
+            info: {
+                title: 'Info',
+                sections,
+            },
+            atc: {
+                title: 'ATC',
+                sections: atcSections,
+                disabled: !atcSections.length,
+            },
+        }"
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >
         <template #title>
@@ -49,15 +59,8 @@
                 />
             </div>
         </template>
-        <template #show-atc>
-            <div class="pilot__content">
-                <common-toggle v-model="showAtc">
-                    Show ATC
-                </common-toggle>
-            </div>
-        </template>
         <template
-            v-for="i in ['center', 'atis', 'app', 'ground']"
+            v-for="i in ['center', 'atis', 'app', 'ground', 'ctaf']"
             :key="i"
             #[`atc-${i}`]="{ section }"
         >
@@ -69,6 +72,14 @@
                     :show-facility="section.type === 'ground'"
                     small
                 />
+                <common-button
+                    v-if="i === 'ctaf'"
+                    href="https://my.vatsim.net/learn/frequently-asked-questions/section/140"
+                    target="_blank"
+                    type="link"
+                >
+                    Learn more about CTAF trial
+                </common-button>
             </div>
         </template>
         <template #flight>
@@ -269,8 +280,8 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBlueBubble.vue';
+import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 
 const props = defineProps({
     overlay: {
@@ -295,8 +306,9 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 
 const pilot = computed(() => props.overlay.data.pilot);
 const stats = computed(() => props.overlay.data.stats);
-// eslint-disable-next-line vue/no-ref-object-reactivity-loss
-const showAtc = ref(pilot.value.cid.toString() === store.user?.cid);
+const airportInfo = computed(() => {
+    return props.overlay.data.airport;
+});
 const isOffline = ref(false);
 
 const svg = shallowRef<string | null>(null);
@@ -349,21 +361,18 @@ const viewRoute = () => {
     });
 };
 
+const atcSections = computed<InfoPopupSection[]>(() => {
+    return getAtcList.value;
+});
+
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
-        ...getAtcList.value,
         {
             key: 'flight',
             title: 'Current Flight Details',
             collapsible: true,
         },
     ];
-
-    if (pilot.value.airport || pilot.value.firs?.length) {
-        sections.unshift({
-            key: 'show-atc',
-        });
-    }
 
     if (pilot.value.flight_plan) {
         sections.push({
@@ -388,7 +397,6 @@ type AtcPopupSection = InfoPopupSection & {
 const facilities = useFacilitiesIds();
 
 const getAtcList = computed<AtcPopupSection[]>(() => {
-    if (!showAtc.value) return [];
     const sections: AtcPopupSection[] = [];
 
     const center = pilot.value.firs
@@ -453,7 +461,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
         }
     }
 
-    return sections.sort((a, b) => {
+    sections.sort((a, b) => {
         if (pilot.value.airport) {
             if (!pilot.value.isOnGround) {
                 if (a.type === 'app' && b.type === 'app') return 0;
@@ -477,6 +485,30 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
 
         return 0;
     });
+
+    if (!sections.length && airportInfo?.value?.ctafFreq) {
+        return [{
+            type: 'ground',
+            controllers: [
+                {
+                    cid: Math.random(),
+                    callsign: '',
+                    facility: -1,
+                    text_atis: null,
+                    name: '',
+                    logon_time: '',
+                    rating: 0,
+                    visual_range: 0,
+                    frequency: airportInfo.value?.ctafFreq,
+                },
+            ],
+            title: 'CTAF',
+            key: 'atc-ctaf',
+            collapsible: false,
+        }];
+    }
+
+    return sections;
 });
 
 const getStatus = computed(() => {
@@ -525,6 +557,17 @@ onMounted(() => {
         if (!icon) return;
 
         svg.value = await fetchAircraftIcon(icon.icon);
+    }, {
+        immediate: true,
+    });
+
+    watch(() => pilot.value.airport, async icao => {
+        if (airportInfo.value?.icao === icao) return;
+
+        if (icao) {
+            props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/data/vatsim/airport/${ icao }/info`);
+        }
+        else props.overlay.data.airport = undefined;
     }, {
         immediate: true,
     });

@@ -5,6 +5,7 @@ import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -25,6 +26,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
     data: {
         pilot: VatsimExtendedPilot;
         stats?: Partial<VatsimMemberStats>;
+        airport?: VatsimAirportInfo;
         tracked?: boolean;
     };
 }

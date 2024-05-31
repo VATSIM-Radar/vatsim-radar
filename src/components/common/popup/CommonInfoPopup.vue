@@ -114,6 +114,7 @@ export interface InfoPopupSection {
 export type InfoPopupContent = Record<string, {
     title: string;
     sections: InfoPopupSection[];
+    disabled?: boolean;
 }>;
 
 const props = defineProps({

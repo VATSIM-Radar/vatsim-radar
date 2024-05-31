@@ -13,11 +13,11 @@
             <div
                 class="airport"
                 :style="{ '--color': getAirportColor }"
+                @click="mapStore.addAirportOverlay(airport.icao)"
                 @mouseleave="hoveredFacility = false"
             >
                 <div
                     class="airport_title"
-                    @click="mapStore.addAirportOverlay(airport.icao)"
                     @mouseover="hoveredFacility = true"
                 >
                     {{ airportName }}
@@ -44,6 +44,7 @@
                     :controllers="hoveredFacilities"
                     :show-atis="hoveredFacility !== true"
                     :show-facility="hoveredFacility === true"
+                    @click.stop
                 >
                     <template #title>
                         {{ airport.name }}
@@ -295,6 +296,9 @@ watch(hoveredFeature, val => {
         hoverFeature.setStyle(new Style({
             fill: new Fill({
                 color: `rgba(${ radarColors.primary400Rgb.join(',') }, 0.4)`,
+            }),
+            stroke: new Stroke({
+                color: `transparent`,
             }),
         }));
         vectorSource.value?.addFeature(hoverFeature);
@@ -567,7 +571,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .airport {
-    cursor: initial;
+    cursor: pointer;
 
     display: flex;
     flex-direction: column;

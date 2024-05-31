@@ -209,6 +209,20 @@ const restoreOverlays = async () => {
             showPilotOnMap(overlay.data.pilot, map.value);
         }
     }
+    else if (route.query.airport) {
+        let overlay = mapStore.overlays.find(x => x.key === route.query.airport as string);
+
+        if (!overlay) {
+            overlay = await mapStore.addAirportOverlay(route.query.airport as string);
+        }
+
+        const airport = dataStore.vatspy.value?.data.airports.find(x => x.icao === route.query.airport as string);
+
+        if (overlay && overlay.type === 'airport' && airport) {
+            overlay.sticky = true;
+            showAirportOnMap(airport, map.value);
+        }
+    }
 };
 
 function updateMapCursor() {

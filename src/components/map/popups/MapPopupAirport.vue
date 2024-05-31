@@ -132,7 +132,10 @@
                 v-if="aircraft?.arrivals.length"
                 class="airport__aircraft-toggles"
             >
-                <common-toggle v-model="props.overlay.data.showTracks">
+                <common-toggle
+                    :model-value="!!props.overlay.data.showTracks"
+                    @update:modelValue="props.overlay.data.showTracks = $event"
+                >
                     Show tracks for arriving
                 </common-toggle>
             </div>
@@ -482,7 +485,7 @@ const tabs = computed<InfoPopupContent>(() => {
             sections: [],
         },
         info: {
-            title: 'Airport info',
+            title: 'Info & Weather',
             sections: [],
         },
     };

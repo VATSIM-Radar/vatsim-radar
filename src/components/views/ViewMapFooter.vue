@@ -6,12 +6,18 @@
         <div class="map-footer_left">
             <div
                 v-if="dataStore.versions.value?.navigraph"
-                class="map-footer_left_section map-footer__airac"
+                class="map-footer_left_section"
                 title="Navigraph Data AIRAC"
+                @click="!store.user?.hasFms ? airacPopup = true : undefined"
             >
-                AIRAC {{
-                    dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
-                }}
+                <div
+                    class="map-footer__airac"
+                    :class="{ 'map-footer__airac--current': !!store.user?.hasFms }"
+                >
+                    AIRAC {{
+                        dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
+                    }}
+                </div>
             </div>
             <div class="map-footer_left_section">
                 <div class="map-footer__connections">
@@ -74,13 +80,57 @@
             VATSIM data time: {{ getLastUpdated }}
         </div>
     </footer>
+    <common-popup v-model="airacPopup">
+        <template #title>
+            AIRAC upgrade
+        </template>
+        You can upgrade your AIRAC to access latest data for gates, runways and more in future, by purchasing and linking Navigraph subscription.
+        <template #actions>
+            <common-button
+                v-if="!store.user || store.user?.hasFms === null"
+                href="https://navigraph.com/pricing"
+                target="_blank"
+                type="secondary"
+            >
+                More about subscription
+            </common-button>
+            <common-button
+                v-else
+                type="secondary"
+                @click="airacPopup = false"
+            >
+                Cancel
+            </common-button>
+            <common-button
+                v-if="store.user?.hasFms === null"
+                href="/auth/navigraph/redirect"
+            >
+                Connect Navigraph
+            </common-button>
+            <common-button
+                v-else-if="store.user?.hasFms === false"
+                href="https://navigraph.com/pricing"
+                target="_blank"
+            >
+                Purchase subscription
+            </common-button>
+            <common-button
+                v-else
+                href="/auth/vatsim/redirect"
+            >
+                Login
+            </common-button>
+        </template>
+    </common-popup>
 </template>
 
 <script setup lang="ts">
 import { useStore } from '~/store';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
+const airacPopup = ref(false);
 
 const datetime = new Intl.DateTimeFormat([], {
     timeZone: 'UTC',
@@ -155,11 +205,23 @@ const getLastUpdated = computed(() => {
         }
     }
 
-    &__connections {
-        display: flex;
+    &__airac, &__connections {
         padding: 8px 16px;
         background: $neutral950;
         border-radius: 8px;
+    }
+
+    &__airac {
+        cursor: pointer;
+
+        &--current {
+            cursor: default;
+            background: varToRgba('primary500', 0.1);
+        }
+    }
+
+    &__connections {
+        display: flex;
 
         span {
             font-weight: 600;
