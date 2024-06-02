@@ -2832,7 +2832,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.12.12":
+"@types/node@npm:*, @types/node@npm:^20.13.0":
   version: 20.13.0
   resolution: "@types/node@npm:20.13.0"
   dependencies:
@@ -8404,7 +8404,7 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^20.12.12"
+    "@types/node": "npm:^20.13.0"
     adm-zip: "npm:^0.5.13"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
