@@ -3,6 +3,24 @@
         v-if="airport"
         class="aircraft"
     >
+        <common-control-block
+            v-model="aircraftGroundFilterOpened"
+            center-by="start"
+            center-by-offset="5%"
+            close-by-click-outside
+            location="top"
+            width="90%"
+        >
+            <template #title>
+                Filter ground aircraft
+            </template>
+            <common-radio-group
+                v-model="aircraftGroundMode"
+                class="airport__ground-toggles"
+                :items="aircraftGroundSelects"
+            />
+        </common-control-block>
+
         <div class="aircraft_nav">
             <div
                 class="aircraft_nav_item"
@@ -49,29 +67,15 @@
                     v-if="aircraftMode === 'ground'"
                     #append
                 >
-                    <div class="aircraft_list__filter">
+                    <div
+                        class="aircraft_list__filter"
+                        :class="{ 'aircraft_list__filter--active': aircraftGroundFilterOpened }"
+                        @click.capture.stop="aircraftGroundFilterOpened = true"
+                    >
                         <filter-icon/>
-
-                        <common-control-block>
-                            <template #title>
-                                Test
-                            </template>
-                            Test
-                        </common-control-block>
                     </div>
                 </template>
             </common-block-title>
-            <div
-                v-if="aircraftMode === 'ground'"
-                class="aircraft_list_filter"
-            >
-                <common-radio-group
-                    v-model="aircraftGroundMode"
-                    class="airport__ground-toggles"
-                    :items="aircraftGroundSelects"
-                    two-cols
-                />
-            </div>
             <common-info-block
                 v-for="pilot in displayedAircraft"
                 :key="pilot.cid"
@@ -136,12 +140,14 @@ import { injectAirport } from '~/composables/airport';
 import { useDataStore } from '~/composables/data';
 import { getPilotStatus } from '~/composables/pilots';
 import { useMapStore } from '~/store/map';
-import type { AirportPopupPilotList, AirportPopupPilotStatus } from '~/components/map/popups/MapPopupAirport.vue';
-import type { ComputedRef } from 'vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
+import { toLonLat } from 'ol/proj';
+import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { MapAirport } from '~/types/map';
 
 const data = injectAirport();
 const dataStore = useDataStore();
@@ -158,7 +164,7 @@ const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
 const aircraftGroundFilterOpened = ref(false);
 const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
     {
-        text: 'Dep. & Arr.',
+        text: 'Departing & Arrived',
         value: 'depArr',
     },
     {
@@ -176,8 +182,81 @@ const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[
 ];
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
+const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao));
 
-const aircraft = inject<ComputedRef<AirportPopupPilotList>>('aircraft')!;
+export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
+    isArrival: boolean;
+    distance: number;
+    flown: number;
+    eta: Date | null;
+};
+
+export type AirportPopupPilotList = Record<keyof MapAirport['aircraft'], Array<AirportPopupPilotStatus>>;
+
+const aircraft = computed<AirportPopupPilotList | null>(() => {
+    if (!vatAirport.value) return null;
+
+    const list = {
+        groundDep: [] as AirportPopupPilotStatus[],
+        groundArr: [] as AirportPopupPilotStatus[],
+        prefiles: [] as AirportPopupPilotStatus[],
+        departures: [] as AirportPopupPilotStatus[],
+        arrivals: [] as AirportPopupPilotStatus[],
+    } satisfies AirportPopupPilotList;
+
+    for (const pilot of dataStore.vatsim.data.pilots.value) {
+        let distance = 0;
+        let flown = 0;
+        let eta: Date | null = null;
+
+        const arrivalAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
+
+        if (arrivalAirport) {
+            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
+            const depCoords = toLonLat([airport.value?.lon ?? 0, airport.value?.lat ?? 0]);
+            const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
+
+            distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
+            flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
+            if (pilot.groundspeed) {
+                eta = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed);
+            }
+        }
+
+        const truePilot: AirportPopupPilotStatus = {
+            ...pilot,
+            distance,
+            eta,
+            flown,
+            isArrival: true,
+        };
+
+        if (vatAirport.value.aircraft.departures?.includes(pilot.cid)) {
+            list.departures.push({ ...truePilot, isArrival: false });
+        }
+        if (vatAirport.value.aircraft.arrivals?.includes(pilot.cid)) {
+            list.arrivals.push(truePilot);
+        }
+        if (vatAirport.value.aircraft.groundDep?.includes(pilot.cid)) {
+            list.groundDep.push({ ...truePilot, isArrival: false });
+        }
+        if (vatAirport.value.aircraft.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
+    }
+
+    for (const pilot of dataStore.vatsim.data.prefiles.value) {
+        if (vatAirport.value.aircraft.prefiles?.includes(pilot.cid)) {
+            list.prefiles.push({
+                ...pilot,
+                distance: 0,
+                flown: 0,
+                eta: null,
+                isArrival: false,
+            });
+        }
+    }
+
+    return list;
+});
 
 const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
     if (aircraftMode.value === 'departed') {
@@ -235,10 +314,15 @@ onMounted(() => {
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
     }
 });
+
+defineExpose({
+    aircraft,
+});
 </script>
 
 <style scoped lang="scss">
 .aircraft {
+    position: relative;
     display: grid;
     grid-template-columns: 13% 85%;
     justify-content: space-between;
@@ -280,6 +364,7 @@ onMounted(() => {
     }
 
     &_list {
+        --block-title-background: #{$neutral950};
         overflow: auto;
         display: flex;
         flex-direction: column;
@@ -293,9 +378,23 @@ onMounted(() => {
 
         &__filter {
             cursor: pointer;
+
             position: relative;
-            min-width: 16px;
+
+            padding: 0 8px;
+
             color: $primary500;
+
+            background: $neutral950;
+
+            svg {
+                width: 16px;
+                min-width: 16px;
+            }
+
+            &--active {
+                color: $success500;
+            }
         }
     }
 

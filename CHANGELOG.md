@@ -13,6 +13,7 @@
 - Added ?airport param to main page to quickly open any airport on map
 - Whole Airport ATC card has been made clickable
 - Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
+- Redesigned ground aircraft filter
 
 ### Performance improvements and technical stuff
 

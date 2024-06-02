@@ -88,21 +88,25 @@ const collapsed = defineModel('collapsed', {
         background: $neutral850;
     }
 
-    &_text, &_collapse {
+    &_text > *, &_collapse {
         position: relative;
-        background: $neutral1000;
+        z-index: 1;
+        background: var(--block-title-background, $neutral1000);
     }
 
     &_text {
         display: flex;
         gap: 16px;
 
-        margin-left: 8px;
-        padding: 0 4px;
+        padding-left: 8px;
 
         font-size: 12px;
 
         border-radius: 4px;
+
+        &_content {
+            padding: 0 4px;
+        }
     }
 
     &_collapse {

@@ -52,21 +52,6 @@
                 </div>
             </div>
         </template>
-        <template #atcTitle="{ section }">
-            <common-block-title :bubble="isCtafOnly ? '' : atc.length">
-                <template v-if="!isCtafOnly">
-                    {{ section.title }}
-                </template>
-                <template v-else>
-                    CTAF frequency
-                </template>
-            </common-block-title>
-        </template>
-        <template #aircraftTitle>
-            <common-block-title :bubble="aircraftCount">
-                Aircraft
-            </common-block-title>
-        </template>
         <template
             v-if="data?.metar"
             #metar
@@ -92,27 +77,7 @@
             <airport-info/>
         </template>
         <template #atc>
-            <common-toggle
-                v-if="!isCtafOnly"
-                v-model="showAtis"
-            >
-                Show ATIS
-            </common-toggle>
-            <common-button
-                v-else
-                href="https://my.vatsim.net/learn/frequently-asked-questions/section/140"
-                target="_blank"
-                type="link"
-            >
-                Learn more about CTAF trial
-            </common-button>
-            <common-controller-info
-                :controllers="atc"
-                max-height="170px"
-                :show-atis="showAtis"
-                show-facility
-                small
-            />
+            <airport-controllers/>
         </template>
         <template #aircraft>
             <div
@@ -126,21 +91,17 @@
                     Show tracks for arriving
                 </common-toggle>
             </div>
-            <airport-aircraft/>
+            <airport-aircraft ref="aircraftComponent"/>
         </template>
     </common-info-popup>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue';
+import type { ComponentPublicInstance, PropType } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useDataStore } from '#imports';
-import type {
-    VatsimShortenedAircraft,
-    VatsimShortenedController, VatsimShortenedPrefile,
-} from '~/types/data/vatsim';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
@@ -149,20 +110,15 @@ import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { useStore } from '~/store';
-import { provideAirport } from '~/composables/airport';
+import { getATCForAirport, provideAirport } from '~/composables/airport';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
 import AirportNotams from '~/components/views/airport/AirportNotams.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
-import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
-import type { MapAirport } from '~/types/map';
-import { toLonLat } from 'ol/proj';
-import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import type { AirportPopupPilotList } from '~/components/views/airport/AirportAircraft.vue';
+import AirportControllers from '~/components/views/airport/AirportControllers.vue';
 
 const props = defineProps({
     overlay: {
@@ -171,123 +127,26 @@ const props = defineProps({
     },
 });
 
-provideAirport(computed(() => props.overlay.data));
+const overlayData = computed(() => props.overlay.data);
+provideAirport(overlayData);
+const atc = getATCForAirport(overlayData);
 
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const showAtis = ref(false);
+const aircraftComponent = ref<ComponentPublicInstance | null>(null);
+
+const aircraft = computed<AirportPopupPilotList | null>(() => {
+    // @ts-expect-error exposed property
+    return aircraftComponent.value?.aircraft.value || null;
+});
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === props.overlay.data.icao));
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
-const atc = computed((): VatsimShortenedController[] => {
-    const list = sortControllersByPosition([
-        ...dataStore.vatsim.data.locals.value.filter(x => x.airport.icao === props.overlay.data.icao).map(x => x.atc),
-        ...dataStore.vatsim.data.firs.value.filter(x => props.overlay.data.airport?.center?.includes(x.controller.callsign)).map(x => x.controller),
-    ]);
-
-    if (!list.length && data.value?.vatInfo?.ctafFreq) {
-        return [
-            {
-                cid: Math.random(),
-                callsign: '',
-                facility: -1,
-                text_atis: null,
-                name: '',
-                logon_time: '',
-                rating: 0,
-                visual_range: 0,
-                frequency: data.value.vatInfo.ctafFreq,
-            },
-        ];
-    }
-
-    return list;
-});
-
-const isCtafOnly = computed(() => {
-    return atc.value.length === 1 && atc.value[0].facility === -1;
-});
 
 const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
-
-export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
-    isArrival: boolean;
-    distance: number;
-    flown: number;
-    eta: Date | null;
-};
-
-export type AirportPopupPilotList = Record<keyof MapAirport['aircraft'], Array<AirportPopupPilotStatus>>;
-
-const aircraft = computed(() => {
-    if (!vatAirport.value) return null;
-
-    const list = {
-        groundDep: [] as AirportPopupPilotStatus[],
-        groundArr: [] as AirportPopupPilotStatus[],
-        prefiles: [] as AirportPopupPilotStatus[],
-        departures: [] as AirportPopupPilotStatus[],
-        arrivals: [] as AirportPopupPilotStatus[],
-    } satisfies AirportPopupPilotList;
-
-    for (const pilot of dataStore.vatsim.data.pilots.value) {
-        let distance = 0;
-        let flown = 0;
-        let eta: Date | null = null;
-
-        const arrivalAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
-
-        if (arrivalAirport) {
-            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
-            const depCoords = toLonLat([airport.value?.lon ?? 0, airport.value?.lat ?? 0]);
-            const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
-
-            distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
-            flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
-            if (pilot.groundspeed) {
-                eta = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed);
-            }
-        }
-
-        const truePilot: AirportPopupPilotStatus = {
-            ...pilot,
-            distance,
-            eta,
-            flown,
-            isArrival: true,
-        };
-
-        if (vatAirport.value.aircraft.departures?.includes(pilot.cid)) {
-            list.departures.push({ ...truePilot, isArrival: false });
-        }
-        if (vatAirport.value.aircraft.arrivals?.includes(pilot.cid)) {
-            list.arrivals.push(truePilot);
-        }
-        if (vatAirport.value.aircraft.groundDep?.includes(pilot.cid)) {
-            list.groundDep.push({ ...truePilot, isArrival: false });
-        }
-        if (vatAirport.value.aircraft.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
-    }
-
-    for (const pilot of dataStore.vatsim.data.prefiles.value) {
-        if (vatAirport.value.aircraft.prefiles?.includes(pilot.cid)) {
-            list.prefiles.push({
-                ...pilot,
-                distance: 0,
-                flown: 0,
-                eta: null,
-                isArrival: false,
-            });
-        }
-    }
-
-    return list;
-});
-
-provide('aircraft', aircraft);
 
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
@@ -344,6 +203,7 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'Active Controllers',
             collapsible: true,
             key: 'atc',
+            bubble: atc.value[0]?.facility === -2 ? 0 : atc.value.length,
         });
     }
 
@@ -352,6 +212,7 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'Aircraft',
             collapsible: true,
             key: 'aircraft',
+            bubble: aircraftCount.value,
         });
     }
 

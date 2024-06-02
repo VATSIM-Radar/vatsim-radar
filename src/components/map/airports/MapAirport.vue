@@ -53,7 +53,7 @@
                         </template>
                         <template v-else>
                             {{
-                                hoveredFacility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === hoveredFacility)?.long
+                                hoveredFacility === -2 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === hoveredFacility)?.long
                             }}
                         </template>
                     </template>

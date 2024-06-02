@@ -59,6 +59,7 @@
                 >
                     <common-block-title
                         v-if="index !== 0 || section.title || section.collapsible"
+                        :bubble="section.bubble"
                         class="info-popup__section_separator"
                         :collapsed="!section.collapsible ? null : collapsedSections.includes(section.key)"
                         @update:collapsed="section.collapsible && (collapsedSections.includes(section.key) ? collapsedSections = collapsedSections.filter(x => x !== section.key) : collapsedSections.push(section.key))"
@@ -69,6 +70,12 @@
                         >
                             {{ section.title }}
                         </slot>
+                        <template
+                            v-if="$slots[`${ section.key }Bubble`] || section.bubble"
+                            #bubble
+                        >
+                            <slot :name="`${ section.key }Bubble`"/>
+                        </template>
                     </common-block-title>
                     <div
                         v-if="!section.collapsible || !collapsedSections.includes(section.key)"
@@ -100,6 +107,7 @@ export interface InfoPopupSection {
     collapsible?: boolean;
     collapsedDefault?: boolean;
     collapsedDefaultOnce?: boolean;
+    bubble?: string | number;
 }
 
 export type InfoPopupContent = Record<string, {
