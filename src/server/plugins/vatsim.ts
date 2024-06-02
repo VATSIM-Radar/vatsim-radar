@@ -1,5 +1,4 @@
 import { CronJob } from 'cron';
-import { ofetch } from 'ofetch';
 import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
@@ -42,10 +41,11 @@ export default defineNitroPlugin((app) => {
             if (!radarStorage.vatspy.data || isInProgress || Date.now() - latestFinished < 1000) return;
             try {
                 isInProgress = true;
-                const data = await ofetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
+                const data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
                     parseResponse(responseText) {
                         return JSON.parse(responseText);
                     },
+                    timeout: 1000 * 30,
                 });
 
                 if (radarStorage.vatsim.data?.general) {
@@ -154,8 +154,12 @@ export default defineNitroPlugin((app) => {
 
     async function fetchDivisions() {
         const [divisions, subdivisions] = await Promise.all([
-            $fetch<VatsimDivision[]>('https://api.vatsim.net/api/divisions/'),
-            $fetch<VatsimSubDivision[]>('https://api.vatsim.net/api/subdivisions/'),
+            $fetch<VatsimDivision[]>('https://api.vatsim.net/api/divisions/', {
+                timeout: 1000 * 60,
+            }),
+            $fetch<VatsimSubDivision[]>('https://api.vatsim.net/api/subdivisions/', {
+                timeout: 1000 * 60,
+            }),
         ]);
 
         radarStorage.vatsim.divisions = divisions;

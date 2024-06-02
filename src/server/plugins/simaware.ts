@@ -15,7 +15,9 @@ export default defineNitroPlugin((app) => {
                     name?: string
                     browser_download_url?: string
                 }[]
-            }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest');
+            }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest', {
+                timeout: 1000 * 60,
+            });
 
             if (radarStorage.simaware.version === data.name) return;
 
