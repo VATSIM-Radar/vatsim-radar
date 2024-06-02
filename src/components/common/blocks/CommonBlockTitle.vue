@@ -46,7 +46,7 @@ import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 
 defineProps({
     bubble: {
-        type: String,
+        type: [String, Number],
     },
 });
 

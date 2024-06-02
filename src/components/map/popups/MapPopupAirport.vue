@@ -53,32 +53,19 @@
             </div>
         </template>
         <template #atcTitle="{ section }">
-            <div class="airport__section-title">
-                <common-blue-bubble
-                    v-if="!isCtafOnly"
-                    class="airport__section-title_counter"
-                >
-                    {{ atc.length }}
-                </common-blue-bubble>
-                <div class="airport__section-title_text">
-                    <template v-if="!isCtafOnly">
-                        {{ section.title }}
-                    </template>
-                    <template v-else>
-                        CTAF frequency
-                    </template>
-                </div>
-            </div>
+            <common-block-title :bubble="isCtafOnly ? '' : atc.length">
+                <template v-if="!isCtafOnly">
+                    {{ section.title }}
+                </template>
+                <template v-else>
+                    CTAF frequency
+                </template>
+            </common-block-title>
         </template>
         <template #aircraftTitle>
-            <div class="airport__section-title">
-                <common-blue-bubble class="airport__section-title_counter">
-                    {{ aircraftCount }}
-                </common-blue-bubble>
-                <div class="airport__section-title_text">
-                    Aircraft
-                </div>
-            </div>
+            <common-block-title :bubble="aircraftCount">
+                Aircraft
+            </common-block-title>
         </template>
         <template
             v-if="data?.metar"
@@ -175,6 +162,7 @@ import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import type { MapAirport } from '~/types/map';
 import { toLonLat } from 'ol/proj';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 const props = defineProps({
     overlay: {
@@ -434,18 +422,6 @@ onMounted(() => {
             &_icon {
                 width: 16px;
             }
-        }
-    }
-
-    /* TODO: this to component */
-    &__section-title {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-
-        &_text {
-            padding: 0 4px;
-            background: $neutral1000;
         }
     }
 

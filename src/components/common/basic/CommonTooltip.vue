@@ -41,9 +41,24 @@ defineProps({
         type: String,
         default: '80px',
     },
+    maxWidth: {
+        type: String,
+    },
+    closeMethods: {
+        type: Array as PropType<TooltipCloseMethod[]>,
+        default: () => ['clickOutside'],
+    },
 });
 
 defineSlots<{ default(): any; activator(): any }>();
+
+enum TooltipCloseMethods {
+    delay = 'delay',
+    clickOutside = 'clickOutside',
+    mouseLeave = 'mouseLeave',
+}
+
+export type TooltipCloseMethod = keyof typeof TooltipCloseMethods;
 
 export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom';
 
@@ -80,6 +95,7 @@ const model = defineModel({
 
         &_text {
             width: v-bind(width);
+            max-width: v-bind(maxWidth);
             padding: 8px;
 
             font-size: 11px;

@@ -8434,6 +8434,7 @@ __metadata:
     vite-plugin-eslint2: "npm:^4.4.0"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.27"
+    vue-component-type-helpers: "npm:^2.0.19"
     vue-router: "npm:^4.3.2"
     vue-tsc: "npm:^1.8.27"
   languageName: unknown
@@ -11771,6 +11772,13 @@ __metadata:
   dependencies:
     ufo: "npm:^1.5.3"
   checksum: 10c0/a3c4b73b4ac0e919632543b6daad6067c2aed03a5805f72730f0c1a52a40f80d122dfa33383c1c466f69df77b5565b52704409efb42e4244243a241ab0392bef
+  languageName: node
+  linkType: hard
+
+"vue-component-type-helpers@npm:^2.0.19":
+  version: 2.0.19
+  resolution: "vue-component-type-helpers@npm:2.0.19"
+  checksum: 10c0/588f4e19066a13d1e63d4959c6e3d77f92a483f3a5f0116789206f87133456e1267bcfbb3e39b5d4478d181a0e78df191e16e7102629787064e82db8f4f97c5f
   languageName: node
   linkType: hard
 

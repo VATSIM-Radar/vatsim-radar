@@ -51,6 +51,13 @@
                 >
                     <div class="aircraft_list__filter">
                         <filter-icon/>
+
+                        <common-control-block>
+                            <template #title>
+                                Test
+                            </template>
+                            Test
+                        </common-control-block>
                     </div>
                 </template>
             </common-block-title>
@@ -134,6 +141,7 @@ import type { ComputedRef } from 'vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
+import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 
 const data = injectAirport();
 const dataStore = useDataStore();
@@ -284,6 +292,8 @@ onMounted(() => {
         border-radius: 8px;
 
         &__filter {
+            cursor: pointer;
+            position: relative;
             min-width: 16px;
             color: $primary500;
         }
