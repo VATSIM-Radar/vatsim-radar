@@ -104,7 +104,7 @@ import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useDataStore } from '#imports';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
-import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
+import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
@@ -228,7 +228,7 @@ const vatInfo = computed(() => {
 watch(dataStore.vatsim.updateTimestamp, async () => {
     props.overlay.data.airport = {
         ...props.overlay.data.airport,
-        ...await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
+        ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
     };
 });
 
@@ -236,7 +236,7 @@ onMounted(() => {
     const interval = setInterval(async () => {
         props.overlay.data.airport = {
             ...props.overlay.data.airport,
-            ...await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
+            ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
         };
     }, 1000 * 60 * 5);
 

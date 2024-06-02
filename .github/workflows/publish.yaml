@@ -50,6 +50,7 @@ jobs:
             DISCORD_SERVER_ID=${{ vars.DISCORD_SERVER_ID }}
             DISCORD_RELEASES_CHANNEL_ID=${{ vars.DISCORD_RELEASES_CHANNEL_ID }}
             DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
+            ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
             IS_DOWN=${{ vars.IS_DOWN }}
   deploy:
     runs-on: production

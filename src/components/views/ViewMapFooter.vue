@@ -103,7 +103,7 @@
             </common-button>
             <common-button
                 v-if="store.user?.hasFms === null"
-                href="/auth/navigraph/redirect"
+                href="/api/auth/navigraph/redirect"
             >
                 Connect Navigraph
             </common-button>
@@ -116,7 +116,7 @@
             </common-button>
             <common-button
                 v-else
-                href="/auth/vatsim/redirect"
+                href="/api/auth/vatsim/redirect"
             >
                 Login
             </common-button>

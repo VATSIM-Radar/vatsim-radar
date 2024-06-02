@@ -517,7 +517,7 @@ const getStatus = computed(() => {
 
 watch(dataStore.vatsim.updateTimestamp, async () => {
     try {
-        props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ props.overlay.key }`);
+        props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.overlay.key }`);
         isOffline.value = false;
     }
     catch (e: IFetchError | any) {
@@ -565,7 +565,7 @@ onMounted(() => {
         if (airportInfo.value?.icao === icao) return;
 
         if (icao) {
-            props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/data/vatsim/airport/${ icao }/info`);
+            props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/api/data/vatsim/airport/${ icao }/info`);
         }
         else props.overlay.data.airport = undefined;
     }, {

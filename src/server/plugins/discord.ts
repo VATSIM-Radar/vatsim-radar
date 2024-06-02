@@ -120,6 +120,7 @@ export default defineNitroPlugin(async app => {
         const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
 
         discordClient.on('interactionCreate', async (interaction): Promise<any> => {
+            console.log(interaction.guildId, discordServerId);
             if (interaction.guildId !== discordServerId) return;
 
             if (config.public.IS_DOWN === 'true') {
@@ -224,7 +225,7 @@ export default defineNitroPlugin(async app => {
                                 type: AuthType.VATSIM,
                             },
                         });
-                        const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                        const url = `${ config.public.DOMAIN }/api/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                         const embed = new EmbedBuilder()
                             .setURL(url)
                             .setTitle('To verify yourself and authorize on VATSIM Radar, please use this link');

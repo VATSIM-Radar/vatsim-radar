@@ -88,6 +88,7 @@ export default defineNuxtConfig({
         DISCORD_SERVER_ID: process.env.DISCORD_SERVER_ID,
         DISCORD_RELEASES_CHANNEL_ID: process.env.DISCORD_RELEASES_CHANNEL_ID,
         DISCORD_ROLE_ID: process.env.DISCORD_ROLE_ID,
+        ACCESS_BY_DISCORD_ROLES: process.env.ACCESS_BY_DISCORD_ROLES,
 
         INFLUX_URL: process.env.INFLUX_URL,
         INFLUX_TOKEN: process.env.INFLUX_TOKEN,

@@ -31,6 +31,7 @@ export interface FullUser {
     cid: string;
     fullName: string;
     settings: UserSettings;
+    discordId: string | null;
 }
 
 export interface UserSettings {
@@ -65,6 +66,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                             fullName: true,
                         },
                     },
+                    discordId: true,
                 },
             },
             accessTokenExpire: true,
@@ -119,6 +121,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             cid: token.user.vatsim!.id,
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
+            discordId: token.user.discordId,
         };
     }
     return null;

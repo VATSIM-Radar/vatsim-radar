@@ -62,8 +62,8 @@ import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
-import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 
@@ -117,8 +117,8 @@ const restoreOverlays = async () => {
 
         if (overlay.type === 'pilot') {
             const data = await Promise.allSettled([
-                $fetch(`/data/vatsim/pilot/${ overlay.key }`),
-                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ overlay.key }`),
+                $fetch(`/api/data/vatsim/pilot/${ overlay.key }`),
+                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -133,7 +133,7 @@ const restoreOverlays = async () => {
         }
         else if (overlay.type === 'prefile') {
             const data = await Promise.allSettled([
-                $fetch(`/data/vatsim/pilot/${ overlay.key }/prefile`),
+                $fetch(`/api/data/vatsim/pilot/${ overlay.key }/prefile`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -150,7 +150,7 @@ const restoreOverlays = async () => {
             if (!controller) return overlay;
 
             const data = await Promise.allSettled([
-                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`),
+                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ controller.cid }`),
             ]);
 
             return {
@@ -166,13 +166,13 @@ const restoreOverlays = async () => {
             if (!vatSpyAirport) return;
 
             const data = await Promise.allSettled([
-                $fetch<VatsimAirportData>(`/data/vatsim/airport/${ overlay.key }`),
+                $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
 
             (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
@@ -241,7 +241,7 @@ onMounted(async () => {
     if (!mapStore.dataReady) {
         await new Promise<void>(resolve => {
             const interval = setInterval(async () => {
-                const { ready } = await $fetch('/data/status');
+                const { ready } = await $fetch('/api/data/status');
                 if (ready) {
                     resolve();
                     clearInterval(interval);
@@ -251,7 +251,7 @@ onMounted(async () => {
     }
 
     if (!dataStore.versions.value) {
-        dataStore.versions.value = await $fetch<VatDataVersions>('/data/versions');
+        dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
     }
 
@@ -268,7 +268,7 @@ onMounted(async () => {
         (async function() {
             let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
             if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
-                vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
+                vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
                 vatspy.data.firs = vatspy.data.firs.map(x => ({
                     ...x,
                     feature: {
@@ -287,7 +287,7 @@ onMounted(async () => {
         (async function() {
             let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
             if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
-                simaware = await $fetch<SimAwareAPIData>('/data/simaware');
+                simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
                 await clientDB.put('data', simaware, 'simaware');
             }
 
@@ -295,7 +295,7 @@ onMounted(async () => {
         }()),
         (async function() {
             const [vatsimData] = await Promise.all([
-                $fetch<VatsimLiveData>('/data/vatsim/data'),
+                $fetch<VatsimLiveData>('/api/data/vatsim/data'),
             ]);
             setVatsimDataStore(vatsimData);
         }()),
@@ -308,7 +308,7 @@ onMounted(async () => {
 
         try {
             inProgress = true;
-            const versions = await $fetch<VatDataVersions['vatsim']>('/data/vatsim/versions', {
+            const versions = await $fetch<VatDataVersions['vatsim']>('/api/data/vatsim/versions', {
                 timeout: 1000 * 30,
             });
 
@@ -317,7 +317,7 @@ onMounted(async () => {
 
                 if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
-                const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
+                const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
                     timeout: 1000 * 60,
                 });
                 setVatsimDataStore(data);
@@ -497,40 +497,6 @@ await useAsyncData(async () => {
 
     .map_container > * {
         border-radius: 0;
-    }
-}
-
-.__info-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    &_title {
-        padding-top: 8px;
-        font-size: 13px;
-        font-weight: 600;
-        border-top: 1px solid varToRgba('neutral150', 0.15);
-    }
-}
-
-.__grid-info-sections {
-    display: grid;
-    grid-template-columns: 20% 75%;
-    align-items: center;
-    justify-content: space-between;
-
-    &_title {
-        font-size: 13px;
-    }
-}
-
-.__section-group {
-    display: flex;
-    gap: 8px;
-
-    > * {
-        flex: 1 1 0;
-        width: 0;
     }
 }
 </style>

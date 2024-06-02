@@ -51,7 +51,7 @@ const mapStore = useMapStore();
 
 watch(dataStore.vatsim.updateTimestamp, async () => {
     try {
-        props.overlay.data.prefile = await $fetch<VatsimPrefile>(`/data/vatsim/pilot/${ props.overlay.key }/prefile`);
+        props.overlay.data.prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ props.overlay.key }/prefile`);
     }
     catch (e: IFetchError | any) {
         if (e) {

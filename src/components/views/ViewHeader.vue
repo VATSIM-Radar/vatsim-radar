@@ -74,7 +74,7 @@
             >
                 <common-button
                     v-if="!store.user"
-                    href="/auth/vatsim/redirect"
+                    href="/api/auth/vatsim/redirect"
                     size="S"
                 >
                     Connect VATSIM
@@ -178,7 +178,7 @@
                             </common-button>
                             <common-button
                                 class="header__settings__logout"
-                                href="/user/logout"
+                                href="/api/user/logout"
                             >
                                 Logout
                             </common-button>
@@ -227,7 +227,7 @@
                     <div class="header__settings__block header__settings__block--long-gap">
                         <common-button
                             v-if="store.user?.hasFms === null"
-                            href="/auth/navigraph/redirect"
+                            href="/api/auth/navigraph/redirect"
                         >
                             Link Navigraph
                         </common-button>
@@ -279,7 +279,7 @@
                 >
                     Stand by
                 </common-button>
-                <common-button href="/auth/vatsim/redirect">
+                <common-button href="/api/auth/vatsim/redirect">
                     Wilco
                 </common-button>
             </template>
@@ -404,14 +404,14 @@ const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.setting
 }));
 
 const deleteAccount = async () => {
-    await $fetch('/user/delete', {
+    await $fetch('/api/user/delete', {
         method: 'POST',
     });
     location.reload();
 };
 
 const deleteNavigraphAccount = async () => {
-    await $fetch('/user/unlink-navigraph', {
+    await $fetch('/api/user/unlink-navigraph', {
         method: 'POST',
     });
     store.user!.hasFms = null;
@@ -419,7 +419,7 @@ const deleteNavigraphAccount = async () => {
 };
 
 watch(settings, () => {
-    $fetch('/user/settings', {
+    $fetch('/api/user/settings', {
         method: 'POST',
         body: settings,
     });

@@ -1,6 +1,6 @@
 import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import type { MapAirport } from '~/types/map';
-import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
+import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 
 export interface VatsimGeneral {
     version: number;

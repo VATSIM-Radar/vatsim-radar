@@ -1,5 +1,8 @@
 <template>
-    <div class="app">
+    <div
+        v-if="!hadRestrictedAuth"
+        class="app"
+    >
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <slot/>
@@ -25,6 +28,10 @@
             </div>
         </div>
     </div>
+    <restricted-auth
+        v-else
+        v-once
+    />
 </template>
 
 <script lang="ts" setup>
@@ -33,6 +40,7 @@ import ViewHeader from '~/components/views/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
+import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
 defineSlots<{ default: () => any }>();
 
@@ -40,6 +48,14 @@ const store = useStore();
 const route = useRoute();
 
 checkAndSetMapPreset();
+
+defineRouteRules({
+    prerender: true,
+});
+
+const event = useRequestEvent();
+const restrictedState = useState('auth-restricted', () => !!event?.context.authRestricted);
+const hadRestrictedAuth = restrictedState.value;
 
 onMounted(() => {
     const interval = setInterval(() => {
@@ -180,6 +196,40 @@ svg, img {
 
     &::-webkit-scrollbar-track {
         background: var(--bg-color, $neutral1000);
+    }
+}
+
+.__info-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &_title {
+        padding-top: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 1px solid varToRgba('neutral150', 0.15);
+    }
+}
+
+.__grid-info-sections {
+    display: grid;
+    grid-template-columns: 20% 75%;
+    align-items: center;
+    justify-content: space-between;
+
+    &_title {
+        font-size: 13px;
+    }
+}
+
+.__section-group {
+    display: flex;
+    gap: 8px;
+
+    > * {
+        flex: 1 1 0;
+        width: 0;
     }
 }
 </style>

@@ -31,7 +31,7 @@ export function getNavigraphCodeChallenge(codeVerifier: string) {
 }
 
 export function getNavigraphRedirectUri() {
-    return `${ useRuntimeConfig().public.DOMAIN }/auth/navigraph`;
+    return `${ useRuntimeConfig().public.DOMAIN }/api/auth/navigraph`;
 }
 
 export function refreshNavigraphToken(refreshToken: string) {

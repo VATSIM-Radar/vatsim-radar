@@ -288,7 +288,7 @@ async function toggleAirportLines(value: boolean) {
 
     const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning600');
 
-    const turns = value && (activeCurrentOverlay.value || isSelfFlight.value) && await $fetch<InfluxGeojson | null | undefined>(`/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+    const turns = value && (activeCurrentOverlay.value || isSelfFlight.value) && await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
         timeout: 1000 * 5,
     }).catch(console.error);
 

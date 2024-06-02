@@ -7,7 +7,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes } from '~/utils/shared/vatsim';
 
 export function getVatsimRedirectUri() {
-    return `${ useRuntimeConfig().public.DOMAIN }/auth/vatsim`;
+    return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
 }
 
 const view = new View({
