@@ -20,7 +20,7 @@ watch(map, val => {
         tileLayer = new TileLayer({
             source: new XYZ({
                 attributions: '© <a href="/about" target="_blank">3rd Party Projects</a> © <a href="https://openweathermap.org/" target="_blank">OpenWeather</a> © <a href="https://cartodb.com/attributions" target="_blank">CartoDB</a>',
-                url: 'https://localhost:8080/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
+                url: '/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
                 wrapX: true,
             }),
             zIndex: 0,
