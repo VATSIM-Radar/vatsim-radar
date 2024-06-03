@@ -52,8 +52,8 @@ jobs:
             DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
             IS_DOWN=${{ vars.IS_DOWN }}
   deploy:
-    runs-on: production
-    #runs-on: beget
+    #runs-on: production
+    runs-on: beget
     needs:
       - push
     permissions:
