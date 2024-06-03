@@ -156,7 +156,7 @@ export default defineNitroPlugin(async app => {
                 const url = `${ config.public.DOMAIN }/api/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                 const embed = new EmbedBuilder()
                     .setURL(url)
-                    .setTitle('To verify yourself and authorize on VATSIM Radar, please use this link');
+                    .setTitle('To verify yourself and authorize on Radar Next, please use this link');
 
                 await interaction.reply({
                     embeds: [embed],
