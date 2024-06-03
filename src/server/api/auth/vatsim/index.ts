@@ -58,7 +58,7 @@ export default defineEventHandler(async event => {
                 },
             });
 
-            const user = await (await discordClient.guilds.fetch(config.DISCORD_SERVER_ID)).members.fetch(discordId);
+            const user = await (await discordClient.guilds.fetch(config.DISCORD_INTERNAL_SERVER_ID || config.DISCORD_SERVER_ID)).members.fetch(discordId);
             if (user && discordStrategy) {
                 await user.roles.add(config.DISCORD_ROLE_ID);
                 if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
