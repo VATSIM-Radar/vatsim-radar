@@ -18,9 +18,11 @@ export default defineNitroPlugin(app => {
                 const guildMember = await (
                     await discordClient.guilds.fetch(config.DISCORD_INTERNAL_SERVER_ID || config.DISCORD_SERVER_ID).catch(console.error)
                 )?.members.fetch(discordId).catch(console.error);
+                console.log('member', !!guildMember);
                 const roles = guildMember?.roles as GuildMemberRoleManager;
                 if (roles) {
                     const list = config.ACCESS_BY_DISCORD_ROLES.split(',');
+                    console.log([...roles.cache.values()]);
                     event.context.authRestricted = !list.some(x => roles.cache.has(x));
                 }
             }
