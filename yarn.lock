@@ -2832,12 +2832,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.13.0":
+"@types/node@npm:*":
   version: 20.13.0
   resolution: "@types/node@npm:20.13.0"
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10c0/4fb1ab41d622bbf3434da138bd0f23052e5df3bc59852ea1228cdfe185fd9d66ea71171a68a3106452c883808be7eaa7bc4cd87f534708754d49849e817aa566
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.14.0":
+  version: 20.14.0
+  resolution: "@types/node@npm:20.14.0"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10c0/29ccc7592e9ca6b81d00f3a6673241d08e9042d801b10adfd9ebcbbf326208e0a0133a8d146158db18d02a68b85d9ce1fd94e6e1e5be0da263129bf6e42eb22d
   languageName: node
   linkType: hard
 
@@ -8404,7 +8413,7 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^20.13.0"
+    "@types/node": "npm:^20.14.0"
     adm-zip: "npm:^0.5.13"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
