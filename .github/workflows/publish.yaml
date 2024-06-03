@@ -52,6 +52,11 @@ jobs:
             DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
             ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
             IS_DOWN=${{ vars.IS_DOWN }}
+            INFLUX_URL=${{ secrets.INFLUX_URL }}
+            INFLUX_URL=${{ secrets.INFLUX_TOKEN }}
+            INFLUX_URL=${{ secrets.INFLUX_ORG }}
+            INFLUX_URL=${{ secrets.INFLUX_BUCKET_MAIN }}
+            INFLUX_URL=${{ secrets.INFLUX_BUCKET_ONLINE }}
   deploy:
     #runs-on: production
     runs-on: beget
