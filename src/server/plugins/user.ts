@@ -7,11 +7,13 @@ export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();
 
     app.hooks.hook('request', async event => {
-        if ((!config.ACCESS_BY_DISCORD_ROLES || event.path.startsWith('/api')) && (event.path.startsWith('/api/auth') || (event.path.startsWith('/api/data') && !event.path.includes('navigraph')))) return;
+        const isPage = !event.path.startsWith('/api') && !event.path.startsWith('/layers') && !event.path.startsWith('/static');
+
+        if ((!config.ACCESS_BY_DISCORD_ROLES || !isPage) && (event.path.startsWith('/api/auth') || (event.path.startsWith('/api/data') && !event.path.includes('navigraph')))) return;
 
         event.context.user = await findAndRefreshFullUserByCookie(event);
 
-        if (config.ACCESS_BY_DISCORD_ROLES && !event.path.startsWith('/api')) {
+        if (config.ACCESS_BY_DISCORD_ROLES && isPage) {
             const discordId = event.context.user?.discordId;
             event.context.authRestricted = true;
             if (discordId) {
