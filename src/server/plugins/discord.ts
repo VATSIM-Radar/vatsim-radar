@@ -67,7 +67,7 @@ export default defineNitroPlugin(async app => {
             try {
                 console.log('Started refreshing application (/) commands.');
 
-                await rest.put(Routes.applicationCommands(config.DISCORD_CLIEND_ID), { body: commands });
+                await rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), { body: commands });
 
                 console.log('Successfully reloaded application (/) commands.');
             }

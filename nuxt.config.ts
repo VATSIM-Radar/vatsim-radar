@@ -83,7 +83,7 @@ export default defineNuxtConfig({
         VATSIM_CLIENT_SECRET: process.env.VATSIM_CLIENT_SECRET,
         VATSIM_ENDPOINT: process.env.VATSIM_ENDPOINT,
 
-        DISCORD_CLIEND_ID: process.env.DISCORD_CLIEND_ID,
+        DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
         DISCORD_TOKEN: process.env.DISCORD_TOKEN,
         DISCORD_SERVER_ID: process.env.DISCORD_SERVER_ID,
         DISCORD_RELEASES_CHANNEL_ID: process.env.DISCORD_RELEASES_CHANNEL_ID,

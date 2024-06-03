@@ -1,0 +1,85 @@
+name: Publish
+
+on:
+  push:
+    branches: [ next ]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - uses: ./.github/actions/codecheck
+  push:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    permissions:
+      contents: read
+      packages: write
+    environment:
+      name: next
+      url: https://next.vatsim-radar.com
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          tags: ghcr.io/daniluk4000/vatsim-radar/next:latest
+          push: true
+          file: .config/Dockerfile
+          build-args: |
+            DOMAIN=${{ vars.DOMAIN }}
+            NAVIGRAPH_CLIENT_ID=${{ vars.NAVIGRAPH_CLIENT_ID }}
+            NAVIGRAPH_SERVER_ID=${{ vars.NAVIGRAPH_SERVER_ID }}
+            VATSIM_CLIENT_ID=${{ vars.VATSIM_CLIENT_ID }}
+            VATSIM_ENDPOINT=${{ vars.VATSIM_ENDPOINT }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            NAVIGRAPH_CLIENT_SECRET=${{ secrets.NAVIGRAPH_CLIENT_SECRET }}
+            NAVIGRAPH_SERVER_SECRET=${{ secrets.NAVIGRAPH_SERVER_SECRET }}
+            VATSIM_CLIENT_SECRET=${{ secrets.VATSIM_CLIENT_SECRET }}
+            DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+            DISCORD_CLIEND_ID=${{ secrets.DISCORD_CLIEND_ID }}
+            DISCORD_SERVER_ID=${{ vars.DISCORD_SERVER_ID }}
+            DISCORD_RELEASES_CHANNEL_ID=${{ vars.DISCORD_RELEASES_CHANNEL_ID }}
+            DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
+            ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
+            IS_DOWN=${{ vars.IS_DOWN }}
+  deploy:
+    #runs-on: production
+    runs-on: beget
+    needs:
+      - push
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull
+        shell: bash
+        run: docker pull ghcr.io/daniluk4000/vatsim-radar/next:latest
+      - name: Build
+        shell: bash
+        run: docker compose -f docker-compose.prod-next.yml build
+      - name: Deploy
+        shell: bash
+        run: docker compose -f docker-compose.prod-next.yml up -d
+      - name: Clear
+        shell: bash
+        run: docker system prune --force && docker system prune --volumes --force

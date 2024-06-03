@@ -2,6 +2,13 @@
 
 # 0.4.0
 
+## For QA
+
+- Please try to use new ground filter
+- Report how hovering on aircraft feels now. It improves performance, but can be buggy and slow
+- Aircraft turns are available not for all flights, and for some they've been cut. That will be improved in future, no need to report
+- Please report general feel of aircraft turns. For now, they are only available for opened aircraft overlay
+
 ## Features and improvements
 
 - Changed route aircraft icon color
