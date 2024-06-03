@@ -1,4 +1,4 @@
-import { FetchError, ofetch } from 'ofetch';
+import { ofetch } from 'ofetch';
 import { createError } from 'h3';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -63,27 +63,20 @@ export interface VatsimUser {
 }
 
 export async function vatsimGetUser(token: string) {
-    console.log(token);
+    const result = (await ofetch<{ data: VatsimUser }>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
+        headers: {
+            Authorization: `Bearer ${ token }`,
+        },
+    })).data;
 
-    try {
-        const result = (await ofetch<{ data: VatsimUser }>(`${ useRuntimeConfig().VATSIM_ENDPOINT }/api/user`, {
-            headers: {
-                Authorization: `Bearer ${ token }`,
-            },
-        })).data;
-
-        if (result.oauth.token_valid !== 'true') {
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Token is not valid',
-            });
-        }
-
-        return result;
-    } catch (e) {
-        console.log((e as FetchError).response?._data);
-        throw e;
+    if (result.oauth.token_valid !== 'true') {
+        throw createError({
+            statusCode: 401,
+            statusMessage: 'Token is not valid',
+        });
     }
+
+    return result;
 }
 
 export function findAirportSomewhere(callsign: string) {
