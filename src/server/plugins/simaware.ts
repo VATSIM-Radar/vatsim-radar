@@ -12,10 +12,12 @@ export default defineNitroPlugin(app => {
             const data = await $fetch<{
                 name: string;
                 assets?: {
-                    name?: string;
-                    browser_download_url?: string;
-                }[];
-            }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest');
+                    name?: string
+                    browser_download_url?: string
+                }[]
+            }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest', {
+                timeout: 1000 * 60,
+            });
 
             if (radarStorage.simaware.version === data.name) return;
 

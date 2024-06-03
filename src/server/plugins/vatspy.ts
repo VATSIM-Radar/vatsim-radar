@@ -62,13 +62,15 @@ export default defineNitroPlugin(app => {
         runOnInit: true,
         start: true,
         onTick: async () => {
-            const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/');
+            const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/', {
+                timeout: 1000 * 60,
+            });
             if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
             if (radarStorage.vatspy.version === data.current_commit_hash) return;
 
             const [dat, geo] = await Promise.all([
-                ofetch(data.vatspy_dat_url, { responseType: 'text' }),
-                ofetch(data.fir_boundaries_geojson_url, { responseType: 'text' }),
+                ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
+                ofetch(data.fir_boundaries_geojson_url, { responseType: 'text', timeout: 1000 * 60 }),
             ]);
 
             const geojson = JSON.parse(geo) as {

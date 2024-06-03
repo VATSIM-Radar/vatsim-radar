@@ -53,8 +53,8 @@ jobs:
             ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
             IS_DOWN=${{ vars.IS_DOWN }}
   deploy:
-    runs-on: production
-    #runs-on: beget
+    #runs-on: production
+    runs-on: beget
     needs:
       - push
     permissions:

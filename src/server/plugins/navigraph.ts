@@ -60,6 +60,7 @@ export default defineNitroPlugin(app => {
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
+                    timeout: 1000 * 60,
                 });
 
                 accessKey.token = access_token;
@@ -70,12 +71,14 @@ export default defineNitroPlugin(app => {
                 headers: {
                     Authorization: `Bearer ${ accessKey.token }`,
                 },
+                timeout: 1000 * 60,
             });
 
             const [outdated] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=outdated', {
                 headers: {
                     Authorization: `Bearer ${ accessKey.token }`,
                 },
+                timeout: 1000 * 60,
             });
 
             const currentCycle = `${ current.cycle }-${ current.revision }`;
