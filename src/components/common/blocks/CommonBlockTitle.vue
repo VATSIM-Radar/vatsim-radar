@@ -73,10 +73,6 @@ const collapsed = defineModel('collapsed', {
     align-items: center;
     justify-content: space-between;
 
-    &:not(:only-child) {
-        margin-bottom: 16px;
-    }
-
     &::before {
         content: '';
 
@@ -86,6 +82,10 @@ const collapsed = defineModel('collapsed', {
         height: 1px;
 
         background: $neutral850;
+    }
+
+    &:not(:only-child) {
+        margin-bottom: 16px;
     }
 
     &_text > *, &_collapse {

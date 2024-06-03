@@ -45,25 +45,5 @@ module.exports = {
         'media-feature-range-notation': null,
         'at-rule-empty-line-before': null,
         'scss/no-global-function-names': null,
-        'order/order': [
-            [
-                { type: 'at-rule', name: 'import' },
-                { type: 'at-rule', name: 'forward' },
-                { type: 'at-rule', name: 'use' },
-                'dollar-variables',
-                'at-variables',
-                'custom-properties',
-                { type: 'at-rule', name: 'mixin' },
-                'declarations',
-                {
-                    type: 'rule',
-                    selector: /^&::[\w-]+/,
-                    hasBlock: true,
-                },
-            ],
-            {
-                severity: 'warning',
-            },
-        ],
     },
 };

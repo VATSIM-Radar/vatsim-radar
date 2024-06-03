@@ -183,15 +183,15 @@ const hoveredAircraft = computed(() => {
         font-size: 11px;
         line-height: 100%;
 
-        &--hidden {
-            visibility: hidden;
-            opacity: 0;
-        }
-
         &::before {
             content: '';
             position: relative;
             display: block;
+        }
+
+        &--hidden {
+            visibility: hidden;
+            opacity: 0;
         }
 
         &--groundDep {

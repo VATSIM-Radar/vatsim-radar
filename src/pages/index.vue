@@ -527,11 +527,11 @@ await useAsyncData(async () => {
         background: $neutral1000;
 
         ul {
+            text-shadow: none;
+
             &, a {
                 color: varToRgba('neutral150', 0.4);
             }
-
-            text-shadow: none;
 
             @include hover {
                 a:hover {

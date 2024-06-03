@@ -305,10 +305,6 @@ watch(getSections, sections => {
             align-items: center;
             justify-content: space-between;
 
-            &:not(:only-child) {
-                margin-bottom: 16px;
-            }
-
             &::before {
                 content: '';
 
@@ -318,6 +314,10 @@ watch(getSections, sections => {
                 height: 1px;
 
                 background: $neutral850;
+            }
+
+            &:not(:only-child) {
+                margin-bottom: 16px;
             }
 
             &_title, &_collapse {

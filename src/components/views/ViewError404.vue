@@ -38,19 +38,6 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
     color: $error500;
     text-align: center;
 
-    &_image {
-        position: absolute;
-        top: 0;
-        left: 0;
-
-        width: 100%;
-        height: 100%;
-
-        :deep(path) {
-            fill: $neutral1000;
-        }
-    }
-
     &::before {
         content: '404';
 
@@ -66,6 +53,19 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
 
         -webkit-text-fill-color: transparent;
         text-fill-color: transparent;
+    }
+
+    &_image {
+        position: absolute;
+        top: 0;
+        left: 0;
+
+        width: 100%;
+        height: 100%;
+
+        :deep(path) {
+            fill: $neutral1000;
+        }
     }
 
     &_content {

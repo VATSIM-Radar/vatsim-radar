@@ -93,11 +93,6 @@ const model = defineModel({
         background: transparent;
         border: 1px solid $neutral150;
 
-        &, &::before {
-            border-radius: 100%;
-            transition: 0.3s;
-        }
-
         &::before {
             content: '';
 
@@ -107,6 +102,11 @@ const model = defineModel({
             height: 8px;
 
             background: transparent;
+        }
+
+        &, &::before {
+            border-radius: 100%;
+            transition: 0.3s;
         }
     }
 
