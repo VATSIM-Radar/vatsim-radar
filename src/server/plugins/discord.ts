@@ -41,6 +41,7 @@ export default defineNitroPlugin(async app => {
     const config = useRuntimeConfig();
 
     const discordServerId = config.DISCORD_SERVER_ID;
+    const discordInternalServerId = config.DISCORD_INTERNAL_SERVER_ID;
     const discordReleasesChannelId = config.DISCORD_RELEASES_CHANNEL_ID;
     const discordRoleId = config.DISCORD_ROLE_ID;
 
@@ -48,6 +49,10 @@ export default defineNitroPlugin(async app => {
         {
             name: 'verify',
             description: 'Verify yourself to access VATSIM Radar',
+        },
+        {
+            name: 'qa-verify',
+            description: 'Verify for QA access to next website version',
         },
         {
             name: 'rename',
@@ -120,7 +125,46 @@ export default defineNitroPlugin(async app => {
         const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
 
         discordClient.on('interactionCreate', async (interaction): Promise<any> => {
-            console.log(interaction.guildId, discordServerId);
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'qa-verify') {
+                const existingUser = await prisma.user.findFirst({
+                    where: {
+                        discordId: interaction.user.id,
+                    },
+                    select: {
+                        vatsim: true,
+                        discordStrategy: true,
+                    },
+                });
+
+                if (existingUser) {
+                    await interaction.reply({
+                        content: 'You have already been authorized on Radar Next.',
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const state = randomUUID();
+
+                await prisma.auth.create({
+                    data: {
+                        state,
+                        discordId: interaction.user.id,
+                        type: AuthType.VATSIM,
+                    },
+                });
+                const url = `${ config.public.DOMAIN }/api/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                const embed = new EmbedBuilder()
+                    .setURL(url)
+                    .setTitle('To verify yourself and authorize on VATSIM Radar, please use this link');
+
+                await interaction.reply({
+                    embeds: [embed],
+                    ephemeral: true,
+                });
+                return;
+            }
+
             if (interaction.guildId !== discordServerId) return;
 
             if (config.public.IS_DOWN === 'true') {

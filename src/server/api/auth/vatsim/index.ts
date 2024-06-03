@@ -47,7 +47,7 @@ export default defineEventHandler(async event => {
 
         let user = await findUserByCookie(event);
 
-        if (discordId && discordStrategy) {
+        if (discordId) {
             await prisma.user.updateMany({
                 where: {
                     discordId,
@@ -59,7 +59,7 @@ export default defineEventHandler(async event => {
             });
 
             const user = await (await discordClient.guilds.fetch(config.DISCORD_SERVER_ID)).members.fetch(discordId);
-            if (user) {
+            if (user && discordStrategy) {
                 await user.roles.add(config.DISCORD_ROLE_ID);
                 if (!user.permissions.has(PermissionFlagsBits.Administrator)) {
                     await user.setNickname(getDiscordName(discordStrategy, vatsimUser.cid, vatsimUser.personal.name_full), 'Verification process');
