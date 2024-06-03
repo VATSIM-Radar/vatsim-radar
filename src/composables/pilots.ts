@@ -1,8 +1,12 @@
 import type { VatsimExtendedPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { VatSpyData } from '~/types/data/vatspy';
-import type {Map} from 'ol';
+import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import type { ColorsList } from '~/modules/styles';
+import type { AircraftIcon } from '~/utils/icons';
+import type { Style } from 'ol/style';
+import { Icon } from 'ol/style';
+import { useStore } from '~/store';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -37,7 +41,7 @@ export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedP
         : dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(pilot.cid) || x.aircraft.groundDep?.includes(pilot.cid));
 }
 
-export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList, title: string } {
+export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList; title: string } {
     if (isOffline) {
         return {
             color: 'neutral800',
@@ -101,5 +105,90 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
                 color: 'neutral1000',
                 title: 'Status unknown',
             };
+    }
+}
+
+const icons: Record<string, string | Promise<string>> = {};
+
+const svgColors = (): Record<MapAircraftStatus, string> => {
+    return {
+        active: getCurrentThemeHexColor('warning700'),
+        default: getCurrentThemeHexColor('primary500'),
+        green: getCurrentThemeHexColor('success500'),
+        hover: getCurrentThemeHexColor('warning600'),
+        neutral: getCurrentThemeHexColor('neutral150'),
+    };
+};
+
+export function reColorSvg(svg: string, status: MapAircraftStatus) {
+    const store = useStore();
+
+    let iconContent = svg
+        .replaceAll('\n', '')
+        .replaceAll('white', svgColors()[status])
+        .replaceAll('#F8F8FA', svgColors()[status]);
+
+    if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white');
+
+    return iconContent;
+}
+
+function svgToDataURI(svg: string) {
+    const encoded = encodeURIComponent(svg)
+        .replace(/'/g, '%27')
+        .replace(/"/g, '%22');
+    return `data:image/svg+xml,${ encoded }`;
+}
+
+export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover' | 'neutral';
+
+export async function fetchAircraftIcon(icon: AircraftIcon) {
+    const store = useStore();
+    let svg = icons[icon];
+
+    if (typeof svg === 'object') svg = await svg;
+    else if (!svg) {
+        icons[icon] = new Promise<string>(async resolve => {
+            const result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
+            svg = result;
+            resolve(result);
+        });
+        await icons[icon];
+    }
+
+    return svg;
+}
+
+export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rotation: number, status: MapAircraftStatus, style: Style) {
+    const store = useStore();
+
+    const image = style.getImage();
+
+    // @ts-expect-error Custom prop
+    if (image?.status === status) {
+        image.setRotation(rotation);
+    }
+    else {
+        if (status === 'default') {
+            style.setImage(new Icon({
+                src: `/aircraft/${ icon }${ store.theme === 'light' ? '-light' : '' }.png`,
+                width: radarIcons[icon].width,
+                rotation,
+                rotateWithView: true,
+                // @ts-expect-error Custom prop
+                status,
+            }));
+        }
+        else {
+            const svg = await fetchAircraftIcon(icon);
+            style.setImage(new Icon({
+                src: svgToDataURI(reColorSvg(svg, status)),
+                width: radarIcons[icon].width,
+                rotation,
+                rotateWithView: true,
+                // @ts-expect-error Custom prop
+                status,
+            }));
+        }
     }
 }

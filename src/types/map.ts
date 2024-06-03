@@ -8,21 +8,21 @@ export interface MapAirport {
     isPseudo: boolean;
     isSimAware: boolean;
     aircraft: Partial<{
-        groundDep: number[]
-        groundArr: number[]
-        prefiles: number[]
-        departures: number[]
-        arrivals: number[]
+        groundDep: number[];
+        groundArr: number[];
+        prefiles: number[];
+        departures: number[];
+        arrivals: number[];
     }>;
 }
 
 export type MapAircraft =
     PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
-    & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>
+    & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
 
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
 }
 
-export type UserLocalSettings = Partial<IUserLocalSettings>
+export type UserLocalSettings = Partial<IUserLocalSettings>;

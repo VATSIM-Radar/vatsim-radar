@@ -3,15 +3,25 @@
         <template #title>
             OE integration test
         </template>
-        <common-radio-group class="oe-test_inputs" two-cols v-model="airports" :items="selects"/><br>
-        <iframe class="oe-test_iframe" :src="getUrl"/>
+        <common-radio-group
+            v-model="airports"
+            class="oe-test_inputs"
+            :items="selects"
+            two-cols
+        /><br>
+        <iframe
+            class="oe-test_iframe"
+            :src="getUrl"
+        />
     </common-page-block>
 </template>
 
 <script setup lang="ts">
-import type { RadioItemGroup } from '~/components/common/CommonRadioGroup.vue';
+import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 
-type IframeVariants = 'all' | 'oedf' | 'oerk' | 'oema' | 'oejn'
+type IframeVariants = 'all' | 'oedf' | 'oerk' | 'oema' | 'oejn';
 
 const airports = ref<IframeVariants>('all');
 const selects: RadioItemGroup<IframeVariants>[] = [
@@ -57,9 +67,10 @@ const getUrl = computed(() => {
     }
 
     &_iframe {
-        margin-top: 16px;
         width: 100%;
         height: 70dvh;
+        margin-top: 16px;
+
         appearance: none;
         border: none;
     }

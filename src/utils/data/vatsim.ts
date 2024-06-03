@@ -18,7 +18,7 @@ export const useFacilitiesIds = () => {
 };
 
 function findFacility(name: string, controller: VatsimShortenedController) {
-    return radarStorage.vatspy.data!.firs.filter((x) => {
+    return radarStorage.vatspy.data!.firs.filter(x => {
         if (x.icao !== name && x.callsign !== name) return false;
 
         const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
@@ -34,7 +34,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
     if (!uir) return;
 
     const firs = uir.firs.split(',');
-    const uirFeatures = radarStorage.vatspy.data!.firs.filter((x) => {
+    const uirFeatures = radarStorage.vatspy.data!.firs.filter(x => {
         if (!firs.includes(x.callsign ?? '') && !firs.includes(x.icao ?? '')) return false;
 
         const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
@@ -56,7 +56,7 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
 }
 
 function filterATCByType(types: number[]) {
-    return radarStorage.vatsim.regularData?.controllers.filter((x) => {
+    return radarStorage.vatsim.regularData?.controllers.filter(x => {
         if (!types.includes(x.facility)) return false;
         const freq = parseFloat(x.frequency || '0');
         return freq < 137 && freq > 117;
@@ -70,7 +70,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
         ...radarStorage.vatsim.regularData!.atis,
     ];
 
-    return locals.map((atc) => {
+    return locals.map(atc => {
         const airport = findAirportSomewhere(atc.callsign);
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
@@ -90,8 +90,8 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
     }).filter(x => x);
 };
 
-function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: true): VatSpyDataFeature | null
-function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: false): VatSpyData['firs']
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: true): VatSpyDataFeature | null;
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: false): VatSpyData['firs'];
 function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: boolean) {
     const regularName = splittedName.join('_');
     const firstName = splittedName[0];
@@ -99,10 +99,10 @@ function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, ui
 
     if (uir) {
         let uir = findUir(regularName, atc);
-        if(!uir && secondName && secondName.length > 1) {
+        if (!uir && secondName && secondName.length > 1) {
             for (let i = 0; i < secondName.length; i++) {
                 uir = findUir(regularName.substring(0, regularName.length - 1 - i), atc);
-                if(uir) break;
+                if (uir) break;
             }
         }
         if (!uir) uir = findUir(firstName, atc);
@@ -111,10 +111,10 @@ function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, ui
     }
     else {
         let feature = findFacility(regularName, atc);
-        if(!feature.length && secondName && secondName.length > 1) {
+        if (!feature.length && secondName && secondName.length > 1) {
             for (let i = 0; i < secondName.length - 1; i++) {
                 feature = findFacility(regularName.substring(0, regularName.length - 1 - i), atc);
-                if(feature.length) break;
+                if (feature.length) break;
             }
         }
         if (!feature.length) feature = findFacility(firstName, atc);
@@ -126,7 +126,7 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
     const facilities = useFacilitiesIds();
     const atcWithBounds = filterATCByType([facilities.CTR, facilities.FSS]);
 
-    return atcWithBounds.flatMap((atc) => {
+    return atcWithBounds.flatMap(atc => {
         let splittedName = atc.callsign.toUpperCase().replaceAll('__', '_').split('_');
         splittedName = splittedName.slice(0, splittedName.length - 1);
 
@@ -192,7 +192,7 @@ export function getAirportsList() {
     }
 
     for (const pilot of pilots) {
-        const statuses: Array<{ status: keyof MapAirport['aircraft'], airport: VatSpyData['airports'][0] }> = [];
+        const statuses: Array<{ status: keyof MapAirport['aircraft']; airport: VatSpyData['airports'][0] }> = [];
         const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
 
         let groundAirport = (groundAirports && groundAirports?.length > 1)
@@ -215,7 +215,7 @@ export function getAirportsList() {
         }
 
         if (!pilot.flight_plan?.departure) {
-            //We don't know where the pilot is :(
+            // We don't know where the pilot is :(
             if (!groundAirport) continue;
 
             statuses.push({
@@ -244,13 +244,13 @@ export function getAirportsList() {
 
             if (pilot.flight_plan.arrival || groundAirport) {
                 if (pilot.flight_plan.arrival === pilot.flight_plan.departure) {
-                    if(!groundAirport && statuses[0]) {
+                    if (!groundAirport && statuses[0]) {
                         statuses[1] = {
                             airport: statuses[0].airport,
                             status: 'arrivals',
                         };
                     }
-                    else if(groundAirport && statuses[0]?.status !== 'groundDep') {
+                    else if (groundAirport && statuses[0]?.status !== 'groundDep') {
                         statuses.push({
                             airport: groundAirport,
                             status: 'groundArr',
@@ -283,19 +283,19 @@ export function getAirportsList() {
             }
         }
 
-        statuses.forEach((status) => {
+        statuses.forEach(status => {
             addPilotToList(status.status, status.airport, pilot.cid);
         });
     }
 
-    radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach((prefile) => {
+    radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach(prefile => {
         if (prefile.departure) {
             const airport = dataAirports.find(x => x.icao === prefile.departure);
             if (airport) addPilotToList('prefiles', airport, prefile.cid);
         }
     });
 
-    radarStorage.vatsim.locals.forEach((atc) => {
+    radarStorage.vatsim.locals.forEach(atc => {
         const airport = atc.airport;
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
             airports.push({

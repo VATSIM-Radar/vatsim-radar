@@ -1,10 +1,10 @@
 import type { cycles } from '~/server/plugins/navigraph';
 
 export interface VatDataVersions {
-    vatspy: string
+    vatspy: string;
     vatsim: {
-        data: string
-    }
-    navigraph: typeof cycles | null
-    simaware: string
+        data: string;
+    };
+    navigraph: typeof cycles | null;
+    simaware: string;
 }

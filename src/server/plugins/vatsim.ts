@@ -29,7 +29,7 @@ function excludeKeys<S extends {
     return newData;
 }
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     let latestFinished = 0;
     let isInProgress = false;
 
@@ -52,7 +52,7 @@ export default defineNitroPlugin((app) => {
                     if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() >= new Date(data.general.update_timestamp).getTime()) return;
                 }
 
-                data.pilots = data.pilots.map((x) => {
+                data.pilots = data.pilots.map(x => {
                     const coords = fromServerLonLat([x.longitude, x.latitude]);
 
                     return {
@@ -65,7 +65,7 @@ export default defineNitroPlugin((app) => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
-                /*data.controllers.push({
+                /* data.controllers.push({
                     callsign: 'CHI_X_APP',
                     cid: 3,
                     facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
@@ -86,7 +86,7 @@ export default defineNitroPlugin((app) => {
                 const positions = useFacilitiesIds();
 
                 data.controllers = data.controllers.filter(controller => {
-                    if(controller.facility === positions.OBS) return;
+                    if (controller.facility === positions.OBS) return;
                     const postfix = controller.callsign.split('_').slice(-1)[0];
                     controller.facility = positions[postfix as keyof typeof positions] ?? -1;
                     return controller.facility !== -1 && controller.facility !== positions.OBS;
@@ -117,7 +117,7 @@ export default defineNitroPlugin((app) => {
 
                 radarStorage.vatsim.regularData = {
                     ...regularData,
-                    pilots: regularData.pilots.map((x) => {
+                    pilots: regularData.pilots.map(x => {
                         const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
@@ -127,7 +127,7 @@ export default defineNitroPlugin((app) => {
                             arrival: origPilot.flight_plan?.arrival,
                         };
                     }),
-                    prefiles: regularData.prefiles.map((x) => {
+                    prefiles: regularData.prefiles.map(x => {
                         const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
@@ -180,7 +180,7 @@ export default defineNitroPlugin((app) => {
         start: true,
         runOnInit: true,
         onTick: async () => {
-            radarStorage.vatsim.events = (await $fetch<{data: VatsimEvent[]}>('https://my.vatsim.net/api/v2/events/latest')).data;
+            radarStorage.vatsim.events = (await $fetch<{ data: VatsimEvent[] }>('https://my.vatsim.net/api/v2/events/latest')).data;
         },
     });
 });

@@ -1,5 +1,41 @@
 # Changelog
 
+# 0.4.0
+
+## For QA
+
+- Please try to use new ground filter
+- Report how hovering on aircraft feels now. It improves performance, but can be buggy and slow
+- Aircraft turns are available not for all flights, and for some they've been cut. That will be improved in future, no need to report
+- Please report general feel of aircraft turns. For now, they are only available for opened aircraft overlay
+
+## Features and improvements
+
+- Changed route aircraft icon color
+- Added turns history (tracks) when you open pilot overlay
+- METAR/TAF/NOTAMS redesign
+- Renamed Airport info to Info & Weather to clarify what's in there
+- Pilot ATC has been moved to separate tab
+- You can now see CTAF frequency in pilot popup
+- Added ?airport param to main page to quickly open any airport on map
+- Whole Airport ATC card has been made clickable
+- Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
+- Redesigned ground aircraft filter
+
+### Performance improvements and technical stuff
+
+- Significantly improved map layer loading performance
+- Reworked aircraft icon render - we are now able to change icon colors to be anything we want, not just predefined pngs
+- Reduced memory consumption for sectors render. This change will be significant when many firs are currently active
+- Improved performance when moving map (will be significant on low zoom levels)
+- Airports points will no longer render on >100+ airports are on screen. This should improve performance on slow devices
+
+## Bug fixes
+
+- Fixed RU-SC ATIS detection
+- Improved 1251 encoding detection
+- Fixed fill of hovered approach facility not covering whole area
+
 # 0.3.5
 
 This is a small fix update while we still develop 0.4.0.

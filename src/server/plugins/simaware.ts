@@ -3,18 +3,18 @@ import type { SimAwareData } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     CronJob.from({
         cronTime: '15 * * * *',
         runOnInit: true,
         start: true,
         onTick: async () => {
             const data = await $fetch<{
-                name: string
+                name: string;
                 assets?: {
-                    name?: string
-                    browser_download_url?: string
-                }[]
+                    name?: string;
+                    browser_download_url?: string;
+                }[];
             }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest', {
                 timeout: 1000 * 60,
             });
@@ -26,9 +26,9 @@ export default defineNitroPlugin((app) => {
 
             const geojson = await $fetch<SimAwareData>(url, { responseType: 'json' });
 
-            geojson.features = geojson.features.map((x) => {
+            geojson.features = geojson.features.map(x => {
                 if ('features' in x) {
-                    //@ts-expect-error
+                    // @ts-expect-error It is "known" for us
                     x = x.features[0];
                 }
 

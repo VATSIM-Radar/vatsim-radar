@@ -49,11 +49,11 @@ export function getControllerPositionColor(controller: VatsimShortenedController
     return radarColors.neutral800;
 }
 
-export function sortControllersByPosition<T extends { facility: number, isATIS?: boolean, [key: string]: any }>(facilities: T[]): T[] {
+export function sortControllersByPosition<T extends { facility: number; isATIS?: boolean; [key: string]: any }>(facilities: T[]): T[] {
     const ids = useFacilitiesIds();
 
     const getPositionIndex = (position: number, isAtis = false) => {
-        if(isAtis) return 3;
+        if (isAtis) return 3;
         if (position === ids.DEL) return 0;
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
@@ -97,7 +97,7 @@ export function findAtcAirport(atc: VatsimShortenedController) {
 export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
-    if(!airport) return;
+    if (!airport) return;
 
     view?.animate({
         center: [airport.lon, airport.lat],
@@ -108,7 +108,7 @@ export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | 
 export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const airport = findAtcAirport(atc);
-    if(!airport) return;
+    if (!airport) return;
 
     showAirportOnMap(airport, map);
 }

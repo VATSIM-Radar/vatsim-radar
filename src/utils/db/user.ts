@@ -4,7 +4,7 @@ import type { H3Event } from 'h3';
 import { setCookie } from 'h3';
 import type { User, UserToken } from '@prisma/client';
 
-export function createDBUser({ discordId }: {discordId?: string | null} = {}) {
+export function createDBUser({ discordId }: { discordId?: string | null } = {}) {
     return prisma.user.create({
         data: {
             discordId,
@@ -15,14 +15,14 @@ export function createDBUser({ discordId }: {discordId?: string | null} = {}) {
     });
 }
 
-export type RequiredDBUser = Partial<Omit<User, 'id'>> & Pick<User, 'id'>
+export type RequiredDBUser = Partial<Omit<User, 'id'>> & Pick<User, 'id'>;
 
 export async function getDBUserToken(event: H3Event, user: RequiredDBUser, userToken?: Partial<UserToken>) {
     const token = randomUUID();
 
     const curDate = Date.now();
-    const accessTokenExpire = new Date(curDate + 1000 * 60 * 60 * 24 * 7);
-    const refreshMaxDate = new Date(curDate + 1000 * 60 * 60 * 24 * 37);
+    const accessTokenExpire = new Date(curDate + (1000 * 60 * 60 * 24 * 7));
+    const refreshMaxDate = new Date(curDate + (1000 * 60 * 60 * 24 * 37));
 
     if (userToken) {
         await prisma.userToken.update({
@@ -42,7 +42,7 @@ export async function getDBUserToken(event: H3Event, user: RequiredDBUser, userT
                 userId: user.id,
                 accessToken: token,
                 accessTokenExpire,
-                //Allow to recreate token for a month after expire
+                // Allow to recreate token for a month after expire
                 refreshMaxDate,
             },
         });

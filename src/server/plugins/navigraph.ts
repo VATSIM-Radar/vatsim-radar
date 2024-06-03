@@ -22,24 +22,24 @@ export const cycles = {
 };
 
 interface File {
-    package_id: string
-    cycle: string
+    package_id: string;
+    cycle: string;
     files: {
-        file_id: string
-        key: string
-        hash: string
-        signed_url: string
-    }[]
-    revision: string
+        file_id: string;
+        key: string;
+        hash: string;
+        signed_url: string;
+    }[];
+    revision: string;
 }
 
-async function downloadNavigraphFile({ fileUrl, path, filename }: {fileUrl: string, path: string, filename: string}) {
+async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: string; path: string; filename: string }) {
     const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
     const admZip = new AdmZip(Buffer.from(zip));
     admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, undefined, undefined, filename);
 }
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();
 
     CronJob.from({
@@ -54,7 +54,7 @@ export default defineNitroPlugin((app) => {
                 form.set('scope', 'fmsdata');
                 form.set('grant_type', 'client_credentials');
 
-                const { access_token, expires_in } = await $fetch<{access_token: string, expires_in: number, token_type: 'Bearer'}>('https://identity.api.navigraph.com/connect/token', {
+                const { access_token, expires_in } = await $fetch<{ access_token: string; expires_in: number; token_type: 'Bearer' }>('https://identity.api.navigraph.com/connect/token', {
                     method: 'POST',
                     body: form.toString(),
                     headers: {

@@ -1,13 +1,25 @@
 <template>
-    <div class="app">
+    <div
+        v-if="!hadRestrictedAuth"
+        class="app"
+    >
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <slot/>
         </div>
-        <div class="app_footer" v-if="!store.config.hideFooter">
+        <div
+            v-if="!store.config.hideFooter"
+            class="app_footer"
+        >
             <view-map-footer v-if="route.path === '/'"/>
-            <div class="app_footer_info" v-else>
-                <nuxt-link no-prefetch to="/privacy-policy">
+            <div
+                v-else
+                class="app_footer_info"
+            >
+                <nuxt-link
+                    no-prefetch
+                    to="/privacy-policy"
+                >
                     Privacy Policy
                 </nuxt-link>
                 <div v-if="store.version">
@@ -16,6 +28,10 @@
             </div>
         </div>
     </div>
+    <restricted-auth
+        v-else
+        v-once
+    />
 </template>
 
 <script lang="ts" setup>
@@ -24,11 +40,22 @@ import ViewHeader from '~/components/views/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
+import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
+
+defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const route = useRoute();
 
 checkAndSetMapPreset();
+
+defineRouteRules({
+    prerender: true,
+});
+
+const event = useRequestEvent();
+const restrictedState = useState('auth-restricted', () => !!event?.context.authRestricted);
+const hadRestrictedAuth = restrictedState.value;
 
 onMounted(() => {
     const interval = setInterval(() => {
@@ -91,17 +118,20 @@ useHead(() => {
 }
 
 .app_footer {
-    padding: 8px 0;
     display: flex;
     flex-direction: column;
+    padding: 8px 0;
 
     &_info {
         display: flex;
         gap: 8px;
-        opacity: 0.5;
         align-self: flex-end;
+
         padding: 0 10px;
+
         font-size: 13px;
+
+        opacity: 0.5;
 
         &, * {
             color: $neutral150;
@@ -115,15 +145,18 @@ useHead(() => {
 @use '../scss/fonts';
 
 html, body {
-    padding: 0;
-    margin: 0;
-    font-family: $defaultFont;
-    color: $neutral150;
+    scrollbar-gutter: stable;
+
     width: 100%;
     min-height: 100%;
-    background: $neutral1000;
-    scrollbar-gutter: stable;
+    margin: 0;
+    padding: 0;
+
+    font-family: $defaultFont;
+    color: $neutral150;
+
     color-scheme: dark;
+    background: $neutral1000;
 
     &--theme-light {
         color-scheme: light;
@@ -132,8 +165,8 @@ html, body {
 
 html, body, #__app, #__app > .app, #__app > .app > .app_content {
     display: flex;
-    flex-direction: column;
     flex: 1 0 auto;
+    flex-direction: column;
 }
 
 svg, img {
@@ -143,9 +176,9 @@ svg, img {
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
-    scrollbar-width: thin;
     scrollbar-color: $neutral800 var(--bg-color, $neutral1000);
+    scrollbar-width: thin;
+    box-sizing: border-box;
 }
 
 * {
@@ -157,12 +190,46 @@ svg, img {
 
     &::-webkit-scrollbar-thumb {
         background: $neutral800;
-        border-radius: 10px;
         border: 3px solid var(--bg-color, $neutral1000);
+        border-radius: 10px;
     }
 
     &::-webkit-scrollbar-track {
         background: var(--bg-color, $neutral1000);
+    }
+}
+
+.__info-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &_title {
+        padding-top: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 1px solid varToRgba('neutral150', 0.15);
+    }
+}
+
+.__grid-info-sections {
+    display: grid;
+    grid-template-columns: 20% 75%;
+    align-items: center;
+    justify-content: space-between;
+
+    &_title {
+        font-size: 13px;
+    }
+}
+
+.__section-group {
+    display: flex;
+    gap: 8px;
+
+    > * {
+        flex: 1 1 0;
+        width: 0;
     }
 }
 </style>

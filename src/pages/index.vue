@@ -1,18 +1,27 @@
 <template>
     <div class="map">
-        <div class="map_container" ref="mapContainer"/>
         <div
-            class="map_popups" ref="popups" v-if="ready" :style="{
-                '--popups-height': `${popupsHeight}px`,
-                '--overlays-height': `${overlaysHeight}px`,
+            ref="mapContainer"
+            class="map_container"
+        />
+        <div
+            v-if="ready"
+            ref="popups"
+            class="map_popups"
+            :style="{
+                '--popups-height': `${ popupsHeight }px`,
+                '--overlays-height': `${ overlaysHeight }px`,
             }"
         >
-            <div class="map_popups_list" v-if="popupsHeight">
+            <div
+                v-if="popupsHeight"
+                class="map_popups_list"
+            >
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
-                        class="map_popups_popup"
                         v-for="overlay in mapStore.overlays"
                         :key="overlay.id+overlay.key"
+                        class="map_popups_popup"
                         :overlay="overlay"
                     />
                 </transition-group>
@@ -22,11 +31,11 @@
         <div :key="store.theme ?? 'default'">
             <carto-db-layer-light v-if="store.theme === 'light'"/>
             <carto-db-layer v-else/>
-            <template v-if="ready">
+            <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
-            </template>
+            </client-only>
         </div>
     </div>
 </template>
@@ -53,8 +62,8 @@ import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
-import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 
@@ -102,14 +111,14 @@ const restoreOverlays = async () => {
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
-    const fetchedList = (await Promise.all(overlays.map(async (overlay) => {
+    const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
         if (overlay.type === 'pilot') {
             const data = await Promise.allSettled([
-                $fetch(`/data/vatsim/pilot/${ overlay.key }`),
-                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ overlay.key }`),
+                $fetch(`/api/data/vatsim/pilot/${ overlay.key }`),
+                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -124,7 +133,7 @@ const restoreOverlays = async () => {
         }
         else if (overlay.type === 'prefile') {
             const data = await Promise.allSettled([
-                $fetch(`/data/vatsim/pilot/${ overlay.key }/prefile`),
+                $fetch(`/api/data/vatsim/pilot/${ overlay.key }/prefile`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -141,7 +150,7 @@ const restoreOverlays = async () => {
             if (!controller) return overlay;
 
             const data = await Promise.allSettled([
-                $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`),
+                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ controller.cid }`),
             ]);
 
             return {
@@ -157,18 +166,18 @@ const restoreOverlays = async () => {
             if (!vatSpyAirport) return;
 
             const data = await Promise.allSettled([
-                $fetch<VatsimAirportData>(`/data/vatsim/airport/${ overlay.key }`),
+                $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
 
-            (async function () {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+            (async function() {
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
                 }
-            })();
+            }());
 
             return {
                 ...overlay,
@@ -200,14 +209,39 @@ const restoreOverlays = async () => {
             showPilotOnMap(overlay.data.pilot, map.value);
         }
     }
+    else if (route.query.airport) {
+        let overlay = mapStore.overlays.find(x => x.key === route.query.airport as string);
+
+        if (!overlay) {
+            overlay = await mapStore.addAirportOverlay(route.query.airport as string);
+        }
+
+        const airport = dataStore.vatspy.value?.data.airports.find(x => x.icao === route.query.airport as string);
+
+        if (overlay && overlay.type === 'airport' && airport) {
+            overlay.sticky = true;
+            showAirportOnMap(airport, map.value);
+        }
+    }
 };
 
+function updateMapCursor() {
+    if (!mapStore.mapCursorPointerTrigger) {
+        map.value!.getTargetElement().style.cursor = 'grab';
+    }
+    else {
+        map.value!.getTargetElement().style.cursor = 'pointer';
+    }
+}
+
+watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
+
 onMounted(async () => {
-    //Data is not yet ready
+    // Data is not yet ready
     if (!mapStore.dataReady) {
-        await new Promise<void>((resolve) => {
+        await new Promise<void>(resolve => {
             const interval = setInterval(async () => {
-                const { ready } = await $fetch('/data/status');
+                const { ready } = await $fetch('/api/data/status');
                 if (ready) {
                     resolve();
                     clearInterval(interval);
@@ -217,7 +251,7 @@ onMounted(async () => {
     }
 
     if (!dataStore.versions.value) {
-        dataStore.versions.value = await $fetch<VatDataVersions>('/data/versions');
+        dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
     }
 
@@ -231,10 +265,10 @@ onMounted(async () => {
     });
 
     await Promise.all([
-        (async function () {
+        (async function() {
             let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
             if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
-                vatspy = await $fetch<VatSpyAPIData>('/data/vatspy');
+                vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
                 vatspy.data.firs = vatspy.data.firs.map(x => ({
                     ...x,
                     feature: {
@@ -250,37 +284,54 @@ onMounted(async () => {
 
             dataStore.vatspy.value = vatspy;
         }()),
-        (async function () {
+        (async function() {
             let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
             if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
-                simaware = await $fetch<SimAwareAPIData>('/data/simaware');
+                simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
                 await clientDB.put('data', simaware, 'simaware');
             }
 
             dataStore.simaware.value = simaware;
         }()),
-        (async function () {
+        (async function() {
             const [vatsimData] = await Promise.all([
-                $fetch<VatsimLiveData>('/data/vatsim/data'),
+                $fetch<VatsimLiveData>('/api/data/vatsim/data'),
             ]);
             setVatsimDataStore(vatsimData);
         }()),
     ]);
 
+    let inProgress = false;
+
     interval = setInterval(async () => {
-        const versions = await $fetch<VatDataVersions['vatsim']>('/data/vatsim/versions');
+        if (inProgress) return;
 
-        if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
-            dataStore.vatsim.versions.value = versions;
+        try {
+            inProgress = true;
+            const versions = await $fetch<VatDataVersions['vatsim']>('/api/data/vatsim/versions', {
+                timeout: 1000 * 30,
+            });
 
-            if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
+            if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
+                dataStore.vatsim.versions.value = versions;
 
-            const data = await $fetch<VatsimLiveData>(`/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`);
-            setVatsimDataStore(data);
-            checkAndAddOwnAircraft();
+                if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
-            dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
-            dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+                const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
+                    timeout: 1000 * 60,
+                });
+                setVatsimDataStore(data);
+                checkAndAddOwnAircraft();
+
+                dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
+                dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            inProgress = false;
         }
     }, 3000);
 
@@ -330,17 +381,10 @@ onMounted(async () => {
     });
 
     map.value.getTargetElement().style.cursor = 'grab';
-    map.value.on('pointerdrag', function () {
+    map.value.on('pointerdrag', function() {
         map.value!.getTargetElement().style.cursor = 'grabbing';
     });
-    map.value.on('pointermove', function () {
-        if (!mapStore.mapCursorPointerTrigger) {
-            map.value!.getTargetElement().style.cursor = 'grab';
-        }
-        else {
-            map.value!.getTargetElement().style.cursor = 'pointer';
-        }
-    });
+    map.value.on('pointermove', updateMapCursor);
 
     mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
 
@@ -389,15 +433,15 @@ watch([overlays, popupsHeight], () => {
     const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
     const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - overlaysGap * (mapStore.overlays.length - 1);
+    const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
 
-    //Max 4 uncollapsed on screen
+    // Max 4 uncollapsed on screen
     const minHeight = Math.floor(totalHeight / 4);
     const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
 
     const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
-    collapsed.forEach((overlay) => {
+    collapsed.forEach(overlay => {
         overlay._maxHeight = baseHeight;
     });
 
@@ -459,17 +503,19 @@ await useAsyncData(async () => {
 
 <style lang="scss" scoped>
 .map {
-    width: 100%;
-    flex: 1 0 auto;
-    display: flex;
-    flex-direction: column;
     position: relative;
 
+    display: flex;
+    flex: 1 0 auto;
+    flex-direction: column;
+
+    width: 100%;
+
     &_container {
-        display: flex;
-        flex-direction: column;
-        flex: 1 0 auto;
         z-index: 5;
+        display: flex;
+        flex: 1 0 auto;
+        flex-direction: column;
 
         :deep(>*) {
             flex: 1 0 auto;
@@ -481,11 +527,11 @@ await useAsyncData(async () => {
         background: $neutral1000;
 
         ul {
+            text-shadow: none;
+
             &, a {
                 color: varToRgba('neutral150', 0.4);
             }
-
-            text-shadow: none;
 
             @include hover {
                 a:hover {
@@ -497,19 +543,24 @@ await useAsyncData(async () => {
 
     &_popups {
         position: absolute;
-        width: calc(100% - 48px);
-        height: calc(100% - 48px);
-        left: 24px;
         top: 24px;
+        left: 24px;
+
         display: flex;
         justify-content: flex-end;
 
+        width: calc(100% - 48px);
+        height: calc(100% - 48px);
+
         &_list {
+            z-index: 6;
+
             display: flex;
             flex-direction: column;
             gap: 16px;
-            z-index: 6;
+
             max-height: var(--overlays-height);
+
             transition: 0.5s ease-in-out;
         }
 
@@ -520,17 +571,19 @@ await useAsyncData(async () => {
             &--appear {
                 &-enter-active,
                 &-leave-active {
-                    transition: 0.5s ease-in-out;
                     overflow: hidden;
+                    transition: 0.5s ease-in-out;
                 }
 
                 &-enter-from,
                 &-leave-to {
-                    opacity: 0;
-                    max-height: 0;
-                    height: 0;
-                    margin-top: -16px;
                     transform: translate(30px, -30px);
+
+                    height: 0;
+                    max-height: 0;
+                    margin-top: -16px;
+
+                    opacity: 0;
                 }
             }
         }

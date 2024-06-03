@@ -12,7 +12,7 @@ import type { MapAirport } from '~/types/map';
 import type { cycles } from '~/server/plugins/navigraph';
 import type { FeatureCollection, MultiPolygon } from 'geojson';
 
-export type SimAwareData = FeatureCollection<MultiPolygon>
+export type SimAwareData = FeatureCollection<MultiPolygon>;
 export interface SimAwareAPIData {
     version: string;
     data: SimAwareData;

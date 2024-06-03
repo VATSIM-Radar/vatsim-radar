@@ -72,8 +72,7 @@
   },
   "updateInternalDeps": true,
   "baseBranches": [
-    "main",
-    "/^release\\/.*/"
+    "next"
   ],
   "extends": [
     ":automergeDisabled",

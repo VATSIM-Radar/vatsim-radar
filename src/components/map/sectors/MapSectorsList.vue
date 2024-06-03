@@ -2,8 +2,8 @@
     <map-sector
         v-for="(sector, index) in firs"
         :key="sector.fir.feature.id as string + index"
-        :fir="sector.fir"
         :atc="sector.atc"
+        :fir="sector.fir"
     />
 </template>
 
@@ -33,11 +33,11 @@ const firs = computed(() => {
     return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex));
 });
 
-watch(map, (val) => {
+watch(map, val => {
     if (!val) return;
 
     let hasLayer = false;
-    val.getLayers().forEach((layer) => {
+    val.getLayers().forEach(layer => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'sectors';
     });
@@ -49,61 +49,67 @@ watch(map, (val) => {
             wrapX: false,
         });
 
+        const defaultStyle = new Style({
+            stroke: new Stroke({
+                color: getCurrentThemeHexColor('mapSectorBorder'),
+                width: 1,
+            }),
+            zIndex: 1,
+        });
+
+        const localStyle = new Style({
+            fill: new Fill({
+                color: 'rgba(89, 135, 255, 0.07)',
+            }),
+            stroke: new Stroke({
+                color: '#3B6CEC',
+                width: 1,
+            }),
+            zIndex: 3,
+        });
+
+        const rootStyle = new Style({
+            fill: new Fill({
+                color: store.theme === 'light' ? 'rgba(25, 25, 25, 0.05)' : 'rgba(230, 230, 235, 0.05)',
+            }),
+            stroke: new Stroke({
+                color: '#272878',
+                width: 1,
+            }),
+            zIndex: 2,
+        });
+
+        const hoveredStyle = new Style({
+            fill: new Fill({
+                color: 'rgba(89, 135, 255, 0.3)',
+            }),
+            stroke: new Stroke({
+                color: '#3B6CEC',
+                width: 1,
+            }),
+            zIndex: 4,
+        });
+
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
             zIndex: 1,
             properties: {
                 type: 'sectors',
             },
-            style: function (feature) {
+            style: function(feature) {
                 if (feature.getGeometry()?.getType() !== 'MultiPolygon') return;
 
                 const type = feature.getProperties().type;
 
-                if (type === 'default') {
-                    return new Style({
-                        stroke: new Stroke({
-                            color: getCurrentThemeHexColor('mapSectorBorder'),
-                            width: 1,
-                        }),
-                        zIndex: 1,
-                    });
-                }
-                else if (type === 'local') {
-                    return new Style({
-                        fill: new Fill({
-                            color: 'rgba(89, 135, 255, 0.07)',
-                        }),
-                        stroke: new Stroke({
-                            color: '#3B6CEC',
-                            width: 1,
-                        }),
-                        zIndex: 3,
-                    });
-                }
-                else if (type === 'root') {
-                    return new Style({
-                        fill: new Fill({
-                            color: store.theme === 'light' ? 'rgba(25, 25, 25, 0.05)' : 'rgba(230, 230, 235, 0.05)',
-                        }),
-                        stroke: new Stroke({
-                            color: '#272878',
-                            width: 1,
-                        }),
-                        zIndex: 2,
-                    });
-                }
-                else if (type === 'hovered') {
-                    return new Style({
-                        fill: new Fill({
-                            color: 'rgba(89, 135, 255, 0.3)',
-                        }),
-                        stroke: new Stroke({
-                            color: '#3B6CEC',
-                            width: 1,
-                        }),
-                        zIndex: 4,
-                    });
+                switch (type) {
+                    case 'default':
+                        return defaultStyle;
+                    case 'local':
+                        return localStyle;
+                    case 'root':
+                        return rootStyle;
+                    case 'hovered':
+                        return hoveredStyle;
                 }
             },
         });

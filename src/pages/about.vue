@@ -16,17 +16,26 @@
 
                 <ul>
                     <li>
-                        <a href="https://github.com/vatsimnetwork/simaware-tracon-project" target="_blank">
+                        <a
+                            href="https://github.com/vatsimnetwork/simaware-tracon-project"
+                            target="_blank"
+                        >
                             SimAware TRACON Project
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/vatsimnetwork/vatspy-data-project" target="_blank">
+                        <a
+                            href="https://github.com/vatsimnetwork/vatspy-data-project"
+                            target="_blank"
+                        >
                             VatSpy data
                         </a>
                     </li>
                     <li>
-                        <a href="https://navigraph.com/" target="_blank">
+                        <a
+                            href="https://navigraph.com/"
+                            target="_blank"
+                        >
                             Navigraph
                         </a>
                     </li>
@@ -48,6 +57,8 @@
 </template>
 
 <script setup lang="ts">
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+
 useHead({
     title: 'About',
 });

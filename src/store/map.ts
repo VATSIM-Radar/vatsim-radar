@@ -3,15 +3,16 @@ import type { Extent } from 'ol/extent';
 import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
-import type { VatsimAirportData } from '~/server/routes/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~/server/routes/data/vatsim/airport/[icao]/notams';
+import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
+import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
+import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 
 export interface StoreOverlayDefault {
     id: string;
     key: string;
     position: number | {
-        x: number
-        y: number
+        x: number;
+        y: number;
     };
     maxHeight?: number;
     _maxHeight?: number;
@@ -23,38 +24,39 @@ export interface StoreOverlayDefault {
 export interface StoreOverlayPilot extends StoreOverlayDefault {
     type: 'pilot';
     data: {
-        pilot: VatsimExtendedPilot
-        stats?: Partial<VatsimMemberStats>
-        tracked?: boolean
+        pilot: VatsimExtendedPilot;
+        stats?: Partial<VatsimMemberStats>;
+        airport?: VatsimAirportInfo;
+        tracked?: boolean;
     };
 }
 
 export interface StoreOverlayPrefile extends StoreOverlayDefault {
     type: 'prefile';
     data: {
-        prefile: VatsimPrefile
+        prefile: VatsimPrefile;
     };
 }
 
 export interface StoreOverlayAirport extends StoreOverlayDefault {
     type: 'airport';
     data: {
-        icao: string
-        airport?: VatsimAirportData
-        notams?: VatsimAirportDataNotam[]
-        showTracks?: boolean
+        icao: string;
+        airport?: VatsimAirportData;
+        notams?: VatsimAirportDataNotam[];
+        showTracks?: boolean;
     };
 }
 
 export interface StoreOverlayAtc extends StoreOverlayDefault {
     type: 'atc';
     data: {
-        callsign: string
-        stats?: Partial<VatsimMemberStats>
+        callsign: string;
+        stats?: Partial<VatsimMemberStats>;
     };
 }
 
-export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport
+export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport;
 
 export const useMapStore = defineStore('map', {
     state: () => ({
@@ -103,7 +105,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
                 if (existingOverlay) return;
 
-                const pilot = await $fetch<VatsimExtendedPilot>(`/data/vatsim/pilot/${ cid }`);
+                const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
 
@@ -120,7 +122,7 @@ export const useMapStore = defineStore('map', {
                     sticky: cid === store.user?.cid,
                 });
 
-                overlay.data.stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ cid }`);
+                overlay.data.stats = await $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ cid }`);
                 return overlay;
             }
             finally {
@@ -136,7 +138,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
                 if (existingOverlay) return;
 
-                const prefile = await $fetch<VatsimPrefile>(`/data/vatsim/pilot/${ cid }/prefile`);
+                const prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ cid }/prefile`);
                 this.overlays = this.overlays.filter(x => x.type !== 'prefile' || x.sticky);
                 await nextTick();
 
@@ -164,7 +166,7 @@ export const useMapStore = defineStore('map', {
                 const controller = findAtcByCallsign(callsign);
                 if (!controller) return;
 
-                const stats = await $fetch<VatsimMemberStats>(`/data/vatsim/stats/${ controller.cid }`);
+                const stats = await $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ controller.cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
                 await nextTick();
 
@@ -208,8 +210,8 @@ export const useMapStore = defineStore('map', {
                     sticky: false,
                 });
 
-                overlay.data.airport = await $fetch<VatsimAirportData>(`/data/vatsim/airport/${ airport }`);
-                overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/data/vatsim/airport/${ airport }/notams`) ?? [];
+                overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`);
+                overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`) ?? [];
                 return overlay;
             }
             finally {

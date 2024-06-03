@@ -1,7 +1,7 @@
 import { prisma } from './prisma';
 import { getCookie } from 'h3';
 import type { H3Event } from 'h3';
-import { getDBUserToken  } from '~/utils/db/user';
+import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 
@@ -25,19 +25,20 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
 }
 
 export interface FullUser {
-    id: number
-    hasFms: boolean | null
-    hasCharts: boolean | null
-    cid: string
-    fullName: string
-    settings: UserSettings
+    id: number;
+    hasFms: boolean | null;
+    hasCharts: boolean | null;
+    cid: string;
+    fullName: string;
+    settings: UserSettings;
+    discordId: string | null;
 }
 
 export interface UserSettings {
-    autoFollow?: boolean
-    autoZoom?: boolean
-    autoShowAirportTracks?: boolean
-    headerName?: string
+    autoFollow?: boolean;
+    autoZoom?: boolean;
+    autoShowAirportTracks?: boolean;
+    headerName?: string;
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
@@ -65,6 +66,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                             fullName: true,
                         },
                     },
+                    discordId: true,
                 },
             },
             accessTokenExpire: true,
@@ -93,7 +95,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                     },
                     data: {
                         accessToken: refreshedToken.access_token,
-                        accessTokenExpire: new Date(Date.now() + refreshedToken.expires_in * 1000),
+                        accessTokenExpire: new Date(Date.now() + (refreshedToken.expires_in * 1000)),
                         refreshToken: refreshedToken.refresh_token,
                         hasFms,
                         hasCharts,
@@ -119,6 +121,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             cid: token.user.vatsim!.id,
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
+            discordId: token.user.discordId,
         };
     }
     return null;

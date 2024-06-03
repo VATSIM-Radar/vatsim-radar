@@ -31,7 +31,7 @@ export function getNavigraphCodeChallenge(codeVerifier: string) {
 }
 
 export function getNavigraphRedirectUri() {
-    return `${ useRuntimeConfig().public.DOMAIN }/auth/navigraph`;
+    return `${ useRuntimeConfig().public.DOMAIN }/api/auth/navigraph`;
 }
 
 export function refreshNavigraphToken(refreshToken: string) {
@@ -43,10 +43,10 @@ export function refreshNavigraphToken(refreshToken: string) {
     form.set('refresh_token', refreshToken);
 
     return $fetch<{
-        access_token: string
-        expires_in: number
-        token_type: 'Bearer'
-        refresh_token: string
+        access_token: string;
+        expires_in: number;
+        token_type: 'Bearer';
+        refresh_token: string;
     }>('https://identity.api.navigraph.com/connect/token', {
         method: 'POST',
         headers: {
@@ -69,17 +69,17 @@ const tokenValidationOptions = {
 };
 
 interface JwtToken {
-    iss: string
-    aud: string
-    exp: number
-    nbf: number
-    client_id: string
-    scope: string[]
-    sub: string
-    auth_time: string
-    idp: string
-    amr: string[]
-    subscriptions: string[]
+    iss: string;
+    aud: string;
+    exp: number;
+    nbf: number;
+    client_id: string;
+    scope: string[];
+    sub: string;
+    auth_time: string;
+    idp: string;
+    amr: string[];
+    subscriptions: string[];
 }
 
 export function getNavigraphGwtResult(token: string) {
@@ -114,9 +114,9 @@ export function getNavigraphGwtResult(token: string) {
 }
 
 export async function getNavigraphRunways({ user, icao, event }: {
-    user: FullUser | null,
-    icao: string,
-    event: H3Event
+    user: FullUser | null;
+    icao: string;
+    event: H3Event;
 }) {
     try {
         const runways: NavigraphRunway[] = [];
@@ -141,7 +141,7 @@ export async function getNavigraphRunways({ user, icao, event }: {
                         runway_true_bearing: parseFloat(row.runway_true_bearing),
                     });
                 },
-                (err) => {
+                err => {
                     if (err) return reject(err);
                     resolve();
                 },
@@ -156,9 +156,9 @@ export async function getNavigraphRunways({ user, icao, event }: {
 }
 
 export async function getNavigraphGates({ user, icao, event }: {
-    user: FullUser | null,
-    icao: string,
-    event: H3Event
+    user: FullUser | null;
+    icao: string;
+    event: H3Event;
 }) {
     let gates: NavigraphGate[] = [];
 
@@ -178,7 +178,7 @@ export async function getNavigraphGates({ user, icao, event }: {
                         gate_latitude: coords[1],
                     });
                 },
-                (err) => {
+                err => {
                     if (err) return reject(err);
                     resolve();
                 },
@@ -224,11 +224,9 @@ export async function getNavigraphGates({ user, icao, event }: {
             }
         }
 
-        const lrGate = gates.findIndex((x, xIndex) =>
-            index < xIndex &&
+        const lrGate = gates.findIndex((x, xIndex) => index < xIndex &&
             (gate.name.endsWith('R') || gate.name.endsWith('L')) &&
-            gate.name.slice(-1) === x.name.slice(-2).replace('R', '').replace('L', ''),
-        );
+            gate.name.slice(-1) === x.name.slice(-2).replace('R', '').replace('L', ''));
 
         if (lrGate !== -1) {
             gate.gate_longitude = (gate.gate_longitude + gates[lrGate].gate_longitude) / 2;
@@ -237,12 +235,10 @@ export async function getNavigraphGates({ user, icao, event }: {
         }
 
         if (gate.name.endsWith('1') && gate.name !== '01') {
-            const similarGates = gates.filter(x =>
-                x.name.length === gate.name.length &&
+            const similarGates = gates.filter(x => x.name.length === gate.name.length &&
                 x.name.startsWith(gate.name.slice(0, gate.name.length - 1)) &&
                 Math.abs(x.gate_latitude - gate.gate_latitude) < 20 &&
-                Math.abs(x.gate_longitude - gate.gate_longitude) < 20,
-            );
+                Math.abs(x.gate_longitude - gate.gate_longitude) < 20);
 
             if (similarGates.length > 1 && similarGates.length < 9) {
                 if (similarGates.length === 2) {

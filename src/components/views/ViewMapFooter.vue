@@ -1,10 +1,23 @@
 <template>
-    <footer class="map-footer" v-if="dataStore.vatsim.updateTimestamp.value">
+    <footer
+        v-if="dataStore.vatsim.updateTimestamp.value"
+        class="map-footer"
+    >
         <div class="map-footer_left">
-            <div class="map-footer_left_section map-footer__airac" v-if="dataStore.versions.value?.navigraph" title="Navigraph Data AIRAC">
-                AIRAC {{
-                    dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
-                }}
+            <div
+                v-if="dataStore.versions.value?.navigraph"
+                class="map-footer_left_section"
+                title="Navigraph Data AIRAC"
+                @click="!store.user?.hasFms ? airacPopup = true : undefined"
+            >
+                <div
+                    class="map-footer__airac"
+                    :class="{ 'map-footer__airac--current': !!store.user?.hasFms }"
+                >
+                    AIRAC {{
+                        dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
+                    }}
+                </div>
             </div>
             <div class="map-footer_left_section">
                 <div class="map-footer__connections">
@@ -19,7 +32,10 @@
                             <span>{{ getCounts.firs }}</span> sector /
                             <span>{{ getCounts.atc }}</span> local atc
                         </div>
-                        <div class="map-footer__connections_info_item" v-if="getCounts.sups">
+                        <div
+                            v-if="getCounts.sups"
+                            class="map-footer__connections_info_item"
+                        >
                             <span>{{ getCounts.sups }}</span>
                             <template v-if="getCounts.sups > 1">
                                 supervisors
@@ -28,7 +44,10 @@
                                 supervisor
                             </template>
                         </div>
-                        <div class="map-footer__connections_info_item" v-if="getCounts.adm">
+                        <div
+                            v-if="getCounts.adm"
+                            class="map-footer__connections_info_item"
+                        >
                             <span>{{ getCounts.adm }}</span>
                             <template v-if="getCounts.adm > 1">
                                 admins
@@ -40,24 +59,78 @@
                     </div>
                 </div>
             </div>
-            <nuxt-link no-prefetch to="/privacy-policy" class="map-footer_left_section map-footer__text">
+            <nuxt-link
+                class="map-footer_left_section map-footer__text"
+                no-prefetch
+                to="/privacy-policy"
+            >
                 Privacy Policy
             </nuxt-link>
-            <div class="map-footer_left_section map-footer__text" v-if="store.version">
+            <div
+                v-if="store.version"
+                class="map-footer_left_section map-footer__text"
+            >
                 v{{ store.version }}
             </div>
         </div>
-        <div class="map-footer_right" v-if="getLastUpdated">
+        <div
+            v-if="getLastUpdated"
+            class="map-footer_right"
+        >
             VATSIM data time: {{ getLastUpdated }}
         </div>
     </footer>
+    <common-popup v-model="airacPopup">
+        <template #title>
+            AIRAC upgrade
+        </template>
+        You can upgrade your AIRAC to access latest data for gates, runways and more in future, by purchasing and linking Navigraph subscription.
+        <template #actions>
+            <common-button
+                v-if="!store.user || store.user?.hasFms === null"
+                href="https://navigraph.com/pricing"
+                target="_blank"
+                type="secondary"
+            >
+                More about subscription
+            </common-button>
+            <common-button
+                v-else
+                type="secondary"
+                @click="airacPopup = false"
+            >
+                Cancel
+            </common-button>
+            <common-button
+                v-if="store.user?.hasFms === null"
+                href="/api/auth/navigraph/redirect"
+            >
+                Connect Navigraph
+            </common-button>
+            <common-button
+                v-else-if="store.user?.hasFms === false"
+                href="https://navigraph.com/pricing"
+                target="_blank"
+            >
+                Purchase subscription
+            </common-button>
+            <common-button
+                v-else
+                href="/api/auth/vatsim/redirect"
+            >
+                Login
+            </common-button>
+        </template>
+    </common-popup>
 </template>
 
 <script setup lang="ts">
 import { useStore } from '~/store';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
+const airacPopup = ref(false);
 
 const datetime = new Intl.DateTimeFormat([], {
     timeZone: 'UTC',
@@ -96,46 +169,63 @@ const getLastUpdated = computed(() => {
 
 <style scoped lang="scss">
 .map-footer {
-    padding: 0 24px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
+    padding: 0 24px;
+
     font-size: 13px;
 
     &_left {
         display: flex;
 
         &_section {
+            position: relative;
             display: flex;
             align-items: center;
-            position: relative;
 
-            //TODO: refactor to mixin
             &:not(:last-child) {
                 margin-right: 12px;
                 padding-right: 12px;
 
                 &::after {
                     content: '';
+
                     position: absolute;
-                    align-self: center;
                     left: 100%;
+
+                    align-self: center;
+
                     height: 24px;
+
                     border-right: 1px solid varToRgba('neutral150', 0.1);
                 }
             }
         }
     }
 
-    &__connections {
-        display: flex;
+    &__airac, &__connections {
+        padding: 8px 16px;
         background: $neutral950;
         border-radius: 8px;
-        padding: 8px 16px;
+    }
+
+    &__airac {
+        cursor: pointer;
+
+        &--current {
+            cursor: default;
+            background: varToRgba('primary500', 0.1);
+        }
+    }
+
+    &__connections {
+        display: flex;
 
         span {
-            color: $primary500;
             font-weight: 600;
+            color: $primary500;
         }
 
         &_title {
@@ -146,8 +236,8 @@ const getLastUpdated = computed(() => {
 
         &_info {
             display: flex;
-            align-items: center;
             gap: 8px;
+            align-items: center;
             font-weight: 300;
 
             &_item:not(:last-child) {
@@ -158,16 +248,16 @@ const getLastUpdated = computed(() => {
     }
 
     &_right {
-        background: $neutral950;
         padding: 8px 16px;
-        border-radius: 8px;
         font-weight: 300;
+        background: $neutral950;
+        border-radius: 8px;
     }
 
     &__text {
         color: $neutral150;
-        opacity: 0.5;
         text-decoration-skip-ink: none;
+        opacity: 0.5;
     }
 }
 </style>

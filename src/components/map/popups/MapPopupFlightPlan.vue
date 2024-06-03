@@ -11,75 +11,84 @@
             </div>
             <div class="flight-plan__cols">
                 <common-info-block
-                    text-align="center"
-                    :is-button="!!depAirport"
-                    class="flight-plan__card"
-                    :top-items="[flightPlan.departure]"
                     :bottom-items="[depAirport?.name, depCountry?.country]"
+                    class="flight-plan__card"
+                    :is-button="!!depAirport"
+                    text-align="center"
+                    :top-items="[flightPlan.departure]"
                     @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
                 />
                 <common-info-block
-                    text-align="center"
-                    :is-button="!!arrAirport"
-                    class="flight-plan__card"
-                    :top-items="[flightPlan.arrival]"
                     :bottom-items="[arrAirport?.name, arrCountry?.country]"
+                    class="flight-plan__card"
+                    :is-button="!!arrAirport"
+                    text-align="center"
+                    :top-items="[flightPlan.arrival]"
                     @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
                 />
             </div>
             <div
-                class="flight-plan__cols"
                 v-if="(flightPlan.deptime || flightPlan.enroute_time) && (!status || status === 'depGate' || status === 'depTaxi')"
+                class="flight-plan__cols"
             >
                 <common-info-block
-                    text-align="center"
-                    class="flight-plan__card"
-                    :top-items="['Planned EOBT']"
-                    :bottom-items="[`${convertTime(flightPlan.deptime)}z`]"
                     v-if="flightPlan.deptime"
+                    :bottom-items="[`${ convertTime(flightPlan.deptime) }z`]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Planned EOBT']"
                 />
                 <common-info-block
-                    text-align="center"
-                    class="flight-plan__card"
-                    :top-items="['Planned Enroute']"
-                    :bottom-items="[convertTime(flightPlan.enroute_time)]"
                     v-if="flightPlan.enroute_time"
+                    :bottom-items="[convertTime(flightPlan.enroute_time)]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Planned Enroute']"
                 />
             </div>
             <div class="flight-plan__cols">
                 <common-info-block
-                    text-align="center"
-                    class="flight-plan__card"
-                    :top-items="['Aircraft Type']"
                     :bottom-items="[flightPlan.aircraft_faa]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Aircraft Type']"
                 />
                 <common-info-block
-                    text-align="center"
+                    :bottom-items="[`${ flightPlan.cruise_tas } kts`]"
                     class="flight-plan__card"
+                    text-align="center"
                     :top-items="['True Air Speed']"
-                    :bottom-items="[`${flightPlan.cruise_tas} kts`]"
                 />
                 <common-info-block
                     v-if="!cruise?.min && !cruise?.max"
-                    text-align="center"
+                    :bottom-items="[`${ cruise?.planned || flightPlan.altitude } ft`]"
                     class="flight-plan__card"
+                    text-align="center"
                     :top-items="['Cruise Altitude']"
-                    :bottom-items="[`${cruise?.planned || flightPlan.altitude} ft`]"
                 />
             </div>
-            <div class="flight-plan__cols" v-if="cruise?.min || cruise?.max">
+            <div
+                v-if="cruise?.min || cruise?.max"
+                class="flight-plan__cols"
+            >
                 <common-info-block
-                    text-align="center"
-                    class="flight-plan__card"
-                    :top-items="['Stepclimbs', 'Min to max']"
                     :bottom-items="[cruise?.min, cruise?.planned, cruise?.max]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Stepclimbs', 'Min to max']"
                 />
             </div>
         </template>
-        <common-copy-info-block v-if="flightPlan.route" :text="flightPlan.route">
+        <common-copy-info-block
+            v-if="flightPlan.route"
+            :text="flightPlan.route"
+        >
             Route
         </common-copy-info-block>
-        <common-copy-info-block v-if="flightPlan.remarks" :text="flightPlan.remarks">
+        <common-copy-info-block
+            v-if="flightPlan.remarks"
+            :text="flightPlan.remarks"
+        >
             Remarks
         </common-copy-info-block>
     </div>
@@ -88,8 +97,9 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
-import CommonCopyInfoBlock from '~/components/common/CommonCopyInfoBlock.vue';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import { useMapStore } from '~/store/map';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     flightPlan: {
@@ -151,26 +161,27 @@ const arrCountry = computed(() => {
 
 <style scoped lang="scss">
 .flight-plan {
+    position: relative;
+    z-index: 0;
+
     display: flex;
     flex-direction: column;
     gap: 8px;
-    position: relative;
-    z-index: 0;
 
     &__cols {
         display: flex;
         gap: 8px;
 
         > * {
-            width: 0;
             flex: 1 1 0;
+            width: 0;
         }
     }
 
     &__title {
-        text-align: center;
-        font-weight: 600;
         font-size: 13px;
+        font-weight: 600;
+        text-align: center;
     }
 
     &__card {
@@ -181,43 +192,48 @@ const arrCountry = computed(() => {
 
             &_header {
                 display: flex;
-                font-weight: 600;
-                font-size: 13px;
-                justify-content: space-between;
                 gap: 8px;
+                justify-content: space-between;
+
+                font-size: 13px;
+                font-weight: 600;
 
                 &_status {
-                    color: var(--status-color);
                     font-size: 12px;
+                    color: var(--status-color);
                 }
             }
 
             &_line {
-                height: 24px;
+                position: relative;
                 display: flex;
                 align-items: center;
-                position: relative;
+                height: 24px;
 
                 &::before, &::after {
                     content: '';
+
                     position: absolute;
-                    height: 2px;
-                    border-radius: 4px;
-                    background: $neutral850;
+
                     width: 100%;
+                    height: 2px;
+
+                    background: $neutral850;
+                    border-radius: 4px;
                 }
 
                 &::after {
-                    background: $primary500;
                     width: var(--percent);
+                    background: $primary500;
                 }
 
                 svg {
-                    height: 24px;
                     position: relative;
                     z-index: 1;
-                    transform: translateX(-50%) rotate(90deg);
                     left: var(--percent);
+                    transform: translateX(-50%) rotate(90deg);
+
+                    height: 24px;
 
                     :deep(path:last-child:not(:only-child)) {
                         color: $neutral1000;
@@ -231,9 +247,10 @@ const arrCountry = computed(() => {
 
             &_footer {
                 display: flex;
-                justify-content: space-between;
                 gap: 8px;
                 align-items: center;
+                justify-content: space-between;
+
                 font-size: 11px;
                 font-weight: 400;
             }

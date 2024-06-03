@@ -25,9 +25,9 @@ export async function initClientDB() {
         upgrade(db) {
             db.createObjectStore('data');
 
-            //@ts-expect-error
+            // @ts-expect-error Legacy db version
             if (db.objectStoreNames.contains('vatspy')) {
-                //@ts-expect-error
+                // @ts-expect-error Legacy db version
                 db.deleteObjectStore('vatspy');
             }
         },

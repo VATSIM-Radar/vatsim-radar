@@ -18,8 +18,8 @@ if ! [ -d "/radar/.config/certs" ]; then
     openssl x509 -req -days 4096 -in /radar/.config/certs/server.csr -signkey /radar/.config/certs/server.key -out /radar/.config/certs/server.crt
 fi
 
-yarn
 cd /radar
+yarn
 npx prisma generate
 npx prisma migrate deploy
 rm -rf /tmp/nitro/worker-*

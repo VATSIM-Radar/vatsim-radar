@@ -1,17 +1,27 @@
 <template>
-    <div class="header-error" v-if="config.public.IS_DOWN === 'true' && !warningClosed">
+    <div
+        v-if="config.public.IS_DOWN === 'true' && !warningClosed"
+        class="header-error"
+    >
         <div class="header-error_text">
             Website database is currently experiencing network issues. Login and own aircraft tracking are not possible at the
             moment. We plan to restore everything before the end of the week. Our apologies for this outage, and we will ensure this
             won't happen again in future.
         </div>
-        <div class="header-error_close" @click="[warningCookie=true, warningClosed=true]">
+        <div
+            class="header-error_close"
+            @click="[warningCookie=true, warningClosed=true]"
+        >
             <close-icon/>
         </div>
     </div>
     <header class="header">
         <div class="header_left">
-            <nuxt-link no-prefetch to="/" class="header__logo">
+            <nuxt-link
+                class="header__logo"
+                no-prefetch
+                to="/"
+            >
                 <logo-icon class="header__logo_icon"/>
                 <div class="header__logo_text">
                     VATSIM<br>
@@ -23,11 +33,14 @@
                     <common-button
                         v-for="button in buttons"
                         :key="button.text"
-                        :type="button.path === route.path ? 'primary' : 'secondary'"
                         :disabled="button.disabled"
                         :to="button.path"
+                        :type="button.path === route.path ? 'primary' : 'secondary'"
                     >
-                        <template #icon v-if="button.icon">
+                        <template
+                            v-if="button.icon"
+                            #icon
+                        >
                             <component :is="button.icon"/>
                         </template>
                         {{ button.text }}
@@ -37,7 +50,10 @@
         </div>
         <div class="header_right header__sections">
             <div class="header__sections_section">
-                <div class="header__theme" :class="[`header__theme--${store.theme ?? 'default'}`]">
+                <div
+                    class="header__theme"
+                    :class="[`header__theme--${ store.theme ?? 'default' }`]"
+                >
                     <div
                         class="header__theme_item header__theme_item--dark"
                         @click="[theme = 'default', store.theme = theme]"
@@ -52,40 +68,67 @@
                     </div>
                 </div>
             </div>
-            <div class="header__sections_section" v-if="config.public.IS_DOWN !== 'true'">
-                <common-button size="S" href="/auth/vatsim/redirect" v-if="!store.user">
+            <div
+                v-if="config.public.IS_DOWN !== 'true'"
+                class="header__sections_section"
+            >
+                <common-button
+                    v-if="!store.user"
+                    href="/api/auth/vatsim/redirect"
+                    size="S"
+                >
                     Connect VATSIM
                 </common-button>
-                <div class="header__user" v-else>
+                <div
+                    v-else
+                    class="header__user"
+                >
                     {{ settings.headerName || store.user.fullName.split(' ')[0] }}
                 </div>
             </div>
-            <div class="header__sections_section">
+            <div
+                class="header__sections_section"
+            >
                 <common-button
+                    href="https://github.com/daniluk4000/vatsim-radar"
+                    size="S"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <github-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    href="/discord"
+                    size="S"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <discord-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
                     :type="!settingsPopup ? 'secondary' : 'primary'"
                     @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
-                    v-if="config.public.IS_DOWN !== 'true'"
                 >
                     <template #icon>
                         <settings-icon/>
                     </template>
                 </common-button>
-                <common-button size="S" href="/discord" target="_blank" type="secondary">
-                    <template #icon>
-                        <discord-icon/>
-                    </template>
-                </common-button>
             </div>
 
             <common-info-popup
-                class="header__settings"
-                absolute
                 v-model="settingsPopup"
+                absolute
+                class="header__settings"
                 :sections="[
-                    {title: 'VATSIM Account', key: 'account'},
-                    {title: 'Navigraph Account', key: 'navigraph'},
-                    {title: 'Preferences', key: 'follow'},
+                    { title: 'VATSIM Account', key: 'account' },
+                    { title: 'Navigraph Account', key: 'navigraph' },
+                    { title: 'Preferences', key: 'follow' },
                 ]"
             >
                 <template #title>
@@ -118,8 +161,8 @@
                                     </div>
                                     <div class="header__settings__two-col-block_text">
                                         <common-input-text
-                                            placeholder="Enter name"
                                             :model-value="settings.headerName ?? ''"
+                                            placeholder="Enter name"
                                             @change="settings.headerName = ($event.target as HTMLInputElement).value"
                                         />
                                     </div>
@@ -127,14 +170,24 @@
                             </template>
                         </common-info-block>
                         <common-button-group>
-                            <common-button :href="`https://stats.vatsim.net/stats/${store.user!.cid}`" target="_blank">
+                            <common-button
+                                :href="`https://stats.vatsim.net/stats/${ store.user!.cid }`"
+                                target="_blank"
+                            >
                                 My stats
                             </common-button>
-                            <common-button class="header__settings__logout" href="/user/logout">
+                            <common-button
+                                class="header__settings__logout"
+                                href="/api/user/logout"
+                            >
                                 Logout
                             </common-button>
                         </common-button-group>
-                        <common-button class="header__settings__delete" type="link" @click="deletePopup = true">
+                        <common-button
+                            class="header__settings__delete"
+                            type="link"
+                            @click="deletePopup = true"
+                        >
                             Delete Account
                         </common-button>
                     </div>
@@ -149,7 +202,10 @@
                                 enable tracking of it (on map load or when spawned on ground)
                             </template>
                         </common-toggle>
-                        <common-toggle v-model="settings.autoZoom" :disabled="!settings.autoFollow">
+                        <common-toggle
+                            v-model="settings.autoZoom"
+                            :disabled="!settings.autoFollow"
+                        >
                             Auto-zoom to me
 
                             <template #description>
@@ -169,13 +225,16 @@
                 </template>
                 <template #navigraph>
                     <div class="header__settings__block header__settings__block--long-gap">
-                        <common-button v-if="store.user?.hasFms === null" href="/auth/navigraph/redirect">
+                        <common-button
+                            v-if="store.user?.hasFms === null"
+                            href="/api/auth/navigraph/redirect"
+                        >
                             Link Navigraph
                         </common-button>
                         <div
-                            class="header__settings__navigraph"
-                            :class="{'header__settings__navigraph--unlimited': store.user!.hasFms}"
                             v-else
+                            class="header__settings__navigraph"
+                            :class="{ 'header__settings__navigraph--unlimited': store.user!.hasFms }"
                         >
                             <div class="header__settings__navigraph_title">
                                 Status
@@ -214,10 +273,13 @@
             </template>
             In order to edit and save your settings, you must authorize first.
             <template #actions>
-                <common-button type="secondary" @click="loginPopup = false">
+                <common-button
+                    type="secondary"
+                    @click="loginPopup = false"
+                >
                     Stand by
                 </common-button>
-                <common-button href="/auth/vatsim/redirect">
+                <common-button href="/api/auth/vatsim/redirect">
                     Wilco
                 </common-button>
             </template>
@@ -230,7 +292,10 @@
             <strong>You will not be able to cancel this action</strong>. All your VATSIM Radar information and
             preferences will be permanently lost.
             <template #actions>
-                <common-button @click="deleteAccount" type="secondary">
+                <common-button
+                    type="secondary"
+                    @click="deleteAccount"
+                >
                     Permanently delete account
                 </common-button>
                 <common-button @click="deletePopup = false">
@@ -245,7 +310,10 @@
             Are you sure you want to unlink your Navigraph account?<br><br>
             Well, you can always link that again later anyway.
             <template #actions>
-                <common-button @click="deleteNavigraphAccount" type="secondary">
+                <common-button
+                    type="secondary"
+                    @click="deleteNavigraphAccount"
+                >
                     Unlink Navigraph account
                 </common-button>
                 <common-button @click="deleteNavigraphPopup = false">
@@ -261,6 +329,7 @@ import { useStore } from '~/store';
 import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
 import DiscordIcon from '@/assets/icons/header/discord.svg?component';
+import GithubIcon from '@/assets/icons/header/github.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import LogoIcon from '@/assets/icons/basic/logo.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
@@ -271,6 +340,13 @@ import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import type { ThemesList } from '~/modules/styles';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -328,14 +404,14 @@ const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.setting
 }));
 
 const deleteAccount = async () => {
-    await $fetch('/user/delete', {
+    await $fetch('/api/user/delete', {
         method: 'POST',
     });
     location.reload();
 };
 
 const deleteNavigraphAccount = async () => {
-    await $fetch('/user/unlink-navigraph', {
+    await $fetch('/api/user/unlink-navigraph', {
         method: 'POST',
     });
     store.user!.hasFms = null;
@@ -343,7 +419,7 @@ const deleteNavigraphAccount = async () => {
 };
 
 watch(settings, () => {
-    $fetch('/user/settings', {
+    $fetch('/api/user/settings', {
         method: 'POST',
         body: settings,
     });
@@ -367,26 +443,30 @@ onMounted(() => {
 <style scoped lang="scss">
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+
     height: 56px;
     padding: 8px 24px;
 
     &-error {
-        background: $error500;
-        color: $neutral150Orig;
-        padding: 10px;
-        font-size: 12px;
-        border-radius: 0 0 10px 10px;
         display: flex;
         gap: 16px;
         align-items: center;
         justify-content: space-between;
 
+        padding: 10px;
+
+        font-size: 12px;
+        color: $neutral150Orig;
+
+        background: $error500;
+        border-radius: 0 0 10px 10px;
+
         &_close {
+            cursor: pointer;
             width: 16px;
             min-width: 16px;
-            cursor: pointer;
             transition: 0.3s;
 
             @include hover {
@@ -399,8 +479,8 @@ onMounted(() => {
 
     &_left {
         display: flex;
-        align-items: center;
         gap: 32px;
+        align-items: center;
     }
 
     &_right {
@@ -409,18 +489,20 @@ onMounted(() => {
     }
 
     &__logo {
+        user-select: none;
+
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
         font-size: 12px;
         font-weight: 700;
         color: $neutral50;
-        user-select: none;
         text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 8px;
 
         &_icon {
-            color: $neutral100;
             width: 40px;
+            color: $neutral100;
 
             :deep(> rect) {
                 color: $primary500;
@@ -433,10 +515,10 @@ onMounted(() => {
     }
 
     &__user {
-        color: $primary500;
-        font-size: 14px;
         font-family: $openSansFont;
+        font-size: 14px;
         font-weight: 700;
+        color: $primary500;
     }
 
     &__sections {
@@ -445,8 +527,8 @@ onMounted(() => {
 
         &_section {
             display: flex;
-            align-items: center;
             gap: 16px;
+            align-items: center;
 
             & + & {
                 padding-left: 16px;
@@ -495,12 +577,13 @@ onMounted(() => {
         }
 
         &__navigraph {
-            font-weight: 600;
-            font-size: 13px;
-            gap: 4px;
             display: flex;
-            justify-content: space-between;
+            gap: 4px;
             align-items: center;
+            justify-content: space-between;
+
+            font-size: 13px;
+            font-weight: 600;
             color: $neutral150;
 
             &--unlimited .header__settings__navigraph_status {
@@ -510,33 +593,44 @@ onMounted(() => {
     }
 
     &__theme {
-        display: grid;
-        height: 32px;
-        grid-template-columns: repeat(2, 45px);
-        border-radius: 8px;
-        background: $neutral900;
-        color: $neutral150;
         position: relative;
+
+        display: grid;
+        grid-template-columns: repeat(2, 45px);
+
+        height: 32px;
+
+        color: $neutral150;
+
+        background: $neutral900;
+        border-radius: 8px;
 
         &::before {
             content: '';
+
             position: absolute;
+            top: 0;
+            left: 0;
+
             width: 45px;
             height: 100%;
+
             background: $primary500;
             border-radius: 8px;
+
             transition: 0.5s ease-in-out;
-            left: 0;
-            top: 0;
         }
 
         &_item {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             cursor: pointer;
-            transition: 0.5s ease-in-out;
+
             position: relative;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            transition: 0.5s ease-in-out;
 
             svg {
                 width: 15px;
@@ -562,10 +656,9 @@ onMounted(() => {
                         color: $neutral900;
                     }
                 }
-
+                transform: rotate(-90deg);
                 color: $neutral900;
                 animation: lightColorChange 0.5s ease-in-out;
-                transform: rotate(-90deg);
             }
 
             .header__theme_item--dark :deep(path) {

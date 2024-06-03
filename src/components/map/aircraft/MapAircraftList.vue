@@ -5,8 +5,8 @@
         :aircraft="aircraft"
         :is-hovered="hoveredAircraft === aircraft.cid"
         :show-label="showAircraftLabel.includes(aircraft.cid)"
-        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
         @manualHide="[isManualHover = false, hoveredAircraft = null]"
+        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
     />
 </template>
 
@@ -38,7 +38,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
-    map.value!.getOverlays().forEach((overlay) => {
+    map.value!.getOverlays().forEach(overlay => {
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
         const position = overlay.getPosition();
         if (position) {
@@ -46,7 +46,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
         }
     });
 
-    return dataStore.vatsim.data.pilots.value.filter((x) => {
+    return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
         if (!pilotPixel) return false;
 
@@ -63,7 +63,7 @@ function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft): Pixel | null 
 const visiblePilots = shallowRef<VatsimShortenedAircraft[]>([]);
 
 function setVisiblePilots() {
-    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
@@ -124,11 +124,11 @@ function handleMoveEnd() {
 
 attachMoveEnd(handleMoveEnd);
 
-watch(map, (val) => {
+watch(map, val => {
     if (!val) return;
 
     let hasLayer = false;
-    val.getLayers().forEach((layer) => {
+    val.getLayers().forEach(layer => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'aircraft';
     });
@@ -151,7 +151,7 @@ watch(map, (val) => {
 
     val.addLayer(vectorLayer);
 
-    val.on('pointermove', handlePointerMove);
+    attachPointerMove(handlePointerMove);
     val.on('click', handleClick);
 }, {
     immediate: true,
@@ -159,7 +159,6 @@ watch(map, (val) => {
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
-    map.value?.un('pointermove', handlePointerMove);
     map.value?.un('click', handleClick);
 });
 </script>

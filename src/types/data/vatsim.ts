@@ -32,7 +32,7 @@ export interface VatsimPilot {
 
 export interface VatsimExtendedPilot extends VatsimPilot {
     status?: 'depGate' | 'depTaxi' | 'departed' | 'climbing' | 'cruising' | 'enroute' | 'descending' | 'arriving' | 'arrTaxi' | 'arrGate';
-    isOnGround?: boolean
+    isOnGround?: boolean;
     depDist?: number;
     toGoDist?: number;
     toGoPercent?: number;
@@ -40,9 +40,9 @@ export interface VatsimExtendedPilot extends VatsimPilot {
     firs?: string[];
     airport?: string;
     cruise?: {
-        min?: number
-        planned: number
-        max?: number
+        min?: number;
+        planned: number;
+        max?: number;
     };
 }
 
@@ -63,7 +63,7 @@ export type VatsimPilotFlightPlan = Partial<{
     route: string;
     revision_id: number;
     assigned_transponder: string;
-}>
+}>;
 
 export interface VatsimController {
     cid: number;
@@ -111,7 +111,7 @@ export interface VatsimInfoLong extends VatsimInfoDefault {
 }
 
 export interface VatsimInfoLongName extends VatsimInfoDefault {
-    short_name: string
+    short_name: string;
     long_name: string;
 }
 
@@ -134,19 +134,19 @@ export type VatsimShortenedData = {
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
-} & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>
+} & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
-export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0]
-export type VatsimShortenedPrefile = VatsimShortenedData['prefiles'][0]
-export type VatsimShortenedController = VatsimShortenedData['atis'][0]
+export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0];
+export type VatsimShortenedPrefile = VatsimShortenedData['prefiles'][0];
+export type VatsimShortenedController = VatsimShortenedData['atis'][0];
 
 export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {
-    locals: VatSpyDataLocalATC[],
-    firs: VatSpyDataFeature[]
-    airports: MapAirport[]
-}
+    locals: VatSpyDataLocalATC[];
+    firs: VatSpyDataFeature[];
+    airports: MapAirport[];
+};
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>;
 
 export interface VatsimDivision {
     id: string;
@@ -164,7 +164,7 @@ export interface VatsimSubDivision {
 export enum VatsimEventType {
     Event = 'Event',
     Exam = 'Controller Examination',
-    VASOPS = 'VASOPS Event'
+    VASOPS = 'VASOPS Event',
 }
 
 export interface VatsimEvent {
@@ -173,18 +173,18 @@ export interface VatsimEvent {
     name: string;
     link: string;
     organisers: {
-        region: string | null
-        division: string | null
-        subdivision: string | null
-        organized_by_vatsim: boolean
+        region: string | null;
+        division: string | null;
+        subdivision: string | null;
+        organized_by_vatsim: boolean;
     }[];
     airports: {
-        icao: string
+        icao: string;
     }[];
     routes: {
-        departure: string
-        arrival: string
-        route: string
+        departure: string;
+        arrival: string;
+        route: string;
     }[];
     start_time: string;
     end_time: string;
@@ -209,4 +209,4 @@ export type VatsimMemberStats = Record<
     | 'sup'
     | 'adm',
     number
->
+>;
