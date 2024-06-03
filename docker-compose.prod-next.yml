@@ -1,6 +1,6 @@
 services:
   app-next:
-    container_name: app
+    container_name: app-next
     restart: always
     image: ghcr.io/daniluk4000/vatsim-radar/next
     depends_on:
@@ -16,7 +16,7 @@ services:
   db-next:
     image: mysql
     restart: always
-    container_name: db
+    container_name: db-next
     cap_add:
       - SYS_NICE
     environment:
