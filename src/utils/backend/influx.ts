@@ -90,7 +90,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
     const rows = await getFlightRows(fluxQuery);
 
     rows.forEach((row, index) => {
-        const similarRow = (rows[index + 1]?.fpl_arrival === row.fpl_arrival && rows[index + 1]?.fpl_departure === row.fpl_departure) ? rows[index + 1] : null;
+        const similarRow = (rows[index + 1]?.fpl_arrival === row.fpl_arrival && rows[index + 1]?.fpl_departure === row.fpl_departure && rows[index + 1].groundspeed !== row.groundspeed) ? rows[index + 1] : null;
         if (similarRow) rows.splice(index, 1);
     });
 
