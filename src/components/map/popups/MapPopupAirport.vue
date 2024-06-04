@@ -91,13 +91,13 @@
                     Show tracks for arriving
                 </common-toggle>
             </div>
-            <airport-aircraft ref="aircraftComponent"/>
+            <airport-aircraft/>
         </template>
     </common-info-popup>
 </template>
 
 <script setup lang="ts">
-import type { ComponentPublicInstance, PropType } from 'vue';
+import type { PropType } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';

@@ -145,10 +145,6 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
-import { toLonLat } from 'ol/proj';
-import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
-import type { MapAirport } from '~/types/map';
 
 const data = injectAirport();
 const dataStore = useDataStore();
