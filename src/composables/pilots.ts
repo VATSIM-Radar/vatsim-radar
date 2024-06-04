@@ -148,10 +148,16 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
 
     if (typeof svg === 'object') svg = await svg;
     else if (!svg) {
-        icons[icon] = new Promise<string>(async resolve => {
-            const result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
-            svg = result;
-            resolve(result);
+        icons[icon] = new Promise<string>(async (resolve, reject) => {
+            try {
+                const result = await $fetch<string>(`/aircraft/${ icon }.svg?v=${ store.version }`, { responseType: 'text' });
+                svg = result;
+                resolve(result);
+            }
+            catch (e) {
+                console.error(e);
+                reject();
+            }
         });
         await icons[icon];
     }

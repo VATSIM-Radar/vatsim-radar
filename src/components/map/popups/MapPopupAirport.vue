@@ -110,14 +110,13 @@ import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { useStore } from '~/store';
-import { getATCForAirport, provideAirport } from '~/composables/airport';
+import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
 import AirportNotams from '~/components/views/airport/AirportNotams.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
-import type { AirportPopupPilotList } from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
 
 const props = defineProps({
@@ -130,16 +129,11 @@ const props = defineProps({
 const overlayData = computed(() => props.overlay.data);
 provideAirport(overlayData);
 const atc = getATCForAirport(overlayData);
+const aircraft = getAircraftForAirport(overlayData);
 
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const aircraftComponent = ref<ComponentPublicInstance | null>(null);
-
-const aircraft = computed<AirportPopupPilotList | null>(() => {
-    // @ts-expect-error exposed property
-    return aircraftComponent.value?.aircraft.value || null;
-});
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === props.overlay.data.icao));
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));

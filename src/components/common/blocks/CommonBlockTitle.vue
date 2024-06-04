@@ -67,6 +67,7 @@ const collapsed = defineModel('collapsed', {
     user-select: none;
 
     position: relative;
+    z-index: 0;
 
     display: flex;
     gap: 16px;

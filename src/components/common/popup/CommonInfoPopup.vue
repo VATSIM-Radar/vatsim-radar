@@ -236,7 +236,6 @@ watch(getSections, sections => {
             gap: 16px;
 
             &_action {
-                cursor: pointer;
                 user-select: none;
 
                 display: flex;
@@ -248,7 +247,10 @@ watch(getSections, sections => {
 
                 color: $neutral150;
 
-                transition: 0.3s;
+                >* {
+                    cursor: pointer;
+                    transition: 0.3s;
+                }
 
                 &:not(:last-child, &--collapse) {
                     padding-right: 16px;
@@ -256,12 +258,12 @@ watch(getSections, sections => {
                 }
 
                 @include hover {
-                    &:hover {
-                        color: $primary500;
+                    &.info-popup_header_actions_action--close:hover {
+                        color: $error500;
+                    }
 
-                        &.info-popup_header_actions_action--close {
-                            color: $error500;
-                        }
+                    &:not(.info-popup_header_actions_action--close) >*:hover {
+                        color: $primary500;
                     }
                 }
             }

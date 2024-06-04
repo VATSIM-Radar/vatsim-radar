@@ -136,7 +136,8 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
-import { injectAirport } from '~/composables/airport';
+import { getAircraftForAirport, injectAirport } from '~/composables/airport';
+import type { AirportPopupPilotStatus } from '~/composables/airport';
 import { useDataStore } from '~/composables/data';
 import { getPilotStatus } from '~/composables/pilots';
 import { useMapStore } from '~/store/map';
@@ -182,81 +183,8 @@ const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[
 ];
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
-const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao));
 
-export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortenedPrefile) & {
-    isArrival: boolean;
-    distance: number;
-    flown: number;
-    eta: Date | null;
-};
-
-export type AirportPopupPilotList = Record<keyof MapAirport['aircraft'], Array<AirportPopupPilotStatus>>;
-
-const aircraft = computed<AirportPopupPilotList | null>(() => {
-    if (!vatAirport.value) return null;
-
-    const list = {
-        groundDep: [] as AirportPopupPilotStatus[],
-        groundArr: [] as AirportPopupPilotStatus[],
-        prefiles: [] as AirportPopupPilotStatus[],
-        departures: [] as AirportPopupPilotStatus[],
-        arrivals: [] as AirportPopupPilotStatus[],
-    } satisfies AirportPopupPilotList;
-
-    for (const pilot of dataStore.vatsim.data.pilots.value) {
-        let distance = 0;
-        let flown = 0;
-        let eta: Date | null = null;
-
-        const arrivalAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
-
-        if (arrivalAirport) {
-            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
-            const depCoords = toLonLat([airport.value?.lon ?? 0, airport.value?.lat ?? 0]);
-            const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
-
-            distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
-            flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);
-            if (pilot.groundspeed) {
-                eta = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed);
-            }
-        }
-
-        const truePilot: AirportPopupPilotStatus = {
-            ...pilot,
-            distance,
-            eta,
-            flown,
-            isArrival: true,
-        };
-
-        if (vatAirport.value.aircraft.departures?.includes(pilot.cid)) {
-            list.departures.push({ ...truePilot, isArrival: false });
-        }
-        if (vatAirport.value.aircraft.arrivals?.includes(pilot.cid)) {
-            list.arrivals.push(truePilot);
-        }
-        if (vatAirport.value.aircraft.groundDep?.includes(pilot.cid)) {
-            list.groundDep.push({ ...truePilot, isArrival: false });
-        }
-        if (vatAirport.value.aircraft.groundArr?.includes(pilot.cid)) list.groundArr.push(truePilot);
-    }
-
-    for (const pilot of dataStore.vatsim.data.prefiles.value) {
-        if (vatAirport.value.aircraft.prefiles?.includes(pilot.cid)) {
-            list.prefiles.push({
-                ...pilot,
-                distance: 0,
-                flown: 0,
-                eta: null,
-                isArrival: false,
-            });
-        }
-    }
-
-    return list;
-});
+const aircraft = getAircraftForAirport(data);
 
 const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
     if (aircraftMode.value === 'departed') {

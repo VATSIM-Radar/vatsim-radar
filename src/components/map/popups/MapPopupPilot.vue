@@ -177,7 +177,8 @@
                         :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
                         class="pilot__card"
                         text-align="center"
-                        :top-items="['Gr Speed']"
+                        title="Ground Speed"
+                        :top-items="['GS']"
                     />
                     <common-info-block
                         :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"

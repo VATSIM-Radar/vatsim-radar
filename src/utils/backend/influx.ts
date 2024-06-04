@@ -70,64 +70,32 @@ async function getFlightRows(query: string) {
         .sort((a, b) => b.time - a.time);
 }
 
-export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly }: {
+export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, startDate, endDate }: {
     cid: string;
     limit: number;
+    startDate: number;
+    endDate?: number;
     offset?: number;
     onlineOnly?: boolean;
 }) {
-    let { items: flights, count: flightsCount } =
-        await $fetch<{ items: VatsimPilotConnection[]; count: number }>(`https://api.vatsim.net/v2/members/${ cid }/history?limit=${ limit }&offset=${ offset ?? 0 }`);
-
-    if (onlineOnly) {
-        if (flights[0].end !== null) {
-            return {
-                rows: [],
-                count: 0,
-            };
-        }
-        else {
-            flightsCount = 1;
-        }
-    }
-
-    let [min, max] = flights.reduce(([min, max], flight) => {
-        if (!flight.start) return [min, max];
-        const start = new Date(flight.start).getTime();
-        const end = new Date(flight.end ?? flight.start).getTime();
-        if (end > max) max = end;
-        if (start < min || min === 0) min = start;
-
-        return [min, max];
-    }, [0, 0]);
-
-    if (flights.some(x => !x.end)) max = 0;
-
     const fluxQuery =
         `import "influxdata/influxdb/schema" import "strings" from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
-  |> range(start: ${ Math.round(min / 1000) }, stop: ${ max ? Math.round(max / 1000) : 'now()' })
+  |> range(start: ${ Math.round(startDate / 1000) }, stop: ${ endDate ? Math.round(endDate / 1000) : 'now()' })
   |> filter(fn: (r) => r["_measurement"] == "pilot")
   |> filter(fn: (r) => r["id"] == "${ cid }")
   |> schema.fieldsAsCols()
-  |> filter(fn: (r) => r["fpl_callsign"] != "" or r["callsign"] != "" or r["fpl_departure"] != "" or r["fpl_arrival"] != "")
+  |> filter(fn: (r) => r["fpl_departure"] != "" and r["fpl_arrival"] != "")
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
 
-    const finalRows: InfluxFlight[] = [];
-
-    for (const flight of flights) {
-        const start = new Date(flight.start).getTime();
-        // 2 minutes gap for API update
-        const row = rows.find(x => x.time > start && x.time < start + (1000 * 60 * 2));
-        if (!row) continue;
-
-        finalRows.push(row);
-    }
+    rows.forEach((row, index) => {
+        const similarRow = (rows[index + 1]?.fpl_arrival === row.fpl_arrival && rows[index + 1]?.fpl_departure === row.fpl_departure) ? rows[index + 1] : null;
+        if (similarRow) rows.splice(index, 1);
+    });
 
     return {
-        rows: finalRows,
-        count: flightsCount,
+        rows: rows.slice(0, limit),
     };
 }
 
@@ -136,6 +104,7 @@ export async function getInfluxOnlineFlightTurns(cid: string) {
         cid,
         limit: 1,
         onlineOnly: true,
+        startDate: new Date().getTime() - (1000 * 60 * 60 * 24),
     });
 
     if (!row) return null;

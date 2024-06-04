@@ -1,5 +1,22 @@
 # Changelog
 
+# 0.4.0-alpha.2
+
+## Alpha fixes and improvements
+
+- Fixed aircraft airport indicator
+- Improved aircraft track line text align
+- Fixed bug when overlay section title could overflow actual overlay title
+- Changed aircraft track line color and width a bit
+- Added handler for aircraft icon load error so it won't stuck forever
+- Fixed error when aircraft tracks could stuck on screen
+- Flight detect logic now can handle disconnects and no longer relies on VATSIM Api. Check it out!
+
+## Bug fixes
+
+- Fixed rare _DEP controllers detection fail
+- Added small horizontal padding to pin icon, so it will be harder to miss a click
+
 # 0.4.0-alpha.1
 
 ## For QA

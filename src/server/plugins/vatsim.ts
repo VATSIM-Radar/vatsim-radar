@@ -65,20 +65,6 @@ export default defineNitroPlugin(app => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
-                /* data.controllers.push({
-                    callsign: 'CHI_X_APP',
-                    cid: 3,
-                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
-                    frequency: '122.122',
-                    last_updated: '',
-                    logon_time: '',
-                    name: '',
-                    rating: 0,
-                    server: '',
-                    text_atis: ['undefined'],
-                    visual_range: 0,
-                });*/
-
                 data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
                 radarStorage.vatsim.data = data;
@@ -87,7 +73,8 @@ export default defineNitroPlugin(app => {
 
                 data.controllers = data.controllers.filter(controller => {
                     if (controller.facility === positions.OBS) return;
-                    const postfix = controller.callsign.split('_').slice(-1)[0];
+                    let postfix = controller.callsign.split('_').slice(-1)[0];
+                    if (postfix === 'DEP') postfix = 'APP';
                     controller.facility = positions[postfix as keyof typeof positions] ?? -1;
                     return controller.facility !== -1 && controller.facility !== positions.OBS;
                 });
