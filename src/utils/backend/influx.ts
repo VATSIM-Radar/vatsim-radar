@@ -92,9 +92,9 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
     return {
         rows: rows.filter((row, index) => {
             const nextRow = rows[index + 1];
-            if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder) return true;
+            if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || (!row.groundspeed && (!row.altitude || row.altitude < 3000))) return true;
 
-            const similarRow = (nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && nextRow.groundspeed !== row.groundspeed) ? rows[index + 1] : null;
+            const similarRow = (nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && nextRow.groundspeed !== row.groundspeed) ? rows[index + 1] : null;
             return !similarRow;
         }).slice(0, limit),
     };

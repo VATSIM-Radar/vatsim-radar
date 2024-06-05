@@ -78,9 +78,10 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         layerFilter: layer => layer === airportsLayer,
     });
 
+    hoveredAirportName.value = null;
+
     if (airports.length === 1) {
         if (!mapStore.canShowOverlay) {
-            hoveredAirportName.value = null;
             if (mapStore.mapCursorPointerTrigger === 3) mapStore.mapCursorPointerTrigger = false;
             return;
         }
@@ -90,7 +91,6 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         return;
     }
     else if (mapStore.mapCursorPointerTrigger === 3) {
-        hoveredAirportName.value = null;
         mapStore.mapCursorPointerTrigger = false;
     }
 
