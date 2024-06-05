@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.4.0-alpha.3
+
+## Alpha fixes and improvements
+
+- Fixed Firefox svg render
+- Fixed duplicate flight detection
+- Fixed reconnects detection
+
 # 0.4.0-alpha.2
 
 ## Alpha fixes and improvements

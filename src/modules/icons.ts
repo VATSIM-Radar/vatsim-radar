@@ -19,17 +19,6 @@ export default defineNuxtModule(async (_, nuxt) => {
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
         const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');
 
-        let svg = optimize(iconContents, {
-            plugins: [
-                'removeDimensions',
-                'reusePaths',
-            ],
-        }).data;
-
-        svg = svg.replace('<svg', `<svg width="${ width }"`);
-
-        writeFileSync(join(publicPath, `${ icon }.svg`), svg);
-
         for (let i = 0; i < 2; i++) {
             let iconContent = iconContents
                 .replaceAll('white', colorsList.primary500)
@@ -50,6 +39,17 @@ export default defineNuxtModule(async (_, nuxt) => {
                 height: info.height,
             };
         }
+
+        let svg = optimize(iconContents, {
+            plugins: [
+                'removeDimensions',
+                'reusePaths',
+            ],
+        }).data;
+
+        svg = svg.replace('<svg', `<svg width="${ width }" height="${ fullList[icon as AircraftIcon]!.height }"`);
+
+        writeFileSync(join(publicPath, `${ icon }.svg`), svg);
     }
 
     addTemplate({
