@@ -14,6 +14,12 @@
                     class="map-footer__airac"
                     :class="{ 'map-footer__airac--current': !!store.user?.hasFms }"
                 >
+                    <img
+                        alt="Navigraph"
+                        src="@/assets/icons/header/navigraph.svg"
+                        width="20"
+                    >
+
                     AIRAC {{
                         dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
                     }}
@@ -84,15 +90,22 @@
         <template #title>
             AIRAC upgrade
         </template>
-        You can upgrade your AIRAC to access latest data for gates, runways and more in future, by purchasing and linking Navigraph subscription.
+        You can upgrade your AIRAC to access latest data for gates, runways and more in the future, by purchasing and linking a Navigraph subscription.
         <template #actions>
             <common-button
                 v-if="!store.user || store.user?.hasFms === null"
-                href="https://navigraph.com/pricing"
+                href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe"
+                icon-width="25px"
                 target="_blank"
                 type="secondary"
             >
-                More about subscription
+                <template #icon>
+                    <img
+                        alt="Navigraph"
+                        src="@/assets/icons/header/navigraph.svg"
+                    >
+                </template>
+                Subscription Options
             </common-button>
             <common-button
                 v-else
@@ -105,14 +118,21 @@
                 v-if="store.user?.hasFms === null"
                 href="/api/auth/navigraph/redirect"
             >
-                Connect Navigraph
+                Link Navigraph
             </common-button>
             <common-button
                 v-else-if="store.user?.hasFms === false"
-                href="https://navigraph.com/pricing"
+                href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe"
+                icon-width="25px"
                 target="_blank"
             >
-                Purchase subscription
+                <template #icon>
+                    <img
+                        alt="Navigraph"
+                        src="@/assets/icons/header/navigraph.svg"
+                    >
+                </template>
+                Subscription Options
             </common-button>
             <common-button
                 v-else
@@ -206,13 +226,16 @@ const getLastUpdated = computed(() => {
     }
 
     &__airac, &__connections {
-        padding: 8px 16px;
+        padding: 8px 12px;
         background: $neutral950;
         border-radius: 8px;
     }
 
     &__airac {
         cursor: pointer;
+        display: flex;
+        gap: 8px;
+        align-items: center;
 
         &--current {
             cursor: default;

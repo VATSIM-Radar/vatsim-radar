@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.4.0-alpha.4.1
+
+Nearly forgot!
+
+Updating Navigraph text & branding for non-linked popup according to Navigraph Marketing feedback
+
 # 0.4.0-alpha.4
 
 ## New aircraft icons have been added

@@ -13,6 +13,7 @@
         ]"
         :style="{
             '--button-width': width,
+            '--icon-width': iconWidth,
         }"
         :target="target"
         v-bind="getAttrs"
@@ -44,6 +45,10 @@ const props = defineProps({
     },
     width: {
         type: String,
+    },
+    iconWidth: {
+        type: String,
+        default: '16px',
     },
     type: {
         type: String as PropType<'primary' | 'secondary' | 'secondary-flat' | 'link' | 'transparent'>,
@@ -146,7 +151,7 @@ const getAttrs = computed(() => {
     }
 
     &_icon {
-        width: 16px;
+        width: var(--icon-width);
     }
 
     &--type-secondary, &--type-secondary-flat {

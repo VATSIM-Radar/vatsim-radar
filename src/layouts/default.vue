@@ -173,6 +173,10 @@ svg, img {
     display: block;
 }
 
+img {
+    max-width: 100%;
+}
+
 *,
 *::before,
 *::after {
