@@ -9,7 +9,7 @@
             </template>
         </template>
         <template v-if="!store.user">
-            You have to authorize and be allowed to use this version of VATSIM Radar. Please <code>/verify</code> yourself in Discord and authorize:<br><br>
+            You have to authorize and be allowed to use this version of VATSIM Radar. Please <code>/qa-verify</code> in Discord if you have access and authorize:<br><br>
             <common-button
                 href="/api/auth/vatsim/redirect"
                 width="200px"
