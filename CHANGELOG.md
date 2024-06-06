@@ -4,7 +4,8 @@
 
 ## New aircraft icons have been added
 
-- B461-463, B741, 744, 748, 74S, LCF
+- B461-463
+- Boeing 741, 744, 748, 74S, LCF
 - C510, 
 - CRJ1, 5, 9, X
 - DA42, 62
