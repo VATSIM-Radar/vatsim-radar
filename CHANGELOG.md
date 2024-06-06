@@ -1,5 +1,25 @@
 # Changelog
 
+# 0.4.0-alpha.4
+
+## New aircraft icons have been added
+
+- B461-463, B741, 744, 748, 74S, LCF
+- C510, 
+- CRJ1, 5, 9, X
+- DA42, 62
+- E170, 175, 190, 195
+- EUFI
+- H160, H47, PC12
+- TBM7-9
+- A319/A321 matching has been fixed
+
+Also some aliases have been made temporally for model matching
+
+## Bug fixes
+
+- Fixed some gates showing as occupied while they are not
+
 # 0.4.0-alpha.3
 
 ## Alpha fixes and improvements

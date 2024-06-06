@@ -187,8 +187,9 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
     if (!airportsData.value || mapStore.zoom < 13) return [];
 
     return getAirportsList.value.map(airport => {
-        const gateAirport = airportsData.value.find(x => x.airport === airport.airport.icao);
-        if (!gateAirport) return null;
+        const gateAirport = originalAirportsData.value.find(x => x.airport === airport.airport.icao);
+        const filteredGates = airportsData.value.find(x => x.airport === airport.airport.icao)?.gates;
+        if (!gateAirport || !filteredGates) return null;
 
         const gates: NavigraphGate[] = gateAirport.gates;
 
@@ -223,7 +224,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
 
         return {
             airport: gateAirport.airport,
-            gates,
+            gates: gates.filter(x => filteredGates.some(y => y.gate_identifier === x.gate_identifier)),
             runways: gateAirport.runways,
         };
     }).filter(x => !!x) as typeof airportsData['value'];
