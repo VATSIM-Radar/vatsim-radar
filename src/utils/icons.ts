@@ -446,6 +446,15 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'ECHO':
         case 'GLST':
             return aircraftIcons.tbm7;
+        case 'AS65':
+        case 'AS55':
+        case 'AS50':
+        case 'NH90':
+        case 'H135':
+        case 'H145':
+        case 'EC25':
+        case 'UH1':
+            return aircraftIcons.h160;
         case 'B731':
         case 'B732':
         case 'B733':
