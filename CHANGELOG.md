@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.4.0-alpha.6
+
+## Alpha fixes and improvements
+
+- Fixed overlay crash when departing on switching between vfr and ifr
+- Fixed counter color for aircraft count in airport overlay
+
 # 0.4.0-alpha.5
 
 ## Aircraft icons

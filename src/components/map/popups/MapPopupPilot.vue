@@ -95,7 +95,10 @@
                 <common-info-block class="pilot__card">
                     <template #top>
                         <div class="pilot__card_route">
-                            <div class="pilot__card_route_header">
+                            <div
+                                :key="String(depAirport) + String(arrAirport) + getStatus.title"
+                                class="pilot__card_route_header"
+                            >
                                 <component
                                     :is="depAirport ? CommonButton : 'div'"
                                     class="pilot__card_route_header_airport pilot__card_route_header_airport--dep"
@@ -127,7 +130,7 @@
                                     'pilot__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
                                     'pilot__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
                                 }"
-                                v-html="svg ? reColorSvg(svg, 'neutral') : ''"
+                                v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
                             />
                             <common-button
                                 class="pilot__card_route_open"
@@ -552,7 +555,10 @@ function handlePointerDrag() {
 
 onMounted(() => {
     watch(() => pilot.value.flight_plan?.aircraft_short, async val => {
-        if (!val) return;
+        if (!val) {
+            svg.value = null;
+            return;
+        }
 
         const icon = getAircraftIcon(pilot.value);
         if (!icon) return;

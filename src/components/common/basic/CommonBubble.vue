@@ -47,6 +47,7 @@ defineSlots<{ default: () => any }>();
     }
 
     &--type-secondary {
+        color: $neutral150;
         background: $neutral875;
     }
 }
