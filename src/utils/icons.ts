@@ -67,6 +67,7 @@ export type AircraftIcon =
     | 'h47'
     | 'h160'
     | 'pc12'
+    | 'p46t'
     | 'md11'
     | 'md80'
     | 'tbm7'
@@ -393,6 +394,10 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'pc12',
         width: getAircraftSizeByCoef(0.27),
     },
+    p46t: {
+        icon: 'p46t',
+        width: getAircraftSizeByCoef(0.22),
+    },
 };
 
 export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
@@ -538,6 +543,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'H160':
         case 'EUFI':
         case 'PC12':
+        case 'P46T':
         case 'B720':
         case 'B721':
         case 'B722':
