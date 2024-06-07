@@ -18,6 +18,9 @@ export type AircraftIcon =
     | 'a380'
     | 'b703'
     | 'b712'
+    | 'b720'
+    | 'b721'
+    | 'b722'
     | 'b731'
     | 'b732'
     | 'b733'
@@ -27,6 +30,11 @@ export type AircraftIcon =
     | 'b737'
     | 'b738'
     | 'b739'
+    | 'b752'
+    | 'b753'
+    | 'b762'
+    | 'b763'
+    | 'b764'
     | 'b461'
     | 'b462'
     | 'b463'
@@ -38,6 +46,8 @@ export type AircraftIcon =
     | 'b78x'
     | 'b772'
     | 'b773'
+    | 'b77l'
+    | 'b77w'
     | 'b788'
     | 'b789'
     | 'conc'
@@ -102,6 +112,18 @@ export const aircraftIcons: AircraftIcons = {
     b712: {
         icon: 'b712',
         width: getAircraftSizeByCoef(0.47),
+    },
+    b720: {
+        icon: 'b720',
+        width: getAircraftSizeByCoef(0.66),
+    },
+    b721: {
+        icon: 'b721',
+        width: getAircraftSizeByCoef(0.55),
+    },
+    b722: {
+        icon: 'b722',
+        width: getAircraftSizeByCoef(0.55),
     },
     b731: {
         icon: 'b731',
@@ -171,12 +193,40 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'blcf',
         width: getAircraftSizeByCoef(1.07),
     },
+    b752: {
+        icon: 'b752',
+        width: getAircraftSizeByCoef(0.63),
+    },
+    b753: {
+        icon: 'b753',
+        width: getAircraftSizeByCoef(0.63),
+    },
+    b762: {
+        icon: 'b762',
+        width: getAircraftSizeByCoef(0.79),
+    },
+    b763: {
+        icon: 'b763',
+        width: getAircraftSizeByCoef(0.79),
+    },
+    b764: {
+        icon: 'b764',
+        width: getAircraftSizeByCoef(0.87),
+    },
     b772: {
         icon: 'b772',
         width: getAircraftSizeByCoef(1.02),
     },
     b773: {
         icon: 'b773',
+        width: getAircraftSizeByCoef(1.02),
+    },
+    b77l: {
+        icon: 'b77l',
+        width: getAircraftSizeByCoef(1.08),
+    },
+    b77w: {
+        icon: 'b77w',
         width: getAircraftSizeByCoef(1.08),
     },
     b788: {
@@ -396,7 +446,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'MD83':
         case 'MD88':
             return aircraftIcons.md80;
-        case 'B752':
         case 'IL96':
             return aircraftIcons.b739;
         case 'B703':
@@ -404,11 +453,10 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B712':
             return aircraftIcons.b712;
         case 'B773':
-        case 'B77W':
             return aircraftIcons.b773;
-        case 'B772':
         case 'B77F':
-        case 'B77L':
+            return aircraftIcons.b77l;
+        case 'B772':
         case 'A338':
         case 'A339':
             return aircraftIcons.b772;
@@ -490,6 +538,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'H160':
         case 'EUFI':
         case 'PC12':
+        case 'B720':
+        case 'B721':
+        case 'B722':
+        case 'B752':
+        case 'B753':
+        case 'B77L':
+        case 'B77W':
+        case 'B762':
+        case 'B763':
+        case 'B764':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

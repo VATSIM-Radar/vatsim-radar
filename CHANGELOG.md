@@ -1,5 +1,14 @@
 # Changelog
 
+# 0.4.0-alpha.5
+
+## Aircraft icons
+
+- B720-722
+- B752, 753, 762-764, 77L, 77W
+- P46T
+- Updated icons for 772, 773
+
 # 0.4.0-alpha.4.1
 
 Nearly forgot!
