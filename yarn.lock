@@ -8458,11 +8458,11 @@ __metadata:
     stylelint-config-standard: "npm:^36.0.0"
     svgo: "npm:^3.3.2"
     typescript: "npm:^5.4.5"
-    ua-parser-js: "npm:2.0.0-beta.2"
+    ua-parser-js: "npm:2.0.0-beta.3"
     vite-plugin-eslint2: "npm:^4.4.0"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.27"
-    vue-component-type-helpers: "npm:^2.0.19"
+    vue-component-type-helpers: "npm:^2.0.20"
     vue-router: "npm:^4.3.2"
     vue-tsc: "npm:^1.8.27"
   languageName: unknown
@@ -11171,10 +11171,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:2.0.0-beta.2":
-  version: 2.0.0-beta.2
-  resolution: "ua-parser-js@npm:2.0.0-beta.2"
-  checksum: 10c0/4c0f5ce3142fad4149f2a24d4f0254c56709f525d46dda1e691c4421946cdb9f8b7d45723abc5bd180146ee66ea0cf1f10b42f52613155b03941afc964495ba3
+"ua-parser-js@npm:2.0.0-beta.3":
+  version: 2.0.0-beta.3
+  resolution: "ua-parser-js@npm:2.0.0-beta.3"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: 10c0/98ee1df0db1fa931efd83c24332b6d96e917c76eea7481c4d1cc501cf873c670c16a2df9b98a6a319153bbdefc2e93569cd10a275af5c883b940ece3e2cca4bd
   languageName: node
   linkType: hard
 
@@ -11810,10 +11812,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-component-type-helpers@npm:^2.0.19":
-  version: 2.0.19
-  resolution: "vue-component-type-helpers@npm:2.0.19"
-  checksum: 10c0/588f4e19066a13d1e63d4959c6e3d77f92a483f3a5f0116789206f87133456e1267bcfbb3e39b5d4478d181a0e78df191e16e7102629787064e82db8f4f97c5f
+"vue-component-type-helpers@npm:^2.0.20":
+  version: 2.0.20
+  resolution: "vue-component-type-helpers@npm:2.0.20"
+  checksum: 10c0/3376161d1a0c5d1a4e993c8e9e6b7b8d4a2d3ce45518f18b5501d6b9f6e48a034ba091c90f7fc104ad661805cfb3e53699c86c281be66f2a804f5a7434d14bf8
   languageName: node
   linkType: hard
 
