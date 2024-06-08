@@ -41,10 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import type { VatsimLiveData, VatsimMemberStats } from '~/types/data/vatsim';
+import type { VatsimMemberStats } from '~/types/data/vatsim';
 import '@@/node_modules/ol/ol.css';
-import { clientDB } from '~/utils/client-db';
-import type { VatSpyAPIData } from '~/types/data/vatspy';
 import { Map, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
@@ -52,15 +50,13 @@ import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
-import { setVatsimDataStore } from '~/composables/data';
-import type { VatDataVersions } from '~/types/data';
+import { setupDataFetch } from '~/composables/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { setUserLocalSettings, useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
 import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
-import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
@@ -78,8 +74,6 @@ const dataStore = useDataStore();
 const route = useRoute();
 
 provide('map', map);
-
-let interval: NodeJS.Timeout | null = null;
 
 let initialSpawn = false;
 
@@ -236,190 +230,6 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
-onMounted(async () => {
-    // Data is not yet ready
-    if (!mapStore.dataReady) {
-        await new Promise<void>(resolve => {
-            const interval = setInterval(async () => {
-                const { ready } = await $fetch('/api/data/status');
-                if (ready) {
-                    resolve();
-                    clearInterval(interval);
-                }
-            }, 1000);
-        });
-    }
-
-    if (!dataStore.versions.value) {
-        dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
-        dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
-    }
-
-    dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
-    dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
-
-    const view = new View({
-        center: fromLonLat([37.617633, 55.755820]),
-        zoom: 2,
-        multiWorld: false,
-    });
-
-    await Promise.all([
-        (async function() {
-            let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
-            if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
-                vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
-                vatspy.data.firs = vatspy.data.firs.map(x => ({
-                    ...x,
-                    feature: {
-                        ...x.feature,
-                        geometry: {
-                            ...x.feature.geometry,
-                            coordinates: x.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x, view.getProjection())))),
-                        },
-                    },
-                }));
-                await clientDB.put('data', vatspy, 'vatspy');
-            }
-
-            dataStore.vatspy.value = vatspy;
-        }()),
-        (async function() {
-            let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
-            if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
-                simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
-                await clientDB.put('data', simaware, 'simaware');
-            }
-
-            dataStore.simaware.value = simaware;
-        }()),
-        (async function() {
-            const [vatsimData] = await Promise.all([
-                $fetch<VatsimLiveData>('/api/data/vatsim/data'),
-            ]);
-            setVatsimDataStore(vatsimData);
-        }()),
-    ]);
-
-    let inProgress = false;
-
-    interval = setInterval(async () => {
-        if (inProgress) return;
-
-        try {
-            inProgress = true;
-            const versions = await $fetch<VatDataVersions['vatsim']>('/api/data/vatsim/versions', {
-                timeout: 1000 * 30,
-            });
-
-            if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
-                dataStore.vatsim.versions.value = versions;
-
-                if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
-
-                const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
-                    timeout: 1000 * 60,
-                });
-                setVatsimDataStore(data);
-                checkAndAddOwnAircraft();
-
-                dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
-                dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
-            }
-        }
-        catch (e) {
-            console.error(e);
-        }
-        finally {
-            inProgress = false;
-        }
-    }, 3000);
-
-    ready.value = true;
-
-    let projectionExtent = view.getProjection().getExtent().slice();
-
-    projectionExtent[0] *= 1.2;
-    projectionExtent[2] *= 1.2;
-
-    if (store.config.airport) {
-        const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
-
-        if (airport) {
-            projectionExtent = [
-                airport.lon - 100000,
-                airport.lat - 100000,
-                airport.lon + 100000,
-                airport.lat + 100000,
-            ];
-        }
-    }
-    else if (store.config.airports) {
-        const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
-
-        if (airports.length) {
-            projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
-        }
-    }
-
-    map.value = new Map({
-        target: mapContainer.value!,
-        controls: [
-            new Attribution({
-                collapsible: false,
-                collapsed: false,
-            }),
-        ],
-        view: new View({
-            center: store.config.airports?.length ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
-            zoom: store.config.airport ? 14 : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
-            minZoom: 3,
-            multiWorld: false,
-            showFullExtent: !!store.config.airports?.length,
-            extent: projectionExtent,
-        }),
-    });
-
-    map.value.getTargetElement().style.cursor = 'grab';
-    map.value.on('pointerdrag', function() {
-        map.value!.getTargetElement().style.cursor = 'grabbing';
-    });
-    map.value.on('pointermove', updateMapCursor);
-
-    mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
-
-    let moving = true;
-
-    map.value.on('movestart', () => {
-        moving = true;
-        mapStore.moving = true;
-    });
-    map.value.on('moveend', async () => {
-        moving = false;
-        const view = map.value!.getView();
-        mapStore.zoom = view.getZoom() ?? 0;
-        mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-        mapStore.extent = view.calculateExtent(map.value!.getSize());
-
-        setUserLocalSettings({
-            location: view.getCenter(),
-            zoom: view.getZoom(),
-        });
-
-        await sleep(300);
-        if (moving) return;
-        mapStore.moving = false;
-    });
-
-    await nextTick();
-    popupsHeight.value = popups.value?.clientHeight ?? 0;
-    const resizeObserver = new ResizeObserver(() => {
-        popupsHeight.value = popups.value?.clientHeight ?? 0;
-    });
-    resizeObserver.observe(popups.value!);
-    await restoreOverlays();
-});
-
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
@@ -465,29 +275,101 @@ watch([overlays, popupsHeight], () => {
     immediate: true,
 });
 
-onBeforeUnmount(() => {
-    if (interval) {
-        clearInterval(interval);
-    }
-});
+await setupDataFetch({
+    onInitialFetch() {
+        checkAndAddOwnAircraft();
+    },
+    async onSuccessCallback() {
+        ready.value = true;
 
-await useAsyncData(async () => {
-    try {
-        if (import.meta.server) {
-            const {
-                isDataReady,
-            } = await import('~/utils/backend/storage');
-            if (!isDataReady()) return;
+        const view = new View({
+            center: fromLonLat([37.617633, 55.755820]),
+            zoom: 2,
+            multiWorld: false,
+        });
 
-            mapStore.dataReady = true;
-            return true;
+        let projectionExtent = view.getProjection().getExtent().slice();
+
+        projectionExtent[0] *= 1.2;
+        projectionExtent[2] *= 1.2;
+
+        if (store.config.airport) {
+            const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
+
+            if (airport) {
+                projectionExtent = [
+                    airport.lon - 100000,
+                    airport.lat - 100000,
+                    airport.lon + 100000,
+                    airport.lat + 100000,
+                ];
+            }
+        }
+        else if (store.config.airports) {
+            const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
+
+            if (airports.length) {
+                projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
+            }
         }
 
-        return true;
-    }
-    catch (e) {
-        console.error(e);
-    }
+        map.value = new Map({
+            target: mapContainer.value!,
+            controls: [
+                new Attribution({
+                    collapsible: false,
+                    collapsed: false,
+                }),
+            ],
+            view: new View({
+                center: store.config.airports?.length ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+                zoom: store.config.airport ? 14 : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
+                minZoom: 3,
+                multiWorld: false,
+                showFullExtent: !!store.config.airports?.length,
+                extent: projectionExtent,
+            }),
+        });
+
+        map.value.getTargetElement().style.cursor = 'grab';
+        map.value.on('pointerdrag', function() {
+            map.value!.getTargetElement().style.cursor = 'grabbing';
+        });
+        map.value.on('pointermove', updateMapCursor);
+
+        mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+
+        let moving = true;
+
+        map.value.on('movestart', () => {
+            moving = true;
+            mapStore.moving = true;
+        });
+        map.value.on('moveend', async () => {
+            moving = false;
+            const view = map.value!.getView();
+            mapStore.zoom = view.getZoom() ?? 0;
+            mapStore.rotation = toDegrees(view.getRotation() ?? 0);
+            mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+            setUserLocalSettings({
+                location: view.getCenter(),
+                zoom: view.getZoom(),
+            });
+
+            await sleep(300);
+            if (moving) return;
+            mapStore.moving = false;
+        });
+
+        await nextTick();
+        popupsHeight.value = popups.value?.clientHeight ?? 0;
+        const resizeObserver = new ResizeObserver(() => {
+            popupsHeight.value = popups.value?.clientHeight ?? 0;
+        });
+        resizeObserver.observe(popups.value!);
+        await restoreOverlays();
+    },
 });
 </script>
 

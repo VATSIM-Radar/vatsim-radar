@@ -1,7 +1,8 @@
 $defaultFont: Montserrat, Arial, sans-serif;
 $openSansFont: OpenSans, Arial, sans-serif;
+$defaultPageHeight: calc(32px + 56px);
 
-@mixin mobile() {
+@mixin mobile(){
     @media all and (max-width: 1365px) {
         @content;
     }

@@ -57,7 +57,14 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue
         font-family: $openSansFont;
         font-size: 17px;
         font-weight: 700;
-        color: var(--status-color, $primary500);
+
+        &, a {
+            color: var(--status-color, $primary500);
+        }
+
+        .pilot-header_title:is(a) {
+            text-underline-offset: 2px;
+        }
 
         > * {
             position: relative;

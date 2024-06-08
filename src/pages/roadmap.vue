@@ -233,7 +233,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Weather radar',
@@ -297,7 +297,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 40;
+const percents = 43;
 
 interface RoadmapGroup {
     status: ItemStatus;

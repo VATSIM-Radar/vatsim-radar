@@ -3,6 +3,10 @@ import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { VatsimLiveData } from '~/types/data/vatsim';
 import type { Ref } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
+import { View } from 'ol';
+import { fromLonLat } from 'ol/proj';
+import { clientDB } from '~/utils/client-db';
+import { useMapStore } from '~/store/map';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -46,4 +50,141 @@ export function setVatsimDataStore(vatsimData: VatsimLiveData) {
         // @ts-expect-error Dynamic assignment
         data[key].value = vatsimData[key];
     }
+}
+
+export async function setupDataFetch({ onInitialFetch, onSuccessCallback }: {
+    onInitialFetch?: () => any;
+    onSuccessCallback?: () => any;
+} = {}) {
+    if (!getCurrentInstance()) throw new Error('setupDataFetch has been called outside setup');
+    const mapStore = useMapStore();
+    const dataStore = useDataStore();
+    let interval: NodeJS.Timeout | null = null;
+
+    onMounted(async () => {
+        // Data is not yet ready
+        if (!mapStore.dataReady) {
+            await new Promise<void>(resolve => {
+                const interval = setInterval(async () => {
+                    const { ready } = await $fetch('/api/data/status');
+                    if (ready) {
+                        resolve();
+                        clearInterval(interval);
+                    }
+                }, 1000);
+            });
+        }
+
+        if (!dataStore.versions.value) {
+            dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
+            dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+        }
+
+        dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
+        dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+
+        const view = new View({
+            center: fromLonLat([37.617633, 55.755820]),
+            zoom: 2,
+            multiWorld: false,
+        });
+
+        await Promise.all([
+            (async function() {
+                let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
+                if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
+                    vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
+                    vatspy.data.firs = vatspy.data.firs.map(x => ({
+                        ...x,
+                        feature: {
+                            ...x.feature,
+                            geometry: {
+                                ...x.feature.geometry,
+                                coordinates: x.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x, view.getProjection())))),
+                            },
+                        },
+                    }));
+                    await clientDB.put('data', vatspy, 'vatspy');
+                }
+
+                dataStore.vatspy.value = vatspy;
+            }()),
+            (async function() {
+                let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
+                if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
+                    simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
+                    await clientDB.put('data', simaware, 'simaware');
+                }
+
+                dataStore.simaware.value = simaware;
+            }()),
+            (async function() {
+                const [vatsimData] = await Promise.all([
+                    $fetch<VatsimLiveData>('/api/data/vatsim/data'),
+                ]);
+                setVatsimDataStore(vatsimData);
+            }()),
+        ]);
+
+        let inProgress = false;
+
+        interval = setInterval(async () => {
+            if (inProgress) return;
+
+            try {
+                inProgress = true;
+                const versions = await $fetch<VatDataVersions['vatsim']>('/api/data/vatsim/versions', {
+                    timeout: 1000 * 30,
+                });
+
+                if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
+                    dataStore.vatsim.versions.value = versions;
+
+                    if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
+
+                    const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
+                        timeout: 1000 * 60,
+                    });
+                    setVatsimDataStore(data);
+                    await onInitialFetch?.();
+
+                    dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
+                    dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+            finally {
+                inProgress = false;
+            }
+        }, 3000);
+
+        onSuccessCallback?.();
+    });
+
+    onBeforeUnmount(() => {
+        if (interval) {
+            clearInterval(interval);
+        }
+    });
+
+    await useAsyncData(async () => {
+        try {
+            if (import.meta.server) {
+                const {
+                    isDataReady,
+                } = await import('~/utils/backend/storage');
+                if (!isDataReady()) return;
+
+                mapStore.dataReady = true;
+                return true;
+            }
+
+            return true;
+        }
+        catch (e) {
+            console.error(e);
+        }
+    });
 }

@@ -13,9 +13,13 @@
     >
         <template #title>
             <div class="pilot-header">
-                <div class="pilot-header_title">
+                <a
+                    class="pilot-header_title"
+                    :href="`/?airport=${ airport.icao }`"
+                    @click.prevent="copy.copy(`${ config.public.DOMAIN }/?airport=${ airport.icao }`)"
+                >
                     {{ props.overlay.data.icao }}
-                </div>
+                </a>
             </div>
         </template>
         <template #action-sticky>
@@ -134,6 +138,8 @@ const aircraft = getAircraftForAirport(overlayData);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const copy = useCopyText();
+const config = useRuntimeConfig();
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === props.overlay.data.icao));
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
