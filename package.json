@@ -52,7 +52,7 @@
     "@types/adm-zip": "^0.5.5",
     "@types/geojson": "^7946.0.14",
     "@types/jsonwebtoken": "^9.0.6",
-    "@types/node": "^20.13.0",
+    "@types/node": "^20.14.0",
     "eslint": "^9.4.0",
     "postcss": "^8.4.38",
     "postcss-html": "^1.7.0",
