@@ -13,6 +13,9 @@ export interface SiteConfig {
     airports?: string[];
     airport?: string;
     hideAllExternal?: boolean;
+    hideOverlays?: boolean;
+    onlyAirportAircraft?: boolean;
+    showInfoForPrimaryAirport?: boolean;
 }
 
 export const useStore = defineStore('index', {

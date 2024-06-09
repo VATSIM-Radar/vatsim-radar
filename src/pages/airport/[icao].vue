@@ -51,7 +51,7 @@
                 </div>
             </div>
             <div
-                v-if="atc.length"
+                v-if="atc.length || !ready"
                 class="airport_column"
             >
                 <div class="airport_column_data">
@@ -63,20 +63,29 @@
                             {{ atc.length }}
                         </common-bubble>
                     </div>
-                    <airport-controllers/>
+                    <airport-controllers v-if="ready"/>
                 </div>
             </div>
             <div
-                v-if="aircraft && Object.values(aircraft).some(x => x.length)"
-                class="airport_column"
+                v-if="!ready || (aircraft && Object.values(aircraft).some(x => x.length))"
+                class="airport_column airport_column--aircraft"
             >
                 <div class="airport_column_data">
                     <div class="airport_column__title">
                         Aircraft
                     </div>
-                    <airport-aircraft/>
+                    <airport-aircraft
+                        v-if="ready"
+                        filter-relative-to-aircraft
+                    />
                 </div>
             </div>
+        </div>
+        <div
+            :key="store.theme"
+            class="airport_map"
+        >
+            <iframe :src="`/?preset=dashboard&airport=${ icao }`"/>
         </div>
     </div>
 </template>
@@ -84,7 +93,6 @@
 <script setup lang="ts">
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
-import type { Map } from 'ol';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
 import type { StoreOverlayAirport } from '~/store/map';
@@ -95,11 +103,12 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import type { Ref } from 'vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
+import { useStore } from '~/store';
 
 const route = useRoute();
+const store = useStore();
 const dataStore = useDataStore();
-const map = shallowRef<Map | null>(null);
-provide('map', map);
+const ready = ref(false);
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === icao.value));
@@ -141,19 +150,109 @@ await setupDataFetch({
             });
             return;
         }
+
+        ready.value = true;
     },
 });
 </script>
 
 <style scoped lang="scss">
 .airport {
+    --sections-height: calc(60dvh - #{$defaultPageHeight});
     display: flex;
     flex: 1 0 auto;
     flex-direction: column;
+    gap: 16px;
+
+    margin: 16px;
 
     &_sections {
         overflow: auto;
-        max-height: calc(100dvh - #{$defaultPageHeight});
+        display: flex;
+        gap: 16px;
+        height: var(--sections-height);
+    }
+
+    &_column {
+        display: flex;
+        flex: 1 1 0;
+        flex-direction: column;
+        gap: 16px;
+
+        width: 0;
+
+        &--aircraft {
+            max-width: 20%;
+        }
+
+        &_data {
+            padding: 16px;
+            background: $neutral900;
+            border-radius: 8px;
+
+            :deep(.info-block), :deep(.title_text_content), :deep(.aircraft_list__filter) {
+                background: $neutral875 !important;
+            }
+
+            :deep(.popup-block), :deep(.aircraft_list), :deep(.atc-popup_list) {
+                overflow: unset !important;
+                max-height: unset !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+
+            :deep(.atc-popup-container) {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            &:not(:only-child) {
+                overflow: auto;
+                max-height: calc(var(--sections-height) / 2 - 8px);
+            }
+
+            :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
+                background: $neutral875 !important;
+            }
+
+            &:only-child {
+                flex: 1 0 auto;
+            }
+        }
+
+        &__title {
+            position: sticky;
+            z-index: 3;
+            top: -16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            width: calc(100% + 16px);
+            margin-bottom: 16px;
+            margin-left: -16px;
+            padding: 4px 0 4px 16px;
+
+            font-family: $openSansFont;
+            font-size: 17px;
+            font-weight: 700;
+            color: $neutral150;
+
+            background: $neutral900;
+        }
+    }
+
+    &_map {
+        overflow: hidden;
+        height: calc(40dvh - 16px);
+        border-radius: 8px;
+
+        iframe {
+            all: unset;
+            width: 100%;
+            height: 100%;
+        }
     }
 }
 </style>

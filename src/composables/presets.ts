@@ -11,6 +11,17 @@ const saPreset: SiteConfig = {
     hideAllExternal: true,
 };
 
+const dashboardPreset: SiteConfig = {
+    hideAirports: false,
+    hideSectors: false,
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: false,
+    hideOverlays: true,
+    onlyAirportAircraft: true,
+    showInfoForPrimaryAirport: true,
+};
+
 export function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
@@ -21,6 +32,9 @@ export function checkAndSetMapPreset() {
 
     if (query.preset === 'sa') {
         preset = saPreset;
+    }
+    else if (query.preset === 'dashboard') {
+        preset = dashboardPreset;
     }
 
     if (typeof query.airports === 'string') {

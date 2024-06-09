@@ -5,7 +5,7 @@
             class="map_container"
         />
         <div
-            v-if="ready"
+            v-if="ready && !store.config.hideOverlays"
             ref="popups"
             class="map_popups"
             :style="{
@@ -298,11 +298,20 @@ await setupDataFetch({
 
             if (airport) {
                 projectionExtent = [
-                    airport.lon - 100000,
-                    airport.lat - 100000,
-                    airport.lon + 100000,
-                    airport.lat + 100000,
+                    airport.lon - 200000,
+                    airport.lat - 200000,
+                    airport.lon + 200000,
+                    airport.lat + 200000,
                 ];
+
+                if (store.config.showInfoForPrimaryAirport) {
+                    projectionExtent = [
+                        airport.lon - 1000000,
+                        airport.lat - 1000000,
+                        airport.lon + 1000000,
+                        airport.lat + 1000000,
+                    ];
+                }
             }
         }
         else if (store.config.airports) {
@@ -322,8 +331,10 @@ await setupDataFetch({
                 }),
             ],
             view: new View({
-                center: store.config.airports?.length ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
-                zoom: store.config.airport ? 14 : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
+                center: (store.config.airports?.length || store.config.airport) ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+                zoom: store.config.airport
+                    ? store.config.showInfoForPrimaryAirport ? 12 : 14
+                    : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
                 minZoom: 3,
                 multiWorld: false,
                 showFullExtent: !!store.config.airports?.length,
@@ -364,11 +375,14 @@ await setupDataFetch({
 
         await nextTick();
         popupsHeight.value = popups.value?.clientHeight ?? 0;
-        const resizeObserver = new ResizeObserver(() => {
-            popupsHeight.value = popups.value?.clientHeight ?? 0;
-        });
-        resizeObserver.observe(popups.value!);
-        await restoreOverlays();
+
+        if (popups.value) {
+            const resizeObserver = new ResizeObserver(() => {
+                popupsHeight.value = popups.value?.clientHeight ?? 0;
+            });
+            resizeObserver.observe(popups.value!);
+            await restoreOverlays();
+        }
     },
 });
 </script>

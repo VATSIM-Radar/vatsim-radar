@@ -3,23 +3,11 @@
         v-if="airport"
         class="aircraft"
     >
-        <common-control-block
-            v-model="aircraftGroundFilterOpened"
-            center-by="start"
-            center-by-offset="5%"
-            close-by-click-outside
-            location="top"
-            width="90%"
-        >
-            <template #title>
-                Filter ground aircraft
-            </template>
-            <common-radio-group
-                v-model="aircraftGroundMode"
-                class="airport__ground-toggles"
-                :items="aircraftGroundSelects"
-            />
-        </common-control-block>
+        <airport-aircraft-filter
+            v-if="!filterRelativeToAircraft"
+            v-model="aircraftGroundMode"
+            v-model:opened="aircraftGroundFilterOpened"
+        />
 
         <div class="aircraft_nav">
             <div
@@ -70,9 +58,16 @@
                     <div
                         class="aircraft_list__filter"
                         :class="{ 'aircraft_list__filter--active': aircraftGroundFilterOpened }"
-                        @click.capture.stop="aircraftGroundFilterOpened = true"
+                        @click="aircraftGroundFilterOpened = true"
                     >
                         <filter-icon/>
+
+                        <airport-aircraft-filter
+                            v-if="filterRelativeToAircraft"
+                            v-model="aircraftGroundMode"
+                            v-model:opened="aircraftGroundFilterOpened"
+                            is-relative
+                        />
                     </div>
                 </template>
             </common-block-title>
@@ -130,8 +125,6 @@
 </template>
 
 <script setup lang="ts">
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
@@ -144,8 +137,14 @@ import { useMapStore } from '~/store/map';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
-import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
+import AirportAircraftFilter from '~/components/views/airport/AirportAircraftFilter.vue';
 
+defineProps({
+    filterRelativeToAircraft: {
+        type: Boolean,
+        default: false,
+    },
+});
 const data = injectAirport();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -156,27 +155,11 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
+export type AircraftGroundMode = 'depArr' | 'dep' | 'arr' | 'prefiles';
+
 const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
-const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
+const aircraftGroundMode = ref<AircraftGroundMode>('depArr');
 const aircraftGroundFilterOpened = ref(false);
-const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
-    {
-        text: 'Departing & Arrived',
-        value: 'depArr',
-    },
-    {
-        text: 'Departing',
-        value: 'dep',
-    },
-    {
-        text: 'Arrived',
-        value: 'arr',
-    },
-    {
-        text: 'Prefiles',
-        value: 'prefiles',
-    },
-];
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
 

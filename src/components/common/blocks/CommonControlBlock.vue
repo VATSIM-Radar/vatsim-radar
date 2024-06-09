@@ -11,6 +11,7 @@
                 'control-block--has-max-height': maxHeight,
             },
         ]"
+        @click.stop
     >
         <header class="control-block_header">
             <div class="control-block_header_title">
@@ -94,12 +95,16 @@ useClickOutside({
 <style scoped lang="scss">
 .control-block {
     --transform: calc(-50% + v-bind(centerByOffset));
+    cursor: initial;
+
     position: absolute;
     z-index: 5;
 
     width: v-bind(width);
     max-width: v-bind(maxWidth);
     padding: 16px;
+
+    color: $neutral150;
 
     background: $neutral1000;
     border: 1px solid varToRgba('neutral150', 0.15);
