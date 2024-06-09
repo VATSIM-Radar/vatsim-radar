@@ -25,6 +25,11 @@ import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
+
+let linesLayer: VectorLayer<any>;
+const linesSource = shallowRef<VectorSource | null>(null);
+provide('lines-source', linesSource);
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -149,7 +154,24 @@ watch(map, val => {
         });
     }
 
+    if (!linesLayer) {
+        linesSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: true,
+        });
+
+        linesLayer = new VectorLayer<any>({
+            source: linesSource.value,
+            properties: {
+                type: 'aircraft-line',
+            },
+            zIndex: 5,
+            declutter: true,
+        });
+    }
+
     val.addLayer(vectorLayer);
+    val.addLayer(linesLayer);
 
     attachPointerMove(handlePointerMove);
     val.on('click', handleClick);
@@ -159,6 +181,7 @@ watch(map, val => {
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
+    if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
 });
 </script>

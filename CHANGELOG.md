@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.4.0-alpha.7
+
+- Fixed overlapping aircraft tracks labels
+- Lowered tracks priority
+- Removed approach line for aircraft approaching to tracked airport. They will still be visible in overlay and hover state
+- Changed line priority 
+
 # 0.4.0-alpha.6
 
 ## Alpha fixes and improvements
