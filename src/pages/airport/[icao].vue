@@ -190,8 +190,12 @@ await setupDataFetch({
             background: $neutral900;
             border-radius: 8px;
 
-            :deep(.info-block), :deep(.title_text_content), :deep(.aircraft_list__filter) {
+            :deep(.info-block) {
                 background: $neutral875 !important;
+            }
+
+            :deep(.title_text_content), :deep(.aircraft_list__filter){
+                background: $neutral900 !important;
             }
 
             :deep(.popup-block), :deep(.aircraft_list), :deep(.atc-popup_list) {
