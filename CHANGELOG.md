@@ -1,6 +1,19 @@
 # Changelog
 
+# 0.4.0-beta.1
+
+## Alpha fixes and improvements
+
+- Added airport dashboard! Please report issues and suggestions. Controller Mode is coming in later updates.
+
+## Production changelog
+
+- You can now toggle pilot stats in airports aircraft view (remembered for current session)
+- Added share and dashboard buttons to airport overlay
+
 # 0.4.0-alpha.7
+
+## Alpha fixes and improvements
 
 - Fixed overlapping aircraft tracks labels
 - Lowered tracks priority
@@ -35,7 +48,7 @@ Updating Navigraph text & branding for non-linked popup according to Navigraph M
 
 - B461-463
 - Boeing 741, 744, 748, 74S, LCF
-- C510, 
+- C510,
 - CRJ1, 5, 9, X
 - DA42, 62
 - E170, 175, 190, 195

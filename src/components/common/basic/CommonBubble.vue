@@ -29,6 +29,8 @@ defineSlots<{ default: () => any }>();
 
 <style scoped lang="scss">
 .bubble {
+    display: inline-block;
+
     min-width: 24px;
     padding: 2px 4px;
 

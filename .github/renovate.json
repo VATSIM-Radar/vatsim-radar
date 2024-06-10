@@ -23,10 +23,6 @@
       "versioning": "node"
     },
     {
-      "matchPackageNames": "@types/node",
-      "minimumReleaseAge": "1 week"
-    },
-    {
       "matchPackageNames": "vue-tsc",
       "allowedVersions": "<2"
     },

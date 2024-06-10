@@ -3,23 +3,11 @@
         v-if="airport"
         class="aircraft"
     >
-        <common-control-block
-            v-model="aircraftGroundFilterOpened"
-            center-by="start"
-            center-by-offset="5%"
-            close-by-click-outside
-            location="top"
-            width="90%"
-        >
-            <template #title>
-                Filter ground aircraft
-            </template>
-            <common-radio-group
-                v-model="aircraftGroundMode"
-                class="airport__ground-toggles"
-                :items="aircraftGroundSelects"
-            />
-        </common-control-block>
+        <airport-aircraft-filter
+            v-if="!filterRelativeToAircraft"
+            v-model="aircraftGroundMode"
+            v-model:opened="aircraftGroundFilterOpened"
+        />
 
         <div class="aircraft_nav">
             <div
@@ -48,6 +36,9 @@
             :key="aircraftMode"
             class="aircraft_list"
         >
+            <common-toggle v-model="showPilotStats">
+                Show pilots stats
+            </common-toggle>
             <common-block-title class="aircraft_list_title">
                 <template v-if="aircraftMode === 'ground'">
                     On Ground
@@ -70,9 +61,16 @@
                     <div
                         class="aircraft_list__filter"
                         :class="{ 'aircraft_list__filter--active': aircraftGroundFilterOpened }"
-                        @click.capture.stop="aircraftGroundFilterOpened = true"
+                        @click="aircraftGroundFilterOpened = true"
                     >
                         <filter-icon/>
+
+                        <airport-aircraft-filter
+                            v-if="filterRelativeToAircraft"
+                            v-model="aircraftGroundMode"
+                            v-model:opened="aircraftGroundFilterOpened"
+                            is-relative
+                        />
                     </div>
                 </template>
             </common-block-title>
@@ -87,12 +85,24 @@
                 ]"
                 class="aircraft__pilot"
                 is-button
-                @click="(aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString())"
+                @click="!filterRelativeToAircraft && ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
             >
                 <template #top>
-                    <div class="aircraft__pilot_header">
+                    <div
+                        ref="pilots"
+                        class="aircraft__pilot_header"
+                        :class="{ '--has-stats': stats.some(x => x.cid === pilot.cid) }"
+                        :data-cid="pilot.cid"
+                    >
                         <div class="aircraft__pilot_header_title">
                             {{ pilot.callsign }}
+
+                            <div
+                                v-if="stats.find(x => x.cid === pilot.cid)"
+                                class="aircraft__pilot_header_title_stats"
+                            >
+                                {{ stats.find(x => x.cid === pilot.cid)!.stats }}h
+                            </div>
                         </div>
                         <div
                             class="aircraft__pilot_header_status"
@@ -130,8 +140,6 @@
 </template>
 
 <script setup lang="ts">
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
@@ -144,11 +152,30 @@ import { useMapStore } from '~/store/map';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
-import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
+import AirportAircraftFilter from '~/components/views/airport/AirportAircraftFilter.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
+defineProps({
+    filterRelativeToAircraft: {
+        type: Boolean,
+        default: false,
+    },
+});
 const data = injectAirport();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const pilots = ref<HTMLDivElement[] | HTMLDivElement>([]);
+const pilotsRefs = computed<HTMLDivElement[]>(() => {
+    if (Array.isArray(pilots.value)) return pilots.value;
+    if (pilots.value) return [pilots.value];
+    return [];
+});
+
+const showPilotStats = useCookie<boolean>('show-pilot-stats', {
+    sameSite: 'strict',
+    secure: true,
+    default: () => false,
+});
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -156,27 +183,11 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 });
 
+export type AircraftGroundMode = 'depArr' | 'dep' | 'arr' | 'prefiles';
+
 const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
-const aircraftGroundMode = ref<'depArr' | 'dep' | 'arr' | 'prefiles'>('depArr');
+const aircraftGroundMode = ref<AircraftGroundMode>('depArr');
 const aircraftGroundFilterOpened = ref(false);
-const aircraftGroundSelects: RadioItemGroup<typeof aircraftGroundMode['value']>[] = [
-    {
-        text: 'Departing & Arrived',
-        value: 'depArr',
-    },
-    {
-        text: 'Departing',
-        value: 'dep',
-    },
-    {
-        text: 'Arrived',
-        value: 'arr',
-    },
-    {
-        text: 'Prefiles',
-        value: 'prefiles',
-    },
-];
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
 
@@ -232,10 +243,57 @@ function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof 
     }
 }
 
+const stats = ref<{
+    cid: number;
+    stats: number;
+}[]>([]);
+
+const observer = new IntersectionObserver(async entries => {
+    if (!showPilotStats.value) return;
+
+    for (const entry of entries.filter(x => x.isIntersecting && !x.target.classList.contains('--has-stats'))) {
+        const cid = +((entry.target as HTMLDivElement).dataset.cid ?? '0');
+
+        stats.value.push({
+            cid,
+            stats: await getVATSIMMemberStats(cid, 'pilot'),
+        });
+    }
+});
+
+onBeforeUnmount(() => {
+    observer.disconnect();
+});
+
 onMounted(() => {
     if (!displayedAircraft.value.length) {
         aircraftMode.value = 'arriving';
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
+    }
+
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
+    }
+});
+
+watch(showPilotStats, val => {
+    if (!val) {
+        stats.value = [];
+    }
+    else {
+        for (const ref of pilotsRefs.value) {
+            observer.unobserve(ref);
+        }
+
+        for (const ref of pilotsRefs.value) {
+            observer.observe(ref);
+        }
+    }
+});
+
+onUpdated(() => {
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
     }
 });
 
@@ -328,6 +386,17 @@ defineExpose({
         &_header {
             display: flex;
             justify-content: space-between;
+
+            &_title {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+
+                &_stats {
+                    padding-left: 8px;
+                    border-left: 1px solid varToRgba('neutral150', 0.15)
+                }
+            }
 
             &_status {
                 color: var(--color);

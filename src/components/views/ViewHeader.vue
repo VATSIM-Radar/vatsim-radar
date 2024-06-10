@@ -339,7 +339,6 @@ import DarkTheme from '@/assets/icons/header/dark-theme.svg?component';
 import LightTheme from '@/assets/icons/header/light-theme.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
-import type { ThemesList } from '~/modules/styles';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
@@ -347,6 +346,7 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { ThemesList } from '~/modules/styles';
 
 const route = useRoute();
 const store = useStore();
@@ -390,8 +390,6 @@ const theme = useCookie<ThemesList>('theme', {
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });
-
-store.theme = theme.value ?? 'default';
 
 const loginPopup = ref(false);
 const settingsPopup = ref(false);

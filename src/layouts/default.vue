@@ -3,6 +3,7 @@
         v-if="!hadRestrictedAuth"
         class="app"
     >
+        <nuxt-loading-indicator color="rgb(var(--primary500))"/>
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <slot/>
@@ -41,11 +42,21 @@ import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
+import type { ThemesList } from '~/modules/styles';
 
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const route = useRoute();
+
+const theme = useCookie<ThemesList>('theme', {
+    path: '/',
+    sameSite: 'lax',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 360,
+});
+
+store.theme = theme.value ?? 'default';
 
 checkAndSetMapPreset();
 

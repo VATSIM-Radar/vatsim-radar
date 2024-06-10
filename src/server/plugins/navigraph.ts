@@ -72,6 +72,7 @@ export default defineNitroPlugin(app => {
                     Authorization: `Bearer ${ accessKey.token }`,
                 },
                 timeout: 1000 * 60,
+                retry: 3,
             });
 
             const [outdated] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=outdated', {
@@ -79,6 +80,7 @@ export default defineNitroPlugin(app => {
                     Authorization: `Bearer ${ accessKey.token }`,
                 },
                 timeout: 1000 * 60,
+                retry: 3,
             });
 
             const currentCycle = `${ current.cycle }-${ current.revision }`;

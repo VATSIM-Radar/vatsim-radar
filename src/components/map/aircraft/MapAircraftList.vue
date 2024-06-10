@@ -21,6 +21,7 @@ import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
+import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -31,6 +32,7 @@ const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
@@ -73,6 +75,17 @@ function setVisiblePilots() {
 
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
+
+    if (store.config.airport && store.config.onlyAirportAircraft) {
+        const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        if (airport) {
+            const aircraft = Object.values(airport.aircraft).flatMap(x => x);
+            visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
+        }
+        else {
+            visiblePilots.value = [];
+        }
+    }
 }
 
 watch(dataStore.vatsim.updateTimestamp, () => {

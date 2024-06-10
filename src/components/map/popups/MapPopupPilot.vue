@@ -87,7 +87,7 @@
                 <div class="pilot__self">
                     <div>Pilot</div>
                     <common-info-block
-                        :bottom-items="[...usePilotRating(pilot), stats?.pilot ? `${ Math.floor(stats.pilot) }h total time` : undefined]"
+                        :bottom-items="[...usePilotRating(pilot), stats ? `${ stats }h total time` : undefined]"
                         class="pilot__card"
                         :top-items="[parseEncoding(pilot.name), pilot.cid]"
                     />
@@ -286,6 +286,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
+import { getVATSIMMemberStats } from '~/composables/data';
 
 const props = defineProps({
     overlay: {
@@ -309,7 +310,6 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 });
 
 const pilot = computed(() => props.overlay.data.pilot);
-const stats = computed(() => props.overlay.data.stats);
 const airportInfo = computed(() => {
     return props.overlay.data.airport;
 });
@@ -587,6 +587,8 @@ onBeforeUnmount(() => {
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
 });
+
+const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(pilot.value, 'pilot'));
 </script>
 
 <style scoped lang="scss">

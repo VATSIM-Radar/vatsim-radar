@@ -185,9 +185,9 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Separate page & Fullscreen mode for airport popup',
+                title: 'Airport dashboard',
                 description: 'Separate dashboard that allows to view much more information on screen',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'ATC info popup',
@@ -216,7 +216,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Easy access to pilot stats in airport popup',
                 description: 'View pilots stats directly in airport popup to determine how new they are',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Layers (hide atc/aircraft/gates/etc)',
@@ -233,10 +233,14 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Weather radar',
+                status: 'in-progress',
+            },
+            {
+                title: 'Airport Dashboard Controller Mode',
                 status: 'in-progress',
             },
         ],
@@ -257,6 +261,10 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular now etc',
             },
             'Hoppie integration',
+            {
+                title: 'PWA',
+                description: 'Basically PC version of VATSIM Radar',
+            },
         ],
     },
     {
@@ -266,8 +274,8 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Detailed Stats',
                 description: 'Popular over time etc',
             },
-            'PWA',
             'Name of aircraft operating company',
+            'Images or aircraft type + operator',
             'Aircraft moving in VATSIM update pause',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
@@ -281,7 +289,6 @@ const roadmap = reactive<Roadmap[]>([
             'Websockets instead of update requests',
             'Simbrief integration',
             'ATC/Booking notification for active flight',
-            'Images or aircraft type + operator',
             'ECFMP integration',
             'Streamers integration',
             '3D map view',
@@ -290,14 +297,14 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
             },
             {
-                title: 'Gates status in airport popup',
+                title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
             },
         ],
     },
 ]);
 
-const percents = 40;
+const percents = 43;
 
 interface RoadmapGroup {
     status: ItemStatus;

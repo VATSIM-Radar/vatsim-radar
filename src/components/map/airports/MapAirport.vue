@@ -348,7 +348,7 @@ function clearArrFeatures() {
     arrFeatures.value = [];
 }
 
-const isPrimaryAirport = computed(() => store.config.airport === props.airport.icao);
+const isPrimaryAirport = computed(() => store.config.airport === props.airport.icao && !store.config.showInfoForPrimaryAirport);
 
 onMounted(async () => {
     const localsLength = computed(() => props.localAtc.length);
