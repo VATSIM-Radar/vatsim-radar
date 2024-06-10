@@ -460,7 +460,7 @@ onMounted(async () => {
         gatesFeatures = gatesFeatures.filter(x => gates.value?.some(y => y.gate_identifier === x.getProperties().identifier));
 
         for (const gate of gates.value ?? []) {
-            const color = gate.trulyOccupied ? 'rgba(203, 66, 28, 0.8)' : gate.maybeOccupied ? 'rgba(232, 202, 76, 0.8)' : 'rgba(0, 136, 86, 0.8)';
+            const color = gate.trulyOccupied ? 'rgba(203, 66, 28, 0.8)' : gate.maybeOccupied ? 'rgba(232, 202, 76, 0.8)' : getCurrentThemeHexColor('success500');
 
             const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
             if (existingFeature) {

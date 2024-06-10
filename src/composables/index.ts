@@ -9,6 +9,7 @@ import { useMapStore } from '~/store/map';
 import type { ColorsList } from '~/modules/styles';
 import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
+import { defu } from 'defu';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -123,10 +124,7 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
     if (!settings && JSON.stringify(store.localSettings) === settingsText) return;
 
     let localSettings = JSON.parse(settingsText) as UserLocalSettings;
-    localSettings = {
-        ...localSettings,
-        ...(settings || {}),
-    };
+    localSettings = defu(settings || {}, localSettings);
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));

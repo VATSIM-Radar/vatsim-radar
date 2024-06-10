@@ -6,6 +6,7 @@
         <common-radio
             v-for="item in items"
             :key="item.value?.toString()"
+            :hint-location="item.hintLocation"
             :model-value="model === item.value"
             v-bind="item"
             :name="id"

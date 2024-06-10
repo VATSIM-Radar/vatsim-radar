@@ -133,6 +133,9 @@ export default defineNuxtConfig({
             '/layers/carto/**': {
                 proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
             },
+            '/layers/jawg/**': {
+                proxy: 'https://tile.jawg.io/**',
+            },
         },
     },
     devServer: {

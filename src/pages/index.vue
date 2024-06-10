@@ -29,12 +29,13 @@
         </div>
         <map-controls v-if="!store.config.hideAllExternal"/>
         <div :key="store.theme ?? 'default'">
-            <carto-db-layer-light v-if="store.theme === 'light'"/>
-            <carto-db-layer v-else/>
             <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
+                <map-filters/>
+                <map-layer/>
+                <map-weather/>
             </client-only>
         </div>
     </div>

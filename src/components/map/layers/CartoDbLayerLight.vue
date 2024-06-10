@@ -7,6 +7,7 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import { XYZ } from 'ol/source';
+import { buildAttributions } from '~/utils/map';
 
 defineSlots<{ default: () => any }>();
 
@@ -19,7 +20,7 @@ watch(map, val => {
     if (!tileLayer) {
         tileLayer = new TileLayer({
             source: new XYZ({
-                attributions: '© <a href="/about" target="_blank">3rd Party Projects</a> © <a href="https://openweathermap.org/" target="_blank">OpenWeather</a> © <a href="https://cartodb.com/attributions" target="_blank">CartoDB</a>',
+                attributions: buildAttributions('CartoDB', 'https://cartodb.com/attribution'),
                 url: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
                 wrapX: true,
             }),

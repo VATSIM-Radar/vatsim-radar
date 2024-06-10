@@ -20,9 +20,20 @@ export type MapAircraft =
     PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
     & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
 
+export type MapWeatherLayer = 'clouds_new' | 'precipitation_new' | 'pressure_new' | 'wind_new' | 'temp_new';
+export type MapLayoutLayer = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB';
+
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
+
+    filters: {
+        opened?: boolean;
+        layers?: {
+            weather?: MapWeatherLayer | false;
+            layer?: MapLayoutLayer;
+        };
+    };
 }
 
 export type UserLocalSettings = Partial<IUserLocalSettings>;
