@@ -89,7 +89,7 @@
             >
                 <template #top>
                     <div
-                        ref="pilot"
+                        ref="pilots"
                         class="aircraft__pilot_header"
                         :class="{ '--has-stats': stats.some(x => x.cid === pilot.cid) }"
                         :data-cid="pilot.cid"
@@ -164,10 +164,10 @@ defineProps({
 const data = injectAirport();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
-const pilot = ref<HTMLDivElement[] | HTMLDivElement>([]);
+const pilots = ref<HTMLDivElement[] | HTMLDivElement>([]);
 const pilotsRefs = computed<HTMLDivElement[]>(() => {
-    if (Array.isArray(pilot.value)) return pilot.value;
-    if (pilot.value) return [pilot.value];
+    if (Array.isArray(pilots.value)) return pilots.value;
+    if (pilots.value) return [pilots.value];
     return [];
 });
 

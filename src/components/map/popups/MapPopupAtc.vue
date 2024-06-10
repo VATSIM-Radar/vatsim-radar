@@ -130,7 +130,6 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import { getVATSIMMemberStats } from '~/composables/data';
-import type { ControllerStats } from '~/composables/data';
 
 const props = defineProps({
     overlay: {
