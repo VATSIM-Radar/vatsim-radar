@@ -14,13 +14,11 @@ import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapSector from '~/components/map/sectors/MapSector.vue';
-import { useStore } from '~/store';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
-const store = useStore();
 const dataStore = useDataStore();
 
 const firs = computed(() => {
