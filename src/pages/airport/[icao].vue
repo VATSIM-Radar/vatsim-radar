@@ -217,11 +217,12 @@ await setupDataFetch({
             }
 
             &:not(:only-child) {
-                max-height: calc(var(--sections-height) / 2 - 8px);
+                height: calc(var(--sections-height) / 2 - 8px);
             }
 
             &:only-child {
                 flex: 1 0 auto;
+                max-height: var(--sections-height);
             }
 
             :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {

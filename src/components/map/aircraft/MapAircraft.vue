@@ -419,7 +419,10 @@ async function toggleAirportLines(value: boolean) {
 }
 
 watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOverlayTracks], ([val], oldValue) => {
-    if (!feature || (!val && oldValue === undefined && !airportOverlayTracks.value)) return;
+    if (!feature || (!val && oldValue === undefined && !airportOverlayTracks.value)) {
+        toggleAirportLines(false);
+        return;
+    }
 
     setStyle();
 
