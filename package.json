@@ -67,5 +67,5 @@
     "vue-component-type-helpers": "^2.0.21",
     "vue-tsc": "^1.8.27"
   },
-  "packageManager": "yarn@4.2.2"
+  "packageManager": "yarn@4.3.0"
 }
