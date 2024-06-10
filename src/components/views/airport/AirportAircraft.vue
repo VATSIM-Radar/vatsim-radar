@@ -36,6 +36,9 @@
             :key="aircraftMode"
             class="aircraft_list"
         >
+            <common-toggle v-model="showPilotStats">
+                Show pilots stats
+            </common-toggle>
             <common-block-title class="aircraft_list_title">
                 <template v-if="aircraftMode === 'ground'">
                     On Ground
@@ -82,12 +85,24 @@
                 ]"
                 class="aircraft__pilot"
                 is-button
-                @click="(aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString())"
+                @click="!filterRelativeToAircraft && ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
             >
                 <template #top>
-                    <div class="aircraft__pilot_header">
+                    <div
+                        ref="pilot"
+                        class="aircraft__pilot_header"
+                        :class="{ '--has-stats': stats.some(x => x.cid === pilot.cid) }"
+                        :data-cid="pilot.cid"
+                    >
                         <div class="aircraft__pilot_header_title">
                             {{ pilot.callsign }}
+
+                            <div
+                                v-if="stats.find(x => x.cid === pilot.cid)"
+                                class="aircraft__pilot_header_title_stats"
+                            >
+                                {{ stats.find(x => x.cid === pilot.cid)!.stats }}h
+                            </div>
                         </div>
                         <div
                             class="aircraft__pilot_header_status"
@@ -138,6 +153,7 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import AirportAircraftFilter from '~/components/views/airport/AirportAircraftFilter.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 defineProps({
     filterRelativeToAircraft: {
@@ -148,6 +164,18 @@ defineProps({
 const data = injectAirport();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const pilot = ref<HTMLDivElement[] | HTMLDivElement>([]);
+const pilotsRefs = computed<HTMLDivElement[]>(() => {
+    if (Array.isArray(pilot.value)) return pilot.value;
+    if (pilot.value) return [pilot.value];
+    return [];
+});
+
+const showPilotStats = useCookie<boolean>('show-pilot-stats', {
+    sameSite: 'strict',
+    secure: true,
+    default: () => false,
+});
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -215,10 +243,57 @@ function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof 
     }
 }
 
+const stats = ref<{
+    cid: number;
+    stats: number;
+}[]>([]);
+
+const observer = new IntersectionObserver(async entries => {
+    if (!showPilotStats.value) return;
+
+    for (const entry of entries.filter(x => x.isIntersecting && !x.target.classList.contains('--has-stats'))) {
+        const cid = +((entry.target as HTMLDivElement).dataset.cid ?? '0');
+
+        stats.value.push({
+            cid,
+            stats: await getVATSIMMemberStats(cid, 'pilot'),
+        });
+    }
+});
+
+onBeforeUnmount(() => {
+    observer.disconnect();
+});
+
 onMounted(() => {
     if (!displayedAircraft.value.length) {
         aircraftMode.value = 'arriving';
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
+    }
+
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
+    }
+});
+
+watch(showPilotStats, val => {
+    if (!val) {
+        stats.value = [];
+    }
+    else {
+        for (const ref of pilotsRefs.value) {
+            observer.unobserve(ref);
+        }
+
+        for (const ref of pilotsRefs.value) {
+            observer.observe(ref);
+        }
+    }
+});
+
+onUpdated(() => {
+    for (const ref of pilotsRefs.value) {
+        observer.observe(ref);
     }
 });
 
@@ -311,6 +386,17 @@ defineExpose({
         &_header {
             display: flex;
             justify-content: space-between;
+
+            &_title {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+
+                &_stats {
+                    padding-left: 8px;
+                    border-left: 1px solid varToRgba('neutral150', 0.15)
+                }
+            }
 
             &_status {
                 color: var(--color);

@@ -41,7 +41,6 @@
 </template>
 
 <script setup lang="ts">
-import type { VatsimMemberStats } from '~/types/data/vatsim';
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -112,7 +111,6 @@ const restoreOverlays = async () => {
         if (overlay.type === 'pilot') {
             const data = await Promise.allSettled([
                 $fetch(`/api/data/vatsim/pilot/${ overlay.key }`),
-                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ overlay.key }`),
             ]);
 
             if (!('value' in data[0])) return overlay;
@@ -121,7 +119,6 @@ const restoreOverlays = async () => {
                 ...overlay,
                 data: {
                     pilot: data[0].value,
-                    stats: 'value' in data[1] ? data[1].value : null,
                 },
             };
         }
@@ -143,14 +140,9 @@ const restoreOverlays = async () => {
             const controller = findAtcByCallsign(overlay.key);
             if (!controller) return overlay;
 
-            const data = await Promise.allSettled([
-                $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ controller.cid }`),
-            ]);
-
             return {
                 ...overlay,
                 data: {
-                    stats: 'value' in data[0] ? data[0].value : null,
                     callsign: overlay.key,
                 },
             };

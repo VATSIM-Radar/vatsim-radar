@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { Extent } from 'ol/extent';
-import type { VatsimExtendedPilot, VatsimMemberStats, VatsimPrefile } from '~/types/data/vatsim';
+import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
@@ -25,7 +25,6 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
     type: 'pilot';
     data: {
         pilot: VatsimExtendedPilot;
-        stats?: Partial<VatsimMemberStats>;
         airport?: VatsimAirportInfo;
         tracked?: boolean;
     };
@@ -52,7 +51,6 @@ export interface StoreOverlayAtc extends StoreOverlayDefault {
     type: 'atc';
     data: {
         callsign: string;
-        stats?: Partial<VatsimMemberStats>;
     };
 }
 
@@ -109,21 +107,15 @@ export const useMapStore = defineStore('map', {
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
 
-                const overlay = this.addOverlay<StoreOverlayPilot>({
+                return this.addOverlay<StoreOverlayPilot>({
                     key: cid,
                     data: {
                         pilot,
-                        stats: {
-                            pilot: 0,
-                        },
                         tracked,
                     },
                     type: 'pilot',
                     sticky: cid === store.user?.cid,
                 });
-
-                overlay.data.stats = await $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ cid }`);
-                return overlay;
             }
             finally {
                 this.openingOverlay = false;
@@ -166,7 +158,6 @@ export const useMapStore = defineStore('map', {
                 const controller = findAtcByCallsign(callsign);
                 if (!controller) return;
 
-                const stats = await $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ controller.cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'atc' || x.sticky);
                 await nextTick();
 
@@ -174,7 +165,6 @@ export const useMapStore = defineStore('map', {
                     key: callsign,
                     data: {
                         callsign,
-                        stats,
                     },
                     type: 'atc',
                     sticky: false,

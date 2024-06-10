@@ -1,6 +1,11 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
-import type { VatsimLiveData } from '~/types/data/vatsim';
+import type {
+    VatsimLiveData,
+    VatsimMemberStats,
+    VatsimShortenedAircraft,
+    VatsimShortenedController,
+} from '~/types/data/vatsim';
 import type { Ref } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
@@ -11,6 +16,10 @@ import { useMapStore } from '~/store/map';
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
 const simaware = shallowRef<SimAwareAPIData>();
+const stats = shallowRef<{
+    cid: number;
+    stats: VatsimMemberStats;
+}[]>([]);
 
 type Data = {
     [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
@@ -42,6 +51,7 @@ export function useDataStore() {
         vatspy,
         vatsim,
         simaware,
+        stats,
     };
 }
 
@@ -187,4 +197,38 @@ export async function setupDataFetch({ onInitialFetch, onSuccessCallback }: {
             console.error(e);
         }
     });
+}
+
+export interface ControllerStats {
+    rating: number | null; total: number;
+}
+
+function getAtcStats(controller: VatsimShortenedController, stats: VatsimMemberStats): ControllerStats {
+    const dataStore = useDataStore();
+    const rating = dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short;
+
+    const shortRating = (stats[rating?.toLowerCase() as keyof VatsimMemberStats] ?? null) as number | null;
+
+    return {
+        rating: shortRating && Math.floor(shortRating),
+        total: Math.floor(stats.atc ?? 0),
+    };
+}
+
+export async function getVATSIMMemberStats(aircraft: VatsimShortenedAircraft | number, type: 'pilot'): Promise<number>;
+export async function getVATSIMMemberStats(controller: VatsimShortenedController, type: 'atc'): Promise<ControllerStats>;
+export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | VatsimShortenedController | number, type: 'pilot' | 'atc'): Promise<number | ControllerStats> {
+    const dataStore = useDataStore();
+    const cid = typeof data === 'number' ? data : data.cid;
+    let stats = dataStore.stats.value.find(x => x.cid === cid)?.stats;
+    if (!stats) {
+        stats = await $fetch<VatsimMemberStats>(`/api/data/vatsim/stats/${ cid }`);
+        dataStore.stats.value.push({
+            cid,
+            stats,
+        });
+    }
+
+    if (type === 'atc') return getAtcStats(data as VatsimShortenedController, stats);
+    return Math.floor(stats.pilot ?? 0);
 }

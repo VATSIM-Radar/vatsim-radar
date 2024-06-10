@@ -3,6 +3,7 @@
         v-if="!hadRestrictedAuth"
         class="app"
     >
+        <nuxt-loading-indicator color="rgb(var(--primary500))"/>
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <slot/>

@@ -13,13 +13,9 @@
     >
         <template #title>
             <div class="pilot-header">
-                <a
-                    class="pilot-header_title"
-                    :href="`/?airport=${ airport.icao }`"
-                    @click.prevent="copy.copy(`${ config.public.DOMAIN }/?airport=${ airport.icao }`)"
-                >
+                <div class="pilot-header_title">
                     {{ props.overlay.data.icao }}
-                </a>
+                </div>
             </div>
         </template>
         <template #action-sticky>
@@ -97,6 +93,27 @@
             </div>
             <airport-aircraft/>
         </template>
+        <template #actions>
+            <common-button-group>
+                <common-button :to="`/airport/${ airport.icao }`">
+                    <template #icon>
+                        <data-icon/>
+                    </template>
+                    Dashboard
+                </common-button>
+                <common-button @click="copy.copy(`${ config.public.DOMAIN }/?airport=${ airport.icao }`)">
+                    <template #icon>
+                        <share-icon/>
+                    </template>
+                    <template v-if="copy.copyState.value">
+                        Copied!
+                    </template>
+                    <template v-else>
+                        Link
+                    </template>
+                </common-button>
+            </common-button-group>
+        </template>
     </common-info-popup>
 </template>
 
@@ -122,6 +139,10 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import DataIcon from '@/assets/icons/kit/data.svg?component';
+import ShareIcon from '@/assets/icons/kit/share.svg?component';
 
 const props = defineProps({
     overlay: {
@@ -217,6 +238,14 @@ const tabs = computed<InfoPopupContent>(() => {
     }
 
     if (!list.info.sections.length) delete list.info;
+
+    list.atc.sections.push({
+        key: 'actions',
+    });
+
+    list.info?.sections.push({
+        key: 'actions',
+    });
 
     return list;
 });

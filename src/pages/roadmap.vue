@@ -216,7 +216,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Easy access to pilot stats in airport popup',
                 description: 'View pilots stats directly in airport popup to determine how new they are',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Layers (hide atc/aircraft/gates/etc)',
@@ -237,6 +237,10 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Weather radar',
+                status: 'in-progress',
+            },
+            {
+                title: 'Airport Dashboard Controller Mode',
                 status: 'in-progress',
             },
         ],

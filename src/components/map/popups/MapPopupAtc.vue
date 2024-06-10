@@ -28,9 +28,8 @@
                 <common-info-block
                     :bottom-items="[
                         shortRating,
-                        overlay.data.stats?.atc ? `${ Math.floor(overlay.data.stats?.atc) }h total time` : null,
-                        //@ts-expect-error
-                        overlay.data.stats?.[shortRating.toLowerCase()] ? `${ Math.floor(overlay.data.stats[shortRating.toLowerCase()]) }h on ${ shortRating }` : null,
+                        stats?.total ? `${ stats.total }h total time` : null,
+                        stats?.rating ? `${ stats.rating }h on ${ shortRating }` : null,
                     ]"
                     class="atc__sections_section atc__sections_section--self"
                     :top-items="[atc.name, atc.cid]"
@@ -130,6 +129,8 @@ import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
+import { getVATSIMMemberStats } from '~/composables/data';
+import type { ControllerStats } from '~/composables/data';
 
 const props = defineProps({
     overlay: {
@@ -178,6 +179,8 @@ watch(atc, value => {
 }, {
     immediate: true,
 });
+
+const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(atc.value!, 'atc'));
 </script>
 
 <style scoped lang="scss">
