@@ -59,8 +59,8 @@ jobs:
             INFLUX_URL=${{ secrets.INFLUX_BUCKET_MAIN }}
             INFLUX_URL=${{ secrets.INFLUX_BUCKET_ONLINE }}
   deploy:
-    #runs-on: production
-    runs-on: beget
+    runs-on: production
+    #runs-on: beget
     needs:
       - push
     permissions:
