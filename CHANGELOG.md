@@ -1,5 +1,21 @@
 # Changelog
 
+# 0.4.0-beta.2
+
+Please leave feedback about sector & tracon colors redesign. They should now be more contrast with each other and aircraft in both dark and light theme.
+
+## Alpha fixes and improvements
+
+- Fixed error when gate occupied state was not cleared
+- Fixed error when if you spawned without flight plan within 24 hours since last flight it showed previous flight path. This error may still occur but just until next VATSIM API update
+- Real tracks are now also shown on hover and for airport tracks enabled
+- Airport filters navigation has been pinned when scrolling
+- Fixed error when dashboard metar was hidden if airport didn't have VATSIM info
+
+## Production changelog
+
+- Redesigned sectors colors
+
 # 0.4.0-beta.1
 
 ## Alpha fixes and improvements
@@ -18,7 +34,7 @@
 - Fixed overlapping aircraft tracks labels
 - Lowered tracks priority
 - Removed approach line for aircraft approaching to tracked airport. They will still be visible in overlay and hover state
-- Changed line priority 
+- Changed line priority
 
 # 0.4.0-alpha.6
 

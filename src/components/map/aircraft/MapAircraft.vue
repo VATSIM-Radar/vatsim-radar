@@ -287,12 +287,16 @@ async function toggleAirportLines(value: boolean) {
         if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) value = false;
     }
 
+    if (!value) {
+        delayedLinesDestroy();
+    }
+
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning600');
+    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning500');
 
-    const turns = value && (activeCurrentOverlay.value || isSelfFlight.value) && await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+    const turns = value && await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
         timeout: 1000 * 5,
     }).catch(console.error);
 
@@ -318,7 +322,7 @@ async function toggleAirportLines(value: boolean) {
                 font: 'bold 12px Montserrat',
                 text: props.aircraft?.callsign,
                 fill: new Fill({
-                    color: getCurrentThemeHexColor('warning500'),
+                    color,
                 }),
                 placement: 'line',
                 textBaseline: 'bottom',
@@ -415,7 +419,6 @@ async function toggleAirportLines(value: boolean) {
 }
 
 watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOverlayTracks], ([val], oldValue) => {
-    if (!val && oldValue?.[0] && import.meta.client) delayedLinesDestroy();
     if (!feature || (!val && oldValue === undefined && !airportOverlayTracks.value)) return;
 
     setStyle();
@@ -456,7 +459,7 @@ async function delayedLinesDestroy() {
         immediate: true,
     });
 
-    await sleep(30000);
+    await sleep(2000);
     watcher?.();
 }
 
@@ -513,7 +516,7 @@ onBeforeUnmount(() => {
 
     font-size: 13px;
 
-    background: $neutral1000;
+    background: $darkgray1000;
     border-radius: 8px;
 
     &__pilot_content {

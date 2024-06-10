@@ -23,14 +23,14 @@
 <style scoped lang="scss">
 .popup-block {
     padding: 8px;
-    background: $neutral1000;
+    background: $darkgray1000;
     border-radius: 8px;
 
     &_title {
         display: flex;
         gap: 16px;
         padding-bottom: 8px;
-        border-bottom: 1px solid varToRgba('neutral150', 0.2);
+        border-bottom: 1px solid varToRgba('lightgray150', 0.2);
 
         &_text {
             font-family: $openSansFont;
@@ -44,8 +44,8 @@
         &_sub {
             padding-left: 16px;
             font-size: 13px;
-            color: $neutral150;
-            border-left: 1px solid varToRgba('neutral150', 0.2);
+            color: $lightgray150;
+            border-left: 1px solid varToRgba('lightgray150', 0.2);
         }
     }
 

@@ -127,7 +127,7 @@ const getAttrs = computed(() => {
     font-family: $defaultFont;
     font-size: 13px;
     font-weight: 600;
-    color: $neutral50Orig;
+    color: $lightgray50Orig;
     text-align: center;
     text-decoration: none;
 
@@ -155,18 +155,18 @@ const getAttrs = computed(() => {
     }
 
     &--type-secondary, &--type-secondary-flat {
-        color: $neutral50;
-        background: $neutral900;
+        color: $lightgray50;
+        background: $darkgray900;
     }
 
     &--type-secondary {
         @include hover {
             &:hover {
-                background: $neutral850;
+                background: $darkgray850;
             }
 
             &:focus, &:active {
-                background: $neutral800;
+                background: $darkgray800;
             }
         }
     }
@@ -175,18 +175,18 @@ const getAttrs = computed(() => {
         @include hover {
             &:hover {
                 color: $primary500;
-                background: $neutral900;
+                background: $darkgray900;
             }
 
             &:focus, &:active {
                 color: $primary500;
-                background: $neutral900;
+                background: $darkgray900;
             }
         }
     }
 
     &--type-transparent {
-        color: $neutral150;
+        color: $lightgray150;
         background: transparent !important;
 
         @include hover {
@@ -227,7 +227,7 @@ const getAttrs = computed(() => {
         padding: 0;
 
         font-size: 10px;
-        color: $neutral150;
+        color: $lightgray150;
         text-align: left;
         text-decoration: underline;
 

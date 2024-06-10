@@ -82,7 +82,7 @@ const collapsed = defineModel('collapsed', {
         width: 100%;
         height: 1px;
 
-        background: $neutral850;
+        background: $darkgray850;
     }
 
     &:not(:only-child) {
@@ -92,7 +92,7 @@ const collapsed = defineModel('collapsed', {
     &_text > *, &_collapse {
         position: relative;
         z-index: 1;
-        background: var(--block-title-background, $neutral1000);
+        background: var(--block-title-background, $darkgray1000);
     }
 
     &_text {

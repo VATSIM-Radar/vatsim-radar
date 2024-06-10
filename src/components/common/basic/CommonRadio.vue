@@ -91,7 +91,7 @@ const model = defineModel({
         height: 16px;
 
         background: transparent;
-        border: 1px solid $neutral150;
+        border: 1px solid $lightgray150;
 
         &::before {
             content: '';
@@ -120,7 +120,7 @@ const model = defineModel({
 
     &--checked .radio {
         &_icon {
-            background: $neutral50Orig;
+            background: $lightgray50Orig;
             border-color: $primary500;
 
             &::before {

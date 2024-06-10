@@ -456,7 +456,7 @@ onMounted(() => {
         padding: 10px;
 
         font-size: 12px;
-        color: $neutral150Orig;
+        color: $lightgray150Orig;
 
         background: $error500;
         border-radius: 0 0 10px 10px;
@@ -469,7 +469,7 @@ onMounted(() => {
 
             @include hover {
                 &:hover {
-                    color: $neutral50Orig;
+                    color: $lightgray50Orig;
                 }
             }
         }
@@ -495,19 +495,19 @@ onMounted(() => {
 
         font-size: 12px;
         font-weight: 700;
-        color: $neutral50;
+        color: $lightgray50;
         text-decoration: none;
 
         &_icon {
             width: 40px;
-            color: $neutral100;
+            color: $lightgray100;
 
             :deep(> rect) {
                 color: $primary500;
             }
 
             :deep(.wifi) {
-                color: $neutral950;
+                color: $darkgray950;
             }
         }
     }
@@ -530,7 +530,7 @@ onMounted(() => {
 
             & + & {
                 padding-left: 16px;
-                border-left: 1px solid varToRgba('neutral150', 0.2);
+                border-left: 1px solid varToRgba('lightgray150', 0.2);
             }
         }
     }
@@ -582,7 +582,7 @@ onMounted(() => {
 
             font-size: 13px;
             font-weight: 600;
-            color: $neutral150;
+            color: $lightgray150;
 
             &--unlimited .header__settings__navigraph_status {
                 color: $success500;
@@ -598,9 +598,9 @@ onMounted(() => {
 
         height: 32px;
 
-        color: $neutral150;
+        color: $lightgray150;
 
-        background: $neutral900;
+        background: $darkgray900;
         border-radius: 8px;
 
         &::before {
@@ -647,15 +647,15 @@ onMounted(() => {
             .header__theme_item--light {
                 @keyframes lightColorChange {
                     0% {
-                        color: $neutral900Orig;
+                        color: $darkgray900Orig;
                     }
 
                     100% {
-                        color: $neutral900;
+                        color: $darkgray900;
                     }
                 }
                 transform: rotate(-90deg);
-                color: $neutral900;
+                color: $darkgray900;
                 animation: lightColorChange 0.5s ease-in-out;
             }
 

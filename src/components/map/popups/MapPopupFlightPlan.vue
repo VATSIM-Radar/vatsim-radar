@@ -218,7 +218,7 @@ const arrCountry = computed(() => {
                     width: 100%;
                     height: 2px;
 
-                    background: $neutral850;
+                    background: $darkgray850;
                     border-radius: 4px;
                 }
 
@@ -236,7 +236,7 @@ const arrCountry = computed(() => {
                     height: 24px;
 
                     :deep(path:last-child:not(:only-child)) {
-                        color: $neutral1000;
+                        color: $darkgray1000;
                     }
                 }
 

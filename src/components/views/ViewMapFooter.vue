@@ -219,7 +219,7 @@ const getLastUpdated = computed(() => {
 
                     height: 24px;
 
-                    border-right: 1px solid varToRgba('neutral150', 0.1);
+                    border-right: 1px solid varToRgba('lightgray150', 0.1);
                 }
             }
         }
@@ -227,7 +227,7 @@ const getLastUpdated = computed(() => {
 
     &__airac, &__connections {
         padding: 8px 12px;
-        background: $neutral950;
+        background: $darkgray950;
         border-radius: 8px;
     }
 
@@ -254,7 +254,7 @@ const getLastUpdated = computed(() => {
         &_title {
             margin-right: 8px;
             padding-right: 8px;
-            border-right: 1px solid varToRgba('neutral150', 0.2);
+            border-right: 1px solid varToRgba('lightgray150', 0.2);
         }
 
         &_info {
@@ -265,7 +265,7 @@ const getLastUpdated = computed(() => {
 
             &_item:not(:last-child) {
                 padding-right: 8px;
-                border-right: 1px solid varToRgba('neutral150', 0.2);
+                border-right: 1px solid varToRgba('lightgray150', 0.2);
             }
         }
     }
@@ -273,12 +273,12 @@ const getLastUpdated = computed(() => {
     &_right {
         padding: 8px 16px;
         font-weight: 300;
-        background: $neutral950;
+        background: $darkgray950;
         border-radius: 8px;
     }
 
     &__text {
-        color: $neutral150;
+        color: $lightgray150;
         text-decoration-skip-ink: none;
         opacity: 0.5;
     }

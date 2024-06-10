@@ -5,7 +5,7 @@
     >
         <div class="airport_sections">
             <div
-                v-if="airportData?.airport?.vatInfo && airportData?.airport?.metar"
+                v-if="airportData?.airport?.vatInfo || airportData?.airport?.metar"
                 class="airport_column"
             >
                 <div
@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div
-                v-if="airportData?.airport?.taf && airportData.notams?.length"
+                v-if="airportData?.airport?.taf || airportData.notams?.length"
                 class="airport_column"
             >
                 <div
@@ -182,20 +182,26 @@ await setupDataFetch({
         width: 0;
 
         &--aircraft {
-            max-width: 20%;
+            flex-grow: 2;
+            max-width: max(20%, 280px);
         }
 
         &_data {
+            overflow: auto;
             padding: 16px;
-            background: $neutral900;
+            background: $darkgray900;
             border-radius: 8px;
 
             :deep(.info-block) {
-                background: $neutral875 !important;
+                background: $darkgray875 !important;
             }
 
             :deep(.title_text_content), :deep(.aircraft_list__filter){
-                background: $neutral900 !important;
+                background: $darkgray900 !important;
+            }
+
+            :deep(.aircraft_nav) {
+                top: 30px !important;
             }
 
             :deep(.popup-block), :deep(.aircraft_list), :deep(.atc-popup_list) {
@@ -211,16 +217,15 @@ await setupDataFetch({
             }
 
             &:not(:only-child) {
-                overflow: auto;
                 max-height: calc(var(--sections-height) / 2 - 8px);
-            }
-
-            :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
-                background: $neutral875 !important;
             }
 
             &:only-child {
                 flex: 1 0 auto;
+            }
+
+            :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
+                background: $darkgray875 !important;
             }
         }
 
@@ -241,9 +246,9 @@ await setupDataFetch({
             font-family: $openSansFont;
             font-size: 17px;
             font-weight: 700;
-            color: $neutral150;
+            color: $lightgray150;
 
-            background: $neutral900;
+            background: $darkgray900;
         }
     }
 

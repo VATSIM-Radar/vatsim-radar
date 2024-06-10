@@ -200,8 +200,8 @@ const getAirportColor = computed(() => {
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
     if (!hasOverlay) {
-        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('neutral200').join(',') }, 0.7)`;
-        return radarColors.neutral150;
+        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.7)`;
+        return radarColors.lightgray150;
     }
 
     if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, 0.8)`;
@@ -295,7 +295,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.primary400Rgb.join(',') }, 0.4)`,
+                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -312,8 +312,8 @@ function setFeatureStyle(feature: Feature) {
     feature.setStyle([
         new Style({
             stroke: new Stroke({
-                color: radarColors.primary300Hex,
-                width: 3,
+                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.8)`,
+                width: 2,
             }),
         }),
         new Style({
@@ -324,14 +324,14 @@ function setFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.primary300Hex,
+                    color: radarColors.success300Hex,
                 }),
                 backgroundFill: new Fill({
-                    color: getCurrentThemeHexColor('neutral900'),
+                    color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.primary300Hex,
+                    color: radarColors.success300Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),
@@ -581,7 +581,7 @@ onBeforeUnmount(() => {
     font-size: 10px;
     text-align: center;
 
-    background: varToRgba('neutral800', 0.5);
+    background: varToRgba('darkgray800', 0.5);
     border-radius: 4px;
 
     &_title, &_facilities {
@@ -601,7 +601,7 @@ onBeforeUnmount(() => {
         margin-top: 2px;
 
         font-weight: 600;
-        color: $neutral0Orig;
+        color: $lightgray0Orig;
 
         &_facility {
             cursor: pointer;

@@ -120,18 +120,18 @@ defineSlots<{
     font-weight: 400;
     text-align: var(--text-align);
 
-    background: $neutral950;
+    background: $darkgray950;
     border-radius: 4px;
 
     transition: 0.3s;
 
     &--button {
         cursor: pointer;
-        background: $neutral900;
+        background: $darkgray900;
 
         @include hover {
             &:hover {
-                background: $neutral850;
+                background: $darkgray850;
             }
         }
     }
@@ -155,7 +155,7 @@ defineSlots<{
     &__separator {
         width: 4px;
         min-width: 4px;
-        color: varToRgba('neutral150', 0.5);
+        color: varToRgba('lightgray150', 0.5);
     }
 }
 </style>

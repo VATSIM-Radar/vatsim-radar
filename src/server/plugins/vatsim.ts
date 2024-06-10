@@ -79,6 +79,20 @@ export default defineNitroPlugin(app => {
                     return controller.facility !== -1 && controller.facility !== positions.OBS;
                 });
 
+                /* data.controllers.push({
+                    callsign: 'RU-SC_FSS',
+                    cid: 3,
+                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().FSS,
+                    frequency: '122.122',
+                    last_updated: '',
+                    logon_time: '',
+                    name: '',
+                    rating: 0,
+                    server: '',
+                    text_atis: ['undefined'],
+                    visual_range: 0,
+                });*/
+
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
                         server: true,

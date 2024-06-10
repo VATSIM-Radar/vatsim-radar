@@ -195,10 +195,10 @@ watch(getSections, sections => {
     max-height: var(--max-height);
     padding: 0 16px 16px;
 
-    color: $neutral150;
+    color: $lightgray150;
     text-align: left;
 
-    background: $neutral1000;
+    background: $darkgray1000;
     border-radius: 8px;
 
     &--absolute {
@@ -216,7 +216,7 @@ watch(getSections, sections => {
 
         padding: 16px 0;
 
-        background: $neutral1000;
+        background: $darkgray1000;
 
         &:only-child {
             padding-bottom: 0;
@@ -226,7 +226,7 @@ watch(getSections, sections => {
             font-family: $openSansFont;
             font-size: 14px;
             font-weight: 700;
-            color: $neutral100;
+            color: $lightgray100;
         }
 
         &_actions {
@@ -245,7 +245,7 @@ watch(getSections, sections => {
                 min-width: 24px;
                 min-height: 24px;
 
-                color: $neutral150;
+                color: $lightgray150;
 
                 >* {
                     cursor: pointer;
@@ -254,7 +254,7 @@ watch(getSections, sections => {
 
                 &:not(:last-child, &--collapse) {
                     padding-right: 16px;
-                    border-right: 1px solid varToRgba('neutral150', 0.2);
+                    border-right: 1px solid varToRgba('lightgray150', 0.2);
                 }
 
                 @include hover {
@@ -315,7 +315,7 @@ watch(getSections, sections => {
                 width: 100%;
                 height: 1px;
 
-                background: $neutral850;
+                background: $darkgray850;
             }
 
             &:not(:only-child) {
@@ -324,7 +324,7 @@ watch(getSections, sections => {
 
             &_title, &_collapse {
                 position: relative;
-                background: $neutral1000;
+                background: $darkgray1000;
             }
 
             &_title {

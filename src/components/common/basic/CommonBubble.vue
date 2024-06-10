@@ -38,7 +38,7 @@ defineSlots<{ default: () => any }>();
     font-size: 11px;
     font-weight: 600;
     line-height: 100%;
-    color: $neutral150Orig;
+    color: $lightgray150Orig;
     text-align: center;
 
     background: $primary500;
@@ -49,8 +49,8 @@ defineSlots<{ default: () => any }>();
     }
 
     &--type-secondary {
-        color: $neutral150;
-        background: $neutral875;
+        color: $lightgray150;
+        background: $darkgray875;
     }
 }
 </style>

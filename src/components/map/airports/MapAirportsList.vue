@@ -191,7 +191,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
         const filteredGates = airportsData.value.find(x => x.airport === airport.airport.icao)?.gates;
         if (!gateAirport || !filteredGates) return null;
 
-        const gates: NavigraphGate[] = gateAirport.gates;
+        const gates: NavigraphGate[] = gateAirport.gates.map(x => structuredClone(x));
 
         for (const pilot of [...airport.aircraft.groundDep ?? [], ...airport.aircraft.groundArr ?? []] as VatsimShortenedAircraft[]) {
             if (pilot.callsign === 'QAC3404') {

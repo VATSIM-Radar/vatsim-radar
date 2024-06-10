@@ -157,7 +157,7 @@ const hoveredAircraft = computed(() => {
         }
 
         &--prefiles {
-            color: $neutral200;
+            color: $lightgray200;
         }
 
         &--groundArr {

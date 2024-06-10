@@ -44,7 +44,7 @@ export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedP
 export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline = false): { color: ColorsList; title: string } {
     if (isOffline) {
         return {
-            color: 'neutral800',
+            color: 'darkgray800',
             title: 'Offline',
         };
     }
@@ -102,7 +102,7 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
             };
         default:
             return {
-                color: 'neutral1000',
+                color: 'darkgray1000',
                 title: 'Status unknown',
             };
     }
@@ -116,7 +116,7 @@ const svgColors = (): Record<MapAircraftStatus, string> => {
         default: getCurrentThemeHexColor('primary500'),
         green: getCurrentThemeHexColor('success500'),
         hover: getCurrentThemeHexColor('warning600'),
-        neutral: getCurrentThemeHexColor('neutral150'),
+        neutral: getCurrentThemeHexColor('lightgray150'),
     };
 };
 

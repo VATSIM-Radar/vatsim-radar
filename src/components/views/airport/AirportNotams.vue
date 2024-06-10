@@ -58,7 +58,7 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     &_notam {
         margin-top: 8px;
         padding-top: 16px;
-        border-top: 1px solid $neutral875;
+        border-top: 1px solid $darkgray875;
     }
 }
 </style>

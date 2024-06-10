@@ -354,7 +354,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         height: 56px;
         margin-bottom: 48px;
 
-        background: $neutral900;
+        background: $darkgray900;
         border-radius: 8px;
 
         &::before {
@@ -366,7 +366,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             width: 92%;
             height: 1px;
 
-            background-image: linear-gradient(to right, $neutral800 33%, rgba(255, 255, 255, 0) 0%);
+            background-image: linear-gradient(to right, $darkgray800 33%, rgba(255, 255, 255, 0) 0%);
             background-repeat: repeat-x;
             background-position: bottom;
             background-size: 25px 1px;
@@ -408,7 +408,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                 width: 8px;
                 height: 8px;
 
-                background: $neutral100;
+                background: $lightgray100;
                 border-radius: 100%;
             }
 
@@ -423,7 +423,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &_aircraft {
             left: var(--percents);
-            color: $neutral150;
+            color: $lightgray150;
             animation: move 5s cubic-bezier(.85, .02, .47, .98);
 
             @keyframes move {
@@ -437,7 +437,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             }
 
             svg :deep(path) {
-                stroke: $neutral950;
+                stroke: $darkgray950;
             }
         }
     }
@@ -471,13 +471,13 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
     &__item {
         padding: 16px;
-        background: $neutral900;
+        background: $darkgray900;
         border-radius: 16px;
 
         &_description {
             margin-bottom: 16px;
             font-size: 11px;
-            color: $neutral150;
+            color: $lightgray150;
         }
 
         &_groups {
@@ -504,7 +504,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                         width: 100%;
                         height: 1px;
 
-                        background: $neutral850;
+                        background: $darkgray850;
                     }
 
                     &_counter {
@@ -516,7 +516,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                         font-size: 11px;
                         font-weight: 600;
 
-                        background: $neutral850;
+                        background: $darkgray850;
                         border-radius: 2px;
                     }
                 }
@@ -539,7 +539,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         font-size: 13px;
 
-        background: $neutral875;
+        background: $darkgray875;
         border-radius: 8px;
 
         &_title {

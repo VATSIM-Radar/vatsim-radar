@@ -657,7 +657,7 @@ const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(pilot.value,
                 width: var(--percent);
                 height: 56px;
 
-                background: $neutral900;
+                background: $darkgray900;
                 border-radius: 8px 0 0 8px;
             }
         }
@@ -722,7 +722,7 @@ const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(pilot.value,
                     width: 100%;
                     height: 2px;
 
-                    background: $neutral850;
+                    background: $darkgray850;
                     border-radius: 4px;
                 }
 

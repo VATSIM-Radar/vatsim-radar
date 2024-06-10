@@ -189,7 +189,7 @@ const getATIS = (controller: VatsimShortenedController) => {
             width: 40px;
             padding: 2px 4px;
 
-            color: $neutral0Orig;
+            color: $lightgray0Orig;
             text-align: center;
 
             border-radius: 4px;
@@ -209,7 +209,7 @@ const getATIS = (controller: VatsimShortenedController) => {
 
     &__time {
         padding: 2px 4px;
-        background: $neutral950;
+        background: $darkgray950;
         border-radius: 4px;
     }
 

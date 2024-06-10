@@ -237,7 +237,7 @@ function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof 
             return getPilotStatus('arrTaxi');
         case 'prefiles':
             return {
-                color: 'neutral150',
+                color: 'lightgray150',
                 title: 'Prefile',
             };
     }
@@ -305,8 +305,10 @@ defineExpose({
 <style scoped lang="scss">
 .aircraft {
     position: relative;
+
     display: grid;
-    grid-template-columns: 13% 85%;
+    grid-template-columns: 40px calc(100% - 40px - 8px);
+    align-items: flex-start;
     justify-content: space-between;
 
     &:not(:first-child) {
@@ -314,6 +316,9 @@ defineExpose({
     }
 
     &_nav {
+        position: sticky;
+        top: 0;
+
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -328,7 +333,7 @@ defineExpose({
             width: 40px;
             height: 40px;
 
-            background: $neutral900;
+            background: $darkgray900;
             border-radius: 8px;
 
             transition: 0.3s;
@@ -339,14 +344,14 @@ defineExpose({
 
             &--active {
                 cursor: default;
-                color: $neutral150Orig;
+                color: $lightgray150Orig;
                 background: $primary500;
             }
         }
     }
 
     &_list {
-        --block-title-background: #{$neutral950};
+        --block-title-background: #{$darkgray950};
         overflow: auto;
         display: flex;
         flex-direction: column;
@@ -355,7 +360,7 @@ defineExpose({
         max-height: 200px;
         padding: 8px;
 
-        background: $neutral950;
+        background: $darkgray950;
         border-radius: 8px;
 
         &__filter {
@@ -367,7 +372,7 @@ defineExpose({
 
             color: $primary500;
 
-            background: $neutral950;
+            background: $darkgray950;
 
             svg {
                 width: 16px;
@@ -381,7 +386,7 @@ defineExpose({
     }
 
     &__pilot {
-        background: $neutral900;
+        background: $darkgray900;
 
         &_header {
             display: flex;
@@ -394,7 +399,7 @@ defineExpose({
 
                 &_stats {
                     padding-left: 8px;
-                    border-left: 1px solid varToRgba('neutral150', 0.15)
+                    border-left: 1px solid varToRgba('lightgray150', 0.15)
                 }
             }
 

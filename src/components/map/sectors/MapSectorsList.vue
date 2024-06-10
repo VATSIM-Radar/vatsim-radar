@@ -59,10 +59,10 @@ watch(map, val => {
 
         const localStyle = new Style({
             fill: new Fill({
-                color: 'rgba(89, 135, 255, 0.07)',
+                color: `rgb(${ getCurrentThemeRgbColor('success500').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: '#3B6CEC',
+                color: `rgb(${ getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 3,
@@ -70,10 +70,10 @@ watch(map, val => {
 
         const rootStyle = new Style({
             fill: new Fill({
-                color: store.theme === 'light' ? 'rgba(25, 25, 25, 0.05)' : 'rgba(230, 230, 235, 0.05)',
+                color: `rgb(${ getCurrentThemeRgbColor('info400').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: '#272878',
+                color: `rgb(${ getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 2,
@@ -81,10 +81,21 @@ watch(map, val => {
 
         const hoveredStyle = new Style({
             fill: new Fill({
-                color: 'rgba(89, 135, 255, 0.3)',
+                color: `rgb(${ getCurrentThemeRgbColor('success300').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: '#3B6CEC',
+                color: `rgb(${ getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
+                width: 1,
+            }),
+            zIndex: 4,
+        });
+
+        const hoveredRootStyle = new Style({
+            fill: new Fill({
+                color: `rgb(${ getCurrentThemeRgbColor('info600').join(',') }, 0.2)`,
+            }),
+            stroke: new Stroke({
+                color: `rgb(${ getCurrentThemeRgbColor('info600').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 4,
@@ -110,6 +121,8 @@ watch(map, val => {
                         return rootStyle;
                     case 'hovered':
                         return hoveredStyle;
+                    case 'hovered-root':
+                        return hoveredRootStyle;
                 }
             },
         });

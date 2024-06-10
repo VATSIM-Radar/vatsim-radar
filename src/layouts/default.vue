@@ -3,9 +3,9 @@
         v-if="!hadRestrictedAuth"
         class="app"
     >
-        <nuxt-loading-indicator color="rgb(var(--primary500))"/>
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
+            <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
         </div>
         <div
@@ -145,7 +145,7 @@ useHead(() => {
         opacity: 0.5;
 
         &, * {
-            color: $neutral150;
+            color: $lightgray150;
             text-decoration-skip-ink: none;
         }
     }
@@ -164,10 +164,10 @@ html, body {
     padding: 0;
 
     font-family: $defaultFont;
-    color: $neutral150;
+    color: $lightgray150;
 
     color-scheme: dark;
-    background: $neutral1000;
+    background: $darkgray1000;
 
     &--theme-light {
         color-scheme: light;
@@ -191,7 +191,7 @@ img {
 *,
 *::before,
 *::after {
-    scrollbar-color: $neutral800 var(--bg-color, $neutral1000);
+    scrollbar-color: $darkgray800 var(--bg-color, $darkgray1000);
     scrollbar-width: thin;
     box-sizing: border-box;
 }
@@ -204,13 +204,13 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: $neutral800;
-        border: 3px solid var(--bg-color, $neutral1000);
+        background: $darkgray800;
+        border: 3px solid var(--bg-color, $darkgray1000);
         border-radius: 10px;
     }
 
     &::-webkit-scrollbar-track {
-        background: var(--bg-color, $neutral1000);
+        background: var(--bg-color, $darkgray1000);
     }
 }
 
@@ -223,7 +223,7 @@ img {
         padding-top: 8px;
         font-size: 13px;
         font-weight: 600;
-        border-top: 1px solid varToRgba('neutral150', 0.15);
+        border-top: 1px solid varToRgba('lightgray150', 0.15);
     }
 }
 

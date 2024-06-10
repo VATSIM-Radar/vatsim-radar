@@ -46,7 +46,7 @@ export function getControllerPositionColor(controller: VatsimShortenedController
         return radarColors.primary400;
     }
 
-    return radarColors.neutral800;
+    return radarColors.darkgray800;
 }
 
 export function sortControllersByPosition<T extends { facility: number; isATIS?: boolean; [key: string]: any }>(facilities: T[]): T[] {

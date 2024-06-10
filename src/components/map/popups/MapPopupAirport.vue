@@ -34,7 +34,7 @@
                 </div>
                 <div
                     class="airport__counts_counter"
-                    :style="{ '--color': `rgb(var(--neutral150))` }"
+                    :style="{ '--color': `rgb(var(--lightgray150))` }"
                 >
                     <ground-icon class="airport__counts_counter_icon"/>
                     <div class="airport__counts_counter_icon_text">
@@ -326,7 +326,7 @@ onMounted(() => {
 
             > *:not(:first-child) {
                 padding-top: 8px;
-                border-top: 1px solid varToRgba('neutral150', 0.15);
+                border-top: 1px solid varToRgba('lightgray150', 0.15);
             }
         }
 
@@ -334,7 +334,7 @@ onMounted(() => {
             padding-top: 8px;
             font-size: 13px;
             font-weight: 600;
-            border-top: 1px solid varToRgba('neutral150', 0.15);
+            border-top: 1px solid varToRgba('lightgray150', 0.15);
         }
     }
 

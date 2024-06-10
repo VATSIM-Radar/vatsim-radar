@@ -39,7 +39,7 @@ export default defineComponent({
 .button-group {
     overflow: hidden;
     display: flex;
-    background: $neutral950;
+    background: $darkgray950;
     border-radius: 8px;
 
     &_button {
@@ -66,7 +66,7 @@ export default defineComponent({
 
                 height: 24px;
 
-                border-right: 1px solid varToRgba('neutral150', 0.2);
+                border-right: 1px solid varToRgba('lightgray150', 0.2);
             }
         }
     }

@@ -108,10 +108,10 @@ watch(expanded, val => {
         padding: 8px;
 
         font-size: 11px;
-        color: $neutral150;
+        color: $lightgray150;
 
         appearance: none;
-        background: $neutral875;
+        background: $darkgray875;
         border: none;
         border-radius: 4px;
         outline: none;

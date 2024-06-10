@@ -83,7 +83,7 @@ const model = defineModel({
 
         padding: 4px;
 
-        color: $neutral850;
+        color: $darkgray850;
 
         background: currentColor;
         border-radius: 8px;
@@ -100,7 +100,7 @@ const model = defineModel({
 
             font-size: 11px;
             font-weight: 400;
-            color: $neutral0;
+            color: $lightgray0;
         }
     }
 }

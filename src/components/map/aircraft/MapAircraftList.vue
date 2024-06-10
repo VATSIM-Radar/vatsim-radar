@@ -170,7 +170,7 @@ watch(map, val => {
     if (!linesLayer) {
         linesSource.value = new VectorSource<any>({
             features: [],
-            wrapX: true,
+            wrapX: false,
         });
 
         linesLayer = new VectorLayer<any>({

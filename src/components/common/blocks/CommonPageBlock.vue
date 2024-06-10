@@ -17,7 +17,7 @@
     width: 100%;
     padding: 24px;
 
-    background: $neutral950;
+    background: $darkgray950;
     border-radius: 16px;
 
     &_title {
@@ -28,7 +28,7 @@
         font-weight: 600;
         color: $primary500;
 
-        border-bottom: 1px solid varToRgba('neutral150', 0.2);
+        border-bottom: 1px solid varToRgba('lightgray150', 0.2);
     }
 }
 </style>

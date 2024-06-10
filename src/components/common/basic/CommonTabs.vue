@@ -74,10 +74,10 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         font-family: $openSansFont;
         font-size: 14px;
         font-weight: 400;
-        color: $neutral150;
+        color: $lightgray150;
         text-align: center;
 
-        background: $neutral1000;
+        background: $darkgray1000;
         border-radius: 4px;
 
         transition: 0.3s;
@@ -91,7 +91,7 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
             width: 30%;
             height: 2px;
 
-            background: $neutral850;
+            background: $darkgray850;
             border-radius: 4px;
 
             transition: 0.3s;
@@ -108,7 +108,7 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         &--active {
             cursor: default;
-            background: $neutral950;
+            background: $darkgray950;
 
             &::after {
                 width: 75%;

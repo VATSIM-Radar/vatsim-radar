@@ -176,7 +176,7 @@ onBeforeUnmount(() => {
         width: 200dvw;
         height: 300dvh;
 
-        background: varToRgba('neutral1000', 0.33);
+        background: varToRgba('darkgray1000', 0.33);
         backdrop-filter: blur(5px);
     }
 
@@ -186,7 +186,7 @@ onBeforeUnmount(() => {
         max-width: 700px;
         padding: 8px;
 
-        background: $neutral1000;
+        background: $darkgray1000;
         border-radius: 8px;
     }
 
@@ -199,7 +199,7 @@ onBeforeUnmount(() => {
 
         width: 16px;
 
-        color: varToRgba('neutral150', 0.2);
+        color: varToRgba('lightgray150', 0.2);
     }
 
     & &__title {

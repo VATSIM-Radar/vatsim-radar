@@ -64,7 +64,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         height: 100%;
 
         :deep(path) {
-            fill: $neutral1000;
+            fill: $darkgray1000;
         }
     }
 

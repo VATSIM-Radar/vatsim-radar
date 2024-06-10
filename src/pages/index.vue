@@ -299,9 +299,9 @@ await setupDataFetch({
                 if (store.config.showInfoForPrimaryAirport) {
                     projectionExtent = [
                         airport.lon - 1000000,
-                        airport.lat - 1000000,
+                        airport.lat - 500000,
                         airport.lon + 1000000,
-                        airport.lat + 1000000,
+                        airport.lat + 500000,
                     ];
                 }
             }
@@ -412,13 +412,13 @@ await setupDataFetch({
     }
 
     :deep(.ol-attribution) {
-        background: $neutral1000;
+        background: $darkgray1000;
 
         ul {
             text-shadow: none;
 
             &, a {
-                color: varToRgba('neutral150', 0.4);
+                color: varToRgba('lightgray150', 0.4);
             }
 
             @include hover {

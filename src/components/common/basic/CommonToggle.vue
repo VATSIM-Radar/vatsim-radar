@@ -57,7 +57,7 @@ const model = defineModel({
 
     &_label {
         font-size: 13px;
-        color: $neutral150;
+        color: $lightgray150;
 
         &_title {
             font-weight: 600;
@@ -79,7 +79,7 @@ const model = defineModel({
         min-width: 32px;
         height: 8px;
 
-        background: $neutral850;
+        background: $darkgray850;
         border-radius: 8px;
 
         &::before {
@@ -93,7 +93,7 @@ const model = defineModel({
             width: 16px;
             height: 16px;
 
-            background: $neutral150;
+            background: $lightgray150;
             border-radius: 100%;
 
             transition: 0.3s ease-in-out;

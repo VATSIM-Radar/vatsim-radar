@@ -15,11 +15,11 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
     }
 
     const pilot = radarStorage.vatsim.data?.pilots.find(x => x.cid === +cid);
-    if (!pilot) {
+    if (!pilot?.flight_plan) {
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Pilot with this cid was not found',
+            statusMessage: 'Pilot with this cid was not found or doesn\'t have flight plan',
         });
         return;
     }

@@ -109,8 +109,8 @@ const geoJson = new GeoJSON();
 const init = () => {
     if (!vectorSource.value) return;
 
-    const localFeatureType = isHovered.value ? 'hovered' : locals.value.length ? 'local' : 'default';
-    const rootFeatureType = isHovered.value ? 'hovered' : 'root';
+    const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+    const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
     if (!localFeature) {
         localFeature = geoJson.readFeature({
@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 .theme-light .sector-atc_name {
-    box-shadow: 0 0 10px 2px varToRgba('neutral150', 0.15);
+    box-shadow: 0 0 10px 2px varToRgba('lightgray150', 0.15);
 }
 </style>
 
@@ -197,21 +197,25 @@ onBeforeUnmount(() => {
 
         font-size: 11px;
         font-weight: 700;
-        color: $neutral150;
+        color: $lightgray150;
         text-align: center;
 
-        background: $neutral850;
-        border: 1px solid varToRgba('neutral150', 0.1);
+        background: $darkgray850;
+        border: 1px solid varToRgba('lightgray150', 0.1);
         border-radius: 4px;
 
         &_sub {
-            color: varToRgba('neutral150', 0.5);
+            color: varToRgba('lightgray150', 0.5);
         }
     }
 
     &--hovered .sector-atc_name {
-        color: $neutral150Orig;
+        color: $lightgray100Orig;
         background: $primary500;
+
+        &_sub {
+            color: $lightgray200Orig;
+        }
     }
 }
 </style>

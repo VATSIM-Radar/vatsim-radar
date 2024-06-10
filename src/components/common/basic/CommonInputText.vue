@@ -56,7 +56,7 @@ const model = defineModel({ type: String, default: null });
     width: 100%;
     padding: 0 16px;
 
-    background: $neutral900;
+    background: $darkgray900;
     border: 2px solid transparent;
     border-radius: 8px;
 
@@ -64,7 +64,7 @@ const model = defineModel({ type: String, default: null });
 
     @include hover {
         &:hover {
-            border-color: $neutral800;
+            border-color: $darkgray800;
         }
     }
 
@@ -79,7 +79,7 @@ const model = defineModel({ type: String, default: null });
 
             font-size: 13px;
             font-weight: 600;
-            color:$neutral150;
+            color:$lightgray150;
 
             appearance: none;
             background: none;
@@ -88,7 +88,7 @@ const model = defineModel({ type: String, default: null });
             box-shadow: none;
 
             &::placeholder {
-                color: varToRgba('neutral150', 0.5);
+                color: varToRgba('lightgray150', 0.5);
                 opacity: 1
             }
         }

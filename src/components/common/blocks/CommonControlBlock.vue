@@ -104,10 +104,10 @@ useClickOutside({
     max-width: v-bind(maxWidth);
     padding: 16px;
 
-    color: $neutral150;
+    color: $lightgray150;
 
-    background: $neutral1000;
-    border: 1px solid varToRgba('neutral150', 0.15);
+    background: $darkgray1000;
+    border: 1px solid varToRgba('lightgray150', 0.15);
     border-radius: 8px;
 
     &--center-by-start {
@@ -163,7 +163,7 @@ useClickOutside({
             font-size: 14px;
             font-weight: 700;
             line-height: 100%;
-            color: $neutral100;
+            color: $lightgray100;
         }
 
         &_close {
