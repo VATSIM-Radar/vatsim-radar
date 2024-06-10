@@ -181,6 +181,7 @@ const emit = defineEmits({
 defineSlots<{ default: () => any }>();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
+const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 const isInit = ref(false);
@@ -298,18 +299,18 @@ async function toggleAirportLines(value: boolean) {
     if (turns) {
         if (depLine) {
             depLine.dispose();
-            vectorSource.value?.removeFeature(depLine);
+            linesSource.value?.removeFeature(depLine);
             depLine = undefined;
         }
 
         if (arrLine) {
             arrLine.dispose();
-            vectorSource.value?.removeFeature(arrLine);
+            linesSource.value?.removeFeature(arrLine);
             arrLine = undefined;
         }
 
         if (lineFeature.value) {
-            vectorSource.value?.removeFeature(lineFeature.value);
+            linesSource.value?.removeFeature(lineFeature.value);
         }
         const style = lineStyle || (lineStyle = new Style({
             stroke: new Stroke({ color: getCurrentThemeHexColor('warning500'), width: 1.5 }),
@@ -322,6 +323,7 @@ async function toggleAirportLines(value: boolean) {
                 placement: 'line',
                 textBaseline: 'bottom',
                 maxAngle: toRadians(10),
+                declutterMode: 'declutter',
             }),
         }));
 
@@ -333,11 +335,11 @@ async function toggleAirportLines(value: boolean) {
         });
         lineFeature.value.setStyle(style);
 
-        vectorSource.value?.addFeature(lineFeature.value);
+        linesSource.value?.addFeature(lineFeature.value);
     }
     else {
         if (lineFeature.value) {
-            vectorSource.value?.removeFeature(lineFeature.value);
+            linesSource.value?.removeFeature(lineFeature.value);
             lineFeature.value.dispose();
             lineFeature.value = undefined;
         }
@@ -367,17 +369,17 @@ async function toggleAirportLines(value: boolean) {
                     }),
                 }));
 
-                vectorSource.value?.addFeature(depLine);
+                linesSource.value?.addFeature(depLine);
             }
         }
         else if (depLine) {
             depLine.dispose();
-            vectorSource.value?.removeFeature(depLine);
+            linesSource.value?.removeFeature(depLine);
             depLine = undefined;
         }
     }
 
-    if (arrAirport) {
+    if (arrAirport && (!airportOverlayTracks.value || activeCurrentOverlay.value || isPropsHovered.value)) {
         const geometry = new LineString([
             [props.aircraft?.longitude, props.aircraft?.latitude],
             [arrAirport.lon, arrAirport.lat],
@@ -402,12 +404,12 @@ async function toggleAirportLines(value: boolean) {
                 }),
             }));
 
-            vectorSource.value?.addFeature(arrLine);
+            linesSource.value?.addFeature(arrLine);
         }
     }
     else if (arrLine) {
         arrLine.dispose();
-        vectorSource.value?.removeFeature(arrLine);
+        linesSource.value?.removeFeature(arrLine);
         arrLine = undefined;
     }
 }
@@ -430,12 +432,12 @@ watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOv
 
 function clearLines() {
     if (lineFeature.value) {
-        vectorSource.value?.removeFeature(lineFeature.value);
+        linesSource.value?.removeFeature(lineFeature.value);
         lineFeature.value.dispose();
     }
 
-    if (depLine) vectorSource.value?.removeFeature(depLine);
-    if (arrLine) vectorSource.value?.removeFeature(arrLine);
+    if (depLine) linesSource.value?.removeFeature(depLine);
+    if (arrLine) linesSource.value?.removeFeature(arrLine);
 }
 
 function clearAll() {

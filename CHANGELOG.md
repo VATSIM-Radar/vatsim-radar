@@ -11,6 +11,15 @@
 - You can now toggle pilot stats in airports aircraft view (remembered for current session)
 - Added share and dashboard buttons to airport overlay
 
+# 0.4.0-alpha.7
+
+## Alpha fixes and improvements
+
+- Fixed overlapping aircraft tracks labels
+- Lowered tracks priority
+- Removed approach line for aircraft approaching to tracked airport. They will still be visible in overlay and hover state
+- Changed line priority 
+
 # 0.4.0-alpha.6
 
 ## Alpha fixes and improvements
