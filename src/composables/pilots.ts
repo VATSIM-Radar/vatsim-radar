@@ -111,10 +111,10 @@ const icons: Record<string, string | Promise<string>> = {};
 
 export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
-        active: getCurrentThemeHexColor('warning700'),
+        active: getCurrentThemeHexColor('error600'),
         default: getCurrentThemeHexColor('primary500'),
         green: getCurrentThemeHexColor('success500'),
-        hover: getCurrentThemeHexColor('warning600'),
+        hover: getCurrentThemeHexColor('error400'),
         neutral: getCurrentThemeHexColor('lightgray150'),
     };
 };
