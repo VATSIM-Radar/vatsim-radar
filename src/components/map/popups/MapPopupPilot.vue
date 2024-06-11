@@ -83,7 +83,10 @@
             </div>
         </template>
         <template #flight>
-            <div class="pilot__content">
+            <div
+                :key="dataStore.vatsim.updateTimestamp.value.toString()"
+                class="pilot__content"
+            >
                 <div class="pilot__self">
                     <div>Pilot</div>
                     <common-info-block
@@ -202,6 +205,7 @@
         <template #flightplan>
             <map-popup-flight-plan
                 v-if="pilot.flight_plan"
+                :key="dataStore.vatsim.updateTimestamp.value.toString()"
                 class="pilot__content"
                 :cruise="pilot.cruise"
                 :flight-plan="pilot.flight_plan"

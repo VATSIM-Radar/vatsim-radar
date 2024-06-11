@@ -103,6 +103,12 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
                 if (existingOverlay) return;
 
+                /* const debugOverlay = this.overlays.find(x => x.type === 'pilot');
+                if (debugOverlay) {
+                    debugOverlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
+                    return;
+                }*/
+
                 const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky);
                 await nextTick();
