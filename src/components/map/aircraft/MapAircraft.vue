@@ -116,7 +116,7 @@
         >
             <div
                 class="aircraft-label"
-                :class="[`aircraft-label--type-${ getStatus }`]"
+                :style="{ '--color': aircraftSvgColors()[getStatus] }"
                 @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
@@ -136,7 +136,7 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom';
-import { isPilotOnGround, loadAircraftIcon, usePilotRating } from '~/composables/pilots';
+import { aircraftSvgColors, isPilotOnGround, loadAircraftIcon, usePilotRating } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
@@ -317,7 +317,7 @@ async function toggleAirportLines(value: boolean) {
             linesSource.value?.removeFeature(lineFeature.value);
         }
         const style = lineStyle || (lineStyle = new Style({
-            stroke: new Stroke({ color: getCurrentThemeHexColor('warning500'), width: 1.5 }),
+            stroke: new Stroke({ color, width: 1.5 }),
             text: new Text({
                 font: 'bold 12px Montserrat',
                 text: props.aircraft?.callsign,
@@ -565,18 +565,6 @@ onBeforeUnmount(() => {
 
     font-size: 11px;
     font-weight: 600;
-    color: $primary500;
-
-    &--type-hover {
-        color: $warning500;
-    }
-
-    &--type-active {
-        color: $warning700;
-    }
-
-    &--type-green {
-        color: $success500;
-    }
+    color: var(--color);
 }
 </style>

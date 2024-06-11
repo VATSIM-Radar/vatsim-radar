@@ -110,12 +110,12 @@ export function getPilotStatus(status: VatsimExtendedPilot['status'], isOffline 
 
 const icons: Record<string, string | Promise<string>> = {};
 
-const svgColors = (): Record<MapAircraftStatus, string> => {
+export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
-        active: getCurrentThemeHexColor('warning700'),
+        active: getCurrentThemeHexColor('error600'),
         default: getCurrentThemeHexColor('primary500'),
         green: getCurrentThemeHexColor('success500'),
-        hover: getCurrentThemeHexColor('warning600'),
+        hover: getCurrentThemeHexColor('error400'),
         neutral: getCurrentThemeHexColor('lightgray150'),
     };
 };
@@ -125,8 +125,8 @@ export function reColorSvg(svg: string, status: MapAircraftStatus) {
 
     let iconContent = svg
         .replaceAll('\n', '')
-        .replaceAll('white', svgColors()[status])
-        .replaceAll('#F8F8FA', svgColors()[status]);
+        .replaceAll('white', aircraftSvgColors()[status])
+        .replaceAll('#F8F8FA', aircraftSvgColors()[status]);
 
     if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white');
 

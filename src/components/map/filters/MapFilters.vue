@@ -87,16 +87,19 @@ import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
-import type { MapLayoutLayer, MapWeatherLayer } from '~/types/map';
+import type { MapLayoutLayer, MapLayoutLayerWithOptions, MapWeatherLayer } from '~/types/map';
 
 const store = useStore();
 
 const isOpened = computed(() => !!store.localSettings.filters?.opened);
 const selectedFilter = ref<string | null>(null);
 
-const mapLayers: RadioItemGroup<MapLayoutLayer>[] = [
+const mapLayers: RadioItemGroup<MapLayoutLayerWithOptions>[] = [
     {
         value: 'CartoDB',
+    },
+    {
+        value: 'Satellite',
     },
     {
         value: 'Jawg',
@@ -104,11 +107,14 @@ const mapLayers: RadioItemGroup<MapLayoutLayer>[] = [
         hintLocation: 'left',
     },
     {
-        value: 'Satellite',
-    },
-    {
         value: 'OSM',
         hint: 'Only available for light theme',
+        hintLocation: 'left',
+    },
+    {
+        value: 'JawgOrOSM',
+        text: 'Jawg/OSM',
+        hint: 'Useful if you love to switch between themes and hate Carto',
         hintLocation: 'left',
     },
 ];

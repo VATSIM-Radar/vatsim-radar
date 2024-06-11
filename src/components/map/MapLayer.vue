@@ -61,11 +61,16 @@ const layer = computed(() => {
 
     if (layer === 'Jawg' && store.theme === 'light') return layers.Jawg;
     if (layer === 'OSM' && store.theme === 'default') return layers.CartoDB;
+    if (layer === 'JawgOrOSM') {
+        return store.theme === 'default' ? layers.Jawg : layers.OSM;
+    }
 
     return layers[layer];
 });
 
 const opacity = computed(() => {
+    if (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'light') return 0.5;
+
     switch (store.localSettings.filters?.layers?.layer) {
         case 'OSM':
             return 0.5;

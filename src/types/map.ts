@@ -22,6 +22,7 @@ export type MapAircraft =
 
 export type MapWeatherLayer = 'clouds_new' | 'precipitation_new' | 'pressure_new' | 'wind_new' | 'temp_new';
 export type MapLayoutLayer = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB';
+export type MapLayoutLayerWithOptions = MapLayoutLayer | 'JawgOrOSM';
 
 interface IUserLocalSettings {
     location: Coordinate;
@@ -31,7 +32,7 @@ interface IUserLocalSettings {
         opened?: boolean;
         layers?: {
             weather?: MapWeatherLayer | false;
-            layer?: MapLayoutLayer;
+            layer?: MapLayoutLayerWithOptions;
         };
     };
 }
