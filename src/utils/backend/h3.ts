@@ -13,6 +13,9 @@ export function handleH3Error({ error, event, statusCode, statusMessage }: { err
         console.error(error);
     }
 
+    // @ts-expect-error Error checking
+    if (error && 'statusCode' in error) statusCode = error.statusCode;
+
     return sendError(event, createError({
         statusCode,
         statusMessage,

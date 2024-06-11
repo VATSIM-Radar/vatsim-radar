@@ -6,10 +6,10 @@ import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
-import type { ColorsList } from '~/modules/styles';
 import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
 import { defu } from 'defu';
+import type { ColorsList } from '~/utils/backend/styles';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);

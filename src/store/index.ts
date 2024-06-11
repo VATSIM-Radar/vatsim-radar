@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import type { FullUser } from '~/utils/backend/user';
 import type { UserLocalSettings } from '~/types/map';
-import type { ThemesList } from '~/modules/styles';
+
+import type { ThemesList } from '~/utils/backend/styles';
 
 export interface SiteConfig {
     hideSectors?: boolean;

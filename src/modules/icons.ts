@@ -1,12 +1,12 @@
 import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit';
 import type { AircraftIcon } from '../utils/icons';
 import { aircraftIcons } from '../utils/icons';
-import { colorsList } from '../modules/styles';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'path';
 import sharp from 'sharp';
 import type { PartialRecord } from '~/types';
 import { optimize } from 'svgo';
+import { colorsList } from '../utils/backend/styles';
 
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);

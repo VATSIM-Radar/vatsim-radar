@@ -346,7 +346,8 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
-import type { ThemesList } from '~/modules/styles';
+
+import type { ThemesList } from '~/utils/backend/styles';
 
 const route = useRoute();
 const store = useStore();

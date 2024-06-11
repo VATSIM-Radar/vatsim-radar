@@ -3,7 +3,7 @@ import { InfluxDB } from '@influxdata/influxdb-client';
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { FeatureCollection, Point } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
-import { colorsList } from '~/modules/styles';
+import { colorsList } from './styles';
 
 export let influxDB: QueryApi;
 
@@ -85,7 +85,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
   |> filter(fn: (r) => r["_measurement"] == "pilot")
   |> filter(fn: (r) => r["id"] == "${ cid }")
   |> schema.fieldsAsCols()
-  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "") or (r["disconnected"] == true))
+  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "" and r["fpl_departure"] == "" and r["fpl_arrival"] == ""))
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
@@ -96,7 +96,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
             if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || (!row.groundspeed && (!row.altitude || row.altitude < 3000))) return true;
 
             const similarRow = (
-                nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && nextRow.groundspeed !== row.groundspeed
+                nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time
             ) || (!nextRow?.fpl_arrival && !nextRow?.disconnected && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
                 ? rows[index + 1]
                 : null;

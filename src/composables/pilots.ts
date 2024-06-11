@@ -2,10 +2,10 @@ import type { VatsimExtendedPilot, VatsimShortenedAircraft } from '~/types/data/
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
-import type { ColorsList } from '~/modules/styles';
 import type { AircraftIcon } from '~/utils/icons';
 import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
+import type { ColorsList } from '~/utils/backend/styles';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();

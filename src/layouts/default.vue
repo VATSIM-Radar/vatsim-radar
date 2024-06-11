@@ -42,7 +42,8 @@ import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
-import type { ThemesList } from '~/modules/styles';
+
+import type { ThemesList } from '~/utils/backend/styles';
 
 defineSlots<{ default: () => any }>();
 
