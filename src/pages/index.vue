@@ -29,12 +29,13 @@
         </div>
         <map-controls v-if="!store.config.hideAllExternal"/>
         <div :key="store.theme ?? 'default'">
-            <carto-db-layer-light v-if="store.theme === 'light'"/>
-            <carto-db-layer v-else/>
             <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
+                <map-filters/>
+                <map-layer/>
+                <map-weather/>
             </client-only>
         </div>
     </div>
@@ -45,7 +46,6 @@ import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
-import CartoDbLayer from '~/components/map/layers/CartoDbLayer.vue';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
@@ -55,7 +55,6 @@ import { setUserLocalSettings, useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
-import CartoDbLayerLight from '~/components/map/layers/CartoDbLayerLight.vue';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';

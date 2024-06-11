@@ -13,7 +13,7 @@
         <span class="radio_icon"/>
         <span class="radio_text">
             <slot>
-                {{ text }}
+                {{ text || value }}
             </slot>
         </span>
         <span class="radio_spacer"/>
@@ -21,6 +21,7 @@
             v-if="hint || $slots.hint"
             class="radio_tooltip"
             :location="hintLocation"
+            width="max-content"
         >
             <template #activator>
                 <div class="radio__hint">
@@ -130,7 +131,12 @@ const model = defineModel({
     }
 
     &__hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         min-width: 16px;
+
         color: $primary600;
 
         svg {

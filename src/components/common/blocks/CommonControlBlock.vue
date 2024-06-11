@@ -48,7 +48,7 @@ const props = defineProps({
     },
     centerByOffset: {
         type: String,
-        default: '0',
+        default: '0px',
     },
     width: {
         type: String,

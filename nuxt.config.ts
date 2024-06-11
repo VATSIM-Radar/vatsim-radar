@@ -29,6 +29,7 @@ export default defineNuxtConfig({
                     href: '/site.webmanifest',
                 },
                 {
+                    // @ts-expect-error Mask icon has gone from types...
                     rel: 'mask-icon',
                     href: '/safari-pinned-tab.svg',
                     color: '#3b6cec',
@@ -132,6 +133,9 @@ export default defineNuxtConfig({
             },
             '/layers/carto/**': {
                 proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
+            },
+            '/layers/jawg/**': {
+                proxy: 'https://tile.jawg.io/**',
             },
         },
     },
