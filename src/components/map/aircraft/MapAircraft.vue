@@ -150,7 +150,6 @@ import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
-import { getCurrentThemeHexColor } from '#imports';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style';

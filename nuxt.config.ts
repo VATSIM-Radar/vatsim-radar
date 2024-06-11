@@ -29,6 +29,7 @@ export default defineNuxtConfig({
                     href: '/site.webmanifest',
                 },
                 {
+                    // @ts-expect-error Mask icon has gone from types...
                     rel: 'mask-icon',
                     href: '/safari-pinned-tab.svg',
                     color: '#3b6cec',

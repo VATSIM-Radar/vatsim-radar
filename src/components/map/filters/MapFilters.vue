@@ -78,9 +78,7 @@
 
 <script setup lang="ts">
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
-import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
-import LayersIcon from '@/assets/icons/kit/layers.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
