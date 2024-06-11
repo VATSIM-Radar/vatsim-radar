@@ -116,7 +116,7 @@
         >
             <div
                 class="aircraft-label"
-                :class="[`aircraft-label--type-${ getStatus }`]"
+                :style="{ '--color': svgColors[getStatus] }"
                 @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
@@ -136,7 +136,13 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom';
-import { isPilotOnGround, loadAircraftIcon, usePilotRating } from '~/composables/pilots';
+import {
+    aircraftSvgColors,
+    getAircraftLineStyle,
+    isPilotOnGround,
+    loadAircraftIcon,
+    usePilotRating,
+} from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import { sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
@@ -153,6 +159,9 @@ import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import { toRadians } from 'ol/math';
+import type { Coordinate } from 'ol/coordinate';
+import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import { toLonLat } from 'ol/proj';
 
 const props = defineProps({
     aircraft: {
@@ -180,6 +189,8 @@ const emit = defineEmits({
 
 defineSlots<{ default: () => any }>();
 
+const svgColors = aircraftSvgColors();
+
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
 const hovered = ref(false);
@@ -188,7 +199,7 @@ const isInit = ref(false);
 let feature: Feature | undefined;
 let depLine: Feature | undefined;
 let arrLine: Feature | undefined;
-const lineFeature = shallowRef<Feature | undefined>();
+const lineFeatures = shallowRef<Feature[]>([]);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
@@ -259,10 +270,9 @@ const init = () => {
         vectorSource.value.addFeature(iconFeature);
     }
 
-    setStyle(iconFeature);
-
     feature = iconFeature;
     isInit.value = true;
+    setState();
 };
 
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
@@ -271,34 +281,56 @@ const isPropsHovered = computed(() => props.isHovered);
 const airportOverlayTracks = computed(() => props.aircraft.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === props.aircraft.arrival && x.data.showTracks));
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
-watch([isPropsHovered, isInit], ([val]) => {
-    if (!feature || activeCurrentOverlay.value) return;
-
-    toggleAirportLines(!!airportOverlayTracks.value || val);
-    setStyle();
-}, {
-    immediate: true,
-});
-
 let lineStyle: Style | undefined;
 
-async function toggleAirportLines(value: boolean) {
-    if (value) {
-        if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) value = false;
-    }
+function clearLineFeatures() {
+    if (!lineFeatures.value.length) return;
+    linesSource.value?.removeFeatures(lineFeatures.value);
+    lineFeatures.value.forEach(x => x.dispose());
+    lineFeatures.value = [];
+}
 
-    if (!value) {
-        delayedLinesDestroy();
-    }
+const canShowLines = ref(false);
 
+async function setState() {
+    if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) canShowLines.value = false;
+    else canShowLines.value = !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
+
+    if (canShowLines.value) linesWatcher?.();
+
+    await Promise.allSettled([
+        setStyle(),
+        toggleAirportLines(),
+    ]);
+
+    if (!canShowLines.value) {
+        await delayedLinesDestroy();
+    }
+}
+
+watchEffect(() => {
+    setState();
+});
+
+async function toggleAirportLines(value = canShowLines.value) {
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = isSelfFlight.value ? getCurrentThemeHexColor('success500') : activeCurrentOverlay.value ? getCurrentThemeHexColor('warning700') : getCurrentThemeHexColor('warning500');
+    const distance = () => {
+        if (!arrAirport) return null;
+        return calculateDistanceInNauticalMiles(
+            toLonLat([arrAirport.lon, arrAirport.lat]),
+            toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
+        );
+    };
+
+    const color = svgColors[getStatus.value];
 
     const turns = value && await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
         timeout: 1000 * 5,
     }).catch(console.error);
+
+    if (!canShowLines.value) return;
 
     if (turns) {
         if (depLine) {
@@ -313,11 +345,37 @@ async function toggleAirportLines(value: boolean) {
             arrLine = undefined;
         }
 
-        if (lineFeature.value) {
-            linesSource.value?.removeFeature(lineFeature.value);
-        }
+        clearLineFeatures();
+
+        turns.features.forEach((feature, index) => {
+            const prevFeature = turns.features[index - 1];
+            const nextFeature = turns.features[index + 1];
+
+            const coordinates: Coordinate[] = [
+                feature.geometry.coordinates,
+            ];
+
+            const styles = [
+                getAircraftLineStyle(feature.properties!.color),
+            ];
+
+            if (prevFeature) {
+                coordinates.unshift(prevFeature.geometry.coordinates);
+            }
+            else {
+                coordinates.push(nextFeature.geometry.coordinates);
+            }
+
+            const lineFeature = new Feature({
+                geometry: new LineString(coordinates),
+            });
+            lineFeature.setStyle(styles);
+            linesSource.value?.addFeature(lineFeature);
+            lineFeatures.value.push(lineFeature);
+        });
+
         const style = lineStyle || (lineStyle = new Style({
-            stroke: new Stroke({ color: getCurrentThemeHexColor('warning500'), width: 1.5 }),
+            stroke: new Stroke({ color: 'transparent', width: 0 }),
             text: new Text({
                 font: 'bold 12px Montserrat',
                 text: props.aircraft?.callsign,
@@ -331,22 +389,19 @@ async function toggleAirportLines(value: boolean) {
             }),
         }));
 
-        lineFeature.value = new Feature({
+        const lineFeature = new Feature({
             geometry: new LineString([
                 [props.aircraft.longitude, props.aircraft.latitude],
                 ...turns.features.map(x => x.geometry.coordinates),
             ]),
         });
-        lineFeature.value.setStyle(style);
 
-        linesSource.value?.addFeature(lineFeature.value);
+        lineFeature.setStyle(style);
+        linesSource.value?.addFeature(lineFeature);
+        lineFeatures.value.push(lineFeature);
     }
     else {
-        if (lineFeature.value) {
-            linesSource.value?.removeFeature(lineFeature.value);
-            lineFeature.value.dispose();
-            lineFeature.value = undefined;
-        }
+        clearLineFeatures();
 
         if (depAirport) {
             const geometry = new LineString([
@@ -383,7 +438,7 @@ async function toggleAirportLines(value: boolean) {
         }
     }
 
-    if (arrAirport && (!airportOverlayTracks.value || activeCurrentOverlay.value || isPropsHovered.value)) {
+    if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
         const geometry = new LineString([
             [props.aircraft?.longitude, props.aircraft?.latitude],
             [arrAirport.lon, arrAirport.lat],
@@ -418,30 +473,8 @@ async function toggleAirportLines(value: boolean) {
     }
 }
 
-watch([activeCurrentOverlay, isInit, dataStore.vatsim.updateTimestamp, airportOverlayTracks], ([val], oldValue) => {
-    if (!feature || (!val && oldValue === undefined && !airportOverlayTracks.value)) {
-        toggleAirportLines(false);
-        return;
-    }
-
-    setStyle();
-
-    if (activeCurrentOverlay.value?.data.pilot.status || airportOverlayTracks.value) {
-        toggleAirportLines(true);
-    }
-    else if (!props.isHovered) {
-        toggleAirportLines(false);
-    }
-}, {
-    immediate: true,
-});
-
 function clearLines() {
-    if (lineFeature.value) {
-        linesSource.value?.removeFeature(lineFeature.value);
-        lineFeature.value.dispose();
-    }
-
+    clearLineFeatures();
     if (depLine) linesSource.value?.removeFeature(depLine);
     if (arrLine) linesSource.value?.removeFeature(arrLine);
 }
@@ -452,18 +485,19 @@ function clearAll() {
     clearLines();
 }
 
-async function delayedLinesDestroy() {
-    let watcher: WatchStopHandle | undefined = undefined;
+let linesWatcher: WatchStopHandle | undefined;
 
-    watcher = watch(lineFeature, () => {
+async function delayedLinesDestroy() {
+    linesWatcher?.();
+    linesWatcher = watch(lineFeatures, () => {
         clearLines();
-        watcher?.();
     }, {
         immediate: true,
     });
 
-    await sleep(2000);
-    watcher?.();
+    await sleep(30000);
+    linesWatcher?.();
+    linesWatcher = undefined;
 }
 
 onMounted(init);
@@ -565,18 +599,6 @@ onBeforeUnmount(() => {
 
     font-size: 11px;
     font-weight: 600;
-    color: $primary500;
-
-    &--type-hover {
-        color: $warning500;
-    }
-
-    &--type-active {
-        color: $warning700;
-    }
-
-    &--type-green {
-        color: $success500;
-    }
+    color: var(--color);
 }
 </style>

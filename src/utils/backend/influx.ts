@@ -3,6 +3,7 @@ import { InfluxDB } from '@influxdata/influxdb-client';
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { FeatureCollection, Point } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { radarColors } from '#build/radar/colors';
 
 export let influxDB: QueryApi;
 
@@ -84,7 +85,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
   |> filter(fn: (r) => r["_measurement"] == "pilot")
   |> filter(fn: (r) => r["id"] == "${ cid }")
   |> schema.fieldsAsCols()
-  |> filter(fn: (r) => r["fpl_departure"] != "" and r["fpl_arrival"] != "")
+  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "") or (r["disconnected"] == true))
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
@@ -94,7 +95,11 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
             const nextRow = rows[index + 1];
             if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || (!row.groundspeed && (!row.altitude || row.altitude < 3000))) return true;
 
-            const similarRow = (nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && nextRow.groundspeed !== row.groundspeed) ? rows[index + 1] : null;
+            const similarRow = (
+                nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && nextRow.groundspeed !== row.groundspeed
+            ) || (!nextRow?.fpl_arrival && !nextRow?.disconnected && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
+                ? rows[index + 1]
+                : null;
             return !similarRow;
         }).slice(0, limit),
     };
@@ -137,6 +142,39 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
     const rows = await getInfluxOnlineFlightTurns(cid);
     if (!rows?.length) return null;
 
+    function getRowColor(row: InfluxFlight) {
+        let rowColor = radarColors.warning500Hex;
+
+        if (row?.altitude) {
+            if (row.altitude < 5000) {
+                rowColor = radarColors.success300Hex;
+            }
+            else if (row.altitude < 10000) {
+                rowColor = radarColors.success500Hex;
+            }
+            else if (row.altitude < 15000) {
+                rowColor = radarColors.primary300Hex;
+            }
+            else if (row.altitude < 20000) {
+                rowColor = radarColors.primary500Hex;
+            }
+            else if (row.altitude < 30000) {
+                rowColor = radarColors.info300Hex;
+            }
+            else if (row.altitude > 40500) {
+                rowColor = radarColors.error300Hex;
+            }
+            else if (row.altitude > 50000) {
+                rowColor = radarColors.error700Hex;
+            }
+            else {
+                rowColor = radarColors.info700Hex;
+            }
+        }
+
+        return rowColor;
+    }
+
     return {
         type: 'FeatureCollection',
         features: rows.filter(x => x.latitude && x.longitude).map(row => ({
@@ -148,6 +186,7 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
                     row.longitude!,
                     row.latitude!,
                 ],
+                color: getRowColor(row),
             },
             geometry: {
                 type: 'Point',
