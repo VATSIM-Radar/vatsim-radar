@@ -1,5 +1,6 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
+import type { MapAircraftMode } from '~/types/map';
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -37,6 +38,8 @@ export function checkAndSetMapPreset() {
         preset = dashboardPreset;
     }
 
+    preset = structuredClone(preset);
+
     if (typeof query.airports === 'string') {
         preset.airports = query.airports.split(',').map(x => x.toUpperCase());
         preset.hideSectors = false;
@@ -46,6 +49,10 @@ export function checkAndSetMapPreset() {
     if (typeof query.airport === 'string') {
         preset.airport = query.airport.toUpperCase();
         preset.hideSectors = true;
+    }
+
+    if (typeof query.airportMode === 'string' && query.airportMode) {
+        preset.airportMode = query.airportMode as MapAircraftMode;
     }
 
     store.config = preset;

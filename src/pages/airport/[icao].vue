@@ -2,6 +2,10 @@
     <div
         v-if="airportData"
         class="airport"
+        :style="{
+            '--dashboard-height': mapLayouts[mapMode ?? 'default'].dash,
+            '--map-height': mapLayouts[mapMode ?? 'default'].map,
+        }"
     >
         <div class="airport_header">
             <div class="airport_header_section">
@@ -13,22 +17,45 @@
                         {{ icao }}
                     </div>
                 </div>
+            </div>
+            <div class="airport_header_section">
                 <common-select
                     v-model="aircraftMode"
                     :items="aircraftModes"
                     placeholder="Filter Map Aircraft"
+                    width="200px"
                 />
+            </div>
+            <div class="airport_header_section">
+                <common-select
+                    v-model="mapMode"
+                    :items="mapModes"
+                    placeholder="Page Layout"
+                    width="200px"
+                />
+            </div>
+            <div class="airport_header_section">
+                <common-toggle v-model="controllerMode">
+                    Controller Mode
+                </common-toggle>
+            </div>
+            <div
+                v-if="controllerMode"
+                class="airport_header_section"
+            >
                 <common-select
                     v-model="displayedColumns"
                     :items="displayableColumns"
                     multiple
                     placeholder="Displayed columns"
+                    width="200px"
                 />
-                <common-toggle v-model="controllerMode">
-                    Controller Mode
-                </common-toggle>
+            </div>
+            <div
+                v-if="controllerMode"
+                class="airport_header_section"
+            >
                 <common-toggle
-                    v-if="controllerMode"
                     v-model="showPilotStats"
                 >
                     Show pilot stats
@@ -125,9 +152,27 @@
                 v-for="column in controllerColumns"
                 :key="column.key"
                 class="airport_column"
+                :style="{ '--color': column.color }"
             >
-                <div class="airport_column__title">
-                    {{ column.title }}
+                <div class="airport_column_data">
+                    <div class="airport_column__title">
+                        <div class="airport__aircraft-title">
+                            <div class="airport__aircraft-title_text">
+                                {{ column.title }}
+                            </div>
+                            <common-bubble
+                                class="airport__aircraft-title_bubble"
+                                :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
+                            >
+                                {{ aircraft?.[column.key]?.length ?? 0 }}
+                            </common-bubble>
+                        </div>
+                    </div>
+                    <airport-aircraft
+                        v-if="ready"
+                        in-dashboard
+                        :simple-mode="column.key"
+                    />
                 </div>
             </div>
         </div>
@@ -135,7 +180,7 @@
             :key="store.theme"
             class="airport_map"
         >
-            <iframe :src="`/?preset=dashboard&airport=${ icao }`"/>
+            <iframe :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"/>
         </div>
     </div>
 </template>
@@ -157,7 +202,7 @@ import { useStore } from '~/store';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import type { MapAirport } from '~/types/map';
+import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 
 const route = useRoute();
 const store = useStore();
@@ -176,10 +221,8 @@ useHead({
     title: icao,
 });
 
-type AircraftMode = 'all' | 'groundArr' | 'groundDep' | 'ground' | 'arrivals' | 'departures';
-
-const aircraftMode = ref<AircraftMode | null>(null);
-const aircraftModes: SelectItem<AircraftMode>[] = [
+const aircraftMode = ref<MapAircraftMode | null>(null);
+const aircraftModes: SelectItem<MapAircraftMode>[] = [
     {
         value: 'all',
         text: 'All',
@@ -197,19 +240,17 @@ const aircraftModes: SelectItem<AircraftMode>[] = [
         text: 'Departed',
     },
     {
-        value: 'groundArr',
+        value: 'arrivals',
         text: 'Arriving',
     },
     {
-        value: 'arrivals',
+        value: 'groundArr',
         text: 'Landed',
     },
 ];
 
-type DisplayedColumn = keyof MapAirport['aircraft'];
-
-const displayedColumns = ref<DisplayedColumn[]>([]);
-const displayableColumns: SelectItem<DisplayedColumn>[] = [
+const displayedColumns = ref<MapAircraftKeys[]>([]);
+const displayableColumns: SelectItem<MapAircraftKeys>[] = [
     {
         value: 'prefiles',
         text: 'Prefiles',
@@ -223,30 +264,123 @@ const displayableColumns: SelectItem<DisplayedColumn>[] = [
         text: 'Departed',
     },
     {
-        value: 'groundArr',
+        value: 'arrivals',
         text: 'Arriving',
     },
     {
-        value: 'arrivals',
+        value: 'groundArr',
         text: 'Landed',
     },
 ];
 
+type MapMode = 'default' | 'dashBigMapBig' | 'dashSmallMapBig' | 'dashBigMapSmall' | 'dashOnly' | 'mapOnly';
+const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
+    sameSite: 'strict',
+    secure: true,
+    default: () => null,
+});
+
+const mapLayouts: Record<MapMode, { dash: string; map: string }> = {
+    default: {
+        dash: `calc(60dvh - (32px + 56px) - 40px - 16px)`,
+        map: 'calc(40dvh - 16px)',
+    },
+    dashBigMapBig: {
+        dash: '80dvh',
+        map: '80dvh',
+    },
+    dashSmallMapBig: {
+        dash: '30dvh',
+        map: '70dvh',
+    },
+    dashBigMapSmall: {
+        dash: '70dvh',
+        map: '30dvh',
+    },
+    dashOnly: {
+        dash: '90dvh',
+        map: '0',
+    },
+    mapOnly: {
+        dash: '0',
+        map: '90dvh',
+    },
+};
+
+const mapModes: SelectItem<MapMode>[] = [
+    {
+        value: 'default',
+        text: 'Default',
+    },
+    {
+        value: 'dashSmallMapBig',
+        text: 'Large map',
+    },
+    {
+        value: 'dashBigMapSmall',
+        text: 'Large dashboard',
+    },
+    {
+        value: 'dashOnly',
+        text: 'Dashboard only',
+    },
+    {
+        value: 'mapOnly',
+        text: 'Map only',
+    },
+    {
+        value: 'dashBigMapBig',
+        text: 'Both large',
+    },
+];
+
 const controllerColumns = computed(() => {
-    return displayableColumns.filter(x => !displayedColumns.value.length || displayedColumns.value.includes(x.value)).map(x => ({
-        title: x.text,
-        key: x.value,
-    }));
+    return displayableColumns.filter(x => !displayedColumns.value.length || displayedColumns.value.includes(x.value)).map(x => {
+        // getPilotStatus
+
+        let color: string;
+        let darkColor = false;
+
+        switch (x.value) {
+            case 'prefiles':
+                color = radarColors.lightgray200;
+                darkColor = true;
+                break;
+            case 'groundDep':
+                color = radarColors.success500;
+                break;
+            case 'departures':
+                color = radarColors.warning300;
+                darkColor = true;
+                break;
+            case 'arrivals':
+                color = radarColors.warning700;
+                darkColor = true;
+                break;
+            case 'groundArr':
+                color = radarColors.error500;
+                break;
+        }
+
+        return {
+            title: x.text,
+            key: x.value,
+            color,
+            darkColor,
+        };
+    });
 });
 
 const controllerMode = useCookie<boolean>('controller-mode', {
     sameSite: 'strict',
     secure: true,
+    default: () => false,
 });
 
 let showPilotStats = useCookie<boolean>('show-pilot-stats', {
     sameSite: 'strict',
     secure: true,
+    default: () => false,
 });
 
 watch(controllerMode, () => {
@@ -293,7 +427,6 @@ await setupDataFetch({
 
 <style scoped lang="scss">
 .airport {
-    --sections-height: calc(60dvh - #{$defaultPageHeight});
     display: flex;
     flex: 1 0 auto;
     flex-direction: column;
@@ -301,11 +434,54 @@ await setupDataFetch({
 
     margin: 16px;
 
+    &_header {
+        display: flex;
+        align-items: center;
+
+        &_section {
+            position: relative;
+
+            &:not(:last-child) {
+                margin-right: 16px;
+                padding-right: 16px;
+
+                &::after {
+                    content: '';
+
+                    position: absolute;
+                    top: calc(50% - 12px);
+                    left: 100%;
+
+                    width: 1px;
+                    height: 24px;
+
+                    background: varToRgba('lightgray150', 0.2);
+                }
+            }
+        }
+
+        &__title {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+
+            font-family: $openSansFont;
+            font-size: 17px;
+            line-height: 100%;
+            text-transform: uppercase;
+
+            &_name {
+                font-weight: 600;
+                color: $primary500
+            }
+        }
+    }
+
     &_sections {
         overflow: auto;
         display: flex;
         gap: 16px;
-        height: var(--sections-height);
+        height: var(--dashboard-height);
     }
 
     &_column {
@@ -356,12 +532,12 @@ await setupDataFetch({
             }
 
             &:not(:only-child) {
-                height: calc(var(--sections-height) / 2 - 8px);
+                height: calc(var(--dashboard-height) / 2 - 8px);
             }
 
             &:only-child {
                 flex: 1 0 auto;
-                max-height: var(--sections-height);
+                max-height: var(--dashboard-height);
             }
 
             :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
@@ -392,9 +568,28 @@ await setupDataFetch({
         }
     }
 
+    &__aircraft-title {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+
+        width: 100%;
+
+        color: var(--color);
+
+        & &_bubble {
+            background: var(--color);
+
+            &--dark {
+                color: $darkgray800;
+            }
+        }
+    }
+
     &_map {
         overflow: hidden;
-        height: calc(40dvh - 16px);
+        height: var(--map-height);
         border-radius: 8px;
 
         iframe {

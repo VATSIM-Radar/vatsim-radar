@@ -9,7 +9,10 @@
             v-model:opened="aircraftGroundFilterOpened"
         />
 
-        <div class="aircraft_nav">
+        <div
+            v-if="!simpleMode"
+            class="aircraft_nav"
+        >
             <div
                 class="aircraft_nav_item"
                 :class="{ 'aircraft_nav_item--active': aircraftMode === 'ground' }"
@@ -36,44 +39,46 @@
             :key="aircraftMode"
             class="aircraft_list"
         >
-            <common-toggle v-model="showPilotStats">
-                Show pilots stats
-            </common-toggle>
-            <common-block-title class="aircraft_list_title">
-                <template v-if="aircraftMode === 'ground'">
-                    On Ground
-                </template>
-                <template v-else-if="aircraftMode === 'departed'">
-                    Departed
-                </template>
-                <template v-else-if="aircraftMode === 'arriving'">
-                    Arriving
-                </template>
-                <template #bubble>
-                    <common-bubble type="secondary">
-                        {{ displayedAircraft.length }}
-                    </common-bubble>
-                </template>
-                <template
-                    v-if="aircraftMode === 'ground'"
-                    #append
-                >
-                    <div
-                        class="aircraft_list__filter"
-                        :class="{ 'aircraft_list__filter--active': aircraftGroundFilterOpened }"
-                        @click="aircraftGroundFilterOpened = true"
+            <template v-if="!simpleMode">
+                <common-toggle v-model="showPilotStats">
+                    Show pilots stats
+                </common-toggle>
+                <common-block-title class="aircraft_list_title">
+                    <template v-if="aircraftMode === 'ground'">
+                        On Ground
+                    </template>
+                    <template v-else-if="aircraftMode === 'departed'">
+                        Departed
+                    </template>
+                    <template v-else-if="aircraftMode === 'arriving'">
+                        Arriving
+                    </template>
+                    <template #bubble>
+                        <common-bubble type="secondary">
+                            {{ displayedAircraft.length }}
+                        </common-bubble>
+                    </template>
+                    <template
+                        v-if="aircraftMode === 'ground'"
+                        #append
                     >
-                        <filter-icon/>
+                        <div
+                            class="aircraft_list__filter"
+                            :class="{ 'aircraft_list__filter--active': aircraftGroundFilterOpened }"
+                            @click="aircraftGroundFilterOpened = true"
+                        >
+                            <filter-icon/>
 
-                        <airport-aircraft-filter
-                            v-if="filterRelativeToAircraft"
-                            v-model="aircraftGroundMode"
-                            v-model:opened="aircraftGroundFilterOpened"
-                            is-relative
-                        />
-                    </div>
-                </template>
-            </common-block-title>
+                            <airport-aircraft-filter
+                                v-if="filterRelativeToAircraft"
+                                v-model="aircraftGroundMode"
+                                v-model:opened="aircraftGroundFilterOpened"
+                                is-relative
+                            />
+                        </div>
+                    </template>
+                </common-block-title>
+            </template>
             <common-info-block
                 v-for="pilot in displayedAircraft"
                 :key="pilot.cid"
@@ -154,8 +159,10 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import AirportAircraftFilter from '~/components/views/airport/AirportAircraftFilter.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import type { MapAircraftKeys } from '~/types/map';
+import type { PropType } from 'vue';
 
-defineProps({
+const props = defineProps({
     filterRelativeToAircraft: {
         type: Boolean,
         default: false,
@@ -165,8 +172,8 @@ defineProps({
         default: false,
     },
     simpleMode: {
-        type: Boolean,
-        default: false,
+        type: String as PropType<MapAircraftKeys | null>,
+        default: null,
     },
 });
 const data = injectAirport();
@@ -182,7 +189,7 @@ const pilotsRefs = computed<HTMLDivElement[]>(() => {
 const showPilotStats = useCookie<boolean>('show-pilot-stats', {
     sameSite: 'strict',
     secure: true,
-    watch: true,
+    default: () => false,
 });
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
@@ -199,25 +206,27 @@ const aircraftGroundFilterOpened = ref(false);
 
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
 
-const aircraft = getAircraftForAirport(data);
+const aircraft = getAircraftForAirport(data, computed(() => props.simpleMode));
 
 const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
-    if (aircraftMode.value === 'departed') {
+    if (aircraftMode.value === 'departed' || props.simpleMode === 'departures') {
         return aircraft.value?.departures.slice().sort((a, b) => a.flown - b.flown) ?? [];
     }
-    if (aircraftMode.value === 'arriving') {
+    if (aircraftMode.value === 'arriving' || props.simpleMode === 'arrivals') {
         return aircraft.value?.arrivals.slice().sort((a, b) => a.distance - b.distance) ?? [];
     }
 
-    switch (aircraftGroundMode.value) {
+    switch (props.simpleMode || aircraftGroundMode.value) {
         case 'depArr':
             return [
                 ...aircraft.value?.groundDep ?? [],
                 ...aircraft.value?.groundArr ?? [],
             ];
         case 'dep':
+        case 'groundDep':
             return aircraft.value?.groundDep ?? [];
         case 'arr':
+        case 'groundArr':
             return aircraft.value?.groundArr ?? [];
         case 'prefiles':
             return aircraft.value?.prefiles ?? [];

@@ -16,6 +16,9 @@ export interface MapAirport {
     }>;
 }
 
+export type MapAircraftKeys = keyof MapAirport['aircraft'];
+export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
+
 export type MapAircraft =
     PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
     & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;

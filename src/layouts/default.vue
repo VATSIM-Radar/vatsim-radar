@@ -114,7 +114,7 @@ useHead(() => {
         ],
         htmlAttrs: {
             lang: 'en',
-            class: [`theme-${ store.theme ?? 'default' }`],
+            class: [`theme-${ store.theme ?? 'default' }`, store.config.hideHeader ? `iframe` : ''],
         },
         style: [{
             key: 'radarStyles',
@@ -157,8 +157,6 @@ useHead(() => {
 @use '../scss/fonts';
 
 html, body {
-    scrollbar-gutter: stable;
-
     width: 100%;
     min-height: 100%;
     margin: 0;
@@ -169,6 +167,10 @@ html, body {
 
     color-scheme: dark;
     background: $darkgray1000;
+
+    &:not(.iframe){
+        scrollbar-gutter: stable;
+    }
 
     &--theme-light {
         color-scheme: light;

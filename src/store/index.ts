@@ -1,20 +1,23 @@
 import { defineStore } from 'pinia';
 import type { FullUser } from '~/utils/backend/user';
-import type { UserLocalSettings } from '~/types/map';
+import type { MapAircraftMode, MapAirport, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 
 export interface SiteConfig {
     hideSectors?: boolean;
     hideAirports?: boolean;
-    theme?: ThemesList;
-    hideHeader?: boolean;
-    hideFooter?: boolean;
-    allAircraftGreen?: boolean;
-    airports?: string[];
-    airport?: string;
     hideAllExternal?: boolean;
     hideOverlays?: boolean;
+    hideHeader?: boolean;
+    hideFooter?: boolean;
+
+    theme?: ThemesList;
+    allAircraftGreen?: boolean;
+
+    airports?: string[];
+    airport?: string;
+    airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     showInfoForPrimaryAirport?: boolean;
 }

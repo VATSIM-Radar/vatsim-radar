@@ -1,7 +1,7 @@
 import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
-import type { MapAirport } from '~/types/map';
+import type { MapAircraftKeys, MapAirport } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate';
 import { findAirportSomewhere } from '~/utils/backend/vatsim';
 
@@ -165,7 +165,7 @@ export function getAirportsList() {
     const dataAirports = radarStorage.vatspy.data!.airports.filter(x => !x.isPseudo);
     const pilots = radarStorage.vatsim.data!.pilots;
 
-    function addPilotToList(status: keyof MapAirport['aircraft'], airport: VatSpyData['airports'][0], pilot: number) {
+    function addPilotToList(status: MapAircraftKeys, airport: VatSpyData['airports'][0], pilot: number) {
         let existingAirport = airports.find(x => x.icao === airport.icao);
         if (!existingAirport) {
             existingAirport = {
@@ -192,7 +192,7 @@ export function getAirportsList() {
     }
 
     for (const pilot of pilots) {
-        const statuses: Array<{ status: keyof MapAirport['aircraft']; airport: VatSpyData['airports'][0] }> = [];
+        const statuses: Array<{ status: MapAircraftKeys; airport: VatSpyData['airports'][0] }> = [];
         const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
 
         let groundAirport = (groundAirports && groundAirports?.length > 1)
