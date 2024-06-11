@@ -39,7 +39,7 @@
                         </template>
                         <common-radio-group
                             :items="mapLayers"
-                            :model-value="store.localSettings.filters?.layers?.layer ?? 'OSM'"
+                            :model-value="store.localSettings.filters?.layers?.layer ?? 'CartoDB'"
                             @update:modelValue="changeLayer($event)"
                         />
                     </common-control-block>

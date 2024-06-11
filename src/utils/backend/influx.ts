@@ -3,7 +3,7 @@ import { InfluxDB } from '@influxdata/influxdb-client';
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { FeatureCollection, Point } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
-import { radarColors } from '#build/radar/colors';
+import { colorsList } from '~/modules/styles';
 
 export let influxDB: QueryApi;
 
@@ -143,32 +143,32 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
     if (!rows?.length) return null;
 
     function getRowColor(row: InfluxFlight) {
-        let rowColor = radarColors.warning500Hex;
+        let rowColor = colorsList.warning500;
 
         if (row?.altitude) {
             if (row.altitude < 5000) {
-                rowColor = radarColors.success300Hex;
+                rowColor = colorsList.success300;
             }
             else if (row.altitude < 10000) {
-                rowColor = radarColors.success500Hex;
+                rowColor = colorsList.success500;
             }
             else if (row.altitude < 15000) {
-                rowColor = radarColors.primary300Hex;
+                rowColor = colorsList.primary300;
             }
             else if (row.altitude < 20000) {
-                rowColor = radarColors.primary500Hex;
+                rowColor = colorsList.primary500;
             }
             else if (row.altitude < 30000) {
-                rowColor = radarColors.info300Hex;
+                rowColor = colorsList.info300;
             }
             else if (row.altitude > 40500) {
-                rowColor = radarColors.error300Hex;
+                rowColor = colorsList.error300;
             }
             else if (row.altitude > 50000) {
-                rowColor = radarColors.error700Hex;
+                rowColor = colorsList.error700;
             }
             else {
-                rowColor = radarColors.info700Hex;
+                rowColor = colorsList.info700;
             }
         }
 
