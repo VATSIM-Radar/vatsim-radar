@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.4.0-beta.5
+
+## Alpha fixes and improvements
+
+- Added RainViewer as weather provider
+
 # 0.4.0-beta.4
 
 ## Alpha fixes and improvements

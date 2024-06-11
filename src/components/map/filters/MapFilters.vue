@@ -134,7 +134,13 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     },
     {
         value: 'precipitation_new',
-        text: 'Precipitation',
+        text: 'Precipitation (OpenWeather)',
+    },
+    {
+        value: 'rain_viewer',
+        text: 'Precipitation (RainViewer)',
+        hint: 'RainViewer has less coverage',
+        hintLocation: 'right',
     },
     {
         value: 'wind_new',
