@@ -4,8 +4,7 @@ import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import type { ColorsList } from '~/modules/styles';
 import type { AircraftIcon } from '~/utils/icons';
-import type { Style } from 'ol/style';
-import { Icon } from 'ol/style';
+import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
@@ -197,4 +196,26 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
             }));
         }
     }
+}
+
+const lineStyles: {
+    color: string;
+    style: Style;
+    width: number;
+}[] = [];
+
+export function getAircraftLineStyle(color: string, width = 1.5): Style {
+    const existingStyle = lineStyles.find(x => x.color === color && x.width === width);
+    if (existingStyle) return existingStyle.style;
+
+    const style = {
+        color,
+        width,
+        style: new Style({
+            stroke: new Stroke({ color, width }),
+        }),
+    };
+
+    lineStyles.push(style);
+    return style.style;
 }

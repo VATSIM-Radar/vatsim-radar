@@ -46,7 +46,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
     map.value!.getOverlays().forEach(overlay => {
-        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
+        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft') || x.includes('airport'))) return;
         const position = overlay.getPosition();
         if (position) {
             overlaysCoordinates.push(map.value!.getPixelFromCoordinate(position));
@@ -59,7 +59,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
             Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
-            !overlaysCoordinates.some(x => Math.abs(pilotPixel[0] - x[0]) < 30 && Math.abs(pilotPixel[1] - x[1]) < 30);
+            !overlaysCoordinates.some(x => Math.abs(pilotPixel[0] - x[0]) < 15 && Math.abs(pilotPixel[1] - x[1]) < 15);
     }) ?? [];
 }
 

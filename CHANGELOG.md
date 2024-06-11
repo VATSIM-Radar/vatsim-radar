@@ -1,5 +1,21 @@
 # Changelog
 
+# 0.4.0-beta.3
+
+## Alpha fixes and improvements
+
+- MAP LAYERS & WEATHER LAYERS!! Yoo please test this one guys
+- Added color steps for aircraft track lines
+- Improved logic for hiding and showing aircraft track lines
+- Added arriving line for aircraft that are >40NM from target airport
+
+## Production changelog
+
+- Recolored active aircraft
+- Added focus button to airport overlay
+- Aircraft labels will now show if overlapping airport square or counter
+- Reduced aircraft labels tolerance for map overlays so they will show more frequently
+
 # 0.4.0-beta.2
 
 Please leave feedback about sector & tracon colors redesign. They should now be more contrast with each other and aircraft in both dark and light theme.

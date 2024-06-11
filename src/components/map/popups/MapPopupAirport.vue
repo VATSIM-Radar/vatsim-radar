@@ -101,6 +101,15 @@
                     </template>
                     Dashboard
                 </common-button>
+                <common-button
+                    :disabled="!airport || airport.isPseudo"
+                    @click="showOnMap"
+                >
+                    <template #icon>
+                        <map-icon/>
+                    </template>
+                    Focus
+                </common-button>
                 <common-button @click="copy.copy(`${ config.public.DOMAIN }/?airport=${ airport.icao }`)">
                     <template #icon>
                         <share-icon/>
@@ -118,11 +127,12 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from 'vue';
+import type { PropType, ShallowRef } from 'vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
-import { useDataStore } from '#imports';
+import { showAirportOnMap, useDataStore } from '#imports';
+import MapIcon from '@/assets/icons/kit/map.svg?component';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
@@ -143,6 +153,7 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import type { Map } from 'ol';
 
 const props = defineProps({
     overlay: {
@@ -155,6 +166,7 @@ const overlayData = computed(() => props.overlay.data);
 provideAirport(overlayData);
 const atc = getATCForAirport(overlayData);
 const aircraft = getAircraftForAirport(overlayData);
+const map = inject<ShallowRef<Map | null>>('map')!;
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -166,6 +178,11 @@ const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
+
+const showOnMap = () => {
+    if (!airport.value) return;
+    showAirportOnMap(airport.value, map.value);
+};
 
 const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
 
