@@ -33,9 +33,9 @@
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
-                <map-filters/>
+                <map-filters v-if="!store.config.hideHeader"/>
                 <map-layer/>
-                <map-weather/>
+                <map-weather v-if="!store.config.hideHeader"/>
             </client-only>
         </div>
     </div>

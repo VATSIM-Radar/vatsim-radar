@@ -3,7 +3,42 @@
         v-if="airportData"
         class="airport"
     >
-        <div class="airport_sections">
+        <div class="airport_header">
+            <div class="airport_header_section">
+                <div class="airport_header__title">
+                    <div class="airport_header__title_label">
+                        Airport
+                    </div>
+                    <div class="airport_header__title_name">
+                        {{ icao }}
+                    </div>
+                </div>
+                <common-select
+                    v-model="aircraftMode"
+                    :items="aircraftModes"
+                    placeholder="Filter Map Aircraft"
+                />
+                <common-select
+                    v-model="displayedColumns"
+                    :items="displayableColumns"
+                    multiple
+                    placeholder="Displayed columns"
+                />
+                <common-toggle v-model="controllerMode">
+                    Controller Mode
+                </common-toggle>
+                <common-toggle
+                    v-if="controllerMode"
+                    v-model="showPilotStats"
+                >
+                    Show pilot stats
+                </common-toggle>
+            </div>
+        </div>
+        <div
+            v-if="!controllerMode"
+            class="airport_sections"
+        >
             <div
                 v-if="airportData?.airport?.vatInfo || airportData?.airport?.metar"
                 class="airport_column"
@@ -77,7 +112,22 @@
                     <airport-aircraft
                         v-if="ready"
                         filter-relative-to-aircraft
+                        in-dashboard
                     />
+                </div>
+            </div>
+        </div>
+        <div
+            v-else
+            class="airport_sections"
+        >
+            <div
+                v-for="column in controllerColumns"
+                :key="column.key"
+                class="airport_column"
+            >
+                <div class="airport_column__title">
+                    {{ column.title }}
                 </div>
             </div>
         </div>
@@ -104,6 +154,10 @@ import type { Ref } from 'vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
 import { useStore } from '~/store';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import type { SelectItem } from '~/types/components/select';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import type { MapAirport } from '~/types/map';
 
 const route = useRoute();
 const store = useStore();
@@ -120,6 +174,87 @@ provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
 useHead({
     title: icao,
+});
+
+type AircraftMode = 'all' | 'groundArr' | 'groundDep' | 'ground' | 'arrivals' | 'departures';
+
+const aircraftMode = ref<AircraftMode | null>(null);
+const aircraftModes: SelectItem<AircraftMode>[] = [
+    {
+        value: 'all',
+        text: 'All',
+    },
+    {
+        value: 'ground',
+        text: 'On Ground',
+    },
+    {
+        value: 'groundDep',
+        text: 'Departing',
+    },
+    {
+        value: 'departures',
+        text: 'Departed',
+    },
+    {
+        value: 'groundArr',
+        text: 'Arriving',
+    },
+    {
+        value: 'arrivals',
+        text: 'Landed',
+    },
+];
+
+type DisplayedColumn = keyof MapAirport['aircraft'];
+
+const displayedColumns = ref<DisplayedColumn[]>([]);
+const displayableColumns: SelectItem<DisplayedColumn>[] = [
+    {
+        value: 'prefiles',
+        text: 'Prefiles',
+    },
+    {
+        value: 'groundDep',
+        text: 'Departing',
+    },
+    {
+        value: 'departures',
+        text: 'Departed',
+    },
+    {
+        value: 'groundArr',
+        text: 'Arriving',
+    },
+    {
+        value: 'arrivals',
+        text: 'Landed',
+    },
+];
+
+const controllerColumns = computed(() => {
+    return displayableColumns.filter(x => !displayedColumns.value.length || displayedColumns.value.includes(x.value)).map(x => ({
+        title: x.text,
+        key: x.value,
+    }));
+});
+
+const controllerMode = useCookie<boolean>('controller-mode', {
+    sameSite: 'strict',
+    secure: true,
+});
+
+let showPilotStats = useCookie<boolean>('show-pilot-stats', {
+    sameSite: 'strict',
+    secure: true,
+});
+
+watch(controllerMode, () => {
+    // Otherwise not updated for some reason
+    showPilotStats = useCookie<boolean>('show-pilot-stats', {
+        sameSite: 'strict',
+        secure: true,
+    });
 });
 
 airportData.value = (await useAsyncData(async () => {
@@ -187,8 +322,12 @@ await setupDataFetch({
         }
 
         &_data {
+            scrollbar-gutter: stable;
+
             overflow: auto;
+
             padding: 16px;
+
             background: $darkgray900;
             border-radius: 8px;
 

@@ -85,7 +85,7 @@
                 ]"
                 class="aircraft__pilot"
                 is-button
-                @click="!filterRelativeToAircraft && ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
+                @click="!inDashboard && ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
             >
                 <template #top>
                     <div
@@ -160,6 +160,14 @@ defineProps({
         type: Boolean,
         default: false,
     },
+    inDashboard: {
+        type: Boolean,
+        default: false,
+    },
+    simpleMode: {
+        type: Boolean,
+        default: false,
+    },
 });
 const data = injectAirport();
 const dataStore = useDataStore();
@@ -174,7 +182,7 @@ const pilotsRefs = computed<HTMLDivElement[]>(() => {
 const showPilotStats = useCookie<boolean>('show-pilot-stats', {
     sameSite: 'strict',
     secure: true,
-    default: () => false,
+    watch: true,
 });
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
