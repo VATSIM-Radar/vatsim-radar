@@ -592,7 +592,8 @@ onBeforeUnmount(() => {
     map.value?.un('moveend', handleMouseMove);
 });
 
-const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(pilot.value, 'pilot'));
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+const { data: stats } = useLazyAsyncData(`stats-pilot-${ pilot.value.cid }`, () => getVATSIMMemberStats(pilot.value, 'pilot'));
 </script>
 
 <style scoped lang="scss">

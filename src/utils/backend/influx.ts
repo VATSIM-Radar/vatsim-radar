@@ -85,7 +85,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
   |> filter(fn: (r) => r["_measurement"] == "pilot")
   |> filter(fn: (r) => r["id"] == "${ cid }")
   |> schema.fieldsAsCols()
-  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "" and r["fpl_departure"] == "" and r["fpl_arrival"] == ""))
+  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "" and not exists r["fpl_departure"] and not exists r["fpl_arrival"]))
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
@@ -93,11 +93,11 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
     return {
         rows: rows.filter((row, index) => {
             const nextRow = rows[index + 1];
-            if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || (!row.groundspeed && (!row.altitude || row.altitude < 3000))) return true;
+            if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival && (!row.altitude || row.altitude < 3000))) return true;
 
             const similarRow = (
-                nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time
-            ) || (!nextRow?.fpl_arrival && !nextRow?.disconnected && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
+                row.fpl_arrival && nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time
+            ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
                 ? rows[index + 1]
                 : null;
             return !similarRow;

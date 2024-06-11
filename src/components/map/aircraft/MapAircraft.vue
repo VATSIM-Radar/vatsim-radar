@@ -130,7 +130,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType, ShallowRef, WatchStopHandle } from 'vue';
+import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
@@ -293,9 +293,7 @@ const canShowLines = ref(false);
 
 async function setState() {
     if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) canShowLines.value = false;
-    else canShowLines.value = !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
-
-    if (canShowLines.value) linesWatcher?.();
+    else canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
     await Promise.allSettled([
         setStyle(),
@@ -303,7 +301,7 @@ async function setState() {
     ]);
 
     if (!canShowLines.value) {
-        await delayedLinesDestroy();
+        clearLines();
     }
 }
 
@@ -358,7 +356,10 @@ async function toggleAirportLines(value = canShowLines.value) {
                 getAircraftLineStyle(feature.properties!.color),
             ];
 
-            if (prevFeature) {
+            if (index === 0) {
+                coordinates.push([props.aircraft.longitude, props.aircraft.latitude]);
+            }
+            else if (prevFeature) {
                 coordinates.unshift(prevFeature.geometry.coordinates);
             }
             else {
@@ -484,19 +485,13 @@ function clearAll() {
     clearLines();
 }
 
-let linesWatcher: WatchStopHandle | undefined;
-
 async function delayedLinesDestroy() {
-    linesWatcher?.();
-    linesWatcher = watch(lineFeatures, () => {
-        clearLines();
-    }, {
-        immediate: true,
-    });
+    clearLines();
 
-    await sleep(30000);
-    linesWatcher?.();
-    linesWatcher = undefined;
+    for (let i = 0; i < 5; i++) {
+        await sleep(3000);
+        clearLines();
+    }
 }
 
 onMounted(init);
@@ -523,7 +518,8 @@ watch(isShowLabel, val => {
 
 watch(dataStore.vatsim.updateTimestamp, init);
 
-onBeforeUnmount(() => {
+onUnmounted(() => {
+    canShowLines.value = false;
     clearAll();
     delayedLinesDestroy();
 });

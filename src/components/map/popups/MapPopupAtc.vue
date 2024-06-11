@@ -179,7 +179,8 @@ watch(atc, value => {
     immediate: true,
 });
 
-const { data: stats } = useLazyAsyncData(() => getVATSIMMemberStats(atc.value!, 'atc'));
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
+const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.random() }`, () => getVATSIMMemberStats(atc.value!, 'atc'));
 </script>
 
 <style scoped lang="scss">

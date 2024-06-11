@@ -113,7 +113,7 @@ const mapLayers: RadioItemGroup<MapLayoutLayerWithOptions>[] = [
         value: 'JawgOrOSM',
         text: 'Jawg/OSM',
         hint: 'Useful if you love to switch between themes and hate Carto',
-        hintLocation: 'left',
+        hintLocation: 'right',
     },
 ];
 

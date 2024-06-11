@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.4.0-beta.4
+
+## Alpha fixes and improvements
+
+- Various tracking fixes
+- Fixed pilot/atc stats
+
 # 0.4.0-beta.3
 
 ## Alpha fixes and improvements
