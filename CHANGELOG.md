@@ -11,7 +11,6 @@
 
 ## Production changelog
 
-- Recolored active aircraft
 - Added focus button to airport overlay
 - Aircraft labels will now show if overlapping airport square or counter
 - Reduced aircraft labels tolerance for map overlays so they will show more frequently
