@@ -4,6 +4,13 @@
 
 ## Highlights
 
+- 🛫 Airport Dashboard
+- 🗺️ Aircraft History Turns
+- 🌦️ Map Layers & Weather
+- ✈️ New Aircraft Icons
+- 🚀 Performance Improvements
+- ✔️ UI/UX improvements and bug fixes
+
 ### Airport Dashboard
 
 Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport popup).
