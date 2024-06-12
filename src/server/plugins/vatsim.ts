@@ -80,16 +80,16 @@ export default defineNitroPlugin(app => {
                 });
 
                 /* data.controllers.push({
-                    callsign: 'RU-SC_FSS',
+                    callsign: 'JFK_G_APP',
                     cid: 3,
-                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().FSS,
+                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                     frequency: '122.122',
                     last_updated: '',
                     logon_time: '',
                     name: '',
                     rating: 0,
                     server: '',
-                    text_atis: ['undefined'],
+                    text_atis: ['test3'],
                     visual_range: 0,
                 });*/
 

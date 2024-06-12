@@ -108,13 +108,6 @@ export function findAirportSomewhere(callsign: string) {
         }
     }
 
-    if (simaware) {
-        simaware.properties = {
-            ...(simaware.properties ?? {}),
-            id: prefix,
-        };
-    }
-
     let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
     if (vatspy && simaware) {
         vatspy = {

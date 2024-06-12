@@ -2,7 +2,7 @@
     <teleport
         v-if="modelValue"
         :disabled="disableTeleport"
-        to="body"
+        to="#teleports"
     >
         <transition name="popup--appear">
             <div

@@ -86,11 +86,12 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             let flown = 0;
             let eta: Date | null = null;
 
-            const arrivalAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
+            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.departure!);
+            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
 
             if (arrivalAirport) {
                 const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
-                const depCoords = toLonLat([airport?.lon ?? 0, airport?.lat ?? 0]);
+                const depCoords = toLonLat([departureAirport?.lon ?? 0, departureAirport?.lat ?? 0]);
                 const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
 
                 distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);

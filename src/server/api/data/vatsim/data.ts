@@ -4,6 +4,7 @@ import type { VatsimLiveDataShort } from '~/types/data/vatsim';
 
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
+
     const isShort = getQuery(event).short === '1';
 
     if (isShort) {

@@ -260,7 +260,7 @@ const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
 function getLocalPilotStatus(pilot: AirportPopupPilotStatus): ReturnType<typeof getPilotStatus> {
     if (aircraftMode.value !== 'ground') {
         if (pilot.isArrival) {
-            return getPilotStatus((pilot.distance !== 0 && pilot.distance < 40) ? 'arriving' : 'enroute');
+            return getPilotStatus((pilot.distance !== 0 && pilot.distance < 40) ? 'arriving' : pilot.flown < 5 ? 'depTaxi' : 'enroute');
         }
         else {
             return getPilotStatus((pilot.distance !== 0 && pilot.flown < 40) ? 'departed' : 'enroute');

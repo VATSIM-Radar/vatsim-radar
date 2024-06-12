@@ -508,6 +508,11 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'EC25':
         case 'UH1':
             return aircraftIcons.h160;
+        case 'B461':
+        case 'RJ70':
+        case 'RJ85':
+        case 'RJ1H':
+            return aircraftIcons.b461;
         case 'B731':
         case 'B732':
         case 'B733':
@@ -517,7 +522,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B737':
         case 'B738':
         case 'B739':
-        case 'B461':
         case 'B462':
         case 'B463':
         case 'B741':

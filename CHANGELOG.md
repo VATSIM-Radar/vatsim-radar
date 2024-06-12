@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.4.0-rc.2
+
+## Production changelog
+
+- Fixed issue with SimAware labels displaying incorrect names (JFK -> N90)
+- Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
+
 # 0.4.0-rc.1
 
 ## Alpha fixes and improvements

@@ -3,6 +3,10 @@ import type { SimAwareData } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
+const revisions: Record<string, number> = {
+    'v1.1.24': 1,
+};
+
 export default defineNitroPlugin(app => {
     CronJob.from({
         cronTime: '15 * * * *',
@@ -18,6 +22,8 @@ export default defineNitroPlugin(app => {
             }>('https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/releases/latest', {
                 timeout: 1000 * 60,
             });
+
+            if (revisions[data.name]) data.name += `-${ revisions[data.name] }`;
 
             if (radarStorage.simaware.version === data.name) return;
 
