@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import type { FullUser } from '~/utils/backend/user';
-import type { MapAircraftMode, MapAirport, UserLocalSettings } from '~/types/map';
+import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 
@@ -31,5 +31,7 @@ export const useStore = defineStore('index', {
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
         config: {} as SiteConfig,
+
+        showPilotStats: false,
     }),
 });

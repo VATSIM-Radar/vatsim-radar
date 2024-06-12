@@ -147,6 +147,7 @@
         <div
             v-else
             class="airport_sections"
+            :class="[`airport_sections--aircraft-cols-${ controllerColumns.length }`]"
         >
             <div
                 v-for="column in controllerColumns"
@@ -170,6 +171,7 @@
                     </div>
                     <airport-aircraft
                         v-if="ready"
+                        v-model:selected="selectedPilot"
                         in-dashboard
                         :simple-mode="column.key"
                     />
@@ -177,11 +179,35 @@
             </div>
         </div>
         <div
+            v-if="mapLayouts[mapMode ?? 'default'].map !== '0'"
             :key="store.theme"
             class="airport_map"
         >
-            <iframe :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"/>
+            <iframe
+                class="airport_map_iframe"
+                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"
+            />
+            <transition name="airport_map_pilot--appear">
+                <airport-pilot
+                    v-if="selectedPilot"
+                    :key="selectedPilot"
+                    :cid="selectedPilot"
+                    class="airport_map_pilot"
+                    @update:modelValue="selectedPilot = null"
+                />
+            </transition>
         </div>
+        <common-popup
+            v-else-if="selectedPilot"
+            disabled
+            :model-value="!!selectedPilot"
+        >
+            <airport-pilot
+                :cid="selectedPilot"
+                class="airport_map_pilot airport_map_pilot--popup"
+                @update:modelValue="selectedPilot = null"
+            />
+        </common-popup>
     </div>
 </template>
 
@@ -203,6 +229,8 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
+import { useShowPilotStats } from '~/composables/pilots';
+import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -220,6 +248,8 @@ provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 useHead({
     title: icao,
 });
+
+const selectedPilot = ref<number | null>(null);
 
 const aircraftMode = ref<MapAircraftMode | null>(null);
 const aircraftModes: SelectItem<MapAircraftMode>[] = [
@@ -377,19 +407,7 @@ const controllerMode = useCookie<boolean>('controller-mode', {
     default: () => false,
 });
 
-let showPilotStats = useCookie<boolean>('show-pilot-stats', {
-    sameSite: 'strict',
-    secure: true,
-    default: () => false,
-});
-
-watch(controllerMode, () => {
-    // Otherwise not updated for some reason
-    showPilotStats = useCookie<boolean>('show-pilot-stats', {
-        sameSite: 'strict',
-        secure: true,
-    });
-});
+const showPilotStats = useShowPilotStats();
 
 airportData.value = (await useAsyncData(async () => {
     try {
@@ -433,6 +451,30 @@ await setupDataFetch({
     gap: 16px;
 
     margin: 16px;
+
+    :deep(.info-block) {
+        background: $darkgray875 !important;
+    }
+
+    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot) {
+        background: $darkgray900 !important;
+    }
+
+    :deep(.aircraft_nav) {
+        top: 30px !important;
+    }
+
+    :deep(.popup-block), :deep(.aircraft_list), :deep(.atc-popup_list) {
+        overflow: unset !important;
+        max-height: unset !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    :deep(.atc-popup-container) {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
 
     &_header {
         display: flex;
@@ -482,6 +524,13 @@ await setupDataFetch({
         display: flex;
         gap: 16px;
         height: var(--dashboard-height);
+
+        &--aircraft-cols-4, &--aircraft-cols-5 {
+            :deep(.aircraft_list) {
+                flex-direction: column;
+                flex-wrap: nowrap;
+            }
+        }
     }
 
     &_column {
@@ -506,30 +555,6 @@ await setupDataFetch({
 
             background: $darkgray900;
             border-radius: 8px;
-
-            :deep(.info-block) {
-                background: $darkgray875 !important;
-            }
-
-            :deep(.title_text_content), :deep(.aircraft_list__filter){
-                background: $darkgray900 !important;
-            }
-
-            :deep(.aircraft_nav) {
-                top: 30px !important;
-            }
-
-            :deep(.popup-block), :deep(.aircraft_list), :deep(.atc-popup_list) {
-                overflow: unset !important;
-                max-height: unset !important;
-                padding: 0 !important;
-                background: transparent !important;
-            }
-
-            :deep(.atc-popup-container) {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
 
             &:not(:only-child) {
                 height: calc(var(--dashboard-height) / 2 - 8px);
@@ -588,14 +613,39 @@ await setupDataFetch({
     }
 
     &_map {
-        overflow: hidden;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
         height: var(--map-height);
-        border-radius: 8px;
 
         iframe {
             all: unset;
+            overflow: hidden;
             width: 100%;
-            height: 100%;
+            border-radius: 8px;
+        }
+
+        &_pilot {
+            overflow: auto;
+            width: 25%;
+            min-width: 25%;
+
+            &--appear {
+                &-enter-active,
+                &-leave-active {
+                    transition: 0.3s;
+                }
+
+                &-enter-from,
+                &-leave-to {
+                    width: 0;
+                    min-width:0;
+                }
+            }
+
+            &--popup {
+                width: 700px;
+            }
         }
     }
 }

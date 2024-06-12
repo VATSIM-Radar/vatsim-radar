@@ -101,7 +101,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { MapAircraft, MapAircraftKeys, MapAirport } from '~/types/map';
+import type { MapAircraft, MapAircraftKeys } from '~/types/map';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import MapOverlay from '~/components/map/MapOverlay.vue';

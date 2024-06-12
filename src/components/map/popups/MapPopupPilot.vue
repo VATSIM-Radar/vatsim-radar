@@ -64,7 +64,7 @@
             :key="i"
             #[`atc-${i}`]="{ section }"
         >
-            <div class="pilot__content">
+            <div class="pilot__content __info-sections">
                 <!-- @vue-ignore -->
                 <common-controller-info
                     :controllers="section.controllers"
@@ -83,130 +83,19 @@
             </div>
         </template>
         <template #flight>
-            <div
+            <map-popup-flight-info
                 :key="dataStore.vatsim.updateTimestamp.value.toString()"
-                class="pilot__content"
-            >
-                <div class="pilot__self">
-                    <div>Pilot</div>
-                    <common-info-block
-                        :bottom-items="[...usePilotRating(pilot), stats ? `${ stats }h total time` : undefined]"
-                        class="pilot__card"
-                        :top-items="[parseEncoding(pilot.name), pilot.cid]"
-                    />
-                </div>
-                <common-info-block class="pilot__card">
-                    <template #top>
-                        <div class="pilot__card_route">
-                            <div
-                                :key="String(depAirport) + String(arrAirport) + getStatus.title"
-                                class="pilot__card_route_header"
-                            >
-                                <component
-                                    :is="depAirport ? CommonButton : 'div'"
-                                    class="pilot__card_route_header_airport pilot__card_route_header_airport--dep"
-                                    type="link"
-                                    @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
-                                >
-                                    {{
-                                        (pilot.flight_plan?.departure || ((pilot.status === 'depTaxi' || pilot.status === 'depGate') && pilot.airport)) || ''
-                                    }}
-                                </component>
-                                <div
-                                    class="pilot__card_route_header_status"
-                                >
-                                    {{ getStatus.title }}
-                                </div>
-                                <component
-                                    :is="arrAirport ? CommonButton : 'div'"
-                                    class="pilot__card_route_header_airport pilot__card_route_header_airport--arr"
-                                    type="link"
-                                    @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
-                                >
-                                    {{ pilot.flight_plan?.arrival || '' }}
-                                </component>
-                            </div>
-                            <div
-                                v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
-                                class="pilot__card_route_line"
-                                :class="{
-                                    'pilot__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
-                                    'pilot__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
-                                }"
-                                v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
-                            />
-                            <common-button
-                                class="pilot__card_route_open"
-                                type="link"
-                                @click="viewRoute"
-                            >
-                                View route
-                            </common-button>
-                            <div class="pilot__card_route_footer">
-                                <div class="pilot__card_route_footer_left">
-                                    {{
-                                        (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(pilot.depDist) } NM,` : ''
-                                    }} Online
-                                    <span v-if="pilot.logon_time">
-                                        {{ getLogonTime }}
-                                    </span>
-                                </div>
-                                <div
-                                    v-if="getDistAndTime"
-                                    class="pilot__card_route_footer_right"
-                                >
-                                    {{ getDistAndTime }}
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                </common-info-block>
-                <div
-                    v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder"
-                    class="pilot__cols"
-                >
-                    <common-info-block
-                        :bottom-items="[pilot.transponder || 'None']"
-                        class="pilot__card"
-                        text-align="center"
-                        :top-items="['Squawk set']"
-                    />
-                    <common-info-block
-                        :bottom-items="[pilot.flight_plan?.assigned_transponder || 'None']"
-                        class="pilot__card"
-                        text-align="center"
-                        :top-items="['Squawk assigned']"
-                    />
-                </div>
-                <div class="pilot__cols">
-                    <common-info-block
-                        :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
-                        class="pilot__card"
-                        text-align="center"
-                        title="Ground Speed"
-                        :top-items="['GS']"
-                    />
-                    <common-info-block
-                        :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
-                        class="pilot__card"
-                        text-align="center"
-                        :title="pilot.altitude"
-                        :top-items="['Altitude']"
-                    />
-                    <common-info-block
-                        :bottom-items="[`${ pilot.heading }°`]"
-                        class="pilot__card"
-                        text-align="center"
-                        :top-items="['Heading']"
-                    />
-                </div>
-            </div>
+                class="pilot__content __info-sections"
+                :is-offline="isOffline"
+                :pilot
+                @viewRoute="viewRoute()"
+            />
         </template>
         <template #flightplan>
             <map-popup-flight-plan
                 v-if="pilot.flight_plan"
                 :key="dataStore.vatsim.updateTimestamp.value.toString()"
-                class="pilot__content"
+                class="pilot__content __info-sections"
                 :cruise="pilot.cruise"
                 :flight-plan="pilot.flight_plan"
                 :status="pilot.status ?? null"
@@ -265,8 +154,6 @@ import type { PropType, ShallowRef } from 'vue';
 import { useStore } from '~/store';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
-import { getHoursAndMinutes } from '../../../utils';
-import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
@@ -275,22 +162,20 @@ import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { fetchAircraftIcon, sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { getPilotStatus, reColorSvg, showPilotOnMap } from '~/composables/pilots';
+import { sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { boundingExtent, getCenter } from 'ol/extent';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import { useCopyText } from '~/composables';
-import { parseEncoding } from '~/utils/data';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { getVATSIMMemberStats } from '~/composables/data';
+import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
 
 const props = defineProps({
     overlay: {
@@ -307,19 +192,11 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
 
-const datetime = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
 const pilot = computed(() => props.overlay.data.pilot);
 const airportInfo = computed(() => {
     return props.overlay.data.airport;
 });
 const isOffline = ref(false);
-
-const svg = shallowRef<string | null>(null);
 
 const depAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
@@ -327,25 +204,6 @@ const depAirport = computed(() => {
 
 const arrAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
-});
-
-const getDistAndTime = computed(() => {
-    try {
-        if (!pilot.value.toGoDist || !pilot.value.toGoTime) return null;
-
-        const dist = Math.round(pilot.value.toGoDist);
-        const date = datetime.format(new Date(pilot.value.toGoTime!));
-
-        return `${ dist } NM in ${ date }Z`;
-    }
-    catch (e) {
-        console.error(e);
-        return null;
-    }
-});
-
-const getLogonTime = computed(() => {
-    return getHoursAndMinutes(new Date(pilot.value.logon_time || 0).getTime());
 });
 
 const showOnMap = () => {
@@ -558,20 +416,6 @@ function handlePointerDrag() {
 }
 
 onMounted(() => {
-    watch(() => pilot.value.flight_plan?.aircraft_short, async val => {
-        if (!val) {
-            svg.value = null;
-            return;
-        }
-
-        const icon = getAircraftIcon(pilot.value);
-        if (!icon) return;
-
-        svg.value = await fetchAircraftIcon(icon.icon);
-    }, {
-        immediate: true,
-    });
-
     watch(() => pilot.value.airport, async icao => {
         if (airportInfo.value?.icao === icao) return;
 
@@ -591,9 +435,6 @@ onBeforeUnmount(() => {
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
 });
-
-// eslint-disable-next-line vue/no-ref-object-reactivity-loss
-const { data: stats } = useLazyAsyncData(`stats-pilot-${ pilot.value.cid }`, () => getVATSIMMemberStats(pilot.value, 'pilot'));
 </script>
 
 <style scoped lang="scss">
@@ -671,105 +512,6 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ pilot.value.cid }`, () 
     &__content {
         position: relative;
         z-index: 0;
-
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    &__self {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-
-        font-size: 13px;
-        font-weight: 700;
-
-        .pilot__card {
-            flex: 1 1 0;
-            width: 0;
-        }
-    }
-
-    &__card {
-        &_route {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-
-            &_header {
-                display: flex;
-                gap: 8px;
-                justify-content: space-between;
-
-                &, & .button {
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-
-                &_status {
-                    font-size: 12px;
-                    color: var(--status-color);
-                }
-            }
-
-            &_line {
-                position: relative;
-                display: flex;
-                align-items: center;
-                height: 24px;
-
-                &::before, &::after {
-                    content: '';
-
-                    position: absolute;
-
-                    width: 100%;
-                    height: 2px;
-
-                    background: $darkgray850;
-                    border-radius: 4px;
-                }
-
-                &::after {
-                    width: var(--percent);
-                    background: $primary500;
-                }
-
-                :deep(svg) {
-                    position: relative;
-                    z-index: 1;
-                    left: var(--percent);
-                    transform: translateX(-50%) rotate(90deg);
-
-                    height: 24px;
-                }
-
-                &--start svg {
-                    transform: rotate(90deg);
-                }
-            }
-
-            &_footer {
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                justify-content: space-between;
-
-                font-size: 11px;
-                font-weight: 400;
-            }
-        }
-    }
-
-    &__cols {
-        display: flex;
-        gap: 8px;
-
-        > * {
-            flex: 1 1 0;
-            width: 0;
-        }
     }
 
     &__track {

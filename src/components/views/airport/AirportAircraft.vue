@@ -2,6 +2,7 @@
     <div
         v-if="airport"
         class="aircraft"
+        :class="{ 'aircraft--simple': simpleMode }"
     >
         <airport-aircraft-filter
             v-if="!filterRelativeToAircraft"
@@ -89,8 +90,9 @@
                     (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
                 ]"
                 class="aircraft__pilot"
+                :class="{ 'aircraft__pilot--selected': simpleMode && selected === pilot.cid }"
                 is-button
-                @click="!inDashboard && ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
+                @click="inDashboard ? selected = pilot.cid : ((aircraftMode === 'ground' && aircraftGroundMode === 'prefiles') ? mapStore.addPrefileOverlay(pilot.cid.toString()) : mapStore.addPilotOverlay(pilot.cid.toString()))"
             >
                 <template #top>
                     <div
@@ -110,6 +112,7 @@
                             </div>
                         </div>
                         <div
+                            v-if="!simpleMode"
                             class="aircraft__pilot_header_status"
                             :style="{ '--color': `rgb(var(--${ getLocalPilotStatus(pilot).color }))` }"
                         >
@@ -152,7 +155,7 @@ import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getAircraftForAirport, injectAirport } from '~/composables/airport';
 import type { AirportPopupPilotStatus } from '~/composables/airport';
 import { useDataStore } from '~/composables/data';
-import { getPilotStatus } from '~/composables/pilots';
+import { getPilotStatus, useShowPilotStats } from '~/composables/pilots';
 import { useMapStore } from '~/store/map';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
@@ -176,6 +179,9 @@ const props = defineProps({
         default: null,
     },
 });
+
+const selected = defineModel('selected', { type: Number, default: null });
+
 const data = injectAirport();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -186,11 +192,7 @@ const pilotsRefs = computed<HTMLDivElement[]>(() => {
     return [];
 });
 
-const showPilotStats = useCookie<boolean>('show-pilot-stats', {
-    sameSite: 'strict',
-    secure: true,
-    default: () => false,
-});
+const showPilotStats = useShowPilotStats();
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -207,6 +209,26 @@ const aircraftGroundFilterOpened = ref(false);
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
 
 const aircraft = getAircraftForAirport(data, computed(() => props.simpleMode));
+
+watch(() => props.simpleMode, val => {
+    if (!val) return;
+    if (val === 'departures') aircraftMode.value = 'departed';
+    if (val === 'arrivals') aircraftMode.value = 'arriving';
+    if (val === 'groundDep') {
+        aircraftMode.value = 'ground';
+        aircraftGroundMode.value = 'dep';
+    }
+    if (val === 'groundArr') {
+        aircraftMode.value = 'ground';
+        aircraftGroundMode.value = 'arr';
+    }
+    if (val === 'prefiles') {
+        aircraftMode.value = 'ground';
+        aircraftGroundMode.value = 'prefiles';
+    }
+}, {
+    immediate: true,
+});
 
 const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
     if (aircraftMode.value === 'departed' || props.simpleMode === 'departures') {
@@ -402,8 +424,20 @@ defineExpose({
         }
     }
 
+    &--simple {
+        grid-template-columns: 100%;
+
+        .aircraft_list {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+    }
+
     &__pilot {
         background: $darkgray900;
+        border: 2px solid transparent;
+        transition: 0.3s;
+
 
         &_header {
             display: flex;
@@ -422,6 +456,14 @@ defineExpose({
 
             &_status {
                 color: var(--color);
+            }
+        }
+
+        &--selected {
+            border-color: $primary600;
+
+            .aircraft__pilot_header_title {
+                color: $primary500
             }
         }
     }

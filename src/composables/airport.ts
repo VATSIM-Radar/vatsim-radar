@@ -150,7 +150,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         return list;
     });
 
-    if (getCurrentInstance() && !injected) provide('airport-aircraft', aircraft);
+    if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
 };

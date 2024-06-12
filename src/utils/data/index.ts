@@ -48,7 +48,7 @@ const encoder = new TextEncoder();
 const decoder1251 = new TextDecoder('windows-1251');
 let slugs1251: string[] = [];
 
-const regex1251 = new RegExp('([Ћ¤ґ®©Єþðî])', 'i');
+const regex1251 = new RegExp('([Ћ¤ґ®©Єþðîí])', 'i');
 
 export function parseEncoding(text: string, callsignOrAirport?: string) {
     try {

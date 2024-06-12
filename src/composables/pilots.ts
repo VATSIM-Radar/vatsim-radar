@@ -219,3 +219,25 @@ export function getAircraftLineStyle(color: string, width = 1.5): Style {
     lineStyles.push(style);
     return style.style;
 }
+
+export const useShowPilotStats = () => {
+    const store = useStore();
+
+    store.showPilotStats = useCookie<boolean>('show-pilot-stats', {
+        sameSite: 'strict',
+        secure: true,
+    }).value ?? false;
+
+    return computed({
+        get() {
+            return store.showPilotStats;
+        },
+        set(value: boolean) {
+            useCookie<boolean>('show-pilot-stats', {
+                sameSite: 'strict',
+                secure: true,
+            }).value = value;
+            store.showPilotStats = value;
+        },
+    });
+};
