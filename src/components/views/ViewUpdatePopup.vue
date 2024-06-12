@@ -81,7 +81,6 @@
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
-import { useMapStore } from '~/store/map';
 
 interface UpdateFeature {
     title: string;
