@@ -56,7 +56,7 @@
     "eslint": "^9.4.0",
     "postcss": "^8.4.38",
     "postcss-html": "^1.7.0",
-    "sass": "^1.77.4",
+    "sass": "^1.77.5",
     "stylelint": "^16.6.1",
     "stylelint-config-clean-order": "^6.0.0",
     "stylelint-config-recommended-scss": "^14.0.0",
