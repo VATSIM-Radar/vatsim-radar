@@ -207,7 +207,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Light theme',
@@ -237,11 +237,11 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Weather radar',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Airport Dashboard Controller Mode',
-                status: 'in-progress',
+                status: 'completed',
             },
         ],
     },
@@ -304,7 +304,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 43;
+const percents = 47;
 
 interface RoadmapGroup {
     status: ItemStatus;
