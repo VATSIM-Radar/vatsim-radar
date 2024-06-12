@@ -18,6 +18,7 @@
                     @click.stop
                 >
                     <div
+                        v-if="!disabled"
                         class="popup__close"
                         @click="closePopup()"
                     >

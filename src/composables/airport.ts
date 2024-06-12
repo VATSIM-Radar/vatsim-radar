@@ -3,7 +3,7 @@ import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { toLonLat } from 'ol/proj';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { MapAirport } from '~/types/map';
+import type { MapAircraftKeys } from '~/types/map';
 
 /**
  * @note data must be reactive object or a computed
@@ -61,9 +61,9 @@ export type AirportPopupPilotStatus = (VatsimShortenedAircraft | VatsimShortened
     eta: Date | null;
 };
 
-export type AirportPopupPilotList = Record<keyof MapAirport['aircraft'], Array<AirportPopupPilotStatus>>;
+export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPilotStatus>>;
 
-export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
+export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
 
@@ -132,10 +132,25 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>) =>
             }
         }
 
+        if (filter) {
+            const _filter = toValue(filter);
+
+            if (_filter) {
+                return {
+                    groundDep: [],
+                    groundArr: [],
+                    prefiles: [],
+                    departures: [],
+                    arrivals: [],
+                    [_filter]: list[_filter],
+                };
+            }
+        }
+
         return list;
     });
 
-    if (getCurrentInstance() && !injected) provide('airport-aircraft', aircraft);
+    if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
 };

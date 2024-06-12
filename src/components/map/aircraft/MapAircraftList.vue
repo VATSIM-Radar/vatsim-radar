@@ -22,6 +22,7 @@ import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
+import type { MapAircraftKeys } from '~/types/map';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -81,6 +82,11 @@ function setVisiblePilots() {
         if (airport) {
             const aircraft = Object.values(airport.aircraft).flatMap(x => x);
             visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
+
+            if (store.config.airportMode && store.config.airportMode !== 'all') {
+                if (store.config.airportMode === 'ground') visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                else visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+            }
         }
         else {
             visiblePilots.value = [];

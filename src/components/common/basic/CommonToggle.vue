@@ -41,6 +41,7 @@ const model = defineModel({
 <style scoped lang="scss">
 .toggle {
     cursor: pointer;
+    user-select: none;
 
     display: flex;
     gap: 8px;

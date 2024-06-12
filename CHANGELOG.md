@@ -1,5 +1,14 @@
 # Changelog
 
+# 0.4.0-rc.1
+
+## Alpha fixes and improvements
+
+- Added RainViewer as weather provider
+- Added Controller Mode and settings to airport dashboard. Needs testing until the end of the day!
+
+No more features are planned to come for 0.4.0 - expect only bug fixes and improvements in next builds.
+
 # 0.4.0-beta.4
 
 ## Alpha fixes and improvements
