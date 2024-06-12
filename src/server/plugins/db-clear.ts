@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
 import { prisma } from '~/utils/backend/prisma';
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     CronJob.from({
         cronTime: '15 * * * *',
         start: true,

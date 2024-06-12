@@ -1,8 +1,19 @@
 <template>
-    <div v-show="false" v-if="model">
-        <div class="map-overlay" ref="overlayElement" v-bind="$attrs" v-show="persistent || canShowOverlay">
+    <div
+        v-if="model"
+        v-show="false"
+    >
+        <div
+            v-show="persistent || canShowOverlay"
+            ref="overlayElement"
+            class="map-overlay"
+            v-bind="$attrs"
+        >
             <slot/>
-            <slot name="popup" v-if="isPopupOpen"/>
+            <slot
+                v-if="isPopupOpen"
+                name="popup"
+            />
         </div>
     </div>
 </template>
@@ -46,6 +57,8 @@ const emit = defineEmits({
         return true;
     },
 });
+
+defineSlots<{ default: () => any; popup: () => any }>();
 
 const model = defineModel({
     type: Boolean,
@@ -94,7 +107,7 @@ watch([overlay, isPopupOpen, zIndex], () => {
 const openOverlayId = computed(() => mapStore.openOverlayId);
 
 function recreateOverlay(stopEvent: boolean) {
-    //@ts-expect-error
+    // @ts-expect-error Ignore protected state
     if (!overlay.value || stopEvent === overlay.value.stopEvent) return;
     if (!overlay.value) return;
 
@@ -158,22 +171,22 @@ const positioning = computed(() => props.settings?.positioning);
 const offset = computed(() => props.settings?.offset);
 const stopEvent = computed(() => props.settings?.stopEvent && canShowOverlay.value);
 
-watch(position, (val) => {
+watch(position, val => {
     if (!val) return;
     if (overlay.value) overlay.value.setPosition(val);
 });
 
-watch(positioning, (val) => {
+watch(positioning, val => {
     if (!val) return;
     if (overlay.value) overlay.value.setPositioning(val);
 });
 
-watch(offset, (val) => {
+watch(offset, val => {
     if (!val) return;
     if (overlay.value) overlay.value.setOffset(val);
 });
 
-watch(stopEvent, (val) => {
+watch(stopEvent, val => {
     if (val === undefined) return;
     recreateOverlay(val);
 });

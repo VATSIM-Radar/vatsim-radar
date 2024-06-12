@@ -1,7 +1,10 @@
 <template>
     <nuxt-layout>
         <view-error404 v-if="'statusCode' in error && error.statusCode === 404"/>
-        <view-error500 v-else :error="error"/>
+        <view-error500
+            v-else
+            :error="error"
+        />
     </nuxt-layout>
 </template>
 

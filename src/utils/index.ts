@@ -40,3 +40,8 @@ export async function copyText(text: string): Promise<void> {
 
     document.body.removeChild(textArea);
 }
+
+export function serializeClass<T extends string | null | undefined>(className: T): T {
+    if (typeof className === 'string') return className.replaceAll(':', '\\:') as T;
+    return className;
+}

@@ -10,21 +10,21 @@ export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot):
 
     if (direction >= 0 && direction < 90) {
         lonAdjustment = (direction / 90) * 30;
-        latAdjustment = (1 - direction / 90) * 30;
+        latAdjustment = (1 - (direction / 90)) * 30;
     }
     else if (direction >= 90 && direction < 180) {
         direction -= 90;
-        lonAdjustment = (1 - direction / 90) * 30;
+        lonAdjustment = (1 - (direction / 90)) * 30;
         latAdjustment = (direction / 90) * -30;
     }
     else if (direction >= 180 && direction < 270) {
         direction -= 180;
         lonAdjustment = (direction / 90) * -30;
-        latAdjustment = (1 - direction / 90) * -30;
+        latAdjustment = (1 - (direction / 90)) * -30;
     }
     else {
         direction -= 270;
-        lonAdjustment = (1 - direction / 90) * -30;
+        lonAdjustment = (1 - (direction / 90)) * -30;
         latAdjustment = (direction / 90) * 30;
     }
 
@@ -32,8 +32,8 @@ export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot):
 }
 
 export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot, gates: NavigraphGate[]): {
-    truly: boolean
-    maybe: boolean
+    truly: boolean;
+    maybe: boolean;
 } {
     const result = {
         truly: false,
@@ -97,7 +97,7 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
 
 export function getPilotTrueAltitude(pilot: VatsimShortenedAircraft): number {
     if (pilot.altitude < 9500) return pilot.altitude;
-    return Math.round(pilot.altitude - (pilot.qnh_mb - 1013) * 28.9);
+    return Math.round(pilot.altitude - ((pilot.qnh_mb - 1013) * 28.9));
 }
 
 export function getTraconPrefixes(tracon: GeoJSONFeature): string[] {

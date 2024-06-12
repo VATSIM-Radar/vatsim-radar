@@ -5,8 +5,8 @@
         :aircraft="aircraft"
         :is-hovered="hoveredAircraft === aircraft.cid"
         :show-label="showAircraftLabel.includes(aircraft.cid)"
-        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
         @manualHide="[isManualHover = false, hoveredAircraft = null]"
+        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
     />
 </template>
 
@@ -21,11 +21,19 @@ import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
+import { useStore } from '~/store';
+import type { MapAircraftKeys } from '~/types/map';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
+
+let linesLayer: VectorLayer<any>;
+const linesSource = shallowRef<VectorSource | null>(null);
+provide('lines-source', linesSource);
+
 const map = inject<ShallowRef<Map | null>>('map')!;
+const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
@@ -38,21 +46,21 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
-    map.value!.getOverlays().forEach((overlay) => {
-        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
+    map.value!.getOverlays().forEach(overlay => {
+        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft') || x.includes('airport'))) return;
         const position = overlay.getPosition();
         if (position) {
             overlaysCoordinates.push(map.value!.getPixelFromCoordinate(position));
         }
     });
 
-    return dataStore.vatsim.data.pilots.value.filter((x) => {
+    return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
         if (!pilotPixel) return false;
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
             Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
-            !overlaysCoordinates.some(x => Math.abs(pilotPixel[0] - x[0]) < 30 && Math.abs(pilotPixel[1] - x[1]) < 30);
+            !overlaysCoordinates.some(x => Math.abs(pilotPixel[0] - x[0]) < 15 && Math.abs(pilotPixel[1] - x[1]) < 15);
     }) ?? [];
 }
 
@@ -63,11 +71,27 @@ function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft): Pixel | null 
 const visiblePilots = shallowRef<VatsimShortenedAircraft[]>([]);
 
 function setVisiblePilots() {
-    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter((x) => {
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
+
+    if (store.config.airport && store.config.onlyAirportAircraft) {
+        const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        if (airport) {
+            const aircraft = Object.values(airport.aircraft).flatMap(x => x);
+            visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
+
+            if (store.config.airportMode && store.config.airportMode !== 'all') {
+                if (store.config.airportMode === 'ground') visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                else visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+            }
+        }
+        else {
+            visiblePilots.value = [];
+        }
+    }
 }
 
 watch(dataStore.vatsim.updateTimestamp, () => {
@@ -124,11 +148,11 @@ function handleMoveEnd() {
 
 attachMoveEnd(handleMoveEnd);
 
-watch(map, (val) => {
+watch(map, val => {
     if (!val) return;
 
     let hasLayer = false;
-    val.getLayers().forEach((layer) => {
+    val.getLayers().forEach(layer => {
         if (hasLayer) return;
         hasLayer = layer.getProperties().type === 'aircraft';
     });
@@ -149,9 +173,26 @@ watch(map, (val) => {
         });
     }
 
-    val.addLayer(vectorLayer);
+    if (!linesLayer) {
+        linesSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: false,
+        });
 
-    val.on('pointermove', handlePointerMove);
+        linesLayer = new VectorLayer<any>({
+            source: linesSource.value,
+            properties: {
+                type: 'aircraft-line',
+            },
+            zIndex: 5,
+            declutter: true,
+        });
+    }
+
+    val.addLayer(vectorLayer);
+    val.addLayer(linesLayer);
+
+    attachPointerMove(handlePointerMove);
     val.on('click', handleClick);
 }, {
     immediate: true,
@@ -159,7 +200,7 @@ watch(map, (val) => {
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
-    map.value?.un('pointermove', handlePointerMove);
+    if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
 });
 </script>

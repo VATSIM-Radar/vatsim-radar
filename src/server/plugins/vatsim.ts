@@ -29,7 +29,7 @@ function excludeKeys<S extends {
     return newData;
 }
 
-export default defineNitroPlugin((app) => {
+export default defineNitroPlugin(app => {
     let latestFinished = 0;
     let isInProgress = false;
 
@@ -52,7 +52,7 @@ export default defineNitroPlugin((app) => {
                     if (new Date(radarStorage.vatsim.data.general.update_timestamp).getTime() >= new Date(data.general.update_timestamp).getTime()) return;
                 }
 
-                data.pilots = data.pilots.map((x) => {
+                data.pilots = data.pilots.map(x => {
                     const coords = fromServerLonLat([x.longitude, x.latitude]);
 
                     return {
@@ -65,8 +65,22 @@ export default defineNitroPlugin((app) => {
                 data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
                 data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
 
-                /*data.controllers.push({
-                    callsign: 'CHI_X_APP',
+                data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
+
+                radarStorage.vatsim.data = data;
+
+                const positions = useFacilitiesIds();
+
+                data.controllers = data.controllers.filter(controller => {
+                    if (controller.facility === positions.OBS) return;
+                    let postfix = controller.callsign.split('_').slice(-1)[0];
+                    if (postfix === 'DEP') postfix = 'APP';
+                    controller.facility = positions[postfix as keyof typeof positions] ?? -1;
+                    return controller.facility !== -1 && controller.facility !== positions.OBS;
+                });
+
+                /* data.controllers.push({
+                    callsign: 'JFK_G_APP',
                     cid: 3,
                     facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                     frequency: '122.122',
@@ -75,22 +89,9 @@ export default defineNitroPlugin((app) => {
                     name: '',
                     rating: 0,
                     server: '',
-                    text_atis: ['undefined'],
+                    text_atis: ['test3'],
                     visual_range: 0,
                 });*/
-
-                data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
-
-                radarStorage.vatsim.data = data;
-
-                const positions = useFacilitiesIds();
-
-                data.controllers = data.controllers.filter(controller => {
-                    if(controller.facility === positions.OBS) return;
-                    const postfix = controller.callsign.split('_').slice(-1)[0];
-                    controller.facility = positions[postfix as keyof typeof positions] ?? -1;
-                    return controller.facility !== -1 && controller.facility !== positions.OBS;
-                });
 
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
@@ -117,7 +118,7 @@ export default defineNitroPlugin((app) => {
 
                 radarStorage.vatsim.regularData = {
                     ...regularData,
-                    pilots: regularData.pilots.map((x) => {
+                    pilots: regularData.pilots.map(x => {
                         const origPilot = radarStorage.vatsim.data!.pilots.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
@@ -127,7 +128,7 @@ export default defineNitroPlugin((app) => {
                             arrival: origPilot.flight_plan?.arrival,
                         };
                     }),
-                    prefiles: regularData.prefiles.map((x) => {
+                    prefiles: regularData.prefiles.map(x => {
                         const origPilot = radarStorage.vatsim.data!.prefiles.find(y => y.cid === x.cid)!;
                         return {
                             ...x,
@@ -180,7 +181,7 @@ export default defineNitroPlugin((app) => {
         start: true,
         runOnInit: true,
         onTick: async () => {
-            radarStorage.vatsim.events = (await $fetch<{data: VatsimEvent[]}>('https://my.vatsim.net/api/v2/events/latest')).data;
+            radarStorage.vatsim.events = (await $fetch<{ data: VatsimEvent[] }>('https://my.vatsim.net/api/v2/events/latest')).data;
         },
     });
 });

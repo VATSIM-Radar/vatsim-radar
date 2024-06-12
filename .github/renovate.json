@@ -23,10 +23,6 @@
       "versioning": "node"
     },
     {
-      "matchPackageNames": "@types/node",
-      "minimumReleaseAge": "1 week"
-    },
-    {
       "matchPackageNames": "vue-tsc",
       "allowedVersions": "<2"
     },
@@ -72,8 +68,7 @@
   },
   "updateInternalDeps": true,
   "baseBranches": [
-    "main",
-    "/^release\\/.*/"
+    "next"
   ],
   "extends": [
     ":automergeDisabled",

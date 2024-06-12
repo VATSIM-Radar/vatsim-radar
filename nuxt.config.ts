@@ -29,6 +29,7 @@ export default defineNuxtConfig({
                     href: '/site.webmanifest',
                 },
                 {
+                    // @ts-expect-error Mask icon has gone from types...
                     rel: 'mask-icon',
                     href: '/safari-pinned-tab.svg',
                     color: '#3b6cec',
@@ -83,11 +84,19 @@ export default defineNuxtConfig({
         VATSIM_CLIENT_SECRET: process.env.VATSIM_CLIENT_SECRET,
         VATSIM_ENDPOINT: process.env.VATSIM_ENDPOINT,
 
-        DISCORD_CLIEND_ID: process.env.DISCORD_CLIEND_ID,
+        DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
         DISCORD_TOKEN: process.env.DISCORD_TOKEN,
         DISCORD_SERVER_ID: process.env.DISCORD_SERVER_ID,
+        DISCORD_INTERNAL_SERVER_ID: process.env.DISCORD_INTERNAL_SERVER_ID,
         DISCORD_RELEASES_CHANNEL_ID: process.env.DISCORD_RELEASES_CHANNEL_ID,
         DISCORD_ROLE_ID: process.env.DISCORD_ROLE_ID,
+        ACCESS_BY_DISCORD_ROLES: process.env.ACCESS_BY_DISCORD_ROLES,
+
+        INFLUX_URL: process.env.INFLUX_URL,
+        INFLUX_TOKEN: process.env.INFLUX_TOKEN,
+        INFLUX_ORG: process.env.INFLUX_ORG,
+        INFLUX_BUCKET_MAIN: process.env.INFLUX_BUCKET_MAIN,
+        INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
 
         public: {
             DOMAIN: process.env.DOMAIN,
@@ -121,6 +130,12 @@ export default defineNuxtConfig({
         routeRules: {
             '/discord': {
                 redirect: 'https://discord.gg/MtFKhMPePe',
+            },
+            '/layers/carto/**': {
+                proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
+            },
+            '/layers/jawg/**': {
+                proxy: 'https://tile.jawg.io/**',
             },
         },
     },

@@ -10,41 +10,47 @@
                 </div>
                 <div class="roadmap_runway_cols">
                     <div
+                        v-for="col in roadmap"
+                        :key="col.title"
                         class="roadmap_runway_col"
                         :class="{
                             'roadmap_runway_col--status-completed': col.completed,
                             'roadmap_runway_col--status-in-progress': col.items.some(x => typeof x === 'object' && (x.status === 'in-progress' || x.status === 'completed')),
                         }"
-                        v-for="col in roadmap"
-                        :key="col.title"
                     />
                 </div>
-                <div class="roadmap_runway_aircraft" :style="{'--percents': `${percents}%`}">
+                <div
+                    class="roadmap_runway_aircraft"
+                    :style="{ '--percents': `${ percents }%` }"
+                >
                     <roadmap-aircraft height="32"/>
                 </div>
             </div>
             <div class="roadmap_cols">
                 <div
+                    v-for="col in roadmap"
+                    :key="col.title"
                     class="roadmap__col"
                     :class="{
                         'roadmap__col--status-completed': col.completed,
                         'roadmap__col--status-in-progress': col.items.some(x => typeof x === 'object' && (x.status === 'in-progress' || x.status === 'completed')),
                     }"
-                    v-for="col in roadmap"
-                    :key="col.title"
                 >
                     <div class="roadmap__col_title">
                         {{ col.title }}
                     </div>
                     <div class="roadmap__item">
-                        <div class="roadmap__item_description" v-if="col.description">
+                        <div
+                            v-if="col.description"
+                            class="roadmap__item_description"
+                        >
                             {{ col.description }}
                         </div>
                         <div class="roadmap__item_groups">
                             <div
-                                class="roadmap__item_groups_group"
                                 v-for="group in getRoadmapGroups(col.items, col.completed)"
                                 :key="group.status"
+                                class="roadmap__item_groups_group"
                             >
                                 <div class="roadmap__item_groups_group_title">
                                     <div class="roadmap__item_groups_group_title_counter">
@@ -53,21 +59,24 @@
                                 </div>
                                 <div class="roadmap__item_groups_group_items">
                                     <div
-                                        class="roadmap__task"
-                                        :class="[`roadmap__task--status-${group.status}`]"
                                         v-for="(item, index) in group.items"
                                         :key="index"
+                                        class="roadmap__task"
+                                        :class="[`roadmap__task--status-${ group.status }`]"
                                     >
                                         <div class="roadmap__task_title">
                                             {{ typeof item === 'string' ? item : item.title }}
                                         </div>
                                         <div
-                                            class="roadmap__task_description"
                                             v-if="typeof item === 'object' && item.description"
+                                            class="roadmap__task_description"
                                         >
                                             {{ item.description }}
                                         </div>
-                                        <div class="roadmap__task_status" v-if="group.status !== 'none'">
+                                        <div
+                                            v-if="group.status !== 'none'"
+                                            class="roadmap__task_status"
+                                        >
                                             <template v-if="group.status === 'todo'">
                                                 Planned
                                             </template>
@@ -90,16 +99,16 @@
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/CommonPageBlock.vue';
+import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 
-type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'none'
+type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'none';
 
 interface Item {
-    title: string,
-    description?: string,
-    status?: ItemStatus
+    title: string;
+    description?: string;
+    status?: ItemStatus;
 }
 
 interface Roadmap {
@@ -176,9 +185,9 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Separate page & Fullscreen mode for airport popup',
+                title: 'Airport dashboard',
                 description: 'Separate dashboard that allows to view much more information on screen',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'ATC info popup',
@@ -198,7 +207,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Map Modes (OpenStreetMaps/Satellite/Other)',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Light theme',
@@ -207,10 +216,10 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Easy access to pilot stats in airport popup',
                 description: 'View pilots stats directly in airport popup to determine how new they are',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
-                title: 'Layers (hide atc/aircraft/gates/etc)',
+                title: 'Settings (hide atc/aircraft/gates/etc)',
                 status: 'todo',
             },
             {
@@ -224,11 +233,15 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Detailed history routes',
                 description: 'History of aircraft turns',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Weather radar',
-                status: 'in-progress',
+                status: 'completed',
+            },
+            {
+                title: 'Airport Dashboard Controller Mode',
+                status: 'completed',
             },
         ],
     },
@@ -248,6 +261,10 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular now etc',
             },
             'Hoppie integration',
+            {
+                title: 'PWA',
+                description: 'Basically PC version of VATSIM Radar',
+            },
         ],
     },
     {
@@ -257,8 +274,8 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Detailed Stats',
                 description: 'Popular over time etc',
             },
-            'PWA',
             'Name of aircraft operating company',
+            'Images or aircraft type + operator',
             'Aircraft moving in VATSIM update pause',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
@@ -272,7 +289,6 @@ const roadmap = reactive<Roadmap[]>([
             'Websockets instead of update requests',
             'Simbrief integration',
             'ATC/Booking notification for active flight',
-            'Images or aircraft type + operator',
             'ECFMP integration',
             'Streamers integration',
             '3D map view',
@@ -281,18 +297,18 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
             },
             {
-                title: 'Gates status in airport popup',
+                title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
             },
         ],
     },
 ]);
 
-const percents = 40;
+const percents = 47;
 
 interface RoadmapGroup {
-    status: ItemStatus,
-    items: Array<Item | string>
+    status: ItemStatus;
+    items: Array<Item | string>;
 }
 
 function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): RoadmapGroup[] {
@@ -330,24 +346,30 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 <style scoped lang="scss">
 .roadmap {
     &_runway {
-        background: $neutral900;
-        border-radius: 8px;
         position: relative;
+
         display: flex;
         align-items: center;
+
         height: 56px;
         margin-bottom: 48px;
 
+        background: $darkgray900;
+        border-radius: 8px;
+
         &::before {
             content: '';
+
             position: absolute;
-            width: 92%;
             left: 8%;
+
+            width: 92%;
             height: 1px;
-            background-image: linear-gradient(to right, $neutral800 33%, rgba(255, 255, 255, 0) 0%);
+
+            background-image: linear-gradient(to right, $darkgray800 33%, rgba(255, 255, 255, 0) 0%);
+            background-repeat: repeat-x;
             background-position: bottom;
             background-size: 25px 1px;
-            background-repeat: repeat-x;
         }
 
         > * {
@@ -361,10 +383,11 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &_digits {
             left: 5%;
+
             writing-mode: vertical-lr;
-            text-orientation: mixed;
-            font-weight: 300;
             font-size: 12px;
+            font-weight: 300;
+            text-orientation: mixed;
         }
 
         &_cols {
@@ -373,17 +396,20 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &_col {
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             width: 100%;
 
             &::before {
                 content: '';
+
                 position: absolute;
+
                 width: 8px;
                 height: 8px;
+
+                background: $lightgray100;
                 border-radius: 100%;
-                background: $neutral100;
             }
 
             &--status-completed::before {
@@ -397,6 +423,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &_aircraft {
             left: var(--percents);
+            color: $lightgray150;
+            animation: move 5s cubic-bezier(.85, .02, .47, .98);
 
             @keyframes move {
                 0% {
@@ -408,11 +436,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                 }
             }
 
-            animation: move 5s cubic-bezier(.85, .02, .47, .98);
-            color: $neutral150;
-
             svg :deep(path) {
-                stroke: $neutral950;
+                stroke: $darkgray950;
             }
         }
     }
@@ -427,11 +452,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         width: 100%;
 
         &_title {
-            font-family: $openSansFont;
-            font-weight: 700;
-            font-size: 24px;
-            text-align: center;
             margin-bottom: 16px;
+
+            font-family: $openSansFont;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
         }
 
         &--status-completed .roadmap__col_title {
@@ -445,45 +471,53 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
     &__item {
         padding: 16px;
+        background: $darkgray900;
         border-radius: 16px;
-        background: $neutral900;
 
         &_description {
-            font-size: 11px;
-            color: $neutral150;
             margin-bottom: 16px;
+            font-size: 11px;
+            color: $lightgray150;
         }
 
         &_groups {
+            overflow: auto;
             display: flex;
             flex-direction: column;
             gap: 16px;
+
             max-height: 65vh;
-            overflow: auto;
 
             &_group {
                 &_title {
-                    display: flex;
                     position: relative;
+                    display: flex;
                     margin-bottom: 16px;
 
                     &::before {
                         content: '';
+
                         position: absolute;
-                        background: $neutral850;
-                        height: 1px;
-                        width: 100%;
+
                         align-self: center;
+
+                        width: 100%;
+                        height: 1px;
+
+                        background: $darkgray850;
                     }
 
                     &_counter {
+                        position: relative;
+
                         margin-left: 8px;
-                        background: $neutral850;
                         padding: 0 8px;
-                        border-radius: 2px;
+
                         font-size: 11px;
                         font-weight: 600;
-                        position: relative;
+
+                        background: $darkgray850;
+                        border-radius: 2px;
                     }
                 }
 
@@ -500,10 +534,13 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         display: flex;
         flex-direction: column;
         gap: 8px;
+
         padding: 8px;
-        border-radius: 8px;
-        background: $neutral875;
+
         font-size: 13px;
+
+        background: $darkgray875;
+        border-radius: 8px;
 
         &_title {
             font-weight: 600;

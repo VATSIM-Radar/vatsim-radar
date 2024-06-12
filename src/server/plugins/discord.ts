@@ -33,14 +33,15 @@ function parseMarkdown() {
     return CHANGELOG;
 }
 
-export default defineNitroPlugin(async (app) => {
-    app.hooks.hook('request', (event) => {
+export default defineNitroPlugin(async app => {
+    app.hooks.hook('request', event => {
         event.context.radarVersion = json.version;
     });
 
     const config = useRuntimeConfig();
 
     const discordServerId = config.DISCORD_SERVER_ID;
+    const discordInternalServerId = config.DISCORD_INTERNAL_SERVER_ID;
     const discordReleasesChannelId = config.DISCORD_RELEASES_CHANNEL_ID;
     const discordRoleId = config.DISCORD_ROLE_ID;
 
@@ -48,6 +49,10 @@ export default defineNitroPlugin(async (app) => {
         {
             name: 'verify',
             description: 'Verify yourself to access VATSIM Radar',
+        },
+        {
+            name: 'qa-verify',
+            description: 'Verify for QA access to next website version',
         },
         {
             name: 'rename',
@@ -67,7 +72,7 @@ export default defineNitroPlugin(async (app) => {
             try {
                 console.log('Started refreshing application (/) commands.');
 
-                await rest.put(Routes.applicationCommands(config.DISCORD_CLIEND_ID), { body: commands });
+                await rest.put(Routes.applicationCommands(config.DISCORD_CLIENT_ID), { body: commands });
 
                 console.log('Successfully reloaded application (/) commands.');
             }
@@ -120,10 +125,50 @@ export default defineNitroPlugin(async (app) => {
         const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
 
         discordClient.on('interactionCreate', async (interaction): Promise<any> => {
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'qa-verify') {
+                const existingUser = await prisma.user.findFirst({
+                    where: {
+                        discordId: interaction.user.id,
+                    },
+                    select: {
+                        vatsim: true,
+                        discordStrategy: true,
+                    },
+                });
+
+                if (existingUser) {
+                    await interaction.reply({
+                        content: 'You have already been authorized on Radar Next.',
+                        ephemeral: true,
+                    });
+                    return;
+                }
+
+                const state = randomUUID();
+
+                await prisma.auth.create({
+                    data: {
+                        state,
+                        discordId: interaction.user.id,
+                        type: AuthType.VATSIM,
+                    },
+                });
+                const url = `${ config.public.DOMAIN }/api/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                const embed = new EmbedBuilder()
+                    .setURL(url)
+                    .setTitle('To verify yourself and authorize on Radar Next, please use this link');
+
+                await interaction.reply({
+                    embeds: [embed],
+                    ephemeral: true,
+                });
+                return;
+            }
+
             if (interaction.guildId !== discordServerId) return;
 
             if (config.public.IS_DOWN === 'true') {
-                if('reply' in interaction) {
+                if ('reply' in interaction) {
                     await interaction.reply({
                         content: 'Vatsim Radar authorization server is down. Please follow dev corner for updates',
                         ephemeral: true,
@@ -153,8 +198,7 @@ export default defineNitroPlugin(async (app) => {
                         });
                     }
                     else {
-                        //@ts-expect-error
-                        const foundStrategy = DiscordStrategy[interaction.values[0]];
+                        const foundStrategy = DiscordStrategy[interaction.values[0] as DiscordStrategy];
 
                         if (foundStrategy) {
                             await prisma.user.updateMany({
@@ -208,8 +252,7 @@ export default defineNitroPlugin(async (app) => {
                     }
                     else {
                         const state = randomUUID();
-                        //@ts-expect-error
-                        const foundStrategy = DiscordStrategy[interaction.values[0]];
+                        const foundStrategy = DiscordStrategy[interaction.values[0] as DiscordStrategy];
 
                         if (!foundStrategy) {
                             return await interaction.reply({
@@ -226,7 +269,7 @@ export default defineNitroPlugin(async (app) => {
                                 type: AuthType.VATSIM,
                             },
                         });
-                        const url = `${ config.public.DOMAIN }/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
+                        const url = `${ config.public.DOMAIN }/api/auth/vatsim/redirect?state=${ encodeURIComponent(state) }`;
                         const embed = new EmbedBuilder()
                             .setURL(url)
                             .setTitle('To verify yourself and authorize on VATSIM Radar, please use this link');
@@ -243,7 +286,7 @@ export default defineNitroPlugin(async (app) => {
 
             if (interaction.commandName === 'rename') {
                 await interaction.reply({
-                    //@ts-expect-error
+                    // @ts-expect-error Type error from Discord
                     components: [renameRow],
                     ephemeral: true,
                 });
@@ -284,7 +327,7 @@ export default defineNitroPlugin(async (app) => {
                 }
                 else {
                     await interaction.reply({
-                        //@ts-expect-error
+                        // @ts-expect-error Type error from Discord
                         components: [verifyRow],
                         ephemeral: true,
                     });
@@ -293,7 +336,7 @@ export default defineNitroPlugin(async (app) => {
             else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
                 const release = await discordClient.channels.fetch(discordReleasesChannelId);
                 if (release && 'send' in release) {
-                    release.send({
+                    await release.send({
                         content: parseMarkdown()!,
                     });
                     await interaction.reply({

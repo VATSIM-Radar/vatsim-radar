@@ -18,6 +18,9 @@ export type AircraftIcon =
     | 'a380'
     | 'b703'
     | 'b712'
+    | 'b720'
+    | 'b721'
+    | 'b722'
     | 'b731'
     | 'b732'
     | 'b733'
@@ -27,18 +30,52 @@ export type AircraftIcon =
     | 'b737'
     | 'b738'
     | 'b739'
+    | 'b752'
+    | 'b753'
+    | 'b762'
+    | 'b763'
+    | 'b764'
+    | 'b461'
+    | 'b462'
+    | 'b463'
+    | 'b741'
+    | 'b744'
+    | 'b748'
+    | 'b74s'
+    | 'blcf'
     | 'b78x'
     | 'b772'
     | 'b773'
+    | 'b77l'
+    | 'b77w'
     | 'b788'
     | 'b789'
     | 'conc'
+    | 'c510'
+    | 'crj2'
+    | 'crj7'
+    | 'crj9'
+    | 'crjx'
     | 'dc6'
+    | 'da42'
+    | 'da62'
+    | 'e170'
+    | 'e175'
+    | 'e190'
+    | 'e195'
+    | 'eufi'
+    | 'h47'
+    | 'h160'
+    | 'pc12'
+    | 'p46t'
     | 'md11'
     | 'md80'
+    | 'tbm7'
+    | 'tbm8'
+    | 'tbm9'
     | 't134'
     | 't144'
-    | 't154'
+    | 't154';
 
 const standardCoef = 30;
 
@@ -53,8 +90,14 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     return Math.round(size);
 }
 
-//TODO: calc width into local file
-export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: number }> = {
+type AircraftIcons = {
+    [K in AircraftIcon]: {
+        icon: K;
+        width: number;
+    }
+};
+
+export const aircraftIcons: AircraftIcons = {
     a300: {
         icon: 'a300',
         width: getAircraftSizeByCoef(0.75),
@@ -70,6 +113,18 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
     b712: {
         icon: 'b712',
         width: getAircraftSizeByCoef(0.47),
+    },
+    b720: {
+        icon: 'b720',
+        width: getAircraftSizeByCoef(0.66),
+    },
+    b721: {
+        icon: 'b721',
+        width: getAircraftSizeByCoef(0.55),
+    },
+    b722: {
+        icon: 'b722',
+        width: getAircraftSizeByCoef(0.55),
     },
     b731: {
         icon: 'b731',
@@ -107,12 +162,72 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
         icon: 'b739',
         width: getAircraftSizeByCoef(0.57),
     },
+    b461: {
+        icon: 'b461',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    b462: {
+        icon: 'b462',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    b463: {
+        icon: 'b463',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    b741: {
+        icon: 'b741',
+        width: getAircraftSizeByCoef(0.99),
+    },
+    b744: {
+        icon: 'b744',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    b748: {
+        icon: 'b748',
+        width: getAircraftSizeByCoef(1.14),
+    },
+    b74s: {
+        icon: 'b74s',
+        width: getAircraftSizeByCoef(0.99),
+    },
+    blcf: {
+        icon: 'blcf',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    b752: {
+        icon: 'b752',
+        width: getAircraftSizeByCoef(0.63),
+    },
+    b753: {
+        icon: 'b753',
+        width: getAircraftSizeByCoef(0.63),
+    },
+    b762: {
+        icon: 'b762',
+        width: getAircraftSizeByCoef(0.79),
+    },
+    b763: {
+        icon: 'b763',
+        width: getAircraftSizeByCoef(0.79),
+    },
+    b764: {
+        icon: 'b764',
+        width: getAircraftSizeByCoef(0.87),
+    },
     b772: {
         icon: 'b772',
         width: getAircraftSizeByCoef(1.02),
     },
     b773: {
         icon: 'b773',
+        width: getAircraftSizeByCoef(1.02),
+    },
+    b77l: {
+        icon: 'b77l',
+        width: getAircraftSizeByCoef(1.08),
+    },
+    b77w: {
+        icon: 'b77w',
         width: getAircraftSizeByCoef(1.08),
     },
     b788: {
@@ -131,12 +246,48 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
         icon: 'conc',
         width: getAircraftSizeByCoef(0.43, true),
     },
+    c510: {
+        icon: 'c510',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    crj2: {
+        icon: 'crj2',
+        width: getAircraftSizeByCoef(0.35),
+    },
+    crj7: {
+        icon: 'crj7',
+        width: getAircraftSizeByCoef(0.39),
+    },
+    crj9: {
+        icon: 'crj9',
+        width: getAircraftSizeByCoef(0.42),
+    },
+    crjx: {
+        icon: 'crjx',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    e170: {
+        icon: 'e170',
+        width: getAircraftSizeByCoef(0.43),
+    },
+    e175: {
+        icon: 'e175',
+        width: getAircraftSizeByCoef(0.43),
+    },
+    e190: {
+        icon: 'e190',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    e195: {
+        icon: 'e195',
+        width: getAircraftSizeByCoef(0.48),
+    },
     a318: {
         icon: 'a318',
         width: getAircraftSizeByCoef(0.6),
     },
     a319: {
-        icon: 'a318',
+        icon: 'a319',
         width: getAircraftSizeByCoef(0.6),
     },
     a320: {
@@ -144,7 +295,7 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
         width: getAircraftSizeByCoef(0.6),
     },
     a321: {
-        icon: 'a320',
+        icon: 'a321',
         width: getAircraftSizeByCoef(0.6),
     },
     a124: {
@@ -207,11 +358,51 @@ export const aircraftIcons: Record<AircraftIcon, { icon: AircraftIcon, width: nu
         icon: 't154',
         width: getAircraftSizeByCoef(0.63),
     },
+    da42: {
+        icon: 'da42',
+        width: getAircraftSizeByCoef(0.23),
+    },
+    da62: {
+        icon: 'da62',
+        width: getAircraftSizeByCoef(0.24),
+    },
+    tbm7: {
+        icon: 'tbm7',
+        width: getAircraftSizeByCoef(0.21),
+    },
+    tbm8: {
+        icon: 'tbm8',
+        width: getAircraftSizeByCoef(0.21),
+    },
+    tbm9: {
+        icon: 'tbm9',
+        width: getAircraftSizeByCoef(0.21),
+    },
+    h47: {
+        icon: 'h47',
+        width: getAircraftSizeByCoef(0.27),
+    },
+    h160: {
+        icon: 'h160',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    eufi: {
+        icon: 'eufi',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    pc12: {
+        icon: 'pc12',
+        width: getAircraftSizeByCoef(0.27),
+    },
+    p46t: {
+        icon: 'p46t',
+        width: getAircraftSizeByCoef(0.22),
+    },
 };
 
 export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
-    icon: AircraftIcon,
-    width: number
+    icon: AircraftIcon;
+    width: number;
 } {
     let faa = 'aircraft_short' in aircraft ? aircraft.aircraft_short : 'flight_plan' in aircraft ? aircraft.flight_plan?.aircraft_short : null;
     if (faa) faa = faa.split('/')[0];
@@ -260,12 +451,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'MD83':
         case 'MD88':
             return aircraftIcons.md80;
-        case 'B742':
-        case 'B744':
-        case 'B74F':
-        case 'B748':
-        case 'B48F':
-        case 'B752':
         case 'IL96':
             return aircraftIcons.b739;
         case 'B703':
@@ -273,11 +458,10 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B712':
             return aircraftIcons.b712;
         case 'B773':
-        case 'B77W':
             return aircraftIcons.b773;
-        case 'B772':
         case 'B77F':
-        case 'B77L':
+            return aircraftIcons.b77l;
+        case 'B772':
         case 'A338':
         case 'A339':
             return aircraftIcons.b772;
@@ -295,6 +479,40 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.t144;
         case 'T154':
             return aircraftIcons.t154;
+        case 'B74F':
+            return aircraftIcons.b74s;
+        case 'B48F':
+            return aircraftIcons.b748;
+        case 'B742':
+        case 'B743':
+            return aircraftIcons.b741;
+        case 'C152':
+        case 'C150':
+        case 'C162':
+        case 'C172':
+        case 'C175':
+        case 'C170':
+        case 'C182':
+        case 'C185':
+        case 'C180':
+        case 'BRAV':
+        case 'ECHO':
+        case 'GLST':
+            return aircraftIcons.tbm7;
+        case 'AS65':
+        case 'AS55':
+        case 'AS50':
+        case 'NH90':
+        case 'H135':
+        case 'H145':
+        case 'EC25':
+        case 'UH1':
+            return aircraftIcons.h160;
+        case 'B461':
+        case 'RJ70':
+        case 'RJ85':
+        case 'RJ1H':
+            return aircraftIcons.b461;
         case 'B731':
         case 'B732':
         case 'B733':
@@ -304,6 +522,42 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B737':
         case 'B738':
         case 'B739':
+        case 'B462':
+        case 'B463':
+        case 'B741':
+        case 'B744':
+        case 'B748':
+        case 'B74S':
+        case 'BLCF':
+        case 'CRJ2':
+        case 'CRJ7':
+        case 'CRJ9':
+        case 'CRJX':
+        case 'DA42':
+        case 'DA62':
+        case 'TBM7':
+        case 'TBM8':
+        case 'TBM9':
+        case 'C510':
+        case 'E170':
+        case 'E175':
+        case 'E190':
+        case 'E195':
+        case 'H47':
+        case 'H160':
+        case 'EUFI':
+        case 'PC12':
+        case 'P46T':
+        case 'B720':
+        case 'B721':
+        case 'B722':
+        case 'B752':
+        case 'B753':
+        case 'B77L':
+        case 'B77W':
+        case 'B762':
+        case 'B763':
+        case 'B764':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

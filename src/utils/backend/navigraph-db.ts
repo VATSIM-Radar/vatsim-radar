@@ -3,7 +3,7 @@ import sqlite3 from 'sqlite3';
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
 
-export function initNavigraphDB({ type, file }: {type: 'current' | 'outdated', file: string}) {
+export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; file: string }) {
     closeNavigraphDB(type);
 
     if (type === 'current') {

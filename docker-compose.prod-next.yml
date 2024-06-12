@@ -1,0 +1,34 @@
+services:
+  app-next:
+    container_name: app-next
+    restart: always
+    image: ghcr.io/daniluk4000/vatsim-radar/next
+    depends_on:
+      db-next:
+        condition: service_healthy
+    healthcheck:
+      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
+      interval: 1s
+      retries: 360
+    volumes:
+      - /opt/radar-data:/radar/src/data
+
+  db-next:
+    image: mysql
+    restart: always
+    container_name: db-next
+    cap_add:
+      - SYS_NICE
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=radar
+      - MYSQL_ROOT_PASSWORD=localhost
+    ports:
+      - '3307:3306'
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      interval: 5s
+      retries: 40
+    volumes:
+      - /opt/db-next:/var/lib/mysql

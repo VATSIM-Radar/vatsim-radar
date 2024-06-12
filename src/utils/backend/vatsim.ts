@@ -7,7 +7,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes } from '~/utils/shared/vatsim';
 
 export function getVatsimRedirectUri() {
-    return `${ useRuntimeConfig().public.DOMAIN }/auth/vatsim`;
+    return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
 }
 
 const view = new View({
@@ -39,11 +39,11 @@ export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
     }
 
     return ofetch<{
-        access_token: string
-        expires_in: number
-        token_type: 'Bearer'
-        refresh_token: string
-        scopes: string[]
+        access_token: string;
+        expires_in: number;
+        token_type: 'Bearer';
+        refresh_token: string;
+        scopes: string[];
     }>(`${ config.VATSIM_ENDPOINT }/oauth/token`, {
         method: 'POST',
         body: settings,
@@ -53,12 +53,12 @@ export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
 export interface VatsimUser {
     cid: string;
     personal: {
-        name_first: string
-        name_last: string
-        name_full: string
+        name_first: string;
+        name_last: string;
+        name_full: string;
     };
     oauth: {
-        token_valid: 'true' | 'false'
+        token_valid: 'true' | 'false';
     };
 }
 
@@ -100,19 +100,12 @@ export function findAirportSomewhere(callsign: string) {
             if (simaware) break;
         }
 
-        if(!simaware) {
+        if (!simaware) {
             simaware = radarStorage.simaware.data?.features.find(x => {
                 prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
                 return !!prefix;
             });
         }
-    }
-
-    if (simaware) {
-        simaware.properties = {
-            ...(simaware.properties ?? {}),
-            id: prefix,
-        };
     }
 
     let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
@@ -124,4 +117,40 @@ export function findAirportSomewhere(callsign: string) {
     }
 
     return vatspy ?? simaware;
+}
+
+export interface VatsimAirportInfo {
+    icao?: string;
+    iata?: string;
+    name?: string;
+    altitude_m?: number;
+    altitude_ft?: number;
+    transition_alt?: number;
+    transition_level?: string;
+    transition_level_by_atc?: boolean;
+    city?: number;
+    country?: string;
+    division_id?: string;
+    ctafFreq?: string;
+}
+
+export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo> {
+    const { data: airportData } = await $fetch<{
+        data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
+    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
+
+    return {
+        icao: airportData?.icao,
+        iata: airportData?.iata,
+        name: airportData?.name,
+        altitude_m: airportData?.altitude_m,
+        altitude_ft: airportData?.altitude_ft,
+        transition_alt: airportData?.transition_alt,
+        transition_level: airportData?.transition_level,
+        transition_level_by_atc: airportData?.transition_level_by_atc,
+        city: airportData?.city,
+        country: airportData?.country,
+        division_id: airportData?.division_id,
+        ctafFreq: airportData?.stations?.find(x => x.ctaf)?.frequency,
+    };
 }

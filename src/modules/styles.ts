@@ -1,67 +1,7 @@
 import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit';
 import type { PartialRecord } from '~/types';
-
-export const colorsList = {
-    mapSectorBorder: '#2d2d30',
-
-    neutral0: '#F7F7FA',
-    neutral50: '#F2F2F7',
-    neutral100: '#EDEDF2',
-    neutral125: '#E6E6EB',
-    neutral150: '#DEDEE7',
-    neutral200: '#D5D5E4',
-
-    neutral1000: '#131316',
-    neutral950: '#18181B',
-    neutral900: '#202024',
-    neutral875: '#26262C',
-    neutral850: '#2B2B33',
-    neutral800: '#30303C',
-
-    primary300: '#5ca2fd',
-    primary400: '#5987FF',
-    primary500: '#3B6CEC',
-    primary600: '#2052D4',
-
-    success500: '#008856',
-    warning500: '#E8CA4C',
-    warning600: '#F2BA49',
-    warning700: '#E39539',
-    error500: '#CB421C',
-};
-
-export type ColorsList = keyof typeof colorsList
-
-export const themesList = {
-    light: {
-        mapSectorBorder: '#D3D3E5',
-
-        neutral1000: '#F7F7FA',
-        neutral950: '#F2F2F7',
-        neutral900: '#EDEDF2',
-        neutral875: '#E6E6EB',
-        neutral850: '#DEDEE7',
-        neutral800: '#D5D5E4',
-
-        neutral0: '#131316',
-        neutral50: '#18181B',
-        neutral100: '#202024',
-        neutral125: '#26262C',
-        neutral150: '#2B2B33',
-        neutral200: '#30303C',
-    },
-    sa: {
-        primary300: '#008856',
-        primary400: '#008856',
-        primary500: '#008856',
-
-        warning500: '#F2BA49',
-
-        error500: '#E39539',
-    },
-} satisfies Record<string, PartialRecord<ColorsList, string>>;
-
-export type ThemesList = keyof typeof themesList | 'default'
+import type { ColorsList, ThemesList } from '../utils/backend/styles';
+import { colorsList, themesList } from '../utils/backend/styles';
 
 function colorToRgb(hex: string): [r: number, g: number, b: number] {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
@@ -126,7 +66,8 @@ export default defineNuxtModule((_, nuxt) => {
             scss += `\n);@function varToRgba($colorName, $opacity) {
     @if (map-has-key($colorsMap, 'i#{$colorName}')) {
         @return rgba(map-get($colorsMap, 'i#{$colorName}'), $opacity)
-    } @else {
+    } 
+    @else {
         @return rgba(var(--#{$colorName}), $opacity)
     }
 }\n`;

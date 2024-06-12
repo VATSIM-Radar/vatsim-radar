@@ -1,5 +1,116 @@
 # Changelog
 
+# 0.4.0
+
+## Highlights
+
+### Airport Dashboard
+
+Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport popup).
+
+Dashboard is equipped for both pilots and controllers, with features that all of you could enjoy.
+
+- View all airport info on the same screen
+- View airport traffic - and filter it by type if you want - select all airborne, all on the ground or just departing.
+- Enjoy Controller Mode, which will only leave aircraft on your screen, categorized by their type (you can also filter that)
+- Toggle "show pilot stats" to quickly identify newbies from experienced folks
+- Hide or expand map or columns - flexibility is everything!
+
+We would also love feedback from all of you on this <3
+
+### Aircraft History Turns
+
+You can now see history of turns for any aircraft on map - colored almost like on FL24 for you to identify descend or approx current aircraft altitude level just by looking at this line.
+
+Turns are available when you open overlay or hover on aircraft.
+
+They are also currently available if you toggle airport arriving tracks - but that's experimental, and we might disable this in future for performance reasons (or make this Patreon feature!).
+
+### Map Layers & Weather
+
+Following new layers have been added:
+
+- Satellite
+- Jawg (dark theme only)
+- OSM (light theme only)
+
+Following weather layers have been added:
+
+- Clouds (best visible in dark theme)
+- Precipitation (OpenWeather has more coverage but worse looking, RainViewer - worse coverage, better looking)
+- Wind
+
+We had more plans for layers actually... but it turned out most layers are paid.
+
+Since we can't afford paying for layers & weather now, you can support us on recently opened Patreon: https://www.patreon.com/vatsimradar24
+
+### New Aircraft Icons
+
+Following aircraft icons have been hand-crafted for you - and our model matching has been updated to match new icons for aircraft that don't have own yet.
+
+- B720-722
+- B752, 753, 762-764, 77L, 77W
+- P46T
+- B461-463
+- Boeing 741, 744, 748, 74S, LCF
+- C510,
+- CRJ1, 5, 9, X
+- DA42, 62
+- E170, 175, 190, 195
+- EUFI
+- H160, H47, PC12
+- TBM7-9
+- A319/A321 matching has been fixed
+- Updated icons for 772, 773
+
+## Other stuff
+
+### Features and Improvements
+
+- You can now toggle pilot stats in airports aircraft view (remembered for current session)
+- Added share, focus and dashboard buttons to airport overlay
+- Redesigned sectors colors for better readability
+- Aircraft labels will now show if overlapping airport square or counter
+- Reduced aircraft labels tolerance for map overlays, so they will show more frequently
+- Added links to Github and Patreon in header
+- Changed route aircraft icon color
+- METAR/TAF/NOTAMS redesign
+- Renamed Airport info to Info & Weather to clarify what's in there
+- Pilot ATC has been moved to separate tab
+- You can now see CTAF frequency in pilot popup
+- Added ?airport GET param to main page to quickly open any airport on map
+- Whole Airport ATC card has been made clickable
+- Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
+- Redesigned ground aircraft filter
+
+### Performance improvements and technical stuff
+
+- Significantly improved default CartoDB map layer loading performance
+- Reworked aircraft icon render - we are now able to change icon colors to be anything we want, not just predefined pngs
+- Reduced memory consumption for sectors render. This change will be significant when many firs are currently active
+- Improved performance when moving map (will be significant on low zoom levels)
+- Airports points will no longer render on >100+ airports are on screen. This should improve performance on slow devices
+
+### Bug Fixes
+
+- Fixed issue with SimAware labels displaying incorrect names (JFK -> N90)
+- Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
+- Fixed some gates showing as occupied while they are not
+- Fixed overlay crash when departing on switching between vfr and ifr
+- Fixed _DEP controllers detection fail
+- Added small horizontal padding to pin icon, so it will be harder to miss a click
+- Fixed RU-SC ATIS detection
+- Improved 1251 encoding detection
+- Fixed fill of hovered approach facility not covering whole area
+
+## What's next?
+
+On Friday myself & I will go on vacation which will last for a week. For that time, I will still try to fix critical bugs that may occur - but nothing else.
+
+After I come back, we have Map Settings and Filters, as well as context menu planned for 0.5.0 - and also some improvements from suggestions section maybe.
+
+Stage 2 is almost finished, at we'll have a prioritization session before we start Stage 3, and QA members list will be extended. Stay tuned!
+
 # 0.3.5
 
 This is a small fix update while we still develop 0.4.0.

@@ -2,12 +2,14 @@ import type { Coordinate } from 'ol/coordinate';
 import { containsCoordinate } from 'ol/extent';
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
+import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
-import type { ColorsList } from '~/modules/styles';
 import { setHeader, getRequestHeader } from 'h3';
+import type { Style } from 'ol/style';
+import { defu } from 'defu';
+import type { ColorsList } from '~/utils/backend/styles';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -18,7 +20,7 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Hex`];
 
-    //@ts-expect-error
+    // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
 export function getCurrentThemeRgbColor(color: ColorsList) {
@@ -26,7 +28,7 @@ export function getCurrentThemeRgbColor(color: ColorsList) {
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Rgb`];
 
-    //@ts-expect-error
+    // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Rgb`] ?? radarColors[`${ color }Rgb`];
 }
 
@@ -53,12 +55,63 @@ export function attachMoveEnd(callback: (event: any) => unknown) {
         map.value?.un('moveend', endHandler);
     });
 
-    watch(map, (val) => {
+    watch(map, val => {
         if (!map.value || registered) return;
         registered = true;
 
         map.value.on('movestart', startHandler);
         map.value.on('moveend', endHandler);
+    }, {
+        immediate: true,
+    });
+}
+
+export function attachPointerMove(callback: (event: any) => unknown) {
+    if (!getCurrentInstance()) throw new Error('Only can attach pointerMove on setup');
+    const moveStarted = ref(false);
+    let latestCoordinate: string | undefined;
+    let registered = false;
+    const map = inject<ShallowRef<Map | null>>('map')!;
+
+    const startHandler = async (e: any) => {
+        const coordinate = JSON.stringify(e.coordinate);
+        latestCoordinate = coordinate;
+
+        if (moveStarted) {
+            await new Promise<void>(resolve => {
+                const watcher = watch(moveStarted, async val => {
+                    await sleep(0);
+                    if (!val) {
+                        watcher();
+                        resolve();
+                    }
+                }, { immediate: true });
+            });
+
+            if (latestCoordinate !== coordinate) return;
+        }
+        try {
+            moveStarted.value = true;
+            await callback(e);
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            await sleep(300);
+            moveStarted.value = false;
+        }
+    };
+
+    onBeforeUnmount(() => {
+        map.value?.un('pointermove', startHandler);
+    });
+
+    watch(map, val => {
+        if (!map.value || registered) return;
+        registered = true;
+
+        map.value.on('pointermove', startHandler);
     }, {
         immediate: true,
     });
@@ -71,10 +124,7 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
     if (!settings && JSON.stringify(store.localSettings) === settingsText) return;
 
     let localSettings = JSON.parse(settingsText) as UserLocalSettings;
-    localSettings = {
-        ...localSettings,
-        ...(settings || {}),
-    };
+    localSettings = defu(settings || {}, localSettings);
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));
@@ -102,23 +152,27 @@ const iframeWhitelist = [
 ];
 
 export function useIframeHeader() {
-    if(import.meta.client) return;
+    if (import.meta.client) return;
 
     const event = useRequestEvent();
-    if(!event) return;
+    if (!event) return;
 
     const referer = getRequestHeader(event, 'referer')?.split('/');
     let origin = referer?.[2]?.split(':')[0];
 
     const domain = origin?.split('.');
-    if(domain) {
+    if (domain) {
         origin = domain.slice(domain.length - 2, domain.length).join('.');
     }
 
-    if(referer && origin && iframeWhitelist.includes(origin)) {
+    if (referer && origin && iframeWhitelist.includes(origin)) {
         setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ referer.slice(0, 3).join('/') }`);
     }
     else {
         setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
     }
+}
+
+export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feature): T | null {
+    return feature.getStyle() as T | null;
 }
