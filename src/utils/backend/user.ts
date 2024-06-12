@@ -39,6 +39,7 @@ export interface UserSettings {
     autoZoom?: boolean;
     autoShowAirportTracks?: boolean;
     headerName?: string;
+    seenVersion?: string;
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {

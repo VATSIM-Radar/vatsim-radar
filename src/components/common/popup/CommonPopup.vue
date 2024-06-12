@@ -184,7 +184,10 @@ onBeforeUnmount(() => {
     &_container {
         position: relative;
 
+        overflow: auto;
+
         max-width: 700px;
+        max-height: 80vh;
         padding: 8px;
 
         background: $darkgray1000;
@@ -200,7 +203,15 @@ onBeforeUnmount(() => {
 
         width: 16px;
 
-        color: varToRgba('lightgray150', 0.2);
+        color: $lightgray150;
+
+        transition: 0.3s;
+
+        @include hover {
+            &:hover {
+                color: $error500;
+            }
+        }
     }
 
     & &__title {

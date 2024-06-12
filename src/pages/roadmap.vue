@@ -219,7 +219,7 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Layers (hide atc/aircraft/gates/etc)',
+                title: 'Settings (hide atc/aircraft/gates/etc)',
                 status: 'todo',
             },
             {

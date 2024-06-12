@@ -5,6 +5,9 @@
     >
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
+            <client-only>
+                <view-update-popup/>
+            </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
         </div>
@@ -44,6 +47,7 @@ import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
 import type { ThemesList } from '~/utils/backend/styles';
+import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 
 defineSlots<{ default: () => any }>();
 
@@ -249,5 +253,14 @@ img {
         flex: 1 1 0;
         width: 0;
     }
+}
+
+.__spacer {
+    flex: 1 0 auto;
+}
+
+.__link {
+    color: $primary500;
+    text-decoration: underline;
 }
 </style>

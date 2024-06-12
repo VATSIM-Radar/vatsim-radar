@@ -1,105 +1,56 @@
 # Changelog
 
-# 0.4.0-rc.2
+# 0.4.0
 
-## Production changelog
+## Highlights
 
-- Fixed issue with SimAware labels displaying incorrect names (JFK -> N90)
-- Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
+### Airport Dashboard
 
-# 0.4.0-rc.1
+Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport popup).
 
-## Alpha fixes and improvements
+Dashboard is equipped for both pilots and controllers, with features that all of you could enjoy.
 
-- Added RainViewer as weather provider
-- Added Controller Mode and settings to airport dashboard. Needs testing until the end of the day!
+- View all airport info on the same screen
+- View airport traffic - and filter it by type if you want - select all airborne, all on the ground or just departing.
+- Enjoy Controller Mode, which will only leave aircraft on your screen, categorized by their type (you can also filter that)
+- Toggle "show pilot stats" to quickly identify newbies from experienced folks
+- Hide or expand map or columns - flexibility is everything!
 
-No more features are planned to come for 0.4.0 - expect only bug fixes and improvements in next builds.
+We would also love feedback from all of you on this <3
 
-# 0.4.0-beta.4
+### Aircraft History Turns
 
-## Alpha fixes and improvements
+You can now see history of turns for any aircraft on map - colored almost like on FL24 for you to identify descend or approx current aircraft altitude level just by looking at this line.
 
-- Various tracking fixes
-- Fixed pilot/atc stats
+Turns are available when you open overlay or hover on aircraft.
 
-# 0.4.0-beta.3
+They are also currently available if you toggle airport arriving tracks - but that's experimental, and we might disable this in future for performance reasons (or make this Patreon feature!).
 
-## Alpha fixes and improvements
+### Map Layers & Weather
 
-- MAP LAYERS & WEATHER LAYERS!! Yoo please test this one guys
-- Added color steps for aircraft track lines
-- Improved logic for hiding and showing aircraft track lines
-- Added arriving line for aircraft that are >40NM from target airport
+Following new layers have been added:
 
-## Production changelog
+- Satellite
+- Jawg (dark theme only)
+- OSM (light theme only)
 
-- Added focus button to airport overlay
-- Aircraft labels will now show if overlapping airport square or counter
-- Reduced aircraft labels tolerance for map overlays so they will show more frequently
+Following weather layers have been added:
 
-# 0.4.0-beta.2
+- Clouds (best visible in dark theme)
+- Precipitation (OpenWeather has more coverage but worse looking, RainViewer - worse coverage, better looking)
+- Wind
 
-Please leave feedback about sector & tracon colors redesign. They should now be more contrast with each other and aircraft in both dark and light theme.
+We had more plans for layers actually... but it turned out most layers are paid.
 
-## Alpha fixes and improvements
+Since we can't afford paying for layers & weather now, you can support us on recently opened Patreon: https://www.patreon.com/vatsimradar24
 
-- Fixed error when gate occupied state was not cleared
-- Fixed error when if you spawned without flight plan within 24 hours since last flight it showed previous flight path. This error may still occur but just until next VATSIM API update
-- Real tracks are now also shown on hover and for airport tracks enabled
-- Airport filters navigation has been pinned when scrolling
-- Fixed error when dashboard metar was hidden if airport didn't have VATSIM info
+### New Aircraft Icons
 
-## Production changelog
-
-- Redesigned sectors colors
-
-# 0.4.0-beta.1
-
-## Alpha fixes and improvements
-
-- Added airport dashboard! Please report issues and suggestions. Controller Mode is coming in later updates.
-
-## Production changelog
-
-- You can now toggle pilot stats in airports aircraft view (remembered for current session)
-- Added share and dashboard buttons to airport overlay
-
-# 0.4.0-alpha.7
-
-## Alpha fixes and improvements
-
-- Fixed overlapping aircraft tracks labels
-- Lowered tracks priority
-- Removed approach line for aircraft approaching to tracked airport. They will still be visible in overlay and hover state
-- Changed line priority
-
-# 0.4.0-alpha.6
-
-## Alpha fixes and improvements
-
-- Fixed overlay crash when departing on switching between vfr and ifr
-- Fixed counter color for aircraft count in airport overlay
-
-# 0.4.0-alpha.5
-
-## Aircraft icons
+Following aircraft icons have been hand-crafted for you - and our model matching has been updated to match new icons for aircraft that don't have own yet.
 
 - B720-722
 - B752, 753, 762-764, 77L, 77W
 - P46T
-- Updated icons for 772, 773
-
-# 0.4.0-alpha.4.1
-
-Nearly forgot!
-
-Updating Navigraph text & branding for non-linked popup according to Navigraph Marketing feedback
-
-# 0.4.0-alpha.4
-
-## New aircraft icons have been added
-
 - B461-463
 - Boeing 741, 744, 748, 74S, LCF
 - C510,
@@ -110,73 +61,55 @@ Updating Navigraph text & branding for non-linked popup according to Navigraph M
 - H160, H47, PC12
 - TBM7-9
 - A319/A321 matching has been fixed
+- Updated icons for 772, 773
 
-Also some aliases have been made temporally for model matching
+## Other stuff
 
-## Bug fixes
+### Features and Improvements
 
-- Fixed some gates showing as occupied while they are not
-
-# 0.4.0-alpha.3
-
-## Alpha fixes and improvements
-
-- Fixed Firefox svg render
-- Fixed duplicate flight detection
-- Fixed reconnects detection
-
-# 0.4.0-alpha.2
-
-## Alpha fixes and improvements
-
-- Fixed aircraft airport indicator
-- Improved aircraft track line text align
-- Fixed bug when overlay section title could overflow actual overlay title
-- Changed aircraft track line color and width a bit
-- Added handler for aircraft icon load error so it won't stuck forever
-- Fixed error when aircraft tracks could stuck on screen
-- Flight detect logic now can handle disconnects and no longer relies on VATSIM Api. Check it out!
-
-## Bug fixes
-
-- Fixed rare _DEP controllers detection fail
-- Added small horizontal padding to pin icon, so it will be harder to miss a click
-
-# 0.4.0-alpha.1
-
-## For QA
-
-- Please try to use new ground filter
-- Report how hovering on aircraft feels now. It improves performance, but can be buggy and slow
-- Aircraft turns are available not for all flights, and for some they've been cut. That will be improved in future, no need to report
-- Please report general feel of aircraft turns. For now, they are only available for opened aircraft overlay
-
-## Features and improvements
-
+- You can now toggle pilot stats in airports aircraft view (remembered for current session)
+- Added share, focus and dashboard buttons to airport overlay
+- Redesigned sectors colors for better readability
+- Aircraft labels will now show if overlapping airport square or counter
+- Reduced aircraft labels tolerance for map overlays, so they will show more frequently
+- Added links to Github and Patreon in header
 - Changed route aircraft icon color
-- Added turns history (tracks) when you open pilot overlay
 - METAR/TAF/NOTAMS redesign
 - Renamed Airport info to Info & Weather to clarify what's in there
 - Pilot ATC has been moved to separate tab
 - You can now see CTAF frequency in pilot popup
-- Added ?airport param to main page to quickly open any airport on map
+- Added ?airport GET param to main page to quickly open any airport on map
 - Whole Airport ATC card has been made clickable
 - Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
 - Redesigned ground aircraft filter
 
 ### Performance improvements and technical stuff
 
-- Significantly improved map layer loading performance
+- Significantly improved default CartoDB map layer loading performance
 - Reworked aircraft icon render - we are now able to change icon colors to be anything we want, not just predefined pngs
 - Reduced memory consumption for sectors render. This change will be significant when many firs are currently active
 - Improved performance when moving map (will be significant on low zoom levels)
 - Airports points will no longer render on >100+ airports are on screen. This should improve performance on slow devices
 
-## Bug fixes
+### Bug Fixes
 
+- Fixed issue with SimAware labels displaying incorrect names (JFK -> N90)
+- Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
+- Fixed some gates showing as occupied while they are not
+- Fixed overlay crash when departing on switching between vfr and ifr
+- Fixed _DEP controllers detection fail
+- Added small horizontal padding to pin icon, so it will be harder to miss a click
 - Fixed RU-SC ATIS detection
 - Improved 1251 encoding detection
 - Fixed fill of hovered approach facility not covering whole area
+
+## What's next?
+
+On Friday myself & I will go on vacation which will last for a week. For that time, I will still try to fix critical bugs that may occur - but nothing else.
+
+After I come back, we have Map Settings and Filters, as well as context menu planned for 0.5.0 - and also some improvements from suggestions section maybe.
+
+Stage 2 is almost finished, at we'll have a prioritization session before we start Stage 3, and QA members list will be extended. Stay tuned!
 
 # 0.3.5
 
