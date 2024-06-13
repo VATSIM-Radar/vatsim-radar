@@ -267,8 +267,8 @@ watch([overlays, popupsHeight], () => {
 });
 
 await setupDataFetch({
-    onInitialFetch() {
-        checkAndAddOwnAircraft();
+    async onInitialFetch() {
+        await checkAndAddOwnAircraft();
     },
     async onSuccessCallback() {
         ready.value = true;

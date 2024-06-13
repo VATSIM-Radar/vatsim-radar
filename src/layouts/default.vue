@@ -6,7 +6,7 @@
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <client-only>
-                <view-update-popup/>
+                <view-update-popup v-if="!hasObs()"/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
@@ -72,6 +72,9 @@ defineRouteRules({
 const event = useRequestEvent();
 const restrictedState = useState('auth-restricted', () => !!event?.context.authRestricted);
 const hadRestrictedAuth = restrictedState.value;
+
+// @ts-expect-error OBS check
+const hasObs = () => typeof window.obsstudio !== 'undefined';
 
 onMounted(() => {
     const interval = setInterval(() => {

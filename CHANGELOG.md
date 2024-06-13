@@ -10,6 +10,14 @@
 - Added SimAware suffix support
 - Actions in overlays are now pinned when scrolling
 - Changed aircraft lines colors a bit for them to be more different from sector/tracon color
+- Fixed issue when own aircraft track was not appearing after page reload until next API update
+- Removed update popup from OBS overlay, fixed airport dashboard height in OBS overlay
+
+FYI to OBS folks: apply this CSS to edit heights:
+
+`.airport { --dashboard-height: calc(60vh) !important; --map-height: calc(40vh) !important; }`
+
+Here 60 and 40vh represent percents of your overlay height.
 
 # 0.4.0
 

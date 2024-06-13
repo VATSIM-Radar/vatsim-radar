@@ -312,28 +312,28 @@ const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
 
 const mapLayouts: Record<MapMode, { dash: string; map: string }> = {
     default: {
-        dash: `calc(60dvh - (32px + 56px) - 40px - 16px)`,
-        map: 'calc(40dvh - 16px)',
+        dash: `calc(60vh - (32px + 56px) - 40px - 16px)`,
+        map: 'calc(40vh - 16px)',
     },
     dashBigMapBig: {
-        dash: '80dvh',
-        map: '80dvh',
+        dash: '80vh',
+        map: '80vh',
     },
     dashSmallMapBig: {
-        dash: '30dvh',
-        map: '70dvh',
+        dash: '30vh',
+        map: '70vh',
     },
     dashBigMapSmall: {
-        dash: '70dvh',
-        map: '30dvh',
+        dash: '70vh',
+        map: '30vh',
     },
     dashOnly: {
-        dash: '90dvh',
+        dash: '90vh',
         map: '0',
     },
     mapOnly: {
         dash: '0',
-        map: '90dvh',
+        map: '90vh',
     },
 };
 
@@ -650,6 +650,7 @@ await setupDataFetch({
 
             &--popup {
                 width: 700px;
+                max-width: 100%;
             }
         }
     }
