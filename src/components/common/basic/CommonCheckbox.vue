@@ -41,7 +41,6 @@ const checked = defineModel({ type: Boolean, required: true });
     font-size: 12px;
     font-weight: 600;
     line-height: 100%;
-    color: $lightgray150;
 
     &--revert {
         flex-direction: row-reverse;
@@ -75,6 +74,7 @@ const checked = defineModel({ type: Boolean, required: true });
 
             svg {
                 transform: scale(1);
+                color: $lightgray150Orig;
             }
         }
     }

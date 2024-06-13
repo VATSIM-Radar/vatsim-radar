@@ -87,6 +87,12 @@
                         />
                     </div>
                 </div>
+                <div
+                    v-if="$slots.actions"
+                    class="info-popup__section info-popup__section--actions"
+                >
+                    <slot name="actions"/>
+                </div>
             </div>
         </transition>
     </div>
@@ -275,7 +281,6 @@ watch(getSections, sections => {
     }
 
     &_content {
-        overflow: hidden;
         display: flex;
         flex: 1 0 auto;
         flex-direction: column;
@@ -286,6 +291,7 @@ watch(getSections, sections => {
 
         &--collapse {
             &-enter-active, &-leave-active {
+                overflow: hidden;
                 max-height: 100%;
                 transition: 0.5s ease-in-out;
             }
@@ -298,6 +304,16 @@ watch(getSections, sections => {
     }
 
     &__section {
+        &--actions {
+            position: sticky;
+            z-index: 5;
+            bottom: -16px;
+
+            padding: 8px 0;
+
+            background: $darkgray1000;
+        }
+
         &_separator {
             user-select: none;
 

@@ -4,7 +4,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v1.1.24': 1,
+    'v1.1.24': 2,
 };
 
 export default defineNitroPlugin(app => {
@@ -45,6 +45,10 @@ export default defineNitroPlugin(app => {
                         coordinates: x.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))),
                     },
                 };
+            }).sort((a, b) => {
+                if (a.properties!.suffix && !b.properties!.suffix) return -1;
+                if (!a.properties!.suffix && b.properties!.suffix) return 1;
+                return 0;
             });
 
             radarStorage.simaware.version = data.name;

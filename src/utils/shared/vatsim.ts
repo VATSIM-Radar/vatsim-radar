@@ -107,3 +107,9 @@ export function getTraconPrefixes(tracon: GeoJSONFeature): string[] {
 
     return [];
 }
+
+export function getTraconSuffix(tracon: GeoJSONFeature): string | null {
+    if (typeof tracon.properties?.suffix === 'string') return tracon.properties.suffix;
+
+    return null;
+}

@@ -43,7 +43,7 @@ export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();
 
     CronJob.from({
-        cronTime: '15 0 * * *',
+        cronTime: '15 */2 * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {

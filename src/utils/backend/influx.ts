@@ -147,16 +147,16 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
 
         if (row?.altitude) {
             if (row.altitude < 5000) {
-                rowColor = colorsList.success300;
-            }
-            else if (row.altitude < 10000) {
                 rowColor = colorsList.success500;
             }
+            else if (row.altitude < 10000) {
+                rowColor = colorsList.success700;
+            }
             else if (row.altitude < 15000) {
-                rowColor = colorsList.primary300;
+                rowColor = colorsList.primary500;
             }
             else if (row.altitude < 20000) {
-                rowColor = colorsList.primary500;
+                rowColor = colorsList.primary700;
             }
             else if (row.altitude < 30000) {
                 rowColor = colorsList.info300;

@@ -49,7 +49,7 @@ watch(map, val => {
 
         const defaultStyle = new Style({
             stroke: new Stroke({
-                color: getCurrentThemeHexColor('mapSectorBorder'),
+                color: `rgb(${ getCurrentThemeRgbColor('mapSectorBorder').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 1,

@@ -1,5 +1,26 @@
 # Changelog
 
+# 0.4.1
+
+- Increased rate for Navigraph AIRAC updates
+- Added transparency settings for OSM and satellite layers
+- Added transparency settings for weather layers, separated by light/dark theme
+- Added CartoDB with labels map layer
+- Improved airport dashboard loading performance
+- Added SimAware suffix support
+- Actions in overlays are now pinned when scrolling
+- Changed aircraft lines colors a bit for them to be more different from sector/tracon color
+- Fixed issue when own aircraft track was not appearing after page reload until next API update
+- Removed update popup from OBS overlay, fixed airport dashboard height in OBS overlay
+- Removed limit from map bounds in airport dashboard
+- Added ability to de-select aircraft on map click + to select multiple aircraft in airport dashboard
+
+FYI to OBS folks: apply this CSS to edit heights:
+
+`.airport { --dashboard-height: calc(60vh) !important; --map-height: calc(40vh) !important; }`
+
+Here 60 and 40vh represent percents of your overlay height.
+
 # 0.4.0
 
 ## Highlights

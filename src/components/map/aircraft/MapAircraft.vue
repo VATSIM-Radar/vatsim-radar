@@ -292,6 +292,7 @@ function clearLineFeatures() {
 const canShowLines = ref(false);
 
 async function setState() {
+    if (!isInit.value) return;
     if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) canShowLines.value = false;
     else canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 

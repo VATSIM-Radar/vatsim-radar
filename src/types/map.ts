@@ -24,8 +24,15 @@ export type MapAircraft =
     & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
 
 export type MapWeatherLayer = 'clouds_new' | 'rain_viewer' | 'precipitation_new' | 'pressure_new' | 'wind_new' | 'temp_new';
-export type MapLayoutLayer = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB';
+export type MapLayoutLayer = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB' | 'CartoDBLabels';
 export type MapLayoutLayerWithOptions = MapLayoutLayer | 'JawgOrOSM';
+
+export interface UserLayersTransparencySettings {
+    satellite?: number;
+    osm?: number;
+    weatherDark?: number;
+    weatherLight?: number;
+}
 
 interface IUserLocalSettings {
     location: Coordinate;
@@ -36,6 +43,7 @@ interface IUserLocalSettings {
         layers?: {
             weather?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
+            transparencySettings?: UserLayersTransparencySettings;
         };
     };
 }

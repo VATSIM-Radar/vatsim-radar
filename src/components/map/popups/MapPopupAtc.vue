@@ -82,32 +82,34 @@
                 >
                     ATIS NOT AVAIL
                 </div>
-                <common-button-group class="atc__actions">
-                    <common-button
-                        :disabled="!airport || airport.isPseudo"
-                        @click="showOnMap"
-                    >
-                        <template #icon>
-                            <map-icon/>
-                        </template>
-                        <template v-if="atc.facility !== facilities.APP">
-                            Focus On Map
-                        </template>
-                        <template v-else>
-                            Focus ({{ airport?.icao ?? airport?.iata }})
-                        </template>
-                    </common-button>
-                    <common-button
-                        :href="`https://stats.vatsim.net/stats/${ atc.cid }`"
-                        target="_blank"
-                    >
-                        <template #icon>
-                            <stats-icon/>
-                        </template>
-                        View Stats
-                    </common-button>
-                </common-button-group>
             </div>
+        </template>
+        <template #actions>
+            <common-button-group>
+                <common-button
+                    :disabled="!airport || airport.isPseudo"
+                    @click="showOnMap"
+                >
+                    <template #icon>
+                        <map-icon/>
+                    </template>
+                    <template v-if="atc.facility !== facilities.APP">
+                        Focus On Map
+                    </template>
+                    <template v-else>
+                        Focus ({{ airport?.icao ?? airport?.iata }})
+                    </template>
+                </common-button>
+                <common-button
+                    :href="`https://stats.vatsim.net/stats/${ atc.cid }`"
+                    target="_blank"
+                >
+                    <template #icon>
+                        <stats-icon/>
+                    </template>
+                    View Stats
+                </common-button>
+            </common-button-group>
         </template>
     </common-info-popup>
 </template>
@@ -214,10 +216,6 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
         &_content {
             width: 100%;
         }
-    }
-
-    &__actions {
-        margin-top: 8px;
     }
 
     &__atis-error {

@@ -38,6 +38,10 @@ async function initLayer() {
     }
 
     if (weather.value) {
+        let opacity = store.theme === 'light' ? weather.value === 'clouds_new' ? 1 : weather.value === 'rain_viewer' ? 0.5 : 0.8 : 0.5;
+        const transparency = store.localSettings.filters?.layers?.transparencySettings?.[store.theme === 'light' ? 'weatherLight' : 'weatherDark'];
+        if (typeof transparency === 'number') opacity = transparency;
+
         tileLayer = new TileLayer({
             source: new XYZ({
                 attributions: weather.value === 'rain_viewer' ? '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>' : undefined,
@@ -45,7 +49,7 @@ async function initLayer() {
                 wrapX: true,
                 tileSize: 256,
             }),
-            opacity: store.theme === 'light' ? weather.value === 'clouds_new' ? 1 : weather.value === 'rain_viewer' ? 0.5 : 0.8 : 0.5,
+            opacity,
             zIndex: 1,
         });
         map.value?.addLayer(tileLayer);
@@ -61,6 +65,8 @@ watch(map, val => {
 });
 
 watch(weather, initLayer);
+const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
+watch(transparencySettings, initLayer);
 
 onMounted(async () => {
     const interval = setInterval(() => {

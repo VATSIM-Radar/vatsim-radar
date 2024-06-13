@@ -37,6 +37,14 @@
                         <template #title>
                             Map layer
                         </template>
+                        <map-filter-transparency
+                            v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
+                            setting="osm"
+                        />
+                        <map-filter-transparency
+                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite'"
+                            setting="satellite"
+                        />
                         <common-radio-group
                             :items="mapLayers"
                             :model-value="store.localSettings.filters?.layers?.layer ?? 'CartoDB'"
@@ -64,6 +72,7 @@
                         <template #title>
                             Weather on map
                         </template>
+                        <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
                         <common-radio-group
                             :items="weatherLayers"
                             :model-value="store.localSettings.filters?.layers?.weather || 'false'"
@@ -86,6 +95,7 @@ import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vu
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import type { MapLayoutLayer, MapLayoutLayerWithOptions, MapWeatherLayer } from '~/types/map';
+import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 
 const store = useStore();
 
@@ -95,6 +105,11 @@ const selectedFilter = ref<string | null>(null);
 const mapLayers: RadioItemGroup<MapLayoutLayerWithOptions>[] = [
     {
         value: 'CartoDB',
+        text: 'CartoDB (Without labels)',
+    },
+    {
+        value: 'CartoDBLabels',
+        text: 'CartoDB (With labels)',
     },
     {
         value: 'Satellite',
@@ -199,6 +214,10 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
             position: relative;
             display: flex;
         }
+    }
+
+    .select {
+        margin-bottom: 10px;
     }
 }
 </style>

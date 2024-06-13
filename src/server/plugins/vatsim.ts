@@ -80,7 +80,7 @@ export default defineNitroPlugin(app => {
                 });
 
                 /* data.controllers.push({
-                    callsign: 'JFK_G_APP',
+                    callsign: 'LAX_S_DEP',
                     cid: 3,
                     facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                     frequency: '122.122',

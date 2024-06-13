@@ -101,7 +101,7 @@
                 :status="pilot.status ?? null"
             />
         </template>
-        <template #buttons>
+        <template #actions>
             <common-button-group>
                 <common-button
                     :disabled="store.config.hideAllExternal"
@@ -247,10 +247,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         });
     }
-
-    sections.push({
-        key: 'buttons',
-    });
 
     return sections;
 });
@@ -417,12 +413,15 @@ function handlePointerDrag() {
 
 onMounted(() => {
     watch(() => pilot.value.airport, async icao => {
-        if (airportInfo.value?.icao === icao) return;
+        try {
+            if (airportInfo.value?.icao === icao) return;
 
-        if (icao) {
-            props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/api/data/vatsim/airport/${ icao }/info`);
+            if (icao) {
+                props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/api/data/vatsim/airport/${ icao }/info`);
+            }
+            else props.overlay.data.airport = undefined;
         }
-        else props.overlay.data.airport = undefined;
+        catch { /* empty */ }
     }, {
         immediate: true,
     });

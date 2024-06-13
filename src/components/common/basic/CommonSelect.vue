@@ -129,6 +129,7 @@ function updateModel(value: SelectItemValueType, add: boolean) {
     justify-content: center;
 
     width: v-bind(width);
+    max-width: 100%;
 
     font-size: 13px;
     line-height: 100%;
