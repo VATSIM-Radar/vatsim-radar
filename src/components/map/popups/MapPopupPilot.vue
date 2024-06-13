@@ -421,9 +421,7 @@ onMounted(() => {
             }
             else props.overlay.data.airport = undefined;
         }
-        catch {
-
-        }
+        catch { /* empty */ }
     }, {
         immediate: true,
     });
