@@ -4,7 +4,7 @@ import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import type { Coordinate } from 'ol/coordinate';
 import { radarStorage } from '~/utils/backend/storage';
-import { getTraconPrefixes } from '~/utils/shared/vatsim';
+import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -87,23 +87,26 @@ export function findAirportSomewhere(callsign: string) {
 
     let prefix: string | undefined;
     let simaware = radarStorage.simaware.data?.features.find(x => {
+        const suffix = getTraconSuffix(x);
         prefix = getTraconPrefixes(x).find(x => x === regularName);
-        return !!prefix;
+        return !!prefix && (!suffix || callsign.endsWith(suffix));
     });
 
     if (!simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
             simaware = radarStorage.simaware.data?.features.find(x => {
+                const suffix = getTraconSuffix(x);
                 prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
-                return !!prefix;
+                return !!prefix && (!suffix || callsign.endsWith(suffix));
             });
             if (simaware) break;
         }
 
         if (!simaware) {
             simaware = radarStorage.simaware.data?.features.find(x => {
+                const suffix = getTraconSuffix(x);
                 prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
-                return !!prefix;
+                return !!prefix && (!suffix || callsign.endsWith(suffix));
             });
         }
     }

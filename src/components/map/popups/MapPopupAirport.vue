@@ -256,14 +256,6 @@ const tabs = computed<InfoPopupContent>(() => {
 
     if (!list.info.sections.length) delete list.info;
 
-    list.atc.sections.push({
-        key: 'actions',
-    });
-
-    list.info?.sections.push({
-        key: 'actions',
-    });
-
     return list;
 });
 

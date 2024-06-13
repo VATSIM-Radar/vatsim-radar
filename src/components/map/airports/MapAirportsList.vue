@@ -30,7 +30,7 @@ import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortene
 import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
-import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes } from '~/utils/shared/vatsim';
+import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
@@ -330,6 +330,7 @@ const getAirportsList = computed(() => {
 
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
+
         let airport = airports.find(x => x.isSimAware &&
             prefixes.some(y => y.split('_')[0] === x.airport.iata));
 
@@ -352,6 +353,7 @@ const getAirportsList = computed(() => {
     // Strict check
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
+        const suffix = getTraconSuffix(sector);
         const airport = findSectorAirport(sector);
 
         if (!airport?.arrAtc.length) continue;
@@ -360,12 +362,15 @@ const getAirportsList = computed(() => {
             const splittedCallsign = controller.callsign.split('_');
 
             if (
-                // Match AIRPORT_TYPE_NAME
-                prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
-                // Match AIRPORT_NAME
-                (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
-                // Match AIRPORT_TYPERANDOMSTRING_NAME
-                (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
+                (!suffix || controller.callsign.endsWith(suffix)) &&
+                (
+                    // Match AIRPORT_TYPE_NAME
+                    prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
+                    // Match AIRPORT_NAME
+                    (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
+                    // Match AIRPORT_TYPERANDOMSTRING_NAME
+                    (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
+                )
             ) {
                 addToAirportSector(sector, airport, controller);
             }
@@ -375,13 +380,14 @@ const getAirportsList = computed(() => {
     // Non-strict check
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
+        const suffix = getTraconSuffix(sector);
         const airport = findSectorAirport(sector);
 
         if (!airport?.arrAtc.length) continue;
 
         // Only non found
         for (const controller of airport.arrAtc.filter(x => !airport.features.some(y => y.controllers.some(y => y.cid === x.cid)))) {
-            if (prefixes.some(x => controller.callsign.startsWith(x))) {
+            if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
                 addToAirportSector(sector, airport, controller);
             }
         }

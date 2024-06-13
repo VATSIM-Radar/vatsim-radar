@@ -33,6 +33,14 @@ const layers: Record<MapLayoutLayer, Layer> = {
         url: '/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
         lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
     },
+    CartoDBLabels: {
+        attribution: {
+            title: 'CartoDB',
+            url: 'https://cartodb.com/attribution',
+        },
+        url: '/layers/carto/dark_all/{z}/{x}/{y}.png',
+        lightThemeUrl: '/layers/carto/light_all/{z}/{x}/{y}.png',
+    },
     Jawg: {
         attribution: {
             title: 'Jawg',
@@ -68,14 +76,16 @@ const layer = computed(() => {
     return layers[layer];
 });
 
+const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
+
 const opacity = computed(() => {
     if (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'light') return 0.5;
 
     switch (store.localSettings.filters?.layers?.layer) {
         case 'OSM':
-            return 0.5;
+            return store.localSettings.filters.layers.transparencySettings?.osm ?? 0.5;
         case 'Satellite':
-            return 0.3;
+            return store.localSettings.filters.layers.transparencySettings?.satellite ?? 0.3;
         default:
             return 1;
     }
@@ -110,6 +120,7 @@ watch(map, val => {
 });
 
 watch([layer, theme], initLayer);
+watch(transparencySettings, initLayer);
 
 onBeforeUnmount(() => {
     if (tileLayer) map.value?.removeLayer(tileLayer);

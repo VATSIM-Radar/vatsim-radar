@@ -125,6 +125,7 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
 
     let localSettings = JSON.parse(settingsText) as UserLocalSettings;
     localSettings = defu(settings || {}, localSettings);
+    if (settings?.location) localSettings.location = settings.location;
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));

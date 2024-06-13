@@ -314,7 +314,7 @@ function setFeatureStyle(feature: Feature) {
     feature.setStyle([
         new Style({
             stroke: new Stroke({
-                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.8)`,
+                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),

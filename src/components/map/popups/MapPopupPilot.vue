@@ -101,7 +101,7 @@
                 :status="pilot.status ?? null"
             />
         </template>
-        <template #buttons>
+        <template #actions>
             <common-button-group>
                 <common-button
                     :disabled="store.config.hideAllExternal"
@@ -247,10 +247,6 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         });
     }
-
-    sections.push({
-        key: 'buttons',
-    });
 
     return sections;
 });

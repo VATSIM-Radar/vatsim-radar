@@ -374,7 +374,7 @@ const controllerColumns = computed(() => {
         switch (x.value) {
             case 'prefiles':
                 color = radarColors.lightgray200;
-                darkColor = true;
+                darkColor = store.theme === 'default';
                 break;
             case 'groundDep':
                 color = radarColors.success500;
@@ -412,11 +412,10 @@ const showPilotStats = useShowPilotStats();
 airportData.value = (await useAsyncData(async () => {
     try {
         const data = $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao.value }`);
-        const notams = $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error);
 
         return {
             airport: await data,
-            notams: await notams ?? [],
+            notams: [],
             showTracks: false,
             icao: icao.value,
         };
@@ -428,6 +427,12 @@ airportData.value = (await useAsyncData(async () => {
         });
     }
 })).data.value!;
+
+useLazyAsyncData(async () => {
+    airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? [];
+}, {
+    server: false,
+});
 
 await setupDataFetch({
     onSuccessCallback() {
@@ -607,7 +612,7 @@ await setupDataFetch({
             background: var(--color);
 
             &--dark {
-                color: $darkgray800;
+                color: $darkgray800Orig;
             }
         }
     }
