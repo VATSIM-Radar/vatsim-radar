@@ -284,25 +284,22 @@ await setupDataFetch({
         projectionExtent[0] *= 1.2;
         projectionExtent[2] *= 1.2;
 
+        let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
+
         if (store.config.airport) {
             const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
 
             if (airport) {
+                center = [airport.lon, airport.lat];
+            }
+
+            if (airport && !store.config.showInfoForPrimaryAirport) {
                 projectionExtent = [
                     airport.lon - 200000,
                     airport.lat - 200000,
                     airport.lon + 200000,
                     airport.lat + 200000,
                 ];
-
-                if (store.config.showInfoForPrimaryAirport) {
-                    projectionExtent = [
-                        airport.lon - 1000000,
-                        airport.lat - 500000,
-                        airport.lon + 1000000,
-                        airport.lat + 500000,
-                    ];
-                }
             }
         }
         else if (store.config.airports) {
@@ -310,6 +307,7 @@ await setupDataFetch({
 
             if (airports.length) {
                 projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
+                center = getCenter(projectionExtent);
             }
         }
 
@@ -322,7 +320,7 @@ await setupDataFetch({
                 }),
             ],
             view: new View({
-                center: (store.config.airports?.length || store.config.airport) ? getCenter(projectionExtent) : store.localSettings.location ?? fromLonLat([37.617633, 55.755820]),
+                center,
                 zoom: store.config.airport
                     ? store.config.showInfoForPrimaryAirport ? 12 : 14
                     : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,

@@ -124,13 +124,23 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     }
 }
 
-function handleClick(e: MapBrowserEvent<any>) {
+async function handleClick(e: MapBrowserEvent<any>) {
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
     const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
-    if (features.length !== 1) return;
 
-    mapStore.addPilotOverlay(features[0].cid.toString());
+    if (features.length !== 1) {
+        if (store.config.hideOverlays) {
+            mapStore.overlays = [];
+        }
+
+        return;
+    }
+
+    const overlay = await mapStore.addPilotOverlay(features[0].cid.toString());
+    if (overlay) {
+        overlay.sticky = true;
+    }
 }
 
 function handleMoveEnd() {

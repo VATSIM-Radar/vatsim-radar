@@ -12,6 +12,8 @@
 - Changed aircraft lines colors a bit for them to be more different from sector/tracon color
 - Fixed issue when own aircraft track was not appearing after page reload until next API update
 - Removed update popup from OBS overlay, fixed airport dashboard height in OBS overlay
+- Removed limit from map bounds in airport dashboard
+- Added ability to de-select aircraft on map click + to select multiple aircraft in airport dashboard
 
 FYI to OBS folks: apply this CSS to edit heights:
 
