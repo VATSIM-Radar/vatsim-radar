@@ -2584,6 +2584,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stylistic/eslint-plugin-js@npm:2.2.2, @stylistic/eslint-plugin-js@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "@stylistic/eslint-plugin-js@npm:2.2.2"
+  dependencies:
+    "@types/eslint": "npm:^8.56.10"
+    acorn: "npm:^8.11.3"
+    eslint-visitor-keys: "npm:^4.0.0"
+    espree: "npm:^10.0.1"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/7ef5f76011cc4805464256e7d791a97f620a7884ea230322cd804a9b230b58e89028d0526c0ab82614b651affbd43b47144de99ec3911e8f9572449414e41787
+  languageName: node
+  linkType: hard
+
 "@stylistic/eslint-plugin-jsx@npm:2.2.1":
   version: 2.2.1
   resolution: "@stylistic/eslint-plugin-jsx@npm:2.2.1"
@@ -2598,6 +2612,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stylistic/eslint-plugin-jsx@npm:2.2.2":
+  version: 2.2.2
+  resolution: "@stylistic/eslint-plugin-jsx@npm:2.2.2"
+  dependencies:
+    "@stylistic/eslint-plugin-js": "npm:^2.2.2"
+    "@types/eslint": "npm:^8.56.10"
+    estraverse: "npm:^5.3.0"
+    picomatch: "npm:^4.0.2"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/24b86ea45da59d7b24e4334e532a46de93893130de8eec7a4f882856c0bfd5df299b2307d6c896d3f1a59e36388d7c694caa4cd2a913fd5948f9641f7c9115b8
+  languageName: node
+  linkType: hard
+
 "@stylistic/eslint-plugin-plus@npm:2.2.1":
   version: 2.2.1
   resolution: "@stylistic/eslint-plugin-plus@npm:2.2.1"
@@ -2607,6 +2635,18 @@ __metadata:
   peerDependencies:
     eslint: "*"
   checksum: 10c0/2115e92b2dca9598ca1b4c484fb60e7b5bbc082f7fb02b24e29cd88337e9fd6a69154c975878ca6ff468e91d0b8ab00abb7224127d0772e53ca2ee254c160f02
+  languageName: node
+  linkType: hard
+
+"@stylistic/eslint-plugin-plus@npm:2.2.2":
+  version: 2.2.2
+  resolution: "@stylistic/eslint-plugin-plus@npm:2.2.2"
+  dependencies:
+    "@types/eslint": "npm:^8.56.10"
+    "@typescript-eslint/utils": "npm:^7.12.0"
+  peerDependencies:
+    eslint: "*"
+  checksum: 10c0/287ab3f603644a3bdba6b896012c3bf8af526e6acc920e285fc7c0dce3772b6668a7ca55a2693b81707a8e0f78dfb10ce62cc8ac89b00b45fb3ed00f6603331a
   languageName: node
   linkType: hard
 
@@ -2623,7 +2663,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:^2.1.0, @stylistic/eslint-plugin@npm:^2.2.1":
+"@stylistic/eslint-plugin-ts@npm:2.2.2":
+  version: 2.2.2
+  resolution: "@stylistic/eslint-plugin-ts@npm:2.2.2"
+  dependencies:
+    "@stylistic/eslint-plugin-js": "npm:2.2.2"
+    "@types/eslint": "npm:^8.56.10"
+    "@typescript-eslint/utils": "npm:^7.12.0"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/ab194b822b86183e7135609fd0a9677b10285465cdd21ba1f4b3ab586c7aa00115b75f29c2dade4f9b6757d417225e3ab3702e743e584d2dd4a2d25099164d3e
+  languageName: node
+  linkType: hard
+
+"@stylistic/eslint-plugin@npm:^2.1.0":
   version: 2.2.1
   resolution: "@stylistic/eslint-plugin@npm:2.2.1"
   dependencies:
@@ -2635,6 +2688,21 @@ __metadata:
   peerDependencies:
     eslint: ">=8.40.0"
   checksum: 10c0/c4da02773951f9fcfc33e533e9c7aa23294fc07e70e15199ab3ecedc410261d25b68d49e86dc6a9d7ea6b769d16dfac5ca30034c7b70700405c9eb0eda073f29
+  languageName: node
+  linkType: hard
+
+"@stylistic/eslint-plugin@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "@stylistic/eslint-plugin@npm:2.2.2"
+  dependencies:
+    "@stylistic/eslint-plugin-js": "npm:2.2.2"
+    "@stylistic/eslint-plugin-jsx": "npm:2.2.2"
+    "@stylistic/eslint-plugin-plus": "npm:2.2.2"
+    "@stylistic/eslint-plugin-ts": "npm:2.2.2"
+    "@types/eslint": "npm:^8.56.10"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/5355f874ba085e1224c2a80787664d64ef6afdb6af88d841b2bc9a57187f34bb3377a6f86a3b0b0b3c5d38b8c8f5efc9fc977cc0c90e5a1a6e76245434bd8fe5
   languageName: node
   linkType: hard
 
@@ -8445,7 +8513,7 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.5.1"
     "@prisma/client": "npm:^5.15.1"
-    "@stylistic/eslint-plugin": "npm:^2.2.1"
+    "@stylistic/eslint-plugin": "npm:^2.2.2"
     "@stylistic/stylelint-plugin": "npm:^2.1.2"
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
