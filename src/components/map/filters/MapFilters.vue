@@ -37,6 +37,30 @@
                         <template #title>
                             Map layer
                         </template>
+                        <common-block-title>
+                            Radar layers
+                        </common-block-title>
+
+                        <div class="__info-sections">
+                            <common-toggle
+                                v-model="radarIsLabels"
+                                :disabled="!radarLayerOption"
+                            >
+                                Show labels
+                            </common-toggle>
+
+                            <common-radio-group
+                                :items="[{ value: 'default', text: 'Default' }, { value: 'satellite', text: 'Satellite' }]"
+                                :model-value="radarLayerOption"
+                                two-cols
+                                @update:modelValue="changeLayer($event)"
+                            />
+
+                            <common-block-title>
+                                External layers
+                            </common-block-title>
+                        </div>
+
                         <map-filter-transparency
                             v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
                             setting="osm"
@@ -47,7 +71,7 @@
                         />
                         <common-radio-group
                             :items="mapLayers"
-                            :model-value="store.localSettings.filters?.layers?.layer ?? 'CartoDB'"
+                            :model-value="store.localSettings.filters?.layers?.layer ?? null"
                             @update:modelValue="changeLayer($event)"
                         />
                     </common-control-block>
@@ -72,11 +96,25 @@
                         <template #title>
                             Weather on map
                         </template>
+                        <a
+                            class="filters__open-weather"
+                            href="https://openweathermap.org/"
+                            target="_blank"
+                        >
+                            <div class="filters__open-weather_text">
+                                Data provided by
+                            </div>
+                            <img
+                                alt="OpenWeather"
+                                class="filters__open-weather_image"
+                                src="@/assets/images/openweather.png"
+                            >
+                        </a>
                         <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
                         <common-radio-group
                             :items="weatherLayers"
-                            :model-value="store.localSettings.filters?.layers?.weather || 'false'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather: $event } } })"
+                            :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
+                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event } } })"
                         />
                     </common-control-block>
                 </div>
@@ -94,15 +132,21 @@ import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
-import type { MapLayoutLayer, MapLayoutLayerWithOptions, MapWeatherLayer } from '~/types/map';
+import type {
+    MapLayoutLayer,
+    MapLayoutLayerExternalOptions,
+    MapWeatherLayer,
+} from '~/types/map';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 
 const isOpened = computed(() => !!store.localSettings.filters?.opened);
 const selectedFilter = ref<string | null>(null);
 
-const mapLayers: RadioItemGroup<MapLayoutLayerWithOptions>[] = [
+const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
         value: 'CartoDB',
         text: 'CartoDB (Without labels)',
@@ -132,9 +176,32 @@ const mapLayers: RadioItemGroup<MapLayoutLayerWithOptions>[] = [
     },
 ];
 
-const changeLayer = (layer: MapLayoutLayer) => {
+const radarIsLabels = ref(store.localSettings.filters?.layers?.layer === 'RadarLabels' || store.localSettings.filters?.layers?.layer === 'RadarSatelliteLabels');
+
+type RadarLayerOptions = 'default' | 'satellite';
+
+const radarLayerOption = computed<RadarLayerOptions | null>(() => {
+    const layer = store.localSettings.filters?.layers?.layer;
+    if (!layer) return 'default';
+    return (layer === 'RadarSatelliteLabels' || layer === 'RadarSatelliteNoLabels') ? 'satellite' : (layer === 'RadarLabels' || layer === 'RadarNoLabels') ? 'default' : null;
+});
+
+const changeLayer = (layer: MapLayoutLayer | RadarLayerOptions) => {
+    if (layer === 'default' || layer === 'satellite') {
+        if (layer === 'default') setUserLocalSettings({ filters: { layers: { layer: radarIsLabels.value ? 'RadarLabels' : 'RadarNoLabels' } } });
+        else setUserLocalSettings({ filters: { layers: { layer: radarIsLabels.value ? 'RadarSatelliteLabels' : 'RadarSatelliteNoLabels' } } });
+
+        return;
+    }
+
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
+
+watch(radarIsLabels, () => {
+    if (radarLayerOption.value) {
+        changeLayer(radarLayerOption.value);
+    }
+});
 
 const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     {
@@ -142,24 +209,22 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
         text: 'None',
     },
     {
-        value: 'clouds_new',
+        value: 'CL',
         text: 'Clouds',
-        hint: 'Clouds may look poorly, especially in light theme',
-        hintLocation: 'right',
     },
     {
-        value: 'precipitation_new',
-        text: 'Precipitation (OpenWeather)',
+        value: 'PR0',
+        text: 'Precipitation',
     },
     {
-        value: 'rain_viewer',
+        value: 'rainViewer',
         text: 'Precipitation (RainViewer)',
-        hint: 'RainViewer has less coverage',
+        hint: 'RainViewer has less coverage, but you can use it if you want!',
         hintLocation: 'right',
     },
     {
-        value: 'wind_new',
-        text: 'Wind',
+        value: 'WND',
+        text: 'Wind (w/direction arrows)',
     },
 ];
 </script>
@@ -218,6 +283,30 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
     .select {
         margin-bottom: 10px;
+    }
+
+    &__open-weather {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+
+        margin-bottom: 8px;
+        padding: 8px 4px;
+
+        font-family: $openSansFont;
+        font-size: 14px;
+        font-weight: 600;
+        color: $lightgray150Orig;
+        text-align: center;
+        text-decoration: none;
+
+        background: #48484a;
+        border-radius: 4px;
+
+        &_image {
+            max-width: 40%;
+        }
     }
 }
 </style>

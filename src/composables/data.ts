@@ -158,8 +158,8 @@ export async function setupDataFetch({ onInitialFetch, onSuccessCallback }: {
                     setVatsimDataStore(data);
                     await onInitialFetch?.();
 
-                    dataStore.vatsim.data.general.value!.update_timestamp = dataStore.vatsim.versions.value!.data;
-                    dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.versions.value!.data;
+                    dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
+                    dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
                 }
             }
             catch (e) {

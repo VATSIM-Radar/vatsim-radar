@@ -52,7 +52,7 @@ watch(map, val => {
                 color: `rgb(${ getCurrentThemeRgbColor('mapSectorBorder').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 1,
+            zIndex: 2,
         });
 
         const localStyle = new Style({
@@ -63,7 +63,7 @@ watch(map, val => {
                 color: `rgb(${ getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 3,
+            zIndex: 4,
         });
 
         const rootStyle = new Style({
@@ -74,7 +74,7 @@ watch(map, val => {
                 color: `rgb(${ getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 2,
+            zIndex: 3,
         });
 
         const hoveredStyle = new Style({
@@ -85,7 +85,7 @@ watch(map, val => {
                 color: `rgb(${ getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
                 width: 1,
             }),
-            zIndex: 4,
+            zIndex: 5,
         });
 
         const hoveredRootStyle = new Style({
@@ -96,12 +96,12 @@ watch(map, val => {
                 color: `rgb(${ getCurrentThemeRgbColor('info600').join(',') }, 0.6)`,
                 width: 1,
             }),
-            zIndex: 4,
+            zIndex: 5,
         });
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
-            zIndex: 1,
+            zIndex: 2,
             properties: {
                 type: 'sectors',
             },

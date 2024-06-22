@@ -23,9 +23,12 @@ export type MapAircraft =
     PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
     & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
 
-export type MapWeatherLayer = 'clouds_new' | 'rain_viewer' | 'precipitation_new' | 'pressure_new' | 'wind_new' | 'temp_new';
-export type MapLayoutLayer = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB' | 'CartoDBLabels';
-export type MapLayoutLayerWithOptions = MapLayoutLayer | 'JawgOrOSM';
+export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
+export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB' | 'CartoDBLabels';
+export type MapLayoutLayerRadar = 'RadarLabels' | 'RadarNoLabels' | 'RadarSatelliteLabels' | 'RadarSatelliteNoLabels';
+export type MapLayoutLayer = MapLayoutLayerExternal | MapLayoutLayerRadar;
+export type MapLayoutLayerExternalOptions = MapLayoutLayerExternal | 'JawgOrOSM';
+export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions | MapLayoutLayerRadar;
 
 export interface UserLayersTransparencySettings {
     satellite?: number;
@@ -41,7 +44,7 @@ interface IUserLocalSettings {
     filters: {
         opened?: boolean;
         layers?: {
-            weather?: MapWeatherLayer | false;
+            weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
             transparencySettings?: UserLayersTransparencySettings;
         };

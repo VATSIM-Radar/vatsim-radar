@@ -136,6 +136,9 @@ export default defineNuxtConfig({
             '/layers/jawg/**': {
                 proxy: 'https://tile.jawg.io/**',
             },
+            '/layers/mapbox/**': {
+                proxy: `https://api.mapbox.com/styles/v1/daniluk4000/**`,
+            },
         },
     },
     devServer: {

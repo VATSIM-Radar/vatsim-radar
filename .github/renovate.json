@@ -30,7 +30,7 @@
       "matchPackageNames": [
         "typescript"
       ],
-      matchCurrentVersion: "<5.5",
+      "matchCurrentVersion": "<5.5",
       "allowedVersions": "<5.5"
     },
     {

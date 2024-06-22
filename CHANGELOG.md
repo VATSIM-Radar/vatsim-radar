@@ -1,5 +1,26 @@
 # Changelog
 
+# 0.4.2-alpha.1
+
+## Map Layers
+
+- Added Radar layers (will now be used as default)
+
+## Map Filters
+
+- Added Weather Layers 2.0. Your previous weather settings have been reset due to this change
+- Added OpenWeather branding to weather popup to thank this amazing service
+- Added "default" setting to transparency settings
+
+## Features and improvements
+
+- Increased missclick protection from 15 to 30 pixels to improve labels readability and lower labels overlapping
+
+## Bug Fixes
+
+- Fixed an issue when sometimes data was not updating every 15 seconds
+- Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
+
 # 0.4.1
 
 - Increased rate for Navigraph AIRAC updates

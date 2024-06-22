@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { MapLayoutLayer } from '~/types/map';
+import type { MapLayoutLayer, MapLayoutLayerExternal, MapLayoutLayerRadar } from '~/types/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
@@ -16,7 +16,7 @@ defineSlots<{ default: () => any }>();
 const store = useStore();
 
 interface Layer {
-    attribution: {
+    attribution?: {
         title: string;
         url: string;
     };
@@ -24,7 +24,7 @@ interface Layer {
     lightThemeUrl?: string;
 }
 
-const layers: Record<MapLayoutLayer, Layer> = {
+const externalLayers: Record<MapLayoutLayerExternal, Layer> = {
     CartoDB: {
         attribution: {
             title: 'CartoDB',
@@ -64,17 +64,54 @@ const layers: Record<MapLayoutLayer, Layer> = {
         url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     },
 };
-const layer = computed(() => {
-    const layer = store.localSettings.filters?.layers?.layer ?? 'CartoDB';
 
-    if (layer === 'Jawg' && store.theme === 'light') return layers.Jawg;
-    if (layer === 'OSM' && store.theme === 'default') return layers.CartoDB;
-    if (layer === 'JawgOrOSM') {
-        return store.theme === 'default' ? layers.Jawg : layers.OSM;
+enum InternalThemes {
+    darkSatelliteL = 'clxpxzi3300ld01qqb343fuv8',
+    darkSatelliteNL = 'clxpygplc00my01qwasza7aft',
+    darkL = 'clxpvwey9006j01r08g6fdwtp',
+    darkNL = 'clxpxxj6w00lc01qqh0dc2d4i',
+
+    lightSatelliteL = 'clxpysco700n001qw2a9u61ar',
+    lightSatelliteNL = 'clxpyxm4700nk01pc3nttg9g4',
+    lightL = 'clxpypp7d00mz01qwe0gefqi7',
+    lightNL = 'clxpykjoh00nj01pcgmrudq8q',
+}
+
+const layer = computed<Layer>(() => {
+    const layer = store.localSettings.filters?.layers?.layer ?? 'RadarNoLabels';
+
+    if (layer.startsWith('Radar')) {
+        let id: string;
+
+        switch (layer as MapLayoutLayerRadar) {
+            case 'RadarLabels':
+                id = InternalThemes[store.theme === 'default' ? 'darkL' : 'lightL'];
+                break;
+            case 'RadarNoLabels':
+                id = InternalThemes[store.theme === 'default' ? 'darkNL' : 'lightNL'];
+                break;
+            case 'RadarSatelliteLabels':
+                id = InternalThemes[store.theme === 'default' ? 'darkSatelliteL' : 'lightSatelliteL'];
+                break;
+            case 'RadarSatelliteNoLabels':
+                id = InternalThemes[store.theme === 'default' ? 'darkSatelliteNL' : 'lightSatelliteNL'];
+                break;
+        }
+
+        return {
+            url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
+        };
     }
 
-    return layers[layer];
+    if (layer === 'Jawg' && store.theme === 'light') return externalLayers.Jawg;
+    if (layer === 'OSM' && store.theme === 'default') return externalLayers.CartoDB;
+    if (layer === 'JawgOrOSM') {
+        return store.theme === 'default' ? externalLayers.Jawg : externalLayers.OSM;
+    }
+
+    return externalLayers[layer as MapLayoutLayerExternal];
 });
+const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl);
 
 const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
 
@@ -99,9 +136,10 @@ let tileLayer: TileLayer<XYZ>;
 function initLayer() {
     map.value?.removeLayer(tileLayer);
     tileLayer?.dispose();
+
     tileLayer = new TileLayer({
         source: new XYZ({
-            attributions: buildAttributions(layer.value.attribution.title, layer.value.attribution.url),
+            attributions: layer.value.attribution ? buildAttributions(layer.value.attribution.title, layer.value.attribution.url) : undefined,
             url: store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url,
             wrapX: true,
         }),
@@ -119,7 +157,7 @@ watch(map, val => {
     immediate: true,
 });
 
-watch([layer, theme], initLayer);
+watch([layerUrl, theme], initLayer);
 watch(transparencySettings, initLayer);
 
 onBeforeUnmount(() => {
