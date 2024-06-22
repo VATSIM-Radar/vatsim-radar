@@ -2916,12 +2916,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^20.14.7":
+"@types/node@npm:*":
   version: 20.14.7
   resolution: "@types/node@npm:20.14.7"
   dependencies:
     undici-types: "npm:~5.26.4"
   checksum: 10c0/6211ffe86f769a58617e3bdca58610256021ef54bd99d2c442ee6109196cd6ee8e0bcd1cfac0e39bf4bb353f8900fa5fae540485a03816bd91ad1f86a0e18512
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^20.14.8":
+  version: 20.14.8
+  resolution: "@types/node@npm:20.14.8"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: 10c0/06d4643fa3b179b41fe19f9c75c240278ca1f7a313b3b837bc36ea119499c7ad77f06bbe72694ac04aa91ec77fe747baa09b889f4c435450c1724a26bd55f160
   languageName: node
   linkType: hard
 
@@ -8668,7 +8677,7 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^20.14.7"
+    "@types/node": "npm:^20.14.8"
     adm-zip: "npm:^0.5.14"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
@@ -8698,7 +8707,7 @@ __metadata:
     vite-plugin-eslint2: "npm:^4.4.0"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.30"
-    vue-component-type-helpers: "npm:^2.0.21"
+    vue-component-type-helpers: "npm:^2.0.22"
     vue-router: "npm:^4.4.0"
     vue-tsc: "npm:^1.8.27"
   languageName: unknown
@@ -12068,10 +12077,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-component-type-helpers@npm:^2.0.21":
-  version: 2.0.21
-  resolution: "vue-component-type-helpers@npm:2.0.21"
-  checksum: 10c0/2c05cb5fe9ef760f7b4f2adb57cbd2db0d4b439b046a48675d78989a028c2a96e2f869af9c525b97f1554d16613d35be57037b177b1c697b5fec8517df7c7808
+"vue-component-type-helpers@npm:^2.0.22":
+  version: 2.0.22
+  resolution: "vue-component-type-helpers@npm:2.0.22"
+  checksum: 10c0/e54b7703300e1e656e610eaa269075a1d887a3eddb4e1f9928ecea380de93968aa46f25ae13512286cf4503e5bb5bfb28028569dda1e29f6006feae52bc19272
   languageName: node
   linkType: hard
 
