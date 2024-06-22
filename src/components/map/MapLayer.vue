@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { MapLayoutLayer, MapLayoutLayerExternal, MapLayoutLayerRadar } from '~/types/map';
+import type { MapLayoutLayerExternal, MapLayoutLayerRadar } from '~/types/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
