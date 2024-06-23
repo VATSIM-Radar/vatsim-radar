@@ -1,5 +1,18 @@
 # Changelog
 
+# 0.4.2-alpha.2
+
+## QA Changelog
+
+- Fixed taxiway labels size, as well as all new layers size
+- Added great circle support for arriving lines. More to come later!
+
+## Bug Fixes
+
+- Fixed an issue when for rare airports approach controllers were not displaying (like LECG_APP)
+- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please report if some airports or controllers have disappeared for you
+- Fixed an issue when aircraft were pinning when opening them for no reason
+
 # 0.4.2-alpha.1
 
 ## Map Layers

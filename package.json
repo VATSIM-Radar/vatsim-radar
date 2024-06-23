@@ -1,6 +1,6 @@
 {
   "name": "nuxt-app",
-  "version": "0.4.2-alpha.1",
+  "version": "0.4.2-alpha.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,6 +23,7 @@
     "@influxdata/influxdb-client-apis": "^1.33.2",
     "@pinia/nuxt": "^0.5.1",
     "@prisma/client": "^5.15.1",
+    "@turf/great-circle": "^7.0.0",
     "adm-zip": "^0.5.14",
     "chardet": "^2.0.0",
     "cron": "^3.1.7",

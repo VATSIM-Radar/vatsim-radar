@@ -135,7 +135,7 @@ import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
-import { LineString, Point } from 'ol/geom';
+import { LineString, MultiLineString, Point } from 'ol/geom';
 import {
     aircraftSvgColors,
     getAircraftLineStyle,
@@ -160,7 +160,9 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { toLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
+import { point } from '@turf/helpers';
+import greatCircle from '@turf/great-circle';
 
 const props = defineProps({
     aircraft: {
@@ -440,10 +442,12 @@ async function toggleAirportLines(value = canShowLines.value) {
     }
 
     if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
-        const geometry = new LineString([
-            [props.aircraft?.longitude, props.aircraft?.latitude],
-            [arrAirport.lon, arrAirport.lat],
-        ]);
+        const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+        const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
+
+        const circle = greatCircle(start, end);
+
+        const geometry = circle.geometry.type === 'LineString' ? new LineString(circle.geometry.coordinates.map(x => fromLonLat(x))) : new MultiLineString(circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x))));
 
         if (arrLine) {
             arrLine.setGeometry(geometry);

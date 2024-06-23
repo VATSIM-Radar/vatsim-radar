@@ -140,7 +140,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
     }
 
     const overlay = await mapStore.addPilotOverlay(features[0].cid.toString());
-    if (overlay) {
+    if (overlay && store.config.showInfoForPrimaryAirport) {
         overlay.sticky = true;
     }
 }

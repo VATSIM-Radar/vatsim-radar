@@ -20,6 +20,7 @@ interface Layer {
         title: string;
         url: string;
     };
+    size?: number;
     url: string;
     lightThemeUrl?: string;
 }
@@ -100,6 +101,7 @@ const layer = computed<Layer>(() => {
 
         return {
             url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
+            size: 512,
         };
     }
 
@@ -142,6 +144,7 @@ function initLayer() {
             attributions: layer.value.attribution ? buildAttributions(layer.value.attribution.title, layer.value.attribution.url) : undefined,
             url: store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url,
             wrapX: true,
+            tileSize: layer.value.size ?? 256,
         }),
         opacity: opacity.value,
         zIndex: 0,

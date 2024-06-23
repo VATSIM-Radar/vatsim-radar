@@ -7,7 +7,7 @@ import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const revisions: Record<string, number> = {
-    'v2403.1': 13,
+    'v2404.2': 1,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -128,7 +128,13 @@ export default defineNitroPlugin(app => {
 
             result.airports = parsedDat.airports
                 .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)
-                .map(value => {
+                .map((value, index) => {
+                    const duplicateIata = parsedDat.airports.find((x, xIndex) => value.iata && x.iata === value.iata && xIndex !== index);
+                    if (duplicateIata) {
+                        delete value.iata;
+                        delete duplicateIata.iata;
+                    }
+
                     const lonlat = fromServerLonLat([+value.lon!, +value.lat!]);
 
                     return {

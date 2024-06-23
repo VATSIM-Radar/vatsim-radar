@@ -340,11 +340,19 @@ const getAirportsList = computed(() => {
         }
 
         if (!airport) {
-            airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.iata));
+            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
         }
 
         if (!airport) {
             airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
+        }
+
+        if (!airport) {
+            airport = airports.find(x => x.airport.iata && sector.properties!.id === x.airport.iata);
+        }
+
+        if (!airport) {
+            airport = airports.find(x => sector.properties!.id === x.airport.icao);
         }
 
         return airport;
