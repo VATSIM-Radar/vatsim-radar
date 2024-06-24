@@ -1,7 +1,7 @@
 name: Feature Request / Feedback
 description: Do you want us to improve or add something?
-labels: ["enhancement", "pending triage"]
-assignees: ["daniluk4000"]
+labels: [ "enhancement", "pending triage" ]
+assignees: [ "daniluk4000" ]
 body:
   - type: markdown
     attributes:
@@ -11,6 +11,13 @@ body:
         Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" and "pending triage" labels (also check closed ones).
         
         Also please check our roadmap - your request could already be planned to be implemented or is actually a separate feature.
+  - type: input
+    id: id
+    attributes:
+      label: Your Vatsim CID
+      description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
+    validations:
+      required: true
   - type: textarea
     id: what
     attributes:

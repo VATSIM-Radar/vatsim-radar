@@ -14,6 +14,13 @@ body:
         
         Also please check our roadmap - your "issue" could already be planned to be implemented or is actually a separate feature.
   - type: input
+    id: id
+    attributes:
+      label: Your Vatsim CID
+      description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
+    validations:
+      required: true
+  - type: input
     id: version
     attributes:
       label: Radar version
