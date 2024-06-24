@@ -18,7 +18,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: what
+    id: why
     attributes:
       label: Why do you need that?
       description: Describe your request - why do you need that, how would it benefit to people, what are you trying to solve.
