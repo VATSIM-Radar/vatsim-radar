@@ -8,7 +8,7 @@ body:
       value: |
         Hello! Thank you for suggesting an improvement for VATSIM Radar.
         
-        Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" and "pending triage" labels (also check closed ones).
+        Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" label (also check closed ones).
         
         Also please check our roadmap - your request could already be planned to be implemented or is actually a separate feature.
   - type: input

@@ -1,0 +1,58 @@
+name: Aircraft icon(s)
+description: Suggest aircraft icon(s) you want us to add
+labels: [ "aircraft icon", "pending triage" ]
+assignees: ["daniluk4000"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hello! Thank you for suggesting new icon for us.
+        
+        Before reporting, please also check existing requests in this repository - you can filter them by "aircraft icon" label.
+        
+        Also please check [existing icons list](https://github.com/daniluk4000/vatsim-radar/tree/next/src/assets/icons) and [model matching](https://github.com/daniluk4000/vatsim-radar/blob/next/src/utils/icons.ts#L410). 
+        
+        You can also suggest model matching improvement while we wait for icon to be drawn!
+  - type: input
+    id: id
+    attributes:
+      label: Your Vatsim CID
+      description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What aircraft icon(s) do you suggest to add
+      description: Please include aircraft name, type (the one you use in VATSIM) and, if possible, scheme from above for aircraft
+    validations:
+      required: true
+  - type: textarea
+    id: matching
+    attributes:
+      label: Model matching
+      description: If this aircraft icon can be used for other aircraft - please tell us their VATSIM types
+    validations:
+      required: false
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Improve existing matching
+      description: If we can already use existing icon for this aircraft via model matching - please also tell us
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional info
+      description: Is there something additional we need to know?
+    validations:
+      required: false
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation
+      description: Please validate your report
+      options:
+        - label: I have searched for other requests and didn't found any alike
+          required: true
