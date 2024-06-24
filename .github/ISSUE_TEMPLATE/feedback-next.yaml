@@ -1,0 +1,52 @@
+name: Feedback (Next Branch)
+description: Suggest feedback to Next branch
+labels: [ "enhancement", "next", "pending triage" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hello! Thank you for suggesting an improvement for VATSIM Radar Next. Remember, that you have to be QA or Patreon member to suggest features for next branch.
+        
+        Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" and "pending triage" labels (also check closed ones).
+        
+        Also please check our roadmap - your request could already be planned to be implemented or is actually a separate feature.
+  - type: textarea
+    id: what
+    attributes:
+      label: What do you suggest?
+      description: Please tell us as much as possible about your suggestion
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Why do you need that?
+      description: Describe your request - why do you need that, how would it benefit to people, what are you trying to solve.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: If there are any alternatives, how can you deal with this problem today - or what other services already have it implemented?
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional info
+      description: Is there something additional we need to know? Please tell us!
+    validations:
+      required: false
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation
+      description: Please validate your report
+      options:
+        - label: I have searched for other requests and didn't found any alike
+          required: true
+        - label: I have also checked roadmap, and this is not planned
+          required: true
+        - label: I am QA or Patreon member and using next.vatsim-radar.com
+          required: true
