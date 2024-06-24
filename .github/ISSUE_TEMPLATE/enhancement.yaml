@@ -1,6 +1,7 @@
 name: Feature Request / Feedback
 description: Do you want us to improve or add something?
 labels: ["enhancement", "pending triage"]
+assignees: ["daniluk4000"]
 body:
   - type: markdown
     attributes:

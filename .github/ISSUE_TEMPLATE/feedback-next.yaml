@@ -1,6 +1,7 @@
 name: Feedback (Next Branch)
 description: Suggest feedback to Next branch
 labels: [ "enhancement", "next", "pending triage" ]
+assignees: ["daniluk4000"]
 body:
   - type: markdown
     attributes:

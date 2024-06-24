@@ -1,6 +1,7 @@
 name: Bug report (production)
 description: Report found issue on production
 labels: ["bug", "pending triage"]
+assignees: ["daniluk4000"]
 body:
   - type: markdown
     attributes:

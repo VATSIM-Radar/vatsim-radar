@@ -1,6 +1,7 @@
 name: Bug report (Next Branch)
 description: Report found issue on Next branch
 labels: [ "bug", "next", "pending triage" ]
+assignees: ["daniluk4000"]
 body:
   - type: markdown
     attributes:
