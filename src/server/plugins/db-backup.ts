@@ -30,7 +30,7 @@ export default defineNitroPlugin(app => {
                 host: config.BACKUP_FTP_HOST,
                 user: config.BACKUP_FTP_LOGIN,
                 password: config.BACKUP_FTP_PASSWORD,
-                secure: true,
+                secure: false,
             });
 
             const date = Date.now();
