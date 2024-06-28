@@ -83,6 +83,7 @@ export default defineNuxtConfig({
         VATSIM_CLIENT_SECRET: process.env.VATSIM_CLIENT_SECRET,
         VATSIM_ENDPOINT: process.env.VATSIM_ENDPOINT,
 
+        DATABASE_URL: process.env.DATABASE_URL,
         DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
         DISCORD_TOKEN: process.env.DISCORD_TOKEN,
         DISCORD_SERVER_ID: process.env.DISCORD_SERVER_ID,
@@ -96,6 +97,10 @@ export default defineNuxtConfig({
         INFLUX_ORG: process.env.INFLUX_ORG,
         INFLUX_BUCKET_MAIN: process.env.INFLUX_BUCKET_MAIN,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
+
+        BACKUP_FTP_HOST: process.env.BACKUP_FTP_HOST,
+        BACKUP_FTP_LOGIN: process.env.BACKUP_FTP_LOGIN,
+        BACKUP_FTP_PASSWORD: process.env.BACKUP_FTP_PASSWORD,
 
         public: {
             DOMAIN: process.env.DOMAIN,

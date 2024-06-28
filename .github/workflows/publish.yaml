@@ -58,6 +58,9 @@ jobs:
             INFLUX_ORG=${{ secrets.INFLUX_ORG }}
             INFLUX_BUCKET_MAIN=${{ secrets.INFLUX_BUCKET_MAIN }}
             INFLUX_BUCKET_ONLINE=${{ secrets.INFLUX_BUCKET_ONLINE }}
+            BACKUP_FTP_HOST=${{ secrets.BACKUP_FTP_HOST }}
+            BACKUP_FTP_LOGIN=${{ secrets.BACKUP_FTP_LOGIN }}
+            BACKUP_FTP_PASSWORD=${{ secrets.BACKUP_FTP_PASSWORD }}
   deploy:
     runs-on: production
     #runs-on: beget

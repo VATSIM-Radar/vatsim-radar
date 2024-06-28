@@ -34,3 +34,5 @@ logs
 
 .config/certs
 .config/db
+
+dump.sql
