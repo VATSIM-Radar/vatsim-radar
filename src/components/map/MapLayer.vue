@@ -41,12 +41,20 @@ const layers: Record<MapLayoutLayer, Layer> = {
         url: '/layers/carto/dark_all/{z}/{x}/{y}.png',
         lightThemeUrl: '/layers/carto/light_all/{z}/{x}/{y}.png',
     },
-    Jawg: {
+    /* Jawg: {
         attribution: {
             title: 'Jawg',
             url: 'https://www.jawg.io',
         },
         url: '/layers/jawg/1578fbb3-df30-4ffd-a1ed-84fac385f59d/{z}/{x}/{y}.png?access-token=Ly133Lgdn5FiEmVwqE1hLT732DJuGdMZmxm6TcIEGCiKARCwXmAHPHpj58Lwxb1L',
+        lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
+    },*/
+    Jawg: {
+        attribution: {
+            title: 'CartoDB',
+            url: 'https://cartodb.com/attribution',
+        },
+        url: '/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
         lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
     },
     Satellite: {

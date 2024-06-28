@@ -1,12 +1,10 @@
 <template>
     <div
-        v-if="config.public.IS_DOWN === 'true' && !warningClosed"
+        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningClosed"
         class="header-error"
     >
         <div class="header-error_text">
-            Website database is currently experiencing network issues. Login and own aircraft tracking are not possible at the
-            moment. We plan to restore everything before the end of the week. Our apologies for this outage, and we will ensure this
-            won't happen again in future.
+            VATSIM Radar has exceeded it's quota for Jawg map layer. Functionality will be restored on, or shortly after, 10 July. For now, we have replaced this layer with Carto.
         </div>
         <div
             class="header-error_close"
