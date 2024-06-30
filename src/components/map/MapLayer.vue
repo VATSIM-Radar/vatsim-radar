@@ -108,7 +108,7 @@ const layer = computed<Layer>(() => {
         }
 
         return {
-            url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
+            url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
             size: 512,
         };
     }
