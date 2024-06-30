@@ -19,6 +19,7 @@ export default defineNitroPlugin(app => {
         start: true,
         runOnInit: true,
         onTick: async () => {
+            if (import.meta.dev) return;
             const config = useRuntimeConfig();
 
             const {

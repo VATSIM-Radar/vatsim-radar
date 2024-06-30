@@ -297,9 +297,10 @@ export function getAirportsList() {
 
     radarStorage.vatsim.locals.forEach(atc => {
         const airport = atc.airport;
+
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
-            const airportExist = dataAirports.some(x => x.icao === airport.icao || x.iata === airport.iata);
-            const someAirportExist = radarStorage.vatspy.data!.airports.find(x => x.icao === airport.icao || x.iata === airport.iata);
+            const airportExist = dataAirports.some(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
+            const someAirportExist = radarStorage.vatspy.data!.airports.find(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
 
             airports.push({
                 icao: airport.icao,
