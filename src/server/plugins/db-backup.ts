@@ -15,7 +15,7 @@ const s3 = new S3({
 
 export default defineNitroPlugin(app => {
     CronJob.from({
-        cronTime: '20 * * * *',
+        cronTime: '20 */2 * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
@@ -43,7 +43,7 @@ export default defineNitroPlugin(app => {
                 ContentType: 'application/sql',
             }, (err, data) => {
                 if (err) console.error(err);
-                if (data) console.log(data.Location);
+                if (data) console.info('Backup completed', data.Location);
             });
         },
     });
