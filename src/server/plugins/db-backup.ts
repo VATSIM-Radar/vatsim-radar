@@ -5,6 +5,7 @@ import { Client } from 'basic-ftp';
 
 const regex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
 const client = new Client();
+client.ftp.verbose = true;
 
 export default defineNitroPlugin(app => {
     CronJob.from({
@@ -25,8 +26,6 @@ export default defineNitroPlugin(app => {
             } = regex.exec(config.DATABASE_URL)! as { groups: Record<string, string> };
 
             execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
-
-            console.log(config.BACKUP_FTP_HOST, config.BACKUP_FTP_LOGIN, config.BACKUP_FTP_PASSWORD);
 
             await client.access({
                 host: config.BACKUP_FTP_HOST,
