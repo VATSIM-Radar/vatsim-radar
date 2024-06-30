@@ -26,11 +26,12 @@ export default defineNitroPlugin(app => {
 
             execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
 
+            console.log(config.BACKUP_FTP_HOST, config.BACKUP_FTP_LOGIN, config.BACKUP_FTP_PASSWORD);
+
             await client.access({
                 host: config.BACKUP_FTP_HOST,
                 user: config.BACKUP_FTP_LOGIN,
                 password: config.BACKUP_FTP_PASSWORD,
-                secure: false,
             });
 
             const date = Date.now();
