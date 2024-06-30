@@ -96,7 +96,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
             if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival && (!row.altitude || row.altitude < 3000))) return true;
 
             const similarRow = (
-                row.fpl_arrival && nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time
+                row.fpl_arrival && nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && row.callsign === nextRow.callsign
             ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
                 ? rows[index + 1]
                 : null;

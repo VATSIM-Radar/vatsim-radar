@@ -69,8 +69,5 @@
     "vue-component-type-helpers": "^2.0.24",
     "vue-tsc": "^1.8.27"
   },
-  "resolutions": {
-    "vite-plugin-checker": "^0.7.0"
-  },
   "packageManager": "yarn@4.3.1"
 }

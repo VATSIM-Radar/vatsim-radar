@@ -84,7 +84,7 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
 
     if (!strict) {
         if (size < 20) return 20;
-        if (size > 40) return 40;
+        if (size > 35) return 35;
     }
 
     return Math.round(size);

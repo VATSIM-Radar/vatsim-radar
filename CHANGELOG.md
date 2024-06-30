@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.4.2-alpha.3
+
+## QA Changelog
+
+- Fixed https://github.com/daniluk4000/vatsim-radar/issues/97, https://github.com/daniluk4000/vatsim-radar/issues/109
+
+## Features and improvements
+
+- Max aircraft icon size was reduced from 40 to 35 
+
 # 0.4.2-alpha.2
 
 ## QA Changelog
