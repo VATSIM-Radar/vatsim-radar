@@ -23,17 +23,6 @@
       "versioning": "node"
     },
     {
-      "matchPackageNames": "vue-tsc",
-      "allowedVersions": "<2"
-    },
-    {
-      "matchPackageNames": [
-        "typescript"
-      ],
-      "matchCurrentVersion": "<5.5",
-      "allowedVersions": "<5.5"
-    },
-    {
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": [
