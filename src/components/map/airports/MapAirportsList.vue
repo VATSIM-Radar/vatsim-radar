@@ -101,7 +101,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         const extent = features[0].getGeometry()?.getExtent();
         if (extent) {
             const textCoord = [extent[0] + 25000, extent[3] - 25000];
-            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 10000;
+            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
         }
     }
 
