@@ -135,7 +135,7 @@ import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
-import { LineString, MultiLineString, Point } from 'ol/geom';
+import { LineString, Point } from 'ol/geom';
 import {
     aircraftSvgColors,
     getAircraftLineStyle,
@@ -144,7 +144,7 @@ import {
     usePilotRating,
 } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
-import { sleep } from '~/utils';
+import { greatCircleGeometryToOL, sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
@@ -160,7 +160,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { fromLonLat, toLonLat } from 'ol/proj';
+import { toLonLat } from 'ol/proj';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 
@@ -369,8 +369,11 @@ async function toggleAirportLines(value = canShowLines.value) {
                 coordinates.push(nextFeature.geometry.coordinates);
             }
 
+            const points = coordinates.map(x => point(toLonLat(x)));
+            const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
             const lineFeature = new Feature({
-                geometry: new LineString(coordinates),
+                geometry,
             });
             lineFeature.setStyle(styles);
             linesSource.value?.addFeature(lineFeature);
@@ -407,10 +410,10 @@ async function toggleAirportLines(value = canShowLines.value) {
         clearLineFeatures();
 
         if (depAirport) {
-            const geometry = new LineString([
-                [depAirport.lon, depAirport.lat],
-                [props.aircraft?.longitude, props.aircraft?.latitude],
-            ]);
+            const start = point(toLonLat([depAirport.lon, depAirport.lat]));
+            const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+
+            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
             if (depLine) {
                 depLine.setGeometry(geometry);
@@ -445,9 +448,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
         const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
 
-        const circle = greatCircle(start, end);
-
-        const geometry = circle.geometry.type === 'LineString' ? new LineString(circle.geometry.coordinates.map(x => fromLonLat(x))) : new MultiLineString(circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x))));
+        const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
         if (arrLine) {
             arrLine.setGeometry(geometry);

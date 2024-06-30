@@ -4,7 +4,7 @@
 
 ## QA Changelog
 
-- Fixed https://github.com/daniluk4000/vatsim-radar/issues/97, https://github.com/daniluk4000/vatsim-radar/issues/109
+- Fixed disappearing controllers: https://github.com/daniluk4000/vatsim-radar/issues/97, https://github.com/daniluk4000/vatsim-radar/issues/109
 - MapBox tiles will be scaled to x2 resolution from now on (https://github.com/daniluk4000/vatsim-radar/issues/102P)
 
 ## Features and improvements
@@ -12,6 +12,8 @@
 - Max aircraft icon size was reduced from 40 to 35 
 - You can now use middle mouse click to center map in direction you want
 - Increased horizontal hit ratio for approach controller name. They should now be much easier to hit to open overlay
+- Added great circle support for aircraft lines
+- Changed aircraft history track line colors. For example, purple is not that bright anymore
 
 ## Bug Fixes
 

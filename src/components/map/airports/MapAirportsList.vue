@@ -156,7 +156,7 @@ watch(map, val => {
     if (!airportsLayer) {
         airportsSource.value = new VectorSource<any>({
             features: [],
-            wrapX: false,
+            wrapX: true,
         });
 
         airportsLayer = new VectorLayer<any>({
