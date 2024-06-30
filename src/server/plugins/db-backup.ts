@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
 import { execSync } from 'node:child_process';
 import { join } from 'path';
-import S3 from 'aws-sdk/clients/s3';
+import S3 from 'aws-sdk/clients/s3.js';
 import { readFileSync } from 'node:fs';
 
 const regex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
