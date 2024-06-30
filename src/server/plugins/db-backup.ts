@@ -1,14 +1,21 @@
 import { CronJob } from 'cron';
 import { execSync } from 'node:child_process';
 import { join } from 'path';
-import { Client } from 'basic-ftp';
+import S3 from 'aws-sdk/clients/s3.js';
+import { readFileSync } from 'node:fs';
 
 const regex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
-const client = new Client();
+
+const s3 = new S3({
+    endpoint: process.env.CF_R2_API,
+    accessKeyId: process.env.CF_R2_ACCESS_ID,
+    secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
+    signatureVersion: 'v4',
+});
 
 export default defineNitroPlugin(app => {
     CronJob.from({
-        cronTime: '20 * * * *',
+        cronTime: '20 */2 * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
@@ -26,24 +33,18 @@ export default defineNitroPlugin(app => {
 
             execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
 
-            await client.access({
-                host: config.BACKUP_FTP_HOST,
-                user: config.BACKUP_FTP_LOGIN,
-                password: config.BACKUP_FTP_PASSWORD,
-                secure: true,
+            const date = new Date();
+
+            s3.upload({
+                Bucket: 'backups',
+                Expires: new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)),
+                Body: readFileSync(join(process.cwd(), 'dump.sql')),
+                Key: `radar/${ date.getFullYear() }-${ date.getMonth() }-${ date.getDate() }-${ config.public.DOMAIN.replace('https://', '').split(':')[0] }-${ date.getHours() }-${ date.getMinutes() }.sql`,
+                ContentType: 'application/sql',
+            }, (err, data) => {
+                if (err) console.error(err);
+                if (data) console.info('Backup completed', data.Location);
             });
-
-            const date = Date.now();
-            const maxExpirationDate = date - (1000 * 60 * 60 * 24 * 7);
-            const path = `/radar/${ config.public.DOMAIN.replace('https://', '').split(':')[0] }`;
-            await client.ensureDir(path);
-
-            await client.uploadFrom(join(process.cwd(), 'dump.sql'), `${ path }/${ date }.sql`);
-            const list = await client.list(path);
-            for (const item of list) {
-                const date = item.name.split('.')[0];
-                if (+date < maxExpirationDate) await client.remove(`${ path }/${ item.name }`);
-            }
         },
     });
 });
