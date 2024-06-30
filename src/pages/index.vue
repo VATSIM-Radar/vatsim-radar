@@ -60,6 +60,7 @@ import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]'
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
+import type { Coordinate } from 'ol/coordinate';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -340,6 +341,35 @@ await setupDataFetch({
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
 
         let moving = true;
+
+        map.value.getTargetElement().addEventListener('mousedown', event => {
+            if (event.button === 1) {
+                const center = map.value!.getView().getCenter() as Coordinate;
+                const resolution = map.value!.getView().getResolution();
+                let increaseX = window.innerWidth / 2;
+                let increaseY = window.innerHeight / 2;
+
+                const target = event.target as HTMLCanvasElement;
+                const halfWidth = target.width / 2;
+                const halfHeight = target.height / 2;
+
+                const isLeft = event.x < halfWidth;
+                const isTop = event.y < halfHeight;
+
+                if (isLeft) increaseX *= 1 - (event.x / halfWidth);
+                else increaseX *= (event.x - halfWidth) / (target.width / 2);
+
+                if (isTop) increaseY *= 1 - (event.y / halfHeight);
+                else increaseY *= (event.y - halfHeight) / (target.height / 2);
+
+                if (isLeft) center[0] -= increaseX * resolution!;
+                else center[0] += increaseX * resolution!;
+                if (isTop) center[1] += increaseY * resolution!;
+                else center[1] -= increaseY * resolution!;
+
+                map.value!.getView().animate({ center, duration: 300 });
+            }
+        });
 
         map.value.on('movestart', () => {
             moving = true;
