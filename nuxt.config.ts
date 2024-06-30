@@ -98,10 +98,6 @@ export default defineNuxtConfig({
         INFLUX_BUCKET_MAIN: process.env.INFLUX_BUCKET_MAIN,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
 
-        BACKUP_FTP_HOST: process.env.BACKUP_FTP_HOST,
-        BACKUP_FTP_LOGIN: process.env.BACKUP_FTP_LOGIN,
-        BACKUP_FTP_PASSWORD: process.env.BACKUP_FTP_PASSWORD,
-
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
