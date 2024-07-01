@@ -214,18 +214,12 @@ const icon = computed(() => getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
 const getStatus = computed<MapAircraftStatus>(() => {
-    let status: MapAircraftStatus = 'default';
-    if (isSelfFlight.value || store.config.allAircraftGreen) {
-        status = 'green';
-    }
-    else if (activeCurrentOverlay.value) {
-        status = 'active';
-    }
-    else if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) {
-        status = 'hover';
-    }
+    if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
+    if (activeCurrentOverlay.value) return 'active';
+    if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
+    if (store.config.airport && props.aircraft.arrival === store.config.airport) return 'arrival';
 
-    return status;
+    return 'default';
 });
 
 const setStyle = async (iconFeature = feature) => {
