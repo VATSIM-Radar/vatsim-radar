@@ -33,7 +33,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "metar-taf-parser": "^9.0.1",
-    "nuxt": "^3.12.2",
+    "nuxt": "^3.12.3",
     "ol": "^9.2.4",
     "pinia": "^2.1.7",
     "prisma": "^5.16.1",
