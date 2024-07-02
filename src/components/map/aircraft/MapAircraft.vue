@@ -217,7 +217,19 @@ const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
     if (activeCurrentOverlay.value) return 'active';
     if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
-    if (store.config.airport && props.aircraft.arrival === store.config.airport) return 'arrival';
+
+    // color aircraft icon based on departure/arrival when the airport dashboard is in use
+    if (store.config.airport) {
+        if (props.aircraft.departure === props.aircraft.arrival) { // Here we handle cases where the departure and arrival airport are the same
+            const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+            if (!vatAirport) return 'arrival';
+            if (vatAirport.aircraft.groundDep?.includes(props.aircraft.cid)) {
+                return 'default'; // We treat it like a departure because it's on the ground
+            }
+        }
+
+        if (props.aircraft.arrival === store.config.airport) return 'arrival';
+    }
 
     return 'default';
 });
