@@ -152,6 +152,14 @@
                                 Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
                             </template>
                         </common-toggle>
+                            <common-toggle
+                                :model-value="store.localSettings.apt_popular_rings || false"
+                                @update:modelValue="setUserLocalSettings( { apt_popular_rings: $event } )"
+                            > Show airport rings
+                                <template #description>
+                                    Enabling this will show rings around airport with more than 8 movements in the next hour. The size is decided based on the expected movements in the next hour.
+                                </template>
+                        </common-toggle>                        
                     </common-control-block>
                 </div>
                 <div
