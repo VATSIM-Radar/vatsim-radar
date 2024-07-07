@@ -82,6 +82,8 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         } satisfies AirportPopupPilotList;
 
         for (const pilot of dataStore.vatsim.data.pilots.value) {
+            if (data.value.icao !== pilot.departure && data.value.icao !== pilot.arrival) continue;
+
             let distance = 0;
             let flown = 0;
             let eta: Date | null = null;
@@ -122,6 +124,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         }
 
         for (const pilot of dataStore.vatsim.data.prefiles.value) {
+            if (pilot.departure !== data.value.icao) continue;
             if (vatAirport.aircraft.prefiles?.includes(pilot.cid)) {
                 list.prefiles.push({
                     ...pilot,
