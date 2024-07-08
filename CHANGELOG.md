@@ -16,6 +16,10 @@ This is probably final build before release. Please, everyone who has a moment t
 - New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
 - Added airport name in overlay if airport doesn't have VATSIM info
 
+## Bug Fixes
+
+- Fixed an issue when route&remarks would collapse each update
+
 # 0.4.2-alpha.3
 
 ## QA Changelog

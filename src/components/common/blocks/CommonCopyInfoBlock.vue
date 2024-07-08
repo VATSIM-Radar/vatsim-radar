@@ -34,6 +34,12 @@
                     Expand
                 </template>
             </common-button>
+            <div
+                v-if="$slots.actions"
+                class="copy-info_left_title"
+            >
+                <slot name="actions"/>
+            </div>
         </div>
         <div class="copy-info_right __info-sections">
             <slot name="prepend"/>
@@ -59,7 +65,7 @@ defineProps({
     },
 });
 
-defineSlots<{ default(): any; prepend(): any }>();
+defineSlots<{ default(): any; prepend(): any; actions(): any }>();
 
 const copy = useCopyText();
 const expanded = ref(false);

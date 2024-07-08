@@ -120,6 +120,8 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
             planned: +extendedPilot.flight_plan.altitude,
         };
 
+        if (extendedPilot.cruise.planned < 1000) extendedPilot.cruise.planned *= 100;
+
         if (extendedPilot.flight_plan.route) {
             const regex = /F(?<level>[0-9]{2,3})$/;
 
@@ -135,8 +137,9 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
             if (extendedPilot.cruise.max === extendedPilot.cruise.planned) delete extendedPilot.cruise.max;
 
             if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
+                const planned = extendedPilot.cruise.min;
                 extendedPilot.cruise.planned = extendedPilot.cruise.min;
-                extendedPilot.cruise.min = +extendedPilot.flight_plan.altitude;
+                extendedPilot.cruise.min = planned;
             }
         }
 
