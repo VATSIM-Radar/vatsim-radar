@@ -1,5 +1,9 @@
 # Changelog
 
+# 0.4.2-alpha.4
+
+- Improved performance when looking for an aircraft
+
 # 0.4.2-alpha.3
 
 ## QA Changelog
