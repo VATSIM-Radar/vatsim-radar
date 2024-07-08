@@ -169,10 +169,11 @@ const arrCountry = computed(() => {
 
 const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
 
-const selcal = computed(() => {
+const selcal = computed<string | null>(() => {
     const remarks = props.flightPlan.remarks;
+    if (!remarks) return null;
     const result = selcalRegex.exec(remarks);
-    return result?.groups.selcal || null;
+    return result?.groups?.selcal || null;
 });
 </script>
 
