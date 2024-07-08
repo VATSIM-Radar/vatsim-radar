@@ -12,7 +12,7 @@
             <template v-if="topItems.length">
                 <template
                     v-for="(item, index) in topItems.filter(x => !!x)"
-                    :key="item+index"
+                    :key="String(item)+index"
                 >
                     <div
                         v-if="index > 0"
@@ -48,7 +48,7 @@
             <template v-if="bottomItems.length">
                 <template
                     v-for="(item, index) in bottomItems.filter(x => !!x)"
-                    :key="item+index"
+                    :key="String(item)+index"
                 >
                     <div
                         v-if="index > 0"
