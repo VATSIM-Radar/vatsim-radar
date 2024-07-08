@@ -122,7 +122,6 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     if (firs.length) {
         data.center = [...new Set(
             firs
-                // @ts-expect-error We filter that later
                 .flatMap(x => x && x.map(x => x.controller?.callsign))
                 .filter(x => !!x) as string[],
         )];
