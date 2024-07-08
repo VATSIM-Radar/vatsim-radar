@@ -6,7 +6,7 @@ import { getNavigraphGates } from '~/utils/backend/navigraph';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { MultiPolygon } from 'ol/geom';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim';
 import {
     calculateArrivalTime,
     calculateDistanceInNauticalMiles,
@@ -35,9 +35,11 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
     }
 
     const user = await findAndRefreshFullUserByCookie(event);
+    const transceiver = getTransceiverData(pilot.callsign);
 
     const extendedPilot: VatsimExtendedPilot = {
         ...pilot,
+        frequencies: transceiver.frequencies,
     };
 
     const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(pilot.cid));

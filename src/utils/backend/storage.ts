@@ -5,7 +5,7 @@ import type {
     VatsimEvent,
     VatsimLiveData,
     VatsimShortenedData,
-    VatsimSubDivision,
+    VatsimSubDivision, VatsimTransceiver,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
@@ -36,6 +36,7 @@ export const radarStorage = {
         divisions: [] as VatsimDivision[],
         subDivisions: [] as VatsimSubDivision[],
         events: [] as VatsimEvent[],
+        transceivers: [] as VatsimTransceiver[],
     },
     navigraph: null as null | typeof cycles,
 };

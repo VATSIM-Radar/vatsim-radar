@@ -94,16 +94,45 @@
             class="flight-info__cols"
         >
             <common-info-block
-                :bottom-items="[pilot.transponder || 'None']"
+                :bottom-items="[
+                    `${ pilot.transponder || 'None' }`,
+                    canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined,
+                ]"
                 class="flight-info__card"
                 text-align="center"
-                :top-items="['Squawk set']"
-            />
+                :top-items="['Squawk']"
+            >
+                <template #top>
+                    <common-tooltip
+                        location="right"
+                        width="150px"
+                    >
+                        <template #activator>
+                            <div class="flight-info__card_question">
+                                Squawk
+
+                                <question-icon width="14"/>
+                            </div>
+                        </template>
+
+                        Left value set on aircraft,<br> right value was assigned by ATC
+
+                        <template v-if="!canShowRightTransponder">
+                            <br><br>
+
+                            You don't see right value, because they could the same, or squawk wasn't assigned
+                        </template>
+                    </common-tooltip>
+                </template>
+            </common-info-block>
             <common-info-block
-                :bottom-items="[pilot.flight_plan?.assigned_transponder || 'None']"
+                v-for="(frequency, index) in pilot.frequencies"
+                :key="frequency+index"
+                align-items="space-evenly"
+                :bottom-items="[frequency]"
                 class="flight-info__card"
                 text-align="center"
-                :top-items="['Squawk assigned']"
+                :top-items="[`COM${ index+1 }`]"
             />
         </div>
         <div class="flight-info__cols">
@@ -142,6 +171,8 @@ import type { PropType } from 'vue';
 import { getHoursAndMinutes } from '~/utils';
 import { useMapStore } from '~/store/map';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
 const props = defineProps({
     pilot: {
@@ -168,6 +199,10 @@ const mapStore = useMapStore();
 
 const getLogonTime = computed(() => {
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
+});
+
+const canShowRightTransponder = computed(() => {
+    return props.pilot.flight_plan?.assigned_transponder && props.pilot.flight_plan?.assigned_transponder !== props.pilot.transponder && props.pilot.flight_plan?.assigned_transponder !== '0000';
 });
 
 const depAirport = computed(() => {
@@ -246,6 +281,13 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
     }
 
     &__card {
+        &_question {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+        }
+
         &_route {
             display: flex;
             flex-direction: column;

@@ -380,15 +380,14 @@ const controllerColumns = computed(() => {
                 color = radarColors.success500;
                 break;
             case 'departures':
-                color = radarColors.warning300;
-                darkColor = true;
+                color = radarColors.primary700;
                 break;
             case 'arrivals':
-                color = radarColors.warning700;
+                color = radarColors.warning500;
                 darkColor = true;
                 break;
             case 'groundArr':
-                color = radarColors.error500;
+                color = radarColors.error300;
                 break;
         }
 

@@ -118,7 +118,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
         neutral: getCurrentThemeHexColor('lightgray150'),
 
         departing: getCurrentThemeHexColor('success400'),
-        arriving: getCurrentThemeHexColor('warning700'),
+        arriving: getCurrentThemeHexColor('warning500'),
         landed: getCurrentThemeHexColor('error300'),
     };
 };

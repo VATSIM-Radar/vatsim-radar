@@ -5,6 +5,7 @@ import { fromLonLat } from 'ol/proj';
 import type { Coordinate } from 'ol/coordinate';
 import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
+import type { IVatsimTransceiver } from '~/types/data/vatsim';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -155,5 +156,21 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
         country: airportData?.data.country,
         division_id: airportData?.data.division_id,
         ctafFreq: airportData?.data.stations?.find(x => x.ctaf)?.frequency,
+    };
+}
+
+export function getTransceiverData(callsign: string): IVatsimTransceiver {
+    const pilot = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
+    if (!pilot || pilot?.transceivers.length === 0) {
+        return {
+            frequencies: [],
+        };
+    }
+
+    const frequencies = pilot.transceivers.map(x => (x.frequency / 1000000).toFixed(3));
+    return {
+        frequencies,
+        groundAlt: pilot.transceivers[0].heightAglM,
+        seaAlt: pilot.transceivers[0].heightMslM,
     };
 }

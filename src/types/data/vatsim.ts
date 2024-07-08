@@ -28,6 +28,8 @@ export interface VatsimPilot {
     flight_plan?: VatsimPilotFlightPlan;
     logon_time: string;
     last_updated: string;
+    groundAlt?: number;
+    seaAlt?: number;
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -44,6 +46,7 @@ export interface VatsimExtendedPilot extends VatsimPilot {
         planned: number;
         max?: number;
     };
+    frequencies: string[];
 }
 
 export type VatsimPilotFlightPlan = Partial<{
@@ -210,3 +213,21 @@ export type VatsimMemberStats = Record<
     | 'adm',
     number
 >;
+
+export interface VatsimTransceiver {
+    callsign: string;
+    transceivers: {
+        id: number;
+        frequency: number;
+        latDeg: number;
+        lonDeg: number;
+        heightMslM: number;
+        heightAglM: number;
+    }[];
+}
+
+export interface IVatsimTransceiver {
+    frequencies: string[];
+    groundAlt?: number;
+    seaAlt?: number;
+}

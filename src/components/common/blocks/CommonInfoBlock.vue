@@ -88,6 +88,10 @@ defineProps({
         type: String as PropType<'left' | 'center' | 'right'>,
         default: 'left',
     },
+    alignItems: {
+        type: String as PropType<'flex-start' | 'center' | 'space-between' | 'space-evenly' | 'flex-end'>,
+        default: 'flex-start',
+    },
     topItems: {
         type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
@@ -113,6 +117,7 @@ defineSlots<{
     display: flex;
     flex-direction: column;
     gap: 4px;
+    justify-content: v-bind(alignItems);
 
     padding: 8px;
 

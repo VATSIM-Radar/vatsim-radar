@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.4.2-rc.2
+
+## QA Changelog
+
+- Fixed arriving and departing colors in airport dashboard
+
+## Features and improvements
+
+- Pilot overlay now has frequency this pilot is on
+
 # 0.4.2-rc.1
 
 This is probably final build before release. Please, everyone who has a moment test it today's evening / tomorrow day.
