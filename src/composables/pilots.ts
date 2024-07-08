@@ -113,10 +113,13 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
         active: getCurrentThemeHexColor('warning700'),
         default: getCurrentThemeHexColor('primary500'),
-        arrival: getCurrentThemeHexColor('info300'),
         green: getCurrentThemeHexColor('success500'),
         hover: getCurrentThemeHexColor('warning600'),
         neutral: getCurrentThemeHexColor('lightgray150'),
+
+        departing: getCurrentThemeHexColor('success500'),
+        arriving: getCurrentThemeHexColor('warning700'),
+        landed: getCurrentThemeHexColor('error500'),
     };
 };
 
@@ -140,7 +143,7 @@ function svgToDataURI(svg: string) {
     return `data:image/svg+xml,${ encoded }`;
 }
 
-export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover' | 'neutral' | 'arrival';
+export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
 
 export async function fetchAircraftIcon(icon: AircraftIcon) {
     const store = useStore();
