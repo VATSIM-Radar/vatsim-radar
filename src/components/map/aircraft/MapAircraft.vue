@@ -220,15 +220,15 @@ const getStatus = computed<MapAircraftStatus>(() => {
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
     if (store.config.airport) {
+        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
+        if (vatAirport?.aircraft.groundArr?.includes(props.aircraft.cid)) return 'landed';
+
         if (props.aircraft.departure === props.aircraft.arrival) { // Here we handle cases where the departure and arrival airport are the same
-            const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
-            if (!vatAirport) return 'arrival';
-            if (vatAirport.aircraft.groundDep?.includes(props.aircraft.cid)) {
-                return 'default'; // We treat it like a departure because it's on the ground
-            }
+            return 'arriving';
         }
 
-        if (props.aircraft.arrival === store.config.airport) return 'arrival';
+        if (props.aircraft.arrival === store.config.airport) return 'arriving';
     }
 
     return 'default';
