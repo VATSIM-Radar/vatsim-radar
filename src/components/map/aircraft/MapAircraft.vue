@@ -227,7 +227,6 @@ const getStatus = computed<MapAircraftStatus>(() => {
         if (props.aircraft.departure === props.aircraft.arrival) { // Here we handle cases where the departure and arrival airport are the same
             return 'arriving';
         }
-
     }
 
     return 'default';
