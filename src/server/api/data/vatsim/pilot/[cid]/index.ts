@@ -161,7 +161,6 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
     if (firs.length) {
         extendedPilot.firs = [...new Set(
             firs
-                // @ts-expect-error We filter that but ts goes crazy
                 .flatMap(x => x && x.map(x => x.controller?.callsign))
                 .filter(x => !!x) as string[],
         )];
