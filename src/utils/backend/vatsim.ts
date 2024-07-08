@@ -138,22 +138,22 @@ export interface VatsimAirportInfo {
 }
 
 export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo> {
-    const { data: airportData } = await $fetch<{
+    const airportData = await $fetch<{
         data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
-    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`);
+    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`).catch(() => {});
 
     return {
-        icao: airportData?.icao,
-        iata: airportData?.iata,
-        name: airportData?.name,
-        altitude_m: airportData?.altitude_m,
-        altitude_ft: airportData?.altitude_ft,
-        transition_alt: airportData?.transition_alt,
-        transition_level: airportData?.transition_level,
-        transition_level_by_atc: airportData?.transition_level_by_atc,
-        city: airportData?.city,
-        country: airportData?.country,
-        division_id: airportData?.division_id,
-        ctafFreq: airportData?.stations?.find(x => x.ctaf)?.frequency,
+        icao: airportData?.data.icao,
+        iata: airportData?.data.iata,
+        name: airportData?.data.name,
+        altitude_m: airportData?.data.altitude_m,
+        altitude_ft: airportData?.data.altitude_ft,
+        transition_alt: airportData?.data.transition_alt,
+        transition_level: airportData?.data.transition_level,
+        transition_level_by_atc: airportData?.data.transition_level_by_atc,
+        city: airportData?.data.city,
+        country: airportData?.data.country,
+        division_id: airportData?.data.division_id,
+        ctafFreq: airportData?.data.stations?.find(x => x.ctaf)?.frequency,
     };
 }

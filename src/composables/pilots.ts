@@ -117,7 +117,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
         hover: getCurrentThemeHexColor('warning600'),
         neutral: getCurrentThemeHexColor('lightgray150'),
 
-        departing: getCurrentThemeHexColor('success500'),
+        departing: getCurrentThemeHexColor('success400'),
         arriving: getCurrentThemeHexColor('warning700'),
         landed: getCurrentThemeHexColor('error300'),
     };
