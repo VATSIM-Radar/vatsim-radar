@@ -228,7 +228,6 @@ const getStatus = computed<MapAircraftStatus>(() => {
             return 'arriving';
         }
 
-        if (props.aircraft.arrival === store.config.airport) return 'arriving';
     }
 
     return 'default';
