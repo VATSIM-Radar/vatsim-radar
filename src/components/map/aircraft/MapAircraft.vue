@@ -223,10 +223,7 @@ const getStatus = computed<MapAircraftStatus>(() => {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
         if (vatAirport?.aircraft.groundArr?.includes(props.aircraft.cid)) return 'landed';
-
-        if (props.aircraft.departure === props.aircraft.arrival) { // Here we handle cases where the departure and arrival airport are the same
-            return 'arriving';
-        }
+        if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
     }
 
     return 'default';
