@@ -15,6 +15,7 @@ This is probably final build before release. Please, everyone who has a moment t
 - Recolored aircraft colors in airport dashboard
 - New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
 - Added airport name in overlay if airport doesn't have VATSIM info
+- Added SELCAL code into remarks section title if aircraft has one
 
 ## Bug Fixes
 
