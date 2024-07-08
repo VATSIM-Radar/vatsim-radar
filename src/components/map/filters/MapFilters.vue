@@ -53,7 +53,7 @@
                                 :items="[{ value: 'default', text: 'Default' }, { value: 'satellite', text: 'Satellite' }]"
                                 :model-value="radarLayerOption"
                                 two-cols
-                                @update:modelValue="changeLayer($event)"
+                                @update:modelValue="changeLayer($event as MapLayoutLayer | RadarLayerOptions)"
                             />
 
                             <common-block-title>
@@ -72,7 +72,7 @@
                         <common-radio-group
                             :items="mapLayers"
                             :model-value="store.localSettings.filters?.layers?.layer ?? null"
-                            @update:modelValue="changeLayer($event)"
+                            @update:modelValue="changeLayer($event as MapLayoutLayer | RadarLayerOptions)"
                         />
                     </common-control-block>
                 </div>
@@ -114,7 +114,7 @@
                         <common-radio-group
                             :items="weatherLayers"
                             :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event } } })"
+                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
                         />
                     </common-control-block>
                 </div>
