@@ -1,8 +1,20 @@
 # Changelog
 
-# 0.4.2-alpha.4
+# 0.4.2-rc.1
+
+This is probably final build before release. Please, everyone who has a moment test it today's evening / tomorrow day.
+
+## QA Changelog
+
+- Fixed middle click black screen issue
+- Fixed middle click movement on high DPI screens
+
+## Features and improvements
 
 - Improved performance when looking for an aircraft
+- Recolored aircraft colors in airport dashboard
+- New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
+- Added airport name in overlay if airport doesn't have VATSIM info
 
 # 0.4.2-alpha.3
 
@@ -13,7 +25,7 @@
 
 ## Features and improvements
 
-- Max aircraft icon size was reduced from 40 to 35 
+- Max aircraft icon size was reduced from 40 to 35
 - You can now use middle mouse click to center map in direction you want
 - Increased horizontal hit ratio for approach controller name. They should now be much easier to hit to open overlay
 - Added great circle support for aircraft lines

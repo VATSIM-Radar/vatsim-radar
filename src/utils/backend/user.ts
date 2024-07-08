@@ -38,6 +38,7 @@ export interface UserSettings {
     autoFollow?: boolean;
     autoZoom?: boolean;
     autoShowAirportTracks?: boolean;
+    toggleAircraftOverlays?: boolean;
     headerName?: string;
     seenVersion?: string;
 }

@@ -353,19 +353,21 @@ await setupDataFetch({
                 const halfWidth = target.width / 2;
                 const halfHeight = target.height / 2;
 
-                const isLeft = event.x < halfWidth;
-                const isTop = event.y < halfHeight;
+                const isLeft = event.clientX < halfWidth;
+                const isTop = event.clientY < halfHeight;
 
-                if (isLeft) increaseX *= 1 - (event.x / halfWidth);
-                else increaseX *= (event.x - halfWidth) / (target.width / 2);
+                if (isLeft) increaseX *= 1 - (event.clientX / halfWidth);
+                else increaseX *= (event.clientX - halfWidth) / (target.width / 2);
 
-                if (isTop) increaseY *= 1 - (event.y / halfHeight);
-                else increaseY *= (event.y - halfHeight) / (target.height / 2);
+                if (isTop) increaseY *= 1 - (event.clientY / halfHeight);
+                else increaseY *= (event.clientY - halfHeight) / (target.height / 2);
 
                 if (isLeft) center[0] -= increaseX * resolution!;
                 else center[0] += increaseX * resolution!;
                 if (isTop) center[1] += increaseY * resolution!;
                 else center[1] -= increaseY * resolution!;
+
+                if (center.some(x => isNaN(x))) return;
 
                 map.value!.getView().animate({ center, duration: 300 });
             }

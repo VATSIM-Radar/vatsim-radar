@@ -100,52 +100,44 @@ const store = useStore();
 const images = import.meta.glob('../../assets/update/*.png', { import: 'default', eager: true });
 
 const update: Update = {
-    type: 'major',
-    name: '0.4.0',
-    height: '470px',
+    type: 'minor',
+    name: '0.4.2',
+    height: '440px',
     features: [
         {
-            title: 'Airport Dashboard',
-            image: images['../../assets/update/dashboard.png'],
-            description: `Brand-new Airport Dashboard is now available via permanent link on /airport/icao (can also be opened from airport popup).<br><br>
-
-Dashboard is equipped for both pilots and controllers, with features that all of you could enjoy.`,
-            list: [
-                'View all airport info on the same screen',
-                'View airport traffic - and filter it by type if you want',
-                'Enjoy Controller Mode, which will only leave aircraft on your screen, categorized by their type',
-                'Toggle "show pilot stats" to quickly identify newbies from experienced folks',
-                'Hide or expand map or columns - flexibility is everything!',
-            ],
-        },
-        {
-            title: 'Aircraft History Turns',
-            image: images['../../assets/update/turns.png'],
-            description: 'You can now see history of turns for any aircraft on map!',
-            list: [
-                'Lines are colored - identify descend or approx current aircraft altitude just by looking at line',
-                'Available when you open overlay or hover on aircraft',
-                '(!) Also available if you toggle airport arriving tracks - but that\'s experimental, and we might disable this in future for performance reasons (or make this Patreon feature!)',
-            ],
-        },
-        {
-            title: 'Map Layers & Weather',
+            title: 'VATSIM Radar layers',
             image: images['../../assets/update/layers.png'],
+            description: `Enjoy new map layers, now enabled by default!`,
             list: [
-                'Jawg, Satellite and OSM layers',
-                'Wind speed, clouds',
-                'Precipitation - from two different sources!',
+                'Powered by MapBox',
+                'Paid for by our beloved Patreon members',
+                'Includes optional labels, as well as satellite view',
+                '(!) We may actually turn off MapBox if costs will be TOO high. But we think they will not!',
+                'We can edit <strong>everything</strong> in layers design - leave us a feedback!',
             ],
         },
         {
-            title: 'What else?',
-            description: 'Full changelog is available in our <a class="__link" href="/discord" target="_blank">Discord</a>',
+            title: 'Weather Layers 2.0',
+            image: images['../../assets/update/weather.png'],
+            description: 'Based on your feedback we have completely reworked our Weather Layers.',
             list: [
-                'New aircraft icons',
-                'Airport share button',
-                'UI/UX improvements, sector colors redesign',
-                'Performance improvements',
-                'Bug fixes',
+                'New precipitation, that looks much better than before and still covers whole world',
+                'New wind layer, optimized for dark theme and packed with direction arrows',
+                'Clouds have been optimized for light theme',
+                'You can still enjoy RainViewer if you want',
+                'Big thanks goes to OpenWeather for this rework',
+            ],
+        },
+        {
+            title: 'Quality of life',
+            description: 'Full changelog is available in our <a class="__link" href="/discord" target="_blank">Discord</a>',
+            image: images['../../assets/update/quality.png'],
+            list: [
+                'Great circle support for tracking lines',
+                'Fixed some approach controllers not displaying',
+                'Fixed aircraft overlay opening every time you clicked on aircraft without pinning - this was a bug, but since many of you actually liked that, you can restore this behaviour in settings!',
+                'Recolored aircraft colors in airport dashboard based on their status',
+                'Other quality changes and bug fixes',
             ],
         },
     ],
