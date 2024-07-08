@@ -8,7 +8,7 @@ import type {
 } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
-import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
