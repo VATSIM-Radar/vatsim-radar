@@ -214,18 +214,22 @@ const icon = computed(() => getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
 const getStatus = computed<MapAircraftStatus>(() => {
-    let status: MapAircraftStatus = 'default';
-    if (isSelfFlight.value || store.config.allAircraftGreen) {
-        status = 'green';
-    }
-    else if (activeCurrentOverlay.value) {
-        status = 'active';
-    }
-    else if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) {
-        status = 'hover';
+    if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
+    if (activeCurrentOverlay.value) return 'active';
+    if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
+
+    // color aircraft icon based on departure/arrival when the airport dashboard is in use
+    if (store.config.airport) {
+        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
+        if (vatAirport?.aircraft.groundArr?.includes(props.aircraft.cid)) return 'landed';
+
+        if (props.aircraft.departure === props.aircraft.arrival) { // Here we handle cases where the departure and arrival airport are the same
+            return 'arriving';
+        }
     }
 
-    return status;
+    return 'default';
 });
 
 const setStyle = async (iconFeature = feature) => {
