@@ -276,10 +276,23 @@ const getAirportsList = computed(() => {
         if (!foundAirports.length) continue;
 
         for (const airport of foundAirports) {
-            if (airport.aircraftList.departures?.includes(pilot.cid) && !airport.aircraft.departures) airport.aircraft.departures = true;
-            if (airport.aircraftList.arrivals?.includes(pilot.cid) && !airport.aircraft.arrivals) airport.aircraft.arrivals = true;
-
-            if (airport.aircraftList.groundArr?.includes(pilot.cid)) {
+            if (airport.aircraftList.departures?.includes(pilot.cid)) {
+                if (!airport.aircraft.departures) {
+                    airport.aircraft.departures = [pilot];
+                }
+                else {
+                    (airport.aircraft.departures as VatsimShortenedAircraft[]).push(pilot);
+                }
+            }
+            else if (airport.aircraftList.arrivals?.includes(pilot.cid)) {
+                if (!airport.aircraft.arrivals) {
+                    airport.aircraft.arrivals = [pilot];
+                }
+                else {
+                    (airport.aircraft.arrivals as VatsimShortenedAircraft[]).push(pilot);
+                }
+            }
+            else if (airport.aircraftList.groundArr?.includes(pilot.cid)) {
                 if (!airport.aircraft.groundArr) {
                     airport.aircraft.groundArr = [pilot];
                 }
@@ -287,8 +300,7 @@ const getAirportsList = computed(() => {
                     (airport.aircraft.groundArr as VatsimShortenedAircraft[]).push(pilot);
                 }
             }
-
-            if (airport.aircraftList.groundDep?.includes(pilot.cid)) {
+            else if (airport.aircraftList.groundDep?.includes(pilot.cid)) {
                 if (!airport.aircraft.groundDep) {
                     airport.aircraft.groundDep = [pilot];
                 }

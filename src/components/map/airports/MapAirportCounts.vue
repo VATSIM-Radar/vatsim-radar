@@ -1,6 +1,6 @@
 <template>
     <map-overlay
-        v-if="!hide && (aircraft.groundDep?.length || aircraft.groundArr?.length || aircraft.prefiles?.length)"
+        v-if="!hide && (aircraft.groundDep?.length || aircraft.groundArr?.length || aircraft.arrivals?.length || aircraft.prefiles?.length)"
         :active-z-index="21"
         persistent
         :popup="!!aircraftHoveredType"
@@ -28,10 +28,10 @@
             </div>
             <div
                 class="airport-counts_item airport-counts_item--groundArr"
-                :class="{ 'airport-counts_item--hidden': !aircraft.groundArr?.length }"
-                @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
+                :class="{ 'airport-counts_item--hidden': store.localSettings.filters?.options?.countArrivingFlights ? !aircraft.arrivals?.length : !aircraft.groundArr?.length }"
+                @mouseover="$nextTick(() => store.localSettings.filters?.options?.countArrivingFlights ? aircraftHoveredType = 'arrivals' : aircraftHoveredType = 'groundArr' )"
             >
-                {{ aircraft.groundArr?.length ?? 0 }}
+                {{ store.localSettings.filters?.options?.countArrivingFlights ? aircraft.arrivals?.length ?? 0 : aircraft.groundArr?.length ?? 0}}
             </div>
             <common-popup-block
                 v-if="hoveredAircraft.length"
@@ -49,6 +49,9 @@
                         <template v-else-if="aircraftHoveredType === 'groundArr'">
                             Arrivals
                         </template>
+                        <template v-else-if="aircraftHoveredType === 'arrivals'">
+                            Arrivals
+                        </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
                             Flightplan Prefiles
                         </template>
@@ -62,7 +65,7 @@
                         :top-items="[
                             pilot.callsign,
                             pilot.aircraft_faa,
-                            (aircraftHoveredType === 'groundArr' ? pilot.departure : pilot.arrival) || null,
+                            (aircraftHoveredType === 'groundArr' || aircraftHoveredType === 'arrivals'  ? pilot.departure : pilot.arrival) || null,
                             pilot.name,
                         ]"
                         @click="aircraftHoveredType !== 'prefiles' ? mapStore.addPilotOverlay(pilot.cid.toString()) : mapStore.addPrefileOverlay(pilot.cid.toString())"
@@ -76,7 +79,7 @@
                             </div>
                             <template v-else-if="index === 2">
                                 <span class="airport-counts__popup-info">
-                                    <template v-if="aircraftHoveredType === 'groundArr'">
+                                    <template v-if="aircraftHoveredType === 'groundArr' || aircraftHoveredType === 'arrivals'">
                                         from
                                     </template>
                                     <template v-else>
@@ -104,6 +107,7 @@ import type { PropType } from 'vue';
 import type { MapAircraft, MapAircraftKeys } from '~/types/map';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
+import { useStore } from '~/store';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
@@ -127,15 +131,25 @@ const props = defineProps({
     },
 });
 
+
+const store = useStore();
 const mapStore = useMapStore();
 const aircraftHoveredType = ref<MapAircraftKeys | null>(null);
 
+// console.log('dumpprops');
+// console.log(props.airport.icao);
+// console.log(props.aircraft);
+
 const hoveredAircraft = computed(() => {
+    // console.log('hovered');
+    // console.log(props);
     switch (aircraftHoveredType.value) {
         case 'groundDep':
             return props.aircraft?.groundDep ?? [];
         case 'groundArr':
             return props.aircraft?.groundArr ?? [];
+        case 'arrivals':
+            return props.aircraft?.arrivals ?? [];
         case 'prefiles':
             return props.aircraft?.prefiles ?? [];
     }
@@ -160,7 +174,7 @@ const hoveredAircraft = computed(() => {
             color: $lightgray200;
         }
 
-        &--groundArr {
+        &--groundArr, &--arrivals {
             color: $error500;
         }
     }

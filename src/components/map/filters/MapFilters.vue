@@ -118,6 +118,49 @@
                         />
                     </common-control-block>
                 </div>
+                <div
+                    class="filters__option"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'setting' }"
+                    @click="selectedFilter = 'setting'"
+                >
+                    <common-button type="secondary">
+                        <template #icon>
+                            <settings-icon/>
+                        </template>
+                    </common-button>
+                    <common-control-block
+                        center-by="start"
+                        class="filters_sections_section_content"
+                        location="right"
+                        :model-value="selectedFilter === 'setting'"
+                        @update:modelValue="!$event ? selectedFilter = null : undefined"
+                    >
+                        <template #title>
+                            Options
+                        </template>
+                        <div
+                            class="filters_toggle"
+                        >
+                            <common-toggle
+                                :model-value="store.localSettings.filters?.options?.countArrivingFlights || false"
+                                @update:modelValue="setUserLocalSettings( { filters: { options: { countArrivingFlights: $event } } }  )"
+                            >
+                                <common-tooltip
+                                    location="bottom"
+                                    width="200px"
+                                >
+                                    <template #activator>
+                                        <div class="filters__option_question">
+                                            Count arriving flights
+                                            <question-icon width="14"/>
+                                        </div>
+                                    </template>
+                                    Enabling this will show the count of the not yet arrived flights as the red number next to the airport icao code on the map instead of showing the count of the already landed flights.
+                                </common-tooltip>
+                            </common-toggle>
+                        </div>
+                    </common-control-block>
+                </div>
             </div>
         </transition>
     </div>
@@ -127,6 +170,7 @@
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
+import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
@@ -140,6 +184,8 @@ import type {
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
 const store = useStore();
 
@@ -306,6 +352,14 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
         &_image {
             max-width: 40%;
+        }
+    }
+
+    &__option {
+        &_question {
+            display: flex;
+            gap: 4px;
+            align-items: center;
         }
     }
 }

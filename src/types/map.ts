@@ -20,8 +20,7 @@ export type MapAircraftKeys = keyof MapAirport['aircraft'];
 export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
 
 export type MapAircraft =
-    PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
-    & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
+    PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles' | 'departures' | 'arrivals'>, VatsimShortenedPrefile[]>;
 
 export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
 export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB' | 'CartoDBLabels';
@@ -47,6 +46,9 @@ interface IUserLocalSettings {
             weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
             transparencySettings?: UserLayersTransparencySettings;
+        };
+        options?: {
+            countArrivingFlights?: boolean;
         };
     };
 }
