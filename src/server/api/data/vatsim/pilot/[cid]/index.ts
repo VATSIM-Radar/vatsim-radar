@@ -6,7 +6,7 @@ import { getNavigraphGates } from '~/utils/backend/navigraph';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import { MultiPolygon } from 'ol/geom';
-import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 import {
     calculateArrivalTime,
     calculateDistanceInNauticalMiles,
