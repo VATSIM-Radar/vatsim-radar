@@ -60,6 +60,7 @@ import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]'
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
+import type { Coordinate } from 'ol/coordinate';
 
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
@@ -340,6 +341,39 @@ await setupDataFetch({
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
 
         let moving = true;
+
+        map.value.getTargetElement().addEventListener('mousedown', event => {
+            const target = event.target as HTMLCanvasElement;
+            if (!target.nodeName.toLowerCase().includes('canvas')) return;
+
+            if (event.button === 1) {
+                const center = map.value!.getView().getCenter() as Coordinate;
+                const resolution = map.value!.getView().getResolution();
+                let increaseX = window.innerWidth / 2;
+                let increaseY = window.innerHeight / 2;
+
+                const halfWidth = target.width / 2;
+                const halfHeight = target.height / 2;
+
+                const isLeft = event.clientX < halfWidth;
+                const isTop = event.clientY < halfHeight;
+
+                if (isLeft) increaseX *= 1 - (event.clientX / halfWidth);
+                else increaseX *= (event.clientX - halfWidth) / (target.width / 2);
+
+                if (isTop) increaseY *= 1 - (event.clientY / halfHeight);
+                else increaseY *= (event.clientY - halfHeight) / (target.height / 2);
+
+                if (isLeft) center[0] -= increaseX * resolution!;
+                else center[0] += increaseX * resolution!;
+                if (isTop) center[1] += increaseY * resolution!;
+                else center[1] -= increaseY * resolution!;
+
+                if (center.some(x => isNaN(x))) return;
+
+                map.value!.getView().animate({ center, duration: 300 });
+            }
+        });
 
         map.value.on('movestart', () => {
             moving = true;

@@ -1,8 +1,14 @@
 import { CronJob } from 'cron';
-import type { VatsimData, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
+import type {
+    VatsimData,
+    VatsimDivision,
+    VatsimEvent,
+    VatsimSubDivision,
+    VatsimTransceiver,
+} from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -30,17 +36,18 @@ function excludeKeys<S extends {
 }
 
 export default defineNitroPlugin(app => {
-    let latestFinished = 0;
-    let isInProgress = false;
+    let dataLatestFinished = 0;
+    let dataInProgress = false;
+    let transceiversInProgress = false;
 
     CronJob.from({
         cronTime: '* * * * * *',
         start: true,
         runOnInit: true,
         onTick: async () => {
-            if (!radarStorage.vatspy.data || isInProgress || Date.now() - latestFinished < 1000) return;
+            if (!radarStorage.vatspy.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
             try {
-                isInProgress = true;
+                dataInProgress = true;
                 const data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
                     parseResponse(responseText) {
                         return JSON.parse(responseText);
@@ -54,11 +61,13 @@ export default defineNitroPlugin(app => {
 
                 data.pilots = data.pilots.map(x => {
                     const coords = fromServerLonLat([x.longitude, x.latitude]);
+                    const transceiver = getTransceiverData(x.callsign);
 
                     return {
                         ...x,
                         longitude: coords[0],
                         latitude: coords[1],
+                        frequencies: transceiver.frequencies,
                     };
                 }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
 
@@ -80,7 +89,7 @@ export default defineNitroPlugin(app => {
                 });
 
                 /* data.controllers.push({
-                    callsign: 'LAX_S_DEP',
+                    callsign: 'NCT_APP',
                     cid: 3,
                     facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                     frequency: '122.122',
@@ -147,8 +156,8 @@ export default defineNitroPlugin(app => {
                 console.error(e);
             }
             finally {
-                isInProgress = false;
-                latestFinished = Date.now();
+                dataInProgress = false;
+                dataLatestFinished = Date.now();
             }
         },
     });
@@ -182,6 +191,30 @@ export default defineNitroPlugin(app => {
         runOnInit: true,
         onTick: async () => {
             radarStorage.vatsim.events = (await $fetch<{ data: VatsimEvent[] }>('https://my.vatsim.net/api/v2/events/latest')).data;
+        },
+    });
+
+    CronJob.from({
+        cronTime: '* * * * * *',
+        start: true,
+        runOnInit: true,
+        onTick: async () => {
+            if (!radarStorage.vatspy.data || transceiversInProgress) return;
+            try {
+                transceiversInProgress = true;
+                radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
+                    parseResponse(responseText) {
+                        return JSON.parse(responseText);
+                    },
+                    timeout: 1000 * 30,
+                });
+            }
+            catch (e) {
+                console.error(e);
+            }
+            finally {
+                transceiversInProgress = false;
+            }
         },
     });
 });

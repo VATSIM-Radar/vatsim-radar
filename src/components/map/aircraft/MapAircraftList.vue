@@ -41,7 +41,8 @@ const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref(false);
 const showAircraftLabel = ref<number[]>([]);
 
-function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = false) {
+function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
+    if (!pixel) return [];
     const overlaysCoordinates: number[][] = [];
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
@@ -50,9 +51,13 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft') || x.includes('airport'))) return;
         const position = overlay.getPosition();
         if (position) {
+            const pixel = map.value!.getPixelFromCoordinate(position);
+            if (!pixel) return;
             overlaysCoordinates.push(map.value!.getPixelFromCoordinate(position));
         }
     });
+
+    const collapsingWithOverlay = overlaysCoordinates.some(x => Math.abs(pixel[0] - x[0]) < 15 && Math.abs(pixel[1] - x[1]) < 15);
 
     return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
@@ -60,7 +65,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 15, exitOnAnyOverlay = fals
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
             Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
-            !overlaysCoordinates.some(x => Math.abs(pilotPixel[0] - x[0]) < 15 && Math.abs(pilotPixel[1] - x[1]) < 15);
+            !collapsingWithOverlay;
     }) ?? [];
 }
 
@@ -138,7 +143,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
     }
 
     const overlay = await mapStore.addPilotOverlay(features[0].cid.toString());
-    if (overlay) {
+    if (overlay && store.config.showInfoForPrimaryAirport) {
         overlay.sticky = true;
     }
 }
@@ -179,14 +184,14 @@ watch(map, val => {
             properties: {
                 type: 'aircraft',
             },
-            zIndex: 6,
+            zIndex: 7,
         });
     }
 
     if (!linesLayer) {
         linesSource.value = new VectorSource<any>({
             features: [],
-            wrapX: false,
+            wrapX: true,
         });
 
         linesLayer = new VectorLayer<any>({
@@ -194,7 +199,7 @@ watch(map, val => {
             properties: {
                 type: 'aircraft-line',
             },
-            zIndex: 5,
+            zIndex: 6,
             declutter: true,
         });
     }

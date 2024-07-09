@@ -1,5 +1,50 @@
 # Changelog
 
+# 0.4.2
+
+Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle support - and much more.
+
+## Noticeable changes
+
+- Added COM1 to airport pilots list, as well as pilot on-hover information
+- New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
+- You can now use middle mouse click to center map in direction you want
+- Added great circle support for aircraft lines
+
+### Map Layers
+
+- Added Radar layers (will now be used as default)
+
+### Map Filters
+
+- Added Weather Layers 2.0. Your previous weather settings have been reset due to this change
+- Added OpenWeather branding to weather popup to thank this amazing service
+- Added "default" setting to transparency settings
+
+## Features and improvements
+
+- Pilots connected mid-flight will now have track line connected with airport 
+- Added server time to airport dashboard
+- Pilot overlay now has frequency this pilot is on
+- Improved performance when looking for an aircraft
+- Recolored aircraft colors in airport dashboard
+- Added airport name in overlay if airport doesn't have VATSIM info
+- Added SELCAL code into remarks section title if aircraft has one
+- Max aircraft icon size was reduced from 40 to 35
+- Increased horizontal hit ratio for approach controller name. They should now be much easier to hit to open overlay
+- Changed aircraft history track line colors. For example, purple is not that bright anymore
+- Increased missclick protection from 15 to 30 pixels to improve labels readability and lower labels overlapping
+
+## Bug Fixes
+
+- Fixed an issue when route&remarks would collapse each update
+- Fixed an issue when your connection with same flight plan as before but different callsign could result in flight route be duplicated
+- Fixed an issue when for rare airports approach controllers were not displaying (like LECG_APP)
+- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please report if some airports or controllers have disappeared for you
+- Fixed an issue when aircraft were pinning when opening them for no reason
+- Fixed an issue when sometimes data was not updating every 15 seconds
+- Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
+
 # 0.4.1
 
 - Increased rate for Navigraph AIRAC updates

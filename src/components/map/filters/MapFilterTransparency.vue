@@ -61,6 +61,11 @@ const options = computed<SelectItem[]>(() => {
         });
     }
 
+    _options.unshift({
+        value: 'default',
+        text: 'Default',
+    });
+
     return _options;
 });
 </script>

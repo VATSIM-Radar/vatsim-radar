@@ -7,6 +7,7 @@ const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
     autoShowAirportTracks: val => typeof val === 'boolean',
+    toggleAircraftOverlays: val => typeof val === 'boolean',
     headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,
     seenVersion: val => (typeof val === 'string' && val.length <= 15) || val === null,
 };

@@ -90,6 +90,15 @@
             :text="flightPlan.remarks"
         >
             Remarks
+
+            <template
+                v-if="selcal"
+                #prepend
+            >
+                <div class="flight-plan__selcal">
+                    SELCAL: {{selcal}}
+                </div>
+            </template>
         </common-copy-info-block>
     </div>
 </template>
@@ -157,6 +166,15 @@ const depCountry = computed(() => {
 const arrCountry = computed(() => {
     return dataStore.vatspy.value?.data.countries.find(x => x.code === arrAirport?.value?.icao.slice(0, 2));
 });
+
+const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
+
+const selcal = computed<string | null>(() => {
+    const remarks = props.flightPlan.remarks;
+    if (!remarks) return null;
+    const result = selcalRegex.exec(remarks);
+    return result?.groups?.selcal || null;
+});
 </script>
 
 <style scoped lang="scss">
@@ -176,6 +194,11 @@ const arrCountry = computed(() => {
             flex: 1 1 0;
             width: 0;
         }
+    }
+
+    &__selcal {
+        font-size: 12px;
+        font-weight: 600;
     }
 
     &__title {

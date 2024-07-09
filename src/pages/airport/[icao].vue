@@ -61,6 +61,19 @@
                     Show pilot stats
                 </common-toggle>
             </div>
+            <div
+                v-if="controllerMode"
+                class="airport_header_section"
+            >
+                <div class="airport_header__title">
+                    <div class="airport_header__title_label">
+                        Time
+                    </div>
+                    <div class="airport_header__title_name">
+                        {{ formatDateDime.format(dataStore.time.value) }}z
+                    </div>
+                </div>
+            </div>
         </div>
         <div
             v-if="!controllerMode"
@@ -250,6 +263,11 @@ useHead({
 });
 
 const selectedPilot = ref<number | null>(null);
+const formatDateDime = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+});
 
 const aircraftMode = ref<MapAircraftMode | null>(null);
 const aircraftModes: SelectItem<MapAircraftMode>[] = [
@@ -380,15 +398,14 @@ const controllerColumns = computed(() => {
                 color = radarColors.success500;
                 break;
             case 'departures':
-                color = radarColors.warning300;
-                darkColor = true;
+                color = radarColors.primary700;
                 break;
             case 'arrivals':
-                color = radarColors.warning700;
+                color = radarColors.warning500;
                 darkColor = true;
                 break;
             case 'groundArr':
-                color = radarColors.error500;
+                color = radarColors.error300;
                 break;
         }
 
@@ -483,13 +500,14 @@ await setupDataFetch({
 
     &_header {
         display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
         align-items: center;
 
         &_section {
             position: relative;
 
             &:not(:last-child) {
-                margin-right: 16px;
                 padding-right: 16px;
 
                 &::after {

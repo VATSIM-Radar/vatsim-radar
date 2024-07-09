@@ -37,10 +37,19 @@
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
                                     Pilot
+
+                                    <div
+                                        v-if="aircraft.frequencies.length >= 1"
+                                        class="aircraft-hover__pilot__frequency"
+                                    >
+                                        {{ aircraft.frequencies[0] }}
+                                    </div>
                                 </div>
                                 <div class="aircraft-hover__pilot__text">
                                     {{ parseEncoding(aircraft.name) }}<br>
-                                    {{ usePilotRating(aircraft).join(' | ') }}
+                                    <div class="aircraft-hover__pilot__text_rating">
+                                        {{ usePilotRating(aircraft).join(' | ') }}
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -144,7 +153,7 @@ import {
     usePilotRating,
 } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
-import { sleep } from '~/utils';
+import { greatCircleGeometryToOL, sleep } from '~/utils';
 import { getAircraftIcon } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
@@ -161,6 +170,8 @@ import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { toLonLat } from 'ol/proj';
+import { point } from '@turf/helpers';
+import greatCircle from '@turf/great-circle';
 
 const props = defineProps({
     aircraft: {
@@ -212,18 +223,19 @@ const icon = computed(() => getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
 const getStatus = computed<MapAircraftStatus>(() => {
-    let status: MapAircraftStatus = 'default';
-    if (isSelfFlight.value || store.config.allAircraftGreen) {
-        status = 'green';
-    }
-    else if (activeCurrentOverlay.value) {
-        status = 'active';
-    }
-    else if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) {
-        status = 'hover';
+    if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
+    if (activeCurrentOverlay.value) return 'active';
+    if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
+
+    // color aircraft icon based on departure/arrival when the airport dashboard is in use
+    if (store.config.airport) {
+        const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
+        if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
+        if (vatAirport?.aircraft.groundArr?.includes(props.aircraft.cid)) return 'landed';
+        if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
     }
 
-    return status;
+    return 'default';
 });
 
 const setStyle = async (iconFeature = feature) => {
@@ -367,8 +379,27 @@ async function toggleAirportLines(value = canShowLines.value) {
                 coordinates.push(nextFeature.geometry.coordinates);
             }
 
+            if (index === turns.features.length - 1 && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.properties!.standing === true)) {
+                const coordinates = [
+                    [depAirport.lon, depAirport.lat],
+                    feature.geometry.coordinates,
+                ];
+                const points = coordinates.map(x => point(toLonLat(x)));
+                const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
+                const lineFeature = new Feature({
+                    geometry,
+                });
+                lineFeature.setStyle(getAircraftLineStyle(color));
+                linesSource.value?.addFeature(lineFeature);
+                lineFeatures.value.push(lineFeature);
+            }
+
+            const points = coordinates.map(x => point(toLonLat(x)));
+            const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
             const lineFeature = new Feature({
-                geometry: new LineString(coordinates),
+                geometry,
             });
             lineFeature.setStyle(styles);
             linesSource.value?.addFeature(lineFeature);
@@ -405,10 +436,10 @@ async function toggleAirportLines(value = canShowLines.value) {
         clearLineFeatures();
 
         if (depAirport) {
-            const geometry = new LineString([
-                [depAirport.lon, depAirport.lat],
-                [props.aircraft?.longitude, props.aircraft?.latitude],
-            ]);
+            const start = point(toLonLat([depAirport.lon, depAirport.lat]));
+            const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+
+            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
             if (depLine) {
                 depLine.setGeometry(geometry);
@@ -440,10 +471,10 @@ async function toggleAirportLines(value = canShowLines.value) {
     }
 
     if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
-        const geometry = new LineString([
-            [props.aircraft?.longitude, props.aircraft?.latitude],
-            [arrAirport.lon, arrAirport.lat],
-        ]);
+        const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+        const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
+
+        const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
         if (arrLine) {
             arrLine.setGeometry(geometry);
@@ -560,8 +591,13 @@ onUnmounted(() => {
     }
 
     &__pilot {
-        &__title {
+        &__title, &__text {
             font-weight: 600;
+        }
+
+        &__frequency, &__text_rating {
+            font-size: 11px;
+            font-weight: normal;
         }
     }
 

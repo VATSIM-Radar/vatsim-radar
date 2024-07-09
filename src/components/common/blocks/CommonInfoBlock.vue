@@ -12,7 +12,7 @@
             <template v-if="topItems.length">
                 <template
                     v-for="(item, index) in topItems.filter(x => !!x)"
-                    :key="item+index"
+                    :key="String(item)+index"
                 >
                     <div
                         v-if="index > 0"
@@ -48,7 +48,7 @@
             <template v-if="bottomItems.length">
                 <template
                     v-for="(item, index) in bottomItems.filter(x => !!x)"
-                    :key="item+index"
+                    :key="String(item)+index"
                 >
                     <div
                         v-if="index > 0"
@@ -88,6 +88,10 @@ defineProps({
         type: String as PropType<'left' | 'center' | 'right'>,
         default: 'left',
     },
+    alignItems: {
+        type: String as PropType<'flex-start' | 'center' | 'space-between' | 'space-evenly' | 'flex-end'>,
+        default: 'flex-start',
+    },
     topItems: {
         type: Array as PropType<Array<string | number | null | undefined>>,
         default: () => [],
@@ -113,6 +117,7 @@ defineSlots<{
     display: flex;
     flex-direction: column;
     gap: 4px;
+    justify-content: v-bind(alignItems);
 
     padding: 8px;
 

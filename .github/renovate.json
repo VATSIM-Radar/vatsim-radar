@@ -23,10 +23,6 @@
       "versioning": "node"
     },
     {
-      "matchPackageNames": "vue-tsc",
-      "allowedVersions": "<2"
-    },
-    {
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch",
       "matchPackagePatterns": [
@@ -68,7 +64,8 @@
   },
   "updateInternalDeps": true,
   "baseBranches": [
-    "next"
+    "next",
+    "/^release\\/.*/"
   ],
   "extends": [
     ":automergeDisabled",

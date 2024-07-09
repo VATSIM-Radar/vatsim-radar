@@ -101,7 +101,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         const extent = features[0].getGeometry()?.getExtent();
         if (extent) {
             const textCoord = [extent[0] + 25000, extent[3] - 25000];
-            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 10000;
+            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
         }
     }
 
@@ -144,7 +144,7 @@ watch(map, val => {
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
-            zIndex: 5,
+            zIndex: 6,
             properties: {
                 type: 'arr-atc',
             },
@@ -156,12 +156,12 @@ watch(map, val => {
     if (!airportsLayer) {
         airportsSource.value = new VectorSource<any>({
             features: [],
-            wrapX: false,
+            wrapX: true,
         });
 
         airportsLayer = new VectorLayer<any>({
             source: airportsSource.value,
-            zIndex: 5,
+            zIndex: 6,
             properties: {
                 type: 'airports',
             },
@@ -340,11 +340,19 @@ const getAirportsList = computed(() => {
         }
 
         if (!airport) {
-            airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.iata));
+            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
         }
 
         if (!airport) {
             airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
+        }
+
+        if (!airport) {
+            airport = airports.find(x => x.airport.iata && sector.properties!.id === x.airport.iata);
+        }
+
+        if (!airport) {
+            airport = airports.find(x => sector.properties!.id === x.airport.icao);
         }
 
         return airport;

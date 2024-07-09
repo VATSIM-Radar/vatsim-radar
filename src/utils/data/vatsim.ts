@@ -81,7 +81,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
             },
             airport: {
                 icao: 'icao' in airport ? airport.icao : airport.properties!.id,
-                iata: 'icao' in airport ? airport.iata : airport.properties!.id,
+                iata: 'icao' in airport ? airport.iata : undefined,
                 isPseudo: !('icao' in airport),
                 isSimAware: !('icao' in airport) || !!airport.isSimAware,
             },
@@ -297,12 +297,16 @@ export function getAirportsList() {
 
     radarStorage.vatsim.locals.forEach(atc => {
         const airport = atc.airport;
+
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
+            const airportExist = dataAirports.some(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
+            const someAirportExist = radarStorage.vatspy.data!.airports.find(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
+
             airports.push({
                 icao: airport.icao,
-                iata: airport.iata,
-                isPseudo: airport.isPseudo,
-                isSimAware: airport.isSimAware,
+                iata: !someAirportExist ? airport.iata : someAirportExist.iata,
+                isPseudo: !airportExist,
+                isSimAware: !someAirportExist,
                 aircraft: {},
             });
         }

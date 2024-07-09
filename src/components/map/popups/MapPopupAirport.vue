@@ -76,6 +76,14 @@
         >
             <airport-info/>
         </template>
+        <template
+            v-else
+            #name
+        >
+            <div class="airport__name">
+                {{ airport.name }}
+            </div>
+        </template>
         <template #atc>
             <airport-controllers/>
         </template>
@@ -205,6 +213,12 @@ const tabs = computed<InfoPopupContent>(() => {
             key: 'airport',
         });
     }
+    else {
+        list.info.sections.push({
+            title: 'Airport name',
+            key: 'name',
+        });
+    }
 
     if (data.value?.metar) {
         list.info.sections.push({
@@ -290,6 +304,11 @@ onMounted(() => {
         .info-popup__section_separator_title {
             background: transparent;
         }
+    }
+
+    &__name {
+        font-size: 12px;
+        font-weight: 600;
     }
 
     &__ground-toggles {

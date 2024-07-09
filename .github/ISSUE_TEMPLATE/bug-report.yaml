@@ -1,0 +1,66 @@
+name: Bug report (production)
+description: Report found issue on production
+labels: ["bug", "pending triage"]
+assignees: ["daniluk4000"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Hello! Thank you for reporting an issue in VATSIM Radar.
+        
+        Before reporting, please also check existing issues in this repository - you can filter them by "bug" label (also check closed ones).
+        
+        Also please check our roadmap - your "issue" could already be planned to be implemented or is actually a separate feature.
+  - type: input
+    id: id
+    attributes:
+      label: Your Vatsim CID
+      description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Radar version
+      description: Please include Radar version - you can find it in the footer
+      placeholder: For example, 0.1.1
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Describe your issue
+      description: Please tell us what's happening, what is expected and actual result. Include some screenshots and videos if there are some!
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: Reproduction steps
+      description: Please describe how can we reproduce this issue - even if it's obvious. If your issue relates to some controller or specific user, include callsign(s) and cid(s). If it's hard to reproduce, a video would be nice to see.
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Specify your platform (windows, macos, ios, android), as well as browser and it's version
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional info
+      description: Is there something additional we need to know? Please tell us!
+    validations:
+      required: false
+  - type: checkboxes
+    id: validation
+    attributes:
+      label: Validation
+      description: Please validate your report
+      options:
+        - label: I have searched for other issues and didn't found any alike
+          required: true
+        - label: I have also checked roadmap, and this is not planned
+          required: true

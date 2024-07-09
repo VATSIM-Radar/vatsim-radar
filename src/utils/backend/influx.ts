@@ -96,7 +96,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
             if (!row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival && (!row.altitude || row.altitude < 3000))) return true;
 
             const similarRow = (
-                row.fpl_arrival && nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time
+                row.fpl_arrival && nextRow?.fpl_arrival === row.fpl_arrival && nextRow?.fpl_departure === row.fpl_departure && row.fpl_enroute_time === nextRow.fpl_enroute_time && row.callsign === nextRow.callsign
             ) || (!nextRow?.fpl_arrival && nextRow?.name === row.name && nextRow?.callsign === row.callsign)
                 ? rows[index + 1]
                 : null;
@@ -147,10 +147,10 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
 
         if (row?.altitude) {
             if (row.altitude < 5000) {
-                rowColor = colorsList.success500;
+                rowColor = colorsList.success400;
             }
             else if (row.altitude < 10000) {
-                rowColor = colorsList.success700;
+                rowColor = colorsList.success600;
             }
             else if (row.altitude < 15000) {
                 rowColor = colorsList.primary500;
@@ -158,8 +158,11 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
             else if (row.altitude < 20000) {
                 rowColor = colorsList.primary700;
             }
+            else if (row.altitude < 25000) {
+                rowColor = colorsList.info400;
+            }
             else if (row.altitude < 30000) {
-                rowColor = colorsList.info300;
+                rowColor = colorsList.info500;
             }
             else if (row.altitude > 40500) {
                 rowColor = colorsList.error300;
@@ -171,6 +174,7 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
                 rowColor = colorsList.info700;
             }
         }
+        else rowColor = colorsList.success500;
 
         return rowColor;
     }
@@ -181,7 +185,7 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
             type: 'Feature',
             properties: {
                 type: 'turn',
-                time: row.time,
+                standing: row.groundspeed && row.groundspeed < 50,
                 coordinates: [
                     row.longitude!,
                     row.latitude!,

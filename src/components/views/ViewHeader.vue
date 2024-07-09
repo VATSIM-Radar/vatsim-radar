@@ -214,6 +214,13 @@
                                 By default it will use last saved position
                             </template>
                         </common-toggle>
+                        <common-toggle v-model="settings.toggleAircraftOverlays">
+                            Fast open multiple aircraft
+
+                            <template #description>
+                                By default, you have to pin aircraft overlay to keep it open - it will close otherwise. With this setting, it will stay open, and others will open minified.
+                            </template>
+                        </common-toggle>
                         <common-toggle v-model="settings.autoShowAirportTracks">
                             Auto-show airport tracks
 

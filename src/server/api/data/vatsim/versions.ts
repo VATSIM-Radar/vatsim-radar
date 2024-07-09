@@ -4,5 +4,8 @@ import { validateDataReady } from '~/utils/backend/h3';
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
-    return getDataVersions().vatsim;
+    return {
+        ...getDataVersions().vatsim,
+        time: Date.now(),
+    };
 });
