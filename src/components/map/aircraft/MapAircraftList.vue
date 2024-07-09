@@ -42,6 +42,7 @@ const isManualHover = ref(false);
 const showAircraftLabel = ref<number[]>([]);
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
+    if (!pixel) return [];
     const overlaysCoordinates: number[][] = [];
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
@@ -50,6 +51,8 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = fals
         if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft') || x.includes('airport'))) return;
         const position = overlay.getPosition();
         if (position) {
+            const pixel = map.value!.getPixelFromCoordinate(position);
+            if (!pixel) return;
             overlaysCoordinates.push(map.value!.getPixelFromCoordinate(position));
         }
     });

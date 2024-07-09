@@ -89,6 +89,28 @@
                 </div>
             </template>
         </common-info-block>
+        <div class="flight-info__cols">
+            <common-info-block
+                :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
+                class="flight-info__card"
+                text-align="center"
+                title="Ground Speed"
+                :top-items="['GS']"
+            />
+            <common-info-block
+                :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
+                class="flight-info__card"
+                text-align="center"
+                :title="pilot.altitude"
+                :top-items="['Altitude']"
+            />
+            <common-info-block
+                :bottom-items="[`${ pilot.heading }°`]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="['Heading']"
+            />
+        </div>
         <div
             v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder"
             class="flight-info__cols"
@@ -133,28 +155,6 @@
                 class="flight-info__card"
                 text-align="center"
                 :top-items="[`COM${ index+1 }`]"
-            />
-        </div>
-        <div class="flight-info__cols">
-            <common-info-block
-                :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
-                class="flight-info__card"
-                text-align="center"
-                title="Ground Speed"
-                :top-items="['GS']"
-            />
-            <common-info-block
-                :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
-                class="flight-info__card"
-                text-align="center"
-                :title="pilot.altitude"
-                :top-items="['Altitude']"
-            />
-            <common-info-block
-                :bottom-items="[`${ pilot.heading }°`]"
-                class="flight-info__card"
-                text-align="center"
-                :top-items="['Heading']"
             />
         </div>
     </div>

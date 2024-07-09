@@ -110,6 +110,13 @@
                             >
                                 {{ stats.find(x => x.cid === pilot.cid)!.stats }}h
                             </div>
+
+                            <div
+                                v-if="'frequencies' in pilot && pilot.frequencies.length >= 1"
+                                class="aircraft__pilot_header_title_frequency"
+                            >
+                                {{ pilot.frequencies[0] }}
+                            </div>
                         </div>
                         <div
                             v-if="!simpleMode"
@@ -448,7 +455,7 @@ defineExpose({
                 gap: 8px;
                 align-items: center;
 
-                &_stats {
+                &_stats, &_frequency {
                     padding-left: 8px;
                     border-left: 1px solid varToRgba('lightgray150', 0.15)
                 }

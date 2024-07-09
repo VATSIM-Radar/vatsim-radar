@@ -28,8 +28,7 @@ export interface VatsimPilot {
     flight_plan?: VatsimPilotFlightPlan;
     logon_time: string;
     last_updated: string;
-    groundAlt?: number;
-    seaAlt?: number;
+    frequencies: string[];
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -46,7 +45,6 @@ export interface VatsimExtendedPilot extends VatsimPilot {
         planned: number;
         max?: number;
     };
-    frequencies: string[];
 }
 
 export type VatsimPilotFlightPlan = Partial<{

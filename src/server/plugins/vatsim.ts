@@ -8,7 +8,7 @@ import type {
 } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { getAirportsList, getATCBounds, getLocalATC, useFacilitiesIds } from '~/utils/data/vatsim';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -61,11 +61,13 @@ export default defineNitroPlugin(app => {
 
                 data.pilots = data.pilots.map(x => {
                     const coords = fromServerLonLat([x.longitude, x.latitude]);
+                    const transceiver = getTransceiverData(x.callsign);
 
                     return {
                         ...x,
                         longitude: coords[0],
                         latitude: coords[1],
+                        frequencies: transceiver.frequencies,
                     };
                 }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
 

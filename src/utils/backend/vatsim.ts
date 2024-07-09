@@ -167,7 +167,11 @@ export function getTransceiverData(callsign: string): IVatsimTransceiver {
         };
     }
 
-    const frequencies = pilot.transceivers.map(x => (x.frequency / 1000000).toFixed(3));
+    const frequencies = pilot.transceivers.map(x => {
+        const frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
+        if (!frequency.includes('.')) return `${ frequency }.0`;
+        return frequency;
+    });
     return {
         frequencies,
         groundAlt: pilot.transceivers[0].heightAglM,

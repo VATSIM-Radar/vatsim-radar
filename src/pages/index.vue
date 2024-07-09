@@ -343,13 +343,15 @@ await setupDataFetch({
         let moving = true;
 
         map.value.getTargetElement().addEventListener('mousedown', event => {
+            const target = event.target as HTMLCanvasElement;
+            if (!target.nodeName.toLowerCase().includes('canvas')) return;
+
             if (event.button === 1) {
                 const center = map.value!.getView().getCenter() as Coordinate;
                 const resolution = map.value!.getView().getResolution();
                 let increaseX = window.innerWidth / 2;
                 let increaseY = window.innerHeight / 2;
 
-                const target = event.target as HTMLCanvasElement;
                 const halfWidth = target.width / 2;
                 const halfHeight = target.height / 2;
 

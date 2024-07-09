@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.4.2-rc.3
+
+## Features and improvements
+
+- Added COM1 to airport pilots list, as well as pilot on-hover information
+- Pilots connected mid-flight will now have track line connected with airport 
+- Added server time to airport dashboard
+
 # 0.4.2-rc.2
 
 ## QA Changelog

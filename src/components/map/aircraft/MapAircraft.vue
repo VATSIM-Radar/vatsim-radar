@@ -37,10 +37,19 @@
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
                                     Pilot
+
+                                    <div
+                                        v-if="aircraft.frequencies.length >= 1"
+                                        class="aircraft-hover__pilot__frequency"
+                                    >
+                                        {{ aircraft.frequencies[0] }}
+                                    </div>
                                 </div>
                                 <div class="aircraft-hover__pilot__text">
                                     {{ parseEncoding(aircraft.name) }}<br>
-                                    {{ usePilotRating(aircraft).join(' | ') }}
+                                    <div class="aircraft-hover__pilot__text_rating">
+                                        {{ usePilotRating(aircraft).join(' | ') }}
+                                    </div>
                                 </div>
                             </div>
                         </template>
@@ -370,6 +379,22 @@ async function toggleAirportLines(value = canShowLines.value) {
                 coordinates.push(nextFeature.geometry.coordinates);
             }
 
+            if (index === turns.features.length - 1 && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.properties!.standing === true)) {
+                const coordinates = [
+                    [depAirport.lon, depAirport.lat],
+                    feature.geometry.coordinates,
+                ];
+                const points = coordinates.map(x => point(toLonLat(x)));
+                const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
+                const lineFeature = new Feature({
+                    geometry,
+                });
+                lineFeature.setStyle(getAircraftLineStyle(color));
+                linesSource.value?.addFeature(lineFeature);
+                lineFeatures.value.push(lineFeature);
+            }
+
             const points = coordinates.map(x => point(toLonLat(x)));
             const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
 
@@ -566,8 +591,13 @@ onUnmounted(() => {
     }
 
     &__pilot {
-        &__title {
+        &__title, &__text {
             font-weight: 600;
+        }
+
+        &__frequency, &__text_rating {
+            font-size: 11px;
+            font-weight: normal;
         }
     }
 

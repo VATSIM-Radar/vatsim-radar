@@ -35,11 +35,9 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
     }
 
     const user = await findAndRefreshFullUserByCookie(event);
-    const transceiver = getTransceiverData(pilot.callsign);
 
     const extendedPilot: VatsimExtendedPilot = {
         ...pilot,
-        frequencies: transceiver.frequencies,
     };
 
     const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(pilot.cid));
