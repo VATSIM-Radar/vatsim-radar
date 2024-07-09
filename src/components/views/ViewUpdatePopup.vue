@@ -137,6 +137,8 @@ const update: Update = {
                 'Fixed some approach controllers not displaying',
                 'Fixed aircraft overlay opening every time you clicked on aircraft without pinning - this was a bug, but since many of you actually liked that, you can restore this behaviour in settings!',
                 'Recolored aircraft colors in airport dashboard based on their status',
+                'Pilots frequencies display',
+                'Map middle click action to center in that direction',
                 'Other quality changes and bug fixes',
             ],
         },

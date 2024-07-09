@@ -1,83 +1,21 @@
 # Changelog
 
-# 0.4.2-rc.3
+# 0.4.2
 
-## Features and improvements
+Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle support - and much more.
+
+## Noticeable changes
 
 - Added COM1 to airport pilots list, as well as pilot on-hover information
-- Pilots connected mid-flight will now have track line connected with airport 
-- Added server time to airport dashboard
-
-# 0.4.2-rc.2
-
-## QA Changelog
-
-- Fixed arriving and departing colors in airport dashboard
-
-## Features and improvements
-
-- Pilot overlay now has frequency this pilot is on
-
-# 0.4.2-rc.1
-
-This is probably final build before release. Please, everyone who has a moment test it today's evening / tomorrow day.
-
-## QA Changelog
-
-- Fixed middle click black screen issue
-- Fixed middle click movement on high DPI screens
-
-## Features and improvements
-
-- Improved performance when looking for an aircraft
-- Recolored aircraft colors in airport dashboard
 - New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
-- Added airport name in overlay if airport doesn't have VATSIM info
-- Added SELCAL code into remarks section title if aircraft has one
-
-## Bug Fixes
-
-- Fixed an issue when route&remarks would collapse each update
-
-# 0.4.2-alpha.3
-
-## QA Changelog
-
-- Fixed disappearing controllers: https://github.com/daniluk4000/vatsim-radar/issues/97, https://github.com/daniluk4000/vatsim-radar/issues/109
-- MapBox tiles will be scaled to x2 resolution from now on (https://github.com/daniluk4000/vatsim-radar/issues/102P)
-
-## Features and improvements
-
-- Max aircraft icon size was reduced from 40 to 35
 - You can now use middle mouse click to center map in direction you want
-- Increased horizontal hit ratio for approach controller name. They should now be much easier to hit to open overlay
 - Added great circle support for aircraft lines
-- Changed aircraft history track line colors. For example, purple is not that bright anymore
 
-## Bug Fixes
-
-- Fixed an issue when your connection with same flight plan as before but different callsign could result in flight route be duplicated
-
-# 0.4.2-alpha.2
-
-## QA Changelog
-
-- Fixed taxiway labels size, as well as all new layers size
-- Added great circle support for arriving lines. More to come later!
-
-## Bug Fixes
-
-- Fixed an issue when for rare airports approach controllers were not displaying (like LECG_APP)
-- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please report if some airports or controllers have disappeared for you
-- Fixed an issue when aircraft were pinning when opening them for no reason
-
-# 0.4.2-alpha.1
-
-## Map Layers
+### Map Layers
 
 - Added Radar layers (will now be used as default)
 
-## Map Filters
+### Map Filters
 
 - Added Weather Layers 2.0. Your previous weather settings have been reset due to this change
 - Added OpenWeather branding to weather popup to thank this amazing service
@@ -85,10 +23,25 @@ This is probably final build before release. Please, everyone who has a moment t
 
 ## Features and improvements
 
+- Pilots connected mid-flight will now have track line connected with airport 
+- Added server time to airport dashboard
+- Pilot overlay now has frequency this pilot is on
+- Improved performance when looking for an aircraft
+- Recolored aircraft colors in airport dashboard
+- Added airport name in overlay if airport doesn't have VATSIM info
+- Added SELCAL code into remarks section title if aircraft has one
+- Max aircraft icon size was reduced from 40 to 35
+- Increased horizontal hit ratio for approach controller name. They should now be much easier to hit to open overlay
+- Changed aircraft history track line colors. For example, purple is not that bright anymore
 - Increased missclick protection from 15 to 30 pixels to improve labels readability and lower labels overlapping
 
 ## Bug Fixes
 
+- Fixed an issue when route&remarks would collapse each update
+- Fixed an issue when your connection with same flight plan as before but different callsign could result in flight route be duplicated
+- Fixed an issue when for rare airports approach controllers were not displaying (like LECG_APP)
+- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please report if some airports or controllers have disappeared for you
+- Fixed an issue when aircraft were pinning when opening them for no reason
 - Fixed an issue when sometimes data was not updating every 15 seconds
 - Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
 
