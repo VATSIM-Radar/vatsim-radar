@@ -174,6 +174,50 @@
                             <div class="airport__aircraft-title_text">
                                 {{ column.title }}
                             </div>
+                            <div v-if="column.key === 'arrivals'">
+                                <div
+                                    class="airport__aircraft-title_interval"
+                                >
+                                    <div
+                                        class="airport__aircraft-title_interval_container"
+                                        :class="{ 'airport__aircraft-title_interval_container--0': store.theme === 'default' }"
+                                    >
+                                        <clock-0-to-15-icon class="airport__aircraft-title_interval_container_icon"/>
+                                        <div
+                                            class="airport__aircraft-title_interval_container_text"
+                                        >
+                                            {{ arrivalRate[0].length }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="airport__aircraft-title_interval_container"
+                                        :class="{ 'airport__aircraft-title_interval_container--1': store.theme === 'default' }"
+                                    >
+                                        <clock-15-to-30-icon class="airport__aircraft-title_interval_container_icon"/>
+                                        <div class="airport__aircraft-title_interval_container_text">
+                                            {{ arrivalRate[1].length }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="airport__aircraft-title_interval_container"
+                                        :class="{ 'airport__aircraft-title_interval_container--2': store.theme === 'default' }"
+                                    >
+                                        <clock-30-to-45-icon class="airport__aircraft-title_interval_container_icon"/>
+                                        <div class="airport__aircraft-title_interval_container_text">
+                                            {{ arrivalRate[2].length }}
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="airport__aircraft-title_interval_container"
+                                        :class="{ 'airport__aircraft-title_interval_container--3': store.theme === 'default' }"
+                                    >
+                                        <clock-45-to-0-icon class="airport__aircraft-title_interval_container_icon"/>
+                                        <div class="airport__aircraft-title_interval_container_text">
+                                            {{ arrivalRate[3].length }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <common-bubble
                                 class="airport__aircraft-title_bubble"
                                 :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
@@ -229,7 +273,7 @@
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
-import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
+import { getAircraftForAirport, getATCForAirport, provideAirport, arrivalIntervals } from '~/composables/airport';
 import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
@@ -245,6 +289,10 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
+import Clock0To15Icon from '@/assets/icons/airport/clock_0to15.svg?component';
+import Clock15To30Icon from '@/assets/icons/airport/clock_15to30.svg?component';
+import Clock30To45Icon from '@/assets/icons/airport/clock_30to45.svg?component';
+import Clock45To0Icon from '@/assets/icons/airport/clock_45to0.svg?component';
 
 const route = useRoute();
 const store = useStore();
@@ -257,6 +305,7 @@ const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x
 const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
 const atc = getATCForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 const aircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);
+const arrivalRate = arrivalIntervals(aircraft, 4, 15);
 
 provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
@@ -675,6 +724,43 @@ await setupDataFetch({
                 color: $darkgray800Orig;
             }
         }
+
+        &_interval {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
+            &_container {
+                display: flex;
+                align-items: center;
+
+                &_text {
+                    margin-left: 4px;
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 100%;
+                }
+
+                &_icon {
+                    width: 14px;
+                    height: 14px;
+                }
+
+                &--1 {
+                    opacity:0.8
+                }
+
+                &--2 {
+                    opacity:0.7
+                }
+
+                &--3 {
+                    opacity:0.6
+                }
+
+            }
+        }
+
     }
 
     &_map {

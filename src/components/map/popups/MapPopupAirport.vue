@@ -22,34 +22,142 @@
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
         <template #action-counts>
-            <div class="airport__counts">
+
+
+            <div
+                class="airport__counts"
+                :class="{ 'airport__counts--listGroundDepartures': listGroundDepartures }"
+            >
                 <div
                     class="airport__counts_counter"
                     :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
+                    @click="listGroundDepartures = !listGroundDepartures"
                 >
-                    <departing-icon class="airport__counts_counter_icon"/>
-                    <div class="airport__counts_counter_icon_text">
+                    <departing-icon
+                        v-if="!listGroundDepartures"
+                        class="airport__counts_counter_icon"
+                    />
+                    <div
+                        v-if="!listGroundDepartures"
+                        class="airport__counts_counter_icon_text"
+                    >
                         {{ aircraft?.departures.length ?? 0 }}
                     </div>
-                </div>
-                <div
-                    class="airport__counts_counter"
-                    :style="{ '--color': `rgb(var(--lightgray150))` }"
-                >
-                    <ground-icon class="airport__counts_counter_icon"/>
-                    <div class="airport__counts_counter_icon_text">
-                        {{ (aircraft?.groundArr.length ?? 0) + (aircraft?.groundDep.length ?? 0) }}
+                    <ground-icon
+                        v-if="listGroundDepartures"
+                        class="airport__counts_counter_icon"
+                    />
+                    <div
+                        v-if="listGroundDepartures"
+                        class="airport__counts_counter_icon_text"
+                    >
+                        {{ aircraft?.groundDep.length ?? 0 }}
                     </div>
                 </div>
-                <div
-                    class="airport__counts_counter"
-                    :style="{ '--color': `rgb(var(--${ getPilotStatus('arrTaxi').color }))` }"
+                <common-tooltip
+                    class="detailed_counts"
+                    :class="{ 'detailed_counts--listGroundDepartures': listGroundDepartures }"
+                    close-method="click"
+                    location="bottom"
+                    open-method="click"
+                    width="100%"
                 >
-                    <arriving-icon class="airport__counts_counter_icon"/>
-                    <div class="airport__counts_counter_icon_text">
-                        {{ (aircraft?.arrivals.length ?? 0) }}
+                    <template #activator>
+                        <div
+                            class="airport__counts"
+                        >
+                            <div
+                                v-if="!listGroundDepartures"
+                                class="airport__counts_counter"
+                                :style="{ '--color': `rgb(var(--lightgray150))` }"
+                            >
+                                <ground-icon class="airport__counts_counter_icon"/>
+                                <div class="airport__counts_counter_icon_text">
+                                    {{ (aircraft?.groundArr.length ?? 0) + (aircraft?.groundDep.length ?? 0) }}
+                                </div>
+                            </div>
+                            <div
+                                class="airport__counts_counter"
+                                :style="{ '--color': `rgb(var(--${ getPilotStatus('arrTaxi').color }))` }"
+                            >
+                                <arriving-icon class="airport__counts_counter_icon"/>
+                                <div class="airport__counts_counter_icon_text">
+                                    {{ (aircraft?.arrivals.length ?? 0) }}
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div
+                        class="tooltip_container_content_text_column tooltip_container_content_text_column--first"
+                    >
+                        <div class="tooltip_container_content_text_column_counts">
+
+                            <div
+                                class="tooltip_container_content_counts_item tooltip_container_content_counts_item--groundDep"
+                            >
+                                {{ aircraft?.groundDep?.length ?? 0 }}
+                            </div>
+                            <div
+                                class="tooltip_container_content_counts_item tooltip_container_content_counts_item--prefiles"
+                            >
+                                {{ aircraft?.prefiles?.length ?? 0 }}
+                            </div>
+                            <div
+                                class="tooltip_container_content_counts_item tooltip_container_content_counts_item--groundArr"
+                            >
+                                {{ aircraft?.groundArr?.length ?? 0 }}
+                            </div>
+                            <common-tooltip
+                                class="tooltip_container_content_question"
+                                location="bottom"
+                                width="150px"
+                            >
+                                <template #activator>
+                                    <div>
+                                        <question-icon width="14"/>
+                                    </div>
+                                </template>
+                                - The left column shows the aircrafts on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
+                            </common-tooltip>
+                        </div>
                     </div>
-                </div>
+                    <div
+                        class="tooltip_container_content_text_column"
+                    >
+                        <div
+                            class="tooltip_container_content_rate"
+                        >
+                            <clock-0-to-15-icon class="tooltip_container_content_rate_icon tooltip_container_content_rate_icon--0"/>
+                            <div class="tooltip_container_content_rate--color0">
+                                {{ arrivalRate[0].length }}
+                            </div>
+                        </div>
+                        <div
+                            class="tooltip_container_content_rate"
+                        >
+                            <clock-15-to-30-icon class="tooltip_container_content_rate_icon tooltip_container_content_rate_icon--1"/>
+                            <div class="tooltip_container_content_rate--color1">
+                                {{ arrivalRate[1].length }}
+                            </div>
+                        </div>
+                        <div
+                            class="tooltip_container_content_rate"
+                        >
+                            <clock-30-to-45-icon class="tooltip_container_content_rate_icon tooltip_container_content_rate_icon--2"/>
+                            <div class="tooltip_container_content_rate--color2">
+                                {{ arrivalRate[2].length }}
+                            </div>
+                        </div>
+                        <div
+                            class="tooltip_container_content_rate"
+                        >
+                            <clock-45-to-0-icon class="tooltip_container_content_rate_icon tooltip_container_content_rate_icon--3"/>
+                            <div class="tooltip_container_content_rate--color3">
+                                {{ arrivalRate[3].length }}
+                            </div>
+                        </div>
+                    </div>
+                </common-tooltip>
             </div>
         </template>
         <template
@@ -149,7 +257,7 @@ import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getPilotStatus } from '../../../composables/pilots';
 import { useStore } from '~/store';
-import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
+import { getAircraftForAirport, getATCForAirport, provideAirport, arrivalIntervals } from '~/composables/airport';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
 import AirportNotams from '~/components/views/airport/AirportNotams.vue';
@@ -161,6 +269,12 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import Clock0To15Icon from '@/assets/icons/airport/clock_0to15.svg?component';
+import Clock15To30Icon from '@/assets/icons/airport/clock_15to30.svg?component';
+import Clock30To45Icon from '@/assets/icons/airport/clock_30to45.svg?component';
+import Clock45To0Icon from '@/assets/icons/airport/clock_45to0.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import type { Map } from 'ol';
 
 const props = defineProps({
@@ -186,6 +300,8 @@ const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
+const arrivalRate = arrivalIntervals(aircraft, 4, 15);
+const listGroundDepartures = ref(false);
 
 const showOnMap = () => {
     if (!airport.value) return;
@@ -321,8 +437,6 @@ onMounted(() => {
     }
 
     &__counts {
-        cursor: initial;
-
         display: flex;
         gap: 6px;
         align-items: center;
@@ -330,6 +444,10 @@ onMounted(() => {
         font-size: 12px;
         font-weight: 700;
         line-height: 100%;
+
+        &--listGroundDepartures {
+            gap: 14px;
+        }
 
         &_counter {
             display: flex;
@@ -375,6 +493,148 @@ onMounted(() => {
         &_title {
             font-size: 13px;
             font-weight: 600;
+        }
+    }
+}
+
+
+:deep(.detailed_counts > .tooltip_container) {
+    cursor: initial;
+    margin-left: 5px;
+
+    & .tooltip_container_content_text {
+        display: flex;
+        gap: 15px;
+    }
+}
+
+:deep(.detailed_counts--listGroundDepartures > .tooltip_container) {
+    margin-left: -18px;
+}
+
+.detailed_counts.tooltip {
+    .tooltip {
+        &_container {
+            &_content {
+                &_text{
+                    &_column {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 6px;
+
+                        width: 35px;
+
+                        font-size: 12px;
+                        font-weight: 700;
+                        line-height: 100%;
+
+                        &--first{
+                            align-items: flex-end;
+                        }
+
+                        &_counts {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 3px;
+                        }
+                    }
+                }
+
+                &_question {
+                    align-self: center;
+                    align-self: flex-start;
+                    margin-top: 3px;
+                }
+
+                &_rate {
+                    display: flex;
+                    gap: 6px;
+                    align-items: center;
+
+                    &_icon {
+                        width: 12px;
+
+                        &--1 {
+                            opacity: 0.8;
+                        }
+
+                        &--2 {
+                            opacity: 0.7;
+                        }
+
+                        &--3 {
+                            opacity: 0.6;
+                        }
+                    }
+
+                    &--color0 {
+                        color: varToRgba('error500', 1.0);
+
+                    }
+
+                    &--color1 {
+                        color: varToRgba('error500', 0.8);
+                    }
+
+                    &--color2 {
+                        color: varToRgba('error500', 0.7);
+                    }
+
+                    &--color3 {
+                        color: varToRgba('error500', 0.6);
+                    }
+                }
+
+                &_counts_item {
+                    display: flex;
+                    gap: 3px;
+                    justify-content: space-between;
+                    font-weight: 600;
+
+                    &::before {
+                        content: '';
+                        position: relative;
+                        display: block;
+                    }
+
+                    &--groundDep {
+                        color: $success500;
+
+                        &::before {
+                            top: -2px;
+
+                            border-top: 6px solid transparent;
+                            border-right: 6px solid transparent;
+                            border-bottom: 6px solid currentColor;
+                            border-left: 6px solid transparent;
+                        }
+                    }
+
+                    &--prefiles {
+                        color: $lightgray200;
+
+                        &::before {
+                            top: 3px;
+                            width: 11px;
+                            height: 5px;
+                            background: currentColor;
+                        }
+                    }
+
+                    &--groundArr {
+                        color: $error300;
+
+                        &::before {
+                            top: 2px;
+
+                            border-top: 6px solid currentColor;
+                            border-right: 6px solid transparent;
+                            border-bottom: 6px solid transparent;
+                            border-left: 6px solid transparent;
+                        }
+                    }
+                }
+            }
         }
     }
 }

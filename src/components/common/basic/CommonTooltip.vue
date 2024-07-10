@@ -2,13 +2,16 @@
     <div
         class="tooltip"
         :class="[`tooltip--location-${ location }`]"
-        @click="model = !model"
-        @mouseleave="model = false"
-        @mouseover="model = true"
+        @mouseleave="closeMethod === 'mouseLeave' &&  (model = false)"
+        @mouseover="openMethod === 'mouseOver' &&  (model = true)"
     >
         <div
             v-if="$slots.activator"
             class="tooltip_activator"
+            tabindex="0"
+            @click="closeMethod !== 'clickOutside' && (model = !model)"
+            @focus="closeMethod === 'clickOutside' && (model = true)"
+            @focusout="closeMethod === 'clickOutside' &&  (model = false)"
         >
             <slot name="activator"/>
         </div>
@@ -46,16 +49,28 @@ defineProps({
     maxWidth: {
         type: String,
     },
-    closeMethods: {
-        type: Array as PropType<TooltipCloseMethod[]>,
-        default: () => ['clickOutside'],
+    openMethod: {
+        type: String as PropType<TooltipOpenMethod>,
+        default: () => 'mouseOver',
+    },
+    closeMethod: {
+        type: String as PropType<TooltipCloseMethod>,
+        default: () => 'mouseLeave',
     },
 });
 
 defineSlots<{ default(): any; activator(): any }>();
+enum TooltipOpenMethods {
+    click = 'click',
+    mouseOver = 'mouseOver',
+}
+
+export type TooltipOpenMethod = keyof typeof TooltipOpenMethods;
+
 
 enum TooltipCloseMethods {
     delay = 'delay',
+    click = 'click',
     clickOutside = 'clickOutside',
     mouseLeave = 'mouseLeave',
 }

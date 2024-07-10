@@ -167,3 +167,33 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
     return aircraft;
 };
+
+
+export const arrivalIntervals = (aircrafts: Ref<AirportPopupPilotList | null>, intervals: number, intervalLength: number) => {
+    const returnArray = computed<AirportPopupPilotStatus[][]>(() => {
+        const returnArray = [];
+        for (let i = 0; i < intervals; i++) {
+            const intervalArray: AirportPopupPilotStatus[] = [];
+            returnArray.push(intervalArray);
+        }
+
+        if (aircrafts.value?.arrivals) {
+            for (let i = 0; i < aircrafts.value?.arrivals.length; i++) {
+                const arrival = aircrafts.value?.arrivals[i];
+                if (!arrival.eta) continue;
+
+                const currentDate = new Date() as Date;
+                const differenceInMs = arrival.eta.getTime() - currentDate.getTime();
+                const differenceInMinutes = differenceInMs / (1000 * 60);
+
+                const interval = Math.floor(differenceInMinutes / intervalLength);
+                if (interval >= intervals) continue;
+                returnArray[interval].push(arrival);
+            }
+        }
+
+        return returnArray;
+    });
+
+    return returnArray;
+};
