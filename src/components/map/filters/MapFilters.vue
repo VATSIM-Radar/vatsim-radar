@@ -42,6 +42,7 @@
                         </common-block-title>
 
                         <div class="__info-sections">
+                            <!--
                             <common-toggle
                                 v-model="radarIsLabels"
                                 :disabled="!radarLayerOption"
@@ -55,6 +56,13 @@
                                 two-cols
                                 @update:modelValue="changeLayer($event as MapLayoutLayer | RadarLayerOptions)"
                             />
+-->
+
+                            <div class="filters__warning">
+                                Radar layers have been disabled due to too much cost :(<br><br>
+
+                                We will try to deal with this next month - when our quota is reset.
+                            </div>
 
                             <common-block-title>
                                 External layers
@@ -139,7 +147,6 @@ import type {
 } from '~/types/map';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 
@@ -235,6 +242,16 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     z-index: 5;
     top: 16px;
     left: 16px;
+
+    &__warning {
+        padding: 10px;
+
+        font-size: 11px;
+        color: $lightgray150;
+
+        background: $darkgray850;
+        border-radius: 8px;
+    }
 
     &_toggle {
         margin-bottom: 16px;
