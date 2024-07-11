@@ -343,19 +343,7 @@ async function toggleAirportLines(value = canShowLines.value) {
     if (!canShowLines.value) return;
 
     if (turns) {
-        if (depLine) {
-            depLine.dispose();
-            linesSource.value?.removeFeature(depLine);
-            depLine = undefined;
-        }
-
-        if (arrLine) {
-            arrLine.dispose();
-            linesSource.value?.removeFeature(arrLine);
-            arrLine = undefined;
-        }
-
-        clearLineFeatures();
+        clearLines();
 
         turns.features.forEach((feature, index) => {
             const prevFeature = turns.features[index - 1];
@@ -507,8 +495,16 @@ async function toggleAirportLines(value = canShowLines.value) {
 
 function clearLines() {
     clearLineFeatures();
-    if (depLine) linesSource.value?.removeFeature(depLine);
-    if (arrLine) linesSource.value?.removeFeature(arrLine);
+    if (depLine) {
+        depLine.dispose();
+        linesSource.value?.removeFeature(depLine);
+        depLine = undefined;
+    }
+    if (arrLine) {
+        arrLine.dispose();
+        linesSource.value?.removeFeature(arrLine);
+        arrLine = undefined;
+    }
 }
 
 function clearAll() {
