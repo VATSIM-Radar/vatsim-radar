@@ -105,18 +105,6 @@ const update: Update = {
     height: '440px',
     features: [
         {
-            title: 'VATSIM Radar layers',
-            image: images['../../assets/update/layers.png'],
-            description: `Enjoy new map layers, now enabled by default!`,
-            list: [
-                'Powered by MapBox',
-                'Paid for by our beloved Patreon members',
-                'Includes optional labels, as well as satellite view',
-                '(!) We may actually turn off MapBox if costs will be TOO high. But we think they will not!',
-                'We can edit <strong>everything</strong> in layers design - leave us a feedback!',
-            ],
-        },
-        {
             title: 'Weather Layers 2.0',
             image: images['../../assets/update/weather.png'],
             description: 'Based on your feedback we have completely reworked our Weather Layers.',

@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { MapLayoutLayerExternal, MapLayoutLayerRadar } from '~/types/map';
+import type { MapLayoutLayerExternal } from '~/types/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
@@ -74,7 +74,7 @@ const externalLayers: Record<MapLayoutLayerExternal, Layer> = {
     },
 };
 
-enum InternalThemes {
+/* enum InternalThemes {
     darkSatelliteL = 'clxpxzi3300ld01qqb343fuv8',
     darkSatelliteNL = 'clxpygplc00my01qwasza7aft',
     darkL = 'clxpvwey9006j01r08g6fdwtp',
@@ -84,12 +84,12 @@ enum InternalThemes {
     lightSatelliteNL = 'clxpyxm4700nk01pc3nttg9g4',
     lightL = 'clxpypp7d00mz01qwe0gefqi7',
     lightNL = 'clxpykjoh00nj01pcgmrudq8q',
-}
+}*/
 
 const layer = computed<Layer>(() => {
     const layer = store.localSettings.filters?.layers?.layer ?? 'RadarNoLabels';
 
-    if (layer.startsWith('Radar')) {
+    /* if (layer.startsWith('Radar')) {
         let id: string;
 
         switch (layer as MapLayoutLayerRadar) {
@@ -111,6 +111,13 @@ const layer = computed<Layer>(() => {
             url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
             size: 512,
         };
+    }*/
+
+    if (layer.startsWith('Radar')) {
+        if (layer === 'RadarLabels') return externalLayers.CartoDBLabels;
+        if (layer === 'RadarNoLabels') return externalLayers.CartoDB;
+
+        if (layer === 'RadarSatelliteLabels' || layer === 'RadarSatelliteNoLabels') return externalLayers.Satellite;
     }
 
     if (layer === 'Jawg' && store.theme === 'light') return externalLayers.Jawg;
