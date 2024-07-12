@@ -105,6 +105,15 @@ watch(dataStore.vatsim.updateTimestamp, () => {
     immediate: true,
 });
 
+function airportExistsAtPixel(eventPixel: Pixel) {
+    const featuresAirport = map.value!.getFeaturesAtPixel(eventPixel, {
+        hitTolerance: 6, // we use 6 instead of 5 because of the aircraft icons size, it is just for cosmetic reasons
+        layerFilter: layer => layer.getProperties().type === 'airports',
+    }).filter(x => x.getProperties().type !== 'background');
+
+    return featuresAirport.length > 0;
+}
+
 function handlePointerMove(e: MapBrowserEvent<any>) {
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
@@ -120,6 +129,12 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     }
 
     if (isManualHover.value) return;
+
+    if (airportExistsAtPixel(eventPixel)) {
+        hoveredAircraft.value = null;
+        return;
+    }
+
 
     isManualHover.value = false;
 
@@ -141,6 +156,8 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
         return;
     }
+
+    if (airportExistsAtPixel(eventPixel)) return;
 
     const overlay = await mapStore.addPilotOverlay(features[0].cid.toString());
     if (overlay && store.config.showInfoForPrimaryAirport) {
