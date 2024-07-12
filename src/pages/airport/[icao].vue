@@ -197,6 +197,7 @@
             class="airport_map"
         >
             <iframe
+                ref="airportMapFrame"
                 class="airport_map_iframe"
                 :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"
             />
@@ -249,6 +250,7 @@ const route = useRoute();
 const store = useStore();
 const dataStore = useDataStore();
 const ready = ref(false);
+const config = useRuntimeConfig();
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === icao.value));
@@ -263,6 +265,42 @@ useHead({
 });
 
 const selectedPilot = ref<number | null>(null);
+
+
+const airportMapFrame = ref<HTMLIFrameElement | null>(null);
+let skipSelectedPilotWatch = false;
+function receiveMessage(event: MessageEvent) {
+    if (event.origin !== config.public.DOMAIN) {
+        return;
+    }
+    if (event.data && 'selectedPilot' in event.data) {
+        if (selectedPilot.value !== event.data.selectedPilot) {
+            selectedPilot.value = event.data.selectedPilot;
+            skipSelectedPilotWatch = true; // the change in the line above will trigger the watch of selectedPilot. But here in this function we have received the change from the iframe, so we need to skip the watch, because we don't need to send a message back to the iframe
+        }
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('message', receiveMessage);
+});
+
+watch(selectedPilot, () => {
+    if (skipSelectedPilotWatch) {
+        skipSelectedPilotWatch = false;
+        return;
+    }
+    if (aircraft.value?.prefiles.find(x => x.cid === selectedPilot.value)) return; // we can not show prefiles on the map, because they are not connected
+
+    if (airportMapFrame.value && selectedPilot.value) {
+        const iframeWindow = airportMapFrame.value.contentWindow;
+        const message = { data: 'Your parent here', selectedPilot: selectedPilot.value };
+        const targetOrigin = config.public.DOMAIN;
+        iframeWindow?.postMessage(message, targetOrigin);
+    }
+});
+
+
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
     hour: '2-digit',
@@ -649,6 +687,8 @@ await setupDataFetch({
         }
 
         &_pilot {
+            position: absolute;
+            right: 0;
             overflow: auto;
             width: 25%;
             min-width: 25%;

@@ -126,7 +126,6 @@
             <div
                 class="aircraft-label"
                 :style="{ '--color': svgColors[getStatus] }"
-                @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
