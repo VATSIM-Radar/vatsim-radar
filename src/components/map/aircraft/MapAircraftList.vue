@@ -18,7 +18,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { attachMoveEnd, isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
@@ -99,10 +99,10 @@ function setVisiblePilots() {
     }
 }
 
+useUpdateInterval(handleMoveEnd);
+
 watch(dataStore.vatsim.updateTimestamp, () => {
-    handleMoveEnd();
-}, {
-    immediate: true,
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function handlePointerMove(e: MapBrowserEvent<any>) {

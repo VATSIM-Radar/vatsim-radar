@@ -177,3 +177,13 @@ export function useIframeHeader() {
 export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feature): T | null {
     return feature.getStyle() as T | null;
 }
+
+export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
+    if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
+
+    onMounted(() => {
+        callback();
+        const intervalCode = setInterval(callback, interval);
+        onBeforeUnmount(() => clearInterval(intervalCode));
+    });
+}

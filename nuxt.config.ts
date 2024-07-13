@@ -92,6 +92,11 @@ export default defineNuxtConfig({
         DISCORD_ROLE_ID: process.env.DISCORD_ROLE_ID,
         ACCESS_BY_DISCORD_ROLES: process.env.ACCESS_BY_DISCORD_ROLES,
 
+        VATSIM_KAFKA_BROKER: process.env.VATSIM_KAFKA_BROKER,
+        VATSIM_KAFKA_USER: process.env.VATSIM_KAFKA_USER,
+        VATSIM_KAFKA_PASSWORD: process.env.VATSIM_KAFKA_PASSWORD,
+        VATSIM_KAFKA_GROUP: process.env.VATSIM_KAFKA_GROUP,
+
         INFLUX_URL: process.env.INFLUX_URL,
         INFLUX_TOKEN: process.env.INFLUX_TOKEN,
         INFLUX_ORG: process.env.INFLUX_ORG,

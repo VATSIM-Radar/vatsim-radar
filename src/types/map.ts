@@ -49,6 +49,10 @@ interface IUserLocalSettings {
             transparencySettings?: UserLayersTransparencySettings;
         };
     };
+
+    traffic: {
+        disableFastUpdate?: boolean;
+    };
 }
 
 export type UserLocalSettings = Partial<IUserLocalSettings>;
