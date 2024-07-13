@@ -2,7 +2,9 @@ import { useStore } from '~/store';
 
 export function initDataWebsocket(): () => void {
     const dataStore = useDataStore();
-    const websocket = new WebSocket(`ws://${ location.hostname }:8880`);
+
+    const url = import.meta.dev ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
+    const websocket = new WebSocket(url);
 
     websocket.addEventListener('open', () => {
         console.info('WebSocket was opened');
