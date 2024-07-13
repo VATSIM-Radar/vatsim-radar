@@ -275,7 +275,7 @@ const init = () => {
 
     if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) return;
 
-    if (feature) feature.setGeometry(new Point(getCoordinates.value));
+    if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
 
     if (!feature) {
         vectorSource.value.addFeature(iconFeature);

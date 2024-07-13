@@ -520,9 +520,5 @@ async function setVisibleAirports() {
 
 attachMoveEnd(setVisibleAirports);
 
-watch(dataStore.vatsim.updateTimestamp, () => {
-    setVisibleAirports();
-}, {
-    immediate: true,
-});
+useUpdateInterval(setVisibleAirports);
 </script>

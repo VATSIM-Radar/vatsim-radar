@@ -3,7 +3,7 @@ import type {
     VatsimData,
     VatsimDivision,
     VatsimEvent,
-    VatsimLiveData,
+    VatsimLiveData, VatsimLiveDataShort,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
 } from '~/types/data/vatsim';
@@ -16,6 +16,11 @@ export type SimAwareData = FeatureCollection<MultiPolygon>;
 export interface SimAwareAPIData {
     version: string;
     data: SimAwareData;
+}
+
+interface KafkaExtension {
+    date: number;
+    deleted: boolean;
 }
 
 export const radarStorage = {
@@ -37,6 +42,12 @@ export const radarStorage = {
         subDivisions: [] as VatsimSubDivision[],
         events: [] as VatsimEvent[],
         transceivers: [] as VatsimTransceiver[],
+
+        kafka: {
+            pilots: [] as Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>,
+            atc: [] as Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>,
+            prefiles: [] as Array<Partial<VatsimData['prefiles'][0]> & KafkaExtension>,
+        },
     },
     navigraph: null as null | typeof cycles,
 };
@@ -77,4 +88,15 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
     };
+}
+
+export function getServerVatsimLiveShortData() {
+    return {
+        general: radarStorage.vatsim.data!.general,
+        pilots: radarStorage.vatsim.regularData!.pilots,
+        firs: radarStorage.vatsim.firs,
+        locals: radarStorage.vatsim.locals,
+        prefiles: radarStorage.vatsim.regularData!.prefiles,
+        airports: radarStorage.vatsim.airports,
+    } satisfies VatsimLiveDataShort;
 }

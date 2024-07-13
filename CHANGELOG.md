@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.4.3-alpha.1
+
+- Added new super fast update rate using websockets. You can opt out from it via new filters setting
+  - Super fast aircraft turns update is corrently INOP and will work as before
+  - Fast aircraft ground spawn is currently INOP (and will maybe never be)
+- Fixed aircraft blinking when updating
+- Several map update performance improvements
+
 # 0.4.2
 
 Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle support - and much more.

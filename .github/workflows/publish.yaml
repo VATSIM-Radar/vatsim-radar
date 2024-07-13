@@ -53,6 +53,10 @@ jobs:
             DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
             ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
             IS_DOWN=${{ vars.IS_DOWN }}
+            VATSIM_KAFKA_BROKER=${{ secrets.VATSIM_KAFKA_BROKER }}
+            VATSIM_KAFKA_USER=${{ secrets.VATSIM_KAFKA_USER }}
+            VATSIM_KAFKA_PASSWORD=${{ secrets.VATSIM_KAFKA_PASSWORD }}
+            VATSIM_KAFKA_GROUP=${{ secrets.VATSIM_KAFKA_GROUP }}
             INFLUX_URL=${{ secrets.INFLUX_URL }}
             INFLUX_TOKEN=${{ secrets.INFLUX_TOKEN }}
             INFLUX_ORG=${{ secrets.INFLUX_ORG }}
