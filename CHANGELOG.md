@@ -1,5 +1,13 @@
 # Changelog
 
+# 0.4.3-beta.1
+
+- (possibly) fixed duplicate turns text/lines
+- Improved performance of new turns update (not much though)
+- Fixed transponders starting with zero to skip that zero number (0123 -> 123)
+
+I plan to include several unrelated fixes & improvements in this update. 
+
 # 0.4.3-alpha.2
 
 - Optimized aircraft turns update

@@ -55,7 +55,8 @@ export default defineNitroPlugin(async () => {
     await admin.disconnect();
 
     consumer.run({
-        partitionsConsumedConcurrently: 500,
+        autoCommitInterval: 5000,
+        partitionsConsumedConcurrently: 10,
         eachMessage: async ({ topic, partition, message }) => {
             if (!message.value) return;
 

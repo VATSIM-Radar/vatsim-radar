@@ -378,8 +378,8 @@ async function toggleAirportLines(value = canShowLines.value) {
         turns.features.forEach((feature, index) => {
             const existingFeature = lineFeatures.value.find(x => x.getProperties().timestamp === feature.properties!.timestamp);
 
-            if (existingFeature && index !== 0) {
-                if (existingFeature.getProperties().color !== feature.properties!.color) {
+            if (existingFeature) {
+                if (existingFeature.getProperties().color !== feature.properties!.color || index < 15) {
                     lineFeatures.value = lineFeatures.value.filter(x => x.getProperties().timestamp !== feature.properties!.timestamp);
                     existingFeature.dispose();
                     linesSource.value?.removeFeature(existingFeature);
