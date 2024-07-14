@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.4.3-alpha.2
+
+- Optimized aircraft turns update
+- Aircraft turns will no longer update more often than once per 5 seconds
+
 # 0.4.3-alpha.1
 
 - Added new super fast update rate using websockets. You can opt out from it via new filters setting

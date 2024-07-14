@@ -213,6 +213,8 @@ const lineFeatures = shallowRef<Feature[]>([]);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const turnsUpdate = ref(0);
+const savedTurns = shallowRef<InfluxGeojson | null | undefined>(null);
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -303,6 +305,16 @@ function clearLineFeatures() {
 
 const canShowLines = ref(false);
 
+const changeState = computed(() => {
+    const values = [
+        isInit.value,
+        isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value,
+        !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
+    ];
+
+    return values.map(x => String(x)).join(',');
+});
+
 async function setState() {
     if (!isInit.value) return;
     if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) canShowLines.value = false;
@@ -318,11 +330,11 @@ async function setState() {
     }
 }
 
-watchEffect(() => {
-    setState();
-});
+watch(changeState, setState);
 
 async function toggleAirportLines(value = canShowLines.value) {
+    const date = Date.now();
+
     const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
     const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
@@ -336,9 +348,17 @@ async function toggleAirportLines(value = canShowLines.value) {
 
     const color = svgColors[getStatus.value];
 
-    const turns = value && await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
-        timeout: 1000 * 5,
-    }).catch(console.error);
+    if (value) {
+        if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
+            savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+                timeout: 1000 * 5,
+            }).catch(console.error) ?? null;
+        }
+    }
+
+    const turns = savedTurns.value;
+
+    turnsUpdate.value = date;
 
     if (!canShowLines.value) return;
 
@@ -355,9 +375,18 @@ async function toggleAirportLines(value = canShowLines.value) {
             arrLine = undefined;
         }
 
-        clearLineFeatures();
-
         turns.features.forEach((feature, index) => {
+            const existingFeature = lineFeatures.value.find(x => x.getProperties().timestamp === feature.properties!.timestamp);
+
+            if (existingFeature && index !== 0) {
+                if (existingFeature.getProperties().color !== feature.properties!.color) {
+                    lineFeatures.value = lineFeatures.value.filter(x => x.getProperties().timestamp !== feature.properties!.timestamp);
+                    existingFeature.dispose();
+                    linesSource.value?.removeFeature(existingFeature);
+                }
+                else return;
+            }
+
             const prevFeature = turns.features[index - 1];
             const nextFeature = turns.features[index + 1];
 
@@ -400,6 +429,8 @@ async function toggleAirportLines(value = canShowLines.value) {
 
             const lineFeature = new Feature({
                 geometry,
+                timestamp: feature.properties!.timestamp,
+                color: feature.properties!.color,
             });
             lineFeature.setStyle(styles);
             linesSource.value?.addFeature(lineFeature);

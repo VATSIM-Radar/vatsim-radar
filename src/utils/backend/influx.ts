@@ -185,11 +185,12 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
             type: 'Feature',
             properties: {
                 type: 'turn',
-                standing: row.groundspeed && row.groundspeed < 50,
+                standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
                 coordinates: [
                     row.longitude!,
                     row.latitude!,
                 ],
+                timestamp: row._time,
                 color: getRowColor(row),
             },
             geometry: {
