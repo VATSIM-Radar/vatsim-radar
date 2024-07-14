@@ -81,7 +81,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
 
     const fields: Partial<VatsimPilot> = {
         callsign: event.Callsign,
-        transponder: event.Transponder.toString(),
+        transponder: `0000${ event.Transponder.toString() }`.slice(-4),
         pilot_rating: event.Rating - 1,
         latitude: event.Latitude,
         longitude: event.Longitude,
