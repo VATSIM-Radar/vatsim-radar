@@ -10,15 +10,10 @@ function outputInfluxValue(value: string | number | boolean) {
     if (typeof value === 'boolean') return String(value);
 }
 
-function getNanoSecTime() {
-    const hrTime = process.hrtime();
-    return (hrTime[0] * 1000000000) + hrTime[1];
-}
-
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
-    const date = getNanoSecTime();
+    const date = `${ Date.now() }000000`;
 
     return radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
         const obj = {
