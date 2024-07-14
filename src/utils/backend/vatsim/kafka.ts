@@ -123,7 +123,7 @@ export function kafkaUpdatePlan(event: KafkaPlan) {
         fuel_time: `${ (`0${ event.HoursFuel }`).slice(-2) }${ (`0${ event.MinutesFuel }`).slice(-2) }`,
         remarks: event.Remarks,
         route: event.Route,
-        assigned_transponder: String(event.AssignedTransponder),
+        assigned_transponder: `0000${ String(event.AssignedTransponder) }`.slice(-4),
         locked: Boolean(event.HardLocked),
     };
 
