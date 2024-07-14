@@ -1,14 +1,29 @@
 import { radarStorage } from '~/utils/backend/storage';
 import { validateDataReady } from '~/utils/backend/h3';
 
+function outputInfluxValue(value: string | number | boolean) {
+    if (typeof value === 'string') return `"${ value.replaceAll('"', '\\"') }"`;
+    if (typeof value === 'number') {
+        if (!value.toString().includes('.')) return `${ value }i`;
+        return value;
+    }
+    if (typeof value === 'boolean') return String(value);
+}
+
+function getNanoSecTime() {
+    const hrTime = process.hrtime();
+    return (hrTime[0] * 1000000000) + hrTime[1];
+}
+
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
+    const date = getNanoSecTime();
+
     return radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
-        return {
+        const obj = {
             altitude: pilot.altitude,
             callsign: pilot.callsign,
-            cid: pilot.cid,
             groundspeed: pilot.groundspeed,
             heading: pilot.heading,
             latitude: pilot.latitude,
@@ -23,5 +38,11 @@ export default defineEventHandler(event => {
             fpl_arrival: pilot.flight_plan?.arrival,
             fpl_altitude: pilot.flight_plan?.altitude,
         };
-    });
+
+        return `data,cid=${ pilot.cid } ${ Object.entries(obj)
+            .filter(([_, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!) }`)
+            .join(',')
+        } ${ date }`;
+    }).join('\n');
 });
