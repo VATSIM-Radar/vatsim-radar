@@ -357,11 +357,11 @@ async function toggleAirportLines(value = canShowLines.value) {
     const color = svgColors[getStatus.value];
 
     if (value) {
-        /* if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
+        if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
             savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
                 timeout: 1000 * 5,
             }).catch(console.error) ?? null;
-        }*/
+        }
     }
 
     const turns = savedTurns.value;

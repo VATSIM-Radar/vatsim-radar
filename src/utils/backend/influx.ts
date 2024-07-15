@@ -195,10 +195,10 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<In
             },
             geometry: {
                 type: 'Point',
-                coordinates: fromServerLonLat([
+                coordinates: [
                     row.longitude!,
                     row.latitude!,
-                ]),
+                ],
             },
         })),
     };
