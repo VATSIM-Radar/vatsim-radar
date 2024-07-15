@@ -1,5 +1,11 @@
 import { useStore } from '~/store';
 
+async function decompressBlob(blob: Blob) {
+    const ds = new DecompressionStream('gzip');
+    const decompressedStream = blob.stream().pipeThrough(ds);
+    return await new Response(decompressedStream).blob();
+}
+
 export function initDataWebsocket(): () => void {
     const dataStore = useDataStore();
 
@@ -15,7 +21,7 @@ export function initDataWebsocket(): () => void {
     });
     websocket.addEventListener('error', console.error);
 
-    websocket.addEventListener('message', event => {
+    websocket.addEventListener('message', async event => {
         if (localStorage.getItem('radar-socket-closed')) {
             localStorage.removeItem('radar-socket-closed');
             localStorage.removeItem('radar-socket-date');
@@ -23,11 +29,11 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
-        localStorage.setItem('radar-socket-vat-data', event.data);
+        const data = await (await decompressBlob(event.data as Blob)).text();
+        localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        const data = JSON.parse(event.data);
-        setVatsimDataStore(data);
+        setVatsimDataStore(JSON.parse(data));
         dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
         dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
     });

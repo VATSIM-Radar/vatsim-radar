@@ -82,8 +82,8 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
     const fluxQuery =
         `import "influxdata/influxdb/schema" import "strings" from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
   |> range(start: ${ Math.round(startDate / 1000) }, stop: ${ endDate ? Math.round(endDate / 1000) : 'now()' })
-  |> filter(fn: (r) => r["_measurement"] == "pilot")
-  |> filter(fn: (r) => r["id"] == "${ cid }")
+  |> filter(fn: (r) => r["_measurement"] == "data")
+  |> filter(fn: (r) => r["cid"] == "${ cid }")
   |> schema.fieldsAsCols()
   |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "" and not exists r["fpl_departure"] and not exists r["fpl_arrival"]))
   |> group(columns: ["_time"])`;
@@ -118,8 +118,8 @@ export async function getInfluxOnlineFlightTurns(cid: string) {
     const fluxQuery =
         `import "influxdata/influxdb/schema" import "strings" from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
   |> range(start: ${ row._time })
-  |> filter(fn: (r) => r["_measurement"] == "pilot")
-  |> filter(fn: (r) => r["id"] == "${ cid }")
+  |> filter(fn: (r) => r["_measurement"] == "data")
+  |> filter(fn: (r) => r["cid"] == "${ cid }")
   |> schema.fieldsAsCols()`;
 
     const rows = await getFlightRows(fluxQuery);

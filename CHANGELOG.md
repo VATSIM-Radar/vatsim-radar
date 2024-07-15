@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.4.3-beta.2
+
+- Implemented gzip compression for fast data updates to reduce traffic
+- Turns have temporally been disabled
+
 # 0.4.3-beta.1
 
 - (possibly) fixed duplicate turns text/lines

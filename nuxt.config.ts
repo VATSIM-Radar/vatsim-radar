@@ -149,10 +149,6 @@ export default defineNuxtConfig({
     },
     devServer: {
         port: 8080,
-        https: {
-            key: '.config/certs/server.key',
-            cert: '.config/certs/server.crt',
-        },
     },
     typescript: {
         typeCheck: true,

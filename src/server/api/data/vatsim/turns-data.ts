@@ -1,5 +1,8 @@
 import { radarStorage } from '~/utils/backend/storage';
 import { validateDataReady } from '~/utils/backend/h3';
+import type { VatsimPilot } from '~/types/data/vatsim';
+import { join } from 'path';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 function outputInfluxValue(value: string | number | boolean) {
     if (typeof value === 'string') return `"${ value.replaceAll('"', '\\"') }"`;
@@ -10,12 +13,28 @@ function outputInfluxValue(value: string | number | boolean) {
     if (typeof value === 'boolean') return String(value);
 }
 
+let previousData: VatsimPilot[] = [];
+
+const cwd = join(process.cwd(), 'src');
+const dataPath = join(cwd, 'data/turns-save.json');
+let file: string | undefined;
+
+try {
+    file = readFileSync(dataPath, 'utf-8');
+}
+catch { // empty
+}
+
+if (file) previousData = JSON.parse(file);
+
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
     const date = `${ Date.now() }000000`;
 
-    return radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
+    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
+        const previousPilot = previousData.find(x => x.cid === pilot.cid);
+
         const obj = {
             altitude: pilot.altitude,
             callsign: pilot.callsign,
@@ -34,10 +53,36 @@ export default defineEventHandler(event => {
             fpl_altitude: pilot.flight_plan?.altitude,
         };
 
-        return `data,cid=${ pilot.cid } ${ Object.entries(obj)
-            .filter(([_, value]) => value !== undefined && value !== null)
+        const previousObj = previousPilot && {
+            altitude: previousPilot.altitude,
+            callsign: previousPilot.callsign,
+            groundspeed: previousPilot.groundspeed,
+            heading: previousPilot.heading,
+            latitude: previousPilot.latitude,
+            longtitude: previousPilot.longitude,
+            name: previousPilot.name,
+            qnh_mb: previousPilot.qnh_mb,
+            transponder: previousPilot.transponder,
+            fpl_route: previousPilot.flight_plan?.route,
+            fpl_enroute_time: previousPilot.flight_plan?.enroute_time,
+            fpl_flight_rules: previousPilot.flight_plan?.flight_rules,
+            fpl_departure: previousPilot.flight_plan?.departure,
+            fpl_arrival: previousPilot.flight_plan?.arrival,
+            fpl_altitude: previousPilot.flight_plan?.altitude,
+        };
+
+        const entries = Object.entries(obj)
+            .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value))
             .map(([key, value]) => `${ key }=${ outputInfluxValue(value!) }`)
-            .join(',')
-        } ${ date }`;
-    }).join('\n');
+            .join(',');
+
+        if (!entries) return;
+
+        return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
+    }).filter(x => !!x).join('\n');
+
+    writeFileSync(dataPath, JSON.stringify(radarStorage.vatsim.data!.pilots), 'utf-8');
+    previousData = radarStorage.vatsim.data!.pilots;
+
+    return data;
 });

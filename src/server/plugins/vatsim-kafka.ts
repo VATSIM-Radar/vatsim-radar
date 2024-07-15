@@ -11,6 +11,8 @@ export default defineNitroPlugin(async () => {
 
     const kafka = new Kafka({
         brokers: [config.VATSIM_KAFKA_BROKER],
+        connectionTimeout: 10000,
+        authenticationTimeout: 10000,
         sasl: {
             mechanism: 'scram-sha-256',
             username: config.VATSIM_KAFKA_USER,

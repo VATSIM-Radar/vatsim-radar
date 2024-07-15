@@ -10,6 +10,7 @@ import { getServerVatsimLiveShortData, radarStorage } from '~/utils/backend/stor
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
 import { wss } from '~/utils/backend/vatsim/ws';
+import { createGzip } from 'node:zlib';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -207,7 +208,19 @@ export default defineNitroPlugin(app => {
                 radarStorage.vatsim.locals = getLocalATC();
                 radarStorage.vatsim.airports = getAirportsList();
 
-                wss.clients.forEach(ws => ws.send(JSON.stringify(getServerVatsimLiveShortData())));
+                const gzip = createGzip();
+                gzip.write(JSON.stringify(getServerVatsimLiveShortData()));
+                gzip.end();
+
+                const chunks: Buffer[] = [];
+                gzip.on('data', chunk => {
+                    chunks.push(chunk);
+                });
+
+                gzip.on('end', () => {
+                    const compressedData = Buffer.concat(chunks);
+                    wss.clients.forEach(ws => ws.send(compressedData));
+                });
             }
             catch (e) {
                 console.error(e);
