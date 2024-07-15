@@ -2,7 +2,6 @@ import type { QueryApi } from '@influxdata/influxdb-client';
 import { InfluxDB } from '@influxdata/influxdb-client';
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { FeatureCollection, Point } from 'geojson';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { colorsList } from './styles';
 
 export let influxDB: QueryApi;
