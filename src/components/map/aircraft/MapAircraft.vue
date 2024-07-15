@@ -313,6 +313,7 @@ const changeState = computed(() => {
         isInit.value,
         isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value,
         !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
+        dataStore.vatsim.updateTimestamp,
     ];
 
     return values.map(x => String(x)).join(',');
