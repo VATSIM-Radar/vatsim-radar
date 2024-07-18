@@ -623,6 +623,18 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.h160;
         case 'HUCO':
             return aircraftIcons.h160;
+        case 'AS65':
+            return aircraftIcons.h160;
+        case 'AS55':
+            return aircraftIcons.h160;
+        case 'AS50':
+            return aircraftIcons.h160;
+        case 'NH90':
+            return aircraftIcons.h160;
+        case 'H135':
+            return aircraftIcons.h160;
+        case 'H145':
+            return aircraftIcons.h160;
         case 'K226':
             return aircraftIcons.h160;
         case 'K126':
