@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.4.3-rc.1
+
+- Implemented fast turns update
+- Slighty improved update browser performance
+- Optimized turns render for very big aircraft list
+
 # 0.4.3-beta.2
 
 - Implemented gzip compression for fast data updates to reduce traffic

@@ -148,7 +148,6 @@ import { LineString, Point } from 'ol/geom';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import {
     aircraftSvgColors,
-    getAircraftLineStyle,
     isPilotOnGround,
     loadAircraftIcon,
     usePilotRating,
@@ -161,12 +160,11 @@ import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
-import { Fill, Stroke, Style, Text } from 'ol/style';
+import { Style } from 'ol/style';
 import type { InfluxGeojson } from '~/utils/backend/influx';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
-import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { toLonLat } from 'ol/proj';
@@ -261,8 +259,10 @@ const setStyle = async (iconFeature = feature) => {
     iconFeature.changed();
 };
 
-const init = () => {
+const init = async () => {
     if (!vectorSource.value) return;
+
+    await sleep(0);
 
     const iconFeature = feature || new Feature({
         id: props.aircraft.cid,
@@ -294,8 +294,6 @@ const isPropsHovered = computed(() => props.isHovered);
 const airportOverlayTracks = computed(() => props.aircraft.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === props.aircraft.arrival && x.data.showTracks));
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
-let lineStyle: Style | undefined;
-
 function clearLineFeatures(limit?: number) {
     if (!lineFeatures.value.length) return;
 
@@ -311,7 +309,6 @@ const canShowLines = ref(false);
 const changeState = computed(() => {
     const values = [
         isInit.value,
-        isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value,
         !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
         dataStore.vatsim.updateTimestamp,
     ];
@@ -321,12 +318,7 @@ const changeState = computed(() => {
 
 async function setState() {
     if (!isInit.value) return;
-    if (isOnGround.value && !isSelfFlight.value && !activeCurrentOverlay.value) {
-        canShowLines.value = false;
-    }
-    else {
-        canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
-    }
+    canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
     await Promise.allSettled([
         setStyle(),
@@ -357,10 +349,19 @@ async function toggleAirportLines(value = canShowLines.value) {
     const color = svgColors[getStatus.value];
 
     if (value) {
-        if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
-            savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
-                timeout: 1000 * 5,
-            }).catch(console.error) ?? null;
+        if (store.localSettings.traffic?.disableFastUpdate || !savedTurns.value) {
+            if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
+                savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+                    timeout: 1000 * 5,
+                }).catch(console.error) ?? null;
+            }
+        }
+        else {
+            mapStore.localTurns.add(props.aircraft.cid);
+            const item = localStorage.getItem(`turns-${ props.aircraft.cid }`);
+            if (item) {
+                savedTurns.value = JSON.parse(item) ?? null;
+            }
         }
     }
 
@@ -395,10 +396,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 feature.geometry.coordinates,
             ];
 
-            const styles = [
-                getAircraftLineStyle(feature.properties!.color),
-            ];
-
             if (i === 0) {
                 coordinates.push([props.aircraft.longitude, props.aircraft.latitude]);
             }
@@ -422,7 +419,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                     timestamp: feature.properties!.timestamp,
                     color: feature.properties!.color,
                 });
-                lineFeature.setStyle(getAircraftLineStyle(color));
                 linesSource.value?.addFeature(lineFeature);
                 lineFeatures.value.push(lineFeature);
             }
@@ -435,39 +431,9 @@ async function toggleAirportLines(value = canShowLines.value) {
                 timestamp: feature.properties!.timestamp,
                 color: feature.properties!.color,
             });
-            lineFeature.setStyle(styles);
             linesSource.value?.addFeature(lineFeature);
             lineFeatures.value.push(lineFeature);
         }
-
-        const style = lineStyle || (lineStyle = new Style({
-            stroke: new Stroke({
-                color: 'transparent',
-                width: 0,
-            }),
-            text: new Text({
-                font: 'bold 12px Montserrat',
-                text: props.aircraft?.callsign,
-                fill: new Fill({
-                    color,
-                }),
-                placement: 'line',
-                textBaseline: 'bottom',
-                maxAngle: toRadians(10),
-                declutterMode: 'declutter',
-            }),
-        }));
-
-        const lineFeature = new Feature({
-            geometry: new LineString([
-                [props.aircraft.longitude, props.aircraft.latitude],
-                ...turns.features.map(x => x.geometry.coordinates),
-            ]),
-        });
-
-        lineFeature.setStyle(style);
-        linesSource.value?.addFeature(lineFeature);
-        lineFeatures.value.push(lineFeature);
     }
     else {
         clearLineFeatures();
@@ -490,12 +456,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                     type: 'depLine',
                     color,
                 });
-                depLine.setStyle(new Style({
-                    stroke: new Stroke({
-                        color,
-                        width: 1,
-                    }),
-                }));
 
                 linesSource.value?.addFeature(depLine);
             }
@@ -524,13 +484,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 type: 'arrLine',
                 color,
             });
-            arrLine.setStyle(new Style({
-                stroke: new Stroke({
-                    color,
-                    width: 1,
-                    lineDash: [4, 8],
-                }),
-            }));
 
             linesSource.value?.addFeature(arrLine);
         }
@@ -546,6 +499,7 @@ function clearLines() {
     clearLineFeatures();
     if (depLine) linesSource.value?.removeFeature(depLine);
     if (arrLine) linesSource.value?.removeFeature(arrLine);
+    mapStore.localTurns.delete(props.aircraft.cid);
 }
 
 function clearAll() {

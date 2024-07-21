@@ -396,7 +396,7 @@ function handleMouseMove() {
     });
 }
 
-watch(() => pilot.value.last_updated, handleMouseMove);
+watch(dataStore.vatsim.updateTimestamp, handleMouseMove);
 watch(() => props.overlay.data.tracked, val => {
     handleMouseMove();
     if (val) {

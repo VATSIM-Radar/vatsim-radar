@@ -6,7 +6,7 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref } from 'vue';
+import type { Ref, WatchStopHandle } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -101,7 +101,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                     const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
                         timeout: 1000 * 60,
                     });
-                    setVatsimDataStore(data);
+                    await setVatsimDataStore(data);
                     await onFetch?.();
 
                     dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
@@ -119,7 +119,10 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
     onMounted(async () => {
         isMounted.value = true;
-        watch(() => store.localSettings.traffic?.disableFastUpdate, (val, oldVal) => {
+        let watcher: WatchStopHandle | undefined;
+
+        watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+            watcher?.();
             if (val === true) {
                 startIntervalChecks();
                 ws?.();
@@ -129,6 +132,25 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                     clearInterval(interval);
                 }
                 ws = checkForWSData(isMounted);
+
+                watcher = watch(dataStore.vatsim.updateTimestamp, () => {
+                    onFetch?.();
+
+                    if (!mapStore.localTurns.size) return;
+                    if (!localStorage.getItem('turns')) localStorage.setItem('turns', '[]');
+                    const turns = JSON.parse(localStorage.getItem('turns')!) as number[];
+
+                    mapStore.localTurns.forEach(cid => {
+                        if (!turns.some(x => x === cid)) turns.push(cid);
+                    });
+
+                    localStorage.setItem('turns', JSON.stringify([...new Set<number>([
+                        ...(JSON.parse(localStorage.getItem('turns') ?? '[]') as number[]),
+                        ...turns,
+                    ])]));
+
+                    mapStore.localTurns.clear();
+                });
             }
         }, {
             immediate: true,
@@ -194,7 +216,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 const [vatsimData] = await Promise.all([
                     $fetch<VatsimLiveData>('/api/data/vatsim/data'),
                 ]);
-                setVatsimDataStore(vatsimData);
+                await setVatsimDataStore(vatsimData);
             }()),
         ]);
 

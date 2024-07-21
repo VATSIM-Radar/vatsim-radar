@@ -13,8 +13,6 @@ export function initInfluxDB() {
         url: config.INFLUX_URL,
         token: config.INFLUX_TOKEN,
     }).getQueryApi(config.INFLUX_ORG);
-
-    getInfluxOnlineFlightTurns('1599139');
 }
 
 export type InfluxFlight = {
@@ -84,7 +82,7 @@ export async function getInfluxFlightsForCid({ cid, limit, offset, onlineOnly, s
   |> filter(fn: (r) => r["_measurement"] == "data")
   |> filter(fn: (r) => r["cid"] == "${ cid }")
   |> schema.fieldsAsCols()
-  |> filter(fn: (r) => (r["fpl_departure"] != "" and r["fpl_arrival"] != "") or (r["name"] != "" and not exists r["fpl_departure"] and not exists r["fpl_arrival"]))
+  |> filter(fn: (r) => (exists r["fpl_departure"] and exists r["fpl_arrival"]) or (exists r["name"] and not exists r["fpl_departure"] and not exists r["fpl_arrival"]))
   |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
@@ -119,7 +117,9 @@ export async function getInfluxOnlineFlightTurns(cid: string) {
   |> range(start: ${ row._time })
   |> filter(fn: (r) => r["_measurement"] == "data")
   |> filter(fn: (r) => r["cid"] == "${ cid }")
-  |> schema.fieldsAsCols()`;
+  |> schema.fieldsAsCols()
+  |> keep(columns: ["_time", "cid", "altitude", "latitude", "longitude", "groundspeed"])
+  |> group(columns: ["_time"])`;
 
     const rows = await getFlightRows(fluxQuery);
 

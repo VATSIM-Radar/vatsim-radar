@@ -6,11 +6,31 @@ async function decompressBlob(blob: Blob) {
     return await new Response(decompressedStream).blob();
 }
 
+let interval: NodeJS.Timeout | undefined;
+
 export function initDataWebsocket(): () => void {
     const dataStore = useDataStore();
+    clearInterval(interval);
 
     const url = import.meta.dev ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
     const websocket = new WebSocket(url);
+    const localStorageItems = { ...localStorage };
+
+    localStorage.removeItem('turns');
+
+    for (const [key] of Object.entries(localStorageItems)) {
+        if (key.startsWith('turns-')) localStorage.removeItem(key);
+    }
+
+    interval = setInterval(() => {
+        const turns = localStorage.getItem('turns');
+        if (!turns) return;
+        const turnsData = new Set<number>(JSON.parse(turns) satisfies number[]);
+        turnsData.forEach(cid => websocket.send(JSON.stringify({
+            type: 'turns',
+            cid,
+        })));
+    }, 2000);
 
     websocket.addEventListener('open', () => {
         console.info('WebSocket was opened');
@@ -18,6 +38,7 @@ export function initDataWebsocket(): () => void {
 
     websocket.addEventListener('close', () => {
         console.info('WebSocket was closed');
+        clearInterval(interval);
     });
     websocket.addEventListener('error', console.error);
 
@@ -30,15 +51,31 @@ export function initDataWebsocket(): () => void {
         }
 
         const data = await (await decompressBlob(event.data as Blob)).text();
+
+        const date = new Date().toISOString();
+        const json = JSON.parse(data);
+
+        if ('type' in json) {
+            if (json.type === 'turns') {
+                localStorage.setItem(`turns-${ json.cid }`, JSON.stringify(json.data));
+            }
+
+            return;
+        }
+
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        setVatsimDataStore(JSON.parse(data));
-        dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
-        dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
+        delete json.general;
+        await setVatsimDataStore(json);
+        dataStore.vatsim.data.general.value!.update_timestamp = date;
+        dataStore.vatsim.updateTimestamp.value = date;
     });
 
-    return () => websocket.close();
+    return () => {
+        websocket.close();
+        clearInterval(interval);
+    };
 }
 
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
@@ -61,12 +98,13 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     checkForSocket();
     const interval = setInterval(checkForSocket, 5000);
 
-    function storageEvent() {
+    async function storageEvent() {
         const data = localStorage.getItem('radar-socket-vat-data');
         if (!data || !dataStore.vatsim.data.general.value) return;
 
         const json = JSON.parse(data);
-        setVatsimDataStore(json);
+        delete json.general;
+        await setVatsimDataStore(json);
         dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
         dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
     }
