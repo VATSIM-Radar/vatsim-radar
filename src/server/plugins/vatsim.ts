@@ -227,8 +227,11 @@ export default defineNitroPlugin(app => {
 
                 if (config.INFLUX_ENABLE_WRITE === 'true') {
                     const data = getPlanInfluxDataForPilots();
-                    influxDBWrite.writeRecords(data);
-                    await influxDBWrite.flush(true).catch(console.error);
+                    console.log(data.length);
+                    if (data.length) {
+                        influxDBWrite.writeRecords(data);
+                        await influxDBWrite.flush(true).catch(console.error);
+                    }
                 }
 
                 const gzip = createGzip();
