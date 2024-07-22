@@ -56,8 +56,7 @@ defineSlots<{
     append(): any;
 }>();
 
-const collapsed = defineModel('collapsed', {
-    type: Boolean as PropType<boolean | null>,
+const collapsed = defineModel<boolean | null>('collapsed', {
     default: null,
 });
 </script>
