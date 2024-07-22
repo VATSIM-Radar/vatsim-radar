@@ -65,7 +65,7 @@ jobs:
             INFLUX_ORG=${{ secrets.INFLUX_ORG }}
             INFLUX_BUCKET_MAIN=${{ secrets.INFLUX_BUCKET_MAIN }}
             INFLUX_BUCKET_ONLINE=${{ secrets.INFLUX_BUCKET_ONLINE }}
-            INFLUX_ENABLE_WRITE=${{ secrets.INFLUX_ENABLE_WRITE }}
+            INFLUX_ENABLE_WRITE=${{ vars.INFLUX_ENABLE_WRITE }}
             INFLUX_BUCKET_PLANS=${{ secrets.INFLUX_BUCKET_PLANS }}
             CF_R2_API=${{ secrets.CF_R2_API }}
             CF_R2_ACCESS_ID=${{ secrets.CF_R2_ACCESS_ID }}
