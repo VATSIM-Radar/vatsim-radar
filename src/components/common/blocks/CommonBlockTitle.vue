@@ -41,7 +41,6 @@
 
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
-import type { PropType } from 'vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 
 defineProps({
