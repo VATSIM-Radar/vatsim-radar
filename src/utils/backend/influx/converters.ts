@@ -160,7 +160,8 @@ function outputInfluxValue(value: string | number | boolean) {
     if (typeof value === 'boolean') return String(value);
 }
 
-let previousData: VatsimPilot[] = [];
+let previousPlanData: VatsimPilot[] = [];
+let previousShortData: VatsimPilot[] = [];
 
 const cwd = join(process.cwd(), 'src');
 const dataPath = join(cwd, 'data/turns-save.json');
@@ -172,13 +173,16 @@ try {
 catch { // empty
 }
 
-if (file) previousData = JSON.parse(file);
+if (file) {
+    previousPlanData = JSON.parse(file);
+    previousShortData = previousPlanData;
+}
 
 export function getPlanInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
-        const previousPilot = previousData.find(x => x.cid === pilot.cid);
+        const previousPilot = previousPlanData.find(x => x.cid === pilot.cid);
 
         const obj = {
             altitude: pilot.altitude,
@@ -213,7 +217,7 @@ export function getPlanInfluxDataForPilots() {
     }).filter(x => !!x) as string[];
 
     writeFileSync(dataPath, JSON.stringify(radarStorage.vatsim.data!.pilots), 'utf-8');
-    previousData = radarStorage.vatsim.data!.pilots;
+    previousPlanData = radarStorage.vatsim.data!.pilots;
 
     return data;
 }
@@ -222,7 +226,7 @@ export function getShortInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
-        const previousPilot = previousData.find(x => x.cid === pilot.cid);
+        const previousPilot = previousShortData.find(x => x.cid === pilot.cid);
 
         const obj = {
             altitude: pilot.altitude,
@@ -259,7 +263,7 @@ export function getShortInfluxDataForPilots() {
     }).filter(x => !!x) as string[];
 
     writeFileSync(dataPath, JSON.stringify(radarStorage.vatsim.data!.pilots), 'utf-8');
-    previousData = radarStorage.vatsim.data!.pilots;
+    previousShortData = radarStorage.vatsim.data!.pilots;
 
     return data;
 }
