@@ -5,9 +5,10 @@ import { radarStorage } from '~/utils/backend/storage';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import type { Feature, MultiPolygon } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
+import { readFileSync } from 'node:fs';
 
 const revisions: Record<string, number> = {
-    'v2404.2': 1,
+    'v2404.2': 3,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -68,10 +69,13 @@ export default defineNitroPlugin(app => {
             if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
             if (radarStorage.vatspy.version === data.current_commit_hash) return;
 
-            const [dat, geo] = await Promise.all([
+            let [dat, geo] = await Promise.all([
                 ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
                 ofetch(data.fir_boundaries_geojson_url, { responseType: 'text', timeout: 1000 * 60 }),
             ]);
+
+            dat = readFileSync('./VATSpy.dat', 'utf-8');
+            geo = readFileSync('./Boundaries.geojson', 'utf-8');
 
             const geojson = JSON.parse(geo) as {
                 features: Feature<MultiPolygon>[];
