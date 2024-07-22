@@ -1,8 +1,9 @@
-import type { QueryApi } from '@influxdata/influxdb-client';
+import type { QueryApi, WriteApi } from '@influxdata/influxdb-client';
 import { InfluxDB } from '@influxdata/influxdb-client';
 
 export let influxDB: InfluxDB;
 export let influxDBQuery: QueryApi;
+export let influxDBWrite: WriteApi;
 
 export function initInfluxDB() {
     const config = useRuntimeConfig();
@@ -13,5 +14,6 @@ export function initInfluxDB() {
     });
 
     influxDBQuery = influxDB.getQueryApi(config.INFLUX_ORG);
+    influxDBWrite = influxDB.getWriteApi(config.INFLUX_ORG, config.INFLUX_BUCKET_PLANS);
 }
 
