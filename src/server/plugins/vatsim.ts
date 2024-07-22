@@ -59,11 +59,6 @@ export default defineNitroPlugin(app => {
     let transceiversInProgress = false;
     const config = useRuntimeConfig();
 
-    console.log('1', config.INFLUX_ENABLE_WRITE);
-    console.log('2', typeof config.INFLUX_ENABLE_WRITE);
-    console.log('3', typeof process.env.INFLUX_ENABLE_WRITE);
-    console.log('4', process.env.INFLUX_ENABLE_WRITE);
-
     CronJob.from({
         cronTime: '* * * * * *',
         start: true,
@@ -230,12 +225,7 @@ export default defineNitroPlugin(app => {
                 radarStorage.vatsim.locals = getLocalATC();
                 radarStorage.vatsim.airports = getAirportsList();
 
-                console.log('1', config.INFLUX_ENABLE_WRITE);
-                console.log('2', typeof config.INFLUX_ENABLE_WRITE);
-                console.log('3', typeof process.env.INFLUX_ENABLE_WRITE);
-                console.log('4', process.env.INFLUX_ENABLE_WRITE);
-
-                if (config.INFLUX_ENABLE_WRITE === 'true') {
+                if (String(config.INFLUX_ENABLE_WRITE) === 'true') {
                     const data = getPlanInfluxDataForPilots();
                     if (data.length) {
                         influxDBWrite.writeRecords(data);
