@@ -1,5 +1,5 @@
 import type { VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
-import { influxDB } from '~/utils/backend/influx/influx';
+import { influxDBQuery } from '~/utils/backend/influx/influx';
 
 export type InfluxFlight = {
     [K in keyof Pick<VatsimPilot, 'altitude' | 'callsign' | 'cid' | 'groundspeed' | 'heading' | 'latitude' | 'longitude' | 'name' | 'qnh_mb' | 'transponder'>]?: VatsimPilot[K] | null
@@ -35,7 +35,7 @@ const flightKeys = Object.keys({
 } satisfies Record<keyof InfluxFlight, true>) as Array<keyof InfluxFlight>;
 
 async function getFlightRows(query: string) {
-    return (await influxDB.collectRows<InfluxFlight>(query))
+    return (await influxDBQuery.collectRows<InfluxFlight>(query))
         .map(x => ({
             ...x,
             time: new Date(x._time).getTime(),
@@ -172,11 +172,7 @@ export async function getInfluxOnlineFlightsTurns(cids: number[]) {
   |> keep(columns: ["_time", "cid", "altitude", "latitude", "longitude", "groundspeed"])
   |> group(columns: ["_time"])`;
 
-    console.time('turns');
-
     const rows = await getFlightRows(fluxQuery);
-
-    console.timeEnd('turns');
 
     const pilots: {
         cid: number;

@@ -11,7 +11,7 @@ import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim'
 import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { createGzip } from 'node:zlib';
-import { influxDBWrite } from '~/utils/backend/influx/influx';
+import { influxDB } from '~/utils/backend/influx/influx';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 
 function excludeKeys<S extends {
@@ -226,8 +226,10 @@ export default defineNitroPlugin(app => {
                 radarStorage.vatsim.airports = getAirportsList();
 
                 if (config.INFLUX_ENABLE_WRITE === 'true') {
+                    const write = influxDB.getWriteApi(config.INFLUX_ORG, config.INFLUX_BUCKET_PLANS);
                     const data = getPlanInfluxDataForPilots();
-                    influxDBWrite.writeRecords(data);
+                    write.writeRecords(data);
+                    await write.close().catch(console.error);
                 }
 
                 const gzip = createGzip();
