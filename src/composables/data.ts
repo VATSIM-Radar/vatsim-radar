@@ -106,6 +106,15 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
                     dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
                     dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
+
+                    if (!mapStore.localTurns.size) return;
+
+                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
+                    });
+
+                    mapStore.localTurns.clear();
                 }
             }
             catch (e) {
@@ -133,21 +142,15 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 }
                 ws = checkForWSData(isMounted);
 
-                watcher = watch(dataStore.vatsim.updateTimestamp, () => {
+                watcher = watch(dataStore.vatsim.updateTimestamp, async () => {
                     onFetch?.();
 
                     if (!mapStore.localTurns.size) return;
-                    if (!localStorage.getItem('turns')) localStorage.setItem('turns', '[]');
-                    const turns = JSON.parse(localStorage.getItem('turns')!) as number[];
 
-                    mapStore.localTurns.forEach(cid => {
-                        if (!turns.some(x => x === cid)) turns.push(cid);
+                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
                     });
-
-                    localStorage.setItem('turns', JSON.stringify([...new Set<number>([
-                        ...(JSON.parse(localStorage.getItem('turns') ?? '[]') as number[]),
-                        ...turns,
-                    ])]));
 
                     mapStore.localTurns.clear();
                 });

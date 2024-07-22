@@ -1,11 +1,6 @@
 import { WebSocketServer } from 'ws';
 import { createGzip } from 'node:zlib';
-import { getServerVatsimLiveShortData } from '~/utils/backend/storage';
-import {
-    getInfluxFlightsForCid,
-    getInfluxOnlineFlightTurns,
-    getInfluxOnlineFlightTurnsGeojson,
-} from '~/utils/backend/influx';
+import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export const wss = new WebSocketServer({
     port: 8880,

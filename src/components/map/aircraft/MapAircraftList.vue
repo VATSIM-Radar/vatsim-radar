@@ -23,17 +23,15 @@ import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
-import type { WebGLStyle } from 'ol/style/webgl';
-import { Layer } from 'ol/layer';
-import WebGLVectorLayerRenderer from 'ol/renderer/webgl/VectorLayer';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 
-let linesLayer: Layer<any>;
+let linesLayer: VectorLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
+
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
@@ -192,27 +190,12 @@ watch(map, val => {
     }
 
     if (!linesLayer) {
-        const style: WebGLStyle = {
-            'stroke-color': ['get', 'color', 'color'],
-            'stroke-width': 1.5,
-        };
-
-        class WebGLLayer extends Layer {
-            // @ts-expect-error Incorrect types
-            createRenderer() {
-                return new WebGLVectorLayerRenderer(this, {
-                    style,
-                    disableHitDetection: true,
-                });
-            }
-        }
-
         linesSource.value = new VectorSource<any>({
             features: [],
             wrapX: true,
         });
 
-        linesLayer = new WebGLLayer({
+        linesLayer = new VectorLayer<any>({
             source: linesSource.value,
             properties: {
                 type: 'aircraft-line',

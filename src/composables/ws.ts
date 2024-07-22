@@ -66,7 +66,9 @@ export function initDataWebsocket(): () => void {
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        delete json.general;
+        if (dataStore.vatsim.data.general) {
+            delete json.general;
+        }
         await setVatsimDataStore(json);
         dataStore.vatsim.data.general.value!.update_timestamp = date;
         dataStore.vatsim.updateTimestamp.value = date;
@@ -103,7 +105,9 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (!data || !dataStore.vatsim.data.general.value) return;
 
         const json = JSON.parse(data);
-        delete json.general;
+        if (dataStore.vatsim.data.general) {
+            delete json.general;
+        }
         await setVatsimDataStore(json);
         dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
         dataStore.vatsim.updateTimestamp.value = new Date().toISOString();

@@ -1,6 +1,6 @@
 {
   "name": "nuxt-app",
-  "version": "0.4.3-beta.2",
+  "version": "0.4.3-beta.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -38,6 +38,7 @@
     "metar-taf-parser": "^9.0.1",
     "nuxt": "^3.12.4",
     "ol": "^9.2.4",
+    "ol-ext": "^4.0.21",
     "pinia": "^2.1.7",
     "prisma": "^5.17.0",
     "sharp": "^0.33.4",
@@ -59,6 +60,7 @@
     "@types/geojson": "^7946.0.14",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.11",
+    "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest",
     "@types/ws": "^8.5.11",
     "eslint": "^9.7.0",
     "postcss": "^8.4.39",

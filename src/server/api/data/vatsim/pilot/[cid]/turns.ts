@@ -1,7 +1,8 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
-import type { InfluxGeojson } from '~/utils/backend/influx';
-import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx';
+
+import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
     const cid = getRouterParam(event, 'cid');

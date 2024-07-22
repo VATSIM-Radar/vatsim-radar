@@ -11,6 +11,8 @@ import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim'
 import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { createGzip } from 'node:zlib';
+import { influxDBWrite } from '~/utils/backend/influx/influx';
+import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -55,6 +57,7 @@ export default defineNitroPlugin(app => {
     let dataLatestFinished = 0;
     let dataInProgress = false;
     let transceiversInProgress = false;
+    const config = useRuntimeConfig();
 
     CronJob.from({
         cronTime: '* * * * * *',
@@ -144,10 +147,24 @@ export default defineNitroPlugin(app => {
 
                 updateVatsimDataStorage();
 
-                /* data.controllers.push({
-                    callsign: 'NCT_APP',
+                /* radarStorage.vatsim.data.controllers.push({
+                    callsign: 'ULLL_R_CTR',
                     cid: 3,
-                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                    frequency: '122.122',
+                    last_updated: '',
+                    logon_time: '',
+                    name: '',
+                    rating: 0,
+                    server: '',
+                    text_atis: ['test3'],
+                    visual_range: 0,
+                });
+
+                radarStorage.vatsim.data.controllers.push({
+                    callsign: 'ULLL_R5_CTR',
+                    cid: 3,
+                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
                     frequency: '122.122',
                     last_updated: '',
                     logon_time: '',
@@ -207,6 +224,11 @@ export default defineNitroPlugin(app => {
                 radarStorage.vatsim.firs = getATCBounds();
                 radarStorage.vatsim.locals = getLocalATC();
                 radarStorage.vatsim.airports = getAirportsList();
+
+                if (config.INFLUX_ENABLE_WRITE === 'true') {
+                    const data = getPlanInfluxDataForPilots();
+                    influxDBWrite.writeRecords(data);
+                }
 
                 const gzip = createGzip();
                 gzip.write(JSON.stringify(getServerVatsimLiveShortData()));

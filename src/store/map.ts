@@ -6,6 +6,7 @@ import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
+import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -72,6 +73,7 @@ export const useMapStore = defineStore('map', {
         openingOverlay: false,
 
         localTurns: new Set<number>(),
+        turnsResponse: [] as TurnsBulkReturn[],
     }),
     getters: {
         canShowOverlay(): boolean {

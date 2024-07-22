@@ -144,6 +144,7 @@ import { onMounted } from 'vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
+import { Stroke, Style } from 'ol/style';
 import { LineString, Point } from 'ol/geom';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import {
@@ -160,16 +161,15 @@ import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
-import { Style } from 'ol/style';
-import type { InfluxGeojson } from '~/utils/backend/influx';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
-import type { Coordinate } from 'ol/coordinate';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { toLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
+import type { Position } from 'geojson';
+import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 
 const props = defineProps({
     aircraft: {
@@ -349,29 +349,27 @@ async function toggleAirportLines(value = canShowLines.value) {
     const color = svgColors[getStatus.value];
 
     if (value) {
-        if (store.localSettings.traffic?.disableFastUpdate || !savedTurns.value) {
-            if (!savedTurns.value || turnsUpdate.value + (1000 * 5) <= date) {
+        const data = mapStore.turnsResponse.find(x => x.cid === props.aircraft.cid)?.data;
+        if (!savedTurns.value && !data) {
+            if (turnsUpdate.value + (1000 * 5) <= date) {
+                turnsUpdate.value = date;
+                mapStore.localTurns.add(props.aircraft.cid);
                 savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
                     timeout: 1000 * 5,
                 }).catch(console.error) ?? null;
             }
         }
         else {
+            savedTurns.value = data;
             mapStore.localTurns.add(props.aircraft.cid);
-            const item = localStorage.getItem(`turns-${ props.aircraft.cid }`);
-            if (item) {
-                savedTurns.value = JSON.parse(item) ?? null;
-            }
         }
     }
 
     const turns = savedTurns.value;
 
-    turnsUpdate.value = date;
-
     if (!canShowLines.value) return;
 
-    if (turns) {
+    if (turns?.length) {
         if (depLine) {
             depLine.dispose();
             linesSource.value?.removeFeature(depLine);
@@ -386,51 +384,103 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         clearLineFeatures();
 
-        for (let i = 0; i < turns.features.length; i++) {
-            const feature = turns.features[i];
+        for (let i = 0; i < turns.length; i++) {
+            const collection = {
+                ...turns[i],
+            };
 
-            const prevFeature = turns.features[i - 1];
-            const nextFeature = turns.features[i + 1];
+            collection.features = [...collection.features];
 
-            const coordinates: Coordinate[] = [
-                feature.geometry.coordinates,
+            const nextCollection = turns[i + 1];
+
+            const styles = [
+                getAircraftLineStyle(collection.features[0].properties!.color),
             ];
 
             if (i === 0) {
-                coordinates.push([props.aircraft.longitude, props.aircraft.latitude]);
-            }
-            else if (prevFeature) {
-                coordinates.unshift(prevFeature.geometry.coordinates);
-            }
-            else {
-                coordinates.push(nextFeature.geometry.coordinates);
+                collection.features.unshift({
+                    type: 'Feature',
+                    properties: {
+                        type: 'turn',
+                        color: collection.features[0].properties!.color,
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [props.aircraft.longitude, props.aircraft.latitude],
+                    },
+                });
             }
 
-            if (i === turns.features.length - 1 && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.properties!.standing === true)) {
+            if (nextCollection) {
+                collection.features.push({
+                    type: 'Feature',
+                    properties: {
+                        type: 'turn',
+                        color: collection.features[0].properties!.color,
+                    },
+                    geometry: {
+                        type: 'Point',
+                        coordinates: nextCollection.features[0].geometry.coordinates.slice(),
+                    },
+                });
+            }
+
+            if (i === turns.length - 1 && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.some(x => x.features.some(x => x.properties!.standing === true))) {
                 const coordinates = [
                     [depAirport.lon, depAirport.lat],
-                    feature.geometry.coordinates,
+                    collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                 ];
                 const points = coordinates.map(x => point(toLonLat(x)));
                 const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
 
                 const lineFeature = new Feature({
                     geometry,
-                    timestamp: feature.properties!.timestamp,
-                    color: feature.properties!.color,
+                    timestamp: collection.features[0].properties!.timestamp,
+                    color: collection.features[0].properties!.color,
+                    type: 'airportLine',
                 });
+                lineFeature.setStyle(getAircraftLineStyle(color));
                 linesSource.value?.addFeature(lineFeature);
                 lineFeatures.value.push(lineFeature);
             }
 
-            const points = coordinates.map(x => point(toLonLat(x)));
-            const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+            let newFeatures: Position[] = [];
+
+            for (let i = 0; i < collection.features.length; i++) {
+                if (i % 2 === 1) continue;
+                const curPoint = collection.features[i];
+                const nextPoint = collection.features[i + 1];
+                if (!nextPoint) {
+                    newFeatures.push(curPoint.geometry.coordinates);
+                    continue;
+                }
+
+                if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
+                    newFeatures.push(curPoint.geometry.coordinates);
+                    newFeatures.push(nextPoint.geometry.coordinates);
+                    continue;
+                }
+
+                const points = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates].map(x => point(toLonLat(x)));
+                const circle = greatCircle(points[0], points[1], {
+                    npoints: 4,
+                });
+
+                let geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates : circle.geometry.coordinates.flatMap(x => x);
+                geometry = geometry.map(x => fromLonLat(x));
+
+                newFeatures = [
+                    ...newFeatures,
+                    ...geometry,
+                ];
+            }
 
             const lineFeature = new Feature({
-                geometry,
-                timestamp: feature.properties!.timestamp,
-                color: feature.properties!.color,
+                geometry: new LineString(newFeatures),
+                color: collection.features[0].properties!.color,
             });
+
+            lineFeature.setStyle(styles);
             linesSource.value?.addFeature(lineFeature);
             lineFeatures.value.push(lineFeature);
         }
@@ -456,6 +506,13 @@ async function toggleAirportLines(value = canShowLines.value) {
                     type: 'depLine',
                     color,
                 });
+
+                depLine.setStyle(new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 1,
+                    }),
+                }));
 
                 linesSource.value?.addFeature(depLine);
             }
@@ -484,6 +541,14 @@ async function toggleAirportLines(value = canShowLines.value) {
                 type: 'arrLine',
                 color,
             });
+
+            arrLine.setStyle(new Style({
+                stroke: new Stroke({
+                    color,
+                    width: 1,
+                    lineDash: [4, 8],
+                }),
+            }));
 
             linesSource.value?.addFeature(arrLine);
         }
