@@ -147,33 +147,42 @@ export default defineNitroPlugin(app => {
 
                 updateVatsimDataStorage();
 
-                /* radarStorage.vatsim.data.controllers.push({
-                    callsign: 'ULLL_R_CTR',
-                    cid: 3,
-                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
-                    frequency: '122.122',
-                    last_updated: '',
-                    logon_time: '',
-                    name: '',
-                    rating: 0,
-                    server: '',
-                    text_atis: ['test3'],
-                    visual_range: 0,
-                });
+                const controllers = [
+                    'ULLL',
+                    'ULLL_AM',
+                    'ULLL_AR',
+                    'ULLL_MO',
+                    'ULLL_MR',
+                    'ULLL_NM',
+                    'ULLL_R',
+                    'ULLL_R1',
+                    'ULLL_R2',
+                    'ULLL_R3',
+                    'ULLL_R4',
+                    'ULLL_R5',
+                    'ULLL_R6',
+                    'ULLL_SW',
+                    'ULLL_S',
+                    'ULLL_W',
+                    'ULLL_KT',
+                    'ULLL_WK',
+                ];
 
-                radarStorage.vatsim.data.controllers.push({
-                    callsign: 'ULLL_R5_CTR',
-                    cid: 3,
-                    facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
-                    frequency: '122.122',
-                    last_updated: '',
-                    logon_time: '',
-                    name: '',
-                    rating: 0,
-                    server: '',
-                    text_atis: ['test3'],
-                    visual_range: 0,
-                });*/
+                await Promise.all(controllers.map(async (x, index) => {
+                    radarStorage.vatsim.data!.controllers.push({
+                        callsign: `${ x }_CTR`,
+                        cid: index,
+                        facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                        frequency: '122.122',
+                        last_updated: '',
+                        logon_time: '',
+                        name: '',
+                        rating: 0,
+                        server: '',
+                        text_atis: ['test3'],
+                        visual_range: 0,
+                    });
+                }));
 
                 const regularData = excludeKeys(radarStorage.vatsim.data, {
                     pilots: {
