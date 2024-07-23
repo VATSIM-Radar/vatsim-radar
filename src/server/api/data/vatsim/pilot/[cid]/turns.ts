@@ -25,7 +25,9 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         return;
     }
 
-    const geojson = await getInfluxOnlineFlightTurnsGeojson(cid);
+    const start = getQuery(event).start
+
+    const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined);
 
     if (geojson) return geojson;
 

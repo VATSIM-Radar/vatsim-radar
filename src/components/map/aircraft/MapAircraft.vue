@@ -168,7 +168,7 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
-import type { Position } from 'geojson';
+import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 
 const props = defineProps({
@@ -211,8 +211,12 @@ const lineFeatures = shallowRef<Feature[]>([]);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
-const turnsUpdate = ref(0);
-const savedTurns = shallowRef<InfluxGeojson | null | undefined>(null);
+const turnsStart = ref('');
+const turnsTimestamp = ref(0);
+const turnsFirstGroupTimestamp = ref('');
+const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
+const turnsFirstGroup = shallowRef<InfluxGeojson['features'][0] | null>(null);
+const linesUpdateInProgress = ref(false);
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -294,14 +298,12 @@ const isPropsHovered = computed(() => props.isHovered);
 const airportOverlayTracks = computed(() => props.aircraft.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === props.aircraft.arrival && x.data.showTracks));
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
-function clearLineFeatures(limit?: number) {
+function clearLineFeatures(features = lineFeatures.value) {
     if (!lineFeatures.value.length) return;
-
-    const features = lineFeatures.value.slice(0, limit ?? lineFeatures.value.length);
 
     linesSource.value?.removeFeatures(features);
     features.forEach(x => x.dispose());
-    lineFeatures.value = limit ? lineFeatures.value.slice(limit, lineFeatures.value.length) : [];
+    lineFeatures.value = lineFeatures.value.filter(x => !features.includes(x));
 }
 
 const canShowLines = ref(false);
@@ -333,230 +335,286 @@ async function setState() {
 watch(changeState, setState);
 
 async function toggleAirportLines(value = canShowLines.value) {
-    const date = Date.now();
+    if (linesUpdateInProgress.value) return;
 
-    const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
-    const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
+    linesUpdateInProgress.value = true;
 
-    const distance = () => {
-        if (!arrAirport) return null;
-        return calculateDistanceInNauticalMiles(
-            toLonLat([arrAirport.lon, arrAirport.lat]),
-            toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
-        );
-    };
+    try {
+        const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
+        const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
 
-    const color = svgColors[getStatus.value];
+        const distance = () => {
+            if (!arrAirport) return null;
+            return calculateDistanceInNauticalMiles(
+                toLonLat([arrAirport.lon, arrAirport.lat]),
+                toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
+            );
+        };
 
-    if (value) {
-        const data = mapStore.turnsResponse.find(x => x.cid === props.aircraft.cid)?.data;
-        if (!savedTurns.value && !data) {
-            if (turnsUpdate.value + (1000 * 5) <= date) {
-                turnsUpdate.value = date;
-                mapStore.localTurns.add(props.aircraft.cid);
-                savedTurns.value = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
-                    timeout: 1000 * 5,
-                }).catch(console.error) ?? null;
+        const color = svgColors[getStatus.value];
+
+        let turns: InfluxGeojson | null | undefined = null;
+        let firstUpdate = true;
+
+        if (!lineFeatures.value.length) {
+            turnsFirstGroupTimestamp.value = '';
+            turnsStart.value == '';
+        }
+
+        const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
+
+        if (value) {
+            turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
+                timeout: 1000 * 5,
+            }).catch(console.error) ?? null;
+
+            if (turnsStart.value) {
+                if (turns?.flightPlanTime === turnsStart.value) {
+                    firstUpdate = false;
+                }
+                else {
+                    turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+                        timeout: 1000 * 5,
+                    }).catch(console.error) ?? null;
+                }
+            }
+
+            if (turns?.features?.[0]?.features.length) {
+                turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp;
+                turnsStart.value = turns.flightPlanTime;
+            }
+        }
+
+        if (!canShowLines.value) return;
+
+        if (turns?.features.length) {
+            if (depLine) {
+                depLine.dispose();
+                linesSource.value?.removeFeature(depLine);
+                depLine = undefined;
+            }
+
+            if (arrLine) {
+                arrLine.dispose();
+                linesSource.value?.removeFeature(arrLine);
+                arrLine = undefined;
+            }
+
+            const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
+
+            if (firstUpdate || (turnsFirstGroupTimestamp.value && firstCollectionTimestamp !== turnsFirstGroupTimestamp.value)) {
+                clearLineFeatures();
+                turnsFirstGroup.value = null;
+            }
+            else {
+                const toRemove = lineFeatures.value.filter(x => {
+                    const properties = x.getProperties();
+                    if (properties!.type === 'airportLine') return true;
+                    return properties!.timestamp === turnsFirstGroupTimestamp.value;
+                });
+
+                clearLineFeatures(toRemove);
+            }
+
+            turnsFirstGroupTimestamp.value = firstCollectionTimestamp;
+            if (turns.features[1]) {
+                turnsSecondGroupPoint.value = turns.features[1].features[0];
+            }
+
+            for (let i = 0; i < turns.features.length; i++) {
+                const collection = {
+                    ...turns.features[i],
+                };
+
+                collection.features = [...collection.features];
+
+                const nextCollection = turns.features[i + 1];
+
+                const styles = [
+                    getAircraftLineStyle(collection.features[0].properties!.color),
+                ];
+
+                if (i === 0) {
+                    collection.features.unshift({
+                        type: 'Feature',
+                        properties: {
+                            type: 'turn',
+                            color: collection.features[0].properties!.color,
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [props.aircraft.longitude, props.aircraft.latitude],
+                        },
+                    });
+                }
+
+                if (nextCollection) {
+                    collection.features.push({
+                        type: 'Feature',
+                        properties: {
+                            type: 'turn',
+                            color: collection.features[0].properties!.color,
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: nextCollection.features[0].geometry.coordinates.slice(),
+                        },
+                    });
+                }
+                else if (shortUpdate && turnsSecondGroupPoint.value) {
+                    collection.features.push({
+                        type: 'Feature',
+                        properties: {
+                            type: 'turn',
+                            color: turnsSecondGroupPoint.value.properties!.color,
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: turnsSecondGroupPoint.value.geometry.coordinates.slice(),
+                        },
+                    });
+                }
+
+                if (i === turns.features.length - 1 && !shortUpdate && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
+                    const coordinates = [
+                        [depAirport.lon, depAirport.lat],
+                        collection.features[collection.features.length - 1].geometry.coordinates.slice(),
+                    ];
+                    const points = coordinates.map(x => point(toLonLat(x)));
+                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
+                    const lineFeature = new Feature({
+                        geometry,
+                        timestamp: collection.features[0].properties!.timestamp,
+                        color: collection.features[0].properties!.color,
+                        type: 'airportLine',
+                    });
+                    lineFeature.setStyle(getAircraftLineStyle(color));
+                    linesSource.value?.addFeature(lineFeature);
+                    lineFeatures.value.push(lineFeature);
+                }
+
+                let newFeatures: Position[] = [];
+
+                for (let i = 0; i < collection.features.length; i++) {
+                    if (i % 2 === 1) continue;
+                    const curPoint = collection.features[i];
+                    const nextPoint = collection.features[i + 1];
+                    if (!nextPoint) {
+                        newFeatures.push(curPoint.geometry.coordinates);
+                        continue;
+                    }
+
+                    if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
+                        newFeatures.push(curPoint.geometry.coordinates);
+                        newFeatures.push(nextPoint.geometry.coordinates);
+                        continue;
+                    }
+
+                    const points = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates].map(x => point(toLonLat(x)));
+                    const circle = greatCircle(points[0], points[1], {
+                        npoints: 4,
+                    });
+
+                    let geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates : circle.geometry.coordinates.flatMap(x => x);
+                    geometry = geometry.map(x => fromLonLat(x));
+
+                    newFeatures = [
+                        ...newFeatures,
+                        ...geometry,
+                    ];
+                }
+
+                const lineFeature = new Feature({
+                    geometry: new LineString(newFeatures),
+                    color: collection.features[0].properties!.color,
+                    timestamp: i === 0 && turnsFirstGroupTimestamp.value,
+                });
+
+                lineFeature.setStyle(styles);
+                linesSource.value?.addFeature(lineFeature);
+                lineFeatures.value.push(lineFeature);
             }
         }
         else {
-            savedTurns.value = data;
-            mapStore.localTurns.add(props.aircraft.cid);
+            clearLineFeatures();
+
+            if (depAirport) {
+                const start = point(toLonLat([depAirport.lon, depAirport.lat]));
+                const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+
+                const geometry = greatCircleGeometryToOL(greatCircle(start, end));
+
+                if (depLine) {
+                    depLine.setGeometry(geometry);
+
+                    getFeatureStyle(depLine)?.getStroke()?.setColor(color);
+                    depLine.changed();
+                }
+                else {
+                    depLine = new Feature({
+                        geometry,
+                        type: 'depLine',
+                        color,
+                    });
+
+                    depLine.setStyle(new Style({
+                        stroke: new Stroke({
+                            color,
+                            width: 1,
+                        }),
+                    }));
+
+                    linesSource.value?.addFeature(depLine);
+                }
+            }
+            else if (depLine) {
+                depLine.dispose();
+                linesSource.value?.removeFeature(depLine);
+                depLine = undefined;
+            }
         }
-    }
 
-    const turns = savedTurns.value;
+        if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
+            const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+            const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
 
-    if (!canShowLines.value) return;
+            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
-    if (turns?.length) {
-        if (depLine) {
-            depLine.dispose();
-            linesSource.value?.removeFeature(depLine);
-            depLine = undefined;
+            if (arrLine) {
+                arrLine.setGeometry(geometry);
+                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+                arrLine.changed();
+            }
+            else {
+                arrLine = new Feature({
+                    geometry,
+                    type: 'arrLine',
+                    color,
+                });
+
+                arrLine.setStyle(new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 1,
+                        lineDash: [4, 8],
+                    }),
+                }));
+
+                linesSource.value?.addFeature(arrLine);
+            }
         }
-
-        if (arrLine) {
+        else if (arrLine) {
             arrLine.dispose();
             linesSource.value?.removeFeature(arrLine);
             arrLine = undefined;
         }
-
-        clearLineFeatures();
-
-        for (let i = 0; i < turns.length; i++) {
-            const collection = {
-                ...turns[i],
-            };
-
-            collection.features = [...collection.features];
-
-            const nextCollection = turns[i + 1];
-
-            const styles = [
-                getAircraftLineStyle(collection.features[0].properties!.color),
-            ];
-
-            if (i === 0) {
-                collection.features.unshift({
-                    type: 'Feature',
-                    properties: {
-                        type: 'turn',
-                        color: collection.features[0].properties!.color,
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [props.aircraft.longitude, props.aircraft.latitude],
-                    },
-                });
-            }
-
-            if (nextCollection) {
-                collection.features.push({
-                    type: 'Feature',
-                    properties: {
-                        type: 'turn',
-                        color: collection.features[0].properties!.color,
-                    },
-                    geometry: {
-                        type: 'Point',
-                        coordinates: nextCollection.features[0].geometry.coordinates.slice(),
-                    },
-                });
-            }
-
-            if (i === turns.length - 1 && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.some(x => x.features.some(x => x.properties!.standing === true))) {
-                const coordinates = [
-                    [depAirport.lon, depAirport.lat],
-                    collection.features[collection.features.length - 1].geometry.coordinates.slice(),
-                ];
-                const points = coordinates.map(x => point(toLonLat(x)));
-                const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
-
-                const lineFeature = new Feature({
-                    geometry,
-                    timestamp: collection.features[0].properties!.timestamp,
-                    color: collection.features[0].properties!.color,
-                    type: 'airportLine',
-                });
-                lineFeature.setStyle(getAircraftLineStyle(color));
-                linesSource.value?.addFeature(lineFeature);
-                lineFeatures.value.push(lineFeature);
-            }
-
-            let newFeatures: Position[] = [];
-
-            for (let i = 0; i < collection.features.length; i++) {
-                if (i % 2 === 1) continue;
-                const curPoint = collection.features[i];
-                const nextPoint = collection.features[i + 1];
-                if (!nextPoint) {
-                    newFeatures.push(curPoint.geometry.coordinates);
-                    continue;
-                }
-
-                if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
-                    newFeatures.push(curPoint.geometry.coordinates);
-                    newFeatures.push(nextPoint.geometry.coordinates);
-                    continue;
-                }
-
-                const points = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates].map(x => point(toLonLat(x)));
-                const circle = greatCircle(points[0], points[1], {
-                    npoints: 4,
-                });
-
-                let geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates : circle.geometry.coordinates.flatMap(x => x);
-                geometry = geometry.map(x => fromLonLat(x));
-
-                newFeatures = [
-                    ...newFeatures,
-                    ...geometry,
-                ];
-            }
-
-            const lineFeature = new Feature({
-                geometry: new LineString(newFeatures),
-                color: collection.features[0].properties!.color,
-            });
-
-            lineFeature.setStyle(styles);
-            linesSource.value?.addFeature(lineFeature);
-            lineFeatures.value.push(lineFeature);
-        }
     }
-    else {
-        clearLineFeatures();
-
-        if (depAirport) {
-            const start = point(toLonLat([depAirport.lon, depAirport.lat]));
-            const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
-
-            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
-
-            if (depLine) {
-                depLine.setGeometry(geometry);
-
-                getFeatureStyle(depLine)?.getStroke()?.setColor(color);
-                depLine.changed();
-            }
-            else {
-                depLine = new Feature({
-                    geometry,
-                    type: 'depLine',
-                    color,
-                });
-
-                depLine.setStyle(new Style({
-                    stroke: new Stroke({
-                        color,
-                        width: 1,
-                    }),
-                }));
-
-                linesSource.value?.addFeature(depLine);
-            }
-        }
-        else if (depLine) {
-            depLine.dispose();
-            linesSource.value?.removeFeature(depLine);
-            depLine = undefined;
-        }
+    catch (e) {
+        console.error(e);
     }
-
-    if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
-        const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
-        const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
-
-        const geometry = greatCircleGeometryToOL(greatCircle(start, end));
-
-        if (arrLine) {
-            arrLine.setGeometry(geometry);
-            getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
-            arrLine.changed();
-        }
-        else {
-            arrLine = new Feature({
-                geometry,
-                type: 'arrLine',
-                color,
-            });
-
-            arrLine.setStyle(new Style({
-                stroke: new Stroke({
-                    color,
-                    width: 1,
-                    lineDash: [4, 8],
-                }),
-            }));
-
-            linesSource.value?.addFeature(arrLine);
-        }
-    }
-    else if (arrLine) {
-        arrLine.dispose();
-        linesSource.value?.removeFeature(arrLine);
-        arrLine = undefined;
+    finally {
+        linesUpdateInProgress.value = false;
     }
 }
 

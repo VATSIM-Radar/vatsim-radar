@@ -18,9 +18,12 @@ export interface VatsimPilotConnection {
     server: string;
 }
 
-export type InfluxGeojson = FeatureCollection<Point>[];
+export type InfluxGeojson = {
+    flightPlanTime: string;
+    features: FeatureCollection<Point>[];
+};
 
-export function getGeojsonForData(rows: InfluxFlight[]) {
+export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {
     function getRowColor(row: InfluxFlight) {
         let rowColor = colorsList.warning500;
 
@@ -141,14 +144,17 @@ export function getGeojsonForData(rows: InfluxFlight[]) {
         }
     }
 
-    return rowsGroups satisfies InfluxGeojson;
+    return {
+        flightPlanTime: flightPlanStart,
+        features: rowsGroups,
+    };
 }
 
-export async function getInfluxOnlineFlightTurnsGeojson(cid: string): Promise<InfluxGeojson | null> {
-    const rows = await getInfluxOnlineFlightTurns(cid);
-    if (!rows?.length) return null;
+export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: string): Promise<InfluxGeojson | null> {
+    const rows = await getInfluxOnlineFlightTurns(cid, start);
+    if (!rows?.features.length) return null;
 
-    return getGeojsonForData(rows);
+    return getGeojsonForData(rows.features, rows.flightPlanStart);
 }
 
 function outputInfluxValue(value: string | number | boolean) {
