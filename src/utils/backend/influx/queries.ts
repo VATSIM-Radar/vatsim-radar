@@ -35,11 +35,11 @@ const flightKeys = Object.keys({
 } satisfies Record<keyof InfluxFlight, true>) as Array<keyof InfluxFlight>;
 
 async function getFlightRows(query: string) {
-    const rows: InfluxFlight[] = [];
+    const rows: Record<string, InfluxFlight> = {};
     const result = await influxDBQuery.collectRows<{ _time: string; _value: any; _field: keyof InfluxFlight; cid: string }>(query);
 
     for (const item of result) {
-        let row = rows.find(x => x._time === item._time);
+        let row = rows[item._time];
         if (!row) {
             row = {
                 _time: item._time,
@@ -47,13 +47,13 @@ async function getFlightRows(query: string) {
                 cid: item.cid,
             } as InfluxFlight;
 
-            rows.push(row);
+            rows[row._time] = row;
         }
 
         row[item._field] = item._value as never;
     }
 
-    return rows.sort((a, b) => b.time! - a.time!);
+    return Object.values(rows).sort((a, b) => b.time! - a.time!);
 }
 
 export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
