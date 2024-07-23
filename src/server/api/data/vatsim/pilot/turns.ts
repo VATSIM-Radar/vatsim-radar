@@ -1,9 +1,7 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
 import { readBody } from 'h3';
-import { getInfluxOnlineFlightsTurns } from '~/utils/backend/influx/queries';
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
-import { getGeojsonForData } from '~/utils/backend/influx/converters';
 
 export type TurnsBulkReturn = {
     cid: number;
@@ -23,10 +21,17 @@ export default defineEventHandler(async (event): Promise<TurnsBulkReturn[] | nul
         return;
     }
 
-    const turns = await getInfluxOnlineFlightsTurns(pilots.map(x => +x.cid)) ?? [];
+    handleH3Error({
+        event,
+        statusCode: 418,
+        statusMessage: 'This API is disabled',
+    });
+    return;
+
+    /* const turns = await getInfluxOnlineFlightsTurns(pilots.map(x => +x.cid)) ?? [];
 
     return turns.map(x => ({
         cid: x.cid,
         data: getGeojsonForData(x.rows),
-    }));
+    }));*/
 });

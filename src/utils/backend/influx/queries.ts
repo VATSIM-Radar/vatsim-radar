@@ -172,7 +172,19 @@ export async function getInfluxOnlineFlightsTurns(cids: number[]) {
   |> keep(columns: ["_time", "cid", "altitude", "latitude", "longitude", "groundspeed"])
   |> group(columns: ["_time"])`;
 
+    console.time('flights');
+
     const rows = await getFlightRows(fluxQuery);
+
+    console.timeEnd('flights');
+
+    console.time('flights2');
+
+    await getFlightRows(`import "influxdata/influxdb/schema" import "strings" from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
+  |> range(start: ${ flights.sort((a, b) => a.row!.time! - b.row!.time!)[0].row!._time })
+  |> filter(fn: (r) => ${ flights.map(x => `r["cid"] == "${ x.cid }"`).join(' or ') })`);
+
+    console.timeEnd('flights2');
 
     const pilots: {
         cid: number;
