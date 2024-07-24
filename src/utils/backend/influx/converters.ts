@@ -28,82 +28,35 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
         let rowColor = colorsList.warning500;
 
         if (row?.altitude) {
-            if (row.altitude < 2000) {
-                rowColor = colorsList.warning400;
-            }
-            else if (row.altitude < 4000) {
-                rowColor = colorsList.warning500;
-            }
-            else if (row.altitude < 6000) {
-                rowColor = colorsList.warning600;
-            }
-            else if (row.altitude < 8000) {
-                rowColor = colorsList.warning700;
-            }
-            else if (row.altitude < 10000) {
-                rowColor = colorsList.error300;
-            }
-            else if (row.altitude < 12000) {
-                rowColor = colorsList.error400;
-            }
-            else if (row.altitude < 14000) {
-                rowColor = colorsList.error500;
-            }
-            else if (row.altitude < 16000) {
-                rowColor = colorsList.error600;
-            }
-            else if (row.altitude < 18000) {
-                rowColor = colorsList.error700;
-            }
-            else if (row.altitude < 20000) {
-                rowColor = colorsList.primary300;
-            }
-            else if (row.altitude < 22000) {
-                rowColor = colorsList.primary400;
-            }
-            else if (row.altitude < 24000) {
-                rowColor = colorsList.primary500;
-            }
-            else if (row.altitude < 26000) {
-                rowColor = colorsList.primary600;
-            }
-            else if (row.altitude < 28000) {
-                rowColor = colorsList.primary700;
-            }
-            else if (row.altitude < 30000) {
-                rowColor = colorsList.info300;
-            }
-            else if (row.altitude < 32000) {
-                rowColor = colorsList.info400;
-            }
-            else if (row.altitude < 34000) {
-                rowColor = colorsList.info500;
-            }
-            else if (row.altitude < 36000) {
-                rowColor = colorsList.info600;
-            }
-            else if (row.altitude < 38000) {
-                rowColor = colorsList.info700;
-            }
-            else if (row.altitude < 40000) {
-                rowColor = colorsList.success300;
-            }
-            else if (row.altitude < 43000) {
+            if (row.altitude < 5000) {
                 rowColor = colorsList.success400;
             }
-            else if (row.altitude < 47000) {
-                rowColor = colorsList.success500;
-            }
-            else if (row.altitude < 49000) {
+            else if (row.altitude < 10000) {
                 rowColor = colorsList.success600;
             }
+            else if (row.altitude < 15000) {
+                rowColor = colorsList.primary500;
+            }
+            else if (row.altitude < 20000) {
+                rowColor = colorsList.primary700;
+            }
+            else if (row.altitude < 25000) {
+                rowColor = colorsList.info400;
+            }
+            else if (row.altitude < 30000) {
+                rowColor = colorsList.info500;
+            }
+            else if (row.altitude > 40500) {
+                rowColor = colorsList.error300;
+            }
+            else if (row.altitude > 50000) {
+                rowColor = colorsList.error700;
+            }
             else {
-                rowColor = colorsList.success700;
+                rowColor = colorsList.info700;
             }
         }
-        else {
-            rowColor = colorsList.success500;
-        }
+        else rowColor = colorsList.success500;
 
         return rowColor;
     }

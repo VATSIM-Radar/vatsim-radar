@@ -1,5 +1,9 @@
 # Changelog
 
+# 0.4.3-rc.2
+
+- Fixed great circle for turns connection
+
 # 0.4.3-rc.1
 
 - Implemented fast turns update

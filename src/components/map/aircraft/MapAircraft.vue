@@ -145,7 +145,7 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
-import { LineString, Point } from 'ol/geom';
+import { LineString, MultiLineString, Point } from 'ol/geom';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import {
     aircraftSvgColors,
@@ -494,20 +494,35 @@ async function toggleAirportLines(value = canShowLines.value) {
                     lineFeatures.value.push(lineFeature);
                 }
 
-                let newFeatures: Position[] = [];
+                const newFeatures: Array<LineString | Position[]> = [];
+
+                function addFeature(geometry: Position | Position[]) {
+                    if (typeof geometry[0] === 'number') {
+                        if (newFeatures.length) {
+                            const lineString = newFeatures.at(-1);
+                            if (lineString instanceof LineString) {
+                                lineString.appendCoordinate(geometry as Position);
+                            }
+                        }
+
+                        const lineString = new LineString([geometry as Position]);
+                        newFeatures.push(lineString);
+                    }
+                    else newFeatures.push(new LineString(geometry as Position[]));
+                }
 
                 for (let i = 0; i < collection.features.length; i++) {
                     if (i % 2 === 1) continue;
                     const curPoint = collection.features[i];
                     const nextPoint = collection.features[i + 1];
                     if (!nextPoint) {
-                        newFeatures.push(curPoint.geometry.coordinates);
+                        addFeature(curPoint.geometry.coordinates);
                         continue;
                     }
 
                     if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
-                        newFeatures.push(curPoint.geometry.coordinates);
-                        newFeatures.push(nextPoint.geometry.coordinates);
+                        addFeature(curPoint.geometry.coordinates);
+                        addFeature(nextPoint.geometry.coordinates);
                         continue;
                     }
 
@@ -516,17 +531,15 @@ async function toggleAirportLines(value = canShowLines.value) {
                         npoints: 4,
                     });
 
-                    let geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates : circle.geometry.coordinates.flatMap(x => x);
-                    geometry = geometry.map(x => fromLonLat(x));
+                    const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates.map(x => fromLonLat(x)) : circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x)));
 
-                    newFeatures = [
-                        ...newFeatures,
-                        ...geometry,
-                    ];
+                    if (circle.geometry.type !== 'LineString') console.log(geometry);
+
+                    geometry.map(x => addFeature(x));
                 }
 
                 const lineFeature = new Feature({
-                    geometry: new LineString(newFeatures),
+                    geometry: new MultiLineString(newFeatures),
                     color: collection.features[0].properties!.color,
                     timestamp: i === 0 && turnsFirstGroupTimestamp.value,
                 });
