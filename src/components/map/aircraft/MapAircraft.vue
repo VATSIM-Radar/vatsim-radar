@@ -385,7 +385,23 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (!canShowLines.value) return;
+        if (!canShowLines.value) {
+            clearLineFeatures();
+
+            if (depLine) {
+                depLine.dispose();
+                linesSource.value?.removeFeature(depLine);
+                depLine = undefined;
+            }
+
+            if (arrLine) {
+                arrLine.dispose();
+                linesSource.value?.removeFeature(arrLine);
+                arrLine = undefined;
+            }
+
+            return;
+        }
 
         if (turns?.features.length) {
             if (depLine) {
@@ -402,7 +418,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
             const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
 
-            if (firstUpdate || (turnsFirstGroupTimestamp.value && firstCollectionTimestamp !== turnsFirstGroupTimestamp.value)) {
+            if (firstUpdate) {
                 clearLineFeatures();
                 turnsFirstGroup.value = null;
             }
@@ -410,16 +426,19 @@ async function toggleAirportLines(value = canShowLines.value) {
                 const toRemove = lineFeatures.value.filter(x => {
                     const properties = x.getProperties();
                     if (properties!.type === 'airportLine') return true;
-                    return properties!.timestamp === turnsFirstGroupTimestamp.value;
+                    return properties!.timestamp === firstCollectionTimestamp;
                 });
 
                 clearLineFeatures(toRemove);
             }
 
-            turnsFirstGroupTimestamp.value = firstCollectionTimestamp;
             if (turns.features[1]) {
                 turnsSecondGroupPoint.value = turns.features[1].features[0];
             }
+            else if (turnsFirstGroupTimestamp.value !== firstCollectionTimestamp) turnsSecondGroupPoint.value = turns.features[0].features[0];
+
+            turnsFirstGroup.value = turns.features[0];
+            turnsFirstGroupTimestamp.value = firstCollectionTimestamp;
 
             for (let i = 0; i < turns.features.length; i++) {
                 const collection = {
