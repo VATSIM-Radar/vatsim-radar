@@ -83,11 +83,12 @@ export function initDataWebsocket(): () => void {
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
     const store = useStore();
     const dataStore = useDataStore();
+    const config = useRuntimeConfig();
 
     let closeSocket: (() => void) | undefined;
 
     function checkForSocket() {
-        if (store.localSettings.traffic?.disableFastUpdate) return;
+        if (store.localSettings.traffic?.disableFastUpdate || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
         // 10 seconds gap for receiving date

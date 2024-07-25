@@ -108,6 +108,7 @@ export default defineNuxtConfig({
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
+            DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
         },
     },
     modules: [

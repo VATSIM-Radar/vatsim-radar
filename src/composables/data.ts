@@ -129,8 +129,10 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     onMounted(async () => {
         isMounted.value = true;
         let watcher: WatchStopHandle | undefined;
+        const config = useRuntimeConfig();
 
         watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
             watcher?.();
             if (val === true) {
                 startIntervalChecks();
