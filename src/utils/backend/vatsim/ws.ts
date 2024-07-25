@@ -4,18 +4,7 @@ import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/conver
 
 export const wss = new WebSocketServer({
     port: 8880,
-    perMessageDeflate: {
-        zlibDeflateOptions: {
-            // See zlib defaults.
-            chunkSize: 1024,
-            memLevel: 7,
-            level: 3,
-        },
-        zlibInflateOptions: {
-            chunkSize: 10 * 1024,
-        },
-        threshold: 1024,
-    },
+    perMessageDeflate: false,
 });
 
 function heartbeat(this: any) {
