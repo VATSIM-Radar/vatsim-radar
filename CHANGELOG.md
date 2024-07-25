@@ -1,38 +1,12 @@
 # Changelog
 
-# 0.4.3-rc.2
+# 0.4.3
 
-- Fixed great circle for turns connection
-
-# 0.4.3-rc.1
-
-- Implemented fast turns update
 - Slighty improved update browser performance
 - Optimized turns render for very big aircraft list
-
-# 0.4.3-beta.2
-
-- Implemented gzip compression for fast data updates to reduce traffic
-- Turns have temporally been disabled
-
-# 0.4.3-beta.1
-
-- (possibly) fixed duplicate turns text/lines
-- Improved performance of new turns update (not much though)
 - Fixed transponders starting with zero to skip that zero number (0123 -> 123)
-
-I plan to include several unrelated fixes & improvements in this update. 
-
-# 0.4.3-alpha.2
-
 - Optimized aircraft turns update
-- Aircraft turns will no longer update more often than once per 5 seconds
-
-# 0.4.3-alpha.1
-
 - Added new super fast update rate using websockets. You can opt out from it via new filters setting
-  - Super fast aircraft turns update is corrently INOP and will work as before
-  - Fast aircraft ground spawn is currently INOP (and will maybe never be)
 - Fixed aircraft blinking when updating
 - Several map update performance improvements
 

@@ -101,33 +101,18 @@ const images = import.meta.glob('../../assets/update/*.png', { import: 'default'
 
 const update: Update = {
     type: 'minor',
-    name: '0.4.2',
-    height: '440px',
+    name: '0.4.3',
+    height: '400px',
     features: [
         {
-            title: 'Weather Layers 2.0',
-            image: images['../../assets/update/weather.png'],
-            description: 'Based on your feedback we have completely reworked our Weather Layers.',
-            list: [
-                'New precipitation, that looks much better than before and still covers whole world',
-                'New wind layer, optimized for dark theme and packed with direction arrows',
-                'Clouds have been optimized for light theme',
-                'You can still enjoy RainViewer if you want',
-                'Big thanks goes to OpenWeather for this rework',
-            ],
-        },
-        {
-            title: 'Quality of life',
-            description: 'Full changelog is available in our <a class="__link" href="/discord" target="_blank">Discord</a>',
+            title: 'Fast data updates',
             image: images['../../assets/update/quality.png'],
+            description: 'Together with VATSIM, we now have fast data updates in VATSIM Radar!',
             list: [
-                'Great circle support for tracking lines',
-                'Fixed some approach controllers not displaying',
-                'Fixed aircraft overlay opening every time you clicked on aircraft without pinning - this was a bug, but since many of you actually liked that, you can restore this behaviour in settings!',
-                'Recolored aircraft colors in airport dashboard based on their status',
-                'Pilots frequencies display',
-                'Map middle click action to center in that direction',
-                'Other quality changes and bug fixes',
+                'Expected update delay: 1-3 seconds instead of 30 seconds that were before',
+                'Several performance optimizations were made for this update',
+                'You can disable fast updates in map settings (filters in top left corner of the screen)',
+                'We may disable and enable this new feature. This is ambitious update for us - expect trouble!',
             ],
         },
     ],
