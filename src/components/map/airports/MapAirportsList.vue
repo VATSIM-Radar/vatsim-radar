@@ -39,6 +39,7 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
+import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature } from 'geojson';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -358,14 +359,31 @@ const getAirportsList = computed(() => {
         return airport;
     }
 
-    // Strict check
+    const sectors: {
+        sector: GeoFeature<MultiPolygon, GeoJsonProperties>;
+        prefixes: string[];
+        suffix: string | null;
+        airport: typeof airports[0];
+    }[] = [];
+
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
         const airport = findSectorAirport(sector);
 
-        if (!airport?.arrAtc.length) continue;
 
+        if (airport?.arrAtc.length) {
+            sectors.push({
+                sector,
+                prefixes,
+                suffix,
+                airport,
+            });
+        }
+    }
+
+    // Strict check
+    for (const { airport, prefixes, suffix, sector } of sectors) {
         for (const controller of airport.arrAtc) {
             const splittedCallsign = controller.callsign.split('_');
 
@@ -386,13 +404,7 @@ const getAirportsList = computed(() => {
     }
 
     // Non-strict check
-    for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const prefixes = getTraconPrefixes(sector);
-        const suffix = getTraconSuffix(sector);
-        const airport = findSectorAirport(sector);
-
-        if (!airport?.arrAtc.length) continue;
-
+    for (const { airport, prefixes, suffix, sector } of sectors) {
         // Only non found
         for (const controller of airport.arrAtc.filter(x => !airport.features.some(y => y.controllers.some(y => y.cid === x.cid)))) {
             if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
@@ -402,11 +414,7 @@ const getAirportsList = computed(() => {
     }
 
     // For non found
-    for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const airport = findSectorAirport(sector);
-
-        if (!airport?.arrAtc.length) continue;
-
+    for (const { airport, sector } of sectors) {
         const id = JSON.stringify(sector.properties);
 
         // Still nothing found
@@ -520,9 +528,5 @@ async function setVisibleAirports() {
 
 attachMoveEnd(setVisibleAirports);
 
-watch(dataStore.vatsim.updateTimestamp, () => {
-    setVisibleAirports();
-}, {
-    immediate: true,
-});
+useUpdateInterval(setVisibleAirports);
 </script>

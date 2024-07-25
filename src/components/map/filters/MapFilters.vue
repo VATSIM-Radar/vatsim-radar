@@ -22,7 +22,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'map' }"
                     @click="selectedFilter = 'map'"
                 >
-                    <common-button type="secondary">
+                    <common-button :type="selectedFilter === 'map' ? 'primary' : 'secondary'">
                         <template #icon>
                             <map-icon/>
                         </template>
@@ -89,7 +89,7 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'weather' }"
                     @click="selectedFilter = 'weather'"
                 >
-                    <common-button type="secondary">
+                    <common-button :type="selectedFilter === 'weather' ? 'primary' : 'secondary'">
                         <template #icon>
                             <ground-icon/>
                         </template>
@@ -126,6 +126,38 @@
                         />
                     </common-control-block>
                 </div>
+                <div
+                    class="filters_sections_section"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'filters' }"
+                    @click="selectedFilter = 'filters'"
+                >
+                    <common-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary'">
+                        <template #icon>
+                            <filters-icon/>
+                        </template>
+                    </common-button>
+                    <common-control-block
+                        center-by="start"
+                        class="filters_sections_section_content"
+                        location="right"
+                        :model-value="selectedFilter === 'filters'"
+                        @update:modelValue="!$event ? selectedFilter = null : undefined"
+                    >
+                        <template #title>
+                            Filters & Traffic
+                        </template>
+
+                        <common-toggle
+                            :model-value="!!store.localSettings.traffic?.disableFastUpdate"
+                            @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
+                        >
+                            Disable fast update
+                            <template #description>
+                                Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
+                            </template>
+                        </common-toggle>
+                    </common-control-block>
+                </div>
             </div>
         </transition>
     </div>
@@ -133,6 +165,7 @@
 
 <script setup lang="ts">
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
+import FiltersIcon from '@/assets/icons/kit/filters.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
@@ -147,6 +180,7 @@ import type {
 } from '~/types/map';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 

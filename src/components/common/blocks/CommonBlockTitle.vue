@@ -41,7 +41,6 @@
 
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
-import type { PropType } from 'vue';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 
 defineProps({
@@ -56,8 +55,7 @@ defineSlots<{
     append(): any;
 }>();
 
-const collapsed = defineModel('collapsed', {
-    type: Boolean as PropType<boolean | null>,
+const collapsed = defineModel<boolean | null>('collapsed', {
     default: null,
 });
 </script>

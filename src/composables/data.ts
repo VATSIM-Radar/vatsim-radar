@@ -6,12 +6,14 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref } from 'vue';
+import type { Ref, WatchStopHandle } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
+import { checkForWSData } from '~/composables/ws';
+import { useStore } from '~/store';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -64,16 +66,101 @@ export function setVatsimDataStore(vatsimData: VatsimLiveData) {
     }
 }
 
-export async function setupDataFetch({ onInitialFetch, onSuccessCallback }: {
-    onInitialFetch?: () => any;
+export async function setupDataFetch({ onFetch, onSuccessCallback }: {
+    onFetch?: () => any;
     onSuccessCallback?: () => any;
 } = {}) {
     if (!getCurrentInstance()) throw new Error('setupDataFetch has been called outside setup');
     const mapStore = useMapStore();
+    const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let ws: (() => void) | null = null;
+    const isMounted = ref(false);
+
+    function startIntervalChecks() {
+        let inProgress = false;
+
+        interval = setInterval(async () => {
+            if (inProgress) return;
+
+            try {
+                inProgress = true;
+
+                const versions = await $fetch<VatDataVersions['vatsim'] & { time: number }>('/api/data/vatsim/versions', {
+                    timeout: 1000 * 30,
+                });
+
+                if (versions) dataStore.time.value = versions.time;
+
+                if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
+                    dataStore.vatsim.versions.value = versions;
+
+                    if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
+
+                    const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
+                        timeout: 1000 * 60,
+                    });
+                    await setVatsimDataStore(data);
+                    await onFetch?.();
+
+                    dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
+                    dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
+
+                    if (!mapStore.localTurns.size) return;
+
+                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
+                    });
+
+                    mapStore.localTurns.clear();
+                }
+            }
+            catch (e) {
+                console.error(e);
+            }
+            finally {
+                inProgress = false;
+            }
+        }, 3000);
+    }
 
     onMounted(async () => {
+        isMounted.value = true;
+        let watcher: WatchStopHandle | undefined;
+        const config = useRuntimeConfig();
+
+        watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
+            watcher?.();
+            if (val === true) {
+                startIntervalChecks();
+                ws?.();
+            }
+            else {
+                if (interval) {
+                    clearInterval(interval);
+                }
+                ws = checkForWSData(isMounted);
+
+                watcher = watch(dataStore.vatsim.updateTimestamp, async () => {
+                    onFetch?.();
+
+                    if (!mapStore.localTurns.size) return;
+
+                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
+                    });
+
+                    mapStore.localTurns.clear();
+                });
+            }
+        }, {
+            immediate: true,
+        });
+
         // Data is not yet ready
         if (!mapStore.dataReady) {
             await new Promise<void>(resolve => {
@@ -134,50 +221,16 @@ export async function setupDataFetch({ onInitialFetch, onSuccessCallback }: {
                 const [vatsimData] = await Promise.all([
                     $fetch<VatsimLiveData>('/api/data/vatsim/data'),
                 ]);
-                setVatsimDataStore(vatsimData);
+                await setVatsimDataStore(vatsimData);
             }()),
         ]);
-
-        let inProgress = false;
-
-        interval = setInterval(async () => {
-            if (inProgress) return;
-
-            try {
-                inProgress = true;
-                const versions = await $fetch<VatDataVersions['vatsim'] & { time: number }>('/api/data/vatsim/versions', {
-                    timeout: 1000 * 30,
-                });
-
-                if (versions) dataStore.time.value = versions.time;
-
-                if (versions && versions.data !== dataStore.vatsim.updateTimestamp.value) {
-                    dataStore.vatsim.versions.value = versions;
-
-                    if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
-
-                    const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
-                        timeout: 1000 * 60,
-                    });
-                    setVatsimDataStore(data);
-                    await onInitialFetch?.();
-
-                    dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
-                    dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
-                }
-            }
-            catch (e) {
-                console.error(e);
-            }
-            finally {
-                inProgress = false;
-            }
-        }, 3000);
 
         onSuccessCallback?.();
     });
 
     onBeforeUnmount(() => {
+        isMounted.value = false;
+        ws?.();
         if (interval) {
             clearInterval(interval);
         }

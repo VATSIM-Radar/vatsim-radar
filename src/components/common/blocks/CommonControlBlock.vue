@@ -8,6 +8,7 @@
             `control-block--center-by-${ centerBy }`,
             {
                 'control-block--disabled': disabled,
+                'control-block--selected': modelValue,
                 'control-block--has-max-height': maxHeight,
             },
         ]"

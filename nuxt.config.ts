@@ -92,15 +92,23 @@ export default defineNuxtConfig({
         DISCORD_ROLE_ID: process.env.DISCORD_ROLE_ID,
         ACCESS_BY_DISCORD_ROLES: process.env.ACCESS_BY_DISCORD_ROLES,
 
+        VATSIM_KAFKA_BROKER: process.env.VATSIM_KAFKA_BROKER,
+        VATSIM_KAFKA_USER: process.env.VATSIM_KAFKA_USER,
+        VATSIM_KAFKA_PASSWORD: process.env.VATSIM_KAFKA_PASSWORD,
+        VATSIM_KAFKA_GROUP: process.env.VATSIM_KAFKA_GROUP,
+
         INFLUX_URL: process.env.INFLUX_URL,
         INFLUX_TOKEN: process.env.INFLUX_TOKEN,
         INFLUX_ORG: process.env.INFLUX_ORG,
         INFLUX_BUCKET_MAIN: process.env.INFLUX_BUCKET_MAIN,
+        INFLUX_BUCKET_PLANS: process.env.INFLUX_BUCKET_PLANS,
+        INFLUX_ENABLE_WRITE: process.env.INFLUX_ENABLE_WRITE,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
 
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
+            DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
         },
     },
     modules: [
@@ -144,10 +152,6 @@ export default defineNuxtConfig({
     },
     devServer: {
         port: 8080,
-        https: {
-            key: '.config/certs/server.key',
-            cert: '.config/certs/server.crt',
-        },
     },
     typescript: {
         typeCheck: true,
