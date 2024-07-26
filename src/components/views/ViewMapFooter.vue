@@ -28,7 +28,10 @@
             <div class="map-footer_left_section">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
-                        <span>{{ getCounts.total }}</span> total connections
+                        <span>{{ getCounts.total }}</span> connections
+                    </div>
+                    <div class="map-footer__connections_title">
+                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
