@@ -252,7 +252,7 @@ export default defineNitroPlugin(app => {
                         ws.failCheck++;
 
                         // @ts-expect-error Non-standard field
-                        if (ws.failCheck >= 5) {
+                        if (ws.failCheck >= 60) {
                             ws.terminate();
                         }
                     });
