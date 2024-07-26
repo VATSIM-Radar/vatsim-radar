@@ -244,7 +244,18 @@ export default defineNitroPlugin(app => {
 
                 gzip.on('end', () => {
                     const compressedData = Buffer.concat(chunks);
-                    wss.clients.forEach(ws => ws.send(compressedData));
+                    wss.clients.forEach(ws => {
+                        ws.send(compressedData);
+                        // @ts-expect-error Non-standard field
+                        ws.failCheck ??= ws.failCheck ?? 0;
+                        // @ts-expect-error Non-standard field
+                        ws.failCheck++;
+
+                        // @ts-expect-error Non-standard field
+                        if (ws.failCheck >= 5) {
+                            ws.terminate();
+                        }
+                    });
                 });
             }
             catch (e) {

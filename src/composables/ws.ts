@@ -63,6 +63,8 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
+        websocket.send('alive');
+
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
