@@ -119,7 +119,7 @@ const init = () => {
                 ...(props.fir.feature.properties ?? {}),
                 type: localFeatureType,
             },
-        });
+        }) as Feature<any>;
 
         vectorSource.value.addFeature(localFeature);
     }
@@ -137,7 +137,7 @@ const init = () => {
                 ...(props.fir.feature.properties ?? {}),
                 type: rootFeatureType,
             },
-        });
+        }) as Feature<any>;
 
         vectorSource.value.addFeature(rootFeature);
     }
