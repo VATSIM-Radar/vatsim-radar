@@ -79,13 +79,20 @@ const isOffline = defineModel('offline', { type: Boolean, default: false });
 const collapsedFlight = ref(false);
 const collapsedPlan = ref(false);
 const isPrefile = ref(false);
+const loading = ref(false);
 
 onMounted(() => {
     watch(dataStore.vatsim.updateTimestamp, async () => {
+        if (loading.value) return;
         try {
+            loading.value = true;
             const [pilotResult, prefileResult] = await Promise.allSettled([
-                $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.cid }`),
-                $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ props.cid }/prefile`),
+                $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.cid }`, {
+                    timeout: 1000 * 15,
+                }),
+                $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ props.cid }/prefile`, {
+                    timeout: 1000 * 15,
+                }),
             ]);
 
             if (pilotResult.status === 'fulfilled') {
@@ -104,6 +111,9 @@ onMounted(() => {
             if (e) {
                 isOffline.value = e.status === 404;
             }
+        }
+        finally {
+            loading.value = false;
         }
     }, {
         immediate: true,

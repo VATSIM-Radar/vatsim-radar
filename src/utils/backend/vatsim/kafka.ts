@@ -19,7 +19,6 @@ export function kafkaAddClient(event: KafkaAddClient) {
             cid: +event.Cid,
             server: event.Server,
             callsign: event.Callsign,
-            pilot_rating: event.Rating - 1,
             name: event.RealName,
             date: Date.now(),
             deleted: false,
@@ -33,7 +32,6 @@ export function kafkaAddClient(event: KafkaAddClient) {
             cid: +event.Cid,
             server: event.Server,
             callsign: event.Callsign,
-            rating: event.Rating,
             name: event.RealName,
             date: Date.now(),
             deleted: false,
@@ -55,7 +53,6 @@ export function kafkaUpdateController(event: KafkaAD) {
         callsign: event.Callsign,
         frequency: event.Frequency,
         facility: event.FacilityType,
-        rating: event.Rating,
     };
 
     if (!controller) {
@@ -82,7 +79,6 @@ export function kafkaUpdatePilot(event: KafkaPD) {
     const fields: Partial<VatsimPilot> = {
         callsign: event.Callsign,
         transponder: `0000${ event.Transponder.toString() }`.slice(-4),
-        pilot_rating: event.Rating - 1,
         latitude: event.Latitude,
         longitude: event.Longitude,
         altitude: event.Altitude,

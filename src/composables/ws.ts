@@ -63,12 +63,11 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
+        websocket.send('alive');
+
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        if (dataStore.vatsim.data.general) {
-            delete json.general;
-        }
         await setVatsimDataStore(json);
         dataStore.vatsim.data.general.value!.update_timestamp = date;
         dataStore.vatsim.updateTimestamp.value = date;
@@ -83,16 +82,18 @@ export function initDataWebsocket(): () => void {
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
     const store = useStore();
     const dataStore = useDataStore();
+    const config = useRuntimeConfig();
 
     let closeSocket: (() => void) | undefined;
 
     function checkForSocket() {
-        if (store.localSettings.traffic?.disableFastUpdate) return;
+        if (store.localSettings.traffic?.disableFastUpdate || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
-        // 10 seconds gap for receiving date
+        // 10 seconds gap for receiving data
         if (!socketDate || +socketDate + (1000 * 10) < date) {
             localStorage.setItem('radar-socket-date', Date.now().toString());
+            closeSocket?.();
             closeSocket = initDataWebsocket();
         }
     }
@@ -105,9 +106,6 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (!data || !dataStore.vatsim.data.general.value) return;
 
         const json = JSON.parse(data);
-        if (dataStore.vatsim.data.general) {
-            delete json.general;
-        }
         await setVatsimDataStore(json);
         dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
         dataStore.vatsim.updateTimestamp.value = new Date().toISOString();

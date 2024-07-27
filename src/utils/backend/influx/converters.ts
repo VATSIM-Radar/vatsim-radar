@@ -163,7 +163,7 @@ export function getPlanInfluxDataForPilots() {
 
         const someMissing = false;
 
-        if (previousPilot && !!previousPilot.flight_plan?.route === !!obj.fpl_route) return;
+        if (previousPilot && !!previousPilot.flight_plan?.route === !!obj.fpl_route && previousPilot.callsign === obj.callsign && previousPilot.flight_plan?.arrival === obj.fpl_arrival && previousPilot.flight_plan?.departure === obj.fpl_departure) return;
 
         const entries = Object.entries(obj)
             .filter(([key, value]) => value !== undefined && value !== null)

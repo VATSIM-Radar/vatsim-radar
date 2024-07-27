@@ -8,6 +8,7 @@ export interface VatsimGeneral {
     unique_users: number;
     supsCount: number;
     admCount: number;
+    onlineWSUsers: number;
 }
 
 export interface VatsimPilot {

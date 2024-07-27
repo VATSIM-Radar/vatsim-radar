@@ -78,7 +78,7 @@
                                             class="roadmap__task_status"
                                         >
                                             <template v-if="group.status === 'todo'">
-                                                Planned
+                                                Planned for short-term
                                             </template>
                                             <template v-else-if="group.status === 'in-progress'">
                                                 In progress
@@ -166,6 +166,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Pilot/airport mouse right click menu',
+                status: 'todo',
             },
             {
                 title: 'TMA approach sectors',
@@ -252,10 +253,15 @@ const roadmap = reactive<Roadmap[]>([
             'Oceanic Tracks integration',
             'Waypoints on map (including aircraft submitted route)',
             'Events/ATC Bookings',
-            'Favorite pilots/ATC',
+            {
+                title: 'Favorite pilots/ATC',
+                status: 'todo',
+            },
+            {
+                title: 'Search',
+                status: 'todo',
+            },
             'Friendly mobile version',
-            'Search',
-            'Usage of VatGlasses data',
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
@@ -265,6 +271,7 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'PWA',
                 description: 'Basically PC version of VATSIM Radar',
             },
+            'Bookmarks',
         ],
     },
     {
@@ -275,7 +282,7 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular over time etc',
             },
             'Name of aircraft operating company',
-            'Images or aircraft type + operator',
+            'Images or aircraft type, airline + operator',
             'Aircraft moving in VATSIM update pause',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
@@ -286,12 +293,15 @@ const roadmap = reactive<Roadmap[]>([
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
             'Google Play app',
-            'Websockets instead of update requests',
             'Simbrief integration',
             'ATC/Booking notification for active flight',
             'ECFMP integration',
             'Streamers integration',
             '3D map view',
+            'Departure & Arrivals rate',
+            'Smart positioning for aircraft info popup',
+            'Twitch/streamers integration',
+            'Usage of VatGlasses data',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
