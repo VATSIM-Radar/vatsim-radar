@@ -481,7 +481,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                     });
                 }
                 else if (shortUpdate && turnsSecondGroupPoint.value) {
-                    collection.features.push({
+                    collection.features.unshift({
                         type: 'Feature',
                         properties: {
                             type: 'turn',
