@@ -32,6 +32,7 @@ let linesLayer: VectorLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
 
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const mapStore = useMapStore();
@@ -200,7 +201,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: true,
         });
     }
 

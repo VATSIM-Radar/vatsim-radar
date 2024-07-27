@@ -211,18 +211,20 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
 const lineStyles: {
     color: string;
     style: Style;
+    lineDash?: string;
     width: number;
 }[] = [];
 
-export function getAircraftLineStyle(color: string, width = 1.5): Style {
-    const existingStyle = lineStyles.find(x => x.color === color && x.width === width);
+export function getAircraftLineStyle(color: string, width = 1.5, lineDash?: number[]): Style {
+    const existingStyle = lineStyles.find(x => x.color === color && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
     if (existingStyle) return existingStyle.style;
 
     const style = {
         color,
         width,
+        lineDash: lineDash && JSON.stringify(lineDash),
         style: new Style({
-            stroke: new Stroke({ color, width }),
+            stroke: new Stroke({ color, width, lineDash }),
         }),
     };
 

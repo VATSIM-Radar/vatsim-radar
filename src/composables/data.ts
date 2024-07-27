@@ -6,7 +6,7 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref } from 'vue';
+import type { Ref, WatchStopHandle } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -14,6 +14,7 @@ import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
+import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -101,11 +102,20 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                     const data = await $fetch<VatsimLiveData>(`/api/data/vatsim/data?short=${ dataStore.vatsim.data ? 1 : 0 }`, {
                         timeout: 1000 * 60,
                     });
-                    setVatsimDataStore(data);
+                    await setVatsimDataStore(data);
                     await onFetch?.();
 
                     dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
                     dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
+
+                    if (!mapStore.localTurns.size) return;
+
+                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
+                    });
+
+                    mapStore.localTurns.clear();
                 }
             }
             catch (e) {
@@ -119,7 +129,12 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
     onMounted(async () => {
         isMounted.value = true;
-        watch(() => store.localSettings.traffic?.disableFastUpdate, (val, oldVal) => {
+        let watcher: WatchStopHandle | undefined;
+        const config = useRuntimeConfig();
+
+        watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
+            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
+            watcher?.();
             if (val === true) {
                 startIntervalChecks();
                 ws?.();
@@ -129,6 +144,19 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                     clearInterval(interval);
                 }
                 ws = checkForWSData(isMounted);
+
+                watcher = watch(dataStore.vatsim.updateTimestamp, async () => {
+                    onFetch?.();
+
+                    if (!mapStore.localTurns.size) return;
+
+                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
+                        method: 'POST',
+                        body: [...mapStore.localTurns],
+                    });
+
+                    mapStore.localTurns.clear();
+                });
             }
         }, {
             immediate: true,
@@ -194,7 +222,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 const [vatsimData] = await Promise.all([
                     $fetch<VatsimLiveData>('/api/data/vatsim/data'),
                 ]);
-                setVatsimDataStore(vatsimData);
+                await setVatsimDataStore(vatsimData);
             }()),
         ]);
 

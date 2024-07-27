@@ -101,11 +101,14 @@ export default defineNuxtConfig({
         INFLUX_TOKEN: process.env.INFLUX_TOKEN,
         INFLUX_ORG: process.env.INFLUX_ORG,
         INFLUX_BUCKET_MAIN: process.env.INFLUX_BUCKET_MAIN,
+        INFLUX_BUCKET_PLANS: process.env.INFLUX_BUCKET_PLANS,
+        INFLUX_ENABLE_WRITE: process.env.INFLUX_ENABLE_WRITE,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
 
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
+            DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
         },
     },
     modules: [
