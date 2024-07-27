@@ -22,7 +22,6 @@ import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
-import VectorLayer from 'ol/layer/Vector';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import type { MapAircraft, MapAirport as MapAirportType } from '~/types/map';
 
@@ -40,9 +39,10 @@ import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature } from 'geojson';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
-let vectorLayer: VectorLayer<any>;
-let airportsLayer: VectorLayer<any>;
+let vectorLayer: VectorImageLayer<any>;
+let airportsLayer: VectorImageLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
@@ -143,7 +143,7 @@ watch(map, val => {
             wrapX: false,
         });
 
-        vectorLayer = new VectorLayer<any>({
+        vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 6,
             properties: {
@@ -160,7 +160,7 @@ watch(map, val => {
             wrapX: true,
         });
 
-        airportsLayer = new VectorLayer<any>({
+        airportsLayer = new VectorImageLayer<any>({
             source: airportsSource.value,
             zIndex: 8,
             properties: {
