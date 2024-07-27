@@ -205,5 +205,12 @@ export function validateAirportIcao(event: H3Event, detailed?: boolean): string 
         return;
     }
 
+    if (detailed) {
+        return {
+            airport,
+            icao,
+        };
+    }
+
     return icao;
 }
