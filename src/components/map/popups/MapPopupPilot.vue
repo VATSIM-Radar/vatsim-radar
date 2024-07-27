@@ -376,15 +376,24 @@ const getStatus = computed(() => {
     return getPilotStatus(pilot.value.status, isOffline.value);
 });
 
+const loading = ref(false);
+
 watch(dataStore.vatsim.updateTimestamp, async () => {
+    if (loading.value) return;
     try {
-        props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.overlay.key }`);
+        loading.value = true;
+        props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.overlay.key }`, {
+            timeout: 1000 * 15,
+        });
         isOffline.value = false;
     }
     catch (e: IFetchError | any) {
         if (e) {
             isOffline.value = e.status === 404;
         }
+    }
+    finally {
+        loading.value = false;
     }
 });
 
