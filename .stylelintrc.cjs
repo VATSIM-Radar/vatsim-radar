@@ -45,5 +45,6 @@ module.exports = {
         'media-feature-range-notation': null,
         'at-rule-empty-line-before': null,
         'scss/no-global-function-names': null,
+        'no-duplicate-selectors': null,
     },
 };

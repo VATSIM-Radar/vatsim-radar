@@ -11,11 +11,11 @@
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import VectorLayer from 'ol/layer/Vector';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapSector from '~/components/map/sectors/MapSector.vue';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
-let vectorLayer: VectorLayer<any>;
+let vectorLayer: VectorImageLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
@@ -99,7 +99,7 @@ watch(map, val => {
             zIndex: 5,
         });
 
-        vectorLayer = new VectorLayer<any>({
+        vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
             properties: {

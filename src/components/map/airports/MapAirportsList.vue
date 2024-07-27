@@ -22,7 +22,6 @@ import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
-import VectorLayer from 'ol/layer/Vector';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import type { MapAircraft, MapAirport as MapAirportType } from '~/types/map';
 
@@ -39,9 +38,11 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
+import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature } from 'geojson';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
-let vectorLayer: VectorLayer<any>;
-let airportsLayer: VectorLayer<any>;
+let vectorLayer: VectorImageLayer<any>;
+let airportsLayer: VectorImageLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
@@ -142,7 +143,7 @@ watch(map, val => {
             wrapX: false,
         });
 
-        vectorLayer = new VectorLayer<any>({
+        vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 6,
             properties: {
@@ -159,9 +160,9 @@ watch(map, val => {
             wrapX: true,
         });
 
-        airportsLayer = new VectorLayer<any>({
+        airportsLayer = new VectorImageLayer<any>({
             source: airportsSource.value,
-            zIndex: 6,
+            zIndex: 8,
             properties: {
                 type: 'airports',
             },
@@ -358,14 +359,31 @@ const getAirportsList = computed(() => {
         return airport;
     }
 
-    // Strict check
+    const sectors: {
+        sector: GeoFeature<MultiPolygon, GeoJsonProperties>;
+        prefixes: string[];
+        suffix: string | null;
+        airport: typeof airports[0];
+    }[] = [];
+
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
         const airport = findSectorAirport(sector);
 
-        if (!airport?.arrAtc.length) continue;
 
+        if (airport?.arrAtc.length) {
+            sectors.push({
+                sector,
+                prefixes,
+                suffix,
+                airport,
+            });
+        }
+    }
+
+    // Strict check
+    for (const { airport, prefixes, suffix, sector } of sectors) {
         for (const controller of airport.arrAtc) {
             const splittedCallsign = controller.callsign.split('_');
 
@@ -386,13 +404,7 @@ const getAirportsList = computed(() => {
     }
 
     // Non-strict check
-    for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const prefixes = getTraconPrefixes(sector);
-        const suffix = getTraconSuffix(sector);
-        const airport = findSectorAirport(sector);
-
-        if (!airport?.arrAtc.length) continue;
-
+    for (const { airport, prefixes, suffix, sector } of sectors) {
         // Only non found
         for (const controller of airport.arrAtc.filter(x => !airport.features.some(y => y.controllers.some(y => y.cid === x.cid)))) {
             if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
@@ -402,11 +414,7 @@ const getAirportsList = computed(() => {
     }
 
     // For non found
-    for (const sector of dataStore.simaware.value?.data.features ?? []) {
-        const airport = findSectorAirport(sector);
-
-        if (!airport?.arrAtc.length) continue;
-
+    for (const { airport, sector } of sectors) {
         const id = JSON.stringify(sector.properties);
 
         // Still nothing found
@@ -473,7 +481,7 @@ async function setVisibleAirports() {
             const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao)));
             if (!simawareFeature) return null;
 
-            const feature = geoJson.readFeature(simawareFeature);
+            const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
 
             return containsExtent(extent, feature.getGeometry()!.getExtent())
                 ? {
@@ -520,9 +528,5 @@ async function setVisibleAirports() {
 
 attachMoveEnd(setVisibleAirports);
 
-watch(dataStore.vatsim.updateTimestamp, () => {
-    setVisibleAirports();
-}, {
-    immediate: true,
-});
+useUpdateInterval(setVisibleAirports);
 </script>

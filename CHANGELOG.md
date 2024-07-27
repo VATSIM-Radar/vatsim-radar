@@ -1,5 +1,25 @@
 # Changelog
 
+# 0.4.4-alpha.1
+
+Big thanks to Felix 1025793 for making this release possible!
+
+## Features and improvements
+
+- Unstaffed airport ICAO is now also drawn above aircraft
+
+## Bug fixes
+
+# 0.4.3
+
+- Slighty improved update browser performance
+- Optimized turns render for very big aircraft list
+- Fixed transponders starting with zero to skip that zero number (0123 -> 123)
+- Optimized aircraft turns update
+- Added new super fast update rate using websockets. You can opt out from it via new filters setting
+- Fixed aircraft blinking when updating
+- Several map update performance improvements
+
 # 0.4.2
 
 Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle support - and much more.

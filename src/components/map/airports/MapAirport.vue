@@ -111,20 +111,20 @@ import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import { fromCircle } from 'ol/geom/Polygon';
-import { toRadians } from 'ol/math';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor } from '~/composables';
-import { GeoJSON } from 'ol/format';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { useStore } from '~/store';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import { GeoJSON } from 'ol/format';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import { toRadians } from 'ol/math';
 
 const props = defineProps({
     airport: {
@@ -290,12 +290,12 @@ watch(hoveredFeature, val => {
         hoverFeature = null;
     }
     else if (val?.traconFeature && !hoverFeature) {
-        hoverFeature = geojson.readFeature(val.traconFeature);
+        hoverFeature = geojson.readFeature(val.traconFeature) as Feature<any>;
         hoverFeature?.setProperties({
             ...hoverFeature?.getProperties(),
             type: 'background',
         });
-        hoverFeature.setStyle(new Style({
+        hoverFeature!.setStyle(new Style({
             fill: new Fill({
                 color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.25)`,
             }),
@@ -303,7 +303,7 @@ watch(hoveredFeature, val => {
                 color: `transparent`,
             }),
         }));
-        vectorSource.value?.addFeature(hoverFeature);
+        vectorSource.value?.addFeature(hoverFeature!);
     }
 });
 
@@ -409,7 +409,7 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const geoFeature = geojson.readFeature(traconFeature);
+                const geoFeature = geojson.readFeature(traconFeature) as Feature<any>;
 
                 geoFeature.setProperties({
                     ...(geoFeature?.getProperties() ?? {}),

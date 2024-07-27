@@ -18,19 +18,21 @@ import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { attachMoveEnd, isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 
-let linesLayer: VectorLayer<any>;
+let linesLayer: VectorImageLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
+
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
@@ -99,10 +101,10 @@ function setVisiblePilots() {
     }
 }
 
+useUpdateInterval(handleMoveEnd);
+
 watch(dataStore.vatsim.updateTimestamp, () => {
-    handleMoveEnd();
-}, {
-    immediate: true,
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
@@ -194,13 +196,13 @@ watch(map, val => {
             wrapX: true,
         });
 
-        linesLayer = new VectorLayer<any>({
+        linesLayer = new VectorImageLayer<any>({
             source: linesSource.value,
             properties: {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: true,
+            declutter: false,
         });
     }
 
