@@ -5,12 +5,13 @@ import { getServerVatsimLiveShortData, radarStorage } from '../storage';
 import type { VatsimData } from '~/types/data/vatsim';
 import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
-import { influxDBWrite } from '~/utils/backend/influx/influx';
+import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 
+initInfluxDB();
 initKafka();
 
 function excludeKeys<S extends {

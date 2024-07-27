@@ -13,7 +13,7 @@ services:
       interval: 1s
       retries: 360
     volumes:
-      - /opt/radar-data:/radar/src/data
+      - /opt/radar-next-data:/radar/src/data
 
   db-next:
     image: mysql
