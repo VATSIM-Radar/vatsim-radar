@@ -668,9 +668,12 @@ onMounted(() => {
                         color: $darkgray900;
                     }
                 }
-                transform: rotate(-90deg);
-                color: $darkgray900;
-                animation: lightColorChange 0.5s ease-in-out;
+
+                & {
+                    transform: rotate(-90deg);
+                    color: $darkgray900;
+                    animation: lightColorChange 0.5s ease-in-out;
+                }
             }
 
             .header__theme_item--dark :deep(path) {

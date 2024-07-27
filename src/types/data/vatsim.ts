@@ -8,6 +8,7 @@ export interface VatsimGeneral {
     unique_users: number;
     supsCount: number;
     admCount: number;
+    onlineWSUsers: number;
 }
 
 export interface VatsimPilot {
@@ -29,6 +30,7 @@ export interface VatsimPilot {
     logon_time: string;
     last_updated: string;
     frequencies: string[];
+    sim?: string;
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -48,7 +50,7 @@ export interface VatsimExtendedPilot extends VatsimPilot {
 }
 
 export type VatsimPilotFlightPlan = Partial<{
-    flight_rules: 'I' | 'V';
+    flight_rules: 'I' | 'V' | 'S';
     aircraft: string;
     aircraft_faa: string;
     aircraft_short: string;
@@ -64,6 +66,7 @@ export type VatsimPilotFlightPlan = Partial<{
     route: string;
     revision_id: number;
     assigned_transponder: string;
+    locked?: boolean;
 }>;
 
 export interface VatsimController {

@@ -48,10 +48,15 @@ const props = defineProps({
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const loading = ref(false);
 
 watch(dataStore.vatsim.updateTimestamp, async () => {
+    if (loading.value) return;
     try {
-        props.overlay.data.prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ props.overlay.key }/prefile`);
+        props.overlay.data.prefile = await $fetch<VatsimPrefile>(`/api/data/vatsim/pilot/${ props.overlay.key }/prefile`, {
+            timeout: 1000 * 15,
+        });
+        loading.value = true;
     }
     catch (e: IFetchError | any) {
         if (e) {
@@ -62,6 +67,9 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
                 if (pilot) await mapStore.addPilotOverlay(pilot.cid.toString());
             }
         }
+    }
+    finally {
+        loading.value = false;
     }
 });
 </script>

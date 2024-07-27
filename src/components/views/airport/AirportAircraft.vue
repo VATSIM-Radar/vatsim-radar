@@ -187,7 +187,7 @@ const props = defineProps({
     },
 });
 
-const selected = defineModel('selected', { type: Number, default: null });
+const selected = defineModel<number | null>('selected', { type: Number, default: null });
 
 const data = injectAirport();
 const dataStore = useDataStore();
