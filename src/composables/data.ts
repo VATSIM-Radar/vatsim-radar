@@ -14,6 +14,7 @@ import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
+import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -149,7 +150,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
                     if (!mapStore.localTurns.size) return;
 
-                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
                         method: 'POST',
                         body: [...mapStore.localTurns],
                     });
