@@ -19,7 +19,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { attachMoveEnd, isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
@@ -32,6 +32,7 @@ provide('vector-source', vectorSource);
 let linesLayer: VectorLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
+
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
@@ -121,10 +122,10 @@ function setVisiblePilots() {
     }
 }
 
+useUpdateInterval(handleMoveEnd);
+
 watch(dataStore.vatsim.updateTimestamp, () => {
-    handleMoveEnd();
-}, {
-    immediate: true,
+    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -265,7 +266,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: true,
         });
     }
 

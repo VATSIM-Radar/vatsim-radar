@@ -5,11 +5,11 @@ runs:
   using: composite
   steps:
     - name: Install deps
-      shell: bash
-      run: yarn
+      shell: sh
+      run: yarn install
     - name: Lint
-      shell: bash
+      shell: sh
       run: yarn lint
     - name: Build package
-      shell: bash
+      shell: sh
       run: yarn build

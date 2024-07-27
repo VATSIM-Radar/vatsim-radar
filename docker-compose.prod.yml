@@ -17,6 +17,8 @@ services:
     container_name: app
     restart: always
     image: ghcr.io/daniluk4000/vatsim-radar/production
+    ports:
+      - 8001:3000
     depends_on:
       db:
         condition: service_healthy
