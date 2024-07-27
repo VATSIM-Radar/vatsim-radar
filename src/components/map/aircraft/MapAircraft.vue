@@ -425,7 +425,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             else {
                 const toRemove = lineFeatures.value.filter(x => {
                     const properties = x.getProperties();
-                    if (properties!.type === 'airportLine') return true;
+                    if (properties!.type === 'airportLine' || properties!.type === 'aircraft') return true;
                     return properties!.timestamp === firstCollectionTimestamp;
                 });
 
@@ -435,7 +435,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             if (turns.features[1]) {
                 turnsSecondGroupPoint.value = turns.features[1].features[0];
             }
-            else if (turnsFirstGroupTimestamp.value !== firstCollectionTimestamp) turnsSecondGroupPoint.value = turns.features[0].features[0];
+            else if (turnsFirstGroupTimestamp.value !== firstCollectionTimestamp) turnsSecondGroupPoint.value = null;
 
             turnsFirstGroup.value = turns.features[0];
             turnsFirstGroupTimestamp.value = firstCollectionTimestamp;
@@ -454,17 +454,22 @@ async function toggleAirportLines(value = canShowLines.value) {
                 ];
 
                 if (i === 0) {
-                    collection.features.unshift({
-                        type: 'Feature',
-                        properties: {
-                            type: 'turn',
-                            color: collection.features[0].properties!.color,
-                        },
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [props.aircraft.longitude, props.aircraft.latitude],
-                        },
+                    const coordinates = [
+                        collection.features[0].geometry.coordinates.slice(),
+                        [props.aircraft.longitude, props.aircraft.latitude],
+                    ];
+                    const points = coordinates.map(x => point(toLonLat(x)));
+                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+
+                    const lineFeature = new Feature({
+                        geometry,
+                        timestamp: collection.features[0].properties!.timestamp,
+                        color: collection.features[0].properties!.color,
+                        type: 'aircraft',
                     });
+                    lineFeature.setStyle(getAircraftLineStyle(collection.features[0].properties!.color));
+                    linesSource.value?.addFeature(lineFeature);
+                    lineFeatures.value.push(lineFeature);
                 }
 
                 if (nextCollection) {
@@ -480,7 +485,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         },
                     });
                 }
-                else if (shortUpdate && turnsSecondGroupPoint.value) {
+                else if (shortUpdate && i === 0 && turnsSecondGroupPoint.value) {
                     collection.features.push({
                         type: 'Feature',
                         properties: {
