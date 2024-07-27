@@ -2,7 +2,7 @@ import { createGzip } from 'node:zlib';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { CronJob } from 'cron';
 import { getServerVatsimLiveShortData, radarStorage } from '../storage';
-import type { VatsimData } from '~/types/data/vatsim';
+import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
 import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
@@ -62,6 +62,32 @@ CronJob.from({
     start: true,
     onTick: async () => {
         await updateVatSpy();
+    },
+});
+
+let transceiversInProgress = false;
+
+CronJob.from({
+    cronTime: '* * * * * *',
+    start: true,
+    runOnInit: true,
+    onTick: async () => {
+        if (!radarStorage.vatspy.data || transceiversInProgress) return;
+        try {
+            transceiversInProgress = true;
+            radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
+                parseResponse(responseText) {
+                    return JSON.parse(responseText);
+                },
+                timeout: 1000 * 30,
+            });
+        }
+        catch (e) {
+            console.error(e);
+        }
+        finally {
+            transceiversInProgress = false;
+        }
     },
 });
 
