@@ -86,7 +86,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
                 // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
                 // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
                 if (!pilot.departure && !pilot.arrival) {
-                    if (!vatAirport.aircraft.groundDep?.includes(pilot.cid)) continue;
+                    if (!vatAirport.aircraft.groundDep?.includes(pilot.cid) && !vatAirport.aircraft.groundArr?.includes(pilot.cid)) continue;
                 }
                 else {
                     continue;
