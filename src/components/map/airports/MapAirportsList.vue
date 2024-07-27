@@ -481,7 +481,7 @@ async function setVisibleAirports() {
             const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao)));
             if (!simawareFeature) return null;
 
-            const feature = geoJson.readFeature(simawareFeature);
+            const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
 
             return containsExtent(extent, feature.getGeometry()!.getExtent())
                 ? {
