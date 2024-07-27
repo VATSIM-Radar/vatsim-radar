@@ -1,10 +1,8 @@
 import { validateDataReady } from '~/utils/backend/h3';
-import { wss } from '~/utils/backend/vatsim/ws';
+import { radarStorage } from '~/utils/backend/storage';
 
 export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
-    return {
-        size: wss.clients.size,
-    };
+    return radarStorage.vatsim.data?.general.onlineWSUsers ?? 0;
 });

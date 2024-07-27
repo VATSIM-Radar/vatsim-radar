@@ -90,9 +90,10 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (store.localSettings.traffic?.disableFastUpdate || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
-        // 10 seconds gap for receiving date
+        // 10 seconds gap for receiving data
         if (!socketDate || +socketDate + (1000 * 10) < date) {
             localStorage.setItem('radar-socket-date', Date.now().toString());
+            closeSocket?.();
             closeSocket = initDataWebsocket();
         }
     }

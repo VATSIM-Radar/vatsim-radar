@@ -1,26 +1,26 @@
 import { Kafka } from 'kafkajs';
 import {
     kafkaAddClient,
-    kafkaRemoveClient, kafkaRemovePlan,
+    kafkaRemoveClient,
+    kafkaRemovePlan,
     kafkaUpdateController,
-    kafkaUpdatePilot, kafkaUpdatePlan,
+    kafkaUpdatePilot,
+    kafkaUpdatePlan,
 } from '~/utils/backend/vatsim/kafka';
 
-export default defineNitroPlugin(async () => {
-    const config = useRuntimeConfig();
-
+export async function initKafka() {
     const kafka = new Kafka({
-        brokers: [config.VATSIM_KAFKA_BROKER],
+        brokers: [process.env.VATSIM_KAFKA_BROKER!],
         connectionTimeout: 10000,
         authenticationTimeout: 10000,
         sasl: {
             mechanism: 'scram-sha-256',
-            username: config.VATSIM_KAFKA_USER,
-            password: config.VATSIM_KAFKA_PASSWORD,
+            username: process.env.VATSIM_KAFKA_USER!,
+            password: process.env.VATSIM_KAFKA_PASSWORD!,
         },
     });
 
-    const consumer = kafka.consumer({ groupId: config.VATSIM_KAFKA_GROUP });
+    const consumer = kafka.consumer({ groupId: process.env.VATSIM_KAFKA_GROUP! });
     await consumer.connect();
 
     const topics = [
@@ -59,7 +59,11 @@ export default defineNitroPlugin(async () => {
     consumer.run({
         autoCommitInterval: 5000,
         partitionsConsumedConcurrently: 10,
-        eachMessage: async ({ topic, partition, message }) => {
+        eachMessage: async ({
+            topic,
+            partition,
+            message,
+        }) => {
             if (!message.value) return;
 
             const json = JSON.parse(message.value.toString());
@@ -85,4 +89,4 @@ export default defineNitroPlugin(async () => {
             offset: topicsInfo[key].offset,
         });
     }
-});
+}
