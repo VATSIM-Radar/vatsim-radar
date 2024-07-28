@@ -24,12 +24,13 @@ import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 
-let linesLayer: VectorLayer<any>;
+let linesLayer: VectorImageLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
 
@@ -256,12 +257,13 @@ watch(map, val => {
             wrapX: true,
         });
 
-        linesLayer = new VectorLayer<any>({
+        linesLayer = new VectorImageLayer<any>({
             source: linesSource.value,
             properties: {
                 type: 'aircraft-line',
             },
             zIndex: 6,
+            declutter: false,
         });
     }
 

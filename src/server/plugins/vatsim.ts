@@ -23,6 +23,10 @@ export default defineNitroPlugin(app => {
         console.log(Date.now(), msg.toLocaleString());
     });
 
+    child.on('error', err => {
+        console.error(Date.now(), err);
+    });
+
     child.on('message', msg => {
         radarStorage.vatsim = JSON.parse(msg.toLocaleString());
     });

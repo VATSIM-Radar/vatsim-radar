@@ -1,5 +1,15 @@
 # Changelog
 
+# 0.4.4-alpha.1
+
+Big thanks to Felix 1025793 for making this release possible!
+
+## Features and improvements
+
+- Unstaffed airport ICAO is now also drawn above aircraft
+
+## Bug fixes
+
 # 0.4.3
 
 - Slighty improved update browser performance
