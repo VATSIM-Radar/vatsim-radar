@@ -693,7 +693,9 @@ await setupDataFetch({
         &_pilot {
             position: absolute;
             right: 0;
+
             overflow: auto;
+
             width: 25%;
             min-width: 25%;
 
