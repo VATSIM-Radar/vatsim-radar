@@ -59,10 +59,6 @@ function sendSelectedPilotToDashboard(cid: number | null = null) {
     window.parent.postMessage(message, targetOrigin);
 }
 
-onMounted(() => {
-    window.addEventListener('message', receiveMessage);
-});
-
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
     if (!pixel) return [];
@@ -278,9 +274,14 @@ watch(map, val => {
     immediate: true,
 });
 
+onMounted(() => {
+    window.addEventListener('message', receiveMessage);
+});
+
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
+    window.removeEventListener('message', receiveMessage);
 });
 </script>

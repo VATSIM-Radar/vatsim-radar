@@ -285,6 +285,10 @@ onMounted(() => {
     window.addEventListener('message', receiveMessage);
 });
 
+onBeforeUnmount(() => {
+    window.removeEventListener('message', receiveMessage);
+});
+
 watch(selectedPilot, () => {
     if (skipSelectedPilotWatch) {
         skipSelectedPilotWatch = false;
@@ -294,7 +298,7 @@ watch(selectedPilot, () => {
 
     if (airportMapFrame.value && selectedPilot.value) {
         const iframeWindow = airportMapFrame.value.contentWindow;
-        const message = { data: 'Your parent here', selectedPilot: selectedPilot.value };
+        const message = { selectedPilot: selectedPilot.value };
         const targetOrigin = config.public.DOMAIN;
         iframeWindow?.postMessage(message, targetOrigin);
     }
