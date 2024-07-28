@@ -39,10 +39,10 @@ import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature } from 'geojson';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorLayer from 'ol/layer/Vector';
 
-let vectorLayer: VectorImageLayer<any>;
-let airportsLayer: VectorImageLayer<any>;
+let vectorLayer: VectorLayer<any>;
+let airportsLayer: VectorLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
@@ -143,7 +143,7 @@ watch(map, val => {
             wrapX: false,
         });
 
-        vectorLayer = new VectorImageLayer<any>({
+        vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
             zIndex: 6,
             properties: {
@@ -160,7 +160,7 @@ watch(map, val => {
             wrapX: true,
         });
 
-        airportsLayer = new VectorImageLayer<any>({
+        airportsLayer = new VectorLayer<any>({
             source: airportsSource.value,
             zIndex: 6,
             properties: {
