@@ -226,7 +226,7 @@ const getDistAndTime = computed(() => {
         const dist = Math.round(props.pilot.toGoDist);
         const date = datetime.format(new Date(props.pilot.toGoTime!));
 
-        return `${ dist } NM in ${ date }Z`;
+        return `${ dist } NM at ${ date }Z`;
     }
     catch (e) {
         console.error(e);
