@@ -7,8 +7,9 @@ Big thanks to Felix 1025793 for making this release possible!
 ## Features and improvements
 
 - Unstaffed airport ICAO is now also drawn above aircraft
-
-## Bug fixes
+- Pilot popups can now be closed by clicking on them
+- Airport label click priotity is now higher than aircraft
+- Pilot select in Airport Dashboard will now also open pilot in dashboard itself
 
 # 0.4.3
 
