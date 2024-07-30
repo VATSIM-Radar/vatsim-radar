@@ -5,9 +5,10 @@
         :aircraft="aircraft"
         :is-hovered="hoveredAircraft === aircraft.cid"
         :show-label="showAircraftLabel.includes(aircraft.cid)"
-        @manualHide="[isManualHover = false, hoveredAircraft = null]"
+        @manualHide="[isManualHover = false]"
         @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
     />
+    <!-- We do not set  hoveredAircraft = false in the manualHide event, because this led to a short time when moving with the mouse from the label to the icon where the aircraft got a "not hovered" state. We just switch to ManualHover=false and let the pointermove function handle the removal of the hover state -->
 </template>
 
 <script setup lang="ts">
@@ -38,10 +39,27 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const config = useRuntimeConfig();
 
 const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref(false);
 const showAircraftLabel = ref<number[]>([]);
+
+
+// The next 3 functions are used to get data to and from the airport dashboard page. When an aircraft is selected it is sent to the airport dashboard so we can open the pilot overlay. We also receive the event from the dashboard when an aircraft is clicked in the dashboard, we then select it on the map.
+function receiveMessage(event: MessageEvent) {
+    if (event.origin !== config.public.DOMAIN) {
+        return;
+    }
+    if (event.data && 'selectedPilot' in event.data) mapStore.addPilotOverlay(event.data.selectedPilot.toString());
+}
+
+function sendSelectedPilotToDashboard(cid: number | null = null) {
+    const message = { selectedPilot: cid };
+    const targetOrigin = config.public.DOMAIN;
+    window.parent.postMessage(message, targetOrigin);
+}
+
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
     if (!pixel) return [];
@@ -107,10 +125,29 @@ watch(dataStore.vatsim.updateTimestamp, () => {
     visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
+function airportExistsAtPixel(eventPixel: Pixel) {
+    const featuresAirport = map.value!.getFeaturesAtPixel(eventPixel, {
+        hitTolerance: 15, // we use 6 instead of 5 because of the aircraft icons size, it is just for cosmetic reasons
+        layerFilter: layer => layer.getProperties().type === 'airports',
+    }).filter(x => x.getProperties().type !== 'background');
+
+    return featuresAirport.length > 0;
+}
+
 function handlePointerMove(e: MapBrowserEvent<any>) {
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
-    const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+    let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+
+    // we have more than one aircraft within the tolerance, so we need to find the closest one
+    if (features.length > 1) {
+        const closestFeature = vectorSource.value?.getClosestFeatureToCoordinate(e.coordinate);
+        // we now know the closest feature, so we filter the features array to only include the closest feature
+        // we use filter instead of a new features array, because we we want to make sure that the returned closest feature is actually part of the initial getPilotsForPixel return
+        features = features.filter(x => {
+            return x.cid === closestFeature?.get('id');
+        });
+    }
 
     if (features.length !== 1 || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
@@ -123,30 +160,54 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     if (isManualHover.value) return;
 
-    isManualHover.value = false;
-
-    if (getPilotsForPixel(aircraftCoordsToPixel(features[0])!).length === 1) {
-        hoveredAircraft.value = features[0].cid;
-        mapStore.mapCursorPointerTrigger = 1;
-    }
-}
-
-async function handleClick(e: MapBrowserEvent<any>) {
-    const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
-
-    const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
-
-    if (features.length !== 1) {
-        if (store.config.hideOverlays) {
-            mapStore.overlays = [];
-        }
-
+    // we give priority to the airport clickspots
+    if (airportExistsAtPixel(eventPixel)) {
+        hoveredAircraft.value = null;
         return;
     }
 
-    const overlay = await mapStore.addPilotOverlay(features[0].cid.toString());
-    if (overlay && store.config.showInfoForPrimaryAirport) {
-        overlay.sticky = true;
+
+    isManualHover.value = false;
+    hoveredAircraft.value = features[0].cid;
+    mapStore.mapCursorPointerTrigger = 1;
+}
+
+
+async function handleClick(e: MapBrowserEvent<any>) {
+    if (mapStore.openingOverlay) return;
+
+    // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
+    if (!hoveredAircraft.value && store.config.hideOverlays) {
+        const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+        const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+
+        if (features.length < 1) {
+            if (store.config.hideOverlays) {
+                mapStore.overlays = [];
+            }
+            sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
+            return;
+        }
+    }
+
+    handlePointerMove(e); // we call this function because on touch screens, the pointermove event is not triggered. Also for cases where the click event is before the mousemoveend event
+
+    // when the current hovered aircraft is currently opened, we deselect it with the click instead of selecting it
+    const existingOverlay = mapStore.overlays.find(x => x.key === hoveredAircraft.value?.toString());
+    if (existingOverlay) {
+        mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot' || x.key !== hoveredAircraft.value?.toString());
+        sendSelectedPilotToDashboard(null); // an aircraft is deselected, we close the dashboard pilot overlay (for simplicity we close the overlay even when the deselected aircraft is not the one that is currently opened)
+        return;
+    }
+
+    if (hoveredAircraft.value) {
+        sendSelectedPilotToDashboard(hoveredAircraft.value); // we selected an aircraft, we want to open the overlay for that pilot in the airport dashboard
+
+        // we are hovering over an aircraft and open the overlay
+        const overlay = await mapStore.addPilotOverlay(hoveredAircraft.value.toString());
+        if (overlay && store.config.showInfoForPrimaryAirport) {
+            overlay.sticky = true;
+        }
     }
 }
 
@@ -215,9 +276,14 @@ watch(map, val => {
     immediate: true,
 });
 
+onMounted(() => {
+    window.addEventListener('message', receiveMessage);
+});
+
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
+    window.removeEventListener('message', receiveMessage);
 });
 </script>
