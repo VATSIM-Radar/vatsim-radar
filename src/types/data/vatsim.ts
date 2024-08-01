@@ -1,5 +1,6 @@
 import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import type { MapAirport } from '~/types/map';
+import type { AircraftIcon } from '~/utils/icons';
 
 export interface VatsimGeneral {
     version: number;
@@ -31,6 +32,7 @@ export interface VatsimPilot {
     last_updated: string;
     frequencies: string[];
     sim?: string;
+    icon?: AircraftIcon;
 }
 
 export interface VatsimExtendedPilot extends VatsimPilot {
@@ -140,9 +142,24 @@ export type VatsimShortenedData = {
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
+export type VatsimMandatoryData = {
+    pilots: [cid: VatsimPilot['cid'], longitude: VatsimPilot['longitude'], latitude: VatsimPilot['latitude'], icon: AircraftIcon, heading: number][];
+    controllers: [VatsimController['cid'], VatsimController['callsign'], VatsimController['frequency'], VatsimController['facility']][];
+    atis: VatsimMandatoryData['controllers'];
+};
+
+export type VatsimMandatoryConvertedData = {
+    pilots: Required<Pick<VatsimPilot, 'cid' | 'longitude' | 'latitude' | 'icon' | 'heading'>>[];
+    controllers: Pick<VatsimController, 'cid' | 'callsign' | 'frequency' | 'facility'>[];
+    atis: VatsimMandatoryConvertedData['controllers'];
+};
+
 export type VatsimShortenedAircraft = VatsimShortenedData['pilots'][0];
 export type VatsimShortenedPrefile = VatsimShortenedData['prefiles'][0];
 export type VatsimShortenedController = VatsimShortenedData['atis'][0];
+
+export type VatsimMandatoryPilot = VatsimMandatoryConvertedData['pilots'][0];
+export type VatsimMandatoryController = VatsimMandatoryConvertedData['controllers'][0];
 
 export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> & {
     locals: VatSpyDataLocalATC[];

@@ -25,38 +25,63 @@ export type InfluxGeojson = {
 
 export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {
     function getRowColor(row: InfluxFlight) {
-        let rowColor = colorsList.warning500;
+        let rowColor = colorsList.warning300;
 
         if (row?.altitude) {
-            if (row.altitude < 5000) {
-                rowColor = colorsList.success400;
+            const altitude = row.altitude - 100;
+
+            if (altitude <= 2500) {
+                rowColor = '#fde725';
             }
-            else if (row.altitude < 10000) {
-                rowColor = colorsList.success600;
+            else if (altitude <= 5000) {
+                rowColor = '#e2e418';
             }
-            else if (row.altitude < 15000) {
-                rowColor = colorsList.primary500;
+            else if (altitude <= 7500) {
+                rowColor = '#c5e021';
             }
-            else if (row.altitude < 20000) {
-                rowColor = colorsList.primary700;
+            else if (altitude <= 10000) {
+                rowColor = '#a8db34';
             }
-            else if (row.altitude < 25000) {
-                rowColor = colorsList.info400;
+            else if (altitude <= 12500) {
+                rowColor = '#8bd646';
             }
-            else if (row.altitude < 30000) {
-                rowColor = colorsList.info500;
+            else if (altitude <= 15000) {
+                rowColor = '#70cf57';
             }
-            else if (row.altitude > 40500) {
-                rowColor = colorsList.error300;
+            else if (altitude <= 17500) {
+                rowColor = '#58c765';
             }
-            else if (row.altitude > 50000) {
-                rowColor = colorsList.error700;
+            else if (altitude <= 20000) {
+                rowColor = '#42be71';
+            }
+            else if (altitude <= 25000) {
+                rowColor = '#24aa83';
+            }
+            else if (altitude <= 30000) {
+                rowColor = '#1f958b';
+            }
+            else if (altitude <= 35000) {
+                rowColor = '#26818e';
+            }
+            else if (altitude <= 40000) {
+                rowColor = '#2f6c8e';
+            }
+            else if (altitude <= 45000) {
+                rowColor = '#3a548c';
+            }
+            else if (altitude <= 50000) {
+                rowColor = '#443b84';
+            }
+            else if (altitude <= 55000) {
+                rowColor = '#482071';
+            }
+            else if (row.altitude <= 60000) {
+                rowColor = '#440154';
             }
             else {
-                rowColor = colorsList.info700;
+                rowColor = colorsList.success700;
             }
         }
-        else rowColor = colorsList.success500;
 
         return rowColor;
     }

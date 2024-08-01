@@ -1,4 +1,4 @@
-import type { VatsimExtendedPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { VatsimExtendedPilot, VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
@@ -32,7 +32,7 @@ export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPi
     });
 }
 
-export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedPilot) {
+export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedPilot | VatsimMandatoryPilot) {
     const dataStore = useDataStore();
 
     return 'isOnGround' in pilot
