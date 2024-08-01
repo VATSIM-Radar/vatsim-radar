@@ -77,7 +77,7 @@ async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
     gates[icao] = await getNavigraphGates({
         user: null,
         icao: icao,
-    }) || [];
+    }).catch(console.error) || [];
 
     return gates[icao];
 }
@@ -87,7 +87,7 @@ let firsPolygons: {
     featureId: string;
     polygon: MultiPolygon;
 }[] = [];
-const firsVersion = '';
+let firsVersion = '';
 
 export async function updateVatsimExtendedPilots() {
     if (firsVersion !== radarStorage.vatspy.version) {
@@ -98,6 +98,7 @@ export async function updateVatsimExtendedPilots() {
                 polygon: new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x))))),
             };
         });
+        firsVersion = radarStorage.vatspy.version;
     }
 
     const firsList = firsPolygons.map(({ icao, featureId, polygon }) => ({
@@ -106,6 +107,8 @@ export async function updateVatsimExtendedPilots() {
         ),
         polygon,
     })).filter(x => x.controllers.length);
+
+    radarStorage.vatsim.extendedPilots = [];
 
     for (const pilot of radarStorage.vatsim.data!.pilots) {
         const extendedPilot: VatsimExtendedPilot = {
@@ -231,8 +234,6 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
-        const existingPilot = radarStorage.vatsim.extendedPilots.findIndex(x => x.cid === pilot.cid);
-        if (existingPilot !== -1) radarStorage.vatsim.extendedPilots.splice(existingPilot, 1, extendedPilot);
-        else radarStorage.vatsim.extendedPilots.push(extendedPilot);
+        radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 }

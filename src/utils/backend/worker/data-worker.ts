@@ -14,9 +14,11 @@ import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
+import { initNavigraph } from '~/utils/backend/navigraph-db';
 
 initInfluxDB();
 initKafka();
+initNavigraph().catch(console.error);
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -311,9 +313,8 @@ CronJob.from({
         catch (e) {
             console.error(e);
         }
-        finally {
-            dataInProgress = false;
-            dataLatestFinished = Date.now();
-        }
+
+        dataInProgress = false;
+        dataLatestFinished = Date.now();
     },
 });

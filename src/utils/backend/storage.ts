@@ -9,8 +9,8 @@ import type {
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
-import type { cycles } from '~/server/plugins/navigraph';
 import type { FeatureCollection, MultiPolygon } from 'geojson';
+import type { cycles } from '~/utils/backend/navigraph-db';
 
 export type SimAwareData = FeatureCollection<MultiPolygon>;
 export interface SimAwareAPIData {
