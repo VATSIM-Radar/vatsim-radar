@@ -158,7 +158,7 @@ export async function getNavigraphRunways({ user, icao, event }: {
 export async function getNavigraphGates({ user, icao, event }: {
     user: FullUser | null;
     icao: string;
-    event: H3Event;
+    event?: H3Event;
 }) {
     let gates: NavigraphGate[] = [];
 
@@ -186,7 +186,10 @@ export async function getNavigraphGates({ user, icao, event }: {
         });
     }
     catch (e) {
-        handleH3Exception(event, e);
+        if (event) {
+            handleH3Exception(event, e);
+        }
+        else throw e;
         return;
     }
 

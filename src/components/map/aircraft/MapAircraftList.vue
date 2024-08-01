@@ -16,7 +16,7 @@ import VectorLayer from 'ol/layer/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
@@ -71,14 +71,14 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = fals
     }) ?? [];
 }
 
-function aircraftCoordsToPixel(aircraft: VatsimShortenedAircraft): Pixel | null {
+function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
     return map.value!.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
 }
 
-const visiblePilots = shallowRef<VatsimShortenedAircraft[]>([]);
+const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 
 function setVisiblePilots() {
-    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => {
+    visiblePilots.value = dataStore.vatsim.mandatoryData.value!.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
@@ -104,7 +104,7 @@ function setVisiblePilots() {
 useUpdateInterval(handleMoveEnd);
 
 watch(dataStore.vatsim.updateTimestamp, () => {
-    visiblePilots.value = dataStore.vatsim.data.pilots.value.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    visiblePilots.value = dataStore.vatsim.mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function handlePointerMove(e: MapBrowserEvent<any>) {

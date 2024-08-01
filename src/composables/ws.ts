@@ -1,4 +1,5 @@
 import { useStore } from '~/store';
+import { setVatsimMandatoryData } from '~/composables/data';
 
 async function decompressBlob(blob: Blob) {
     const ds = new DecompressionStream('gzip');
@@ -68,7 +69,7 @@ export function initDataWebsocket(): () => void {
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        await setVatsimDataStore(json);
+        setVatsimMandatoryData(json);
         dataStore.vatsim.data.general.value!.update_timestamp = date;
         dataStore.vatsim.updateTimestamp.value = date;
     });

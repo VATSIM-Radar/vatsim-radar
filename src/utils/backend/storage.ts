@@ -2,8 +2,8 @@ import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/
 import type {
     VatsimData,
     VatsimDivision,
-    VatsimEvent,
-    VatsimLiveData, VatsimLiveDataShort,
+    VatsimEvent, VatsimExtendedPilot,
+    VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
 } from '~/types/data/vatsim';
@@ -35,6 +35,8 @@ export const radarStorage = {
     vatsim: {
         data: null as null | VatsimData,
         regularData: null as null | VatsimShortenedData,
+        mandatoryData: null as null | VatsimMandatoryData,
+        extendedPilots: [] as VatsimExtendedPilot[],
         firs: [] as VatSpyDataFeature[],
         locals: [] as VatSpyDataLocalATC[],
         airports: [] as MapAirport[],

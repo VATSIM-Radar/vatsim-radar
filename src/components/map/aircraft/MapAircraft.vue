@@ -14,18 +14,19 @@
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
+                v-if="pilot"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="hoveredOverlay = true"
             >
                 <template #title>
-                    {{ aircraft.callsign }}
+                    {{ pilot.callsign }}
                 </template>
                 <template
-                    v-if="aircraft.aircraft_faa"
+                    v-if="pilot.aircraft_faa"
                     #additionalTitle
                 >
-                    {{ aircraft.aircraft_faa }}
+                    {{ pilot.aircraft_faa }}
                 </template>
                 <div class="aircraft-hover_body">
                     <common-info-block
@@ -39,73 +40,73 @@
                                     Pilot
 
                                     <div
-                                        v-if="aircraft.frequencies.length >= 1"
+                                        v-if="pilot.frequencies.length >= 1"
                                         class="aircraft-hover__pilot__frequency"
                                     >
-                                        {{ aircraft.frequencies[0] }}
+                                        {{ pilot.frequencies[0] }}
                                     </div>
                                 </div>
                                 <div class="aircraft-hover__pilot__text">
-                                    {{ parseEncoding(aircraft.name) }}<br>
+                                    {{ parseEncoding(pilot.name) }}<br>
                                     <div class="aircraft-hover__pilot__text_rating">
-                                        {{ usePilotRating(aircraft).join(' | ') }}
+                                        {{ usePilotRating(pilot).join(' | ') }}
                                     </div>
                                 </div>
                             </div>
                         </template>
                     </common-info-block>
                     <div
-                        v-if="aircraft.departure || aircraft.arrival"
+                        v-if="pilot.departure || pilot.arrival"
                         class="aircraft-hover_sections"
                     >
                         <common-info-block
-                            v-if="aircraft.departure"
+                            v-if="pilot.departure"
                             is-button
                             text-align="center"
-                            @click="mapStore.addAirportOverlay(aircraft.departure)"
+                            @click="mapStore.addAirportOverlay(pilot.departure)"
                         >
                             <template #top>
                                 From
                             </template>
                             <template #bottom>
-                                {{ aircraft.departure }}
+                                {{ pilot.departure }}
                             </template>
                         </common-info-block>
                         <common-info-block
-                            v-if="aircraft.arrival"
+                            v-if="pilot.arrival"
                             is-button
                             text-align="center"
-                            @click="mapStore.addAirportOverlay(aircraft.arrival)"
+                            @click="mapStore.addAirportOverlay(pilot.arrival)"
                         >
                             <template #top>
                                 To
                             </template>
                             <template #bottom>
-                                {{ aircraft.arrival }}
+                                {{ pilot.arrival }}
                             </template>
                         </common-info-block>
                     </div>
                     <div class="aircraft-hover_sections">
                         <common-info-block
-                            v-if="typeof aircraft.groundspeed === 'number'"
+                            v-if="typeof pilot.groundspeed === 'number'"
                             text-align="center"
                         >
                             <template #top>
                                 Ground Speed
                             </template>
                             <template #bottom>
-                                {{ aircraft.groundspeed }} kts
+                                {{ pilot.groundspeed }} kts
                             </template>
                         </common-info-block>
                         <common-info-block
-                            v-if="typeof aircraft.altitude === 'number'"
+                            v-if="typeof pilot.altitude === 'number'"
                             text-align="center"
                         >
                             <template #top>
                                 Altitude
                             </template>
                             <template #bottom>
-                                {{ getPilotTrueAltitude(aircraft) }} ft
+                                {{ getPilotTrueAltitude(pilot) }} ft
                             </template>
                         </common-info-block>
                     </div>
@@ -113,6 +114,7 @@
             </common-popup-block>
         </map-overlay>
         <map-overlay
+            v-if="pilot"
             class="aircraft-overlay"
             :model-value="isShowLabel"
             persistent
@@ -131,7 +133,7 @@
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
                 <div class="aircraft-label_text">
-                    {{ aircraft.callsign }}
+                    {{ pilot.callsign }}
                 </div>
             </div>
         </map-overlay>
@@ -141,7 +143,7 @@
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
@@ -154,7 +156,7 @@ import {
     usePilotRating,
 } from '~/composables/pilots';
 import { greatCircleGeometryToOL, sleep } from '~/utils';
-import { getAircraftIcon } from '~/utils/icons';
+import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
@@ -173,7 +175,7 @@ import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 
 const props = defineProps({
     aircraft: {
-        type: Object as PropType<VatsimShortenedAircraft>,
+        type: Object as PropType<VatsimMandatoryPilot>,
         required: true,
     },
     isHovered: {
@@ -223,8 +225,10 @@ function degreesToRadians(degrees: number) {
 }
 
 const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
-const icon = computed(() => getAircraftIcon(props.aircraft));
+const icon = computed(() => aircraftIcons[props.aircraft.icon]);
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
+
+const pilot = computed(() => dataStore.vatsim.data.pilots.value.find(x => props.aircraft.cid === x.cid));
 
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
@@ -295,7 +299,7 @@ const init = async () => {
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
 
 const isPropsHovered = computed(() => props.isHovered);
-const airportOverlayTracks = computed(() => props.aircraft.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === props.aircraft.arrival && x.data.showTracks));
+const airportOverlayTracks = computed(() => pilot.value && pilot.value.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.value?.arrival && x.data.showTracks));
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
 function clearLineFeatures(features = lineFeatures.value) {
@@ -340,8 +344,8 @@ async function toggleAirportLines(value = canShowLines.value) {
     linesUpdateInProgress.value = true;
 
     try {
-        const depAirport = value && props.aircraft.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.departure);
-        const arrAirport = value && props.aircraft.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === props.aircraft.arrival);
+        const depAirport = value && pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure);
+        const arrAirport = value && pilot.value?.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival);
 
         const distance = () => {
             if (!arrAirport) return null;
