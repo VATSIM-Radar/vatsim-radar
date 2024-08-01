@@ -1,4 +1,4 @@
-import type { cycles } from '~/server/plugins/navigraph';
+import type { cycles } from '~/utils/backend/navigraph-db';
 
 export interface VatDataVersions {
     vatspy: string;
