@@ -107,7 +107,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (!data || !dataStore.vatsim.data.general.value) return;
 
         const json = JSON.parse(data);
-        await setVatsimDataStore(json);
+        await setVatsimMandatoryData(json);
         dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
         dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
     }

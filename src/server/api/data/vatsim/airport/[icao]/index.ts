@@ -1,8 +1,8 @@
-import { handleH3Error } from '~/utils/backend/h3';
 import { radarStorage } from '~/utils/backend/storage';
 import { MultiPolygon } from 'ol/geom';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { fromServerLonLat, getVatsimAirportInfo } from '~/utils/backend/vatsim';
+import { fromServerLonLat, getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
+import { getAirportWeather } from '~/utils/backend/vatsim/weather';
 
 export interface VatsimAirportData {
     metar?: string;
@@ -11,33 +11,11 @@ export interface VatsimAirportData {
     center: string[];
 }
 
-const caches: {
-    icao: string;
-    metar?: string;
-    taf?: string;
-    date: number;
-}[] = [];
-
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
-    const icao = getRouterParam(event, 'icao')?.toUpperCase();
-    if (icao?.length !== 4) {
-        handleH3Error({
-            event,
-            statusCode: 400,
-            statusMessage: 'Invalid ICAO',
-        });
-        return;
-    }
+    const validateAirport = validateAirportIcao(event, true);
+    if (!validateAirport) return;
 
-    const airport = radarStorage.vatspy.data?.airports.find(x => x.icao === icao);
-    if (!airport) {
-        handleH3Error({
-            event,
-            statusCode: 404,
-            statusMessage: 'Airport not found',
-        });
-        return;
-    }
+    const { icao, airport } = validateAirport;
 
     const weatherOnly = getQuery(event).requestedDataType === '1';
     const controllersOnly = getQuery(event).requestedDataType === '2';
@@ -49,46 +27,9 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     if (!controllersOnly) {
         promises.push(new Promise<void>(async resolve => {
-            const cachedMetar = caches.find(x => x.icao === icao);
-            if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - (1000 * 60 * 5)) {
-                data.metar = cachedMetar.metar;
-                data.taf = cachedMetar.taf;
-            }
-            else {
-                try {
-                    const [metar, taf] = await Promise.all([
-                        $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }),
-                        $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
-                    ]);
-
-                    data.metar = metar.split('\n')[1];
-                    const splitTaf = taf.split('\n');
-                    data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
-
-                    if (cachedMetar) {
-                        cachedMetar.date = Date.now();
-                        cachedMetar.metar = data.metar;
-                        cachedMetar.taf = data.taf;
-                    }
-                    else {
-                        caches.push({
-                            icao,
-                            metar: data.metar,
-                            taf: data.taf,
-                            date: Date.now(),
-                        });
-                    }
-                }
-                catch (e) {
-                    if (cachedMetar?.metar) {
-                        data.metar = cachedMetar.metar;
-                    }
-
-                    if (cachedMetar?.taf) {
-                        data.taf = cachedMetar.metar;
-                    }
-                }
-            }
+            const weather = await getAirportWeather(icao);
+            if (weather?.metar) data.metar = weather.metar;
+            if (weather?.taf) data.taf = weather.taf;
 
             resolve();
         }));
@@ -122,7 +63,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     if (firs.length) {
         data.center = [...new Set(
             firs
-                .flatMap(x => x && x.map(x => x.controller?.callsign))
+                .flatMap(x => x ? x.map(x => x.controller?.callsign) : [])
                 .filter(x => !!x) as string[],
         )];
     }

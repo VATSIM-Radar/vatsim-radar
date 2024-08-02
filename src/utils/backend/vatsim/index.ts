@@ -1,4 +1,5 @@
 import { ofetch } from 'ofetch';
+import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -6,6 +7,8 @@ import type { Coordinate } from 'ol/coordinate';
 import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { IVatsimTransceiver } from '~/types/data/vatsim';
+import { handleH3Error } from '~/utils/backend/h3';
+import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -177,4 +180,37 @@ export function getTransceiverData(callsign: string): IVatsimTransceiver {
         groundAlt: pilot.transceivers[0].heightAglM,
         seaAlt: pilot.transceivers[0].heightMslM,
     };
+}
+
+export function validateAirportIcao(event: H3Event, detailed: true): { airport: VatSpyData['airports'][0]; icao: string } | undefined;
+export function validateAirportIcao(event: H3Event, detailed?: false): string | undefined;
+export function validateAirportIcao(event: H3Event, detailed?: boolean): string | { airport: VatSpyData['airports'][0]; icao: string } | undefined {
+    const icao = getRouterParam(event, 'icao')?.toUpperCase();
+    if (icao?.length !== 4) {
+        handleH3Error({
+            event,
+            statusCode: 400,
+            statusMessage: 'Invalid ICAO',
+        });
+        return;
+    }
+
+    const airport = radarStorage.vatspy.data?.airports.find(x => x.icao === icao);
+    if (!airport) {
+        handleH3Error({
+            event,
+            statusCode: 404,
+            statusMessage: 'Airport not found',
+        });
+        return;
+    }
+
+    if (detailed) {
+        return {
+            airport,
+            icao,
+        };
+    }
+
+    return icao;
 }
