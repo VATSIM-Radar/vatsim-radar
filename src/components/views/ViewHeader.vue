@@ -1,6 +1,15 @@
 <template>
     <div
-        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningClosed"
+        v-if="true"
+        class="header-error"
+    >
+        <div class="header-error_text">
+            We are planning to release performance and traffic update at 17z. If on that time you would notice that your aircraft will stop updating - please reload the page for update to apply.<br>
+            Thank you for your patience.
+        </div>
+    </div>
+    <div
+        v-else-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningClosed"
         class="header-error"
     >
         <div class="header-error_text">
