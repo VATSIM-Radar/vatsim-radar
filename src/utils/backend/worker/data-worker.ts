@@ -1,18 +1,24 @@
 import { createGzip } from 'node:zlib';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { CronJob } from 'cron';
-import { getServerVatsimLiveShortData, radarStorage } from '../storage';
+import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
-import { updateVatsimDataStorage } from '~/utils/backend/vatsim/update';
+import {
+    updateVatsimDataStorage,
+    updateVatsimExtendedPilots,
+    updateVatsimMandatoryDataStorage,
+} from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
+import { initNavigraph } from '~/utils/backend/navigraph-db';
 
 initInfluxDB();
 initKafka();
+initNavigraph().catch(console.error);
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -169,6 +175,11 @@ CronJob.from({
                 objectAssign(controller, newerData);
             });
 
+            radarStorage.vatsim.kafka.pilots = radarStorage.vatsim.kafka.pilots.filter(x => radarStorage.vatsim.data!.pilots.some(y => y.callsign === x.callsign));
+            radarStorage.vatsim.kafka.atc = radarStorage.vatsim.kafka.atc.filter(x => radarStorage.vatsim.data!.controllers.some(y => y.callsign === x.callsign) ||
+                radarStorage.vatsim.data!.atis.some(y => y.callsign === x.callsign));
+            radarStorage.vatsim.kafka.prefiles = radarStorage.vatsim.kafka.prefiles.filter(x => radarStorage.vatsim.data!.prefiles.some(y => y.callsign === x.callsign));
+
             if (toDelete.pilots.size) radarStorage.vatsim.data!.pilots = radarStorage.vatsim.data!.pilots.filter(x => !toDelete.pilots.has(x.callsign));
             if (toDelete.atc.size) radarStorage.vatsim.data!.controllers = radarStorage.vatsim.data!.controllers.filter(x => !toDelete.atc.has(x.callsign));
             if (toDelete.atis.size) radarStorage.vatsim.data!.atis = radarStorage.vatsim.data!.atis.filter(x => !toDelete.atis.has(x.callsign));
@@ -179,12 +190,10 @@ CronJob.from({
             toDelete.atis.clear();
             toDelete.prefiles.clear();
 
-            radarStorage.vatsim.kafka.pilots = radarStorage.vatsim.kafka.pilots.filter(x => radarStorage.vatsim.data!.pilots.some(y => y.callsign === x.callsign));
-            radarStorage.vatsim.kafka.atc = radarStorage.vatsim.kafka.atc.filter(x => radarStorage.vatsim.data!.controllers.some(y => y.callsign === x.callsign) ||
-                radarStorage.vatsim.data!.atis.some(y => y.callsign === x.callsign));
-            radarStorage.vatsim.kafka.prefiles = radarStorage.vatsim.kafka.prefiles.filter(x => radarStorage.vatsim.data!.prefiles.some(y => y.callsign === x.callsign));
-
             updateVatsimDataStorage();
+            updateVatsimMandatoryDataStorage();
+
+            await updateVatsimExtendedPilots();
 
             /* radarStorage.vatsim.data.controllers.push({
                 callsign: 'ULLL_R_CTR',
@@ -275,7 +284,7 @@ CronJob.from({
             const gzip = createGzip({
                 level: 9,
             });
-            gzip.write(JSON.stringify(getServerVatsimLiveShortData()));
+            gzip.write(JSON.stringify(radarStorage.vatsim.mandatoryData));
             gzip.end();
 
             const chunks: Buffer[] = [];
@@ -293,7 +302,7 @@ CronJob.from({
                     ws.failCheck++;
 
                     // @ts-expect-error Non-standard field
-                    if (ws.failCheck >= 60) {
+                    if (ws.failCheck >= 10) {
                         ws.terminate();
                     }
                 });
@@ -304,9 +313,8 @@ CronJob.from({
         catch (e) {
             console.error(e);
         }
-        finally {
-            dataInProgress = false;
-            dataLatestFinished = Date.now();
-        }
+
+        dataInProgress = false;
+        dataLatestFinished = Date.now();
     },
 });

@@ -2,15 +2,15 @@ import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/
 import type {
     VatsimData,
     VatsimDivision,
-    VatsimEvent,
-    VatsimLiveData, VatsimLiveDataShort,
+    VatsimEvent, VatsimExtendedPilot,
+    VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
-import type { cycles } from '~/server/plugins/navigraph';
 import type { FeatureCollection, MultiPolygon } from 'geojson';
+import type { cycles } from '~/utils/backend/navigraph-db';
 
 export type SimAwareData = FeatureCollection<MultiPolygon>;
 export interface SimAwareAPIData {
@@ -35,6 +35,8 @@ export const radarStorage = {
     vatsim: {
         data: null as null | VatsimData,
         regularData: null as null | VatsimShortenedData,
+        mandatoryData: null as null | VatsimMandatoryData,
+        extendedPilots: [] as VatsimExtendedPilot[],
         firs: [] as VatSpyDataFeature[],
         locals: [] as VatSpyDataLocalATC[],
         airports: [] as MapAirport[],

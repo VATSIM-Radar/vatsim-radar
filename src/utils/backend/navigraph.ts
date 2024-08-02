@@ -9,6 +9,7 @@ import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
 import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
+import { $fetch } from 'ofetch';
 
 function base64URLEncode(str: Buffer) {
     return str
@@ -158,9 +159,11 @@ export async function getNavigraphRunways({ user, icao, event }: {
 export async function getNavigraphGates({ user, icao, event }: {
     user: FullUser | null;
     icao: string;
-    event: H3Event;
+    event?: H3Event;
 }) {
     let gates: NavigraphGate[] = [];
+
+    if (!navigraphCurrentDb || !navigraphCurrentDb) return gates;
 
     try {
         await new Promise<void>((resolve, reject) => {
@@ -186,7 +189,10 @@ export async function getNavigraphGates({ user, icao, event }: {
         });
     }
     catch (e) {
-        handleH3Exception(event, e);
+        if (event) {
+            handleH3Exception(event, e);
+        }
+        else throw e;
         return;
     }
 
