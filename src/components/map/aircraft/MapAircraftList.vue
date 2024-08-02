@@ -51,7 +51,16 @@ function receiveMessage(event: MessageEvent) {
     if (event.origin !== config.public.DOMAIN) {
         return;
     }
-    if (event.data && 'selectedPilot' in event.data) mapStore.addPilotOverlay(event.data.selectedPilot.toString());
+    if (event.source === window) return; // the message is from the same window, so we ignore it
+
+    if (event.data && 'selectedPilot' in event.data) {
+        if (event.data.selectedPilot === null) {
+            mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot' || x.key !== hoveredAircraft.value?.toString());
+        }
+        else {
+            mapStore.addPilotOverlay(event.data.selectedPilot.toString());
+        }
+    }
 }
 
 function sendSelectedPilotToDashboard(cid: number | null = null) {
