@@ -20,7 +20,7 @@ let invalidIcon;
 try {
     invalidIcon = readFileSync(`./src/assets/icons/aircraft/${ icon.toUpperCase() }.svg`);
 }
-catch {}
+catch { /* empty */ }
 
 if (invalidIcon) renameSync(`./src/assets/icons/aircraft/${ icon.toUpperCase() }.svg`, `./src/assets/icons/aircraft/${ icon.toLowerCase() }.svg`);
 
