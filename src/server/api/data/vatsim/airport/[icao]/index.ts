@@ -7,7 +7,7 @@ import { getAirportWeather } from '~/utils/backend/vatsim/weather';
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
-    vatInfo?: VatsimAirportInfo;
+    vatInfo?: VatsimAirportInfo | null;
     center: string[];
 }
 

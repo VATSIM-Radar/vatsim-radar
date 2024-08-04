@@ -207,7 +207,7 @@
                     Show tracks for arriving
                 </common-toggle>
             </div>
-            <airport-aircraft/>
+            <airport-aircraft nav-offset="56px"/>
         </template>
         <template #actions>
             <common-button-group>
@@ -438,7 +438,7 @@ onMounted(() => {
 
     &__counts {
         display: flex;
-        gap: 6px;
+        gap: 4px;
         align-items: center;
 
         font-size: 12px;
@@ -451,7 +451,7 @@ onMounted(() => {
 
         &_counter {
             display: flex;
-            gap: 3px;
+            gap: 2px;
             align-items: center;
             color: var(--color);
 

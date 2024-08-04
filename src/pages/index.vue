@@ -282,8 +282,8 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 1.2;
-        projectionExtent[2] *= 1.2;
+        projectionExtent[0] *= 2;
+        projectionExtent[2] *= 2;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
 

@@ -38,7 +38,7 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import { containsExtent } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
-import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature } from 'geojson';
+import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
 
 let vectorLayer: VectorLayer<any>;
@@ -157,7 +157,7 @@ watch(map, val => {
     if (!airportsLayer) {
         airportsSource.value = new VectorSource<any>({
             features: [],
-            wrapX: true,
+            wrapX: false,
         });
 
         airportsLayer = new VectorLayer<any>({
@@ -178,6 +178,7 @@ watch(map, val => {
 });
 
 onBeforeUnmount(() => {
+    if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (airportsLayer) map.value?.removeLayer(airportsLayer);
     map.value?.un('pointermove', handlePointerMove);
@@ -317,6 +318,7 @@ const getAirportsList = computed(() => {
     for (const atc of dataStore.vatsim.data.locals.value) {
         const airport = airports.find(x => ((x.airport.iata || atc.airport.iata) && (atc.airport.isSimAware || !airports.some(y => x.airport.lat === y.airport.lat && x.airport.lon && y.airport.lon))) ? x.airport.iata === atc.airport.iata : x.airport.icao === atc.airport.icao);
         const icaoOnlyAirport = airports.find(x => atc.airport.isPseudo && atc.airport.iata && x.airport.icao === atc.airport.icao);
+
         if (!airport) continue;
 
         const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
@@ -360,7 +362,7 @@ const getAirportsList = computed(() => {
     }
 
     const sectors: {
-        sector: GeoFeature<MultiPolygon, GeoJsonProperties>;
+        sector: GeoFeature<MultiPolygon | Polygon, GeoJsonProperties>;
         prefixes: string[];
         suffix: string | null;
         airport: typeof airports[0];
@@ -370,7 +372,6 @@ const getAirportsList = computed(() => {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
         const airport = findSectorAirport(sector);
-
 
         if (airport?.arrAtc.length) {
             sectors.push({
@@ -522,7 +523,7 @@ async function setVisibleAirports() {
                 gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel?.[0] - x.pixel?.[0]) < 15 && Math.abs(y.pixel?.[1] - x.pixel?.[1]) < 15))),
                 runways: data.runways,
             };
-        });
+        }).filter(x => visibleAirports.value.find(y => y.vatsimAirport.icao === x.airport));
     }
 }
 

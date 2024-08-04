@@ -54,6 +54,7 @@ export function refreshNavigraphToken(refreshToken: string) {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: form.toString(),
+        retry: 3,
     });
 }
 

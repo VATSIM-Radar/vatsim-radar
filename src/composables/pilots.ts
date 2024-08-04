@@ -131,7 +131,7 @@ export function reColorSvg(svg: string, status: MapAircraftStatus) {
         .replaceAll('white', aircraftSvgColors()[status])
         .replaceAll('#F8F8FA', aircraftSvgColors()[status]);
 
-    if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white');
+    if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
 
     return iconContent;
 }

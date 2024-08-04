@@ -29,18 +29,16 @@
             />
         </div>
         <div
-            v-if="airportInfo.transition_alt"
+            v-if="airportInfo.transition_level"
             class="__grid-info-sections"
         >
             <div class="__grid-info-sections_title">
                 Transition
             </div>
             <common-info-block
-                :bottom-items="[
-                    airportInfo.transition_level_by_atc ? `Otherwise ${ airportInfo.transition_alt }` : '',
-                ]"
+                :bottom-items="[airportInfo.transition_level?.toString(), airportInfo.transition_alt?.toString()]"
                 class="__grid-info-sections_content"
-                :top-items="[airportInfo.transition_level?.toString()]"
+                :top-items="['Level', 'Altitude']"
             />
         </div>
         <div class="__grid-info-sections">

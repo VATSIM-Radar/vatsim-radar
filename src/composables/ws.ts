@@ -70,7 +70,9 @@ export function initDataWebsocket(): () => void {
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
         setVatsimMandatoryData(json);
-        dataStore.vatsim.data.general.value!.update_timestamp = date;
+        if (dataStore.vatsim.data.general.value) {
+            dataStore.vatsim.data.general.value!.update_timestamp = date;
+        }
         dataStore.vatsim.updateTimestamp.value = date;
     });
 

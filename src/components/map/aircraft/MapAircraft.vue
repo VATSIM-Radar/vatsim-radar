@@ -70,6 +70,12 @@
                             </template>
                             <template #bottom>
                                 {{ pilot.departure }}
+                                <div
+                                    v-if="depAirport"
+                                    class="aircraft-hover__airport"
+                                >
+                                    {{ depAirport.name }}
+                                </div>
                             </template>
                         </common-info-block>
                         <common-info-block
@@ -83,6 +89,12 @@
                             </template>
                             <template #bottom>
                                 {{ pilot.arrival }}
+                                <div
+                                    v-if="arrAirport"
+                                    class="aircraft-hover__airport"
+                                >
+                                    {{ arrAirport.name }}
+                                </div>
                             </template>
                         </common-info-block>
                     </div>
@@ -337,19 +349,22 @@ async function setState() {
 
 watch(changeState, setState);
 
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
+const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
+
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;
 
     linesUpdateInProgress.value = true;
 
     try {
-        const depAirport = value && pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure);
-        const arrAirport = value && pilot.value?.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival);
+        const departureAirport = value && depAirport.value;
+        const arrivalAirport = value && arrAirport.value;
 
         const distance = () => {
-            if (!arrAirport) return null;
+            if (!arrivalAirport) return null;
             return calculateDistanceInNauticalMiles(
-                toLonLat([arrAirport.lon, arrAirport.lat]),
+                toLonLat([arrivalAirport.lon, arrivalAirport.lat]),
                 toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
             );
         };
@@ -502,9 +517,9 @@ async function toggleAirportLines(value = canShowLines.value) {
                     });
                 }
 
-                if (i === turns.features.length - 1 && !shortUpdate && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
+                if (i === turns.features.length - 1 && !shortUpdate && departureAirport && arrivalAirport && departureAirport.icao !== arrivalAirport?.icao && !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
                     const coordinates = [
-                        [depAirport.lon, depAirport.lat],
+                        [departureAirport.lon, departureAirport.lat],
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
                     const points = coordinates.map(x => point(toLonLat(x)));
@@ -539,7 +554,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 }
 
                 for (let i = 0; i < collection.features.length; i++) {
-                    if (i % 2 === 1) continue;
                     const curPoint = collection.features[i];
                     const nextPoint = collection.features[i + 1];
                     if (!nextPoint) {
@@ -560,8 +574,6 @@ async function toggleAirportLines(value = canShowLines.value) {
 
                     const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates.map(x => fromLonLat(x)) : circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x)));
 
-                    if (circle.geometry.type !== 'LineString') console.log(geometry);
-
                     geometry.map(x => addFeature(x));
                 }
 
@@ -579,8 +591,8 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (depAirport) {
-                const start = point(toLonLat([depAirport.lon, depAirport.lat]));
+            if (departureAirport) {
+                const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
                 const geometry = greatCircleGeometryToOL(greatCircle(start, end));
@@ -615,9 +627,9 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (arrivalAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
-            const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
+            const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
 
             const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
@@ -753,6 +765,10 @@ onUnmounted(() => {
             font-size: 11px;
             font-weight: normal;
         }
+    }
+
+    &__airport {
+        font-size: 9px;
     }
 
     &_body {

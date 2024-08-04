@@ -168,7 +168,6 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
     return aircraft;
 };
 
-
 export const arrivalIntervals = (aircrafts: Ref<AirportPopupPilotList | null>, intervals: number, intervalLength: number) => {
     const returnArray = computed<AirportPopupPilotStatus[][]>(() => {
         const returnArray = [];
@@ -196,4 +195,11 @@ export const arrivalIntervals = (aircrafts: Ref<AirportPopupPilotList | null>, i
     });
 
     return returnArray;
+};
+
+export const getAirportCountry = (icao?: string | null) => {
+    if (!icao) return null;
+    if (icao === 'UMKK') icao = 'UUDD';
+
+    return useDataStore().vatspy.value?.data.countries.find(x => x.code === icao.slice(0, 2));
 };

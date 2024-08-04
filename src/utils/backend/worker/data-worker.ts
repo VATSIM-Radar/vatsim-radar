@@ -15,6 +15,7 @@ import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 
 initInfluxDB();
 initKafka();
@@ -94,6 +95,15 @@ CronJob.from({
         finally {
             transceiversInProgress = false;
         }
+    },
+});
+
+CronJob.from({
+    cronTime: '15 * * * *',
+    runOnInit: true,
+    start: true,
+    onTick: async () => {
+        await updateSimAware();
     },
 });
 

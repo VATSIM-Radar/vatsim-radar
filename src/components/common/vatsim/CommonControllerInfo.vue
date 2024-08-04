@@ -29,7 +29,6 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis || !controller.logon_time ? undefined : getATCTime(controller),
                         showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
@@ -75,11 +74,10 @@
                         </template>
                     </template>
                     <template
-                        v-if="showAtis"
                         #bottom
                     >
                         <ul
-                            v-if="controller.text_atis?.length"
+                            v-if="showAtis && controller.text_atis?.length"
                             class="atc-popup_atc__atis"
                         >
                             <li
@@ -105,7 +103,7 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import { getATCTime, getControllerPositionColor } from '~/composables/atc';
+import { getControllerPositionColor } from '~/composables/atc';
 import { useMapStore } from '~/store/map';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';

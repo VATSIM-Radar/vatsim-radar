@@ -17,6 +17,12 @@
   "packageRules": [
     {
       "matchPackageNames": [
+        "tsx"
+      ],
+      "allowedVersions": "4.6.12"
+    },
+    {
+      "matchPackageNames": [
         "node",
         "arm64v8/node"
       ],

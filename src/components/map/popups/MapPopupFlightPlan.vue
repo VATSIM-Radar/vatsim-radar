@@ -109,6 +109,7 @@ import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import { useMapStore } from '~/store/map';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import { getAirportCountry } from '~/composables/airport';
 
 const props = defineProps({
     flightPlan: {
@@ -160,11 +161,11 @@ const arrAirport = computed(() => {
 });
 
 const depCountry = computed(() => {
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === depAirport?.value?.icao.slice(0, 2));
+    return getAirportCountry(depAirport.value?.icao);
 });
 
 const arrCountry = computed(() => {
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === arrAirport?.value?.icao.slice(0, 2));
+    return getAirportCountry(arrAirport.value?.icao);
 });
 
 const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');

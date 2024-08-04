@@ -83,7 +83,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
                 icao: 'icao' in airport ? airport.icao : airport.properties!.id,
                 iata: 'icao' in airport ? airport.iata : undefined,
                 isPseudo: !('icao' in airport),
-                isSimAware: !('icao' in airport) || !!airport.isSimAware,
+                isSimAware: 'isSimAware' in airport ? !!airport.isSimAware : (!('icao' in airport) || !!airport.isSimAware),
             },
             isATIS: atc.callsign.endsWith('ATIS'),
         };
@@ -306,7 +306,7 @@ export function getAirportsList() {
                 icao: airport.icao,
                 iata: !someAirportExist ? airport.iata : someAirportExist.iata,
                 isPseudo: !airportExist,
-                isSimAware: !someAirportExist,
+                isSimAware: !airportExist,
                 aircraft: {},
             });
         }
