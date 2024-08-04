@@ -2,7 +2,7 @@ import { handleH3Exception } from '~/utils/backend/h3';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
 
-export default defineEventHandler(async (event): Promise<VatsimAirportInfo | undefined> => {
+export default defineEventHandler(async (event): Promise<VatsimAirportInfo | null | undefined> => {
     const icao = validateAirportIcao(event);
     if (!icao) return;
 

@@ -370,30 +370,41 @@ const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     default: () => null,
 });
 
+function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | 'alone') {
+    if (height === 0) return '0';
+    let calculatedHeight = `calc(${ height }vh`;
+    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - 16px)`;
+    else if (type === 'map') calculatedHeight += ` - 16px)`;
+    else if (type === 'alone') calculatedHeight += ` - (32px + 56px) - 16px)`;
+    else calculatedHeight += ')';
+
+    return calculatedHeight;
+}
+
 const mapLayouts: Record<MapMode, { dash: string; map: string }> = {
     default: {
-        dash: `calc(60vh - (32px + 56px) - 40px - 16px)`,
-        map: 'calc(40vh - 16px)',
+        dash: calculateMapLayout(60, 'dash'),
+        map: calculateMapLayout(40, 'map'),
     },
     dashBigMapBig: {
-        dash: '80vh',
-        map: '80vh',
+        dash: calculateMapLayout(80, 'default'),
+        map: calculateMapLayout(80, 'default'),
     },
     dashSmallMapBig: {
-        dash: '30vh',
-        map: '70vh',
+        dash: calculateMapLayout(30, 'dash'),
+        map: calculateMapLayout(70, 'map'),
     },
     dashBigMapSmall: {
-        dash: '70vh',
-        map: '30vh',
+        dash: calculateMapLayout(70, 'dash'),
+        map: calculateMapLayout(30, 'map'),
     },
     dashOnly: {
-        dash: '90vh',
-        map: '0',
+        dash: calculateMapLayout(90, 'alone'),
+        map: calculateMapLayout(0, 'map'),
     },
     mapOnly: {
-        dash: '0',
-        map: '90vh',
+        dash: calculateMapLayout(0, 'dash'),
+        map: calculateMapLayout(90, 'alone'),
     },
 };
 

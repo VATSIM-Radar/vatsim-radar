@@ -5,6 +5,23 @@
 ## Features and improvements
 
 - Updated helicopter icons matching
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BALL, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL
+- Re-colored tracks again
+  - QA: let's test how now color look!
+- Added airports names to aircraft on-hover popup
+- Transition display now clarifies where you can find level and altitude
+- Removed height limit for aircraft list
+- Changed runway number color
+- Reworked dashboard map height for different modes - so it will always fit on screen
+
+## Bug Fixes
+
+- Fixed some of SimAware tracons rendered as circles, like CHI_Z_APP
+- Fixed some of SimAware tracons that had labels rendering in ocean without any tracon displayed
+- UMKK will now show in Russia instead of Belarus
+- Fixed some airports were showing division undefined and empty name in airport info
+- Map will stop shaking when opening aircraft near to the ocean
+- Fixed aircraft track line for oceanic flights
 
 # 0.4.4-alpha.1
 
@@ -16,6 +33,7 @@ Big thanks to Felix 1025793 for making this release possible!
 - Pilot popups can now be closed by clicking on them
 - Airport label click priotity is now higher than aircraft
 - Pilot select in Airport Dashboard will now also open pilot in dashboard itself
+- Updated aircraft missclick protection to be less agressive
 
 # 0.4.3
 
@@ -50,7 +68,7 @@ Welcome to newest VATSIM Radar release! It comes packed with new map and weather
 
 ## Features and improvements
 
-- Pilots connected mid-flight will now have track line connected with airport 
+- Pilots connected mid-flight will now have track line connected with airport
 - Added server time to airport dashboard
 - Pilot overlay now has frequency this pilot is on
 - Improved performance when looking for an aircraft

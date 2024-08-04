@@ -141,10 +141,12 @@ export interface VatsimAirportInfo {
     ctafFreq?: string;
 }
 
-export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo> {
+export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo | null> {
     const airportData = await $fetch<{
         data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
     }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`).catch(() => {});
+
+    if (!airportData?.data.icao) return null;
 
     return {
         icao: airportData?.data.icao,

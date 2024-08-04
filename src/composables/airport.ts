@@ -167,3 +167,10 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
     return aircraft;
 };
+
+export const getAirportCountry = (icao?: string | null) => {
+    if (!icao) return null;
+    if (icao === 'UMKK') icao = 'UUDD';
+
+    return useDataStore().vatspy.value?.data.countries.find(x => x.code === icao.slice(0, 2));
+};

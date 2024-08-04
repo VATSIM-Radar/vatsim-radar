@@ -526,7 +526,7 @@ onMounted(async () => {
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.7)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('warning500').join(',') }, 0.7)`,
                     }),
                 }),
             }));
@@ -535,6 +535,7 @@ onMounted(async () => {
         });
     }, {
         immediate: true,
+        deep: true,
     });
 
     if (isPrimaryAirport.value) {

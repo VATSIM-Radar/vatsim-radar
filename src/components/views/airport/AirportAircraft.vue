@@ -185,6 +185,10 @@ const props = defineProps({
         type: String as PropType<MapAircraftKeys | null>,
         default: null,
     },
+    navOffset: {
+        type: String,
+        default: '0',
+    },
 });
 
 const selected = defineModel<number | null>('selected', { type: Number, default: null });
@@ -363,7 +367,7 @@ defineExpose({
 
     &_nav {
         position: sticky;
-        top: 0;
+        top: v-bind(navOffset);
 
         display: flex;
         flex-direction: column;
@@ -398,12 +402,10 @@ defineExpose({
 
     &_list {
         --block-title-background: #{$darkgray950};
-        overflow: auto;
         display: flex;
         flex-direction: column;
         gap: 8px;
 
-        max-height: 200px;
         padding: 8px;
 
         background: $darkgray950;

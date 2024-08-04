@@ -31,15 +31,14 @@
                         <span>{{ getCounts.total }}</span> connections
                     </div>
                     <div class="map-footer__connections_title">
-                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in Radar
+                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
                             <span>{{ getCounts.pilots }}</span> pilots
                         </div>
                         <div class="map-footer__connections_info_item">
-                            <span>{{ getCounts.firs }}</span> sector /
-                            <span>{{ getCounts.atc }}</span> local atc
+                            <span>{{ getCounts.firs + getCounts.atc }}</span> atc
                         </div>
                         <div
                             v-if="getCounts.sups"
@@ -86,7 +85,7 @@
             v-if="getLastUpdated"
             class="map-footer_right"
         >
-            VATSIM data time: {{ getLastUpdated }}
+            Map last updated: {{ getLastUpdated }}
         </div>
     </footer>
     <common-popup v-model="airacPopup">
@@ -181,7 +180,7 @@ const getCounts = computed(() => {
 });
 
 const getLastUpdated = computed(() => {
-    const updateTimestamp = dataStore.vatsim.data.general.value?.update_timestamp;
+    const updateTimestamp = dataStore.vatsim.updateTimestamp.value;
     if (!updateTimestamp) return null;
 
     const date = new Date(updateTimestamp);
@@ -242,7 +241,8 @@ const getLastUpdated = computed(() => {
 
         &--current {
             cursor: default;
-            background: varToRgba('primary500', 0.1);
+            color: $lightgray125;
+            background: linear-gradient(90deg, rgba(184, 42, 20, 0.25) 0%, $darkgray950 75%);
         }
     }
 

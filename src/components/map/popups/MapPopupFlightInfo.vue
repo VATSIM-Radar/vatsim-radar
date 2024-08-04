@@ -137,12 +137,12 @@
                             </div>
                         </template>
 
-                        Left value is currently set on the aircraft,<br> the right value was assigned by ATC
+                        The left value is currently set on the aircraft,<br> while the right value was assigned by ATC.
 
                         <template v-if="!canShowRightTransponder">
                             <br><br>
 
-                            You don't see the right value because it could be the same as the left value or a squawk might not have been assigned
+                            You don't see the right value because it might be the same as the set value or a squawk may not have been assigned.
                         </template>
                     </common-tooltip>
                 </template>

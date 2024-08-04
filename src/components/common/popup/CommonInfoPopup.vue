@@ -228,13 +228,6 @@ watch(getSections, sections => {
             padding-bottom: 0;
         }
 
-        &_title {
-            font-family: $openSansFont;
-            font-size: 14px;
-            font-weight: 700;
-            color: $lightgray100;
-        }
-
         &_actions {
             position: relative;
             z-index: 1;
