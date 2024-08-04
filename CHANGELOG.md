@@ -1,5 +1,11 @@
 # Changelog
 
+# 0.4.4-alpha.2
+
+## Features and improvements
+
+- Updated helicopter icons matching
+
 # 0.4.4-alpha.1
 
 Big thanks to Felix 1025793 for making this release possible!

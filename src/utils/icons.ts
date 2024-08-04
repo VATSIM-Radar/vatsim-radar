@@ -75,7 +75,12 @@ export type AircraftIcon =
     | 'tbm9'
     | 't134'
     | 't144'
-    | 't154';
+    | 't154'
+    | 'a3st'
+    | 'a345'
+    | 'a346'
+    | 'a400'
+    | 'an24';
 
 const standardCoef = 30;
 
@@ -398,6 +403,26 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'p46t',
         width: getAircraftSizeByCoef(0.22),
     },
+    a3st: {
+        icon: 'a3st',
+        width: getAircraftSizeByCoef(0.75),
+    },
+    a345: {
+        icon: 'a345',
+        width: getAircraftSizeByCoef(1.06),
+    },
+    a346: {
+        icon: 'a346',
+        width: getAircraftSizeByCoef(1.06),
+    },
+    a400: {
+        icon: 'a400',
+        width: getAircraftSizeByCoef(0.71),
+    },
+    an24: {
+        icon: 'an24',
+        width: getAircraftSizeByCoef(0.49),
+    },
 };
 
 export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot): {
@@ -409,7 +434,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
 
     switch (faa) {
         case 'A306':
-        case 'A3ST':
         case 'A30B':
         case 'A30F':
             return aircraftIcons.a300;
@@ -433,8 +457,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A342':
             return aircraftIcons.a342;
         case 'A343':
-        case 'A345':
-        case 'A346':
             return aircraftIcons.a343;
         case 'A359':
             return aircraftIcons.a359;
@@ -672,6 +694,11 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B762':
         case 'B763':
         case 'B764':
+        case 'A3ST':
+        case 'A345':
+        case 'A346':
+        case 'A400':
+        case 'AN24':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
