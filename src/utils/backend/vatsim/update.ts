@@ -12,8 +12,8 @@ import {
     calculateDistanceInNauticalMiles,
     calculateProgressPercentage,
 } from '~/utils/shared/flight';
-import { MultiPolygon } from 'ol/geom';
 import type { NavigraphGate } from '~/types/data/navigraph';
+import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -82,24 +82,8 @@ async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
     return gates[icao];
 }
 
-let firsPolygons: {
-    icao: string;
-    featureId: string;
-    polygon: MultiPolygon;
-}[] = [];
-let firsVersion = '';
-
 export async function updateVatsimExtendedPilots() {
-    if (firsVersion !== radarStorage.vatspy.version) {
-        firsPolygons = radarStorage.vatspy.data!.firs.map(fir => {
-            return {
-                icao: fir.icao,
-                featureId: fir.feature.id as string,
-                polygon: new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x))))),
-            };
-        });
-        firsVersion = radarStorage.vatspy.version;
-    }
+    const firsPolygons = getFirsPolygons();
 
     const firsList = firsPolygons.map(({ icao, featureId, polygon }) => ({
         controllers: radarStorage.vatsim.firs.filter(
