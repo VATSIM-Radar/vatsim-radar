@@ -4,7 +4,7 @@
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            VATSIM Radar will undergo maintenance on August 10th at 07:00 UTC for one hour, during which online services may be temporally unavailable. Thank you for your patience.
+            VATSIM Radar will undergo maintenance on August 10th at 07:00z for one hour, during which online services may be temporally unavailable. Thank you for your patience.
         </div>
         <div
             class="header-error_close"
