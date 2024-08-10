@@ -3,6 +3,7 @@ import { ofetch } from 'ofetch';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
+import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 
 const revisions: Record<string, number> = {
@@ -192,4 +193,26 @@ export async function updateVatSpy() {
     radarStorage.vatspy.version = data.current_commit_hash;
     radarStorage.vatspy.data = result;
     console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
+}
+
+let firsPolygons: {
+    icao: string;
+    featureId: string;
+    polygon: OlMultiPolygon;
+}[] = [];
+let firsVersion = '';
+
+export function getFirsPolygons() {
+    if (firsVersion !== radarStorage.vatspy.version) {
+        firsPolygons = radarStorage.vatspy.data!.firs.map(fir => {
+            return {
+                icao: fir.icao,
+                featureId: fir.feature.id as string,
+                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x))))),
+            };
+        });
+        firsVersion = radarStorage.vatspy.version;
+    }
+
+    return firsPolygons;
 }

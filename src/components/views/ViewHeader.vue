@@ -1,6 +1,20 @@
 <template>
     <div
-        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningClosed"
+        v-if="!notamCookie"
+        class="header-error header-error--notam"
+    >
+        <div class="header-error_text">
+            VATSIM Radar will undergo maintenance on August 10th at 07:00z for one hour, during which online services may be temporally unavailable. Thank you for your patience.
+        </div>
+        <div
+            class="header-error_close"
+            @click="[notamCookie=true]"
+        >
+            <close-icon/>
+        </div>
+    </div>
+    <div
+        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningCookie"
         class="header-error"
     >
         <div class="header-error_text">
@@ -8,7 +22,7 @@
         </div>
         <div
             class="header-error_close"
-            @click="[warningCookie=true, warningClosed=true]"
+            @click="[warningCookie=true]"
         >
             <close-icon/>
         </div>
@@ -360,13 +374,18 @@ import type { ThemesList } from '~/utils/backend/styles';
 const route = useRoute();
 const store = useStore();
 const config = useRuntimeConfig();
+const notamCookie = useCookie<boolean>('notam-closed', {
+    path: '/',
+    sameSite: 'strict',
+    secure: true,
+    maxAge: 60 * 60 * 24,
+});
 const warningCookie = useCookie<boolean>('warning-closed', {
     path: '/',
     sameSite: 'strict',
     secure: true,
     maxAge: 60 * 60 * 24 * 7,
 });
-const warningClosed = ref(warningCookie.value);
 
 const buttons = computed(() => {
     return [
@@ -462,18 +481,36 @@ onMounted(() => {
     padding: 8px 24px;
 
     &-error {
+        position: relative;
+
         display: flex;
         gap: 16px;
         align-items: center;
         justify-content: space-between;
 
-        padding: 10px;
+        margin: 0 24px;
+        padding: 8px 16px;
 
         font-size: 12px;
         color: $lightgray150Orig;
 
         background: $error500;
-        border-radius: 0 0 10px 10px;
+        border-radius: 0 0 8px 8px;
+
+        &--notam {
+            background: $primary600;
+
+            &::before {
+                content: 'NOTAM';
+
+                position: absolute;
+                right: 40px;
+
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 2px;
+            }
+        }
 
         &_close {
             cursor: pointer;

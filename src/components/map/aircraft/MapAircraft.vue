@@ -376,7 +376,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         if (!lineFeatures.value.length) {
             turnsFirstGroupTimestamp.value = '';
-            turnsStart.value == '';
+            turnsStart.value = '';
         }
 
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;

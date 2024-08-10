@@ -1,8 +1,8 @@
 import { radarStorage } from '~/utils/backend/storage';
-import { MultiPolygon } from 'ol/geom';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { fromServerLonLat, getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
+import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
 import { getAirportWeather } from '~/utils/backend/vatsim/weather';
+import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 
 export interface VatsimAirportData {
     metar?: string;
@@ -50,13 +50,12 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     await Promise.allSettled(promises);
 
-    const list = radarStorage.vatspy.data?.firs ?? [];
+    const list = getFirsPolygons();
 
     const firs = list.map(fir => {
-        const geometry = new MultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x)))));
-        return geometry.intersectsCoordinate([airport.lon, airport.lat]) &&
+        return fir.polygon.intersectsCoordinate([airport.lon, airport.lat]) &&
             radarStorage.vatsim.firs.filter(
-                x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.feature.id) && x.controller,
+                x => x.firs.some(x => x.icao === fir.icao && x.boundaryId === fir.featureId) && x.controller,
             )!;
     }).filter(x => !!x);
 

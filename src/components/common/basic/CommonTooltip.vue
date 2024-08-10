@@ -67,15 +67,7 @@ enum TooltipOpenMethods {
 
 export type TooltipOpenMethod = keyof typeof TooltipOpenMethods;
 
-
-enum TooltipCloseMethods {
-    delay = 'delay',
-    click = 'click',
-    clickOutside = 'clickOutside',
-    mouseLeave = 'mouseLeave',
-}
-
-export type TooltipCloseMethod = keyof typeof TooltipCloseMethods;
+export type TooltipCloseMethod = 'delay' | 'click' | 'clickOutside' | 'mouseLeave';
 
 export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom';
 
