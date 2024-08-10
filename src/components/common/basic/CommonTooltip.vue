@@ -60,12 +60,8 @@ defineProps({
 });
 
 defineSlots<{ default(): any; activator(): any }>();
-enum TooltipOpenMethods {
-    click = 'click',
-    mouseOver = 'mouseOver',
-}
 
-export type TooltipOpenMethod = keyof typeof TooltipOpenMethods;
+export type TooltipOpenMethod = 'click' | 'mouseOver';
 
 export type TooltipCloseMethod = 'delay' | 'click' | 'clickOutside' | 'mouseLeave';
 
