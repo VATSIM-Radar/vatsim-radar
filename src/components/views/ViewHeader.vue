@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!notamCookie"
+        v-if="false && !notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
