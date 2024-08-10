@@ -24,7 +24,7 @@
     "@pinia/nuxt": "^0.5.3",
     "@prisma/client": "^5.17.0",
     "@turf/great-circle": "^7.0.0",
-    "adm-zip": "^0.5.14",
+    "adm-zip": "^0.5.15",
     "aws-sdk": "^2.1667.0",
     "bufferutil": "^4.0.8",
     "chardet": "^2.0.0",
