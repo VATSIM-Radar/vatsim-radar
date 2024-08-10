@@ -164,7 +164,8 @@ const datetime = new Intl.DateTimeFormat([], {
 
 const getCounts = computed(() => {
     const [atc, atis] = dataStore.vatsim.data.locals.value.reduce((acc, atc) => {
-        atc.isATIS ? acc[0]++ : acc[1]++;
+        if (atc.isATIS) acc[0]++;
+        else acc[1]++;
         return acc;
     }, [0, 0]);
 

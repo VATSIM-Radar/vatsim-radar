@@ -54,13 +54,9 @@ defineProps({
 
 defineSlots<{ default(): any; activator(): any }>();
 
-enum TooltipCloseMethods {
-    delay = 'delay',
-    clickOutside = 'clickOutside',
-    mouseLeave = 'mouseLeave',
-}
+type TooltipCloseMethods = 'delay' | 'clickOutside' | 'mouseLeave';
 
-export type TooltipCloseMethod = keyof typeof TooltipCloseMethods;
+export type TooltipCloseMethod = TooltipCloseMethods;
 
 export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom';
 
