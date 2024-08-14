@@ -28,39 +28,51 @@
                 class="airport__counts"
                 :class="{ 'airport__counts--listGroundDepartures': listGroundDepartures }"
             >
-                <div
-                    class="airport__counts_counter"
-                    :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
-                    @click="listGroundDepartures = !listGroundDepartures"
+                <common-tooltip
+                    class=""
+                    location="bottom"
+                    open-method="mouseOver"
+                    width="120px"
                 >
-                    <departing-icon
-                        v-if="!listGroundDepartures"
-                        class="airport__counts_counter_icon"
-                    />
-                    <div
-                        v-if="!listGroundDepartures"
-                        class="airport__counts_counter_icon_text"
-                    >
-                        {{ aircraft?.departures.length ?? 0 }}
-                    </div>
-                    <ground-icon
-                        v-if="listGroundDepartures"
-                        class="airport__counts_counter_icon"
-                    />
-                    <div
-                        v-if="listGroundDepartures"
-                        class="airport__counts_counter_icon_text"
-                    >
-                        {{ aircraft?.groundDep.length ?? 0 }}
-                    </div>
-                </div>
+                    <template #activator>
+                        <div
+                            class="airport__counts_counter"
+                            :style="{ '--color': `rgb(var(--${ getPilotStatus('depTaxi').color }))` }"
+                            @click="listGroundDepartures = !listGroundDepartures"
+                        >
+
+                            <departing-icon
+                                v-if="!listGroundDepartures"
+                                class="airport__counts_counter_icon"
+                            />
+                            <div
+                                v-if="!listGroundDepartures"
+                                class="airport__counts_counter_icon_text"
+                            >
+                                {{ aircraft?.departures.length ?? 0 }}
+                            </div>
+                            <ground-icon
+                                v-if="listGroundDepartures"
+                                class="airport__counts_counter_icon"
+                            />
+                            <div
+                                v-if="listGroundDepartures"
+                                class="airport__counts_counter_icon_text"
+                            >
+                                {{ aircraft?.groundDep.length ?? 0 }}
+                            </div>
+                        </div>
+                    </template>
+                    With a click you can switch between "already airborne departures", which is the default, and "departures on the ground".
+                </common-tooltip>
                 <common-tooltip
                     class="detailed_counts"
                     :class="{ 'detailed_counts--listGroundDepartures': listGroundDepartures }"
-                    close-method="click"
+                    :close-method="arrivalCountTooltipCloseMethod"
                     location="bottom"
-                    open-method="click"
+                    open-method="mouseOver"
                     width="100%"
+                    @click="arrivalCountTooltipCloseMethod = arrivalCountTooltipCloseMethod === 'mouseLeave' ? 'click' : 'mouseLeave'"
                 >
                     <template #activator>
                         <div
@@ -275,6 +287,7 @@ import Clock15To30Icon from '@/assets/icons/airport/clock_15to30.svg?component';
 import Clock30To45Icon from '@/assets/icons/airport/clock_30to45.svg?component';
 import Clock45To0Icon from '@/assets/icons/airport/clock_45to0.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import type { TooltipCloseMethod } from '~/components/common/basic/CommonTooltip.vue';
 import type { Map } from 'ol';
 
 const props = defineProps({
@@ -301,7 +314,8 @@ const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x =>
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
 const arrivalRate = arrivalIntervals(aircraft, 4, 15);
-const listGroundDepartures = ref(false);
+const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
+const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
 const showOnMap = () => {
     if (!airport.value) return;

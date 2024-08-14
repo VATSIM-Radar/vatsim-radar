@@ -9,7 +9,7 @@
             v-if="$slots.activator"
             class="tooltip_activator"
             tabindex="0"
-            @click="closeMethod !== 'clickOutside' && (model = !model)"
+            @click="closeMethod === 'click' && (model = !model)"
             @focus="closeMethod === 'clickOutside' && (model = true)"
             @focusout="closeMethod === 'clickOutside' &&  (model = false)"
         >
@@ -61,7 +61,7 @@ defineProps({
 
 defineSlots<{ default(): any; activator(): any }>();
 
-export type TooltipOpenMethod = 'click' | 'mouseOver';
+export type TooltipOpenMethod = 'click' | 'mouseOver' | 'disabled';
 
 export type TooltipCloseMethod = 'delay' | 'click' | 'clickOutside' | 'mouseLeave';
 
