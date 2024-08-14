@@ -31,8 +31,9 @@
                 <common-tooltip
                     class=""
                     location="bottom"
-                    open-method="mouseOver"
+                    :open-method="store.localSettings.tutorial?.mapAirportPopupDepartureCount ? 'disabled' : 'mouseOver'"
                     width="120px"
+                    @click="setUserLocalSettings({ tutorial: { mapAirportPopupDepartureCount: true } })"
                 >
                     <template #activator>
                         <div
