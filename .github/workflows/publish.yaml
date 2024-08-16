@@ -71,8 +71,8 @@ jobs:
   deploy:
     runs-on: morgan
     #runs-on: beget
-    #needs:
-    #  - push
+    needs:
+      - push
     permissions:
       contents: read
       packages: read
