@@ -5,7 +5,14 @@ import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
-    const cid = getRouterParam(event, 'cid');
+    handleH3Error({
+        event,
+        statusCode: 418,
+        statusMessage: 'This API is disabled',
+    });
+    return;
+
+    /* const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({
             event,
@@ -35,5 +42,5 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         event,
         statusCode: 404,
         statusMessage: `This pilot is not online or doesn't have flight plan`,
-    });
+    });*/
 });
