@@ -35,7 +35,7 @@ import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyData } from '~/types/data/vatspy';
-import { containsExtent } from 'ol/extent';
+import { containsExtent, intersects } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
@@ -459,10 +459,10 @@ const vatAirportsList = computed(() => {
 
 async function setVisibleAirports() {
     const extent = mapStore.extent.slice();
-    extent[0] -= 100000;
-    extent[1] -= 100000;
-    extent[2] += 100000;
-    extent[3] += 100000;
+    extent[0] -= 200000;
+    extent[1] -= 200000;
+    extent[2] += 200000;
+    extent[3] += 200000;
 
     // @ts-expect-error Dynamic return value
     visibleAirports.value = vatAirportsList.value.map(x => {
@@ -484,7 +484,7 @@ async function setVisibleAirports() {
 
             const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
 
-            return containsExtent(extent, feature.getGeometry()!.getExtent())
+            return intersects(extent, feature.getGeometry()!.getExtent())
                 ? {
                     vatspyAirport: airport,
                     vatsimAirport: x,
