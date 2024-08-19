@@ -35,7 +35,7 @@ import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyData } from '~/types/data/vatspy';
-import { containsExtent, intersects } from 'ol/extent';
+import { intersects } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
