@@ -315,6 +315,12 @@ function setFeatureStyle(feature: Feature) {
     const geometry = feature.getGeometry();
     const extent = feature.getGeometry()?.getExtent();
     const topCoord = [extent![0] + 25000, extent![3] - 25000];
+    const textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+
+    feature.setProperties({
+        ...feature.getProperties(),
+        textCoord,
+    });
 
     feature.setStyle([
         new Style({
