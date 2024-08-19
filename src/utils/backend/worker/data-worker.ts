@@ -205,7 +205,7 @@ CronJob.from({
 
             await updateVatsimExtendedPilots();
 
-            radarStorage.vatsim.data.controllers.push({
+            /* radarStorage.vatsim.data.controllers.push({
                 callsign: 'MSK_APP',
                 cid: 3,
                 facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
@@ -259,7 +259,7 @@ CronJob.from({
                 server: '',
                 text_atis: ['test3'],
                 visual_range: 0,
-            });
+            });*/
 
             const regularData = excludeKeys(radarStorage.vatsim.data, {
                 pilots: {
