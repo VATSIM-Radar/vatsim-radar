@@ -7,13 +7,14 @@ import {
     updateVatsimExtendedPilots,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
-import { initInfluxDB } from '~/utils/backend/influx/influx';
+import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
+import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 
 initInfluxDB();
 initKafka();
@@ -310,13 +311,13 @@ CronJob.from({
             radarStorage.vatsim.locals = getLocalATC();
             radarStorage.vatsim.airports = getAirportsList();
 
-            /* if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
+            if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
                 const data = getPlanInfluxDataForPilots();
                 if (data.length) {
                     influxDBWrite.writeRecords(data);
                     await influxDBWrite.flush(true).catch(console.error);
                 }
-            }*/
+            }
 
             const gzip = createGzip({
                 level: 9,

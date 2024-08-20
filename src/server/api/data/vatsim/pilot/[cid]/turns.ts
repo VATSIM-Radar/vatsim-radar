@@ -1,16 +1,11 @@
 import { handleH3Error } from '~/utils/backend/h3';
 
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import { radarStorage } from '~/utils/backend/storage';
+import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
-    handleH3Error({
-        event,
-        statusCode: 418,
-        statusMessage: 'This API is disabled',
-    });
-    return;
-
-    /* const cid = getRouterParam(event, 'cid');
+    const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({
             event,
@@ -40,5 +35,5 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         event,
         statusCode: 404,
         statusMessage: `This pilot is not online or doesn't have flight plan`,
-    });*/
+    });
 });
