@@ -1,5 +1,4 @@
 import { createGzip } from 'node:zlib';
-import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { CronJob } from 'cron';
 import { getServerVatsimLiveShortData, radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
@@ -8,7 +7,7 @@ import {
     updateVatsimExtendedPilots,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
-import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
+import { initInfluxDB } from '~/utils/backend/influx/influx';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
