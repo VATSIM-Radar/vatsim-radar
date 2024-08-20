@@ -397,7 +397,7 @@ CronJob.from({
                 });
             });
 
-            console.timeEnd('regular');
+            console.timeEnd('gzip');
 
             process.send!(JSON.stringify(radarStorage.vatsim));
         }
