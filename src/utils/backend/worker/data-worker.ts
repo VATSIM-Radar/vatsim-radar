@@ -6,7 +6,6 @@ import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
     updateVatsimExtendedPilots,
-    updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';

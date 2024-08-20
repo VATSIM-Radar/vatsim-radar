@@ -4,8 +4,8 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import type { VatDataVersions } from '~/types/data';
-import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
-import { setVatsimDataStore, setVatsimMandatoryData } from '~/composables/data';
+import type { VatsimLiveData, VatsimLiveDataShort } from '~/types/data/vatsim';
+import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 
 export interface SiteConfig {
