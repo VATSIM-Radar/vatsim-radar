@@ -191,9 +191,23 @@ export function getAirportsList() {
         }
     }
 
+    const groundPilots: Record<number, VatSpyData['airports']> = {};
+
+    const filteredPilots = pilots.filter(x => x.groundspeed < 50);
+
+    for (const airport of dataAirports) {
+        const zone = [airport.lon, airport.lat];
+        for (const pilot of filteredPilots) {
+            if (isAircraftOnGround(zone, pilot)) {
+                groundPilots[pilot.cid] ??= [];
+                groundPilots[pilot.cid].push(airport);
+            }
+        }
+    }
+
     for (const pilot of pilots) {
         const statuses: Array<{ status: MapAircraftKeys; airport: VatSpyData['airports'][0] }> = [];
-        const groundAirports = pilot.groundspeed < 50 ? dataAirports.filter(x => isAircraftOnGround([x.lon, x.lat], pilot)) : null;
+        const groundAirports = groundPilots[pilot.cid] ?? null;
 
         let groundAirport = (groundAirports && groundAirports?.length > 1)
             ? groundAirports.sort((a, b) => {
@@ -226,7 +240,7 @@ export function getAirportsList() {
         else {
             let departureAirport = (groundAirport?.icao === pilot.flight_plan.departure || groundAirport?.iata === pilot.flight_plan.departure)
                 ? groundAirport
-                : dataAirports.find(x => x.iata === pilot.flight_plan!.departure || x.icao === pilot.flight_plan!.departure);
+                : radarStorage.vatspy.data!.iataKeyAirports[pilot.flight_plan!.departure] || radarStorage.vatspy.data!.icaoKeyAirports[pilot.flight_plan!.departure];
 
             if (departureAirport) {
                 if (departureAirport.icao !== departureAirport.iata && departureAirport.iata === pilot.flight_plan.departure) {
@@ -260,7 +274,7 @@ export function getAirportsList() {
                 else {
                     let arrivalAirport = (groundAirport?.icao === pilot.flight_plan.arrival || (pilot.flight_plan.arrival && groundAirport?.iata === pilot.flight_plan.arrival))
                         ? groundAirport
-                        : dataAirports.find(x => (x.iata && x.iata === pilot.flight_plan!.arrival) || x.icao === pilot.flight_plan!.arrival);
+                        : radarStorage.vatspy.data!.iataKeyAirports[pilot.flight_plan!.arrival!] || radarStorage.vatspy.data!.icaoKeyAirports[pilot.flight_plan!.arrival!];
 
                     if (arrivalAirport) {
                         if (pilot.flight_plan.arrival && arrivalAirport.icao !== arrivalAirport.iata && arrivalAirport.iata === pilot.flight_plan.arrival) {
@@ -290,7 +304,7 @@ export function getAirportsList() {
 
     radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach(prefile => {
         if (prefile.departure) {
-            const airport = dataAirports.find(x => x.icao === prefile.departure);
+            const airport = radarStorage.vatspy.data!.iataKeyAirports[prefile.departure] || radarStorage.vatspy.data!.icaoKeyAirports[prefile.departure];
             if (airport) addPilotToList('prefiles', airport, prefile.cid);
         }
     });
@@ -299,14 +313,13 @@ export function getAirportsList() {
         const airport = atc.airport;
 
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
-            const airportExist = dataAirports.some(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
-            const someAirportExist = radarStorage.vatspy.data!.airports.find(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao);
+            const airportExist = radarStorage.vatspy.data!.iataKeyAirports[airport.iata ?? ''] || radarStorage.vatspy.data!.icaoKeyAirports[airport.icao];
 
             airports.push({
                 icao: airport.icao,
-                iata: !someAirportExist ? airport.iata : someAirportExist.iata,
-                isPseudo: !airportExist,
-                isSimAware: !someAirportExist,
+                iata: airportExist.iata,
+                isPseudo: airportExist.isPseudo,
+                isSimAware: airportExist.isPseudo,
                 aircraft: {},
             });
         }
