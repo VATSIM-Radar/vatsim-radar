@@ -1,5 +1,4 @@
 import { createGzip } from 'node:zlib';
-import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { CronJob } from 'cron';
 import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
