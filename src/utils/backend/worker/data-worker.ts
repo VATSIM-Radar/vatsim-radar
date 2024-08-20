@@ -142,21 +142,13 @@ CronJob.from({
     onTick: async () => {
         if (!radarStorage.vatspy.data || dataProcessInProgress || !data) return;
 
-        console.log('start', new Date().toISOString());
-
         try {
             dataProcessInProgress = true;
 
-            console.time('clone');
-
             radarStorage.vatsim.data = structuredClone(data);
-
-            console.timeEnd('clone');
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
             radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
-
-            console.time('process');
 
             radarStorage.vatsim.data!.pilots.forEach(pilot => {
                 const newerData = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === pilot.callsign);
@@ -233,18 +225,10 @@ CronJob.from({
             toDelete.atis.clear();
             toDelete.prefiles.clear();
 
-            console.timeEnd('process');
-
-            console.time('storage');
             updateVatsimDataStorage();
-            console.timeEnd('storage');
-            console.time('mandatory');
             updateVatsimMandatoryDataStorage();
-            console.timeEnd('mandatory');
 
-            console.time('extended');
             await updateVatsimExtendedPilots();
-            console.timeEnd('extended');
 
             /* radarStorage.vatsim.data.controllers.push({
                 callsign: 'MSK_APP',
@@ -302,8 +286,6 @@ CronJob.from({
                 visual_range: 0,
             });*/
 
-            console.time('regular');
-
             const regularData = excludeKeys(radarStorage.vatsim.data, {
                 pilots: {
                     server: true,
@@ -354,10 +336,6 @@ CronJob.from({
             radarStorage.vatsim.locals = getLocalATC();
             radarStorage.vatsim.airports = getAirportsList();
 
-            console.timeEnd('regular');
-
-            console.time('influx');
-
             if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
                 const data = getPlanInfluxDataForPilots();
                 if (data.length) {
@@ -365,10 +343,6 @@ CronJob.from({
                     await influxDBWrite.flush(true).catch(console.error);
                 }
             }
-
-            console.timeEnd('influx');
-
-            console.time('gzip');
 
             const gzip = createGzip({
                 level: 9,
@@ -397,15 +371,16 @@ CronJob.from({
                 });
             });
 
-            console.timeEnd('gzip');
-
-            process.send!(JSON.stringify(radarStorage.vatsim));
+            await new Promise<void>((resolve, reject) => {
+                process.send!(JSON.stringify(radarStorage.vatsim), undefined, undefined, err => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            });
         }
         catch (e) {
             console.error(e);
         }
-
-        console.log('over');
 
         dataProcessInProgress = false;
     },
