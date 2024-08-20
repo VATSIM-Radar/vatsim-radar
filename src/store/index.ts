@@ -65,6 +65,8 @@ export const useStore = defineStore('index', {
                         timeout: 1000 * 60,
                     });
                     await setVatsimDataStore(data);
+                    dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
+                    dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
 
                     /* if (this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
