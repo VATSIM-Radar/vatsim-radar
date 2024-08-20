@@ -320,42 +320,50 @@ CronJob.from({
                 }
             }
 
-            if (process.env.NODE_ENV === 'development') {
-                const gzip = createGzip({
-                    level: 9,
-                });
-                gzip.write(JSON.stringify(getServerVatsimLiveShortData()));
-                gzip.end();
+            const gzip = createGzip({
+                level: 9,
+            });
+            gzip.write(JSON.stringify(getServerVatsimLiveShortData()));
+            gzip.end();
 
-                const chunks: Buffer[] = [];
-                gzip.on('data', chunk => {
-                    chunks.push(chunk);
-                });
+            const chunks: Buffer[] = [];
+            gzip.on('data', chunk => {
+                chunks.push(chunk);
+            });
 
-                gzip.on('end', () => {
+            gzip.on('end', async () => {
+                try {
                     const compressedData = Buffer.concat(chunks);
-                    wss.clients.forEach(ws => {
-                        ws.send(compressedData);
-                        // @ts-expect-error Non-standard field
-                        ws.failCheck ??= ws.failCheck ?? 0;
-                        // @ts-expect-error Non-standard field
-                        ws.failCheck++;
 
-                        // @ts-expect-error Non-standard field
-                        if (ws.failCheck >= 10) {
-                            ws.terminate();
-                        }
+                    await $fetch(`${ getCFWorkerDomain() }/cron`, {
+                        headers: {
+                            'x-worker-auth': process.env.CF_API_TOKEN!,
+                        },
+                        method: 'POST',
+                        body: compressedData,
                     });
-                });
-            }
+
+                    if (process.env.NODE_ENV === 'development') {
+                        wss.clients.forEach(ws => {
+                            ws.send(compressedData);
+                            // @ts-expect-error Non-standard field
+                            ws.failCheck ??= ws.failCheck ?? 0;
+                            // @ts-expect-error Non-standard field
+                            ws.failCheck++;
+
+                            // @ts-expect-error Non-standard field
+                            if (ws.failCheck >= 10) {
+                                ws.terminate();
+                            }
+                        });
+                    }
+                }
+                catch (e) {
+                    console.error(e);
+                }
+            });
 
             process.send!(JSON.stringify(radarStorage.vatsim));
-
-            await $fetch(`${ getCFWorkerDomain() }/cron`, {
-                headers: {
-                    'x-worker-auth': process.env.CF_API_TOKEN!,
-                },
-            });
         }
         catch (e) {
             console.error(e);
