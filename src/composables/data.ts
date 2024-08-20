@@ -6,7 +6,7 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref, WatchStopHandle } from 'vue';
+import type { Ref } from 'vue';
 import type { SimAwareAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
