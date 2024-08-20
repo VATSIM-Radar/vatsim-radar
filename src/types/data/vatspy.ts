@@ -31,6 +31,8 @@ export interface VatSpyData {
         isIata?: boolean;
         isSimAware?: boolean;
     }[];
+    icaoKeyAirports: Record<string, VatSpyData['airports'][0]>;
+    iataKeyAirports: Record<string, VatSpyData['airports'][0]>;
     firs: {
         icao: string;
         name: string;

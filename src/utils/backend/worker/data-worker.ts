@@ -61,6 +61,7 @@ function objectAssign(object: Record<string, any>, target: Record<string, any>) 
 
 let dataLatestFinished = 0;
 let dataInProgress = false;
+let dataProcessInProgress = false;
 
 CronJob.from({
     cronTime: '15 * * * *',
@@ -106,21 +107,44 @@ CronJob.from({
     },
 });
 
+let data: VatsimData | null = null;
+
 CronJob.from({
     cronTime: '* * * * * *',
     start: true,
     runOnInit: true,
     onTick: async () => {
         if (!radarStorage.vatspy.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
+
         try {
             dataInProgress = true;
 
-            radarStorage.vatsim.data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
+            data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
                 parseResponse(responseText) {
                     return JSON.parse(responseText);
                 },
                 timeout: 1000 * 30,
             });
+        }
+        catch (e) {
+            console.error(e);
+        }
+
+        dataInProgress = false;
+        dataLatestFinished = Date.now();
+    },
+});
+
+CronJob.from({
+    cronTime: '* * * * * *',
+    start: true,
+    runOnInit: true,
+    onTick: async () => {
+        if (!radarStorage.vatspy.data || dataProcessInProgress || !data) return;
+        try {
+            dataProcessInProgress = true;
+
+            radarStorage.vatsim.data = structuredClone(data);
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
             radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
@@ -352,7 +376,6 @@ CronJob.from({
             console.error(e);
         }
 
-        dataInProgress = false;
-        dataLatestFinished = Date.now();
+        dataProcessInProgress = false;
     },
 });
