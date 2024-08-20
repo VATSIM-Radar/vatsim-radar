@@ -201,7 +201,7 @@ CronJob.from({
             toDelete.atis.clear();
             toDelete.prefiles.clear();
 
-            updateVatsimDataStorage();
+            await updateVatsimDataStorage();
             // updateVatsimMandatoryDataStorage();
 
             await updateVatsimExtendedPilots();
