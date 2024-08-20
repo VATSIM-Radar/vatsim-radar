@@ -107,7 +107,7 @@ CronJob.from({
 });
 
 CronJob.from({
-    cronTime: '* * * * * *',
+    cronTime: '*/3 * * * * *',
     start: true,
     runOnInit: true,
     onTick: async () => {
