@@ -4,7 +4,7 @@ import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
-    updateVatsimExtendedPilots,
+    updateVatsimExtendedPilots, updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
@@ -215,7 +215,7 @@ CronJob.from({
             toDelete.prefiles.clear();
 
             updateVatsimDataStorage();
-            // updateVatsimMandatoryDataStorage();
+            updateVatsimMandatoryDataStorage();
 
             await updateVatsimExtendedPilots();
 

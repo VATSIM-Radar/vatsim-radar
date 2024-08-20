@@ -4,7 +4,7 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import type { VatDataVersions } from '~/types/data';
-import type { VatsimLiveData, VatsimLiveDataShort } from '~/types/data/vatsim';
+import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 
@@ -44,6 +44,7 @@ export const useStore = defineStore('index', {
             if (this.dataInProgress) return;
 
             const dataStore = useDataStore();
+            const config = useRuntimeConfig();
             const mapStore = useMapStore();
 
             try {
@@ -68,15 +69,12 @@ export const useStore = defineStore('index', {
                     dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
                     dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
 
-                    /* if (this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
+                    if (String(config.public.DISABLE_WEBSOCKETS) === 'true' || this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });
                         if (mandatoryData) setVatsimMandatoryData(mandatoryData);
-
-                        dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
-                        dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
-                    }*/
+                    }
 
                     await onFetch?.();
 
