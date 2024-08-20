@@ -14,8 +14,6 @@ import {
 } from '~/utils/shared/flight';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
-import type { VatSpyData } from '~/types/data/vatspy';
-import type { Coordinate } from 'ol/coordinate';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
