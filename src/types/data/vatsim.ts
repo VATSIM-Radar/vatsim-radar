@@ -143,6 +143,7 @@ export type VatsimShortenedData = {
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
 export type VatsimMandatoryData = {
+    timestamp: string;
     pilots: [cid: VatsimPilot['cid'], longitude: VatsimPilot['longitude'], latitude: VatsimPilot['latitude'], icon: AircraftIcon, heading: number][];
     controllers: [VatsimController['cid'], VatsimController['callsign'], VatsimController['frequency'], VatsimController['facility']][];
     atis: VatsimMandatoryData['controllers'];

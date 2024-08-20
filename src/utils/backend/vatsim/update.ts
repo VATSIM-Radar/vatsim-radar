@@ -51,6 +51,7 @@ export function updateVatsimMandatoryDataStorage() {
     const data = radarStorage.vatsim.data!;
 
     const newData: VatsimMandatoryData = {
+        timestamp: data.general.update_timestamp,
         pilots: [],
         controllers: [],
         atis: [],
