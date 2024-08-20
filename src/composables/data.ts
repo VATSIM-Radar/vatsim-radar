@@ -115,20 +115,30 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
     function startIntervalChecks() {
         interval = setInterval(async () => {
+            if (mandatoryInProgess) return;
             if (String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate) {
-                const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
-                    timeout: 1000 * 60,
-                });
-                if (mandatoryData) setVatsimMandatoryData(mandatoryData);
+                mandatoryInProgess = true;
 
-                dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
-                dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
+                try {
+                    const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
+                        timeout: 1000 * 60,
+                    });
+                    if (mandatoryData) setVatsimMandatoryData(mandatoryData);
+
+                    dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
+                    dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                mandatoryInProgess = false;
             }
         }, 2000);
 
