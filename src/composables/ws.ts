@@ -10,7 +10,7 @@ async function decompressBlob(blob: Blob) {
 let interval: NodeJS.Timeout | undefined;
 
 export function initDataWebsocket(): () => void {
-    const dataStore = useDataStore();
+    // const dataStore = useDataStore();
     clearInterval(interval);
 
     const url = import.meta.dev ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
@@ -53,7 +53,7 @@ export function initDataWebsocket(): () => void {
 
         const data = await (await decompressBlob(event.data as Blob)).text();
 
-        const date = new Date().toISOString();
+        // const date = new Date().toISOString();
         const json = JSON.parse(data);
 
         if ('type' in json) {
@@ -63,15 +63,16 @@ export function initDataWebsocket(): () => void {
 
             return;
         }
+        else {
+            websocket.send('alive');
+        }
 
-        websocket.send('alive');
-
-        localStorage.setItem('radar-socket-vat-data', data);
+        /* localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
         setVatsimMandatoryData(json);
         dataStore.vatsim.data.general.value!.update_timestamp = date;
-        dataStore.vatsim.updateTimestamp.value = date;
+        dataStore.vatsim.updateTimestamp.value = date;*/
     });
 
     return () => {
@@ -91,8 +92,8 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (store.localSettings.traffic?.disableFastUpdate || String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
         const date = Date.now();
         const socketDate = localStorage.getItem('radar-socket-date');
-        // 10 seconds gap for receiving data
-        if (!socketDate || +socketDate + (1000 * 10) < date) {
+        // 20 seconds gap for receiving data
+        if (!socketDate || +socketDate + (1000 * 20) < date) {
             localStorage.setItem('radar-socket-date', Date.now().toString());
             closeSocket?.();
             closeSocket = initDataWebsocket();

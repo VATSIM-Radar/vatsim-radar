@@ -44,6 +44,15 @@ const data: Data = {
 
 const vatsim = {
     data,
+    // For fast turn-on in case we need to restore mandatory data
+    _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
+        if (!data.pilots.value.length) return null;
+        return {
+            pilots: data.pilots.value,
+            controllers: [],
+            atis: [],
+        } as VatsimMandatoryConvertedData;
+    }),
     mandatoryData: shallowRef<VatsimMandatoryConvertedData | null>(null),
     versions: ref<VatDataVersions['vatsim'] | null>(null),
     updateTimestamp: ref(''),
@@ -105,10 +114,15 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     let interval: NodeJS.Timeout | null = null;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
+    const config = useRuntimeConfig();
 
     function startIntervalChecks() {
         interval = setInterval(() => {
-            store.getVATSIMData();
+            if (String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate) store.getVATSIMData(true);
+        }, 3000);
+
+        interval = setInterval(() => {
+            if (String(config.public.DISABLE_WEBSOCKETS) === 'true' || store.localSettings.traffic?.disableFastUpdate) store.getVATSIMData();
         }, 10000);
     }
 
