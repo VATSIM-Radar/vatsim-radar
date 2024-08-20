@@ -1,12 +1,11 @@
 import { createGzip } from 'node:zlib';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { CronJob } from 'cron';
-import { radarStorage } from '../storage';
+import { getServerVatsimLiveShortData, radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
     updateVatsimExtendedPilots,
-    updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
@@ -15,6 +14,7 @@ import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { getCFWorkerDomain } from '~/utils/backend/worker/utils';
 
 initInfluxDB();
 initKafka();
@@ -98,7 +98,7 @@ CronJob.from({
 });
 
 CronJob.from({
-    cronTime: '* * * * * *',
+    cronTime: '*/3 * * * * *',
     start: true,
     runOnInit: true,
     onTick: async () => {
@@ -114,6 +114,7 @@ CronJob.from({
             });
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
+            radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 
             radarStorage.vatsim.data!.pilots.forEach(pilot => {
                 const newerData = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === pilot.callsign);
@@ -190,8 +191,8 @@ CronJob.from({
             toDelete.atis.clear();
             toDelete.prefiles.clear();
 
-            updateVatsimDataStorage();
-            updateVatsimMandatoryDataStorage();
+            await updateVatsimDataStorage();
+            // updateVatsimMandatoryDataStorage();
 
             await updateVatsimExtendedPilots();
 
@@ -284,7 +285,7 @@ CronJob.from({
             const gzip = createGzip({
                 level: 9,
             });
-            gzip.write(JSON.stringify(radarStorage.vatsim.mandatoryData));
+            gzip.write(JSON.stringify(getServerVatsimLiveShortData()));
             gzip.end();
 
             const chunks: Buffer[] = [];
@@ -292,20 +293,36 @@ CronJob.from({
                 chunks.push(chunk);
             });
 
-            gzip.on('end', () => {
-                const compressedData = Buffer.concat(chunks);
-                wss.clients.forEach(ws => {
-                    ws.send(compressedData);
-                    // @ts-expect-error Non-standard field
-                    ws.failCheck ??= ws.failCheck ?? 0;
-                    // @ts-expect-error Non-standard field
-                    ws.failCheck++;
+            gzip.on('end', async () => {
+                try {
+                    const compressedData = Buffer.concat(chunks);
 
-                    // @ts-expect-error Non-standard field
-                    if (ws.failCheck >= 10) {
-                        ws.terminate();
+                    await $fetch(`${ getCFWorkerDomain() }/cron`, {
+                        headers: {
+                            'x-worker-auth': process.env.CF_API_TOKEN!,
+                        },
+                        method: 'POST',
+                        body: compressedData,
+                    });
+
+                    if (process.env.NODE_ENV === 'development') {
+                        wss.clients.forEach(ws => {
+                            ws.send(compressedData);
+                            // @ts-expect-error Non-standard field
+                            ws.failCheck ??= ws.failCheck ?? 0;
+                            // @ts-expect-error Non-standard field
+                            ws.failCheck++;
+
+                            // @ts-expect-error Non-standard field
+                            if (ws.failCheck >= 10) {
+                                ws.terminate();
+                            }
+                        });
                     }
-                });
+                }
+                catch (e) {
+                    console.error(e);
+                }
             });
 
             process.send!(JSON.stringify(radarStorage.vatsim));
