@@ -15,7 +15,10 @@ export function initDataWebsocket(): () => void {
     clearInterval(interval);
 
     const url = import.meta.dev ? `ws://localhost:8787/websocket` : `wss://${ location.hostname }/cf/websocket`;
-    websocket?.close();
+    if (websocket) {
+        console.trace('Duplicate socket closed');
+        websocket?.close();
+    }
     websocket = new WebSocket(url);
     const localStorageItems = { ...localStorage };
 
@@ -41,6 +44,7 @@ export function initDataWebsocket(): () => void {
 
     websocket.addEventListener('message', async event => {
         if (localStorage.getItem('radar-socket-closed')) {
+            console.log('Closed manually');
             localStorage.removeItem('radar-socket-closed');
             localStorage.removeItem('radar-socket-date');
             websocket!.close();
@@ -71,6 +75,9 @@ export function initDataWebsocket(): () => void {
     });
 
     return () => {
+        if (websocket) {
+            console.trace('Socket closed by method');
+        }
         websocket?.close();
         clearInterval(interval);
     };
