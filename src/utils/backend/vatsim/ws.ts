@@ -14,7 +14,7 @@ wss.on('connection', function connection(ws) {
     ws.on('message', async msg => {
         const data = (msg as Buffer).toString('utf-8');
 
-        if (data === 'alive') {
+        if (data === 'alive' || data === 'ping') {
             // @ts-expect-error non-standard type
             ws.failCheck = 0;
             return;

@@ -2730,15 +2730,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/ol-ext@npm:@siedlerchr/types-ol-ext@latest":
-  version: 3.5.0
-  resolution: "@siedlerchr/types-ol-ext@npm:3.5.0"
-  peerDependencies:
-    jspdf: ^2.5.1
-  checksum: 10c0/778a7c9835b482bc52614b9ee7b88c211234d0ac5685868987577946fd54b4e4acc04d40dc81c1ab1d1784988176df4cb69045cf29179e4af6130e8ad9526a35
-  languageName: node
-  linkType: hard
-
 "@types/qs@npm:*":
   version: 6.9.15
   resolution: "@types/qs@npm:6.9.15"
@@ -8457,7 +8448,6 @@ __metadata:
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
     "@types/node": "npm:^22.4.0"
-    "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:^8.5.12"
     adm-zip: "npm:^0.5.15"
     aws-sdk: "npm:^2.1677.0"
@@ -8474,7 +8464,6 @@ __metadata:
     metar-taf-parser: "npm:^9.0.1"
     nuxt: "npm:^3.12.4"
     ol: "npm:^10.0.0"
-    ol-ext: "npm:^4.0.22"
     pinia: "npm:^2.2.2"
     postcss: "npm:^8.4.41"
     postcss-html: "npm:^1.7.0"
@@ -8494,7 +8483,6 @@ __metadata:
     vite-plugin-eslint2: "npm:^4.4.0"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.38"
-    vue-component-type-helpers: "npm:^2.0.29"
     vue-router: "npm:^4.4.3"
     vue-tsc: "npm:^2.0.29"
     ws: "npm:^8.18.0"
@@ -8617,15 +8605,6 @@ __metadata:
   version: 1.1.3
   resolution: "ohash@npm:1.1.3"
   checksum: 10c0/928f5bdbd8cd73f90cf544c0533dbda8e0a42d9b8c7454ab89e64e4d11bc85f85242830b4e107426ce13dc4dd3013286f8f5e0c84abd8942a014b907d9692540
-  languageName: node
-  linkType: hard
-
-"ol-ext@npm:^4.0.22":
-  version: 4.0.22
-  resolution: "ol-ext@npm:4.0.22"
-  peerDependencies:
-    ol: ">= 5.3.0"
-  checksum: 10c0/55f33fba2e07c50f5151883c4778ece823f065fefd36839d7c1792fbd4e7d028314f9d398e8a63fa827812943cdee6bb170745269e2ddb0a9cef74da7019d2f7
   languageName: node
   linkType: hard
 
@@ -11949,13 +11928,6 @@ __metadata:
   dependencies:
     ufo: "npm:^1.5.3"
   checksum: 10c0/a3c4b73b4ac0e919632543b6daad6067c2aed03a5805f72730f0c1a52a40f80d122dfa33383c1c466f69df77b5565b52704409efb42e4244243a241ab0392bef
-  languageName: node
-  linkType: hard
-
-"vue-component-type-helpers@npm:^2.0.29":
-  version: 2.0.29
-  resolution: "vue-component-type-helpers@npm:2.0.29"
-  checksum: 10c0/33d7a064f9b1af492818f4df5dc793cad0ab7bed957608bf5eea6c4404d052135c8167aa78f38b9ee5078ab91bf9ad58c2e000246fa9d075843045907ad4239a
   languageName: node
   linkType: hard
 
