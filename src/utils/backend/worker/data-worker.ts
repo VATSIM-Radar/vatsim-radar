@@ -123,6 +123,7 @@ CronJob.from({
             });
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
+            radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 
             radarStorage.vatsim.data!.pilots.forEach(pilot => {
                 const newerData = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === pilot.callsign);
@@ -200,7 +201,7 @@ CronJob.from({
             toDelete.prefiles.clear();
 
             updateVatsimDataStorage();
-            updateVatsimMandatoryDataStorage();
+            // updateVatsimMandatoryDataStorage();
 
             await updateVatsimExtendedPilots();
 
@@ -321,7 +322,7 @@ CronJob.from({
             const gzip = createGzip({
                 level: 9,
             });
-            gzip.write(JSON.stringify(radarStorage.vatsim.mandatoryData));
+            gzip.write(JSON.stringify({ date: radarStorage.vatsim.data.general.update_timestamp }));
             gzip.end();
 
             const chunks: Buffer[] = [];
