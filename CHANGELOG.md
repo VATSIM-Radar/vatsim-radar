@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.4.4-alpha.3
+
+- Reworked approach labels placement to always be on the line
+- Reworked the way approach controllers disappear from screen. From now on, if at least one coordinate of tracon is visible, it will continue to show on map even with large zoom
+
 # 0.4.4-alpha.2
 
 ## Features and improvements
@@ -7,7 +12,7 @@
 - Updated helicopter icons matching
 - Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BALL, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL
 - Re-colored tracks again
-  - QA: let's test how now color look!
+    - QA: let's test how now color look!
 - Added airports names to aircraft on-hover popup
 - Transition display now clarifies where you can find level and altitude
 - Removed height limit for aircraft list

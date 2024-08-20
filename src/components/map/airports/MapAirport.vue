@@ -2,7 +2,7 @@
     <slot v-if="isPrimaryAirport"/>
     <template v-else>
         <map-overlay
-            v-if="localAtc.length && 'lon' in airport"
+            v-if="localAtc.length && 'lon' in airport && !isPseudoAirport"
             :active-z-index="21"
             persistent
             :popup="!!hoveredFacility"
@@ -61,7 +61,7 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if="'lon' in airport"
+            v-if=" 'lon' in airport && !isPseudoAirport"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
@@ -69,7 +69,7 @@
             :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
         />
         <map-overlay
-            v-if="!localAtc.length && 'lon' in airport && isVisible"
+            v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
             :settings="{ position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility }"
@@ -198,6 +198,10 @@ const localATCOffsetX = computed(() => {
     return (offset / 2) + 5;
 });
 
+const isPseudoAirport = computed(() => {
+    return !('lon' in props.airport) || props.airport?.isPseudo;
+});
+
 const getAirportColor = computed(() => {
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
@@ -247,7 +251,7 @@ const airportName = computed(() => (props.airport.isPseudo && props.airport.iata
 const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
 
 function initAirport() {
-    if (!('lon' in props.airport)) return;
+    if (!('lon' in props.airport) || isPseudoAirport.value) return;
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
         type: 'airport',
@@ -308,8 +312,15 @@ watch(hoveredFeature, val => {
 });
 
 function setFeatureStyle(feature: Feature) {
+    const geometry = feature.getGeometry();
     const extent = feature.getGeometry()?.getExtent();
     const topCoord = [extent![0] + 25000, extent![3] - 25000];
+    const textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+
+    feature.setProperties({
+        ...feature.getProperties(),
+        textCoord,
+    });
 
     feature.setStyle([
         new Style({
@@ -319,7 +330,7 @@ function setFeatureStyle(feature: Feature) {
             }),
         }),
         new Style({
-            geometry: new Point(topCoord),
+            geometry: new Point(geometry?.getClosestPoint(topCoord) || topCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: feature.getProperties()?._traconId || airportName.value,
@@ -388,7 +399,7 @@ onMounted(async () => {
 
         const features: ArrFeature[] = [];
 
-        if (!props.features.length && 'lon' in props.airport) {
+        if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
             features.push({
                 id: 'circle',
                 feature: new Feature({

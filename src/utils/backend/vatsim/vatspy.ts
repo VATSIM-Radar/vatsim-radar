@@ -140,6 +140,9 @@ export async function updateVatSpy() {
             };
         });
 
+    result.icaoKeyAirports = Object.fromEntries(result.airports.map(airport => [airport.icao, airport]));
+    result.iataKeyAirports = Object.fromEntries(result.airports.filter(x => x.iata).map(airport => [airport.iata, airport]));
+
     result.firs = [];
     parsedDat.firs
         .filter(value => value.icao && value.name)
