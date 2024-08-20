@@ -1,5 +1,5 @@
 import { useStore } from '~/store';
-import { setVatsimMandatoryData } from '~/composables/data';
+import { setVatsimDataStore } from '~/composables/data';
 
 async function decompressBlob(blob: Blob) {
     const ds = new DecompressionStream('gzip');
@@ -13,7 +13,7 @@ export function initDataWebsocket(): () => void {
     const dataStore = useDataStore();
     clearInterval(interval);
 
-    const url = import.meta.dev ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
+    const url = import.meta.dev ? `ws://localhost:8787/websocket` : `wss://${ location.hostname }/cf/websocket`;
     const websocket = new WebSocket(url);
     const localStorageItems = { ...localStorage };
 
@@ -53,7 +53,6 @@ export function initDataWebsocket(): () => void {
 
         const data = await (await decompressBlob(event.data as Blob)).text();
 
-        const date = new Date().toISOString();
         const json = JSON.parse(data);
 
         if ('type' in json) {
@@ -64,16 +63,15 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
-        websocket.send('alive');
+        websocket.send('ping');
 
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
 
-        setVatsimMandatoryData(json);
+        setVatsimDataStore(json);
         if (dataStore.vatsim.data.general.value) {
-            dataStore.vatsim.data.general.value!.update_timestamp = date;
+            dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.data.general.value!.update_timestamp;
         }
-        dataStore.vatsim.updateTimestamp.value = date;
     });
 
     return () => {
@@ -109,9 +107,8 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (!data || !dataStore.vatsim.data.general.value) return;
 
         const json = JSON.parse(data);
-        await setVatsimMandatoryData(json);
-        dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
-        dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
+        await setVatsimDataStore(json);
+        dataStore.vatsim.updateTimestamp.value = dataStore.vatsim.data.general.value!.update_timestamp;
     }
 
     window.addEventListener('storage', storageEvent);

@@ -4,8 +4,8 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import type { VatDataVersions } from '~/types/data';
-import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
-import { setVatsimDataStore, setVatsimMandatoryData } from '~/composables/data';
+import type { VatsimLiveData, VatsimLiveDataShort } from '~/types/data/vatsim';
+import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 
 export interface SiteConfig {
@@ -58,7 +58,7 @@ export const useStore = defineStore('index', {
                     dataStore.vatsim.versions.value = versions;
                 }
 
-                if (force || !dataStore.vatsim.mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
+                if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
                     if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
                     const data = await $fetch<VatsimLiveData | VatsimLiveDataShort>(`/api/data/vatsim/data${ dataStore.vatsim.data.general.value ? '/short' : '' }`, {
@@ -66,7 +66,7 @@ export const useStore = defineStore('index', {
                     });
                     await setVatsimDataStore(data);
 
-                    if (this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
+                    /* if (this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
                             timeout: 1000 * 60,
                         });
@@ -74,7 +74,7 @@ export const useStore = defineStore('index', {
 
                         dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
                         dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
-                    }
+                    }*/
 
                     await onFetch?.();
 
