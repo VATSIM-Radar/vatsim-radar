@@ -104,7 +104,7 @@
                 class="header__sections_section"
             >
                 <common-button
-                    href="https://github.com/daniluk4000/vatsim-radar"
+                    href="https://github.com/VATSIM-Radar/vatsim-radar"
                     size="S"
                     target="_blank"
                     type="secondary"

@@ -35,7 +35,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          tags: ghcr.io/daniluk4000/vatsim-radar/next:latest
+          tags: ghcr.io/vatsim-radar/vatsim-radar/next:latest
           push: true
           file: .config/Dockerfile
           build-args: |
@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Pull
         shell: bash
-        run: docker pull ghcr.io/daniluk4000/vatsim-radar/next:latest
+        run: docker pull ghcr.io/vatsim-radar/vatsim-radar/next:latest
       - name: Build
         shell: bash
         run: docker compose -f docker-compose.prod-next.yml build
