@@ -2,7 +2,7 @@ services:
   app-next:
     container_name: app-next
     restart: always
-    image: ghcr.io/daniluk4000/vatsim-radar/next
+    image: ghcr.io/vatsim-radar/vatsim-radar/next
     depends_on:
       db-next:
         condition: service_healthy
