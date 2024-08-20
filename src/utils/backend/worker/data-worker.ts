@@ -97,7 +97,7 @@ CronJob.from({
     },
 });
 
-let data: VatsimData | null = null;
+let data: string | null = null;
 
 CronJob.from({
     cronTime: '* * * * * *',
@@ -109,10 +109,8 @@ CronJob.from({
         try {
             dataInProgress = true;
 
-            data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
-                parseResponse(responseText) {
-                    return JSON.parse(responseText);
-                },
+            data = await $fetch('https://data.vatsim.net/v3/vatsim-data.json', {
+                responseType: 'text',
                 timeout: 1000 * 30,
             });
         }
@@ -134,7 +132,7 @@ CronJob.from({
         try {
             dataProcessInProgress = true;
 
-            radarStorage.vatsim.data = structuredClone(data);
+            radarStorage.vatsim.data = JSON.parse(data) as VatsimData;
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
             radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
