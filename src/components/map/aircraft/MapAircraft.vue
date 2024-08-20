@@ -225,7 +225,7 @@ function degreesToRadians(degrees: number) {
 }
 
 const getCoordinates = computed(() => [props.aircraft.longitude, props.aircraft.latitude]);
-const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
+const icon = computed(() => aircraftIcons[props.aircraft.icon]);
 const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
 
 const pilot = computed(() => dataStore.vatsim.data.pilots.value.find(x => props.aircraft.cid === x.cid));

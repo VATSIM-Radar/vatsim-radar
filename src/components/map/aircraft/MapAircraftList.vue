@@ -78,7 +78,7 @@ function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 
 function setVisiblePilots() {
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => {
+    visiblePilots.value = dataStore.vatsim.mandatoryData.value!.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
@@ -104,7 +104,7 @@ function setVisiblePilots() {
 useUpdateInterval(handleMoveEnd);
 
 watch(dataStore.vatsim.updateTimestamp, () => {
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    visiblePilots.value = dataStore.vatsim.mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function handlePointerMove(e: MapBrowserEvent<any>) {

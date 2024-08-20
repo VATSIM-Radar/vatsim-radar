@@ -1,6 +1,7 @@
 import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
+import { wss } from '~/utils/backend/vatsim/ws';
 import type { VatsimExtendedPilot, VatsimMandatoryData } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -13,10 +14,8 @@ import {
 } from '~/utils/shared/flight';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
-import { $fetch } from 'ofetch';
-import { getCFWorkerDomain } from '~/utils/backend/worker/utils';
 
-export async function updateVatsimDataStorage() {
+export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
 
     data.pilots = data.pilots.map(x => {
@@ -33,7 +32,7 @@ export async function updateVatsimDataStorage() {
 
     data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
     data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
-    data.general.onlineWSUsers = (await $fetch<{ clients: number }>(`${ getCFWorkerDomain() }/online`).catch(console.error))?.clients || -1;
+    data.general.onlineWSUsers = wss.clients.size;
 
     data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
 
