@@ -15,6 +15,8 @@ services:
             - "8880:8880"
         volumes:
             - ".:/radar:rw"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         depends_on:
             db:
                 condition: service_healthy

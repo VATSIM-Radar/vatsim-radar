@@ -68,6 +68,7 @@ jobs:
             CF_R2_API=${{ secrets.CF_R2_API }}
             CF_R2_ACCESS_ID=${{ secrets.CF_R2_ACCESS_ID }}
             CF_R2_ACCESS_TOKEN=${{ secrets.CF_R2_ACCESS_TOKEN }}
+            CF_API_TOKEN=${{ secrets.CF_API_TOKEN }}
   deploy:
     runs-on: morgan
     #runs-on: beget
