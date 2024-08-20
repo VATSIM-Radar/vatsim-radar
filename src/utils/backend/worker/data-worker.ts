@@ -14,6 +14,7 @@ import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 
 initInfluxDB();
 initKafka();
