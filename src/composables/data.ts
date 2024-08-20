@@ -127,8 +127,8 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 });
                 if (mandatoryData) setVatsimMandatoryData(mandatoryData);
 
-                dataStore.vatsim.data.general.value!.update_timestamp = new Date().toISOString();
-                dataStore.vatsim.updateTimestamp.value = new Date().toISOString();
+                dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
+                dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
             }
         }, 2000);
 
