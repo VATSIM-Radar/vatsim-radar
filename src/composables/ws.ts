@@ -8,13 +8,15 @@ async function decompressBlob(blob: Blob) {
 }
 
 let interval: NodeJS.Timeout | undefined;
+let websocket: WebSocket | undefined;
 
 export function initDataWebsocket(): () => void {
     const dataStore = useDataStore();
     clearInterval(interval);
 
     const url = import.meta.dev ? `ws://localhost:8787/websocket` : `wss://${ location.hostname }/cf/websocket`;
-    const websocket = new WebSocket(url);
+    websocket?.close();
+    websocket = new WebSocket(url);
     const localStorageItems = { ...localStorage };
 
     localStorage.removeItem('turns');
@@ -27,7 +29,7 @@ export function initDataWebsocket(): () => void {
         const turns = localStorage.getItem('turns');
         if (!turns) return;
         const turnsData = new Set<number>(JSON.parse(turns) satisfies number[]);
-        turnsData.forEach(cid => websocket.send(JSON.stringify({
+        turnsData.forEach(cid => websocket!.send(JSON.stringify({
             type: 'turns',
             cid,
         })));
@@ -47,7 +49,7 @@ export function initDataWebsocket(): () => void {
         if (localStorage.getItem('radar-socket-closed')) {
             localStorage.removeItem('radar-socket-closed');
             localStorage.removeItem('radar-socket-date');
-            websocket.close();
+            websocket!.close();
             return;
         }
 
@@ -63,7 +65,7 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
-        websocket.send('ping');
+        websocket!.send('ping');
 
         localStorage.setItem('radar-socket-vat-data', data);
         localStorage.setItem('radar-socket-date', Date.now().toString());
@@ -75,7 +77,7 @@ export function initDataWebsocket(): () => void {
     });
 
     return () => {
-        websocket.close();
+        websocket?.close();
         clearInterval(interval);
     };
 }
