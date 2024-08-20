@@ -312,13 +312,13 @@ CronJob.from({
             radarStorage.vatsim.locals = getLocalATC();
             radarStorage.vatsim.airports = getAirportsList();
 
-            if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
+            /* if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
                 const data = getPlanInfluxDataForPilots();
                 if (data.length) {
                     influxDBWrite.writeRecords(data);
                     await influxDBWrite.flush(true).catch(console.error);
                 }
-            }
+            }*/
 
             if (process.env.NODE_ENV === 'development') {
                 const gzip = createGzip({
