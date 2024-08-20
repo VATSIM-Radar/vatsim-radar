@@ -29,7 +29,7 @@ export function initDataWebsocket(): () => void {
     }
 
     interval = setInterval(() => {
-        websocket?.send('DATA');
+        // I'm too lazy so let's keep this one
     }, 3000);
 
     websocket.addEventListener('open', () => {
