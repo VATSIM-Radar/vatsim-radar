@@ -120,10 +120,12 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
+    const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
+
     function startIntervalChecks() {
         interval = setInterval(async () => {
             if (mandatoryInProgess) return;
-            if (String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate) {
+            if (socketsEnabled()) {
                 mandatoryInProgess = true;
 
                 try {
@@ -143,7 +145,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
         }, 2000);
 
         interval = setInterval(() => {
-            store.getVATSIMData();
+            store.getVATSIMData(socketsEnabled());
         }, 10000);
     }
 
