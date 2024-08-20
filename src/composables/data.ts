@@ -119,7 +119,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     function startIntervalChecks() {
         interval = setInterval(() => {
             if (String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate) store.getVATSIMData(true);
-        }, 3000);
+        }, 1500);
 
         interval = setInterval(() => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true' || store.localSettings.traffic?.disableFastUpdate) store.getVATSIMData();
