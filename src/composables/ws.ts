@@ -26,14 +26,8 @@ export function initDataWebsocket(): () => void {
     }
 
     interval = setInterval(() => {
-        const turns = localStorage.getItem('turns');
-        if (!turns) return;
-        const turnsData = new Set<number>(JSON.parse(turns) satisfies number[]);
-        turnsData.forEach(cid => websocket!.send(JSON.stringify({
-            type: 'turns',
-            cid,
-        })));
-    }, 2000);
+        websocket?.send('DATA');
+    }, 3000);
 
     websocket.addEventListener('open', () => {
         console.info('WebSocket was opened');

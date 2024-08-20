@@ -118,22 +118,20 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
     function startIntervalChecks() {
         interval = setInterval(() => {
-            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') return;
-            store.getVATSIMData();
+            if (String(config.public.DISABLE_WEBSOCKETS) === 'true') store.getVATSIMData();
         }, 10000);
     }
 
     onMounted(async () => {
         isMounted.value = true;
-        let watcher: WatchStopHandle | undefined;
         startIntervalChecks();
 
         watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
-            watcher?.();
             if (val !== true) {
                 ws = checkForWSData(isMounted);
             }
+            else ws?.();
         }, {
             immediate: true,
         });
