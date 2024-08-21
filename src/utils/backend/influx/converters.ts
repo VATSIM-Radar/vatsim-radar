@@ -91,10 +91,6 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
         properties: {
             type: 'turn',
             standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
-            coordinates: [
-                row.longitude!,
-                row.latitude!,
-            ],
             timestamp: row._time,
             color: getRowColor(row),
         },
@@ -121,6 +117,21 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
             });
         }
     }
+
+    let hadStanding = false;
+
+    rowsGroups.map(group => {
+        group.features.map((feature, index) => {
+            if (!hadStanding && feature.properties!.standing) {
+                hadStanding = true;
+            }
+            else delete feature.properties!.standing;
+
+            if (index === 0 || index === group.features.length - 1) return;
+            delete feature.properties!.color;
+            delete feature.properties!.timestamp;
+        });
+    });
 
     return {
         flightPlanTime: flightPlanStart,

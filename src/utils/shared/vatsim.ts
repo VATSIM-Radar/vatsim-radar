@@ -40,6 +40,8 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
         maybe: false,
     };
 
+    if (pilot.groundspeed > 5) return result;
+
     let pilotLon = pilot.longitude;
     let pilotLat = pilot.latitude;
 
