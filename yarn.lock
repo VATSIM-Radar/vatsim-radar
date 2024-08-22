@@ -2805,12 +2805,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.4.2":
-  version: 22.4.2
-  resolution: "@types/node@npm:22.4.2"
+"@types/node@npm:^22.5.0":
+  version: 22.5.0
+  resolution: "@types/node@npm:22.5.0"
   dependencies:
     undici-types: "npm:~6.19.2"
-  checksum: 10c0/db583e83230eed29eb73e24cc03637f5bdc8c01883ae0ba0a6ab9356065f93d0355a91ad1c89b985631006bd77c529d6a3ce042b3667b69c8851d05e1f965db1
+  checksum: 10c0/45aa75c5e71645fac42dced4eff7f197c3fdfff6e8a9fdacd0eb2e748ff21ee70ffb73982f068a58e8d73b2c088a63613142c125236cdcf3c072ea97eada1559
   languageName: node
   linkType: hard
 
@@ -2832,6 +2832,13 @@ __metadata:
   version: 1.2.7
   resolution: "@types/range-parser@npm:1.2.7"
   checksum: 10c0/361bb3e964ec5133fa40644a0b942279ed5df1949f21321d77de79f48b728d39253e5ce0408c9c17e4e0fd95ca7899da36841686393b9f7a1e209916e9381a3c
+  languageName: node
+  linkType: hard
+
+"@types/rbush@npm:^3.0.3":
+  version: 3.0.4
+  resolution: "@types/rbush@npm:3.0.4"
+  checksum: 10c0/430f60878b46feb68b2a50ddac684844ed895d73ada8932c421a2b8ef56cca8b9211109250d00a760a1f7a5c4ec6fb05992d1b235f3d48b5ba8528ec517c3861
   languageName: node
   linkType: hard
 
@@ -3878,9 +3885,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1679.0":
-  version: 2.1679.0
-  resolution: "aws-sdk@npm:2.1679.0"
+"aws-sdk@npm:^2.1680.0":
+  version: 2.1680.0
+  resolution: "aws-sdk@npm:2.1680.0"
   dependencies:
     buffer: "npm:4.9.2"
     events: "npm:1.1.1"
@@ -3892,7 +3899,7 @@ __metadata:
     util: "npm:^0.12.4"
     uuid: "npm:8.0.0"
     xml2js: "npm:0.6.2"
-  checksum: 10c0/305c90aa492f6eda9c72f288a911ba8eb70b36b495e8889df828607ded5d8f5165560bf4eba5564f77c9ba062328a4f57ca23a31a1232e750f19edf9ff53fd6f
+  checksum: 10c0/81b6e3a817e0d1d1e04f8b2a5dc4848ad2dcb94f833424d6b1608cef4601adbbebc07917cc2995cbd1ce587aef3a7bd938f5fd824e2375a6008bedb1cc53fc52
   languageName: node
   linkType: hard
 
@@ -8598,10 +8605,10 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^22.4.2"
+    "@types/node": "npm:^22.5.0"
     "@types/ws": "npm:^8.5.12"
     adm-zip: "npm:^0.5.15"
-    aws-sdk: "npm:^2.1679.0"
+    aws-sdk: "npm:^2.1680.0"
     bufferutil: "npm:^4.0.8"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
@@ -8614,7 +8621,7 @@ __metadata:
     kafkajs: "npm:^2.2.4"
     metar-taf-parser: "npm:^9.0.1"
     nuxt: "npm:^3.12.4"
-    ol: "npm:^10.0.0"
+    ol: "npm:^10.1.0"
     pinia: "npm:^2.2.2"
     postcss: "npm:^8.4.41"
     postcss-html: "npm:^1.7.0"
@@ -8759,17 +8766,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "ol@npm:10.0.0"
+"ol@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "ol@npm:10.1.0"
   dependencies:
+    "@types/rbush": "npm:^3.0.3"
     color-rgba: "npm:^3.0.0"
     color-space: "npm:^2.0.1"
     earcut: "npm:^3.0.0"
     geotiff: "npm:^2.0.7"
     pbf: "npm:4.0.1"
     rbush: "npm:^4.0.0"
-  checksum: 10c0/0d9ec40818e63014024dfacf13a156f842e309c908fdff76c125c4a589280279739ecb5ff8abb0f7671d5cb7d9746eb543e3d59a62e13002ee38fb8dd831b498
+  checksum: 10c0/9d0342806f20373dd7500cce1ea4bddf44e1626c486800f8fe1da374f923e349a2222d97d5a9d4ea493a87154fab272fdd384361d3521f28a8c3fbcf7f74bff8
   languageName: node
   linkType: hard
 
