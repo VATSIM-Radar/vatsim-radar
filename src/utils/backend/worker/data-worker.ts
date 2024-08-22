@@ -107,7 +107,7 @@ CronJob.from({
     },
 });
 
-let data: string | null = null;
+let data: VatsimData | null = null;
 
 CronJob.from({
     cronTime: '* * * * * *',
