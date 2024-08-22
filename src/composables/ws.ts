@@ -1,5 +1,4 @@
 import { useStore } from '~/store';
-import { setVatsimMandatoryData } from '~/composables/data';
 
 async function decompressBlob(blob: Blob) {
     const ds = new DecompressionStream('gzip');
@@ -84,7 +83,6 @@ export function initDataWebsocket(): () => void {
 
 export function checkForWSData(isMounted: Ref<boolean>): () => void {
     const store = useStore();
-    const dataStore = useDataStore();
     const config = useRuntimeConfig();
 
     let closeSocket: (() => void) | undefined;
@@ -104,7 +102,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     checkForSocket();
     const interval = setInterval(checkForSocket, 5000);
 
-    async function storageEvent() {
+    /* async function storageEvent() {
         const data = localStorage.getItem('radar-socket-vat-data');
         if (!data || !dataStore.vatsim.data.general.value) return;
 
@@ -118,7 +116,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
     onBeforeUnmount(() => {
         clearInterval(interval);
         window.removeEventListener('storage', storageEvent);
-    });
+    });*/
 
     watch(isMounted, () => {
         closeSocket?.();
