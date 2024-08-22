@@ -31,8 +31,12 @@ export interface VatSpyData {
         isIata?: boolean;
         isSimAware?: boolean;
     }[];
-    icaoKeyAirports: Record<string, VatSpyData['airports'][0]>;
-    iataKeyAirports: Record<string, VatSpyData['airports'][0]>;
+    keyAirports: {
+        icao: VatSpyKeyAirport;
+        iata: VatSpyKeyAirport;
+        realIcao: VatSpyKeyAirport;
+        realIata: VatSpyKeyAirport;
+    };
     firs: {
         icao: string;
         name: string;
@@ -51,6 +55,10 @@ export interface VatSpyData {
         firs: string;
     }[];
 }
+
+export type VatSpyAirports = VatSpyData['airports'];
+export type VatSpyAirport = VatSpyData['airports'][0];
+export type VatSpyKeyAirport = Record<string, VatSpyAirport>;
 
 export interface VatSpyDataFeature {
     icao?: string;

@@ -240,7 +240,7 @@ export function getAirportsList() {
         else {
             let departureAirport = (groundAirport?.icao === pilot.flight_plan.departure || groundAirport?.iata === pilot.flight_plan.departure)
                 ? groundAirport
-                : radarStorage.vatspy.data!.iataKeyAirports[pilot.flight_plan!.departure] || radarStorage.vatspy.data!.icaoKeyAirports[pilot.flight_plan!.departure];
+                : radarStorage.vatspy.data!.keyAirports.realIata[pilot.flight_plan!.departure] || radarStorage.vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.departure];
 
             if (departureAirport) {
                 if (departureAirport.icao !== departureAirport.iata && departureAirport.iata === pilot.flight_plan.departure) {
@@ -274,7 +274,7 @@ export function getAirportsList() {
                 else {
                     let arrivalAirport = (groundAirport?.icao === pilot.flight_plan.arrival || (pilot.flight_plan.arrival && groundAirport?.iata === pilot.flight_plan.arrival))
                         ? groundAirport
-                        : radarStorage.vatspy.data!.iataKeyAirports[pilot.flight_plan!.arrival!] || radarStorage.vatspy.data!.icaoKeyAirports[pilot.flight_plan!.arrival!];
+                        : radarStorage.vatspy.data!.keyAirports.realIata[pilot.flight_plan!.arrival!] || radarStorage.vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.arrival!];
 
                     if (arrivalAirport) {
                         if (pilot.flight_plan.arrival && arrivalAirport.icao !== arrivalAirport.iata && arrivalAirport.iata === pilot.flight_plan.arrival) {
@@ -304,7 +304,7 @@ export function getAirportsList() {
 
     radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach(prefile => {
         if (prefile.departure) {
-            const airport = radarStorage.vatspy.data!.iataKeyAirports[prefile.departure] || radarStorage.vatspy.data!.icaoKeyAirports[prefile.departure];
+            const airport = radarStorage.vatspy.data!.keyAirports.realIata[prefile.departure] || radarStorage.vatspy.data!.keyAirports.realIcao[prefile.departure];
             if (airport) addPilotToList('prefiles', airport, prefile.cid);
         }
     });
@@ -313,13 +313,14 @@ export function getAirportsList() {
         const airport = atc.airport;
 
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
-            const airportExist = radarStorage.vatspy.data!.iataKeyAirports[airport.iata ?? ''] || radarStorage.vatspy.data!.icaoKeyAirports[airport.icao];
+            const airportExist = radarStorage.vatspy.data!.keyAirports.realIata[airport.iata ?? ''] || radarStorage.vatspy.data!.keyAirports.realIcao[airport.icao];
+            const someAirportExist = radarStorage.vatspy.data!.keyAirports.iata[airport.iata ?? ''] || radarStorage.vatspy.data!.keyAirports.icao[airport.icao];
 
             airports.push({
                 icao: airport.icao,
-                iata: airportExist.iata,
-                isPseudo: airportExist.isPseudo,
-                isSimAware: airportExist.isPseudo,
+                iata: !someAirportExist ? airport.iata : someAirportExist.iata,
+                isPseudo: !airportExist,
+                isSimAware: !someAirportExist,
                 aircraft: {},
             });
         }
