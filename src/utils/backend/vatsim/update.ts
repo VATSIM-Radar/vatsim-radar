@@ -51,6 +51,7 @@ export function updateVatsimMandatoryDataStorage() {
     const data = radarStorage.vatsim.data!;
 
     const newData: VatsimMandatoryData = {
+        timestamp: data.general.update_timestamp,
         pilots: [],
         controllers: [],
         atis: [],
@@ -94,19 +95,34 @@ export async function updateVatsimExtendedPilots() {
 
     radarStorage.vatsim.extendedPilots = [];
 
-    for (const pilot of radarStorage.vatsim.data!.pilots) {
-        const extendedPilot: VatsimExtendedPilot = {
-            ...pilot,
-        };
+    const pilotsToProcess: {
+        pilot: VatsimExtendedPilot;
 
-        const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(pilot.cid));
-        const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(pilot.cid));
+        controllers?: Set<string>;
+    }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({ pilot }));
+
+    for (const fir of firsList.map(x => ({
+        controllers: x.controllers.flatMap(x => x.controller?.callsign),
+        polygon: x.polygon,
+    }))) {
+        for (const pilot of pilotsToProcess) {
+            if (fir.polygon.intersectsCoordinate([pilot.pilot.longitude, pilot.pilot.latitude])) {
+                pilot.controllers ??= new Set();
+
+                fir.controllers.map(x => pilot.controllers!.add(x));
+            }
+        }
+    }
+
+    for (const { pilot: extendedPilot, controllers } of pilotsToProcess) {
+        const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(extendedPilot.cid));
+        const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(extendedPilot.cid));
 
         if (groundDep) {
             extendedPilot.airport = groundDep.icao;
             const gates = await getCachedGates(groundDep.icao);
 
-            const check = gates && checkIsPilotInGate(pilot, gates);
+            const check = gates && checkIsPilotInGate(extendedPilot, gates);
             if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
                 extendedPilot.status = 'depGate';
             }
@@ -122,7 +138,7 @@ export async function updateVatsimExtendedPilots() {
 
             if (!gates) return;
 
-            const check = checkIsPilotInGate(pilot, gates);
+            const check = checkIsPilotInGate(extendedPilot, gates);
             if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
                 extendedPilot.status = 'arrGate';
             }
@@ -135,11 +151,11 @@ export async function updateVatsimExtendedPilots() {
 
         let totalDist: number | null = null;
 
-        const dep = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.departure);
-        const arr = radarStorage.vatspy.data?.airports.find(x => x.icao === pilot.flight_plan?.arrival);
+        const dep = extendedPilot.flight_plan?.departure && radarStorage.vatspy.data?.icaoKeyAirports[extendedPilot.flight_plan.departure];
+        const arr = extendedPilot.flight_plan?.arrival && radarStorage.vatspy.data?.icaoKeyAirports[extendedPilot.flight_plan.arrival];
 
         if (dep && arr) {
-            const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
+            const pilotCoords = toLonLat([extendedPilot.longitude, extendedPilot.latitude]);
             const depCoords = toLonLat([dep.lon, dep.lat]);
             const arrCoords = toLonLat([arr.lon, arr.lat]);
 
@@ -149,7 +165,7 @@ export async function updateVatsimExtendedPilots() {
                 extendedPilot.toGoDist = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
                 extendedPilot.toGoPercent = calculateProgressPercentage(pilotCoords, depCoords, arrCoords);
                 if (extendedPilot.toGoPercent < 0) extendedPilot.toGoPercent = 0;
-                extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, pilot.groundspeed).getTime();
+                extendedPilot.toGoTime = calculateArrivalTime(pilotCoords, arrCoords, extendedPilot.groundspeed).getTime();
 
                 if (extendedPilot.toGoDist < 100) {
                     extendedPilot.airport = arr.icao;
@@ -202,16 +218,8 @@ export async function updateVatsimExtendedPilots() {
             }
         }
 
-        const firs = firsList.filter(fir => {
-            return fir.polygon.intersectsCoordinate([pilot.longitude, pilot.latitude]);
-        });
-
-        if (firs.length) {
-            extendedPilot.firs = [...new Set(
-                firs
-                    .flatMap(x => x && x.controllers.map(x => x.controller?.callsign))
-                    .filter(x => !!x) as string[],
-            )];
+        if (controllers?.size) {
+            extendedPilot.firs = [...controllers];
         }
 
         if (!extendedPilot.status) {

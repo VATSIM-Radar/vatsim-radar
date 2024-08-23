@@ -1,10 +1,10 @@
 <template>
     <div
-        v-if="!notamCookie"
+        v-if="false && !notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            VATSIM Radar will undergo maintenance on August 10th at 07:00z for one hour, during which online services may be temporally unavailable. Thank you for your patience.
+            VATSIM Radar will undergo maintenance on August 11th at 14:00z with expected downtime of 5-10 minutes, during which online services may be temporally unavailable. Thank you for your patience.
         </div>
         <div
             class="header-error_close"
@@ -104,7 +104,7 @@
                 class="header__sections_section"
             >
                 <common-button
-                    href="https://github.com/daniluk4000/vatsim-radar"
+                    href="https://github.com/VATSIM-Radar/vatsim-radar"
                     size="S"
                     target="_blank"
                     type="secondary"

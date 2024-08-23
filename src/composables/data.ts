@@ -44,6 +44,16 @@ const data: Data = {
 
 const vatsim = {
     data,
+    // For fast turn-on in case we need to restore mandatory data
+    /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
+        if (!data.pilots.value.length) return null;
+        return {
+            pilots: data.pilots.value,
+            controllers: [],
+            atis: [],
+        } as VatsimMandatoryConvertedData;
+    }),*/
+    _mandatoryData: shallowRef<VatsimMandatoryConvertedData | null>(null),
     mandatoryData: shallowRef<VatsimMandatoryConvertedData | null>(null),
     versions: ref<VatDataVersions['vatsim'] | null>(null),
     updateTimestamp: ref(''),
@@ -92,6 +102,8 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
             facility,
         })),
     };
+
+    vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 }
 
 export async function setupDataFetch({ onFetch, onSuccessCallback }: {
@@ -103,10 +115,33 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
+    const config = useRuntimeConfig();
 
     function startIntervalChecks() {
+        interval = setInterval(async () => {
+            if (mandatoryInProgess) return;
+            if (String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate) {
+                mandatoryInProgess = true;
+
+                try {
+                    const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {
+                        timeout: 1000 * 60,
+                    });
+                    if (mandatoryData) setVatsimMandatoryData(mandatoryData);
+
+                    dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
+                    dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                mandatoryInProgess = false;
+            }
+        }, 2000);
+
         interval = setInterval(() => {
             store.getVATSIMData();
         }, 10000);
