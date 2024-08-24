@@ -12,7 +12,7 @@
 
 - Fixed an error when your aircraft spawn would not focus and zoom to you
 - Fixed rare issues with duplicate airports
-- Fixed an issue for METAR Valid field when time displayed hours two times instead of minutes
+- Fixed an issue for TAF Valid field when time displayed hours two times instead of minutes
 
 # 0.4.4-alpha.4
 
