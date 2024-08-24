@@ -151,8 +151,8 @@ export async function updateVatsimExtendedPilots() {
 
         let totalDist: number | null = null;
 
-        const dep = extendedPilot.flight_plan?.departure && radarStorage.vatspy.data?.icaoKeyAirports[extendedPilot.flight_plan.departure];
-        const arr = extendedPilot.flight_plan?.arrival && radarStorage.vatspy.data?.icaoKeyAirports[extendedPilot.flight_plan.arrival];
+        const dep = extendedPilot.flight_plan?.departure && radarStorage.vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.departure];
+        const arr = extendedPilot.flight_plan?.arrival && radarStorage.vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.arrival];
 
         if (dep && arr) {
             const pilotCoords = toLonLat([extendedPilot.longitude, extendedPilot.latitude]);

@@ -141,6 +141,7 @@ CronJob.from({
     runOnInit: true,
     onTick: async () => {
         if (!radarStorage.vatspy.data || dataProcessInProgress || !data) return;
+
         try {
             dataProcessInProgress = true;
 
@@ -370,7 +371,12 @@ CronJob.from({
                 });
             });
 
-            process.send!(JSON.stringify(radarStorage.vatsim));
+            await new Promise<void>((resolve, reject) => {
+                process.send!(JSON.stringify(radarStorage.vatsim), undefined, undefined, err => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            });
         }
         catch (e) {
             console.error(e);

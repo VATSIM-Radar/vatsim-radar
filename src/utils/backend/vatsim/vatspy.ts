@@ -140,8 +140,12 @@ export async function updateVatSpy() {
             };
         });
 
-    result.icaoKeyAirports = Object.fromEntries(result.airports.map(airport => [airport.icao, airport]));
-    result.iataKeyAirports = Object.fromEntries(result.airports.filter(x => x.iata).map(airport => [airport.iata, airport]));
+    // @ts-expect-error First init
+    result.keyAirports ??= {};
+    result.keyAirports.icao = Object.fromEntries(result.airports.map(airport => [airport.icao, airport]));
+    result.keyAirports.iata = Object.fromEntries(result.airports.filter(x => x.iata).map(airport => [airport.iata, airport]));
+    result.keyAirports.realIcao = Object.fromEntries(result.airports.filter(x => !x.isPseudo).map(airport => [airport.icao, airport]));
+    result.keyAirports.realIata = Object.fromEntries(result.airports.filter(x => x.iata && !x.isPseudo).map(airport => [airport.iata, airport]));
 
     result.firs = [];
     parsedDat.firs
