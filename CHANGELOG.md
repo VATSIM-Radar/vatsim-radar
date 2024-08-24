@@ -6,7 +6,6 @@
 
 - UI/UX improvements for: pilot hover card, ATC short card, pilot overlay, airport flight card
 - Map filter dropdown is now open for new users by default
-- Added support for Australia-like extending sectors, for example, "Extending to YWE - 134.325, HUO - 122.6" or "EXT TDB 123.05, ARL 130.9"
 - You can now also send links for callsign instead of CID, for example, "https://vatsim-radar.com/?pilot=SBI437"
 
 ## Bug Fixes
