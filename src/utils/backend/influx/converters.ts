@@ -86,22 +86,26 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
         return rowColor;
     }
 
-    const geoRows: Feature<Point>[] = rows.filter(x => x.latitude && x.longitude).map(row => ({
-        type: 'Feature',
-        properties: {
-            type: 'turn',
-            standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
-            timestamp: row._time,
-            color: getRowColor(row),
-        },
-        geometry: {
-            type: 'Point',
-            coordinates: [
-                row.longitude!,
-                row.latitude!,
-            ],
-        },
-    }));
+    const geoRows: Feature<Point>[] = [];
+
+    for (const row of rows.filter(x => x.latitude && x.longitude)) {
+        geoRows.push({
+            type: 'Feature',
+            properties: {
+                type: 'turn',
+                standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
+                timestamp: row._time,
+                color: getRowColor(row),
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [
+                    row.longitude!,
+                    row.latitude!,
+                ],
+            },
+        });
+    }
 
     const rowsGroups: FeatureCollection<Point>[] = [];
 
@@ -120,18 +124,19 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
 
     let hadStanding = false;
 
-    rowsGroups.map(group => {
-        group.features.map((feature, index) => {
+    for (const group of rowsGroups) {
+        for (let i = 0; i < group.features.length; i++) {
+            const feature = group.features[i];
             if (!hadStanding && feature.properties!.standing) {
                 hadStanding = true;
             }
             else delete feature.properties!.standing;
 
-            if (index === 0 || index === group.features.length - 1) return;
+            if (i === 0 || i === group.features.length - 1) continue;
             delete feature.properties!.color;
             delete feature.properties!.timestamp;
-        });
-    });
+        }
+    }
 
     return {
         flightPlanTime: flightPlanStart,
