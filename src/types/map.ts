@@ -53,6 +53,10 @@ interface IUserLocalSettings {
     traffic: {
         disableFastUpdate?: boolean;
     };
+
+    tutorial: {
+        mapAirportPopupDepartureCount: boolean;
+    };
 }
 
 export type UserLocalSettings = Partial<IUserLocalSettings>;

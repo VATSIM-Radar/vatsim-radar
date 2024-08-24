@@ -174,6 +174,17 @@
                             <div class="airport__aircraft-title_text">
                                 {{ column.title }}
                             </div>
+                            <div
+                                v-if="column.key === 'arrivals'"
+                                class="airport__aircraft-title_interval"
+                            >
+                                <map-popup-rate
+                                    :aircraft="aircraft"
+                                    :icon-color="radarColors.warning500"
+                                    :text-color="radarColors.warning500"
+                                    :use-opacity="store.theme === 'default'"
+                                />
+                            </div>
                             <common-bubble
                                 class="airport__aircraft-title_bubble"
                                 :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
@@ -245,6 +256,7 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
+import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -686,6 +698,16 @@ await setupDataFetch({
                 color: $darkgray800Orig;
             }
         }
+
+        &_interval {
+            display: flex;
+            gap: 12px;
+
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 100%;
+        }
+
     }
 
     &_map {
