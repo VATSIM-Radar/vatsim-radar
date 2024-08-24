@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.4.4-alpha.4
+
+- Added airport arrival rate
+- You can now switch to departed aircraft in airport overlay
+
 # 0.4.4-alpha.3
 
 - Reworked approach labels placement to always be on the line
