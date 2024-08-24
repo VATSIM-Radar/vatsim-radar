@@ -23,7 +23,7 @@
                     v-model:collapsed="collapsedFlight"
                     class="pilot__section_title"
                 >
-                    Current Flight Details
+                    Flight Details
                 </common-block-title>
                 <map-popup-flight-info
                     v-if="!collapsedFlight"

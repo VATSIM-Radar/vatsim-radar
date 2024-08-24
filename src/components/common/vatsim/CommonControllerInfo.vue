@@ -29,7 +29,7 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : undefined,
+                        showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : controller.logon_time,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
@@ -64,9 +64,9 @@
                                 {{ item }}
                             </div>
                         </template>
-                        <template v-else-if="index === 3 && !showAtis">
+                        <template v-else-if="index === 3 && (!showAtis || !controller.atis_code)">
                             <div class="atc-popup__time">
-                                {{ item }}
+                                {{ getATCTime(controller) }}
                             </div>
                         </template>
                         <template v-else>
@@ -74,12 +74,10 @@
                         </template>
                     </template>
                     <template
+                        v-if="showAtis && controller.text_atis?.length"
                         #bottom
                     >
-                        <ul
-                            v-if="showAtis && controller.text_atis?.length"
-                            class="atc-popup_atc__atis"
-                        >
+                        <ul class="atc-popup_atc__atis">
                             <li
                                 v-for="atis in getATIS(controller)"
                                 :key="atis"
@@ -198,7 +196,9 @@ const getATIS = (controller: VatsimShortenedController) => {
         display: flex;
         gap: 8px;
         align-items: center;
+
         font-weight: 400;
+        word-break: break-word;
     }
 
     &__frequency {
@@ -221,6 +221,21 @@ const getATIS = (controller: VatsimShortenedController) => {
     }
 
     &_atc {
+        @at-root .atc-popup-container:not(.atc-popup-container--small) & {
+            :deep(.info-block__separator:nth-child(2)) {
+                flex: 1 0 auto;
+
+                svg {
+                    display: none;
+                }
+            }
+
+            :deep(.info-block_top) {
+                flex-wrap: nowrap;
+            }
+        }
+
+
         &__atis {
             display: flex;
             flex-direction: column;

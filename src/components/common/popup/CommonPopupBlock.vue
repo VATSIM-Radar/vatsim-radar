@@ -13,6 +13,12 @@
             >
                 <slot name="additionalTitle"/>
             </div>
+            <template v-if="$slots.titleAppend">
+                <div class="__spacer"/>
+                <div class="popup-block_title_append">
+                    <slot name="titleAppend"/>
+                </div>
+            </template>
         </div>
         <div class="popup-block_content">
             <slot/>

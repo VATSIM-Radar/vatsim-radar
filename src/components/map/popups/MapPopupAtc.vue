@@ -105,7 +105,7 @@
                     target="_blank"
                 >
                     <template #icon>
-                        <stats-icon/>
+                        <dashboard-icon/>
                     </template>
                     View Stats
                 </common-button>
@@ -121,7 +121,7 @@ import type { StoreOverlayAtc } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
-import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';
 import { findAtcAirport, showAtcOnMap } from '~/composables/atc';

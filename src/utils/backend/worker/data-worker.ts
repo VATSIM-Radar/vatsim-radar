@@ -230,10 +230,10 @@ CronJob.from({
 
             await updateVatsimExtendedPilots();
 
-            /* radarStorage.vatsim.data.controllers.push({
-                callsign: 'MSK_APP',
+            radarStorage.vatsim.data.atis.push({
+                callsign: 'PHNL_ATIS',
                 cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -245,9 +245,9 @@ CronJob.from({
             });
 
             radarStorage.vatsim.data.controllers.push({
-                callsign: 'UUEE_APP',
+                callsign: 'HNL_GND',
                 cid: 2,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -257,34 +257,6 @@ CronJob.from({
                 text_atis: ['test3'],
                 visual_range: 0,
             });
-
-            radarStorage.vatsim.data.controllers.push({
-                callsign: 'UUDD_APP',
-                cid: 1,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
-                frequency: '122.122',
-                last_updated: '',
-                logon_time: '',
-                name: '',
-                rating: 0,
-                server: '',
-                text_atis: ['test3'],
-                visual_range: 0,
-            });
-
-            radarStorage.vatsim.data.controllers.push({
-                callsign: 'UUWW_APP',
-                cid: 5,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
-                frequency: '122.122',
-                last_updated: '',
-                logon_time: '',
-                name: '',
-                rating: 0,
-                server: '',
-                text_atis: ['test3'],
-                visual_range: 0,
-            });*/
 
             const regularData = excludeKeys(radarStorage.vatsim.data, {
                 pilots: {

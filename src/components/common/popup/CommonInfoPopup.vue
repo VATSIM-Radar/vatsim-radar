@@ -344,5 +344,9 @@ watch(getSections, sections => {
             }
         }
     }
+
+    @media all and (min-width: 1600px) {
+        width: 400px;
+    }
 }
 </style>

@@ -2,14 +2,6 @@
     <div class="flight-plan">
         <template v-if="flightPlan.departure && flightPlan.arrival">
             <div class="flight-plan__cols">
-                <div class="flight-plan__title">
-                    Departure
-                </div>
-                <div class="flight-plan__title">
-                    Arrival
-                </div>
-            </div>
-            <div class="flight-plan__cols">
                 <common-info-block
                     :bottom-items="[depAirport?.name, depCountry?.country]"
                     class="flight-plan__card"
@@ -18,6 +10,9 @@
                     :top-items="[flightPlan.departure]"
                     @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
                 />
+                <div class="flight-plan__aircraft-icon">
+                    <aircraft-icon/>
+                </div>
                 <common-info-block
                     :bottom-items="[arrAirport?.name, arrCountry?.country]"
                     class="flight-plan__card"
@@ -106,6 +101,7 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
+import AircraftIcon from '@/assets/icons/kit/aircraft.svg?component';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import { useMapStore } from '~/store/map';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
@@ -189,11 +185,36 @@ const selcal = computed<string | null>(() => {
 
     &__cols {
         display: flex;
-        gap: 8px;
+        gap: 4px;
 
         > * {
             flex: 1 1 0;
             width: 0;
+        }
+    }
+
+    &__aircraft-icon {
+        display: flex;
+        flex: none;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+
+        width: auto;
+        padding: 0 4px;
+
+        &::before, &::after {
+            content: '';
+
+            width: 2px;
+            height: 2px;
+
+            background: currentColor;
+            border-radius: 100%;
+        }
+
+        svg {
+            width: 16px;
         }
     }
 

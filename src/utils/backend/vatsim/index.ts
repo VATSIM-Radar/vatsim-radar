@@ -83,20 +83,20 @@ export async function vatsimGetUser(token: string) {
     return result;
 }
 
-export function findAirportSomewhere(callsign: string) {
+export function findAirportSomewhere(callsign: string, isApp: boolean) {
     const splittedName = callsign.split('_').slice(0, 2);
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];
 
     let prefix: string | undefined;
-    let simaware = radarStorage.simaware.data?.features.find(x => {
+    let simaware = isApp && radarStorage.simaware.data?.features.find(x => {
         const suffix = getTraconSuffix(x);
         prefix = getTraconPrefixes(x).find(x => x === regularName);
         return !!prefix && (!suffix || callsign.endsWith(suffix));
     });
 
-    if (!simaware && secondName) {
+    if (isApp && !simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
             simaware = radarStorage.simaware.data?.features.find(x => {
                 const suffix = getTraconSuffix(x);
@@ -115,11 +115,23 @@ export function findAirportSomewhere(callsign: string) {
         }
     }
 
-    let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
+    let vatspy = radarStorage.vatspy.data?.keyAirports.iata[callsignAirport];
+    let isIata = true;
+    if (!vatspy) {
+        isIata = false;
+        vatspy = radarStorage.vatspy.data?.keyAirports.icao[callsignAirport];
+    }
+
     if (vatspy && simaware) {
         vatspy = {
             ...vatspy,
             isSimAware: true,
+        };
+    }
+    else if (vatspy && isIata && radarStorage.vatspy.data?.keyAirports.icao[callsignAirport]?.icao !== vatspy.iata) {
+        vatspy = {
+            ...vatspy,
+            iata: radarStorage.vatspy.data!.keyAirports.icao[callsignAirport]?.iata,
         };
     }
 

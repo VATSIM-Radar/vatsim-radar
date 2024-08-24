@@ -6,6 +6,7 @@ import type { AircraftIcon } from '~/utils/icons';
 import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
+import { colorPresets } from '~/utils/shared/flight';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -215,16 +216,17 @@ const lineStyles: {
     width: number;
 }[] = [];
 
-export function getAircraftLineStyle(color: string, width = 1.5, lineDash?: number[]): Style {
-    const existingStyle = lineStyles.find(x => x.color === color && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
+export function getAircraftLineStyle(color: string | number | null, width = 1.5, lineDash?: number[]): Style {
+    const hex = typeof color === 'string' ? color : getFlightRowColor(color);
+    const existingStyle = lineStyles.find(x => x.color === hex && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
     if (existingStyle) return existingStyle.style;
 
     const style = {
-        color,
+        color: hex,
         width,
         lineDash: lineDash && JSON.stringify(lineDash),
         style: new Style({
-            stroke: new Stroke({ color, width, lineDash }),
+            stroke: new Stroke({ color: hex, width, lineDash }),
         }),
     };
 
@@ -253,3 +255,15 @@ export const useShowPilotStats = () => {
         },
     });
 };
+
+export function getFlightRowColor(index: number | null, theme = useStore().theme) {
+    if (!index) return radarColors.success700Hex;
+
+    switch (theme) {
+        case 'sa':
+        case 'default':
+            return colorPresets.dark[index];
+        case 'light':
+            return colorPresets.light[index];
+    }
+}

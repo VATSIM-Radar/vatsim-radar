@@ -38,3 +38,24 @@ export function calculateArrivalTime(current: Coordinate, dest: Coordinate, grou
 
     return new Date(currentTime.getTime() + timeInMillis);
 }
+
+export const colorSteps = [2500, 5000, 7500, 10000, 12500, 15000, 17500, 20000, 25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000];
+type ColorPreset = [string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string];
+
+export const colorPresets = {
+    light: ['#feae77', '#fe9f6d', '#fd9266', '#fb8560', '#f8765c', '#f4695c', '#ef5d5e', '#e75263', '#d3436e', '#bc3978', '#a5317e', '#8c2981', '#752181', '#5f187f', '#471078', '#2d1161'],
+    dark: ['#feae77', '#fe9f6d', '#fd9266', '#fb8560', '#f8765c', '#f4695c', '#ef5d5e', '#e75263', '#d3436e', '#bc3978', '#a5317e', '#8c2981', '#752181', '#5f187f', '#471078', '#2d1161'],
+} satisfies Record<string, ColorPreset>;
+
+
+export function getFlightRowGroup(altitude?: number | null): number | null {
+    const rowGroup: number | null = null;
+
+    if (!altitude) return rowGroup;
+
+    const alt = altitude - 100;
+
+    const index = colorSteps.findIndex(x => alt <= x);
+    if (index === -1) return colorSteps[colorSteps.length - 1];
+    return index;
+}

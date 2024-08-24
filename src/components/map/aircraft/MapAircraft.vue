@@ -28,6 +28,17 @@
                 >
                     {{ pilot.aircraft_faa }}
                 </template>
+                <template
+                    v-if="pilot.frequencies.length >= 1"
+                    #titleAppend
+                >
+                    <common-bubble
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.frequencies[0] }}
+                    </common-bubble>
+                </template>
                 <div class="aircraft-hover_body">
                     <common-info-block
                         class="aircraft-hover__pilot"
@@ -38,13 +49,6 @@
                             <div class="aircraft-hover__pilot_content">
                                 <div class="aircraft-hover__pilot__title">
                                     Pilot
-
-                                    <div
-                                        v-if="pilot.frequencies.length >= 1"
-                                        class="aircraft-hover__pilot__frequency"
-                                    >
-                                        {{ pilot.frequencies[0] }}
-                                    </div>
                                 </div>
                                 <div class="aircraft-hover__pilot__text">
                                     {{ parseEncoding(pilot.name) }}<br>
@@ -57,46 +61,54 @@
                     </common-info-block>
                     <div
                         v-if="pilot.departure || pilot.arrival"
-                        class="aircraft-hover_sections"
+                        class="__info-sections"
                     >
-                        <common-info-block
+                        <div
                             v-if="pilot.departure"
-                            is-button
-                            text-align="center"
-                            @click="mapStore.addAirportOverlay(pilot.departure)"
+                            class="__grid-info-sections"
                         >
-                            <template #top>
+                            <div class="__grid-info-sections_title">
                                 From
-                            </template>
-                            <template #bottom>
-                                {{ pilot.departure }}
-                                <div
+                            </div>
+                            <common-info-block
+                                is-button
+                                text-align="center"
+                                @click="mapStore.addAirportOverlay(pilot.departure)"
+                            >
+                                <template #top>
+                                    {{ pilot.departure }}
+                                </template>
+                                <template
                                     v-if="depAirport"
-                                    class="aircraft-hover__airport"
+                                    #bottom
                                 >
                                     {{ depAirport.name }}
-                                </div>
-                            </template>
-                        </common-info-block>
-                        <common-info-block
+                                </template>
+                            </common-info-block>
+                        </div>
+                        <div
                             v-if="pilot.arrival"
-                            is-button
-                            text-align="center"
-                            @click="mapStore.addAirportOverlay(pilot.arrival)"
+                            class="__grid-info-sections"
                         >
-                            <template #top>
+                            <div class="__grid-info-sections_title">
                                 To
-                            </template>
-                            <template #bottom>
-                                {{ pilot.arrival }}
-                                <div
+                            </div>
+                            <common-info-block
+                                is-button
+                                text-align="center"
+                                @click="mapStore.addAirportOverlay(pilot.arrival)"
+                            >
+                                <template #top>
+                                    {{ pilot.arrival }}
+                                </template>
+                                <template
                                     v-if="arrAirport"
-                                    class="aircraft-hover__airport"
+                                    #bottom
                                 >
                                     {{ arrAirport.name }}
-                                </div>
-                            </template>
-                        </common-info-block>
+                                </template>
+                            </common-info-block>
+                        </div>
                     </div>
                     <div class="aircraft-hover_sections">
                         <common-info-block
@@ -183,6 +195,7 @@ import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 
 const props = defineProps({
     aircraft: {
@@ -756,12 +769,17 @@ onUnmounted(() => {
         justify-content: space-between;
     }
 
+    &__frequency {
+        font-size: 12px;
+        font-weight: 600;
+    }
+
     &__pilot {
         &__title, &__text {
             font-weight: 600;
         }
 
-        &__frequency, &__text_rating {
+        &__text_rating {
             font-size: 11px;
             font-weight: normal;
         }
@@ -802,5 +820,9 @@ onUnmounted(() => {
     font-size: 11px;
     font-weight: 600;
     color: var(--color);
+}
+
+.__grid-info-sections_title {
+    font-weight: 600;
 }
 </style>

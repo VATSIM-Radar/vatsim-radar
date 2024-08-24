@@ -144,8 +144,9 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
             }
         }, 2000);
 
-        interval = setInterval(() => {
-            store.getVATSIMData(socketsEnabled());
+        interval = setInterval(async () => {
+            await store.getVATSIMData(socketsEnabled());
+            onFetch?.();
         }, 10000);
     }
 

@@ -124,6 +124,15 @@
                     Focus
                 </common-button>
                 <common-button
+                    :disabled="overlay.data.tracked || store.config.hideAllExternal"
+                    @click="viewRoute"
+                >
+                    <template #icon>
+                        <path-icon/>
+                    </template>
+                    Route
+                </common-button>
+                <common-button
                     :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
                     target="_blank"
                 >
@@ -158,6 +167,7 @@ import TrackIcon from 'assets/icons/kit/track.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
@@ -234,7 +244,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
             key: 'flight',
-            title: 'Current Flight Details',
+            title: 'Flight Details',
             collapsible: true,
         },
     ];

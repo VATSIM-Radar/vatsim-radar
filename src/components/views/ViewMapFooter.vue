@@ -236,9 +236,12 @@ const getLastUpdated = computed(() => {
 
     &__airac {
         cursor: pointer;
+
         display: flex;
         gap: 8px;
         align-items: center;
+
+        font-weight: 600;
 
         &--current {
             cursor: default;

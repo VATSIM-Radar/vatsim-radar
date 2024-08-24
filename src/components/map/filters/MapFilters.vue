@@ -184,7 +184,7 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 
-const isOpened = computed(() => !!store.localSettings.filters?.opened);
+const isOpened = computed(() => store.localSettings.filters?.opened !== false);
 const selectedFilter = ref<string | null>(null);
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
@@ -293,7 +293,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
     &--collapsed .filters {
         &_toggle {
-            opacity: 0.5;
+            opacity: 0.7;
 
             @include hover {
                 &:hover {

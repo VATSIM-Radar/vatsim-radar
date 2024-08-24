@@ -19,7 +19,7 @@ defineProps({
         default: 'S',
     },
     type: {
-        type: String as PropType<'primary' | 'secondary'>,
+        type: String as PropType<'primary' | 'secondary' | 'primary-flat'>,
         default: 'primary',
     },
 });
@@ -51,6 +51,12 @@ defineSlots<{ default: () => any }>();
     &--type-secondary {
         color: $lightgray150;
         background: $darkgray875;
+    }
+
+    &--type-primary-flat {
+        padding: 0;
+        color: $primary500;
+        background: transparent;
     }
 }
 </style>

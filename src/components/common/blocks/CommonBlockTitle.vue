@@ -99,7 +99,8 @@ const collapsed = defineModel<boolean | null>('collapsed', {
 
         padding-left: 8px;
 
-        font-size: 12px;
+        font-size: 14px;
+        font-weight: 600;
 
         border-radius: 4px;
 

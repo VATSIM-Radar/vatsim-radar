@@ -1,5 +1,20 @@
 # Changelog
 
+# 0.4.4-beta.1
+
+## Features and improvements
+
+- UI/UX improvements for: pilot hover card, ATC short card, pilot overlay, airport flight card
+- Map filter dropdown is now open for new users by default
+- Added support for Australia-like extending sectors, for example, "Extending to YWE - 134.325, HUO - 122.6" or "EXT TDB 123.05, ARL 130.9"
+- You can now also send links for callsign instead of CID, for example, "https://vatsim-radar.com/?pilot=SBI437"
+
+## Bug Fixes
+
+- Fixed an error when your aircraft spawn would not focus and zoom to you
+- Fixed rare issues with duplicate airports
+- Fixed an issue for METAR Valid field when time displayed hours two times instead of minutes
+
 # 0.4.4-alpha.4
 
 - Added airport arrival rate

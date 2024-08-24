@@ -71,7 +71,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
     ];
 
     return locals.map(atc => {
-        const airport = findAirportSomewhere(atc.callsign);
+        const airport = findAirportSomewhere(atc.callsign, atc.facility === facilities.APP);
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
         return {

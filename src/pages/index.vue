@@ -183,11 +183,15 @@ const restoreOverlays = async () => {
         ...fetchedList,
     ];
 
-    if (route.query.pilot) {
-        let overlay = mapStore.overlays.find(x => x.key === route.query.pilot as string);
+    if (typeof route.query.pilot === 'string' && route.query.pilot) {
+        const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);
+        let cid = route.query.pilot;
+        if (callsignPilot) cid = callsignPilot.cid.toString();
+
+        let overlay = mapStore.overlays.find(x => x.key === cid);
 
         if (!overlay) {
-            overlay = await mapStore.addPilotOverlay(route.query.pilot as string);
+            overlay = await mapStore.addPilotOverlay(cid);
         }
 
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {

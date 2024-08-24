@@ -227,7 +227,7 @@ img {
 .__info-sections {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 
     &_title {
         padding-top: 8px;
