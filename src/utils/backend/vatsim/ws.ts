@@ -2,8 +2,6 @@ import { WebSocketServer } from 'ws';
 import { createGzip } from 'node:zlib';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
-if (typeof process?.send === 'undefined') throw new Error('Websocket should only be imported in our child process');
-
 export const wss = new WebSocketServer({
     port: 8880,
     perMessageDeflate: false,

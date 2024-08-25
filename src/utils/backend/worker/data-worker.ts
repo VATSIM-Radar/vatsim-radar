@@ -14,6 +14,7 @@ import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
+import { redis } from '~/utils/backend/redis';
 
 initInfluxDB();
 initKafka();
@@ -332,7 +333,7 @@ CronJob.from({
             });
 
             await new Promise<void>((resolve, reject) => {
-                process.send!(JSON.stringify(radarStorage.vatsim), undefined, undefined, err => {
+                redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                     if (err) return reject(err);
                     resolve();
                 });

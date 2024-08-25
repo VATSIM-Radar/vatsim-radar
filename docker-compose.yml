@@ -15,8 +15,32 @@ services:
             - "8880:8880"
         volumes:
             - ".:/radar:rw"
+        healthcheck:
+            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
+            interval: 1s
+            retries: 360
         depends_on:
             db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+
+    worker:
+        build:
+            context: .
+            dockerfile: .config/dev.Dockerfile
+        env_file:
+            - ./.env
+        container_name: vatsim-radar-worker
+        command: /radar/.config/worker.sh
+        volumes:
+            - ".:/radar:rw"
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+            frontend:
                 condition: service_healthy
 
     db:
@@ -36,3 +60,11 @@ services:
             retries: 40
         volumes:
             - .config/db:/var/lib/mysql
+
+    redis:
+        image: redis
+        command: redis-server --requirepass RADAR
+        expose:
+            - 6379
+        environment:
+            - REDIS_APPLICATION_MODE=master
