@@ -277,11 +277,23 @@ const vatInfo = computed(() => {
     return data.value?.vatInfo;
 });
 
+let updateInProgress = false;
+
 watch(dataStore.vatsim.updateTimestamp, async () => {
-    props.overlay.data.airport = {
-        ...props.overlay.data.airport,
-        ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
-    };
+    if (updateInProgress) return;
+    updateInProgress = true;
+    try {
+        props.overlay.data.airport = {
+            ...props.overlay.data.airport,
+            ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=2`),
+        };
+    }
+    catch (e) {
+        console.error(e);
+    }
+    finally {
+        updateInProgress = false;
+    }
 });
 
 onMounted(() => {
