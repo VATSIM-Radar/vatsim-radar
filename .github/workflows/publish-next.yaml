@@ -74,8 +74,8 @@ jobs:
   deploy:
     runs-on: do-next
     #runs-on: beget
-    needs:
-      - push
+#    needs:
+#      - push
     permissions:
       contents: read
       packages: read
@@ -103,8 +103,8 @@ jobs:
   deploy-nginx:
     runs-on: do-nginx
     #runs-on: beget
-    needs:
-      - push
+#    needs:
+#      - push
     permissions:
       contents: read
       packages: read
