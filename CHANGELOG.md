@@ -6,6 +6,7 @@
 - Added Australia extending sectors support
 - Reworked stepclimbs display to show waypoints and whole stepclimbs list
 - Added kilometers support for stepclimbs display
+- Fixed a rare issue when runway text could stay when zooming out
 
 # 0.4.4-beta.1
 
