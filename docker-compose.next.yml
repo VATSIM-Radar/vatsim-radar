@@ -10,10 +10,6 @@ services:
         condition: service_healthy
     ports:
       - 8080:3000
-    healthcheck:
-      test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
-      interval: 1s
-      retries: 360
     volumes:
       - /opt/radar-next-data:/radar/src/data
 
