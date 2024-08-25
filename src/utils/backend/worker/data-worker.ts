@@ -17,6 +17,7 @@ import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getTransceiverData } from '~/utils/backend/vatsim';
+import { redis } from '~/utils/backend/redis';
 
 initInfluxDB();
 initKafka();
@@ -379,7 +380,7 @@ CronJob.from({
             });
 
             await new Promise<void>((resolve, reject) => {
-                process.send!(JSON.stringify(radarStorage.vatsim), undefined, undefined, err => {
+                redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                     if (err) return reject(err);
                     resolve();
                 });

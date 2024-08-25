@@ -8470,6 +8470,7 @@ __metadata:
     eslint: "npm:^9.9.0"
     fast-xml-parser: "npm:^4.4.1"
     idb: "npm:^8.0.0"
+    ioredis: "npm:^5.4.1"
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
     kafkajs: "npm:^2.2.4"

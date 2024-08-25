@@ -1,39 +1,15 @@
 import { CronJob } from 'cron';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision, VatsimTransceiver } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { fork } from 'node:child_process';
-import { join } from 'path';
 import { updateAustraliaData } from '~/utils/backend/vatsim/update';
+import { redis } from '~/utils/backend/redis';
 
 export default defineNitroPlugin(app => {
     let transceiversInProgress = false;
 
-    const path = join(process.cwd(), './src/utils/backend/worker/data-worker.ts');
-
-    const child = fork(path, {
-        execArgv: [
-            '--import=tsx',
-        ],
-    });
-
-    child.stderr?.on('data', msg => {
-        console.log(Date.now(), msg.toLocaleString());
-    });
-
-    child.stdout?.on('data', msg => {
-        console.log(Date.now(), msg.toLocaleString());
-    });
-
-    child.on('error', err => {
-        console.error(Date.now(), err);
-    });
-
-    child.on('message', msg => {
-        radarStorage.vatsim = JSON.parse(msg.toLocaleString());
-    });
-
-    app.hooks.hook('close', () => {
-        child.kill();
+    redis.subscribe('data');
+    redis.on('message', (_, message) => {
+        radarStorage.vatsim = JSON.parse(message);
     });
 
     async function fetchDivisions() {
