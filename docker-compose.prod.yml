@@ -28,6 +28,8 @@ services:
     command: /radar/.config/worker-prod.sh
     volumes:
       - /opt/radar-data:/radar/src/data
+    ports:
+      - 8880:8880
     depends_on:
       db-next:
         condition: service_healthy

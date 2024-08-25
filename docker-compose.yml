@@ -12,7 +12,6 @@ services:
         command: /radar/.config/command.sh
         ports:
             - "8080:8080"
-            - "8880:8880"
         volumes:
             - ".:/radar:rw"
         healthcheck:
@@ -33,6 +32,8 @@ services:
             - ./.env
         container_name: vatsim-radar-worker
         command: /radar/.config/worker.sh
+        ports:
+            - 8880:8880
         volumes:
             - ".:/radar:rw"
         depends_on:
