@@ -122,6 +122,6 @@ jobs:
       - name: Deploy
         shell: bash
         run: docker compose -f docker-compose.nginx.yml up -d
-      - name: Clear
-        shell: bash
-        run: docker system prune --force && docker system prune --volumes --force
+#      - name: Clear
+#        shell: bash
+#        run: docker system prune --force && docker system prune --volumes --force
