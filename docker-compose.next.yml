@@ -17,20 +17,18 @@ services:
     volumes:
       - /opt/radar-next-data:/radar/src/data
 
-#  worker:
-#    build:
-#      context: .
-#      dockerfile: .config/dev.Dockerfile
-#    image: ghcr.io/vatsim-radar/vatsim-radar/next
-#    container_name: app-worker
-#    command: /radar/.config/worker-prod.sh
-#    volumes:
-#      - /opt/radar-next-data:/radar/src/data
-#    depends_on:
-#      db-next:
-#        condition: service_healthy
-#      redis:
-#        condition: service_started
+  worker:
+    image: ghcr.io/vatsim-radar/vatsim-radar/next
+    container_name: app-worker
+    restart: always
+    command: /radar/.config/worker-prod.sh
+    volumes:
+      - /opt/radar-next-data:/radar/src/data
+    depends_on:
+      db-next:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   redis:
     image: redis
