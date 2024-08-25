@@ -69,7 +69,7 @@ jobs:
             CF_R2_ACCESS_ID=${{ secrets.CF_R2_ACCESS_ID }}
             CF_R2_ACCESS_TOKEN=${{ secrets.CF_R2_ACCESS_TOKEN }}
   deploy:
-    runs-on: morgan
+    runs-on: do-prod
     #runs-on: beget
     needs:
       - push
@@ -93,6 +93,32 @@ jobs:
       - name: Deploy
         shell: bash
         run: docker compose -f docker-compose.prod.yml up -d
+      - name: Clear
+        shell: bash
+        run: docker system prune --force && docker system prune --volumes --force
+
+  deploy-nginx:
+    runs-on: do-nginx
+    #runs-on: beget
+    #    needs:
+    #      - push
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        shell: bash
+        run: docker compose -f docker-compose.nginx.yml build
+      - name: Deploy
+        shell: bash
+        run: docker compose -f docker-compose.nginx.yml up -d
       - name: Clear
         shell: bash
         run: docker system prune --force && docker system prune --volumes --force
