@@ -1,6 +1,5 @@
 services:
   app:
-    container_name: app
     restart: always
     image: ghcr.io/vatsim-radar/vatsim-radar/production
     depends_on:
