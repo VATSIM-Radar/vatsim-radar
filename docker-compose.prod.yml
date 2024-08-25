@@ -31,7 +31,7 @@ services:
     ports:
       - 8880:8880
     depends_on:
-      db-next:
+      db:
         condition: service_healthy
       redis:
         condition: service_started
