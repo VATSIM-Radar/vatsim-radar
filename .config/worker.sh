@@ -1,6 +1,7 @@
 #!/bin/sh
 
 cd /radar
+yarn
 npx prisma generate
 npx prisma migrate deploy
 rm -rf /tmp/nitro/worker-*

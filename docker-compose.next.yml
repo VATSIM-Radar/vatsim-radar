@@ -4,10 +4,12 @@ services:
     restart: always
     image: ghcr.io/vatsim-radar/vatsim-radar/next
     depends_on:
+      redis:
+        condition: service_started
       db-next:
         condition: service_healthy
     ports:
-      - 8000:3000
+      - 8080:3000
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
       interval: 1s
