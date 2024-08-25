@@ -516,14 +516,13 @@ onMounted(async () => {
     });
 
     watch(runways, val => {
-        if (!val) {
-            runwaysFeatures.forEach(feature => {
-                vectorSource.value?.removeFeature(feature);
-                feature.dispose();
-            });
-            runwaysFeatures = [];
-            return;
-        }
+        runwaysFeatures.forEach(feature => {
+            vectorSource.value?.removeFeature(feature);
+            feature.dispose();
+        });
+        runwaysFeatures = [];
+
+        if (!val) return;
 
         runwaysFeatures = val.map(feature => {
             const runwayFeature = new Feature({
