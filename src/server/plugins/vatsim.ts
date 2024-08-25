@@ -3,6 +3,7 @@ import type { VatsimDivision, VatsimEvent, VatsimSubDivision, VatsimTransceiver 
 import { radarStorage } from '~/utils/backend/storage';
 import { fork } from 'node:child_process';
 import { join } from 'path';
+import { updateAustraliaData } from '~/utils/backend/vatsim/update';
 
 export default defineNitroPlugin(app => {
     let transceiversInProgress = false;
@@ -90,6 +91,15 @@ export default defineNitroPlugin(app => {
             finally {
                 transceiversInProgress = false;
             }
+        },
+    });
+
+    CronJob.from({
+        cronTime: '15 * * * *',
+        runOnInit: true,
+        start: true,
+        onTick: async () => {
+            await updateAustraliaData();
         },
     });
 });

@@ -1,5 +1,12 @@
 # Changelog
 
+# 0.4.4-beta.2
+
+- Updated tracks palette with separate colors for light and dark themes
+- Added Australia extending sectors support
+- Reworked stepclimbs display to show waypoints and whole stepclimbs list
+- Added kilometers support for stepclimbs display
+
 # 0.4.4-beta.1
 
 ## Features and improvements

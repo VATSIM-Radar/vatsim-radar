@@ -46,9 +46,9 @@
                 <map-popup-flight-plan
                     v-if="!collapsedPlan"
                     class="__info-sections"
-                    :cruise="'cruise' in pilot ? pilot.cruise : undefined"
                     :flight-plan="pilot.flight_plan"
                     :status="'status' in pilot ? pilot.status : undefined"
+                    :stepclimbs="'stepclimbs' in pilot ? pilot.stepclimbs : undefined"
                 />
             </div>
         </div>

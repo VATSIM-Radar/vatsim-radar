@@ -135,7 +135,7 @@ function handleMapClick() {
 }
 
 watch(map, val => {
-    if (!val) return;
+    if (!val || vectorLayer) return;
 
     if (!vectorLayer) {
         vectorSource.value = new VectorSource<any>({
@@ -171,6 +171,8 @@ watch(map, val => {
         val.addLayer(airportsLayer);
     }
 
+    attachMoveEnd(setVisibleAirports);
+    useUpdateInterval(setVisibleAirports);
     attachPointerMove(handlePointerMove);
     val.on('click', handleMapClick);
 }, {
@@ -526,8 +528,4 @@ async function setVisibleAirports() {
         }).filter(x => visibleAirports.value.find(y => y.vatsimAirport.icao === x.airport));
     }
 }
-
-attachMoveEnd(setVisibleAirports);
-
-useUpdateInterval(setVisibleAirports);
 </script>

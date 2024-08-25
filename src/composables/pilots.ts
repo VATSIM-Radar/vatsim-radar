@@ -257,7 +257,7 @@ export const useShowPilotStats = () => {
 };
 
 export function getFlightRowColor(index: number | null, theme = useStore().theme) {
-    if (!index) return radarColors.success700Hex;
+    if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
 
     switch (theme) {
         case 'sa':

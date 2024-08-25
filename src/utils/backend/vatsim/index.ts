@@ -176,23 +176,40 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
     };
 }
 
-export function getTransceiverData(callsign: string): IVatsimTransceiver {
-    const pilot = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
-    if (!pilot || pilot?.transceivers.length === 0) {
+export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
+    const transceiver = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
+
+    if (!transceiver || transceiver?.transceivers.length === 0) {
         return {
             frequencies: [],
         };
     }
 
-    const frequencies = pilot.transceivers.map(x => {
-        const frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
+    const frequencies = transceiver.transceivers.map(x => {
+        let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
+
+        if (fullFrequency) {
+            if (!frequency.includes('.')) {
+                if (frequency.length < 3) {
+                    for (let i = 0; i < 3 - frequency.length; i++) {
+                        frequency += '0';
+                    }
+                }
+
+                frequency += '.';
+            }
+
+            return `${ (`${ frequency }000`).slice(0, 7) }`;
+        }
+
         if (!frequency.includes('.')) return `${ frequency }.0`;
         return frequency;
     });
+
     return {
-        frequencies,
-        groundAlt: pilot.transceivers[0].heightAglM,
-        seaAlt: pilot.transceivers[0].heightMslM,
+        frequencies: [...new Set(frequencies)],
+        groundAlt: transceiver.transceivers[0].heightAglM,
+        seaAlt: transceiver.transceivers[0].heightMslM,
     };
 }
 

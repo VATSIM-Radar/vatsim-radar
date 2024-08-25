@@ -23,6 +23,13 @@ interface KafkaExtension {
     deleted: boolean;
 }
 
+export interface AustraliaSector {
+    name: string;
+    fullName: string;
+    frequency: string;
+    callsign: string;
+}
+
 export const radarStorage = {
     vatspy: {
         version: '',
@@ -44,6 +51,8 @@ export const radarStorage = {
         subDivisions: [] as VatsimSubDivision[],
         events: [] as VatsimEvent[],
         transceivers: [] as VatsimTransceiver[],
+
+        australia: [] as AustraliaSector[],
 
         kafka: {
             pilots: [] as Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>,

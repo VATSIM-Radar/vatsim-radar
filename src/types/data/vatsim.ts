@@ -44,11 +44,12 @@ export interface VatsimExtendedPilot extends VatsimPilot {
     toGoTime?: number;
     firs?: string[];
     airport?: string;
-    cruise?: {
-        min?: number;
-        planned: number;
-        max?: number;
-    };
+    stepclimbs?: {
+        waypoint: string;
+        measurement: 'FT' | 'M';
+        level: number;
+        ft: number;
+    }[];
 }
 
 export type VatsimPilotFlightPlan = Partial<{

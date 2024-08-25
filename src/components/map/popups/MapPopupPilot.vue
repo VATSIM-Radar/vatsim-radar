@@ -95,9 +95,9 @@
             <map-popup-flight-plan
                 v-if="pilot.flight_plan"
                 class="pilot__content __info-sections"
-                :cruise="pilot.cruise"
                 :flight-plan="pilot.flight_plan"
                 :status="pilot.status ?? null"
+                :stepclimbs="pilot.stepclimbs"
             />
         </template>
         <template #actions>

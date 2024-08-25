@@ -44,7 +44,7 @@ type ColorPreset = [string, string, string, string, string, string, string, stri
 
 export const colorPresets = {
     light: ['#feae77', '#fe9f6d', '#fd9266', '#fb8560', '#f8765c', '#f4695c', '#ef5d5e', '#e75263', '#d3436e', '#bc3978', '#a5317e', '#8c2981', '#752181', '#5f187f', '#471078', '#2d1161'],
-    dark: ['#feae77', '#fe9f6d', '#fd9266', '#fb8560', '#f8765c', '#f4695c', '#ef5d5e', '#e75263', '#d3436e', '#bc3978', '#a5317e', '#8c2981', '#752181', '#5f187f', '#471078', '#2d1161'],
+    dark: ['#fddea0', '#fed395', '#fec88c', '#febf84', '#feb47b', '#fea973', '#fe9d6c', '#fd9266', '#fa7d5e', '#f4675c', '#e95462', '#db476a', '#c83e73', '#b5367a', '#a3307e', '#902a81'],
 } satisfies Record<string, ColorPreset>;
 
 

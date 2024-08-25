@@ -55,23 +55,28 @@
                     :top-items="['True Air Speed']"
                 />
                 <common-info-block
-                    v-if="!cruise?.min && !cruise?.max"
-                    :bottom-items="[`${ cruise?.planned || flightPlan.altitude } ft`]"
+                    :bottom-items="[`${ flightPlan.altitude } ft`]"
                     class="flight-plan__card"
                     text-align="center"
                     :top-items="['Cruise Altitude']"
                 />
             </div>
             <div
-                v-if="cruise?.min || cruise?.max"
+                v-if="stepclimbs?.length"
                 class="flight-plan__cols"
             >
                 <common-info-block
-                    :bottom-items="[cruise?.min, cruise?.planned, cruise?.max]"
+                    :bottom-items="stepclimbs.map(() => 'stepclimb')"
                     class="flight-plan__card"
                     text-align="center"
-                    :top-items="['Stepclimbs', 'Min to max']"
-                />
+                >
+                    <template #bottom="{ index }">
+                        <div class="flight-plan__stepclimb">
+                            <strong>{{ stepclimbs[index!].waypoint }}</strong><br>
+                            {{ stepclimbs[index!].measurement === 'M' ? 'S' : 'FL' }}{{ stepclimbs[index!].level }}
+                        </div>
+                    </template>
+                </common-info-block>
             </div>
         </template>
         <common-copy-info-block
@@ -112,8 +117,8 @@ const props = defineProps({
         type: Object as PropType<VatsimPilotFlightPlan>,
         required: true,
     },
-    cruise: {
-        type: Object as PropType<VatsimExtendedPilot['cruise'] | null>,
+    stepclimbs: {
+        type: Object as PropType<VatsimExtendedPilot['stepclimbs'] | null>,
         default: null,
     },
     status: {
@@ -182,6 +187,10 @@ const selcal = computed<string | null>(() => {
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    &__stepclimb {
+        text-align: center;
+    }
 
     &__cols {
         display: flex;
