@@ -116,9 +116,6 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull
-        shell: bash
-        run: docker pull ghcr.io/vatsim-radar/vatsim-radar/next:latest
       - name: Build
         shell: bash
         run: docker compose -f docker-compose.nginx.yml build
