@@ -1,6 +1,6 @@
 # Changelog
 
-# 0.4.4-beta.3
+# [0.4.4-beta.3]
 
 - Changed approach sectors color to highlight them
 - Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
