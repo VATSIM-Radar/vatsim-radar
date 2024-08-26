@@ -315,7 +315,7 @@ watch(hoveredFeature, val => {
 function setFeatureStyle(feature: Feature) {
     const geometry = feature.getGeometry();
     const extent = feature.getGeometry()?.getExtent();
-    const topCoord = [extent![0] + 25000, extent![3] - 25000];
+    const topCoord = [extent![0], extent![3]];
     let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
     if (feature.getProperties().label_lat) {
         textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
