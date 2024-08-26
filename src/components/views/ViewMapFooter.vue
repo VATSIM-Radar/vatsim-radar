@@ -84,6 +84,7 @@
         <div
             v-if="getLastUpdated"
             class="map-footer_right"
+            :class="{ 'map-footer_right--outdated': outdated }"
         >
             Map last updated: {{ getLastUpdated }}
         </div>
@@ -149,6 +150,7 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { useUpdateInterval } from '#imports';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -188,6 +190,11 @@ const getLastUpdated = computed(() => {
 
     return `${ datetime.format(date) } Z`;
 });
+
+const timestamp = ref(Date.now());
+useUpdateInterval(() => timestamp.value = Date.now(), 1000);
+
+const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
 </script>
 
 <style scoped lang="scss">
@@ -279,9 +286,18 @@ const getLastUpdated = computed(() => {
 
     &_right {
         padding: 8px 16px;
+
         font-weight: 300;
+
         background: $darkgray950;
         border-radius: 8px;
+
+        transition: 0.3s;
+
+        &--outdated {
+            color: $lightgray100Orig;
+            background: $error600;
+        }
     }
 
     &__text {

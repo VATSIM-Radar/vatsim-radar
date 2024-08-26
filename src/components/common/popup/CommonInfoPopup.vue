@@ -166,8 +166,10 @@ const collapsed = defineModel('collapsed', {
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
 
-// eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const activeTab = ref(props.tabs ? Object.keys(props.tabs)[0] : '');
+const activeTab = defineModel('tab', { type: String });
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
+activeTab.value = activeTab.value || props.tabs ? Object.keys(props.tabs ?? {})[0] : '';
 
 const getSections = computed(() => {
     if (!props.tabs) return props.sections ?? [];

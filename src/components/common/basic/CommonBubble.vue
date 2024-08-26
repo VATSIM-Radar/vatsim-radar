@@ -57,6 +57,7 @@ defineSlots<{ default: () => any }>();
         padding: 0;
         color: $primary500;
         background: transparent;
+        border-radius: 0;
     }
 }
 </style>

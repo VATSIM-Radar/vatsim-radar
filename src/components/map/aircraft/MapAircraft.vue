@@ -17,7 +17,7 @@
                 v-if="pilot"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
-                @mouseover="hoveredOverlay = true"
+                @mouseover="handleMouseEnter($event as MouseEvent)"
             >
                 <template #title>
                     {{ pilot.callsign }}
@@ -37,6 +37,20 @@
                         type="primary-flat"
                     >
                         {{ pilot.frequencies[0] }}
+                    </common-bubble>
+                    <common-bubble
+                        v-if="pilot.frequencies[1] && store.config.airport"
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.frequencies[1] }}
+                    </common-bubble>
+                    <common-bubble
+                        v-if="pilot.transponder && store.config.airport"
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.transponder }}
                     </common-bubble>
                 </template>
                 <div class="aircraft-hover_body">
@@ -270,6 +284,11 @@ const getStatus = computed<MapAircraftStatus>(() => {
     return 'default';
 });
 
+const handleMouseEnter = (event: MouseEvent) => {
+    if ([...(event.target as HTMLDivElement).classList].some(x => x.startsWith('popup-block_title') && x !== 'popup-block_title_text' && x !== 'popup-block_title')) hoveredOverlay.value = false;
+    else hoveredOverlay.value = true;
+};
+
 const setStyle = async (iconFeature = feature) => {
     if (!iconFeature) return;
 
@@ -456,7 +475,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             else {
                 const toRemove = lineFeatures.value.filter(x => {
                     const properties = x.getProperties();
-                    if (properties!.type === 'airportLine' || properties!.type === 'aircraft') return true;
+                    if (properties!.type === 'aircraft') return true;
                     return properties!.timestamp === firstCollectionTimestamp;
                 });
 
@@ -772,6 +791,14 @@ onUnmounted(() => {
     &__frequency {
         font-size: 12px;
         font-weight: 600;
+        text-align: right;
+        white-space: nowrap;
+
+        + .aircraft-hover__frequency{
+            margin-left: 4px;
+            padding-left: 4px;
+            border-left: 1px solid varToRgba('lightgray150', 0.1);
+        }
     }
 
     &__pilot {

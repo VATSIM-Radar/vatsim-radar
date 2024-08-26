@@ -61,7 +61,7 @@
                         is-button
                         :top-items="[
                             pilot.callsign,
-                            pilot.aircraft_faa,
+                            pilot.aircraft_faa ?? 'No flight plan',
                             (aircraftHoveredType === 'groundArr' ? pilot.departure : pilot.arrival) || null,
                             pilot.name,
                         ]"
@@ -74,7 +74,7 @@
                             >
                                 {{ item }}
                             </div>
-                            <template v-else-if="index === 2">
+                            <template v-else-if="index === 2 && pilot.departure">
                                 <span class="airport-counts__popup-info">
                                     <template v-if="aircraftHoveredType === 'groundArr'">
                                         from

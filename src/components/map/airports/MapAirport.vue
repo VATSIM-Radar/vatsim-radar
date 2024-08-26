@@ -6,7 +6,7 @@
             :active-z-index="21"
             persistent
             :popup="!!hoveredFacility"
-            :settings="{ position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility }"
+            :settings="{ position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: hoveredController && facilityScroll }"
             :z-index="15"
             @update:popup="!$event ? hoveredFacility = false : undefined"
         >
@@ -38,6 +38,7 @@
                 </div>
                 <common-controller-info
                     v-if="hoveredFacility && mapStore.canShowOverlay"
+                    ref="atcPopup"
                     absolute
                     class="airport_atc-popup"
                     :class="{ 'airport_atc-popup--all': hoveredFacility === true }"
@@ -45,6 +46,8 @@
                     :show-atis="hoveredFacility !== true"
                     :show-facility="hoveredFacility === true"
                     @click.stop
+                    @mouseleave="hoveredController = false"
+                    @mouseover="hoveredController = true"
                 >
                     <template #title>
                         {{ airport.name }}
@@ -83,12 +86,13 @@
         <map-overlay
             v-if="hoveredFeature"
             model-value
-            :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: true }"
+            :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: approachScroll }"
             :z-index="21"
             @mouseleave="$emit('manualHide')"
             @mouseover="$emit('manualHover')"
         >
             <common-controller-info
+                ref="approachPopup"
                 :controllers="hoveredFeature.controllers"
                 show-atis
             >
@@ -116,7 +120,7 @@ import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
-import { getCurrentThemeRgbColor } from '~/composables';
+import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 import { useStore } from '~/store';
@@ -185,7 +189,18 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
+const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
+const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
+const hoveredController = ref<boolean>(false);
+
+const facilityScroll = useScrollExists(computed(() => {
+    return atcPopup.value?.$el.querySelector('.atc-popup_list');
+}));
+
+const approachScroll = useScrollExists(computed(() => {
+    return approachPopup.value?.$el.querySelector('.atc-popup_list');
+}));
 
 const hoveredFacilities = computed(() => {
     if (!hoveredFacility.value) return [];
@@ -302,7 +317,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.25)`,
+                color: `rgba(${ radarColors.warning500Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -329,7 +344,7 @@ function setFeatureStyle(feature: Feature) {
     feature.setStyle([
         new Style({
             stroke: new Stroke({
-                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.7)`,
+                color: `rgba(${ radarColors.warning500Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),
@@ -341,14 +356,14 @@ function setFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.success300Hex,
+                    color: radarColors.warning600Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.success300Hex,
+                    color: radarColors.warning600Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),

@@ -419,7 +419,7 @@ const buttons = computed(() => {
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
-    sameSite: 'strict',
+    sameSite: 'lax',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });

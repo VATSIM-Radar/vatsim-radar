@@ -28,7 +28,7 @@ import Clock3Icon from '@/assets/icons/airport/clock_45to0.svg?component';
 const props = defineProps({
     aircraft: {
         type: Object as PropType<AirportPopupPilotList | null>,
-        required: true,
+        default: null,
     },
     textColor: {
         type: String,

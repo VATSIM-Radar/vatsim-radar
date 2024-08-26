@@ -122,3 +122,26 @@ jobs:
       - name: Clear
         shell: bash
         run: docker system prune --force && docker system prune --volumes --force
+
+  github-release:
+    name: Release tag to Github
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Tag Name
+        id: tagName
+        uses: beaconbrigade/package-json-version@v0.3
+        with:
+          path: ./package.json
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v2
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          target_commitish: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tagName.outputs.version }}
+          name: ${{ steps.release.outputs.title }}
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}

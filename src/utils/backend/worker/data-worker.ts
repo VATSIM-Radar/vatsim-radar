@@ -307,7 +307,6 @@ CronJob.from({
             const regularData = excludeKeys(radarStorage.vatsim.data, {
                 pilots: {
                     server: true,
-                    transponder: true,
                     qnh_i_hg: true,
                     flight_plan: true,
                     last_updated: true,

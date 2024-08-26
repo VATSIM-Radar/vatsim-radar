@@ -38,6 +38,16 @@
                 <map-weather v-if="!store.config.hideHeader"/>
             </client-only>
         </div>
+        <common-popup
+            v-if="route.query"
+            v-model="isDiscord"
+        >
+            <template #title>
+                Authorization confirmation
+            </template>
+
+            You have successfully verified in VATSIM Radar Discord.
+        </common-popup>
     </div>
 </template>
 
@@ -70,7 +80,15 @@ const ready = ref(false);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const router = useRouter();
 const route = useRoute();
+const isDiscord = ref(route.query.discord === '1');
+
+if (route.query.discord === '1') {
+    router.replace({
+        query: {},
+    });
+}
 
 provide('map', map);
 
@@ -195,6 +213,7 @@ const restoreOverlays = async () => {
         }
 
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {
+            mapStore.overlays.map(x => x.type === 'pilot' && (x.data.tracked = false));
             overlay.data.tracked = true;
             showPilotOnMap(overlay.data.pilot, map.value);
         }

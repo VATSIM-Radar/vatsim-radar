@@ -29,7 +29,7 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : controller.logon_time,
+                        (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : !showAtis ? controller.logon_time : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
@@ -64,7 +64,7 @@
                                 {{ item }}
                             </div>
                         </template>
-                        <template v-else-if="index === 3 && (!showAtis || !controller.atis_code)">
+                        <template v-else-if="index === 3 && !showAtis">
                             <div class="atc-popup__time">
                                 {{ getATCTime(controller) }}
                             </div>

@@ -124,7 +124,7 @@
                     Focus
                 </common-button>
                 <common-button
-                    :disabled="overlay.data.tracked || store.config.hideAllExternal"
+                    :disabled="store.config.hideAllExternal"
                     @click="viewRoute"
                 >
                     <template #icon>

@@ -1,5 +1,19 @@
 # Changelog
 
+# 0.4.4-beta.3
+
+- Changed approach sectors color to highlight them
+- Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
+- You will now be able to zoom over controller popup if it has no scroll
+- Added COM2 and SQUAWK on aircraft hover for airport dashboard
+- Added simple list of pilots connected to frequency to ATC popup
+- Fixed an issue when midflight arrival change caused flight path disappear
+- Fixed airport track line disappearing for midflight connections
+- If your data was not updated for more than 20 seconds, footer map update date will now become red
+- Pilot overlay will now close if you hover over right side of header, right of pilot's callsign
+- Pilots without flight plan will now be noticeable in airport's departures popup
+- Added Github releases workflow to easily track new versions
+
 # 0.4.4-beta.2.1
 
 - (QA) Fixed Australia mapping from other continents

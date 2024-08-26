@@ -34,8 +34,12 @@
 
     &_title {
         display: flex;
-        gap: 16px;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        align-items: center;
+
         padding-bottom: 8px;
+
         border-bottom: 1px solid varToRgba('lightgray150', 0.2);
 
         &_text {
