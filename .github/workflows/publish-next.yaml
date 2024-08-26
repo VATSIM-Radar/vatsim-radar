@@ -136,8 +136,6 @@ jobs:
       - name: Get Tag Name
         id: tagName
         uses: beaconbrigade/package-json-version@v0.3
-        with:
-          path: ./package.json
       - name: Extract release notes
         id: extract-release-notes
         uses: ffurrer2/extract-release-notes@v2
