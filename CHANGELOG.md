@@ -14,7 +14,7 @@
 - Pilots without flight plan will now be noticeable in airport's departures popup
 - Added Github releases workflow to easily track new versions
 
-# 0.4.4-beta.2.1
+# [0.4.4-beta.2.1]
 
 - (QA) Fixed Australia mapping from other continents
 - Added support for predefined labels coordinates from SimAware TRACON
