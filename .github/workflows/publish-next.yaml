@@ -129,7 +129,6 @@ jobs:
 
   github-release:
     name: Release tag to Github
-    needs: deploy
     runs-on: ubuntu-latest
     permissions:
       contents: write
