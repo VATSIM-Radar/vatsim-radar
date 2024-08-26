@@ -217,7 +217,17 @@ CronJob.from({
 
             for (let i = 0; i < length; i++) {
                 const controller = radarStorage.vatsim.data!.controllers[i];
-                const australiaSector = radarStorage.vatsim.australia.find(x => x.frequency === controller.frequency);
+                const controllerSplit = controller.callsign.split('_');
+
+                let controllerPrefix = '';
+                if (controllerSplit.length === 3) controllerPrefix = controllerSplit.slice(0, 2).join('_');
+                else if (controllerSplit.length === 2) controllerPrefix = controllerSplit[0];
+
+                const australiaSector = radarStorage.vatsim.australia.find(x => {
+                    const split = x.callsign.split('_');
+                    return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
+                });
+
                 if (!australiaSector) continue;
 
                 const extending = getTransceiverData(controller.callsign, true);

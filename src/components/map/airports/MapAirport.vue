@@ -125,6 +125,7 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
+import { fromLonLat } from 'ol/proj';
 
 const props = defineProps({
     airport: {
@@ -315,7 +316,10 @@ function setFeatureStyle(feature: Feature) {
     const geometry = feature.getGeometry();
     const extent = feature.getGeometry()?.getExtent();
     const topCoord = [extent![0] + 25000, extent![3] - 25000];
-    const textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+    if (feature.getProperties().label_lat) {
+        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+    }
 
     feature.setProperties({
         ...feature.getProperties(),
@@ -330,7 +334,7 @@ function setFeatureStyle(feature: Feature) {
             }),
         }),
         new Style({
-            geometry: new Point(geometry?.getClosestPoint(topCoord) || topCoord),
+            geometry: new Point(textCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: feature.getProperties()?._traconId || airportName.value,

@@ -1,5 +1,10 @@
 # Changelog
 
+# 0.4.4-beta.2.1
+
+- (QA) Fixed Australia mapping from other continents
+- Added support for predefined labels coordinates from SimAware TRACON
+
 # 0.4.4-beta.2
 
 - Updated tracks palette with separate colors for light and dark themes
