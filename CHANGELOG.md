@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.4.4-beta.4]
+
+- Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
+  - QA: please verify if approach sectors are rendered correctly in comparison to production version
+
 # [0.4.4-beta.3]
 
 - Changed approach sectors color to highlight them

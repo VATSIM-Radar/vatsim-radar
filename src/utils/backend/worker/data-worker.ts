@@ -276,10 +276,10 @@ CronJob.from({
 
             await updateVatsimExtendedPilots();
 
-            /* radarStorage.vatsim.data.atis.push({
-                callsign: 'PHNL_ATIS',
+            /*            radarStorage.vatsim.data.atis.push({
+                callsign: 'MSK_APP',
                 cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -291,9 +291,23 @@ CronJob.from({
             });
 
             radarStorage.vatsim.data.controllers.push({
-                callsign: 'HNL_GND',
+                callsign: 'ULLL_APP',
                 cid: 2,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });
+
+            radarStorage.vatsim.data.controllers.push({
+                callsign: 'CHI_APP',
+                cid: 1,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',

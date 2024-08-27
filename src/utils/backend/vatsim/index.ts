@@ -128,7 +128,7 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
             isSimAware: true,
         };
     }
-    else if (vatspy && isIata && radarStorage.vatspy.data?.keyAirports.icao[callsignAirport]?.icao !== vatspy.iata) {
+    else if (vatspy && isIata && radarStorage.vatspy.data?.keyAirports.icao[callsignAirport]?.iata !== vatspy.iata) {
         vatspy = {
             ...vatspy,
             iata: radarStorage.vatspy.data!.keyAirports.icao[callsignAirport]?.iata,
