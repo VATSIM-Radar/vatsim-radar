@@ -72,29 +72,38 @@ function sendSelectedPilotToDashboard(cid: number | null = null) {
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
     if (!pixel) return [];
-    const overlaysCoordinates: number[][] = [];
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
+    let collapsingWithOverlay = false;
     map.value!.getOverlays().forEach(overlay => {
-        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft') || x.includes('airport'))) return;
-        const position = overlay.getPosition();
-        if (position) {
-            const pixel = map.value!.getPixelFromCoordinate(position);
-            if (!pixel) return;
-            overlaysCoordinates.push(map.value!.getPixelFromCoordinate(position));
+        if (collapsingWithOverlay) return;
+        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
+
+        const overlayElement = overlay.getElement();
+        if (overlayElement) {
+            const overlayRect = overlayElement.getBoundingClientRect();
+            const mapRect = map.value!.getTargetElement().getBoundingClientRect();
+            const overlayPixel = [
+                overlayRect.left - mapRect.left,
+                overlayRect.top - mapRect.top,
+            ];
+
+            if (pixel[0] >= overlayPixel[0] && pixel[0] <= overlayPixel[0] + overlayRect.width &&
+                pixel[1] >= overlayPixel[1] && pixel[1] <= overlayPixel[1] + overlayRect.height) {
+                collapsingWithOverlay = true;
+            }
         }
     });
 
-    const collapsingWithOverlay = overlaysCoordinates.some(x => Math.abs(pixel[0] - x[0]) < 15 && Math.abs(pixel[1] - x[1]) < 15);
+    if (collapsingWithOverlay) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
 
     return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
         if (!pilotPixel) return false;
 
         return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
-            Math.abs(pilotPixel[1] - pixel[1]) < tolerance &&
-            !collapsingWithOverlay;
+            Math.abs(pilotPixel[1] - pixel[1]) < tolerance;
     }) ?? [];
 }
 
