@@ -64,8 +64,10 @@ services:
 
     redis:
         image: redis
-        command: redis-server --requirepass RADAR
+        command: redis-server /usr/local/etc/redis/redis.conf --requirepass RADAR
         expose:
             - 6379
         environment:
             - REDIS_APPLICATION_MODE=master
+        volumes:
+            - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
