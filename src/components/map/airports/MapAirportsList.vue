@@ -1,6 +1,6 @@
 <template>
     <map-airport
-        v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList"
+        v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList.filter(x => visibleAirports.some(y => y.vatspyAirport.icao === x.airport.icao))"
         :key="airport.icao + index + (airport.iata ?? 'undefined')"
         :aircraft="aircraft"
         :airport="airport"

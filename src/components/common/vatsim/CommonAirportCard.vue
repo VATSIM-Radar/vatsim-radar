@@ -15,7 +15,7 @@
         </div>
         <common-info-block
             class="airport-card_info"
-            :top-items="[ airport.airport.name, country?.country ]"
+            :top-items="[ country?.country, airport.airport.name ]"
         >
             <template #top="{ item }">
                 <span :title="String(item)">
@@ -185,6 +185,11 @@ const controllers = computed<Controller[]>(() => {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+
+            &:first-child {
+                min-width: 30px;
+                max-width: 40%;
+            }
         }
 
         :deep(.info-block_top) {
