@@ -3,7 +3,9 @@ import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { toLonLat } from 'ol/proj';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { MapAircraftKeys } from '~/types/map';
+import type {
+    MapAircraftKeys,
+} from '~/types/map';
 
 /**
  * @note data must be reactive object or a computed

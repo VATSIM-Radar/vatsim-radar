@@ -23,7 +23,7 @@ import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
-import type { MapAircraft, MapAirport as MapAirportType } from '~/types/map';
+import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
@@ -34,7 +34,7 @@ import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
-import type { VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { intersects } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
@@ -53,6 +53,11 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const store = useStore();
+const airportsList = shallowRef<{
+    vatspyAirport: VatSpyData['airports'][0];
+    vatsimAirport: MapAirportType;
+    visible: boolean;
+}[]>([]);
 const visibleAirports = shallowRef<{
     vatspyAirport: VatSpyData['airports'][0];
     vatsimAirport: MapAirportType;
@@ -240,9 +245,20 @@ export interface AirportTraconFeature {
     controllers: VatsimShortenedController[];
 }
 
+export interface AirportsList {
+    aircraft: MapAircraft;
+    aircraftList: MapAircraftList;
+    aircraftCids: number[];
+    airport: VatSpyAirport;
+    localAtc: VatsimShortenedController[];
+    arrAtc: VatsimShortenedController[];
+    features: AirportTraconFeature[];
+    isSimAware: boolean;
+}
+
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
-    const airports = visibleAirports.value.map(({
+    const airports = (store.featuredAirportsOpen ? airportsList : visibleAirports).value.map(({
         vatsimAirport,
         vatspyAirport,
     }) => ({
@@ -254,7 +270,7 @@ const getAirportsList = computed(() => {
         arrAtc: [] as VatsimShortenedController[],
         features: [] as AirportTraconFeature[],
         isSimAware: vatsimAirport.isSimAware,
-    }));
+    } satisfies AirportsList));
 
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
@@ -436,7 +452,11 @@ const getAirportsList = computed(() => {
         }
     }
 
-    return airports.filter(x => x.localAtc.length || x.arrAtc.length || x.aircraftCids.length);
+    const list = airports.filter(x => x.localAtc.length || x.arrAtc.length || x.aircraftCids.length);
+    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+    dataStore.vatsim.parsedAirports.value = list;
+
+    return list;
 });
 
 const geoJson = new GeoJSON();
@@ -473,7 +493,7 @@ async function setVisibleAirports() {
     extent[3] += 200000;
 
     // @ts-expect-error Dynamic return value
-    visibleAirports.value = vatAirportsList.value.map(x => {
+    airportsList.value = vatAirportsList.value.map(x => {
         const vatAirport = dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
         let airport = x.isSimAware ? vatAirport || x : vatAirport;
         if (!x.isSimAware && airport?.icao !== x.icao) {
@@ -492,23 +512,23 @@ async function setVisibleAirports() {
 
             const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
 
-            return intersects(extent, feature.getGeometry()!.getExtent())
-                ? {
-                    vatspyAirport: airport,
-                    vatsimAirport: x,
-                }
-                : null;
+            return {
+                vatspyAirport: airport,
+                vatsimAirport: x,
+                visible: intersects(extent, feature.getGeometry()!.getExtent()),
+            };
         }
 
         const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];
 
-        return isPointInExtent(coordinates, extent)
-            ? {
-                vatspyAirport: airport,
-                vatsimAirport: x,
-            }
-            : null;
+        return {
+            vatspyAirport: airport,
+            vatsimAirport: x,
+            visible: isPointInExtent(coordinates, extent),
+        };
     }).filter(x => !!x) ?? [];
+
+    visibleAirports.value = airportsList.value.filter(x => x.visible);
 
     if ((map.value!.getView().getZoom() ?? 0) > 13) {
         const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);

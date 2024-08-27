@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.4.4-beta.5]
+
+- Overlay missclick protection has been improved
+- Added popular airports popup
+  - Quiet airports to follow in same popup
+
 # [0.4.4-beta.4]
 
 - Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map

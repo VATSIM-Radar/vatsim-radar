@@ -17,6 +17,7 @@ export interface MapAirport {
 }
 
 export type MapAircraftKeys = keyof MapAirport['aircraft'];
+export type MapAircraftList = MapAirport['aircraft'];
 export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
 
 export type MapAircraft =

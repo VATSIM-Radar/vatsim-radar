@@ -14,6 +14,7 @@ import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
+import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -44,6 +45,7 @@ const data: Data = {
 
 const vatsim = {
     data,
+    parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
         if (!data.pilots.value.length) return null;

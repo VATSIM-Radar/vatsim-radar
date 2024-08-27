@@ -26,6 +26,35 @@
                 </div>
             </div>
             <div class="map-footer_left_section">
+                <common-button
+                    size="S"
+                    :type="store.featuredAirportsOpen ? 'primary' : 'secondary'"
+                    @click="store.featuredAirportsOpen = !store.featuredAirportsOpen"
+                >
+                    Featured Airports
+                </common-button>
+
+                <common-control-block
+                    v-model="store.featuredAirportsOpen"
+                    center-by="start"
+                    max-height="400px"
+                    width="480px"
+                >
+                    <template #title>
+                        Featured Airports
+                    </template>
+
+                    <div class="__info-sections">
+                        <common-airport-card
+                            v-for="(airport, index) in popularAirports"
+                            :key="airport.airport.icao + index"
+                            :airport="airport"
+                            :position="index + 1"
+                        />
+                    </div>
+                </common-control-block>
+            </div>
+            <div class="map-footer_left_section">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
                         <span>{{ getCounts.total }}</span> connections
@@ -151,6 +180,8 @@
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useUpdateInterval } from '#imports';
+import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
+import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -195,6 +226,10 @@ const timestamp = ref(Date.now());
 useUpdateInterval(() => timestamp.value = Date.now(), 1000);
 
 const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
+
+const popularAirports = computed(() => {
+    return dataStore.vatsim.parsedAirports.value.slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, 10);
+});
 </script>
 
 <style scoped lang="scss">

@@ -39,6 +39,8 @@ export const useStore = defineStore('index', {
         showPilotStats: false,
         dataInProgress: false,
 
+        featuredAirportsOpen: false,
+
         viewport: {
             width: 0,
         },
