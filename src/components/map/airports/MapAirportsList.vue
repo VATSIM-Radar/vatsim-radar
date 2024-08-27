@@ -320,6 +320,7 @@ const getAirportsList = computed(() => {
     for (const atc of dataStore.vatsim.data.locals.value) {
         const airport = airports.find(x => (
             (x.airport.iata || atc.airport.iata) &&
+            x.airport.iata === atc.airport.iata &&
             (!airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
         )
             ? x.airport.iata === atc.airport.iata
