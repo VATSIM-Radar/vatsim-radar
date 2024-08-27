@@ -73,10 +73,7 @@
                             {{ item }}
                         </template>
                     </template>
-                    <template
-                        v-if="showAtis && controller.text_atis?.length"
-                        #bottom
-                    >
+                    <template #bottom>
                         <ul class="atc-popup_atc__atis">
                             <li
                                 v-for="atis in getATIS(controller)"
