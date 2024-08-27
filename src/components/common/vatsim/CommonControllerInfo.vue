@@ -74,7 +74,7 @@
                         </template>
                     </template>
                     <template
-                        v-if="showAtis && controller.text_atis?.length"
+                        v-if="showAtis && (controller.text_atis?.length || !controller.atis_code)"
                         #bottom
                     >
                         <ul class="atc-popup_atc__atis">
