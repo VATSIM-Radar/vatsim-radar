@@ -223,7 +223,7 @@ CronJob.from({
                 if (controllerSplit.length === 3) controllerPrefix = controllerSplit.slice(0, 2).join('_');
                 else if (controllerSplit.length === 2) controllerPrefix = controllerSplit[0];
 
-                const australiaSector = radarStorage.vatsim.australia.find(x => {
+                const australiaSector = radarStorage.vatsim.australia.some(x => {
                     const split = x.callsign.split('_');
                     return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
                 });
@@ -236,14 +236,16 @@ CronJob.from({
                 for (const frequency of extending.frequencies) {
                     if (frequency === controller.frequency) continue;
 
-                    const sector = radarStorage.vatsim.australia.find(x => x.frequency === frequency);
-                    if (!sector) continue;
+                    const sectors = radarStorage.vatsim.australia.filter(x => x.frequency === frequency);
+                    if (!sectors) continue;
 
-                    radarStorage.vatsim.data.controllers.push({
-                        ...controller,
-                        callsign: sector.callsign,
-                        frequency,
-                    });
+                    for (const sector of sectors) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: sector.callsign,
+                            frequency,
+                        });
+                    }
                 }
             }
 
