@@ -1,4 +1,3 @@
-import { createGzip } from 'node:zlib';
 import { CronJob } from 'cron';
 import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
