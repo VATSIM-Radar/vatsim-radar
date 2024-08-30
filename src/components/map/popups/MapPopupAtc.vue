@@ -13,10 +13,11 @@
                 title: 'Info',
                 sections: [{ key: 'data' }, { key: 'atis' }],
             },
-            // pilots: {
-            //     title: 'Pilots',
-            //     sections: [{ key: 'pilots' }],
-            // },
+            pilots: {
+                title: 'Pilots',
+                sections: [{ key: 'pilots' }],
+                disabled: true,
+            },
         }"
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >

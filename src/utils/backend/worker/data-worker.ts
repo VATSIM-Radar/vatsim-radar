@@ -1,4 +1,3 @@
-import { createGzip } from 'node:zlib';
 import { CronJob } from 'cron';
 import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
@@ -373,39 +372,33 @@ CronJob.from({
                 const data = getPlanInfluxDataForPilots();
                 if (data.length) {
                     influxDBWrite.writeRecords(data);
-                    await influxDBWrite.flush(true).catch(console.error);
+
+                    await new Promise<void>(async (resolve, reject) => {
+                        const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+                        await influxDBWrite.flush(true).catch(console.error);
+                        clearTimeout(timeout);
+                        resolve();
+                    });
                 }
             }
 
-            const gzip = createGzip({
-                level: 9,
-            });
-            gzip.write(JSON.stringify({ date: radarStorage.vatsim.data.general.update_timestamp }));
-            gzip.end();
+            wss.clients.forEach(ws => {
+                ws.send('check');
+                // @ts-expect-error Non-standard field
+                ws.failCheck ??= ws.failCheck ?? 0;
+                // @ts-expect-error Non-standard field
+                ws.failCheck++;
 
-            const chunks: Buffer[] = [];
-            gzip.on('data', chunk => {
-                chunks.push(chunk);
-            });
-
-            gzip.on('end', () => {
-                const compressedData = Buffer.concat(chunks);
-                wss.clients.forEach(ws => {
-                    ws.send(compressedData);
-                    // @ts-expect-error Non-standard field
-                    ws.failCheck ??= ws.failCheck ?? 0;
-                    // @ts-expect-error Non-standard field
-                    ws.failCheck++;
-
-                    // @ts-expect-error Non-standard field
-                    if (ws.failCheck >= 10) {
-                        ws.terminate();
-                    }
-                });
+                // @ts-expect-error Non-standard field
+                if (ws.failCheck >= 10) {
+                    ws.terminate();
+                }
             });
 
             await new Promise<void>((resolve, reject) => {
+                const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
                 redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
+                    clearTimeout(timeout);
                     if (err) return reject(err);
                     resolve();
                 });
@@ -414,7 +407,8 @@ CronJob.from({
         catch (e) {
             console.error(e);
         }
-
-        dataProcessInProgress = false;
+        finally {
+            dataProcessInProgress = false;
+        }
     },
 });

@@ -33,6 +33,7 @@ services:
         condition: service_started
 
   redis:
+    restart: always
     image: redis
     command: redis-server /usr/local/etc/redis/redis.conf --requirepass RADAR
     expose:

@@ -50,6 +50,12 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
+        if (event.data === 'check') {
+            websocket.send('alive');
+            localStorage.setItem('radar-socket-date', Date.now().toString());
+            return;
+        }
+
         const data = await (await decompressBlob(event.data as Blob)).text();
 
         // const date = new Date().toISOString();
@@ -61,10 +67,6 @@ export function initDataWebsocket(): () => void {
             }
 
             return;
-        }
-        else {
-            websocket.send('alive');
-            localStorage.setItem('radar-socket-date', Date.now().toString());
         }
 
         /* localStorage.setItem('radar-socket-vat-data', data);

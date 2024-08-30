@@ -53,13 +53,13 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     const ids = useFacilitiesIds();
 
     const getPositionIndex = (position: number, isAtis = false) => {
-        if (isAtis) return 3;
+        if (isAtis) return 5;
         if (position === ids.DEL) return 0;
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
-        if (position === ids.ATIS) return 3;
-        if (position === ids.APP) return -1;
-        if (position === ids.CTR) return -2;
+        if (position === ids.APP) return 3;
+        if (position === ids.CTR) return 4;
+        if (position === ids.ATIS) return 5;
         return 6;
     };
 

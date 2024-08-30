@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.4.4-beta.5.1]
+
+- (QA) Fixed performance drop & minor freeze on featured airports open
+- (QA) Moved approach in featured airports next to TWR
+- (QA) Swapped country and airport in featured airports, increased country minimal width a little bit for at least USA to fit
+
 # [0.4.4-beta.5]
 
 - Overlay missclick protection has been improved
