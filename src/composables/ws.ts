@@ -50,12 +50,13 @@ export function initDataWebsocket(): () => void {
             return;
         }
 
-        const data = await (await decompressBlob(event.data as Blob)).text();
-        if (data === 'check') {
+        if (event.data === 'check') {
             websocket.send('alive');
             localStorage.setItem('radar-socket-date', Date.now().toString());
             return;
         }
+
+        const data = await (await decompressBlob(event.data as Blob)).text();
 
         // const date = new Date().toISOString();
         const json = JSON.parse(data);
