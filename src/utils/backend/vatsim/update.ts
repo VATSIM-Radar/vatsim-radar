@@ -28,13 +28,13 @@ export function updateVatsimDataStorage() {
             latitude: coords[1],
             frequencies: transceiver.frequencies,
         };
-    }).filter((x, index) => !data.pilots.some((y, yIndex) => y.cid === x.cid && yIndex < index));
+    }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
     data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
     data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
     data.general.onlineWSUsers = wss.clients.size;
 
-    data.prefiles = data.prefiles.filter((x, index) => !data.pilots.some(y => x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y.cid === x.cid && yIndex > index));
+    data.prefiles = data.prefiles.filter((x, index) => x && !data.pilots.some(y => y && x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y && y.cid === x.cid && yIndex > index));
 
     const positions = useFacilitiesIds();
 
