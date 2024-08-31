@@ -8,6 +8,7 @@
     "bun",
     "yarn"
   ],
+  "prConcurrentLimit": 0,
   "rebaseWhen": "behind-base-branch",
   "commitMessageAction": "chore(deps): Update",
   "commitMessageTopic": "dependency {{depName}}",
@@ -44,14 +45,34 @@
       "matchPackageNames": [
         "vue"
       ],
+      "rangeStrategy": "bump",
       "groupName": "Vue",
       "separateMinorPatch": true
     },
     {
       "matchPackageNames": [
+        "@vue/language-server",
+        "vue-tsc"
+      ],
+      "groupName": "Volar"
+    },
+    {
+      "matchPackageNames": [
         "nuxt"
       ],
+      "matchPackagePatterns": [
+        "^@nuxt"
+      ],
+      "rangeStrategy": "bump",
       "groupName": "Nuxt",
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "rangeStrategy": "pin",
+      "groupName": "Typescript",
       "separateMinorPatch": true
     }
   ],
