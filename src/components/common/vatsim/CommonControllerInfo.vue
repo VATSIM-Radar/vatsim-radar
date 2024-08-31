@@ -64,7 +64,7 @@
                                 {{ item }}
                             </div>
                         </template>
-                        <template v-else-if="index === 3 && !showAtis">
+                        <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length)">
                             <div class="atc-popup__time">
                                 {{ getATCTime(controller) }}
                             </div>

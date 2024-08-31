@@ -220,7 +220,7 @@ const controllers = computed<Controller[]>(() => {
             }
         }
 
-        :deep(.info-block_top) {
+        :deep(.info-block_bottom) {
             flex-wrap: nowrap;
         }
     }
