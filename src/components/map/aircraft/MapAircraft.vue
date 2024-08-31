@@ -59,78 +59,24 @@
                         is-button
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
-                        <template #bottom>
-                            <div class="aircraft-hover__pilot_content">
-                                <div class="aircraft-hover__pilot__title">
-                                    Pilot
-                                </div>
-                                <div class="aircraft-hover__pilot__text">
-                                    {{ parseEncoding(pilot.name) }}<br>
-                                    <div class="aircraft-hover__pilot__text_rating">
-                                        {{ usePilotRating(pilot).join(' | ') }}
-                                    </div>
-                                </div>
-                            </div>
+                        <template #top>
+                            {{ parseEncoding(pilot.name) }}
+                        </template>
+                        <template
+                            v-if="pilot.pilot_rating !== 0 || pilot.military_rating"
+                            #bottom
+                        >
+                            {{ usePilotRating(pilot).join(' | ') }}
                         </template>
                     </common-info-block>
-                    <div
-                        v-if="pilot.departure || pilot.arrival"
-                        class="__info-sections"
-                    >
-                        <div
-                            v-if="pilot.departure"
-                            class="__grid-info-sections"
-                        >
-                            <div class="__grid-info-sections_title">
-                                From
-                            </div>
-                            <common-info-block
-                                is-button
-                                text-align="center"
-                                @click="mapStore.addAirportOverlay(pilot.departure)"
-                            >
-                                <template #top>
-                                    {{ pilot.departure }}
-                                </template>
-                                <template
-                                    v-if="depAirport"
-                                    #bottom
-                                >
-                                    {{ depAirport.name }}
-                                </template>
-                            </common-info-block>
-                        </div>
-                        <div
-                            v-if="pilot.arrival"
-                            class="__grid-info-sections"
-                        >
-                            <div class="__grid-info-sections_title">
-                                To
-                            </div>
-                            <common-info-block
-                                is-button
-                                text-align="center"
-                                @click="mapStore.addAirportOverlay(pilot.arrival)"
-                            >
-                                <template #top>
-                                    {{ pilot.arrival }}
-                                </template>
-                                <template
-                                    v-if="arrAirport"
-                                    #bottom
-                                >
-                                    {{ arrAirport.name }}
-                                </template>
-                            </common-info-block>
-                        </div>
-                    </div>
+                    <common-pilot-destination :pilot/>
                     <div class="aircraft-hover_sections">
                         <common-info-block
                             v-if="typeof pilot.groundspeed === 'number'"
                             text-align="center"
                         >
                             <template #top>
-                                Ground Speed
+                                GS
                             </template>
                             <template #bottom>
                                 {{ pilot.groundspeed }} kts
@@ -145,6 +91,17 @@
                             </template>
                             <template #bottom>
                                 {{ getPilotTrueAltitude(pilot) }} ft
+                            </template>
+                        </common-info-block>
+                        <common-info-block
+                            v-if="typeof pilot.heading === 'number'"
+                            text-align="center"
+                        >
+                            <template #top>
+                                Heading
+                            </template>
+                            <template #bottom>
+                                {{ pilot.heading }}°
                             </template>
                         </common-info-block>
                     </div>
@@ -210,6 +167,7 @@ import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 
 const props = defineProps({
     aircraft: {
@@ -780,13 +738,6 @@ onUnmounted(() => {
 
     background: $darkgray1000;
     border-radius: 8px;
-
-    &__pilot_content {
-        display: grid;
-        grid-template-columns: 40px 160px;
-        align-items: center;
-        justify-content: space-between;
-    }
 
     &__frequency {
         font-size: 12px;

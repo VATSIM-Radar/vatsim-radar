@@ -44,6 +44,7 @@ export function updateVatsimDataStorage() {
         if (controller.facility === positions.OBS) return;
         let postfix = controller.callsign.split('_').slice(-1)[0];
         if (postfix === 'DEP') postfix = 'APP';
+        if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
         return controller.facility !== -1 && controller.facility !== positions.OBS;
     });
@@ -188,7 +189,7 @@ export async function updateVatsimExtendedPilots() {
             if (Number(extendedPilot.flight_plan?.altitude) < 1000) extendedPilot.flight_plan.altitude = (Number(extendedPilot.flight_plan?.altitude) * 100).toString();
 
             if (extendedPilot.flight_plan.route) {
-                const routeRegex = /(?<waypoint>([A-Z0-9]+))\/(.+?)(?<level>([FS ])([0-9]{2,4}))/g;
+                const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/g;
 
                 let result: RegExpExecArray | null;
                 while ((result = routeRegex.exec(extendedPilot.flight_plan.route)) !== null) {

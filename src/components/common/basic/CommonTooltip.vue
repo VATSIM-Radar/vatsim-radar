@@ -107,7 +107,7 @@ const model = defineModel({
 
     &_container {
         position: absolute;
-        z-index: 1;
+        z-index: 5;
         padding: 4px;
 
         &_content {

@@ -45,12 +45,48 @@
                     </template>
 
                     <div class="__info-sections">
-                        <common-airport-card
-                            v-for="(airport, index) in popularAirports"
-                            :key="airport.airport.icao + index"
-                            :airport="airport"
-                            :position="index + 1"
+                        <common-tabs
+                            v-model="featuredTab"
+                            :tabs="{
+                                popular: {
+                                    title: 'Popular Airports',
+                                },
+                                quiet: {
+                                    title: 'Quiet Airports',
+                                },
+                            }"
                         />
+
+                        <small v-if="featuredTab === 'quiet'">
+                            Quiet, staffed airports with at least one controller available, excluding center.
+                        </small>
+
+                        <div class="__section-group">
+                            <common-toggle
+                                :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
+                                @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
+                            >
+                                Show total departures
+                                <template #description>
+                                    Including airborne
+                                </template>
+                            </common-toggle>
+                            <common-toggle v-model="store.featuredVisibleOnly">
+                                Visible only
+                                <template #description>
+                                    Filter by current map area
+                                </template>
+                            </common-toggle>
+                        </div>
+
+                        <div class="__info-sections">
+                            <common-airport-card
+                                v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
+                                :key="airport.airport.icao + index"
+                                :airport="airport"
+                                :position="index + 1"
+                            />
+                        </div>
                     </div>
                 </common-control-block>
             </div>
@@ -182,10 +218,13 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useUpdateInterval } from '#imports';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
 const airacPopup = ref(false);
+const featuredTab = ref('popular');
 
 const datetime = new Intl.DateTimeFormat([], {
     timeZone: 'UTC',
@@ -228,7 +267,11 @@ useUpdateInterval(() => timestamp.value = Date.now(), 1000);
 const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
 
 const popularAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value.slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, 10);
+    return dataStore.vatsim.parsedAirports.value.slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
+});
+
+const quietAirports = computed(() => {
+    return dataStore.vatsim.parsedAirports.value.filter(x => x.arrAtc.length || x.localAtc.some(x => !x.isATIS)).slice().sort((a, b) => a.aircraftCids.length - b.aircraftCids.length).slice(0, 50);
 });
 </script>
 

@@ -1,21 +1,33 @@
 # Changelog
 
+# [0.4.4-rc.1]
+
+- Added support for Ramp controllers - mapped to Ground for now
+- (QA) Now showing ground departures in featured airports as default with ability to show all instead
+- (QA) Now showing incoming arrivals in featured airports - arrived are now excluded. This does NOT affect algorithms
+- (QA) Added ability to show only currently visible airports in Featured Airports
+- Added Quiet Airports to Featured Airports popup
+- Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
+- (QA) Redesigned aircraft hover popup
+- (QA) Australia sector extend will now only work for APP/CTR
+
 # [0.4.4-beta.5.1]
 
 - (QA) Fixed performance drop & minor freeze on featured airports open
 - (QA) Moved approach in featured airports next to TWR
-- (QA) Swapped country and airport in featured airports, increased country minimal width a little bit for at least USA to fit
+- (QA) Swapped country and airport in featured airports, increased country minimal width a little bit for at least USA
+  to fit
 
 # [0.4.4-beta.5]
 
 - Overlay missclick protection has been improved
 - Added popular airports popup
-  - Quiet airports to follow in same popup
+    - Quiet airports to follow in same popup
 
 # [0.4.4-beta.4]
 
 - Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
-  - QA: please verify if approach sectors are rendered correctly in comparison to production version
+    - QA: please verify if approach sectors are rendered correctly in comparison to production version
 
 # [0.4.4-beta.3]
 
@@ -66,14 +78,16 @@
 # 0.4.4-alpha.3
 
 - Reworked approach labels placement to always be on the line
-- Reworked the way approach controllers disappear from screen. From now on, if at least one coordinate of tracon is visible, it will continue to show on map even with large zoom
+- Reworked the way approach controllers disappear from screen. From now on, if at least one coordinate of tracon is
+  visible, it will continue to show on map even with large zoom
 
 # 0.4.4-alpha.2
 
 ## Features and improvements
 
 - Updated helicopter icons matching
-- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BALL, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BALL, BCS1, C152, C17,
+  C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL
 - Re-colored tracks again
     - QA: let's test how now color look!
 - Added airports names to aircraft on-hover popup
@@ -115,12 +129,14 @@ Big thanks to Felix 1025793 for making this release possible!
 
 # 0.4.2
 
-Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle support - and much more.
+Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle
+support - and much more.
 
 ## Noticeable changes
 
 - Added COM1 to airport pilots list, as well as pilot on-hover information
-- New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really liked it, it has been added as setting
+- New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really
+  liked it, it has been added as setting
 - You can now use middle mouse click to center map in direction you want
 - Added great circle support for aircraft lines
 
@@ -151,9 +167,11 @@ Welcome to newest VATSIM Radar release! It comes packed with new map and weather
 ## Bug Fixes
 
 - Fixed an issue when route&remarks would collapse each update
-- Fixed an issue when your connection with same flight plan as before but different callsign could result in flight route be duplicated
+- Fixed an issue when your connection with same flight plan as before but different callsign could result in flight
+  route be duplicated
 - Fixed an issue when for rare airports approach controllers were not displaying (like LECG_APP)
-- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please report if some airports or controllers have disappeared for you
+- Airports with duplicate IATA codes from VatSpy will stop having that IATA code. That can cause new issues, so please
+  report if some airports or controllers have disappeared for you
 - Fixed an issue when aircraft were pinning when opening them for no reason
 - Fixed an issue when sometimes data was not updating every 15 seconds
 - Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
@@ -192,13 +210,15 @@ Here 60 and 40vh represent percents of your overlay height.
 
 ### Airport Dashboard
 
-Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport popup).
+Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport
+popup).
 
 Dashboard is equipped for both pilots and controllers, with features that all of you could enjoy.
 
 - View all airport info on the same screen
 - View airport traffic - and filter it by type if you want - select all airborne, all on the ground or just departing.
-- Enjoy Controller Mode, which will only leave aircraft on your screen, categorized by their type (you can also filter that)
+- Enjoy Controller Mode, which will only leave aircraft on your screen, categorized by their type (you can also filter
+  that)
 - Toggle "show pilot stats" to quickly identify newbies from experienced folks
 - Hide or expand map or columns - flexibility is everything!
 
@@ -206,11 +226,13 @@ We would also love feedback from all of you on this <3
 
 ### Aircraft History Turns
 
-You can now see history of turns for any aircraft on map - colored almost like on FL24 for you to identify descend or approx current aircraft altitude level just by looking at this line.
+You can now see history of turns for any aircraft on map - colored almost like on FL24 for you to identify descend or
+approx current aircraft altitude level just by looking at this line.
 
 Turns are available when you open overlay or hover on aircraft.
 
-They are also currently available if you toggle airport arriving tracks - but that's experimental, and we might disable this in future for performance reasons (or make this Patreon feature!).
+They are also currently available if you toggle airport arriving tracks - but that's experimental, and we might disable
+this in future for performance reasons (or make this Patreon feature!).
 
 ### Map Layers & Weather
 
@@ -228,11 +250,13 @@ Following weather layers have been added:
 
 We had more plans for layers actually... but it turned out most layers are paid.
 
-Since we can't afford paying for layers & weather now, you can support us on recently opened Patreon: https://www.patreon.com/vatsimradar24
+Since we can't afford paying for layers & weather now, you can support us on recently opened
+Patreon: https://www.patreon.com/vatsimradar24
 
 ### New Aircraft Icons
 
-Following aircraft icons have been hand-crafted for you - and our model matching has been updated to match new icons for aircraft that don't have own yet.
+Following aircraft icons have been hand-crafted for you - and our model matching has been updated to match new icons for
+aircraft that don't have own yet.
 
 - B720-722
 - B752, 753, 762-764, 77L, 77W
@@ -291,11 +315,14 @@ Following aircraft icons have been hand-crafted for you - and our model matching
 
 ## What's next?
 
-On Friday myself & I will go on vacation which will last for a week. For that time, I will still try to fix critical bugs that may occur - but nothing else.
+On Friday myself & I will go on vacation which will last for a week. For that time, I will still try to fix critical
+bugs that may occur - but nothing else.
 
-After I come back, we have Map Settings and Filters, as well as context menu planned for 0.5.0 - and also some improvements from suggestions section maybe.
+After I come back, we have Map Settings and Filters, as well as context menu planned for 0.5.0 - and also some
+improvements from suggestions section maybe.
 
-Stage 2 is almost finished, at we'll have a prioritization session before we start Stage 3, and QA members list will be extended. Stay tuned!
+Stage 2 is almost finished, at we'll have a prioritization session before we start Stage 3, and QA members list will be
+extended. Stay tuned!
 
 # 0.3.5
 
@@ -312,7 +339,8 @@ This is a small fix update while we still develop 0.4.0.
 - Vatsim has been uppercased to VATSIM everywhere
 - Improved parsing logic for SimAware TRACON to some of the sectors, like SCT_APP, ESSEX_APP and CHI_X_APP
 
-  Something may not work as it did before, so please keep an eye on approach sectors renders after this update. Overlall it should work better as before and be equal to SimAware.
+  Something may not work as it did before, so please keep an eye on approach sectors renders after this update. Overlall
+  it should work better as before and be equal to SimAware.
 
 And also previous changelogs missed that you can now open ATC card to view ATC stats. Give it a try!
 
@@ -336,7 +364,8 @@ I made this whole update in ~1.5 hours. Coffee magic I guess.
 ## Bug fixes
 
 - Fixed duplicate airports for cases like SY_GND/SY-E_GND
-- Fixed SUEO_CTR FIR display. New algo may cause new problems - please report if you see them and remember to compare firs display to VatSpy
+- Fixed SUEO_CTR FIR display. New algo may cause new problems - please report if you see them and remember to compare
+  firs display to VatSpy
 
 ## Settings
 
@@ -378,7 +407,8 @@ As always, remember to check Roadmap to get a hint of what's coming next! Stage 
 
 You can now click on any airport to view all of its available information.
 
-Since this overlay contains probably too much info for a single popup, airport dashboard development is currently planned - you should expect it in near future.
+Since this overlay contains probably too much info for a single popup, airport dashboard development is currently
+planned - you should expect it in near future.
 
 What's included:
 
@@ -401,7 +431,8 @@ Planned in future updates:
 - Reduced traffic consumption when some FSS is online or controller has multiple sectors
 - You can now properly move map below empty space with opened overlay. This should also allow using overlays on mobile
   phones (for those who uses them even when they are not yet properly supported)
-- Redesigned approach sector label design. You will no longer suffer from random hovers, and it will be easier to differ sectors from each other when they are close to each other
+- Redesigned approach sector label design. You will no longer suffer from random hovers, and it will be easier to differ
+  sectors from each other when they are close to each other
 - Reduced area sectors name size
 - Removed decimals on pilot flown & remaining miles
 
@@ -416,8 +447,10 @@ Planned in future updates:
 
 # 0.2.7
 
-- Added runways on map. Their numbers and existence depend on your Navigraph subscription (you can see used AIRAC cycle for them in footer)
-- You will now see Navigraph Data instead of Ultimate in Settings popup if you only bought data. This is cosmetic change only to reflect reality more
+- Added runways on map. Their numbers and existence depend on your Navigraph subscription (you can see used AIRAC cycle
+  for them in footer)
+- You will now see Navigraph Data instead of Ultimate in Settings popup if you only bought data. This is cosmetic change
+  only to reflect reality more
 
 ## Privacy features
 

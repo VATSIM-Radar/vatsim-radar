@@ -1,27 +1,12 @@
 <template>
     <div class="flight-plan">
         <template v-if="flightPlan.departure && flightPlan.arrival">
-            <div class="flight-plan__cols">
-                <common-info-block
-                    :bottom-items="[depAirport?.name, depCountry?.country]"
-                    class="flight-plan__card"
-                    :is-button="!!depAirport"
-                    text-align="center"
-                    :top-items="[flightPlan.departure]"
-                    @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
-                />
-                <div class="flight-plan__aircraft-icon">
-                    <aircraft-icon/>
-                </div>
-                <common-info-block
-                    :bottom-items="[arrAirport?.name, arrCountry?.country]"
-                    class="flight-plan__card"
-                    :is-button="!!arrAirport"
-                    text-align="center"
-                    :top-items="[flightPlan.arrival]"
-                    @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
-                />
-            </div>
+            <common-pilot-destination
+                :pilot="{
+                    departure: flightPlan.departure,
+                    arrival: flightPlan.arrival,
+                }"
+            />
             <div
                 v-if="(flightPlan.deptime || flightPlan.enroute_time) && (!status || status === 'depGate' || status === 'depTaxi')"
                 class="flight-plan__cols"
@@ -106,11 +91,9 @@
 <script setup lang="ts">
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
-import AircraftIcon from '@/assets/icons/kit/aircraft.svg?component';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
-import { useMapStore } from '~/store/map';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
-import { getAirportCountry } from '~/composables/airport';
+import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 
 const props = defineProps({
     flightPlan: {
@@ -127,47 +110,12 @@ const props = defineProps({
     },
 });
 
-const dataStore = useDataStore();
-const mapStore = useMapStore();
-
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);
     const minutes = time.slice(2, 4);
 
     return `${ hours }:${ minutes }`;
 };
-
-const depAirport = computed(() => {
-    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.departure);
-    if (iataAirport) {
-        return {
-            ...iataAirport,
-            icao: iataAirport.iata!,
-        };
-    }
-
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.departure);
-});
-
-const arrAirport = computed(() => {
-    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.arrival);
-    if (iataAirport) {
-        return {
-            ...iataAirport,
-            icao: iataAirport.iata!,
-        };
-    }
-
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.arrival);
-});
-
-const depCountry = computed(() => {
-    return getAirportCountry(depAirport.value?.icao);
-});
-
-const arrCountry = computed(() => {
-    return getAirportCountry(arrAirport.value?.icao);
-});
 
 const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
 
@@ -199,31 +147,6 @@ const selcal = computed<string | null>(() => {
         > * {
             flex: 1 1 0;
             width: 0;
-        }
-    }
-
-    &__aircraft-icon {
-        display: flex;
-        flex: none;
-        gap: 8px;
-        align-items: center;
-        justify-content: center;
-
-        width: auto;
-        padding: 0 4px;
-
-        &::before, &::after {
-            content: '';
-
-            width: 2px;
-            height: 2px;
-
-            background: currentColor;
-            border-radius: 100%;
-        }
-
-        svg {
-            width: 16px;
         }
     }
 

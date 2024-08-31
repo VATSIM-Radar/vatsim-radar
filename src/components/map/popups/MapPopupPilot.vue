@@ -528,7 +528,6 @@ onBeforeUnmount(() => {
 
     &__content {
         position: relative;
-        z-index: 0;
     }
 
     &__track {

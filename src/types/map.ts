@@ -53,6 +53,7 @@ interface IUserLocalSettings {
 
     traffic: {
         disableFastUpdate?: boolean;
+        showTotalDeparturesInFeaturedAirports?: boolean;
     };
 
     tutorial: {

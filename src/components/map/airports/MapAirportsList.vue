@@ -258,7 +258,7 @@ export interface AirportsList {
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
-    const airports = (store.featuredAirportsOpen ? airportsList : visibleAirports).value.map(({
+    const airports = ((store.featuredAirportsOpen && !store.featuredVisibleOnly) ? airportsList : visibleAirports).value.map(({
         vatsimAirport,
         vatspyAirport,
     }) => ({

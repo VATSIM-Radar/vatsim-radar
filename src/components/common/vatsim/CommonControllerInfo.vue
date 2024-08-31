@@ -29,7 +29,7 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : !showAtis ? controller.logon_time : undefined,
+                        (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
                 >

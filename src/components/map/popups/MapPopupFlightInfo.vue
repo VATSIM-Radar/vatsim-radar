@@ -118,7 +118,7 @@
             >
                 <template #top>
                     <common-tooltip
-                        location="right"
+                        :location="pilot.frequencies.length ? 'right' : 'bottom'"
                         width="150px"
                     >
                         <template #activator>

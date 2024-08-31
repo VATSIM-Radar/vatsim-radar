@@ -214,17 +214,22 @@ CronJob.from({
 
             const length = radarStorage.vatsim.data!.controllers.length;
 
+            const allowedAustraliaFacilities = ['CTR', 'APP', 'DEP'];
+            const allowedAustraliaSectors = radarStorage.vatsim.australia.filter(x => allowedAustraliaFacilities.some(y => x.callsign.endsWith(y)));
+
             for (let i = 0; i < length; i++) {
                 const controller = radarStorage.vatsim.data!.controllers[i];
                 const controllerSplit = controller.callsign.split('_');
+                if (controllerSplit.length <= 1) continue;
 
                 let controllerPrefix = '';
+                const controllerPostfix = controllerSplit[controllerSplit.length - 1];
                 if (controllerSplit.length === 3) controllerPrefix = controllerSplit.slice(0, 2).join('_');
                 else if (controllerSplit.length === 2) controllerPrefix = controllerSplit[0];
 
-                const australiaSector = radarStorage.vatsim.australia.some(x => {
+                const australiaSector = allowedAustraliaSectors.some(x => {
                     const split = x.callsign.split('_');
-                    return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
+                    return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && controllerPostfix === split[split.length - 1] && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
                 });
 
                 if (!australiaSector) continue;
@@ -235,7 +240,11 @@ CronJob.from({
                 for (const frequency of extending.frequencies) {
                     if (frequency === controller.frequency) continue;
 
-                    const sectors = radarStorage.vatsim.australia.filter(x => x.frequency === frequency);
+                    const sectors = allowedAustraliaSectors.filter(x => {
+                        const split = x.callsign.split('_');
+
+                        return x.frequency === frequency && controllerPostfix === split[split.length - 1];
+                    });
                     if (!sectors) continue;
 
                     for (const sector of sectors) {

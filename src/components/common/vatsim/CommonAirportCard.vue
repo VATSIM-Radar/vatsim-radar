@@ -28,13 +28,18 @@
                 <div class="airport-card_data_counts_counter">
                     <departing-icon class="airport-card_data_counts_counter_icon"/>
                     <div class="airport-card_data_counts_counter_text">
-                        {{ (airport.aircraftList.groundDep?.length ?? 0) + (airport.aircraftList.departures?.length ?? 0) }}
+                        <template v-if="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports">
+                            {{ (airport.aircraftList.groundDep?.length ?? 0) + (airport.aircraftList.departures?.length ?? 0) }}
+                        </template>
+                        <template v-else>
+                            {{ airport.aircraftList.groundDep?.length ?? 0 }}
+                        </template>
                     </div>
                 </div>
                 <div class="airport-card_data_counts_counter">
                     <arriving-icon class="airport-card_data_counts_counter_icon"/>
                     <div class="airport-card_data_counts_counter_text">
-                        {{ (airport.aircraftList.groundArr?.length ?? 0) + (airport.aircraftList.arrivals?.length ?? 0) }}
+                        {{ airport.aircraftList.arrivals?.length ?? 0 }}
                     </div>
                 </div>
             </div>
@@ -59,6 +64,7 @@ import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getControllerPositionColor, useFacilitiesIds } from '~/composables/atc';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import { useMapStore } from '~/store/map';
+import { useStore } from '~/store';
 
 const props = defineProps({
     airport: {
@@ -75,6 +81,7 @@ const country = getAirportCountry(props.airport.airport.icao);
 const ids = useFacilitiesIds();
 
 const mapStore = useMapStore();
+const store = useStore();
 
 interface Controller {
     facility: number;

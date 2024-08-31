@@ -40,6 +40,7 @@ export const useStore = defineStore('index', {
         dataInProgress: false,
 
         featuredAirportsOpen: false,
+        featuredVisibleOnly: false,
 
         viewport: {
             width: 0,
