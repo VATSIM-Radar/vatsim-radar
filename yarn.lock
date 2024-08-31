@@ -8424,7 +8424,7 @@ __metadata:
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.4.38"
     vue-router: "npm:^4.4.3"
-    vue-tsc: "npm:^2.0.29"
+    vue-tsc: "npm:2.0.29"
     ws: "npm:^8.18.0"
   languageName: unknown
   linkType: soft
@@ -11967,7 +11967,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-tsc@npm:^2.0.29":
+"vue-tsc@npm:2.0.29":
   version: 2.0.29
   resolution: "vue-tsc@npm:2.0.29"
   dependencies:
