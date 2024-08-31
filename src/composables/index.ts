@@ -150,6 +150,7 @@ export function useCopyText() {
 const iframeWhitelist = [
     'localhost',
     'vatsimsa.com',
+    'idvacc.id',
 ];
 
 export function useIframeHeader() {

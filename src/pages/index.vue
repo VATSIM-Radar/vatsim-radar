@@ -311,6 +311,10 @@ await setupDataFetch({
                 center = getCenter(projectionExtent);
             }
         }
+        else if (store.config.area) {
+            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
+            center = getCenter(projectionExtent);
+        }
 
         map.value = new Map({
             target: mapContainer.value!,

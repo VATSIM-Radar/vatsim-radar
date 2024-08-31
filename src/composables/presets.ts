@@ -1,6 +1,7 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
+import { fromLonLat } from 'ol/proj';
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -10,6 +11,17 @@ const saPreset: SiteConfig = {
     hideFooter: true,
     allAircraftGreen: true,
     hideAllExternal: true,
+};
+
+const idPreset: SiteConfig = {
+    theme: 'default',
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: true,
+    area: [
+        fromLonLat([5.9999611, 91.9999972].reverse()),
+        fromLonLat([-9.8339778, 141.0003861].reverse()),
+    ],
 };
 
 const dashboardPreset: SiteConfig = {
@@ -33,6 +45,9 @@ export function checkAndSetMapPreset() {
 
     if (query.preset === 'sa') {
         preset = saPreset;
+    }
+    else if (query.preset === 'id') {
+        preset = idPreset;
     }
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;
