@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.4.4-rc.2]
+
+- (QA) Changed quiet airports algo
+- (QA) Excluded pseudo airports like Moscow Approach from quiet airports. From now on, every quiet airport should have ATIS or at least one aircraft for it to be shown
+
 # [0.4.4-rc.1]
 
 - Added support for Ramp controllers - mapped to Ground for now

@@ -267,11 +267,20 @@ useUpdateInterval(() => timestamp.value = Date.now(), 1000);
 const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
 
 const popularAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value.slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
+    return dataStore.vatsim.parsedAirports.value.filter(x => !x.airport.isPseudo && x.aircraftCids.length).slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
 });
 
 const quietAirports = computed(() => {
-    return dataStore.vatsim.parsedAirports.value.filter(x => x.arrAtc.length || x.localAtc.some(x => !x.isATIS)).slice().sort((a, b) => a.aircraftCids.length - b.aircraftCids.length).slice(0, 50);
+    return dataStore.vatsim.parsedAirports.value
+        .filter(x => !x.airport.isPseudo && (x.aircraftCids.length || x.localAtc.some(x => x.isATIS)) && (x.arrAtc.length || x.localAtc.some(x => !x.isATIS)))
+        .slice()
+        .sort((a, b) => {
+            const aSum = (a.aircraftList.arrivals?.length ?? 0) + (a.aircraftList.groundDep?.length ?? 0);
+            const bSum = (b.aircraftList.arrivals?.length ?? 0) + (b.aircraftList.groundDep?.length ?? 0);
+
+            return aSum - bSum;
+        })
+        .slice(0, 25);
 });
 </script>
 
