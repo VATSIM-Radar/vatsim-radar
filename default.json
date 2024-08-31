@@ -54,6 +54,7 @@
         "@vue/language-server",
         "vue-tsc"
       ],
+      "rangeStrategy": "pin",
       "groupName": "Volar"
     },
     {
