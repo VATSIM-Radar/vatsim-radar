@@ -207,7 +207,7 @@
                     @click="showOnMap"
                 >
                     <template #icon>
-                        <map-icon/>
+                        <location-icon/>
                     </template>
                     Focus
                 </common-button>
@@ -234,7 +234,7 @@ import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import { showAirportOnMap, useDataStore } from '#imports';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';

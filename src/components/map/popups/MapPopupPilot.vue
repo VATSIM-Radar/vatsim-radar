@@ -119,7 +119,7 @@
                     @click="showOnMap"
                 >
                     <template #icon>
-                        <map-icon/>
+                        <location-icon/>
                     </template>
                     Focus
                 </common-button>
@@ -164,7 +164,7 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';

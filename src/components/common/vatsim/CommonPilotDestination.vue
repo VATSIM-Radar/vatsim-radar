@@ -49,42 +49,43 @@ const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilo
 
 <style scoped lang="scss">
 .destination {
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-  position: relative;
-
-  > * {
-    flex: 1 1 0;
-    width: 0;
-  }
-
-  &_aircraft-icon {
+    position: relative;
     display: flex;
-    flex: none;
-    gap: 8px;
-    align-items: center;
+    gap: 4px;
     justify-content: center;
-    top: 8px;
 
-    width: auto;
-    padding: 0 4px;
-    position: absolute;
-    z-index: 1;
-
-    &::before, &::after {
-      content: '';
-
-      width: 2px;
-      height: 2px;
-
-      background: currentColor;
-      border-radius: 100%;
+    > * {
+        flex: 1 1 0;
+        width: 0;
     }
 
-    svg {
-      width: 16px;
+    &_aircraft-icon {
+        position: absolute;
+        z-index: 1;
+        top: 8px;
+
+        display: flex;
+        flex: none;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+
+        width: auto;
+        padding: 0 4px;
+
+        &::before, &::after {
+            content: '';
+
+            width: 2px;
+            height: 2px;
+
+            background: currentColor;
+            border-radius: 100%;
+        }
+
+        svg {
+            width: 16px;
+        }
     }
-  }
 }
 </style>

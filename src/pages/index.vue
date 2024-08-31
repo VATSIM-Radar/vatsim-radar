@@ -72,6 +72,11 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 
+const emit = defineEmits({
+    map(map: Ref<Map | null>) {
+        return true;
+    },
+});
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
 const popupsHeight = ref(0);
@@ -91,6 +96,7 @@ if (route.query.discord === '1') {
 }
 
 provide('map', map);
+emit('map', map);
 
 let initialSpawn = false;
 

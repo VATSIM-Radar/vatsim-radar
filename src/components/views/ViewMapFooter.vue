@@ -44,7 +44,7 @@
                         Featured Airports
                     </template>
 
-                    <div class="__info-sections">
+                    <div class="__info-sections map-footer__featured-content">
                         <common-tabs
                             v-model="featuredTab"
                             :tabs="{
@@ -284,6 +284,10 @@ const quietAirports = computed(() => {
     padding: 0 24px;
 
     font-size: 13px;
+
+    & &__featured-content {
+        gap: 8px;
+    }
 
     &_left {
         display: flex;

@@ -125,7 +125,7 @@
                     @click="showOnMap"
                 >
                     <template #icon>
-                        <map-icon/>
+                        <location-icon/>
                     </template>
                     <template v-if="atc.facility !== facilities.APP">
                         Focus On Map
@@ -154,7 +154,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAtc } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';

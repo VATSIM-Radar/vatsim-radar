@@ -10,6 +10,7 @@
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - (QA) Redesigned aircraft hover popup
 - (QA) Australia sector extend will now only work for APP/CTR
+- (QA) Redesigned Featured Airport card, added "zoom to" button
 
 # [0.4.4-beta.5.1]
 

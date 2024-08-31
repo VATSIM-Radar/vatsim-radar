@@ -51,7 +51,7 @@ const props = defineProps({
         default: '16px',
     },
     type: {
-        type: String as PropType<'primary' | 'secondary' | 'secondary-flat' | 'link' | 'transparent'>,
+        type: String as PropType<'primary' | 'secondary' | 'secondary-875' | 'secondary-flat' | 'link' | 'transparent'>,
         default: 'primary',
     },
     orientation: {
@@ -154,12 +154,16 @@ const getAttrs = computed(() => {
         width: var(--icon-width);
     }
 
-    &--type-secondary, &--type-secondary-flat {
+    &--type-secondary, &--type-secondary-flat, &--type-secondary-875 {
         color: $lightgray50;
         background: $darkgray900;
     }
 
-    &--type-secondary {
+    &--type-secondary-875 {
+        background: $darkgray875;
+    }
+
+    &--type-secondary, &--type-secondary-875 {
         @include hover {
             &:hover {
                 background: $darkgray850;

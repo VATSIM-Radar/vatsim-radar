@@ -10,6 +10,14 @@
         >
             {{ position }}
         </div>
+        <common-button
+            :disabled="!map"
+            size="S"
+            type="secondary-875"
+            @click.stop="showAirportOnMap(airport.airport, map)"
+        >
+            <location-icon width="14"/>
+        </common-button>
         <div class="airport-card_icao">
             {{ airport.airport.icao }}
         </div>
@@ -43,11 +51,15 @@
                     </div>
                 </div>
             </div>
-            <div class="airport-card_data_positions __section-group">
+            <div
+                class="airport-card_data_positions __section-group"
+                :class="{ 'airport-card_data_positions--short': controllers.length > 2 }"
+            >
                 <div
                     v-for="controller in controllers"
                     :key="controller.facility"
                     class="airport-card_data_positions_position"
+                    :class="{ 'airport-card_data_positions_position--atis': controller.isATIS }"
                     :style="{ '--color': controller.color }"
                 >
                     {{ controller.text }}
@@ -61,10 +73,14 @@
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
-import { getControllerPositionColor, useFacilitiesIds } from '~/composables/atc';
+import { getControllerPositionColor, showAirportOnMap, useFacilitiesIds } from '~/composables/atc';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
 
 const props = defineProps({
     airport: {
@@ -82,6 +98,7 @@ const ids = useFacilitiesIds();
 
 const mapStore = useMapStore();
 const store = useStore();
+const map = inject<ShallowRef<Map | null>>('map')!;
 
 interface Controller {
     facility: number;
@@ -106,26 +123,26 @@ const controllers = computed<Controller[]>(() => {
 
     for (const controller of list) {
         if (controller.isATIS) {
-            if (list.length <= 2) controller.text = 'ATIS';
+            if (list.length <= 3) controller.text = 'ATIS';
             else controller.text = 'A';
             continue;
         }
 
         switch (controller.facility) {
             case ids.TWR:
-                if (list.length <= 2) controller.text = 'TWR';
+                if (list.length <= 3) controller.text = 'TWR';
                 else controller.text = 'T';
                 break;
             case ids.DEL:
-                if (list.length <= 2) controller.text = 'DEL';
+                if (list.length <= 3) controller.text = 'DEL';
                 else controller.text = 'D';
                 break;
             case ids.GND:
-                if (list.length <= 2) controller.text = 'GND';
+                if (list.length <= 3) controller.text = 'GND';
                 else controller.text = 'G';
                 break;
             case ids.APP:
-                if (list.length <= 2) controller.text = 'APP';
+                if (list.length <= 3) controller.text = 'APP';
                 else controller.text = 'A';
                 break;
         }
@@ -140,8 +157,8 @@ const controllers = computed<Controller[]>(() => {
     cursor: pointer;
 
     display: grid;
-    grid-template-columns: 40px 40px 200px 88px;
-    gap: 16px;
+    grid-template-columns: 24px 32px 40px 200px 88px;
+    gap: 8px;
     align-items: center;
     justify-content: space-between;
 
@@ -160,7 +177,7 @@ const controllers = computed<Controller[]>(() => {
     }
 
     &--no-index {
-        grid-template-columns: 40px 200px 88px;
+        grid-template-columns: 24px 32px 40px 200px 88px;
     }
 
     &_index {
@@ -176,7 +193,6 @@ const controllers = computed<Controller[]>(() => {
         font-weight: 600;
         line-height: 100%;
 
-        background: varToRgba('darkgray850', 0.5);
         border-radius: 4px;
     }
 
@@ -190,12 +206,17 @@ const controllers = computed<Controller[]>(() => {
 
         :deep(.info-block__content) {
             overflow: hidden;
+            width: 50%;
             text-overflow: ellipsis;
             white-space: nowrap;
 
-            &:first-child {
-                min-width: 30px;
-                max-width: 40%;
+            @supports (display: -webkit-box) and (-webkit-line-clamp: 2) {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+
+                text-align: center;
+                white-space: unset;
             }
         }
 
@@ -250,6 +271,12 @@ const controllers = computed<Controller[]>(() => {
                 text-align: center;
 
                 background: var(--color);
+            }
+
+            &--short .airport-card_data_positions_position--atis {
+                width: 8px;
+                max-width: 8px;
+                font-size: 0;
             }
         }
     }

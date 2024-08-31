@@ -317,7 +317,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.warning500Rgb.join(',') }, 0.25)`,
+                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -344,7 +344,7 @@ function setFeatureStyle(feature: Feature) {
     feature.setStyle([
         new Style({
             stroke: new Stroke({
-                color: `rgba(${ radarColors.warning500Rgb.join(',') }, 0.7)`,
+                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),
@@ -356,14 +356,14 @@ function setFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.warning600Hex,
+                    color: radarColors.error400Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.warning600Hex,
+                    color: radarColors.error400Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),
@@ -555,7 +555,7 @@ onMounted(async () => {
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('warning500').join(',') }, 0.7)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                     }),
                 }),
             }));

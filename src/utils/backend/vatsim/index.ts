@@ -188,22 +188,17 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
     const frequencies = transceiver.transceivers.map(x => {
         let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
 
-        if (fullFrequency) {
-            if (!frequency.includes('.')) {
-                if (frequency.length < 3) {
-                    for (let i = 0; i < 3 - frequency.length; i++) {
-                        frequency += '0';
-                    }
+        if (!frequency.includes('.')) {
+            if (frequency.length < 3) {
+                for (let i = 0; i < 3 - frequency.length; i++) {
+                    frequency += '0';
                 }
-
-                frequency += '.';
             }
 
-            return `${ (`${ frequency }000`).slice(0, 7) }`;
+            frequency += '.';
         }
 
-        if (!frequency.includes('.')) return `${ frequency }.0`;
-        return frequency;
+        return `${ (`${ frequency }000`).slice(0, 7) }`;
     });
 
     return {
