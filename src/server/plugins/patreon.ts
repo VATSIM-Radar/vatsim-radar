@@ -5,6 +5,11 @@ import { radarStorage } from '~/utils/backend/storage';
 interface PatreonAccount {
     data: {
         id: string;
+        attributes: {
+            pledge_sum: number;
+            patron_count: number;
+            paid_member_count: number;
+        };
     }[];
     included: Array<
         {
@@ -67,6 +72,13 @@ export interface PatreonPledge {
     levelId: string;
 }
 
+export interface PatreonInfo {
+    all: number;
+    paid: number;
+    highlighted: PatreonPledge[];
+    budget: number;
+}
+
 export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();
 
@@ -109,7 +121,12 @@ export default defineNitroPlugin(app => {
                 }
             } while (counter >= 10);
 
-            radarStorage.patrons = patrons;
+            radarStorage.patreonInfo = {
+                all: myAccount.data[0].attributes.patron_count,
+                paid: myAccount.data[0].attributes.paid_member_count,
+                budget: myAccount.data[0].attributes.pledge_sum / 100,
+                highlighted: patrons,
+            };
         },
     });
 });

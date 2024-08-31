@@ -11,7 +11,7 @@ import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
-import type { PatreonPledge } from '~/server/plugins/patreon';
+import type { PatreonPledge, PatreonInfo } from '~/server/plugins/patreon';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
@@ -62,7 +62,7 @@ export const radarStorage = {
         },
     },
     navigraph: null as null | typeof cycles,
-    patrons: [] as PatreonPledge[],
+    patreonInfo: null as null | PatreonInfo,
 };
 
 export function getRadarStorage() {
