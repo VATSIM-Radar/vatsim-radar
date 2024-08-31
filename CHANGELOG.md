@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.4.4-rc.3]
+
+- Brand new Patreon page has been added to highlight our fellow supporters and our goals
+- Update popup has been added
+
 # [0.4.4-rc.2]
 
 - (QA) Changed quiet airports algo

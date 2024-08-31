@@ -46,8 +46,6 @@
                         v-for="button in buttons"
                         :key="button.text"
                         :disabled="button.disabled"
-                        :href="button.href"
-                        :target="button.href && '_blank'"
                         :to="button.path"
                         :type="button.path === route.path ? 'primary' : 'secondary'"
                     >
@@ -353,7 +351,7 @@ import DiscordIcon from '@/assets/icons/header/discord.svg?component';
 import GithubIcon from '@/assets/icons/header/github.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import LogoIcon from '@/assets/icons/basic/logo.svg?component';
-import RadarIcon from '@/assets/icons/kit/radar.svg?component';
+import PatreonIcon from '@/assets/icons/basic/patreon.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import EventsIcon from '@/assets/icons/kit/event.svg?component';
@@ -411,8 +409,8 @@ const buttons = computed(() => {
         },
         {
             text: 'Patreon',
-            href: 'https://www.patreon.com/vatsimradar24',
-            icon: RadarIcon,
+            path: '/support-us',
+            icon: PatreonIcon,
         },
     ];
 });

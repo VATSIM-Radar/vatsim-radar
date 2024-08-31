@@ -22,10 +22,10 @@
             {{ airport.airport.icao }}
         </div>
         <common-info-block
+            :bottom-items="[ country?.country, airport.airport.name ]"
             class="airport-card_info"
-            :top-items="[ country?.country, airport.airport.name ]"
         >
-            <template #top="{ item }">
+            <template #bottom="{ item }">
                 <span :title="String(item)">
                     {{ item }}
                 </span>
