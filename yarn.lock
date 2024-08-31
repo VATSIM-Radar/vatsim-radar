@@ -3413,10 +3413,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"adm-zip@npm:^0.5.15":
-  version: 0.5.15
-  resolution: "adm-zip@npm:0.5.15"
-  checksum: 10c0/40ad504176c4b7f41983d11f7ff28acd3ce5b9bd51a09356be2447cb1799de4a4d93f8b0f65f75814add17687445cc807bbcb5ec8f73f44af1aefe4509894a8c
+"adm-zip@npm:^0.5.16":
+  version: 0.5.16
+  resolution: "adm-zip@npm:0.5.16"
+  checksum: 10c0/6f10119d4570c7ba76dcf428abb8d3f69e63f92e51f700a542b43d4c0130373dd2ddfc8f85059f12d4a843703a90c3970cfd17876844b4f3f48bf042bfa6b49f
   languageName: node
   linkType: hard
 
@@ -8456,7 +8456,7 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.6"
     "@types/node": "npm:^22.5.1"
     "@types/ws": "npm:^8.5.12"
-    adm-zip: "npm:^0.5.15"
+    adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1684.0"
     bufferutil: "npm:^4.0.8"
     chardet: "npm:^2.0.0"
