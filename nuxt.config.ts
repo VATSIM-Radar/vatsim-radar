@@ -104,6 +104,7 @@ export default defineNuxtConfig({
         INFLUX_BUCKET_PLANS: process.env.INFLUX_BUCKET_PLANS,
         INFLUX_ENABLE_WRITE: process.env.INFLUX_ENABLE_WRITE,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
+        PATREON_ACCESS_TOKEN: process.env.PATREON_ACCESS_TOKEN,
 
         public: {
             DOMAIN: process.env.DOMAIN,
