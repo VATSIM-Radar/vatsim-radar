@@ -1712,14 +1712,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/eslint-config@npm:0.5.4":
-  version: 0.5.4
-  resolution: "@nuxt/eslint-config@npm:0.5.4"
+"@nuxt/eslint-config@npm:0.5.5":
+  version: 0.5.5
+  resolution: "@nuxt/eslint-config@npm:0.5.5"
   dependencies:
     "@eslint/js": "npm:^9.9.1"
-    "@nuxt/eslint-plugin": "npm:0.5.4"
-    "@rushstack/eslint-patch": "npm:^1.10.4"
-    "@stylistic/eslint-plugin": "npm:^2.7.1"
+    "@nuxt/eslint-plugin": "npm:0.5.5"
+    "@stylistic/eslint-plugin": "npm:^2.7.2"
     "@typescript-eslint/eslint-plugin": "npm:^8.3.0"
     "@typescript-eslint/parser": "npm:^8.3.0"
     eslint-config-flat-gitignore: "npm:^0.2.0"
@@ -1732,34 +1731,33 @@ __metadata:
     globals: "npm:^15.9.0"
     local-pkg: "npm:^0.5.0"
     pathe: "npm:^1.1.2"
-    tslib: "npm:^2.7.0"
     vue-eslint-parser: "npm:^9.4.3"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/072a898e8390dd2e1f2a3c8a660a9dee90c192d8666347202ff5ac555b27834dc3e5e7e9b8b46febbc70ac231099f7ed3ff60f842d60dacfec6ec96a05eef331
+  checksum: 10c0/f6449cfcc2cb56f8ce840c856c0e781fdd70474b7f6b1f5ab9516f0db83b15718f4a47447ff2903b124338422ba84726c3648ee7cf2f3480c23d50e79acde3e6
   languageName: node
   linkType: hard
 
-"@nuxt/eslint-plugin@npm:0.5.4":
-  version: 0.5.4
-  resolution: "@nuxt/eslint-plugin@npm:0.5.4"
+"@nuxt/eslint-plugin@npm:0.5.5":
+  version: 0.5.5
+  resolution: "@nuxt/eslint-plugin@npm:0.5.5"
   dependencies:
     "@typescript-eslint/types": "npm:^8.3.0"
     "@typescript-eslint/utils": "npm:^8.3.0"
   peerDependencies:
     eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/8fc5336e1da84afa2fad2e5de01178a89d4ce7a58404114a0f40113a387059f98a8cb1dad3120285b01e8d53ee1e46ac74bed04e233c34e34a41b8f60c988557
+  checksum: 10c0/e62bca8d7e0284dddf3604e1f7c3c4cf89e95d94b9b8c36cb17c5c255ee8a40662fe511260cf48babf6874d641773f25bc365542c3b43dcf45889c7a1bc1c993
   languageName: node
   linkType: hard
 
-"@nuxt/eslint@npm:^0.5.4":
-  version: 0.5.4
-  resolution: "@nuxt/eslint@npm:0.5.4"
+"@nuxt/eslint@npm:^0.5.5":
+  version: 0.5.5
+  resolution: "@nuxt/eslint@npm:0.5.5"
   dependencies:
     "@eslint/config-inspector": "npm:^0.5.4"
     "@nuxt/devtools-kit": "npm:^1.4.1"
-    "@nuxt/eslint-config": "npm:0.5.4"
-    "@nuxt/eslint-plugin": "npm:0.5.4"
+    "@nuxt/eslint-config": "npm:0.5.5"
+    "@nuxt/eslint-plugin": "npm:0.5.5"
     "@nuxt/kit": "npm:^3.13.0"
     chokidar: "npm:^3.6.0"
     eslint-flat-config-utils: "npm:^0.3.1"
@@ -1778,7 +1776,7 @@ __metadata:
       optional: true
     vite-plugin-eslint2:
       optional: true
-  checksum: 10c0/045eea87560cff9df36c04b713e37f8a0afb73dc3d51b61094d40ad388cb11fab173fad8a8b932911eea79e02c6e68bbb39cb46b4c69ab2619849683239920b3
+  checksum: 10c0/2ec1bf976686770e1a9f372bac753a71d6dd8dd79ccb24f9324baa2a5d43dc9cdb192848cd6f7a976fbde7aadaeaade334bfca300702267d22bb558a5a6a9b66
   languageName: node
   linkType: hard
 
@@ -2407,13 +2405,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rushstack/eslint-patch@npm:^1.10.4":
-  version: 1.10.4
-  resolution: "@rushstack/eslint-patch@npm:1.10.4"
-  checksum: 10c0/de312bd7a3cb0f313c9720029eb719d8762fe54946cce2d33ac142b1cbb5817c4a5a92518dfa476c26311602d37f5a8f7caa90a0c73e3d6a56f9a05d2799c172
-  languageName: node
-  linkType: hard
-
 "@sapphire/async-queue@npm:^1.5.2":
   version: 1.5.3
   resolution: "@sapphire/async-queue@npm:1.5.3"
@@ -2452,7 +2443,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:^2.7.1, @stylistic/eslint-plugin@npm:^2.7.2":
+"@stylistic/eslint-plugin@npm:^2.7.2":
   version: 2.7.2
   resolution: "@stylistic/eslint-plugin@npm:2.7.2"
   dependencies:
@@ -8358,7 +8349,7 @@ __metadata:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@nuxt/devtools": "npm:^1.4.1"
-    "@nuxt/eslint": "npm:^0.5.4"
+    "@nuxt/eslint": "npm:^0.5.5"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.5.4"
     "@prisma/client": "npm:^5.19.0"
@@ -11091,7 +11082,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.6.3, tslib@npm:^2.7.0":
+"tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.6.3":
   version: 2.7.0
   resolution: "tslib@npm:2.7.0"
   checksum: 10c0/469e1d5bf1af585742128827000711efa61010b699cb040ab1800bcd3ccdd37f63ec30642c9e07c4439c1db6e46345582614275daca3e0f4abae29b0083f04a6

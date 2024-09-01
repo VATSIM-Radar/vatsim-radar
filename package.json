@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.4.1",
-    "@nuxt/eslint": "^0.5.4",
+    "@nuxt/eslint": "^0.5.5",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^2.7.2",
     "@stylistic/stylelint-plugin": "^3.0.1",
