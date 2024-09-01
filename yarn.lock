@@ -2679,12 +2679,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.5.1":
+"@types/node@npm:*":
   version: 22.5.1
   resolution: "@types/node@npm:22.5.1"
   dependencies:
     undici-types: "npm:~6.19.2"
   checksum: 10c0/35373176d8a1d4e16004a1ed303e68d39e4c6341024dc056f2577982df98c1a045a6b677f12ed557796f09bbf7d621f428f6874cc37ed28f7b336fa604b5f6a6
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.5.2":
+  version: 22.5.2
+  resolution: "@types/node@npm:22.5.2"
+  dependencies:
+    undici-types: "npm:~6.19.2"
+  checksum: 10c0/624a7fd76229eacc6c158eb3b9afd55b811d7f01976c5f92c630d5b9d47047cc218928c343988484a165ac400e5eb6fe70ea300fc7242deeb0e920c7724290f6
   languageName: node
   linkType: hard
 
@@ -8359,7 +8368,7 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^22.5.1"
+    "@types/node": "npm:^22.5.2"
     "@types/ws": "npm:^8.5.12"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1687.0"
@@ -8377,7 +8386,7 @@ __metadata:
     nuxt: "npm:^3.13.0"
     ol: "npm:^10.1.0"
     pinia: "npm:^2.2.2"
-    postcss: "npm:^8.4.42"
+    postcss: "npm:^8.4.43"
     postcss-html: "npm:^1.7.0"
     prisma: "npm:^5.19.0"
     sass: "npm:^1.77.8"
@@ -9332,14 +9341,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.42":
-  version: 8.4.42
-  resolution: "postcss@npm:8.4.42"
+"postcss@npm:^8.4.43":
+  version: 8.4.43
+  resolution: "postcss@npm:8.4.43"
   dependencies:
     nanoid: "npm:^3.3.7"
     picocolors: "npm:^1.0.1"
     source-map-js: "npm:^1.2.0"
-  checksum: 10c0/ac4dd01b07b2b9db12c24284aed497d35436ed05e4944be6cf00eb8daa4914fd9fbc5ec729e47981b4f1a9c51847d043d1808c796b9440ae0c5e8ff7a29bc821
+  checksum: 10c0/7cc9c6393ca00fcdca6fef8d119218df9357389b9fed30b6d4b463fc0e85159595a877f4ac0a2a565ea4c447cab1f424e527e68d8b7d40b8c94a6684663d45c5
   languageName: node
   linkType: hard
 
