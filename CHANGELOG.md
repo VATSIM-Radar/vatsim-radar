@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.4.4-rc.4]
+
+- Improved great circle support for transoceanic flights that had disconnects
+
 # [0.4.4-rc.3]
 
 - Brand new Patreon page has been added to highlight our fellow supporters and our goals

@@ -557,9 +557,21 @@ async function toggleAirportLines(value = canShowLines.value) {
                         continue;
                     }
 
-                    const points = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates].map(x => point(toLonLat(x)));
+                    const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
+
+                    const points = coords.map(x => point(toLonLat(x)));
+
+                    let npoints = 4;
+
+                    if (
+                        Math.abs(coords[0][0] - coords[1][0]) > 100000 ||
+                        Math.abs(coords[0][1] - coords[1][1]) > 100000
+                    ) {
+                        npoints = 100;
+                    }
+
                     const circle = greatCircle(points[0], points[1], {
-                        npoints: 4,
+                        npoints,
                     });
 
                     const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates.map(x => fromLonLat(x)) : circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x)));
