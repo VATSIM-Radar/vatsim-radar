@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.4.4-rc.5]
+
+- New aircraft icons: A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+
 # [0.4.4-rc.4]
 
 - Improved great circle support for transoceanic flights that had disconnects

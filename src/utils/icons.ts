@@ -1,6 +1,16 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'g2ca'
+    | 'f117'
+    | 'e135'
+    | 'cl60'
+    | 'c750'
+    | 'c700'
+    | 'c130'
+    | 'be58'
+    | 'a748'
+    | 'a10'
     | 'kodi'
     | 'f35'
     | 'f22'
@@ -135,6 +145,46 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    g2ca: {
+        icon: 'g2ca',
+        width: getAircraftSizeByCoef(0.11),
+    },
+    f117: {
+        icon: 'f117',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    e135: {
+        icon: 'e135',
+        width: getAircraftSizeByCoef(0.33),
+    },
+    cl60: {
+        icon: 'cl60',
+        width: getAircraftSizeByCoef(0.33),
+    },
+    c750: {
+        icon: 'c750',
+        width: getAircraftSizeByCoef(0.32),
+    },
+    c700: {
+        icon: 'c700',
+        width: getAircraftSizeByCoef(0.35),
+    },
+    c130: {
+        icon: 'c130',
+        width: getAircraftSizeByCoef(0.67),
+    },
+    be58: {
+        icon: 'be58',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    a748: {
+        icon: 'a748',
+        width: getAircraftSizeByCoef(0.50),
+    },
+    a10: {
+        icon: 'a10',
+        width: getAircraftSizeByCoef(0.29),
+    },
     kodi: {
         icon: 'kodi',
         width: getAircraftSizeByCoef(0.23),
@@ -813,6 +863,8 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'DH8A':
         case 'DH8B':
             return aircraftIcons.dh8a;
+        case 'B58T':
+            return aircraftIcons.be58;
         case 'B731':
         case 'B732':
         case 'B733':
@@ -894,6 +946,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'F22':
         case 'F35':
         case 'KODI':
+        case 'A10':
+        case 'A748':
+        case 'BE58':
+        case 'C130':
+        case 'C700':
+        case 'C750':
+        case 'CL60':
+        case 'E135':
+        case 'F117':
+        case 'G2CA':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
