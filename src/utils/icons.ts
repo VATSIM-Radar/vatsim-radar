@@ -865,6 +865,8 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.dh8a;
         case 'B58T':
             return aircraftIcons.be58;
+        case 'K100':
+            return aircraftIcons.kodi;
         case 'B731':
         case 'B732':
         case 'B733':

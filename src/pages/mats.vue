@@ -43,8 +43,11 @@ const aircraft = computed(() => {
 
     for (const pilot of data.value?.pilots || []) {
         if (!pilot.aircraft_short) continue;
-        if (list[pilot.aircraft_short]) list[pilot.aircraft_short]++;
-        else list[pilot.aircraft_short] = 1;
+
+        const label = pilot.aircraft_short.split('/')[0];
+
+        if (list[label]) list[label]++;
+        else list[label] = 1;
     }
 
     return Object
