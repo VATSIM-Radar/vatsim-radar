@@ -102,7 +102,7 @@ const images = import.meta.glob('../../assets/update/*.png', { import: 'default'
 const update: Update = {
     type: 'minor',
     name: '0.4.4',
-    height: '400px',
+    height: '500px',
     features: [
         {
             title: 'Featured Airports',
