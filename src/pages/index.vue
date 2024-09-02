@@ -351,6 +351,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            maxTilesLoading: 128,
             view: new View({
                 center,
                 zoom: store.config.airport
