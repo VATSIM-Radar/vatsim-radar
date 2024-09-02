@@ -153,18 +153,22 @@ export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
 
     const rows = await getFlightRows(fluxQuery);
 
+    const features: InfluxFlight[] = rows;
+
+    for (let i = features.length - 1; i >= 0; i--) {
+        const row = features[i];
+
+        for (const key of flightKeys) {
+            if (!row[key] && rows[i + 1]?.[key]) {
+                // @ts-expect-error Restoring data from prev entry
+                row[key] = rows[i + 1]?.[key];
+            }
+        }
+    }
+
     return {
         flightPlanStart: row._time,
-        features: rows.reverse().map((row, index) => {
-            for (const key of flightKeys) {
-                if (!row[key] && rows[index - 1]?.[key]) {
-                    // @ts-expect-error Restoring data from prev entry
-                    row[key] = rows[index - 1]?.[key];
-                }
-            }
-
-            return row;
-        }).reverse(),
+        features,
     };
 }
 

@@ -1,6 +1,5 @@
 services:
   app:
-    container_name: app
     restart: always
     image: ghcr.io/vatsim-radar/vatsim-radar/production
     depends_on:
@@ -9,7 +8,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - 8080:3000
+      - 8080-8081:3000
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
       interval: 1s
@@ -31,7 +30,7 @@ services:
     ports:
       - 8880:8880
     depends_on:
-      db-next:
+      db:
         condition: service_healthy
       redis:
         condition: service_started

@@ -7,6 +7,7 @@ import type { VatDataVersions } from '~/types/data';
 import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
+import type { Coordinate } from 'ol/coordinate';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -24,6 +25,7 @@ export interface SiteConfig {
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
     showInfoForPrimaryAirport?: boolean;
+    area?: [Coordinate, Coordinate];
 }
 
 export const useStore = defineStore('index', {
