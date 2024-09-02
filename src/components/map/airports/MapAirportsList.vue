@@ -334,14 +334,13 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
-        const airport = airports.find(x => (
-            (x.airport.iata || atc.airport.iata) &&
-            x.airport.iata === atc.airport.iata &&
-            (!airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
-        )
-            ? x.airport.iata === atc.airport.iata
-            : x.airport.icao === atc.airport.icao);
         const icaoOnlyAirport = airports.find(x => atc.airport.isPseudo && atc.airport.iata && x.airport.icao === atc.airport.icao);
+        const iataAirport = airports.find(x => (
+            atc.airport.iata &&
+            x.airport.iata === atc.airport.iata
+        ));
+
+        const airport = iataAirport || icaoOnlyAirport;
 
         if (!airport) continue;
 
@@ -352,23 +351,13 @@ const getAirportsList = computed(() => {
         }
 
         const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
-        if (isLocal) (icaoOnlyAirport || airport).localAtc.push(atc.atc);
+        if (isLocal) airport.localAtc.push(atc.atc);
     }
 
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
 
-        let airport = airports.find(x => x.isSimAware &&
-            prefixes.some(y => y.split('_')[0] === x.airport.iata));
-
-        if (!airport) {
-            airport = airports.find(x => x.isSimAware &&
-                prefixes.some(y => y.split('_')[0] === x.airport.icao));
-        }
-
-        if (!airport) {
-            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
-        }
+        let airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
 
         if (!airport) {
             airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
