@@ -72,7 +72,7 @@ defineSlots<{ default(): any; title(): any; actions(): any }>();
 
 const model = defineModel({
     type: Boolean,
-    default: false,
+    default: true,
 });
 const app = useNuxtApp();
 

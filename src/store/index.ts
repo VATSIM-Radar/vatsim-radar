@@ -42,6 +42,8 @@ export const useStore = defineStore('index', {
         featuredAirportsOpen: false,
         featuredVisibleOnly: false,
 
+        updateRequired: false,
+
         viewport: {
             width: 0,
         },

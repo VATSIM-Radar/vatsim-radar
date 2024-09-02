@@ -11,6 +11,26 @@
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
         </div>
+        <common-popup
+            v-if="store.updateRequired"
+            v-model="updateRequired"
+        >
+            <template #title>Update required</template>
+
+            New VATSIM Radar update is out! Please, reload page for it to apply.
+
+            <template #actions>
+                <common-button
+                    type="secondary"
+                    @click="updateRequired = false"
+                >
+                    Negative, I'll pass
+                </common-button>
+                <common-button @click="reload">
+                    Wilco, reload page
+                </common-button>
+            </template>
+        </common-popup>
         <div
             v-if="!store.config.hideFooter"
             class="app_footer"
@@ -48,11 +68,15 @@ import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const route = useRoute();
+const updateRequired = ref(true);
+
+const reload = () => location.reload();
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
