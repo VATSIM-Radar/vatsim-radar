@@ -6,6 +6,14 @@ Big thanks to Felix and DotWallop for making this release possible!
 
 ## Highlights
 
+- 🌍 Featured Airports popup
+- 🇦🇺 Australia extending sectors support
+- ✈️ New aircraft icons
+- 📊 Airport Arrival rate
+- 🗺️ Carto Vector layer
+- ✨ Many UI/UX improvements
+- 🔧 Bug fixes to TRACON rendering - and much more
+
 ### Featured Airports
 
 - View airports with much traffic from all around the world
@@ -16,6 +24,14 @@ Big thanks to Felix and DotWallop for making this release possible!
 
 - Updated helicopter icons matching
 - Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+
+### Arrival rate
+
+View Arrival Rate for airport with 15 minutes splits in Airport Dashboard and Overlay!
+
+### Carto Vector layer
+
+Added new Map Layer - Carto Vector Mode! Rendered in your browser with more bright dark theme
 
 ## Features and improvements
 
