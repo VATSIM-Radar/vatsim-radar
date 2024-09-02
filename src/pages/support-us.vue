@@ -365,6 +365,10 @@ const features: Feature[] = [
                 flex-wrap: wrap;
                 gap: 16px;
             }
+
+            ul.support__list_item_list {
+                flex-direction: column;
+            }
         }
     }
 }
