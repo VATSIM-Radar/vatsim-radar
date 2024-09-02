@@ -15,9 +15,9 @@
             v-if="store.updateRequired"
             v-model="updateRequired"
         >
-            <template #title>Update required</template>
+            <template #title>Page Reload Needed</template>
 
-            New VATSIM Radar update is out! Please, reload page for it to apply.
+            A new VATSIM Radar update is available! Please reload the page to apply the update.
 
             <template #actions>
                 <common-button
