@@ -38,7 +38,7 @@
                             Map layer
                         </template>
                         <common-block-title>
-                            Radar layers
+                            Carto Settings
                         </common-block-title>
 
                         <common-toggle
@@ -54,12 +54,16 @@
                             :model-value="store.localSettings.filters?.layers?.layerVector ?? false"
                             @update:modelValue="setUserLocalSettings({ filters: { layers: { layerVector: $event } } })"
                         >
-                            Carto Vector mode
+                            Vector mode
                             <template #description>
-                                Better looking, less traffic consumption, but consumes more performance
+                                Better looking, less traffic, worse performance
                             </template>
                         </common-toggle>
+
                         <br>
+                        <common-block-title>
+                            Layers
+                        </common-block-title>
 
                         <map-filter-transparency
                             v-if="store.localSettings.filters?.layers?.layer === 'OSM'"

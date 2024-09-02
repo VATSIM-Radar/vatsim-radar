@@ -61,7 +61,7 @@
                     Show pilot stats
                 </common-toggle>
             </div>
-            <div
+            <client-only
                 v-if="controllerMode"
                 class="airport_header_section"
             >
@@ -73,7 +73,7 @@
                         {{ formatDateDime.format(dataStore.time.value) }}z
                     </div>
                 </div>
-            </div>
+            </client-only>
         </div>
         <div
             v-if="!controllerMode"

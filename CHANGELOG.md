@@ -1,123 +1,66 @@
 # Changelog
 
-# [0.4.4-rc.6]
+# [0.4.4]
 
-- Removed MapBox and Jawg map layers, added Carto Vector layer
+Big thanks to Felix and DotWallop for making this release possible!
 
-# [0.4.4-rc.5]
+## Highlights
 
-- New aircraft icons: A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+### Featured Airports
 
-# [0.4.4-rc.4]
+- View airports with much traffic from all around the world
+- View quiet, yet staffed airports to find interesting places to go, learn to fly, or support lonely controller in your area
+- Filter by visible only to view this stats in specific area
 
-- Improved great circle support for transoceanic flights that had disconnects
+### New aircraft icons
 
-# [0.4.4-rc.3]
-
-- Brand new Patreon page has been added to highlight our fellow supporters and our goals
-- Update popup has been added
-
-# [0.4.4-rc.2]
-
-- (QA) Changed quiet airports algo
-- (QA) Excluded pseudo airports like Moscow Approach from quiet airports. From now on, every quiet airport should have ATIS or at least one aircraft for it to be shown
-
-# [0.4.4-rc.1]
-
-- Added support for Ramp controllers - mapped to Ground for now
-- (QA) Now showing ground departures in featured airports as default with ability to show all instead
-- (QA) Now showing incoming arrivals in featured airports - arrived are now excluded. This does NOT affect algorithms
-- (QA) Added ability to show only currently visible airports in Featured Airports
-- Added Quiet Airports to Featured Airports popup
-- Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
-- (QA) Redesigned aircraft hover popup
-- (QA) Australia sector extend will now only work for APP/CTR
-- (QA) Redesigned Featured Airport card, added "zoom to" button
-
-# [0.4.4-beta.5.1]
-
-- (QA) Fixed performance drop & minor freeze on featured airports open
-- (QA) Moved approach in featured airports next to TWR
-- (QA) Swapped country and airport in featured airports, increased country minimal width a little bit for at least USA
-  to fit
-
-# [0.4.4-beta.5]
-
-- Overlay missclick protection has been improved
-- Added popular airports popup
-    - Quiet airports to follow in same popup
-
-# [0.4.4-beta.4]
-
-- Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
-    - QA: please verify if approach sectors are rendered correctly in comparison to production version
-
-# [0.4.4-beta.3]
-
-- Changed approach sectors color to highlight them
-- Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
-- You will now be able to zoom over controller popup if it has no scroll
-- Added COM2 and SQUAWK on aircraft hover for airport dashboard
-- Added simple list of pilots connected to frequency to ATC popup
-- Fixed an issue when midflight arrival change caused flight path disappear
-- Fixed airport track line disappearing for midflight connections
-- If your data was not updated for more than 20 seconds, footer map update date will now become red
-- Pilot overlay will now close if you hover over right side of header, right of pilot's callsign
-- Pilots without flight plan will now be noticeable in airport's departures popup
-- Added Github releases workflow to easily track new versions
-
-# [0.4.4-beta.2.1]
-
-- (QA) Fixed Australia mapping from other continents
-- Added support for predefined labels coordinates from SimAware TRACON
-
-# 0.4.4-beta.2
-
-- Updated tracks palette with separate colors for light and dark themes
-- Added Australia extending sectors support
-- Reworked stepclimbs display to show waypoints and whole stepclimbs list
-- Added kilometers support for stepclimbs display
-- Fixed a rare issue when runway text could stay when zooming out
-
-# 0.4.4-beta.1
+- Updated helicopter icons matching
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
 
 ## Features and improvements
 
-- UI/UX improvements for: pilot hover card, ATC short card, pilot overlay, airport flight card
-- Map filter dropdown is now open for new users by default
-- You can now also send links for callsign instead of CID, for example, "https://vatsim-radar.com/?pilot=SBI437"
-
-## Bug Fixes
-
-- Fixed an error when your aircraft spawn would not focus and zoom to you
-- Fixed rare issues with duplicate airports
-- Fixed an issue for TAF Valid field when time displayed hours two times instead of minutes
-
-# 0.4.4-alpha.4
+### Noticeable features
 
 - Added airport arrival rate
 - You can now switch to departed aircraft in airport overlay
+- Added Australia extending sectors support
+- Added featured airports
+- Added support for Ramp controllers - mapped to Ground for now
+- Brand new Patreon page has been added to highlight our fellow supporters and our goals
+- Removed MapBox and Jawg map layers, added Carto Vector layer
 
-# 0.4.4-alpha.3
+### UI/UX
 
 - Reworked approach labels placement to always be on the line
-- Reworked the way approach controllers disappear from screen. From now on, if at least one coordinate of tracon is
-  visible, it will continue to show on map even with large zoom
-
-# 0.4.4-alpha.2
-
-## Features and improvements
-
-- Updated helicopter icons matching
-- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BALL, BCS1, C152, C17,
-  C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL
-- Re-colored tracks again
-    - QA: let's test how now color look!
-- Added airports names to aircraft on-hover popup
-- Transition display now clarifies where you can find level and altitude
+- Unstaffed airport ICAO is now also drawn above aircraft
+- Pilot popups can now be closed by clicking on them
+- Airport label click priotity is now higher than aircraft
+- Updated aircraft missclick protection to be less agressive
+- Updated tracks palette with separate colors for light and dark themes
 - Removed height limit for aircraft list
 - Changed runway number color
 - Reworked dashboard map height for different modes - so it will always fit on screen
+- Reworked the way approach controllers disappear from screen. From now on, if at least one coordinate of tracon is
+  visible, it will continue to show on map even with large zoom
+- UI/UX improvements for: pilot hover card, ATC short card, pilot overlay, airport flight card
+- Changed approach sectors color to highlight them
+- You will now be able to zoom over controller popup if it has no scroll
+- Pilot overlay will now close if you hover over right side of header, right of pilot's callsign
+
+### Improvements
+
+- Pilot select in Airport Dashboard will now also open pilot in dashboard itself
+- Added airports names to aircraft on-hover popup
+- Transition display now clarifies where you can find level and altitude
+- Map filter dropdown is now open for new users by default
+- You can now also send links for callsign instead of CID, for example, "https://vatsim-radar.com/?pilot=SBI437"
+- Reworked stepclimbs display to show waypoints and whole stepclimbs list
+- Added kilometers support for stepclimbs display
+- Added support for predefined labels coordinates from SimAware TRACON
+- Added COM2 and SQUAWK on aircraft hover for airport dashboard
+- If your data was not updated for more than 20 seconds, footer map update date will now become red
+- Pilots without flight plan will now be noticeable in airport's departures popup
+- Added Github releases workflow to easily track new versions
 
 ## Bug Fixes
 
@@ -127,18 +70,16 @@
 - Fixed some airports were showing division undefined and empty name in airport info
 - Map will stop shaking when opening aircraft near to the ocean
 - Fixed aircraft track line for oceanic flights
-
-# 0.4.4-alpha.1
-
-Big thanks to Felix 1025793 for making this release possible!
-
-## Features and improvements
-
-- Unstaffed airport ICAO is now also drawn above aircraft
-- Pilot popups can now be closed by clicking on them
-- Airport label click priotity is now higher than aircraft
-- Pilot select in Airport Dashboard will now also open pilot in dashboard itself
-- Updated aircraft missclick protection to be less agressive
+- Fixed an error when your aircraft spawn would not focus and zoom to you
+- Fixed rare issues with duplicate airports
+- Fixed an issue for TAF Valid field when time displayed hours two times instead of minutes
+- Fixed a rare issue when runway text could stay when zooming out
+- Fixed an issue when you could sometimes have two aircraft tracked at once with map unusable at this point
+- Fixed an issue when midflight arrival change caused flight path disappear
+- Fixed airport track line disappearing for midflight connections
+  Fixed an issue with approach TRACONs could sometimes lead to duplicate empty airport shown on map
+- Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
+- Improved great circle support for transoceanic flights that had disconnects
 
 # 0.4.3
 

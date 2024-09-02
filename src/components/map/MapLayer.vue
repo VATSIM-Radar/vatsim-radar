@@ -117,12 +117,6 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const tileLayer = shallowRef<TileLayer<XYZ> | VectorTileLayer | null>();
 let attributionLayer: TileLayer<XYZ> | null = null;
 
-watch(theme, () => {
-    if (store.localSettings.filters?.layers?.layerVector) {
-        reloadNuxtApp({ force: true });
-    }
-});
-
 useHead(() => ({
     htmlAttrs: {
         class: {
@@ -131,6 +125,8 @@ useHead(() => ({
         },
     },
 }));
+
+const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
 
 async function initLayer() {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
@@ -147,7 +143,13 @@ async function initLayer() {
             renderMode: 'hybrid',
         });
 
-        await applyStyle(tileLayer.value, store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url);
+        const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
+        const json = await $fetch<Record<string, any>>(store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url);
+        json.id = url;
+
+        json.layers = json.layers.filter((layer: Record<string, any>) => allowedLayers.test(layer.id));
+
+        await applyStyle(tileLayer.value, json);
 
         map.value?.addLayer(tileLayer.value);
         attributionLayer = new TileLayer({

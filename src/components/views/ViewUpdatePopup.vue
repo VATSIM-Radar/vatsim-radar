@@ -118,6 +118,16 @@ const update: Update = {
             ],
         },
         {
+            title: 'New layer: Carto Vector',
+            image: images['../../assets/update/layers.png'],
+            description: 'Due to default Carto dark theme still being... well, too dark, and MapBox/Jawg costed too much, we have added Carto Vector mode!',
+            list: [
+                'Enjoy improved dark mode in Vector mode, which is more bright and modern',
+                'New layers are rendered on your PC and consume less traffic',
+                'Beware of performance: it may degrade on low-performance machines',
+            ],
+        },
+        {
             title: 'Aircraft Icons',
             image: images['../../assets/update/aircraft.png'],
             list: [
