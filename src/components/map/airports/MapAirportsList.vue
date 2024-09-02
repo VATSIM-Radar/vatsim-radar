@@ -334,17 +334,18 @@ const getAirportsList = computed(() => {
     }
 
     for (const atc of dataStore.vatsim.data.locals.value) {
+        const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
         const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
         const iataAirport = airports.find(x => (
             atc.airport.iata &&
-            x.airport.iata === atc.airport.iata
+            x.airport.iata === atc.airport.iata &&
+            (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
         ));
 
         const airport = iataAirport || icaoOnlyAirport;
 
         if (!airport) continue;
 
-        const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
         if (isArr) {
             airport.arrAtc.push(atc.atc);
             continue;
