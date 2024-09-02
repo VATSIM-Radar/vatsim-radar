@@ -38,36 +38,32 @@
                             Map layer
                         </template>
                         <common-block-title>
-                            Radar layers
+                            Carto Settings
                         </common-block-title>
 
-                        <div class="__info-sections">
-                            <!--
-                            <common-toggle
-                                v-model="radarIsLabels"
-                                :disabled="!radarLayerOption"
-                            >
-                                Show labels
-                            </common-toggle>
+                        <common-toggle
+                            :disabled="!radarIsCarto"
+                            :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
+                            @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
+                        >
+                            Show labels
+                        </common-toggle>
+                        <br>
+                        <common-toggle
+                            :disabled="!radarIsCarto"
+                            :model-value="store.localSettings.filters?.layers?.layerVector ?? false"
+                            @update:modelValue="setUserLocalSettings({ filters: { layers: { layerVector: $event } } })"
+                        >
+                            Vector mode
+                            <template #description>
+                                Better looking, less traffic, worse performance
+                            </template>
+                        </common-toggle>
 
-                            <common-radio-group
-                                :items="[{ value: 'default', text: 'Default' }, { value: 'satellite', text: 'Satellite' }]"
-                                :model-value="radarLayerOption"
-                                two-cols
-                                @update:modelValue="changeLayer($event as MapLayoutLayer | RadarLayerOptions)"
-                            />
--->
-
-                            <div class="filters__warning">
-                                Radar layers have been disabled due to too much cost :(<br><br>
-
-                                We will try to deal with this next month - when our quota is reset.
-                            </div>
-
-                            <common-block-title>
-                                External layers
-                            </common-block-title>
-                        </div>
+                        <br>
+                        <common-block-title>
+                            Layers
+                        </common-block-title>
 
                         <map-filter-transparency
                             v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
@@ -79,8 +75,8 @@
                         />
                         <common-radio-group
                             :items="mapLayers"
-                            :model-value="store.localSettings.filters?.layers?.layer ?? null"
-                            @update:modelValue="changeLayer($event as MapLayoutLayer | RadarLayerOptions)"
+                            :model-value="store.localSettings.filters?.layers?.layer ?? 'carto'"
+                            @update:modelValue="changeLayer($event as MapLayoutLayer)"
                         />
                     </common-control-block>
                 </div>
@@ -184,65 +180,31 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 
-const isOpened = computed(() => !!store.localSettings.filters?.opened);
+const isOpened = computed(() => store.localSettings.filters?.opened !== false);
 const selectedFilter = ref<string | null>(null);
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
-        value: 'CartoDB',
-        text: 'CartoDB (Without labels)',
-    },
-    {
-        value: 'CartoDBLabels',
-        text: 'CartoDB (With labels)',
+        value: 'carto',
+        text: 'CartoDB',
     },
     {
         value: 'Satellite',
     },
     {
-        value: 'Jawg',
-        hint: 'Only available for dark theme',
-        hintLocation: 'left',
-    },
-    {
         value: 'OSM',
-        hint: 'Only available for light theme',
+        hint: 'Will only show for light theme',
         hintLocation: 'left',
-    },
-    {
-        value: 'JawgOrOSM',
-        text: 'Jawg/OSM',
-        hint: 'Useful if you love to switch between themes and hate Carto',
-        hintLocation: 'right',
     },
 ];
 
-const radarIsLabels = ref(store.localSettings.filters?.layers?.layer === 'RadarLabels' || store.localSettings.filters?.layers?.layer === 'RadarSatelliteLabels');
+const radarIsCarto = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
+    store.localSettings.filters?.layers?.layer?.startsWith('carto') ||
+    (store.localSettings.filters?.layers?.layer === 'OSM' && store.theme !== 'light'));
 
-type RadarLayerOptions = 'default' | 'satellite';
-
-const radarLayerOption = computed<RadarLayerOptions | null>(() => {
-    const layer = store.localSettings.filters?.layers?.layer;
-    if (!layer) return 'default';
-    return (layer === 'RadarSatelliteLabels' || layer === 'RadarSatelliteNoLabels') ? 'satellite' : (layer === 'RadarLabels' || layer === 'RadarNoLabels') ? 'default' : null;
-});
-
-const changeLayer = (layer: MapLayoutLayer | RadarLayerOptions) => {
-    if (layer === 'default' || layer === 'satellite') {
-        if (layer === 'default') setUserLocalSettings({ filters: { layers: { layer: radarIsLabels.value ? 'RadarLabels' : 'RadarNoLabels' } } });
-        else setUserLocalSettings({ filters: { layers: { layer: radarIsLabels.value ? 'RadarSatelliteLabels' : 'RadarSatelliteNoLabels' } } });
-
-        return;
-    }
-
+const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
-
-watch(radarIsLabels, () => {
-    if (radarLayerOption.value) {
-        changeLayer(radarLayerOption.value);
-    }
-});
 
 const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     {
@@ -293,7 +255,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
     &--collapsed .filters {
         &_toggle {
-            opacity: 0.5;
+            opacity: 0.7;
 
             @include hover {
                 &:hover {

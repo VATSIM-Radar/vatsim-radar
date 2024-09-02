@@ -17,7 +17,7 @@
                 v-if="pilot"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
-                @mouseover="hoveredOverlay = true"
+                @mouseover="handleMouseEnter($event as MouseEvent)"
             >
                 <template #title>
                     {{ pilot.callsign }}
@@ -28,71 +28,55 @@
                 >
                     {{ pilot.aircraft_faa }}
                 </template>
+                <template
+                    v-if="pilot.frequencies.length >= 1"
+                    #titleAppend
+                >
+                    <common-bubble
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.frequencies[0] }}
+                    </common-bubble>
+                    <common-bubble
+                        v-if="pilot.frequencies[1] && store.config.airport"
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.frequencies[1] }}
+                    </common-bubble>
+                    <common-bubble
+                        v-if="pilot.transponder && store.config.airport"
+                        class="aircraft-hover__frequency"
+                        type="primary-flat"
+                    >
+                        {{ pilot.transponder }}
+                    </common-bubble>
+                </template>
                 <div class="aircraft-hover_body">
                     <common-info-block
                         class="aircraft-hover__pilot"
                         is-button
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
-                        <template #bottom>
-                            <div class="aircraft-hover__pilot_content">
-                                <div class="aircraft-hover__pilot__title">
-                                    Pilot
-
-                                    <div
-                                        v-if="pilot.frequencies.length >= 1"
-                                        class="aircraft-hover__pilot__frequency"
-                                    >
-                                        {{ pilot.frequencies[0] }}
-                                    </div>
-                                </div>
-                                <div class="aircraft-hover__pilot__text">
-                                    {{ parseEncoding(pilot.name) }}<br>
-                                    <div class="aircraft-hover__pilot__text_rating">
-                                        {{ usePilotRating(pilot).join(' | ') }}
-                                    </div>
-                                </div>
-                            </div>
+                        <template #top>
+                            {{ parseEncoding(pilot.name) }}
+                        </template>
+                        <template
+                            v-if="pilot.pilot_rating !== 0 || pilot.military_rating"
+                            #bottom
+                        >
+                            {{ usePilotRating(pilot).join(' | ') }}
                         </template>
                     </common-info-block>
-                    <div
-                        v-if="pilot.departure || pilot.arrival"
-                        class="aircraft-hover_sections"
-                    >
-                        <common-info-block
-                            v-if="pilot.departure"
-                            is-button
-                            text-align="center"
-                            @click="mapStore.addAirportOverlay(pilot.departure)"
-                        >
-                            <template #top>
-                                From
-                            </template>
-                            <template #bottom>
-                                {{ pilot.departure }}
-                            </template>
-                        </common-info-block>
-                        <common-info-block
-                            v-if="pilot.arrival"
-                            is-button
-                            text-align="center"
-                            @click="mapStore.addAirportOverlay(pilot.arrival)"
-                        >
-                            <template #top>
-                                To
-                            </template>
-                            <template #bottom>
-                                {{ pilot.arrival }}
-                            </template>
-                        </common-info-block>
-                    </div>
+                    <common-pilot-destination :pilot/>
                     <div class="aircraft-hover_sections">
                         <common-info-block
                             v-if="typeof pilot.groundspeed === 'number'"
                             text-align="center"
                         >
                             <template #top>
-                                Ground Speed
+                                GS
                             </template>
                             <template #bottom>
                                 {{ pilot.groundspeed }} kts
@@ -107,6 +91,17 @@
                             </template>
                             <template #bottom>
                                 {{ getPilotTrueAltitude(pilot) }} ft
+                            </template>
+                        </common-info-block>
+                        <common-info-block
+                            v-if="typeof pilot.heading === 'number'"
+                            text-align="center"
+                        >
+                            <template #top>
+                                Heading
+                            </template>
+                            <template #bottom>
+                                {{ pilot.heading }}°
                             </template>
                         </common-info-block>
                     </div>
@@ -128,7 +123,6 @@
             <div
                 class="aircraft-label"
                 :style="{ '--color': svgColors[getStatus] }"
-                @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -172,6 +166,8 @@ import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 
 const props = defineProps({
     aircraft: {
@@ -245,6 +241,11 @@ const getStatus = computed<MapAircraftStatus>(() => {
 
     return 'default';
 });
+
+const handleMouseEnter = (event: MouseEvent) => {
+    if ([...(event.target as HTMLDivElement).classList].some(x => x.startsWith('popup-block_title') && x !== 'popup-block_title_text' && x !== 'popup-block_title')) hoveredOverlay.value = false;
+    else hoveredOverlay.value = true;
+};
 
 const setStyle = async (iconFeature = feature) => {
     if (!iconFeature) return;
@@ -338,19 +339,22 @@ async function setState() {
 
 watch(changeState, setState);
 
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
+const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
+
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;
 
     linesUpdateInProgress.value = true;
 
     try {
-        const depAirport = value && pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure);
-        const arrAirport = value && pilot.value?.arrival && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival);
+        const departureAirport = value && depAirport.value;
+        const arrivalAirport = value && arrAirport.value;
 
         const distance = () => {
-            if (!arrAirport) return null;
+            if (!arrivalAirport) return null;
             return calculateDistanceInNauticalMiles(
-                toLonLat([arrAirport.lon, arrAirport.lat]),
+                toLonLat([arrivalAirport.lon, arrivalAirport.lat]),
                 toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
             );
         };
@@ -362,7 +366,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         if (!lineFeatures.value.length) {
             turnsFirstGroupTimestamp.value = '';
-            turnsStart.value == '';
+            turnsStart.value = '';
         }
 
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
@@ -429,7 +433,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             else {
                 const toRemove = lineFeatures.value.filter(x => {
                     const properties = x.getProperties();
-                    if (properties!.type === 'airportLine' || properties!.type === 'aircraft') return true;
+                    if (properties!.type === 'aircraft') return true;
                     return properties!.timestamp === firstCollectionTimestamp;
                 });
 
@@ -503,9 +507,9 @@ async function toggleAirportLines(value = canShowLines.value) {
                     });
                 }
 
-                if (i === turns.features.length - 1 && !shortUpdate && depAirport && arrAirport && depAirport.icao !== arrAirport?.icao && !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
+                if (i === turns.features.length - 1 && !shortUpdate && departureAirport && arrivalAirport && departureAirport.icao !== arrivalAirport?.icao && !turns.features.some(x => x.features.some(x => x.properties!.standing === true))) {
                     const coordinates = [
-                        [depAirport.lon, depAirport.lat],
+                        [departureAirport.lon, departureAirport.lat],
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
                     const points = coordinates.map(x => point(toLonLat(x)));
@@ -540,7 +544,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 }
 
                 for (let i = 0; i < collection.features.length; i++) {
-                    if (i % 2 === 1) continue;
                     const curPoint = collection.features[i];
                     const nextPoint = collection.features[i + 1];
                     if (!nextPoint) {
@@ -554,14 +557,24 @@ async function toggleAirportLines(value = canShowLines.value) {
                         continue;
                     }
 
-                    const points = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates].map(x => point(toLonLat(x)));
+                    const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
+
+                    const points = coords.map(x => point(toLonLat(x)));
+
+                    let npoints = 4;
+
+                    if (
+                        Math.abs(coords[0][0] - coords[1][0]) > 100000 ||
+                        Math.abs(coords[0][1] - coords[1][1]) > 100000
+                    ) {
+                        npoints = 100;
+                    }
+
                     const circle = greatCircle(points[0], points[1], {
-                        npoints: 4,
+                        npoints,
                     });
 
                     const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates.map(x => fromLonLat(x)) : circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x)));
-
-                    if (circle.geometry.type !== 'LineString') console.log(geometry);
 
                     geometry.map(x => addFeature(x));
                 }
@@ -580,8 +593,8 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (depAirport) {
-                const start = point(toLonLat([depAirport.lon, depAirport.lat]));
+            if (departureAirport) {
+                const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
                 const geometry = greatCircleGeometryToOL(greatCircle(start, end));
@@ -616,9 +629,9 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (arrivalAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
-            const end = point(toLonLat([arrAirport.lon, arrAirport.lat]));
+            const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
 
             const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
@@ -738,11 +751,17 @@ onUnmounted(() => {
     background: $darkgray1000;
     border-radius: 8px;
 
-    &__pilot_content {
-        display: grid;
-        grid-template-columns: 40px 160px;
-        align-items: center;
-        justify-content: space-between;
+    &__frequency {
+        font-size: 12px;
+        font-weight: 600;
+        text-align: right;
+        white-space: nowrap;
+
+        + .aircraft-hover__frequency{
+            margin-left: 4px;
+            padding-left: 4px;
+            border-left: 1px solid varToRgba('lightgray150', 0.1);
+        }
     }
 
     &__pilot {
@@ -750,10 +769,14 @@ onUnmounted(() => {
             font-weight: 600;
         }
 
-        &__frequency, &__text_rating {
+        &__text_rating {
             font-size: 11px;
             font-weight: normal;
         }
+    }
+
+    &__airport {
+        font-size: 9px;
     }
 
     &_body {
@@ -787,5 +810,9 @@ onUnmounted(() => {
     font-size: 11px;
     font-weight: 600;
     color: var(--color);
+}
+
+.__grid-info-sections_title {
+    font-weight: 600;
 }
 </style>

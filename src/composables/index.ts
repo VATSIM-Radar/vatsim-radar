@@ -188,3 +188,22 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
         onBeforeUnmount(() => clearInterval(intervalCode));
     });
 }
+
+export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {
+    if (!getCurrentInstance()) throw new Error('You are only allowed to call useScrollExists in root of setup');
+
+    const scrollExists = ref(true);
+
+    async function setScroll() {
+        await nextTick();
+        if (element.value) scrollExists.value = element.value.scrollHeight > element.value.clientHeight;
+    }
+
+    watch(element, setScroll, {
+        immediate: true,
+    });
+
+    onUpdated(setScroll);
+
+    return scrollExists;
+}

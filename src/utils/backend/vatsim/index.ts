@@ -83,20 +83,20 @@ export async function vatsimGetUser(token: string) {
     return result;
 }
 
-export function findAirportSomewhere(callsign: string) {
+export function findAirportSomewhere(callsign: string, isApp: boolean) {
     const splittedName = callsign.split('_').slice(0, 2);
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];
 
     let prefix: string | undefined;
-    let simaware = radarStorage.simaware.data?.features.find(x => {
+    let simaware = isApp && radarStorage.simaware.data?.features.find(x => {
         const suffix = getTraconSuffix(x);
         prefix = getTraconPrefixes(x).find(x => x === regularName);
         return !!prefix && (!suffix || callsign.endsWith(suffix));
     });
 
-    if (!simaware && secondName) {
+    if (isApp && !simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
             simaware = radarStorage.simaware.data?.features.find(x => {
                 const suffix = getTraconSuffix(x);
@@ -115,11 +115,23 @@ export function findAirportSomewhere(callsign: string) {
         }
     }
 
-    let vatspy = radarStorage.vatspy.data?.airports.find(x => x.iata === callsignAirport || x.icao === callsignAirport);
+    let vatspy = radarStorage.vatspy.data?.keyAirports.iata[callsignAirport];
+    let isIata = true;
+    if (!vatspy) {
+        isIata = false;
+        vatspy = radarStorage.vatspy.data?.keyAirports.icao[callsignAirport];
+    }
+
     if (vatspy && simaware) {
         vatspy = {
             ...vatspy,
             isSimAware: true,
+        };
+    }
+    else if (vatspy && isIata && radarStorage.vatspy.data?.keyAirports.icao[callsignAirport]?.iata !== vatspy.iata) {
+        vatspy = {
+            ...vatspy,
+            iata: radarStorage.vatspy.data!.keyAirports.icao[callsignAirport]?.iata,
         };
     }
 
@@ -141,10 +153,12 @@ export interface VatsimAirportInfo {
     ctafFreq?: string;
 }
 
-export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo> {
+export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo | null> {
     const airportData = await $fetch<{
         data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
     }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`).catch(() => {});
+
+    if (!airportData?.data.icao) return null;
 
     return {
         icao: airportData?.data.icao,
@@ -162,23 +176,35 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
     };
 }
 
-export function getTransceiverData(callsign: string): IVatsimTransceiver {
-    const pilot = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
-    if (!pilot || pilot?.transceivers.length === 0) {
+export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
+    const transceiver = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
+
+    if (!transceiver || transceiver?.transceivers.length === 0) {
         return {
             frequencies: [],
         };
     }
 
-    const frequencies = pilot.transceivers.map(x => {
-        const frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
-        if (!frequency.includes('.')) return `${ frequency }.0`;
-        return frequency;
+    const frequencies = transceiver.transceivers.map(x => {
+        let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
+
+        if (!frequency.includes('.')) {
+            if (frequency.length < 3) {
+                for (let i = 0; i < 3 - frequency.length; i++) {
+                    frequency += '0';
+                }
+            }
+
+            frequency += '.';
+        }
+
+        return `${ (`${ frequency }000`).slice(0, 7) }`;
     });
+
     return {
-        frequencies,
-        groundAlt: pilot.transceivers[0].heightAglM,
-        seaAlt: pilot.transceivers[0].heightMslM,
+        frequencies: [...new Set(frequencies)],
+        groundAlt: transceiver.transceivers[0].heightAglM,
+        seaAlt: transceiver.transceivers[0].heightMslM,
     };
 }
 

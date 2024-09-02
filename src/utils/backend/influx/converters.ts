@@ -1,11 +1,11 @@
 import type { InfluxFlight } from '~/utils/backend/influx/queries';
 import { getInfluxOnlineFlightTurns } from '~/utils/backend/influx/queries';
-import { colorsList } from '~/utils/backend/styles';
 import type { Feature, FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { join } from 'path';
+import { getFlightRowGroup } from '~/utils/shared/flight';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -25,65 +25,7 @@ export type InfluxGeojson = {
 
 export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {
     function getRowColor(row: InfluxFlight) {
-        let rowColor = colorsList.warning300;
-
-        if (row?.altitude) {
-            const altitude = row.altitude - 100;
-
-            if (altitude <= 2500) {
-                rowColor = '#fde725';
-            }
-            else if (altitude <= 5000) {
-                rowColor = '#e2e418';
-            }
-            else if (altitude <= 7500) {
-                rowColor = '#c5e021';
-            }
-            else if (altitude <= 10000) {
-                rowColor = '#a8db34';
-            }
-            else if (altitude <= 12500) {
-                rowColor = '#8bd646';
-            }
-            else if (altitude <= 15000) {
-                rowColor = '#70cf57';
-            }
-            else if (altitude <= 17500) {
-                rowColor = '#58c765';
-            }
-            else if (altitude <= 20000) {
-                rowColor = '#42be71';
-            }
-            else if (altitude <= 25000) {
-                rowColor = '#24aa83';
-            }
-            else if (altitude <= 30000) {
-                rowColor = '#1f958b';
-            }
-            else if (altitude <= 35000) {
-                rowColor = '#26818e';
-            }
-            else if (altitude <= 40000) {
-                rowColor = '#2f6c8e';
-            }
-            else if (altitude <= 45000) {
-                rowColor = '#3a548c';
-            }
-            else if (altitude <= 50000) {
-                rowColor = '#443b84';
-            }
-            else if (altitude <= 55000) {
-                rowColor = '#482071';
-            }
-            else if (row.altitude <= 60000) {
-                rowColor = '#440154';
-            }
-            else {
-                rowColor = colorsList.success700;
-            }
-        }
-
-        return rowColor;
+        return getFlightRowGroup(row.altitude);
     }
 
     const geoRows: Feature<Point>[] = [];

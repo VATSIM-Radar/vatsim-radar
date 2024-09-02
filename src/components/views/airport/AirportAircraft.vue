@@ -84,7 +84,6 @@
                 v-for="pilot in displayedAircraft"
                 :key="pilot.cid"
                 :bottom-items="[
-                    pilot.departure,
                     pilot.aircraft_faa ?? 'No flight plan',
                     (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
                     (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
@@ -111,12 +110,13 @@
                                 {{ stats.find(x => x.cid === pilot.cid)!.stats }}h
                             </div>
 
-                            <div
+                            <common-bubble
                                 v-if="'frequencies' in pilot && pilot.frequencies.length >= 1"
                                 class="aircraft__pilot_header_title_frequency"
+                                type="primary-flat"
                             >
                                 {{ pilot.frequencies[0] }}
-                            </div>
+                            </common-bubble>
                         </div>
                         <div
                             v-if="!simpleMode"
@@ -126,28 +126,13 @@
                             {{ getLocalPilotStatus(pilot).title }}
                         </div>
                     </div>
-                </template>
-                <template #bottom="{ item, index }">
-                    <template v-if="index === 0 && pilot.departure">
-                        <template v-if="!pilot.isArrival">
-                            to
-                        </template>
-                        <template v-else>
-                            from
-                        </template>
-
-                        <strong>
-                            <template v-if="!pilot.isArrival">
-                                {{ pilot.arrival }}
-                            </template>
-                            <template v-else>
-                                {{ pilot.departure ?? airport.icao }}
-                            </template>
-                        </strong>
-                    </template>
-                    <template v-else>
-                        {{ item }}
-                    </template>
+                    <div
+                        v-if="pilot.departure && pilot.arrival"
+                        ref="pilots"
+                        class="aircraft__pilot_route"
+                    >
+                        from <strong>{{ pilot.departure }}</strong> to <strong>{{ pilot.arrival }}</strong>
+                    </div>
                 </template>
             </common-info-block>
         </div>
@@ -184,6 +169,10 @@ const props = defineProps({
     simpleMode: {
         type: String as PropType<MapAircraftKeys | null>,
         default: null,
+    },
+    navOffset: {
+        type: String,
+        default: '0',
     },
 });
 
@@ -363,7 +352,7 @@ defineExpose({
 
     &_nav {
         position: sticky;
-        top: 0;
+        top: v-bind(navOffset);
 
         display: flex;
         flex-direction: column;
@@ -398,12 +387,10 @@ defineExpose({
 
     &_list {
         --block-title-background: #{$darkgray950};
-        overflow: auto;
         display: flex;
         flex-direction: column;
         gap: 8px;
 
-        max-height: 200px;
         padding: 8px;
 
         background: $darkgray950;
@@ -445,10 +432,14 @@ defineExpose({
         border: 2px solid transparent;
         transition: 0.3s;
 
+        &_route {
+            margin-top: 4px;
+        }
 
         &_header {
             display: flex;
             justify-content: space-between;
+            line-height: 100%;
 
             &_title {
                 display: flex;

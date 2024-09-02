@@ -55,7 +55,14 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
     &_list {
         display: flex;
-        gap: 4px;
+        gap: 16px;
+        align-items: flex-end;
+
+        height: 40px;
+        padding: 0 24px;
+
+        background: $darkgray1000;
+        border-bottom: 2px solid $primary700;
     }
 
     &_tab {
@@ -66,18 +73,23 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         display: flex;
         flex: 1 1 0;
+        align-items: flex-end;
         justify-content: center;
 
         width: 0;
-        padding: 8px;
+        height: 32px;
+        margin-bottom: -2px;
+        padding-bottom: 10px;
 
-        font-family: $openSansFont;
+        font-family: $defaultFont;
         font-size: 14px;
-        font-weight: 400;
-        color: $lightgray150;
+        font-weight: 600;
+        line-height: 100%;
+        color: $lightgray125;
         text-align: center;
 
-        background: $darkgray1000;
+        border: solid transparent;
+        border-width: 2px 2px 0;
         border-radius: 4px;
 
         transition: 0.3s;
@@ -88,11 +100,10 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
             position: absolute;
             bottom: 0;
 
-            width: 30%;
+            width: 0;
             height: 2px;
 
-            background: $darkgray850;
-            border-radius: 4px;
+            background: $darkgray1000;
 
             transition: 0.3s;
         }
@@ -100,25 +111,29 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         @include hover {
             &:not(&--active):hover {
                 &::after {
-                    width: 55%;
-                    background: $primary500;
+                    width: 50%;
                 }
             }
         }
 
         &--active {
             cursor: default;
-            background: $darkgray950;
+
+            height: 40px;
+
+            color: $primary500;
+
+            border-color: $primary700;
+            border-bottom-color: $darkgray1000;
 
             &::after {
-                width: 75%;
-                background: $primary500;
+                width: 100%;
             }
         }
 
         &--disabled {
             pointer-events: none;
-            opacity: 0.7;
+            opacity: 0.2;
         }
     }
 }

@@ -7,7 +7,7 @@ import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
-    vatInfo?: VatsimAirportInfo;
+    vatInfo?: VatsimAirportInfo | null;
     center: string[];
 }
 

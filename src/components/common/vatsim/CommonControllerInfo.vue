@@ -29,8 +29,7 @@
                         controller.callsign,
                         controller.name,
                         controller.frequency,
-                        showAtis || !controller.logon_time ? undefined : getATCTime(controller),
-                        showAtis && controller.atis_code ? `Info ${ controller.atis_code }` : undefined,
+                        (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
                     ]"
                     @click="mapStore.addAtcOverlay(controller.callsign)"
                 >
@@ -65,9 +64,9 @@
                                 {{ item }}
                             </div>
                         </template>
-                        <template v-else-if="index === 3 && !showAtis">
+                        <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length)">
                             <div class="atc-popup__time">
-                                {{ item }}
+                                {{ getATCTime(controller) }}
                             </div>
                         </template>
                         <template v-else>
@@ -75,13 +74,10 @@
                         </template>
                     </template>
                     <template
-                        v-if="showAtis"
+                        v-if="showAtis && controller.text_atis?.length"
                         #bottom
                     >
-                        <ul
-                            v-if="controller.text_atis?.length"
-                            class="atc-popup_atc__atis"
-                        >
+                        <ul class="atc-popup_atc__atis">
                             <li
                                 v-for="atis in getATIS(controller)"
                                 :key="atis"
@@ -105,7 +101,7 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import { getATCTime, getControllerPositionColor } from '~/composables/atc';
+import { getControllerPositionColor } from '~/composables/atc';
 import { useMapStore } from '~/store/map';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
@@ -200,7 +196,9 @@ const getATIS = (controller: VatsimShortenedController) => {
         display: flex;
         gap: 8px;
         align-items: center;
+
         font-weight: 400;
+        word-break: break-word;
     }
 
     &__frequency {
@@ -223,6 +221,21 @@ const getATIS = (controller: VatsimShortenedController) => {
     }
 
     &_atc {
+        @at-root .atc-popup-container:not(.atc-popup-container--small) & {
+            :deep(.info-block__separator:nth-child(2)) {
+                flex: 1 0 auto;
+
+                svg {
+                    display: none;
+                }
+            }
+
+            :deep(.info-block_top) {
+                flex-wrap: nowrap;
+            }
+        }
+
+
         &__atis {
             display: flex;
             flex-direction: column;

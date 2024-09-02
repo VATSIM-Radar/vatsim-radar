@@ -34,10 +34,22 @@
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-filters v-if="!store.config.hideHeader"/>
-                <map-layer/>
                 <map-weather v-if="!store.config.hideHeader"/>
             </client-only>
         </div>
+        <client-only v-if="ready">
+            <map-layer/>
+        </client-only>
+        <common-popup
+            v-if="route.query"
+            v-model="isDiscord"
+        >
+            <template #title>
+                Authorization confirmation
+            </template>
+
+            You have successfully verified in VATSIM Radar Discord.
+        </common-popup>
     </div>
 </template>
 
@@ -62,6 +74,11 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 
+const emit = defineEmits({
+    map(map: Ref<Map | null>) {
+        return true;
+    },
+});
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = ref<HTMLDivElement | null>(null);
 const popupsHeight = ref(0);
@@ -70,9 +87,18 @@ const ready = ref(false);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const router = useRouter();
 const route = useRoute();
+const isDiscord = ref(route.query.discord === '1');
+
+if (route.query.discord === '1') {
+    router.replace({
+        query: {},
+    });
+}
 
 provide('map', map);
+emit('map', map);
 
 let initialSpawn = false;
 
@@ -183,14 +209,19 @@ const restoreOverlays = async () => {
         ...fetchedList,
     ];
 
-    if (route.query.pilot) {
-        let overlay = mapStore.overlays.find(x => x.key === route.query.pilot as string);
+    if (typeof route.query.pilot === 'string' && route.query.pilot) {
+        const callsignPilot = dataStore.vatsim.data.pilots.value.find(x => x.callsign === route.query.pilot);
+        let cid = route.query.pilot;
+        if (callsignPilot) cid = callsignPilot.cid.toString();
+
+        let overlay = mapStore.overlays.find(x => x.key === cid);
 
         if (!overlay) {
-            overlay = await mapStore.addPilotOverlay(route.query.pilot as string);
+            overlay = await mapStore.addPilotOverlay(cid);
         }
 
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {
+            mapStore.overlays.map(x => x.type === 'pilot' && (x.data.tracked = false));
             overlay.data.tracked = true;
             showPilotOnMap(overlay.data.pilot, map.value);
         }
@@ -282,8 +313,8 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 1.2;
-        projectionExtent[2] *= 1.2;
+        projectionExtent[0] *= 2;
+        projectionExtent[2] *= 2;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
 
@@ -324,6 +355,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            maxTilesLoading: 128,
             view: new View({
                 center,
                 zoom: store.config.airport

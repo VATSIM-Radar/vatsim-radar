@@ -22,16 +22,16 @@ export const useFacilitiesIds = () => {
 export function getControllerPositionColor(controller: VatsimShortenedController) {
     const ids = useFacilitiesIds();
 
-    if (controller.isATIS) {
-        return radarColors.warning600;
+    if (controller.isATIS || controller.facility === ids.ATIS) {
+        return radarColors.warning500;
     }
 
     if (controller.facility === ids.DEL) {
-        return radarColors.primary600;
+        return radarColors.primary700;
     }
 
     if (controller.facility === ids.TWR) {
-        return radarColors.error500;
+        return radarColors.error700;
     }
 
     if (controller.facility === ids.GND) {
@@ -39,11 +39,11 @@ export function getControllerPositionColor(controller: VatsimShortenedController
     }
 
     if (controller.facility === ids.APP) {
-        return radarColors.warning700;
+        return radarColors.error300;
     }
 
     if (controller.facility === ids.CTR) {
-        return radarColors.primary400;
+        return radarColors.primary300;
     }
 
     return radarColors.darkgray800;
@@ -53,13 +53,13 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     const ids = useFacilitiesIds();
 
     const getPositionIndex = (position: number, isAtis = false) => {
-        if (isAtis) return 3;
+        if (isAtis) return 5;
         if (position === ids.DEL) return 0;
         if (position === ids.GND) return 1;
         if (position === ids.TWR) return 2;
-        if (position === ids.ATIS) return 3;
-        if (position === ids.APP) return 4;
-        if (position === ids.CTR) return 5;
+        if (position === ids.APP) return 3;
+        if (position === ids.CTR) return 4;
+        if (position === ids.ATIS) return 5;
         return 6;
     };
 

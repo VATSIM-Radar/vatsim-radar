@@ -34,7 +34,7 @@ defineSlots<{ default: () => any; description: () => any }>();
 
 const model = defineModel({
     type: Boolean,
-    required: true,
+    default: false,
 });
 </script>
 

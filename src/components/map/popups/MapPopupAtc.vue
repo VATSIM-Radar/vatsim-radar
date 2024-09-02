@@ -2,15 +2,23 @@
     <common-info-popup
         v-if="atc"
         v-model:collapsed="overlay.collapsed"
+        v-model:tab="tab"
         class="atc"
         collapsible
         :header-actions="['sticky']"
         max-height="100%"
         model-value
-        :sections="[
-            { key: 'data' },
-            { key: 'atis' },
-        ]"
+        :tabs="{
+            info: {
+                title: 'Info',
+                sections: [{ key: 'data' }, { key: 'atis' }],
+            },
+            pilots: {
+                title: 'Pilots',
+                sections: [{ key: 'pilots' }],
+                disabled: true,
+            },
+        }"
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
     >
         <template #action-sticky>
@@ -35,12 +43,12 @@
                     :top-items="[atc.name, atc.cid]"
                 >
                     <template #bottom="{ item, index }">
-                        <common-blue-bubble
+                        <common-bubble
                             v-if="index === 0"
                             class="atc__rating"
                         >
                             {{ item }}
-                        </common-blue-bubble>
+                        </common-bubble>
                         <template v-else>
                             {{ item }}
                         </template>
@@ -84,14 +92,40 @@
                 </div>
             </div>
         </template>
-        <template #actions>
+        <template #pilots>
+            <small>Pilots connected to <common-bubble type="primary-flat">{{ atc.frequency }}</common-bubble> are shown here.</small><br><br>
+
+            <div class="__info-sections">
+                <common-info-block
+                    v-for="pilot in pilots"
+                    :key="pilot.cid"
+                    :bottom-items="[
+                        pilot.departure && `from ${ pilot.departure }`,
+                        pilot.arrival && `to ${ pilot.arrival }`,
+                        `Squawk ${ pilot.transponder ?? 'unknown' }`,
+                    ]"
+                    class="aircraft__pilot"
+                    is-button
+                    :top-items="[
+                        pilot.callsign,
+                        pilot.name,
+                        pilot.aircraft_faa ?? 'No flight plan',
+                    ]"
+                    @click="mapStore.addPilotOverlay(pilot.cid.toString())"
+                />
+            </div>
+        </template>
+        <template
+            v-if="tab === 'info'"
+            #actions
+        >
             <common-button-group>
                 <common-button
                     :disabled="!airport || airport.isPseudo"
                     @click="showOnMap"
                 >
                     <template #icon>
-                        <map-icon/>
+                        <location-icon/>
                     </template>
                     <template v-if="atc.facility !== facilities.APP">
                         Focus On Map
@@ -105,7 +139,7 @@
                     target="_blank"
                 >
                     <template #icon>
-                        <stats-icon/>
+                        <dashboard-icon/>
                     </template>
                     View Stats
                 </common-button>
@@ -120,8 +154,8 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAtc } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
-import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
+import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';
 import { findAtcAirport, showAtcOnMap } from '~/composables/atc';
@@ -130,8 +164,8 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import { getVATSIMMemberStats } from '~/composables/data';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 
 const props = defineProps({
     overlay: {
@@ -145,9 +179,14 @@ const facilities = useFacilitiesIds();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
+const tab = ref('info');
 
 const atc = computed(() => {
     return findAtcByCallsign(props.overlay?.data.callsign);
+});
+
+const pilots = computed(() => {
+    return dataStore.vatsim.data.pilots.value.filter(x => x.frequencies.some(x => atc.value?.frequency.startsWith(x))).sort((a, b) => a.callsign.localeCompare(b.callsign));
 });
 
 const airport = computed(() => {
@@ -158,7 +197,7 @@ const airport = computed(() => {
 const country = computed(() => {
     const icaoAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === airport.value?.icao && x.iata === airport.value?.iata);
 
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === icaoAirport?.icao.slice(0, 2));
+    return getAirportCountry(icaoAirport?.icao);
 });
 
 const shortRating = computed(() => {

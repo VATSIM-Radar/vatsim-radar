@@ -70,6 +70,9 @@ export default defineEventHandler(async event => {
             }
         }
 
+        let redirectDomain = config.public.DOMAIN;
+        if (discordId) redirectDomain = `${ redirectDomain }?discord=1`;
+
         if (vatsimUserClient) {
             await prisma.vatsimUser.update({
                 where: {
@@ -97,7 +100,7 @@ export default defineEventHandler(async event => {
             if (!user) {
                 await getDBUserToken(event, vatsimUserClient.user);
             }
-            return sendRedirect(event, config.public.DOMAIN);
+            return sendRedirect(event, redirectDomain);
         }
 
         if (!user) {
@@ -116,7 +119,7 @@ export default defineEventHandler(async event => {
             },
         });
 
-        return sendRedirect(event, config.public.DOMAIN);
+        return sendRedirect(event, redirectDomain);
     }
     catch (e) {
         return handleH3Exception(event, e);

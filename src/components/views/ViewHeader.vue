@@ -13,20 +13,6 @@
             <close-icon/>
         </div>
     </div>
-    <div
-        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningCookie"
-        class="header-error"
-    >
-        <div class="header-error_text">
-            VATSIM Radar has exceeded it's quota for Jawg map layer. Functionality will be restored on, or shortly after, 10 July. For now, we have replaced this layer with Carto.
-        </div>
-        <div
-            class="header-error_close"
-            @click="[warningCookie=true]"
-        >
-            <close-icon/>
-        </div>
-    </div>
     <header class="header">
         <div class="header_left">
             <nuxt-link
@@ -46,8 +32,6 @@
                         v-for="button in buttons"
                         :key="button.text"
                         :disabled="button.disabled"
-                        :href="button.href"
-                        :target="button.href && '_blank'"
                         :to="button.path"
                         :type="button.path === route.path ? 'primary' : 'secondary'"
                     >
@@ -353,7 +337,7 @@ import DiscordIcon from '@/assets/icons/header/discord.svg?component';
 import GithubIcon from '@/assets/icons/header/github.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import LogoIcon from '@/assets/icons/basic/logo.svg?component';
-import RadarIcon from '@/assets/icons/kit/radar.svg?component';
+import PatreonIcon from '@/assets/icons/basic/patreon.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import EventsIcon from '@/assets/icons/kit/event.svg?component';
@@ -380,12 +364,6 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     secure: true,
     maxAge: 60 * 60 * 24,
 });
-const warningCookie = useCookie<boolean>('warning-closed', {
-    path: '/',
-    sameSite: 'strict',
-    secure: true,
-    maxAge: 60 * 60 * 24 * 7,
-});
 
 const buttons = computed(() => {
     return [
@@ -411,15 +389,15 @@ const buttons = computed(() => {
         },
         {
             text: 'Patreon',
-            href: 'https://www.patreon.com/vatsimradar24',
-            icon: RadarIcon,
+            path: '/support-us',
+            icon: PatreonIcon,
         },
     ];
 });
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
-    sameSite: 'strict',
+    sameSite: 'lax',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });

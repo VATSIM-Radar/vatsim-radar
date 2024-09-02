@@ -9,10 +9,11 @@ import type {
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
-import type { FeatureCollection, MultiPolygon } from 'geojson';
+import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
+import type { PatreonInfo } from '~/server/plugins/patreon';
 
-export type SimAwareData = FeatureCollection<MultiPolygon>;
+export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
     version: string;
     data: SimAwareData;
@@ -21,6 +22,13 @@ export interface SimAwareAPIData {
 interface KafkaExtension {
     date: number;
     deleted: boolean;
+}
+
+export interface AustraliaSector {
+    name: string;
+    fullName: string;
+    frequency: string;
+    callsign: string;
 }
 
 export const radarStorage = {
@@ -45,6 +53,8 @@ export const radarStorage = {
         events: [] as VatsimEvent[],
         transceivers: [] as VatsimTransceiver[],
 
+        australia: [] as AustraliaSector[],
+
         kafka: {
             pilots: [] as Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>,
             atc: [] as Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>,
@@ -52,6 +62,7 @@ export const radarStorage = {
         },
     },
     navigraph: null as null | typeof cycles,
+    patreonInfo: null as null | PatreonInfo,
 };
 
 export function getRadarStorage() {

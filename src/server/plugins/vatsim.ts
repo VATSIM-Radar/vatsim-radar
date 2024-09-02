@@ -1,6 +1,7 @@
 import { CronJob } from 'cron';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision, VatsimTransceiver } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
+import { updateAustraliaData } from '~/utils/backend/vatsim/update';
 import { redis } from '~/utils/backend/redis';
 
 export default defineNitroPlugin(app => {
@@ -66,6 +67,15 @@ export default defineNitroPlugin(app => {
             finally {
                 transceiversInProgress = false;
             }
+        },
+    });
+
+    CronJob.from({
+        cronTime: '15 * * * *',
+        runOnInit: true,
+        start: true,
+        onTick: async () => {
+            await updateAustraliaData();
         },
     });
 });

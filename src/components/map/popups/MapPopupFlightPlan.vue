@@ -1,32 +1,12 @@
 <template>
     <div class="flight-plan">
         <template v-if="flightPlan.departure && flightPlan.arrival">
-            <div class="flight-plan__cols">
-                <div class="flight-plan__title">
-                    Departure
-                </div>
-                <div class="flight-plan__title">
-                    Arrival
-                </div>
-            </div>
-            <div class="flight-plan__cols">
-                <common-info-block
-                    :bottom-items="[depAirport?.name, depCountry?.country]"
-                    class="flight-plan__card"
-                    :is-button="!!depAirport"
-                    text-align="center"
-                    :top-items="[flightPlan.departure]"
-                    @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
-                />
-                <common-info-block
-                    :bottom-items="[arrAirport?.name, arrCountry?.country]"
-                    class="flight-plan__card"
-                    :is-button="!!arrAirport"
-                    text-align="center"
-                    :top-items="[flightPlan.arrival]"
-                    @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
-                />
-            </div>
+            <common-pilot-destination
+                :pilot="{
+                    departure: flightPlan.departure,
+                    arrival: flightPlan.arrival,
+                }"
+            />
             <div
                 v-if="(flightPlan.deptime || flightPlan.enroute_time) && (!status || status === 'depGate' || status === 'depTaxi')"
                 class="flight-plan__cols"
@@ -60,23 +40,28 @@
                     :top-items="['True Air Speed']"
                 />
                 <common-info-block
-                    v-if="!cruise?.min && !cruise?.max"
-                    :bottom-items="[`${ cruise?.planned || flightPlan.altitude } ft`]"
+                    :bottom-items="[`${ flightPlan.altitude } ft`]"
                     class="flight-plan__card"
                     text-align="center"
                     :top-items="['Cruise Altitude']"
                 />
             </div>
             <div
-                v-if="cruise?.min || cruise?.max"
+                v-if="stepclimbs?.length"
                 class="flight-plan__cols"
             >
                 <common-info-block
-                    :bottom-items="[cruise?.min, cruise?.planned, cruise?.max]"
+                    :bottom-items="stepclimbs.map(() => 'stepclimb')"
                     class="flight-plan__card"
                     text-align="center"
-                    :top-items="['Stepclimbs', 'Min to max']"
-                />
+                >
+                    <template #bottom="{ index }">
+                        <div class="flight-plan__stepclimb">
+                            <strong>{{ stepclimbs[index!].waypoint }}</strong><br>
+                            {{ stepclimbs[index!].measurement === 'M' ? 'S' : 'FL' }}{{ stepclimbs[index!].level }}
+                        </div>
+                    </template>
+                </common-info-block>
             </div>
         </template>
         <common-copy-info-block
@@ -107,16 +92,16 @@
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
-import { useMapStore } from '~/store/map';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 
 const props = defineProps({
     flightPlan: {
         type: Object as PropType<VatsimPilotFlightPlan>,
         required: true,
     },
-    cruise: {
-        type: Object as PropType<VatsimExtendedPilot['cruise'] | null>,
+    stepclimbs: {
+        type: Object as PropType<VatsimExtendedPilot['stepclimbs'] | null>,
         default: null,
     },
     status: {
@@ -125,47 +110,12 @@ const props = defineProps({
     },
 });
 
-const dataStore = useDataStore();
-const mapStore = useMapStore();
-
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);
     const minutes = time.slice(2, 4);
 
     return `${ hours }:${ minutes }`;
 };
-
-const depAirport = computed(() => {
-    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.departure);
-    if (iataAirport) {
-        return {
-            ...iataAirport,
-            icao: iataAirport.iata!,
-        };
-    }
-
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.departure);
-});
-
-const arrAirport = computed(() => {
-    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === props.flightPlan.arrival);
-    if (iataAirport) {
-        return {
-            ...iataAirport,
-            icao: iataAirport.iata!,
-        };
-    }
-
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.flightPlan.arrival);
-});
-
-const depCountry = computed(() => {
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === depAirport?.value?.icao.slice(0, 2));
-});
-
-const arrCountry = computed(() => {
-    return dataStore.vatspy.value?.data.countries.find(x => x.code === arrAirport?.value?.icao.slice(0, 2));
-});
 
 const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
 
@@ -186,9 +136,13 @@ const selcal = computed<string | null>(() => {
     flex-direction: column;
     gap: 8px;
 
+    &__stepclimb {
+        text-align: center;
+    }
+
     &__cols {
         display: flex;
-        gap: 8px;
+        gap: 4px;
 
         > * {
             flex: 1 1 0;

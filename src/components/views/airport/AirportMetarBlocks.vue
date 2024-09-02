@@ -17,9 +17,9 @@
             <template #bottom>
                 {{
                     `0${ metar.start.getUTCHours() }`.slice(-2)
-                }}:{{ `0${ metar.start.getUTCHours() }`.slice(-2) }}Z to {{
+                }}:{{ `0${ metar.start.getUTCMinutes() }`.slice(-2) }}Z to {{
                     `0${ metar.end.getUTCHours() }`.slice(-2)
-                }}:{{ `0${ metar.end.getUTCHours() }`.slice(-2) }}Z
+                }}:{{ `0${ metar.end.getUTCMinutes() }`.slice(-2) }}Z
             </template>
         </common-info-block>
         <common-info-block

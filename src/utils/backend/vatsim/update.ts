@@ -14,6 +14,8 @@ import {
 } from '~/utils/shared/flight';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
+import { $fetch } from 'ofetch';
+import { XMLParser } from 'fast-xml-parser';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -42,6 +44,7 @@ export function updateVatsimDataStorage() {
         if (controller.facility === positions.OBS) return;
         let postfix = controller.callsign.split('_').slice(-1)[0];
         if (postfix === 'DEP') postfix = 'APP';
+        if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
         return controller.facility !== -1 && controller.facility !== positions.OBS;
     });
@@ -183,34 +186,39 @@ export async function updateVatsimExtendedPilots() {
         }
 
         if (extendedPilot.flight_plan?.altitude) {
-            extendedPilot.cruise = {
-                planned: +extendedPilot.flight_plan.altitude,
-            };
-
-            if (extendedPilot.cruise.planned < 1000) extendedPilot.cruise.planned *= 100;
+            if (Number(extendedPilot.flight_plan?.altitude) < 1000) extendedPilot.flight_plan.altitude = (Number(extendedPilot.flight_plan?.altitude) * 100).toString();
 
             if (extendedPilot.flight_plan.route) {
-                const regex = /F(?<level>[0-9]{2,3})$/;
+                const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/g;
 
-                const stepclimbs = extendedPilot.flight_plan.route.split(' ').map(item => {
-                    const regexResult = regex.exec(item);
-                    if (!regexResult?.groups?.level) return 0;
-                    return +regexResult.groups.level;
-                }).filter(x => !!x && x !== extendedPilot.cruise!.planned).sort((a, b) => a - b);
-                if (stepclimbs[0]) extendedPilot.cruise.min = stepclimbs[0] * 100;
-                if (stepclimbs.length > 1) extendedPilot.cruise.max = stepclimbs[stepclimbs.length - 1] * 100;
+                let result: RegExpExecArray | null;
+                while ((result = routeRegex.exec(extendedPilot.flight_plan.route)) !== null) {
+                    if (!result?.groups?.waypoint || !result.groups.level) continue;
+                    extendedPilot.stepclimbs ??= [];
 
-                if (extendedPilot.cruise.min === extendedPilot.cruise.planned) delete extendedPilot.cruise.min;
-                if (extendedPilot.cruise.max === extendedPilot.cruise.planned) delete extendedPilot.cruise.max;
+                    const level = result.groups.level;
+                    const numLevel = Number(level.slice(1, level.length));
+                    let ft = numLevel * 100;
+                    if (level.startsWith('S')) ft = numLevel * 10 * 3.2808;
 
-                if (extendedPilot.cruise.min && extendedPilot.cruise.min > extendedPilot.cruise.planned) {
-                    const planned = extendedPilot.cruise.min;
-                    extendedPilot.cruise.planned = extendedPilot.cruise.min;
-                    extendedPilot.cruise.min = planned;
+                    if (extendedPilot.stepclimbs[extendedPilot.stepclimbs.length - 1]?.level !== numLevel) {
+                        extendedPilot.stepclimbs.push({
+                            waypoint: result.groups.waypoint,
+                            measurement: level.startsWith('S') ? 'M' : 'FT',
+                            level: numLevel,
+                            ft,
+                        });
+                    }
                 }
             }
 
-            if (!extendedPilot.isOnGround && getPilotTrueAltitude(extendedPilot) + 300 >= (extendedPilot.cruise.min || extendedPilot.cruise.planned)) {
+            const pilotAlt = getPilotTrueAltitude(extendedPilot) + 300;
+            if (pilotAlt >= Number(extendedPilot.flight_plan?.altitude)) extendedPilot.status = 'cruising';
+
+            if (extendedPilot.stepclimbs?.length &&
+                !extendedPilot.isOnGround &&
+                getPilotTrueAltitude(extendedPilot) + 300 >= extendedPilot.stepclimbs.toSorted((a, b) => a.ft - b.ft)[0].ft
+            ) {
                 extendedPilot.status = 'cruising';
             }
             else if (!extendedPilot.isOnGround && !extendedPilot.status && totalDist && extendedPilot.toGoDist) {
@@ -228,4 +236,23 @@ export async function updateVatsimExtendedPilots() {
 
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
+}
+
+const xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '',
+});
+
+export async function updateAustraliaData() {
+    const sectors = await $fetch('https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml', {
+        responseType: 'text',
+    });
+
+    const json = xmlParser.parse(sectors);
+    radarStorage.vatsim.australia = json.Sectors.Sector.map((sector: Record<string, any>) => ({
+        fullName: sector.FullName,
+        name: sector.Name,
+        callsign: sector.Callsign,
+        frequency: sector.Frequency,
+    }));
 }

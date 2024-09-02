@@ -9,7 +9,7 @@
         :settings="{
             position: [fir.lon, fir.lat],
             positioning: 'center-center',
-            stopEvent: isHovered,
+            stopEvent: isHovered && hasScroll,
         }"
         :z-index="15"
         @mouseleave="isHovered = false"
@@ -37,6 +37,7 @@
             #popup
         >
             <common-controller-info
+                ref="controllerInfo"
                 absolute
                 :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]"
                 show-atis
@@ -59,6 +60,8 @@ import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import MapOverlay from '~/components/map/MapOverlay.vue';
+import { getAirportCountry } from '~/composables/airport';
+import { useScrollExists } from '~/composables';
 
 const props = defineProps({
     fir: {
@@ -73,7 +76,12 @@ const props = defineProps({
 
 defineSlots<{ default: () => any }>();
 
-const dataStore = useDataStore();
+const controllerInfo = ref<{ $el: HTMLDivElement } | null>(null);
+
+const hasScroll = useScrollExists(computed(() => {
+    return controllerInfo.value?.$el.querySelector('.atc-popup_list');
+}));
+
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
@@ -98,7 +106,7 @@ const controllers = computed(() => {
 
 const getATCFullName = computed(() => {
     const prop = !locals.value.length ? globals.value[0] ?? props.fir : props.fir;
-    const country = dataStore.vatspy.value?.data.countries.find(x => x.code === prop.icao?.slice(0, 2));
+    const country = getAirportCountry(prop.icao);
     if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
@@ -119,7 +127,7 @@ const init = () => {
                 ...(props.fir.feature.properties ?? {}),
                 type: localFeatureType,
             },
-        });
+        }) as Feature<any>;
 
         vectorSource.value.addFeature(localFeature);
     }
@@ -137,7 +145,7 @@ const init = () => {
                 ...(props.fir.feature.properties ?? {}),
                 type: rootFeatureType,
             },
-        });
+        }) as Feature<any>;
 
         vectorSource.value.addFeature(rootFeature);
     }

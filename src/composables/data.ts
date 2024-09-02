@@ -14,6 +14,7 @@ import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
+import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -44,6 +45,7 @@ const data: Data = {
 
 const vatsim = {
     data,
+    parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
         if (!data.pilots.value.length) return null;
@@ -134,7 +136,9 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                     });
                     if (mandatoryData) setVatsimMandatoryData(mandatoryData);
 
-                    dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
+                    if (dataStore.vatsim.data.general.value) {
+                        dataStore.vatsim.data.general.value!.update_timestamp = mandatoryData.timestamp;
+                    }
                     dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
                 }
                 catch (e) {
@@ -144,8 +148,9 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
             }
         }, 2000);
 
-        interval = setInterval(() => {
-            store.getVATSIMData(socketsEnabled());
+        interval = setInterval(async () => {
+            await store.getVATSIMData(socketsEnabled());
+            onFetch?.();
         }, 10000);
     }
 

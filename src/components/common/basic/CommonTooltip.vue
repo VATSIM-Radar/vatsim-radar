@@ -2,13 +2,16 @@
     <div
         class="tooltip"
         :class="[`tooltip--location-${ location }`]"
-        @click="model = !model"
-        @mouseleave="model = false"
-        @mouseover="model = true"
+        @mouseleave="handleClick('mouseLeave')"
+        @mouseover="handleClick('mouseOver')"
     >
         <div
             v-if="$slots.activator"
             class="tooltip_activator"
+            tabindex="0"
+            @click="handleClick('click')"
+            @focus="handleClick('focus')"
+            @focusout="handleClick('focusOut')"
         >
             <slot name="activator"/>
         </div>
@@ -34,7 +37,8 @@
 import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
 
-defineProps({
+
+const props = defineProps({
     location: {
         type: String as PropType<TooltipLocation>,
         default: 'top',
@@ -46,21 +50,42 @@ defineProps({
     maxWidth: {
         type: String,
     },
-    closeMethods: {
-        type: Array as PropType<TooltipCloseMethod[]>,
-        default: () => ['clickOutside'],
+    openMethod: {
+        type: String as PropType<TooltipOpenMethod>,
+        default: 'mouseOver',
+    },
+    closeMethod: {
+        type: String as PropType<TooltipCloseMethod>,
+        default: 'mouseLeave',
     },
 });
-
 defineSlots<{ default(): any; activator(): any }>();
 
-enum TooltipCloseMethods {
-    delay = 'delay',
-    clickOutside = 'clickOutside',
-    mouseLeave = 'mouseLeave',
+function handleClick(eventType: 'mouseLeave' | 'mouseOver' | 'click' | 'focus' | 'focusOut') {
+    switch (eventType) {
+        case 'mouseLeave':
+            if (props.closeMethod === 'mouseLeave') model.value = false;
+            break;
+        case 'mouseOver':
+            if (props.openMethod === 'mouseOver') model.value = true;
+            break;
+        case 'click':
+            if (props.closeMethod === 'click') model.value = !model.value;
+            break;
+        case 'focus':
+            if (props.closeMethod === 'clickOutside') model.value = true;
+            break;
+        case 'focusOut':
+            if (props.closeMethod === 'clickOutside') model.value = false;
+            break;
+        default:
+            break;
+    }
 }
 
-export type TooltipCloseMethod = keyof typeof TooltipCloseMethods;
+export type TooltipOpenMethod = 'click' | 'mouseOver' | 'disabled';
+
+export type TooltipCloseMethod = 'delay' | 'click' | 'clickOutside' | 'mouseLeave';
 
 export type TooltipLocation = 'left' | 'right' | 'top' | 'bottom';
 
@@ -82,7 +107,7 @@ const model = defineModel({
 
     &_container {
         position: absolute;
-        z-index: 1;
+        z-index: 5;
         padding: 4px;
 
         &_content {

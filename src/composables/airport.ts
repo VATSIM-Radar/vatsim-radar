@@ -3,7 +3,9 @@ import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { toLonLat } from 'ol/proj';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { MapAircraftKeys } from '~/types/map';
+import type {
+    MapAircraftKeys,
+} from '~/types/map';
 
 /**
  * @note data must be reactive object or a computed
@@ -82,7 +84,16 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         } satisfies AirportPopupPilotList;
 
         for (const pilot of dataStore.vatsim.data.pilots.value) {
-            if (data.value.icao !== pilot.departure && data.value.icao !== pilot.arrival) continue;
+            if (data.value.icao !== pilot.departure && data.value.icao !== pilot.arrival) {
+                // we want to skip the pilot if they are not departing or arriving at the airport for performance reasons
+                // but if they have not filed a flight plan, we have to check first if they are on the ground before we skip (Yes, pilots can be in the vatAirport.aircraft.groundDep even when they have not filed a flight plan)
+                if (!pilot.departure && !pilot.arrival) {
+                    if (!vatAirport.aircraft.groundDep?.includes(pilot.cid) && !vatAirport.aircraft.groundArr?.includes(pilot.cid)) continue;
+                }
+                else {
+                    continue;
+                }
+            }
 
             let distance = 0;
             let flown = 0;
@@ -157,4 +168,35 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
     if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 
     return aircraft;
+};
+
+export const getArrivalRate = (aircrafts: Ref<AirportPopupPilotList | null>, intervals: number, intervalLength: number) => {
+    const returnArray = computed<AirportPopupPilotStatus[][]>(() => {
+        const returnArray = Array(intervals).fill(null).map(() => [] as AirportPopupPilotStatus[]);
+
+        if (aircrafts.value?.arrivals) {
+            const currentDate = new Date() as Date;
+
+            for (const arrival of aircrafts.value?.arrivals || []) {
+                if (!arrival.eta) continue;
+
+                const differenceInMs = arrival.eta.getTime() - currentDate.getTime();
+                const differenceInMinutes = differenceInMs / (1000 * 60);
+                const interval = Math.floor(differenceInMinutes / intervalLength);
+                if (interval >= intervals) continue;
+                returnArray[interval].push(arrival);
+            }
+        }
+
+        return returnArray;
+    });
+
+    return returnArray;
+};
+
+export const getAirportCountry = (icao?: string | null) => {
+    if (!icao) return null;
+    if (icao === 'UMKK') icao = 'UUDD';
+
+    return useDataStore().vatspy.value?.data.countries.find(x => x.code === icao.slice(0, 2));
 };

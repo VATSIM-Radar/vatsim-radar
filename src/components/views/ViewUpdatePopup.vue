@@ -101,18 +101,64 @@ const images = import.meta.glob('../../assets/update/*.png', { import: 'default'
 
 const update: Update = {
     type: 'minor',
-    name: '0.4.3',
-    height: '400px',
+    name: '0.4.4',
+    height: '500px',
     features: [
         {
-            title: 'Fast data updates',
-            image: images['../../assets/update/quality.png'],
-            description: 'Together with VATSIM, we now have fast data updates in VATSIM Radar!',
+            title: 'Featured Airports',
+            image: images['../../assets/update/airports.png'],
+            description: 'Introducing 0.4.4, our QoL-focused update!<br><br>' +
+                'It took a bit longer to develop it than we thought, but we have fixed more than 30 community-reported issues and requested features.<br><br>' +
+                `Let's start with Featured Airports!`,
             list: [
-                'Expected update delay: 1-3 seconds instead of 30 seconds that were before',
-                'Several performance optimizations were made for this update',
-                'You can disable fast updates in map settings (filters in top left corner of the screen)',
-                'We may disable and enable this new feature. This is ambitious update for us - expect trouble!',
+                'View most popular airports, sorted by traffic',
+                'View most quiet, yet staffed airports: take first flights, find interesting airports, or support controller(s) on this position',
+                'Filter airports by visible to easily find those in area you want',
+                'Switch between ground and total departures to get a quick look at airport traffic',
+            ],
+        },
+        {
+            title: 'New layer: Carto Vector',
+            image: images['../../assets/update/layers.png'],
+            description: 'Due to default Carto dark theme still being... well, too dark, and MapBox/Jawg costed too much, we have added Carto Vector mode!',
+            list: [
+                'Enjoy improved dark mode in Vector mode, which is more bright and modern',
+                'New layers are rendered on your PC and consume less traffic',
+                'Beware of performance: it may degrade on low-performance machines',
+            ],
+        },
+        {
+            title: 'Aircraft Icons',
+            image: images['../../assets/update/aircraft.png'],
+            list: [
+                'Icons were added for Cessnas, Airbus, BALLs, fighters, and many other types!',
+                'Thanks to DotWallop for this contribution',
+            ],
+        },
+        {
+            title: 'Airport Arrival Rate',
+            image: images['../../assets/update/arrival.png'],
+            list: [
+                'We now show estimated Arrival Rate for airports!',
+                'This is shown in Airport Dashboard and Airport Overlay (via arrival counter hover)',
+                'While this is not precise number, it may still help controllers to measure incoming airport load',
+                'Thanks to Felix for this contribution',
+            ],
+        },
+        {
+            title: 'Quality of Life',
+            description: 'We have made so many changes this update... Come visit our Discord for full changelog: https://vatsim-radar.com/discord',
+            image: images['../../assets/update/quality.png'],
+            list: [
+                'UI improvements with partial redesigns',
+                '?pilot link now also supports callsign, not only CID',
+                'New tracks colors, adapted for both light and dark themes',
+                'New stepclimbs display with kilometers support',
+                'TRACONs labels placement improvements',
+                'Brand new Patreon page with benefits, goals, and highlighted supporters',
+                'Support for RMP controllers and Australia extending sectors',
+                'Many bug fixes for TRACONs',
+                'Many other changes, fixes and improvements',
             ],
         },
     ],

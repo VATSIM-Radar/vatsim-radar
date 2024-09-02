@@ -2,6 +2,7 @@ import { CronJob } from 'cron';
 import { radarStorage } from '../storage';
 import type { VatsimData, VatsimTransceiver } from '~/types/data/vatsim';
 import {
+    updateAustraliaData,
     updateVatsimDataStorage,
     updateVatsimExtendedPilots, updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
@@ -12,7 +13,9 @@ import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
+import { getTransceiverData } from '~/utils/backend/vatsim';
 import { redis } from '~/utils/backend/redis';
 
 initInfluxDB();
@@ -97,7 +100,25 @@ CronJob.from({
     },
 });
 
-let data: string | null = null;
+CronJob.from({
+    cronTime: '15 * * * *',
+    runOnInit: true,
+    start: true,
+    onTick: async () => {
+        await updateSimAware();
+    },
+});
+
+CronJob.from({
+    cronTime: '15 * * * *',
+    runOnInit: true,
+    start: true,
+    onTick: async () => {
+        await updateAustraliaData();
+    },
+});
+
+let data: VatsimData | null = null;
 
 CronJob.from({
     cronTime: '* * * * * *',
@@ -109,8 +130,10 @@ CronJob.from({
         try {
             dataInProgress = true;
 
-            data = await $fetch('https://data.vatsim.net/v3/vatsim-data.json', {
-                responseType: 'text',
+            data = await $fetch<VatsimData>('https://data.vatsim.net/v3/vatsim-data.json', {
+                parseResponse(responseText) {
+                    return JSON.parse(responseText);
+                },
                 timeout: 1000 * 30,
             });
         }
@@ -133,7 +156,7 @@ CronJob.from({
         try {
             dataProcessInProgress = true;
 
-            radarStorage.vatsim.data = JSON.parse(data) as VatsimData;
+            radarStorage.vatsim.data = structuredClone(data);
 
             const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
             radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
@@ -189,6 +212,51 @@ CronJob.from({
                 objectAssign(controller, newerData);
             });
 
+            const length = radarStorage.vatsim.data!.controllers.length;
+
+            const allowedAustraliaFacilities = ['CTR', 'APP', 'DEP'];
+            const allowedAustraliaSectors = radarStorage.vatsim.australia.filter(x => allowedAustraliaFacilities.some(y => x.callsign.endsWith(y)));
+
+            for (let i = 0; i < length; i++) {
+                const controller = radarStorage.vatsim.data!.controllers[i];
+                const controllerSplit = controller.callsign.split('_');
+                if (controllerSplit.length <= 1) continue;
+
+                let controllerPrefix = '';
+                const controllerPostfix = controllerSplit[controllerSplit.length - 1];
+                if (controllerSplit.length === 3) controllerPrefix = controllerSplit.slice(0, 2).join('_');
+                else if (controllerSplit.length === 2) controllerPrefix = controllerSplit[0];
+
+                const australiaSector = allowedAustraliaSectors.some(x => {
+                    const split = x.callsign.split('_');
+                    return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && controllerPostfix === split[split.length - 1] && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
+                });
+
+                if (!australiaSector) continue;
+
+                const extending = getTransceiverData(controller.callsign, true);
+                if (extending.frequencies.length <= 1) continue;
+
+                for (const frequency of extending.frequencies) {
+                    if (frequency === controller.frequency) continue;
+
+                    const sectors = allowedAustraliaSectors.filter(x => {
+                        const split = x.callsign.split('_');
+
+                        return x.frequency === frequency && controllerPostfix === split[split.length - 1];
+                    });
+                    if (!sectors) continue;
+
+                    for (const sector of sectors) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: sector.callsign,
+                            frequency,
+                        });
+                    }
+                }
+            }
+
             radarStorage.vatsim.data!.atis.forEach(controller => {
                 const newerData = radarStorage.vatsim.kafka.atc.find(x => x.callsign === controller.callsign);
                 if (!newerData || updateTimestamp > newerData.date) return;
@@ -218,10 +286,10 @@ CronJob.from({
 
             await updateVatsimExtendedPilots();
 
-            /* radarStorage.vatsim.data.controllers.push({
-                callsign: 'ULLL_R_CTR',
+            /*            radarStorage.vatsim.data.atis.push({
+                callsign: 'MSK_APP',
                 cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -233,9 +301,23 @@ CronJob.from({
             });
 
             radarStorage.vatsim.data.controllers.push({
-                callsign: 'ULLL_R5_CTR',
-                cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                callsign: 'ULLL_APP',
+                cid: 2,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });
+
+            radarStorage.vatsim.data.controllers.push({
+                callsign: 'CHI_APP',
+                cid: 1,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -249,7 +331,6 @@ CronJob.from({
             const regularData = excludeKeys(radarStorage.vatsim.data, {
                 pilots: {
                     server: true,
-                    transponder: true,
                     qnh_i_hg: true,
                     flight_plan: true,
                     last_updated: true,

@@ -166,8 +166,10 @@ const collapsed = defineModel('collapsed', {
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
 
-// eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const activeTab = ref(props.tabs ? Object.keys(props.tabs)[0] : '');
+const activeTab = defineModel('tab', { type: String });
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
+activeTab.value = activeTab.value || props.tabs ? Object.keys(props.tabs ?? {})[0] : '';
 
 const getSections = computed(() => {
     if (!props.tabs) return props.sections ?? [];
@@ -226,13 +228,6 @@ watch(getSections, sections => {
 
         &:only-child {
             padding-bottom: 0;
-        }
-
-        &_title {
-            font-family: $openSansFont;
-            font-size: 14px;
-            font-weight: 700;
-            color: $lightgray100;
         }
 
         &_actions {
@@ -350,6 +345,10 @@ watch(getSections, sections => {
                 border-radius: 4px;
             }
         }
+    }
+
+    @media all and (min-width: 1600px) {
+        width: 400px;
     }
 }
 </style>

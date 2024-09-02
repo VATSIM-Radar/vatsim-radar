@@ -1,0 +1,110 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "assignees": [
+    "daniluk4000"
+  ],
+  "enabledManagers": [
+    "npm",
+    "bun",
+    "yarn"
+  ],
+  "prConcurrentLimit": 0,
+  "rebaseWhen": "behind-base-branch",
+  "commitMessageAction": "chore(deps): Update",
+  "commitMessageTopic": "dependency {{depName}}",
+  "semanticCommits": "disabled",
+  "dependencyDashboardOSVVulnerabilitySummary": "all",
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "tsx"
+      ],
+      "allowedVersions": "4.6.12"
+    },
+    {
+      "matchPackageNames": [
+        "node",
+        "arm64v8/node"
+      ],
+      "versioning": "node"
+    },
+    {
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "matchCurrentVersion": "!/^0/"
+    },
+    {
+      "matchPackageNames": [
+        "vue"
+      ],
+      "rangeStrategy": "bump",
+      "groupName": "Vue",
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
+        "@vue/language-server",
+        "vue-tsc"
+      ],
+      "rangeStrategy": "pin",
+      "groupName": "Volar"
+    },
+    {
+      "matchPackageNames": [
+        "nuxt"
+      ],
+      "matchPackagePatterns": [
+        "^@nuxt"
+      ],
+      "rangeStrategy": "bump",
+      "groupName": "Nuxt",
+      "separateMinorPatch": true
+    },
+    {
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "rangeStrategy": "pin",
+      "groupName": "Typescript",
+      "separateMinorPatch": true
+    }
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "commitMessageAction": "chore(deps): Lockfile Maintenance",
+    "schedule": [
+      "before 4am on friday"
+    ]
+  },
+  "vulnerabilityAlerts": {
+    "commitMessageSuffix": "chore(deps-security)"
+  },
+  "updateInternalDeps": true,
+  "baseBranches": [
+    "next",
+    "/^release\\/.*/"
+  ],
+  "extends": [
+    ":automergeDisabled",
+    ":dependencyDashboard",
+    "group:recommended",
+    "replacements:all",
+    "workarounds:all"
+  ],
+  "rangeStrategy": "bump",
+  "npm": {
+    "commitMessageTopic": "{{prettyDepType}} {{depName}}"
+  },
+  "updateLockFiles": true
+}

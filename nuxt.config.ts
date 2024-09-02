@@ -68,6 +68,12 @@ export default defineNuxtConfig({
             useAsyncData: {
                 deep: false,
             },
+            nuxtLink: {
+                prefetchOn: {
+                    visibility: false,
+                    interaction: true,
+                },
+            },
         },
         headNext: true,
         inlineRouteRules: true,
@@ -105,6 +111,7 @@ export default defineNuxtConfig({
         INFLUX_BUCKET_PLANS: process.env.INFLUX_BUCKET_PLANS,
         INFLUX_ENABLE_WRITE: process.env.INFLUX_ENABLE_WRITE,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
+        PATREON_ACCESS_TOKEN: process.env.PATREON_ACCESS_TOKEN,
 
         public: {
             DOMAIN: process.env.DOMAIN,
@@ -141,7 +148,7 @@ export default defineNuxtConfig({
                 redirect: 'https://discord.gg/MtFKhMPePe',
             },
             '/layers/carto/**': {
-                proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
+                proxy: 'https://a.basemaps.cartocdn.com/**',
             },
             '/layers/jawg/**': {
                 proxy: 'https://tile.jawg.io/**',

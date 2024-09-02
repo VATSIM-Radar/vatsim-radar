@@ -106,7 +106,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                 token.user.navigraph.hasFms = hasFms;
                 token.user.navigraph.hasCharts = hasCharts;
             }
-            catch (e) {
+            catch {
                 await prisma.navigraphUser.delete({
                     where: {
                         userId: token.user.id,

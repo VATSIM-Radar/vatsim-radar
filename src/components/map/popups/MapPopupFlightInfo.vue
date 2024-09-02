@@ -18,7 +18,7 @@
                 type="link"
             >
                 <template #icon>
-                    <stats-icon/>
+                    <dashboard-icon/>
                 </template>
             </common-button>
         </div>
@@ -62,14 +62,6 @@
                         }"
                         v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
                     />
-                    <common-button
-                        v-if="!showStats"
-                        class="flight-info__card_route_open"
-                        type="link"
-                        @click="viewRoute"
-                    >
-                        View route
-                    </common-button>
                     <div class="flight-info__card_route_footer">
                         <div class="flight-info__card_route_footer_left">
                             {{
@@ -126,7 +118,7 @@
             >
                 <template #top>
                     <common-tooltip
-                        location="right"
+                        :location="pilot.frequencies.length ? 'right' : 'bottom'"
                         width="150px"
                     >
                         <template #activator>
@@ -137,12 +129,12 @@
                             </div>
                         </template>
 
-                        Left value set on aircraft,<br> right value was assigned by ATC
+                        The left value is currently set on the aircraft,<br> while the right value was assigned by ATC.
 
                         <template v-if="!canShowRightTransponder">
                             <br><br>
 
-                            You don't see right value, because they could the same, or squawk wasn't assigned
+                            You don't see the right value because it might be the same as the set value or a squawk may not have been assigned.
                         </template>
                     </common-tooltip>
                 </template>
@@ -170,7 +162,7 @@ import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import { getHoursAndMinutes } from '~/utils';
 import { useMapStore } from '~/store/map';
-import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
@@ -189,11 +181,6 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits({
-    viewRoute() {
-        return true;
-    },
-});
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
@@ -226,17 +213,13 @@ const getDistAndTime = computed(() => {
         const dist = Math.round(props.pilot.toGoDist);
         const date = datetime.format(new Date(props.pilot.toGoTime!));
 
-        return `${ dist } NM in ${ date }Z`;
+        return `${ dist } NM at ${ date }Z`;
     }
     catch (e) {
         console.error(e);
         return null;
     }
 });
-
-const viewRoute = () => {
-    emit('viewRoute');
-};
 
 const getStatus = computed(() => {
     return getPilotStatus(props.pilot.status, props.isOffline);
@@ -360,7 +343,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
 
     &__cols {
         display: flex;
-        gap: 8px;
+        gap: 4px;
 
         > * {
             flex: 1 1 0;

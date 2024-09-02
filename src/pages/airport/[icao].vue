@@ -61,7 +61,7 @@
                     Show pilot stats
                 </common-toggle>
             </div>
-            <div
+            <client-only
                 v-if="controllerMode"
                 class="airport_header_section"
             >
@@ -73,7 +73,7 @@
                         {{ formatDateDime.format(dataStore.time.value) }}z
                     </div>
                 </div>
-            </div>
+            </client-only>
         </div>
         <div
             v-if="!controllerMode"
@@ -174,6 +174,17 @@
                             <div class="airport__aircraft-title_text">
                                 {{ column.title }}
                             </div>
+                            <div
+                                v-if="column.key === 'arrivals'"
+                                class="airport__aircraft-title_interval"
+                            >
+                                <map-popup-rate
+                                    :aircraft="aircraft"
+                                    :icon-color="radarColors.warning500"
+                                    :text-color="radarColors.warning500"
+                                    :use-opacity="store.theme === 'default'"
+                                />
+                            </div>
                             <common-bubble
                                 class="airport__aircraft-title_bubble"
                                 :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
@@ -197,6 +208,7 @@
             class="airport_map"
         >
             <iframe
+                ref="airportMapFrame"
                 class="airport_map_iframe"
                 :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"
             />
@@ -244,11 +256,13 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
+import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 
 const route = useRoute();
 const store = useStore();
 const dataStore = useDataStore();
 const ready = ref(false);
+const config = useRuntimeConfig();
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
 const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === icao.value));
@@ -263,6 +277,46 @@ useHead({
 });
 
 const selectedPilot = ref<number | null>(null);
+
+
+const airportMapFrame = ref<HTMLIFrameElement | null>(null);
+let skipSelectedPilotWatch = false;
+function receiveMessage(event: MessageEvent) {
+    if (event.origin !== config.public.DOMAIN) {
+        return;
+    }
+    if (event.data && 'selectedPilot' in event.data) {
+        if (selectedPilot.value !== event.data.selectedPilot) {
+            selectedPilot.value = event.data.selectedPilot;
+            skipSelectedPilotWatch = true; // the change in the line above will trigger the watch of selectedPilot. But here in this function we have received the change from the iframe, so we need to skip the watch, because we don't need to send a message back to the iframe
+        }
+    }
+}
+
+onMounted(() => {
+    window.addEventListener('message', receiveMessage);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('message', receiveMessage);
+});
+
+watch(selectedPilot, () => {
+    if (skipSelectedPilotWatch) {
+        skipSelectedPilotWatch = false;
+        return;
+    }
+    if (aircraft.value?.prefiles.find(x => x.cid === selectedPilot.value)) return; // we can not show prefiles on the map, because they are not connected
+
+    if (airportMapFrame.value && selectedPilot.value) {
+        const iframeWindow = airportMapFrame.value.contentWindow;
+        const message = { selectedPilot: selectedPilot.value };
+        const targetOrigin = config.public.DOMAIN;
+        iframeWindow?.postMessage(message, targetOrigin);
+    }
+});
+
+
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
     hour: '2-digit',
@@ -328,30 +382,41 @@ const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     default: () => null,
 });
 
+function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | 'alone') {
+    if (height === 0) return '0';
+    let calculatedHeight = `calc(${ height }vh`;
+    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - 16px)`;
+    else if (type === 'map') calculatedHeight += ` - 16px)`;
+    else if (type === 'alone') calculatedHeight += ` - (32px + 56px) - 16px)`;
+    else calculatedHeight += ')';
+
+    return calculatedHeight;
+}
+
 const mapLayouts: Record<MapMode, { dash: string; map: string }> = {
     default: {
-        dash: `calc(60vh - (32px + 56px) - 40px - 16px)`,
-        map: 'calc(40vh - 16px)',
+        dash: calculateMapLayout(60, 'dash'),
+        map: calculateMapLayout(40, 'map'),
     },
     dashBigMapBig: {
-        dash: '80vh',
-        map: '80vh',
+        dash: calculateMapLayout(80, 'default'),
+        map: calculateMapLayout(80, 'default'),
     },
     dashSmallMapBig: {
-        dash: '30vh',
-        map: '70vh',
+        dash: calculateMapLayout(30, 'dash'),
+        map: calculateMapLayout(70, 'map'),
     },
     dashBigMapSmall: {
-        dash: '70vh',
-        map: '30vh',
+        dash: calculateMapLayout(70, 'dash'),
+        map: calculateMapLayout(30, 'map'),
     },
     dashOnly: {
-        dash: '90vh',
-        map: '0',
+        dash: calculateMapLayout(90, 'alone'),
+        map: calculateMapLayout(0, 'map'),
     },
     mapOnly: {
-        dash: '0',
-        map: '90vh',
+        dash: calculateMapLayout(0, 'dash'),
+        map: calculateMapLayout(90, 'alone'),
     },
 };
 
@@ -633,6 +698,16 @@ await setupDataFetch({
                 color: $darkgray800Orig;
             }
         }
+
+        &_interval {
+            display: flex;
+            gap: 12px;
+
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 100%;
+        }
+
     }
 
     &_map {
@@ -649,7 +724,11 @@ await setupDataFetch({
         }
 
         &_pilot {
+            position: absolute;
+            right: 0;
+
             overflow: auto;
+
             width: 25%;
             min-width: 25%;
 

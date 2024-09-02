@@ -10,6 +10,9 @@ import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import { XYZ } from 'ol/source';
 import { buildAttributions } from '~/utils/map';
+import type { PartialRecord } from '~/types';
+import { applyStyle } from 'ol-mapbox-style';
+import VectorTileLayer from 'ol/layer/VectorTile';
 
 defineSlots<{ default: () => any }>();
 
@@ -23,41 +26,14 @@ interface Layer {
     size?: number;
     url: string;
     lightThemeUrl?: string;
+    vector?: false;
 }
 
-const externalLayers: Record<MapLayoutLayerExternal, Layer> = {
-    CartoDB: {
-        attribution: {
-            title: 'CartoDB',
-            url: 'https://cartodb.com/attribution',
-        },
-        url: '/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
-        lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
-    },
-    CartoDBLabels: {
-        attribution: {
-            title: 'CartoDB',
-            url: 'https://cartodb.com/attribution',
-        },
-        url: '/layers/carto/dark_all/{z}/{x}/{y}.png',
-        lightThemeUrl: '/layers/carto/light_all/{z}/{x}/{y}.png',
-    },
-    /* Jawg: {
-        attribution: {
-            title: 'Jawg',
-            url: 'https://www.jawg.io',
-        },
-        url: '/layers/jawg/1578fbb3-df30-4ffd-a1ed-84fac385f59d/{z}/{x}/{y}.png?access-token=Ly133Lgdn5FiEmVwqE1hLT732DJuGdMZmxm6TcIEGCiKARCwXmAHPHpj58Lwxb1L',
-        lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
-    },*/
-    Jawg: {
-        attribution: {
-            title: 'CartoDB',
-            url: 'https://cartodb.com/attribution',
-        },
-        url: '/layers/carto/dark_nolabels/{z}/{x}/{y}.png',
-        lightThemeUrl: '/layers/carto/light_nolabels/{z}/{x}/{y}.png',
-    },
+type IVectorLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
+    vector: true;
+};
+
+const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer> = {
     Satellite: {
         attribution: {
             title: 'ArcGIS',
@@ -86,55 +62,45 @@ const externalLayers: Record<MapLayoutLayerExternal, Layer> = {
     lightNL = 'clxpykjoh00nj01pcgmrudq8q',
 }*/
 
-const layer = computed<Layer>(() => {
-    const layer = store.localSettings.filters?.layers?.layer ?? 'RadarNoLabels';
+const layer = computed<Layer | IVectorLayer>(() => {
+    let layer = store.localSettings.filters?.layers?.layer ?? 'carto';
 
-    /* if (layer.startsWith('Radar')) {
-        let id: string;
+    if (layer === 'OSM' && store.theme !== 'light') layer = 'carto';
 
-        switch (layer as MapLayoutLayerRadar) {
-            case 'RadarLabels':
-                id = InternalThemes[store.theme === 'default' ? 'darkL' : 'lightL'];
-                break;
-            case 'RadarNoLabels':
-                id = InternalThemes[store.theme === 'default' ? 'darkNL' : 'lightNL'];
-                break;
-            case 'RadarSatelliteLabels':
-                id = InternalThemes[store.theme === 'default' ? 'darkSatelliteL' : 'lightSatelliteL'];
-                break;
-            case 'RadarSatelliteNoLabels':
-                id = InternalThemes[store.theme === 'default' ? 'darkSatelliteNL' : 'lightSatelliteNL'];
-                break;
+    if (layer === 'carto' || !(layer in externalLayers)) {
+        const isLabels = store.localSettings.filters?.layers?.layerLabels ?? true;
+        const isVector = store.localSettings.filters?.layers?.layerVector ?? false;
+
+        if (!isVector) {
+            return {
+                attribution: {
+                    title: 'CartoDB',
+                    url: 'https://cartodb.com/attribution',
+                },
+                url: `https://a.basemaps.cartocdn.com/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
+                lightThemeUrl: `https://a.basemaps.cartocdn.com/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
+            };
         }
-
-        return {
-            url: `/layers/mapbox/${ id }/tiles/512/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZGFuaWx1azQwMDAiLCJhIjoiY2x4cHZ1eW1zMHJyYjJycXJxb2tubHNteCJ9.UeZYR32GOvwuMTr1JFrsCg`,
-            size: 512,
-        };
-    }*/
-
-    if (layer.startsWith('Radar')) {
-        if (layer === 'RadarLabels') return externalLayers.CartoDBLabels;
-        if (layer === 'RadarNoLabels') return externalLayers.CartoDB;
-
-        if (layer === 'RadarSatelliteLabels' || layer === 'RadarSatelliteNoLabels') return externalLayers.Satellite;
+        else {
+            return {
+                attribution: {
+                    title: 'CartoDB',
+                    url: 'https://cartodb.com/attribution',
+                },
+                url: `https://basemaps.cartocdn.com/gl/dark-matter${ isLabels ? '' : '-nolabels' }-gl-style/style.json`,
+                lightThemeUrl: `https://basemaps.cartocdn.com/gl/positron${ isLabels ? '' : '-nolabels' }-gl-style/style.json`,
+                vector: true,
+            };
+        }
     }
 
-    if (layer === 'Jawg' && store.theme === 'light') return externalLayers.Jawg;
-    if (layer === 'OSM' && store.theme === 'default') return externalLayers.CartoDB;
-    if (layer === 'JawgOrOSM') {
-        return store.theme === 'default' ? externalLayers.Jawg : externalLayers.OSM;
-    }
-
-    return externalLayers[layer as MapLayoutLayerExternal];
+    return externalLayers[layer as MapLayoutLayerExternal]!;
 });
 const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl);
 
 const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
 
 const opacity = computed(() => {
-    if (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'light') return 0.5;
-
     switch (store.localSettings.filters?.layers?.layer) {
         case 'OSM':
             return store.localSettings.filters.layers.transparencySettings?.osm ?? 0.5;
@@ -148,13 +114,55 @@ const opacity = computed(() => {
 const theme = computed(() => store.theme);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
-let tileLayer: TileLayer<XYZ>;
+const tileLayer = shallowRef<TileLayer<XYZ> | VectorTileLayer | null>();
+let attributionLayer: TileLayer<XYZ> | null = null;
 
-function initLayer() {
-    map.value?.removeLayer(tileLayer);
-    tileLayer?.dispose();
+useHead(() => ({
+    htmlAttrs: {
+        class: {
+            '--dark-matter-vector': tileLayer.value instanceof VectorTileLayer && store.theme !== 'light',
+            '--positron-vector': tileLayer.value instanceof VectorTileLayer && store.theme === 'light',
+        },
+    },
+}));
 
-    tileLayer = new TileLayer({
+const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
+
+async function initLayer() {
+    if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
+    tileLayer.value?.dispose();
+
+    if (attributionLayer) map.value?.removeLayer(attributionLayer);
+    attributionLayer?.dispose();
+
+    if (layer.value.vector) {
+        tileLayer.value = new VectorTileLayer({
+            declutter: true,
+            updateWhileAnimating: false,
+            updateWhileInteracting: false,
+            renderMode: 'hybrid',
+        });
+
+        const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
+        const json = await $fetch<Record<string, any>>(store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url);
+        json.id = url;
+
+        json.layers = json.layers.filter((layer: Record<string, any>) => allowedLayers.test(layer.id));
+
+        await applyStyle(tileLayer.value, json);
+
+        map.value?.addLayer(tileLayer.value);
+        attributionLayer = new TileLayer({
+            source: new XYZ({
+                attributions: buildAttributions(false, ''),
+            }),
+        });
+        map.value?.addLayer(attributionLayer);
+
+        return;
+    }
+
+    tileLayer.value = new TileLayer({
         source: new XYZ({
             attributions: layer.value.attribution ? buildAttributions(layer.value.attribution.title, layer.value.attribution.url) : undefined,
             url: store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url,
@@ -164,7 +172,7 @@ function initLayer() {
         opacity: opacity.value,
         zIndex: 0,
     });
-    map.value?.addLayer(tileLayer);
+    map.value?.addLayer(tileLayer.value);
 }
 
 watch(map, val => {
@@ -179,6 +187,16 @@ watch([layerUrl, theme], initLayer);
 watch(transparencySettings, initLayer);
 
 onBeforeUnmount(() => {
-    if (tileLayer) map.value?.removeLayer(tileLayer);
+    if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
 });
 </script>
+
+<style lang="scss">
+.--dark-matter-vector .app_content > .map {
+    background: $darkgray900;
+}
+
+.--positron-vector .app_content > .map {
+    background: rgb(253, 253, 250);
+}
+</style>

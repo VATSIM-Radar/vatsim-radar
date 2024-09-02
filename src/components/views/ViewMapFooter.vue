@@ -26,20 +26,84 @@
                 </div>
             </div>
             <div class="map-footer_left_section">
+                <common-button
+                    size="S"
+                    :type="store.featuredAirportsOpen ? 'primary' : 'secondary'"
+                    @click="store.featuredAirportsOpen = !store.featuredAirportsOpen"
+                >
+                    Featured Airports
+                </common-button>
+
+                <common-control-block
+                    v-model="store.featuredAirportsOpen"
+                    center-by="start"
+                    max-height="400px"
+                    width="480px"
+                >
+                    <template #title>
+                        Featured Airports
+                    </template>
+
+                    <div class="__info-sections map-footer__featured-content">
+                        <common-tabs
+                            v-model="featuredTab"
+                            :tabs="{
+                                popular: {
+                                    title: 'Popular Airports',
+                                },
+                                quiet: {
+                                    title: 'Quiet Airports',
+                                },
+                            }"
+                        />
+
+                        <small v-if="featuredTab === 'quiet'">
+                            Quiet, staffed airports with at least one controller available, excluding center.
+                        </small>
+
+                        <div class="__section-group">
+                            <common-toggle
+                                :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
+                                @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
+                            >
+                                Show total departures
+                                <template #description>
+                                    Including airborne
+                                </template>
+                            </common-toggle>
+                            <common-toggle v-model="store.featuredVisibleOnly">
+                                Visible only
+                                <template #description>
+                                    Filter by current map area
+                                </template>
+                            </common-toggle>
+                        </div>
+
+                        <div class="__info-sections">
+                            <common-airport-card
+                                v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
+                                :key="airport.airport.icao + index"
+                                :airport="airport"
+                                :position="index + 1"
+                            />
+                        </div>
+                    </div>
+                </common-control-block>
+            </div>
+            <div class="map-footer_left_section">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
                         <span>{{ getCounts.total }}</span> connections
                     </div>
                     <div class="map-footer__connections_title">
-                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in Radar
+                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
                             <span>{{ getCounts.pilots }}</span> pilots
                         </div>
                         <div class="map-footer__connections_info_item">
-                            <span>{{ getCounts.firs }}</span> sector /
-                            <span>{{ getCounts.atc }}</span> local atc
+                            <span>{{ getCounts.firs + getCounts.atc }}</span> atc
                         </div>
                         <div
                             v-if="getCounts.sups"
@@ -85,8 +149,9 @@
         <div
             v-if="getLastUpdated"
             class="map-footer_right"
+            :class="{ 'map-footer_right--outdated': outdated }"
         >
-            VATSIM data time: {{ getLastUpdated }}
+            Map last updated: {{ getLastUpdated }}
         </div>
     </footer>
     <common-popup v-model="airacPopup">
@@ -150,10 +215,16 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { useUpdateInterval } from '#imports';
+import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
+import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
 const airacPopup = ref(false);
+const featuredTab = ref('popular');
 
 const datetime = new Intl.DateTimeFormat([], {
     timeZone: 'UTC',
@@ -165,7 +236,8 @@ const datetime = new Intl.DateTimeFormat([], {
 
 const getCounts = computed(() => {
     const [atc, atis] = dataStore.vatsim.data.locals.value.reduce((acc, atc) => {
-        atc.isATIS ? acc[0]++ : acc[1]++;
+        if (atc.isATIS) acc[0]++;
+        else acc[1]++;
         return acc;
     }, [0, 0]);
 
@@ -181,12 +253,34 @@ const getCounts = computed(() => {
 });
 
 const getLastUpdated = computed(() => {
-    const updateTimestamp = dataStore.vatsim.data.general.value?.update_timestamp;
+    const updateTimestamp = dataStore.vatsim.updateTimestamp.value;
     if (!updateTimestamp) return null;
 
     const date = new Date(updateTimestamp);
 
     return `${ datetime.format(date) } Z`;
+});
+
+const timestamp = ref(Date.now());
+useUpdateInterval(() => timestamp.value = Date.now(), 1000);
+
+const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
+
+const popularAirports = computed(() => {
+    return dataStore.vatsim.parsedAirports.value.filter(x => !x.airport.isPseudo && x.aircraftCids.length).slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);
+});
+
+const quietAirports = computed(() => {
+    return dataStore.vatsim.parsedAirports.value
+        .filter(x => !x.airport.isPseudo && (x.aircraftCids.length || x.localAtc.some(x => x.isATIS)) && (x.arrAtc.length || x.localAtc.some(x => !x.isATIS)))
+        .slice()
+        .sort((a, b) => {
+            const aSum = (a.aircraftList.arrivals?.length ?? 0) + (a.aircraftList.groundDep?.length ?? 0);
+            const bSum = (b.aircraftList.arrivals?.length ?? 0) + (b.aircraftList.groundDep?.length ?? 0);
+
+            return aSum - bSum;
+        })
+        .slice(0, 25);
 });
 </script>
 
@@ -199,6 +293,10 @@ const getLastUpdated = computed(() => {
     padding: 0 24px;
 
     font-size: 13px;
+
+    & &__featured-content {
+        gap: 8px;
+    }
 
     &_left {
         display: flex;
@@ -236,13 +334,17 @@ const getLastUpdated = computed(() => {
 
     &__airac {
         cursor: pointer;
+
         display: flex;
         gap: 8px;
         align-items: center;
 
+        font-weight: 600;
+
         &--current {
             cursor: default;
-            background: varToRgba('primary500', 0.1);
+            color: $lightgray125;
+            background: linear-gradient(90deg, rgba(184, 42, 20, 0.25) 0%, $darkgray950 75%);
         }
     }
 
@@ -275,9 +377,18 @@ const getLastUpdated = computed(() => {
 
     &_right {
         padding: 8px 16px;
+
         font-weight: 300;
+
         background: $darkgray950;
         border-radius: 8px;
+
+        transition: 0.3s;
+
+        &--outdated {
+            color: $lightgray100Orig;
+            background: $error600;
+        }
     }
 
     &__text {

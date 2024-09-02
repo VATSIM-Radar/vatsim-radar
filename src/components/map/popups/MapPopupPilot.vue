@@ -95,9 +95,9 @@
             <map-popup-flight-plan
                 v-if="pilot.flight_plan"
                 class="pilot__content __info-sections"
-                :cruise="pilot.cruise"
                 :flight-plan="pilot.flight_plan"
                 :status="pilot.status ?? null"
+                :stepclimbs="pilot.stepclimbs"
             />
         </template>
         <template #actions>
@@ -119,9 +119,18 @@
                     @click="showOnMap"
                 >
                     <template #icon>
-                        <map-icon/>
+                        <location-icon/>
                     </template>
                     Focus
+                </common-button>
+                <common-button
+                    :disabled="store.config.hideAllExternal"
+                    @click="viewRoute"
+                >
+                    <template #icon>
+                        <path-icon/>
+                    </template>
+                    Route
                 </common-button>
                 <common-button
                     :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
@@ -155,9 +164,10 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
 import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
 import TrackIcon from 'assets/icons/kit/track.svg?component';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
@@ -234,7 +244,7 @@ const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
             key: 'flight',
-            title: 'Current Flight Details',
+            title: 'Flight Details',
             collapsible: true,
         },
     ];
@@ -518,7 +528,6 @@ onBeforeUnmount(() => {
 
     &__content {
         position: relative;
-        z-index: 0;
     }
 
     &__track {

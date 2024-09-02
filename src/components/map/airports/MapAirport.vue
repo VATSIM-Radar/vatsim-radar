@@ -2,11 +2,11 @@
     <slot v-if="isPrimaryAirport"/>
     <template v-else>
         <map-overlay
-            v-if="localAtc.length && 'lon' in airport"
+            v-if="localAtc.length && 'lon' in airport && !isPseudoAirport"
             :active-z-index="21"
             persistent
             :popup="!!hoveredFacility"
-            :settings="{ position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: !!hoveredFacility }"
+            :settings="{ position: [airport.lon, airport.lat], positioning: 'center-center', stopEvent: hoveredController && facilityScroll }"
             :z-index="15"
             @update:popup="!$event ? hoveredFacility = false : undefined"
         >
@@ -38,6 +38,7 @@
                 </div>
                 <common-controller-info
                     v-if="hoveredFacility && mapStore.canShowOverlay"
+                    ref="atcPopup"
                     absolute
                     class="airport_atc-popup"
                     :class="{ 'airport_atc-popup--all': hoveredFacility === true }"
@@ -45,6 +46,8 @@
                     :show-atis="hoveredFacility !== true"
                     :show-facility="hoveredFacility === true"
                     @click.stop
+                    @mouseleave="hoveredController = false"
+                    @mouseover="hoveredController = true"
                 >
                     <template #title>
                         {{ airport.name }}
@@ -61,7 +64,7 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if="'lon' in airport"
+            v-if=" 'lon' in airport && !isPseudoAirport"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
@@ -69,7 +72,7 @@
             :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
         />
         <map-overlay
-            v-if="!localAtc.length && 'lon' in airport && isVisible"
+            v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
             :settings="{ position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility }"
@@ -83,12 +86,13 @@
         <map-overlay
             v-if="hoveredFeature"
             model-value
-            :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: true }"
+            :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: approachScroll }"
             :z-index="21"
             @mouseleave="$emit('manualHide')"
             @mouseover="$emit('manualHover')"
         >
             <common-controller-info
+                ref="approachPopup"
                 :controllers="hoveredFeature.controllers"
                 show-atis
             >
@@ -111,20 +115,21 @@ import type VectorSource from 'ol/source/Vector';
 import { Circle, Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import { fromCircle } from 'ol/geom/Polygon';
-import { toRadians } from 'ol/math';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
-import { getCurrentThemeRgbColor } from '~/composables';
-import { GeoJSON } from 'ol/format';
+import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { useStore } from '~/store';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import { GeoJSON } from 'ol/format';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import { toRadians } from 'ol/math';
+import { fromLonLat } from 'ol/proj';
 
 const props = defineProps({
     airport: {
@@ -184,7 +189,18 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
+const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
+const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
+const hoveredController = ref<boolean>(false);
+
+const facilityScroll = useScrollExists(computed(() => {
+    return atcPopup.value?.$el.querySelector('.atc-popup_list');
+}));
+
+const approachScroll = useScrollExists(computed(() => {
+    return approachPopup.value?.$el.querySelector('.atc-popup_list');
+}));
 
 const hoveredFacilities = computed(() => {
     if (!hoveredFacility.value) return [];
@@ -196,6 +212,10 @@ const localATCOffsetX = computed(() => {
     const offset = (localsFacilities.value.length * 14) + 10;
     if (offset < 30) return 30;
     return (offset / 2) + 5;
+});
+
+const isPseudoAirport = computed(() => {
+    return !('lon' in props.airport) || props.airport?.isPseudo;
 });
 
 const getAirportColor = computed(() => {
@@ -247,7 +267,7 @@ const airportName = computed(() => (props.airport.isPseudo && props.airport.iata
 const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
 
 function initAirport() {
-    if (!('lon' in props.airport)) return;
+    if (!('lon' in props.airport) || isPseudoAirport.value) return;
     feature = new Feature({
         geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
         type: 'airport',
@@ -290,50 +310,60 @@ watch(hoveredFeature, val => {
         hoverFeature = null;
     }
     else if (val?.traconFeature && !hoverFeature) {
-        hoverFeature = geojson.readFeature(val.traconFeature);
+        hoverFeature = geojson.readFeature(val.traconFeature) as Feature<any>;
         hoverFeature?.setProperties({
             ...hoverFeature?.getProperties(),
             type: 'background',
         });
-        hoverFeature.setStyle(new Style({
+        hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.25)`,
+                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
             }),
         }));
-        vectorSource.value?.addFeature(hoverFeature);
+        vectorSource.value?.addFeature(hoverFeature!);
     }
 });
 
 function setFeatureStyle(feature: Feature) {
+    const geometry = feature.getGeometry();
     const extent = feature.getGeometry()?.getExtent();
-    const topCoord = [extent![0] + 25000, extent![3] - 25000];
+    const topCoord = [extent![0], extent![3]];
+    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+    if (feature.getProperties().label_lat) {
+        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+    }
+
+    feature.setProperties({
+        ...feature.getProperties(),
+        textCoord,
+    });
 
     feature.setStyle([
         new Style({
             stroke: new Stroke({
-                color: `rgba(${ radarColors.success300Rgb.join(',') }, 0.7)`,
+                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),
         new Style({
-            geometry: new Point(topCoord),
+            geometry: new Point(textCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: feature.getProperties()?._traconId || airportName.value,
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.success300Hex,
+                    color: radarColors.error400Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.success300Hex,
+                    color: radarColors.error400Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),
@@ -388,7 +418,7 @@ onMounted(async () => {
 
         const features: ArrFeature[] = [];
 
-        if (!props.features.length && 'lon' in props.airport) {
+        if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
             features.push({
                 id: 'circle',
                 feature: new Feature({
@@ -409,7 +439,7 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const geoFeature = geojson.readFeature(traconFeature);
+                const geoFeature = geojson.readFeature(traconFeature) as Feature<any>;
 
                 geoFeature.setProperties({
                     ...(geoFeature?.getProperties() ?? {}),
@@ -505,14 +535,13 @@ onMounted(async () => {
     });
 
     watch(runways, val => {
-        if (!val) {
-            runwaysFeatures.forEach(feature => {
-                vectorSource.value?.removeFeature(feature);
-                feature.dispose();
-            });
-            runwaysFeatures = [];
-            return;
-        }
+        runwaysFeatures.forEach(feature => {
+            vectorSource.value?.removeFeature(feature);
+            feature.dispose();
+        });
+        runwaysFeatures = [];
+
+        if (!val) return;
 
         runwaysFeatures = val.map(feature => {
             const runwayFeature = new Feature({
@@ -526,7 +555,7 @@ onMounted(async () => {
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.7)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                     }),
                 }),
             }));
@@ -535,6 +564,7 @@ onMounted(async () => {
         });
     }, {
         immediate: true,
+        deep: true,
     });
 
     if (isPrimaryAirport.value) {

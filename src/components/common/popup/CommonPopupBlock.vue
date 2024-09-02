@@ -13,6 +13,12 @@
             >
                 <slot name="additionalTitle"/>
             </div>
+            <template v-if="$slots.titleAppend">
+                <div class="__spacer"/>
+                <div class="popup-block_title_append">
+                    <slot name="titleAppend"/>
+                </div>
+            </template>
         </div>
         <div class="popup-block_content">
             <slot/>
@@ -28,8 +34,12 @@
 
     &_title {
         display: flex;
-        gap: 16px;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        align-items: center;
+
         padding-bottom: 8px;
+
         border-bottom: 1px solid varToRgba('lightgray150', 0.2);
 
         &_text {
