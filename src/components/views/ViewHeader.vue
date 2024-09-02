@@ -13,20 +13,6 @@
             <close-icon/>
         </div>
     </div>
-    <div
-        v-if="(store.localSettings.filters?.layers?.layer === 'Jawg' || (store.localSettings.filters?.layers?.layer === 'JawgOrOSM' && store.theme === 'default')) && !warningCookie"
-        class="header-error"
-    >
-        <div class="header-error_text">
-            VATSIM Radar has exceeded it's quota for Jawg map layer. Functionality will be restored on, or shortly after, 10 July. For now, we have replaced this layer with Carto.
-        </div>
-        <div
-            class="header-error_close"
-            @click="[warningCookie=true]"
-        >
-            <close-icon/>
-        </div>
-    </div>
     <header class="header">
         <div class="header_left">
             <nuxt-link
@@ -377,12 +363,6 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     sameSite: 'strict',
     secure: true,
     maxAge: 60 * 60 * 24,
-});
-const warningCookie = useCookie<boolean>('warning-closed', {
-    path: '/',
-    sameSite: 'strict',
-    secure: true,
-    maxAge: 60 * 60 * 24 * 7,
 });
 
 const buttons = computed(() => {

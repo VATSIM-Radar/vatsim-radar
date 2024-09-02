@@ -1,6 +1,6 @@
 {
   "name": "nuxt-app",
-  "version": "0.4.4-rc.5",
+  "version": "0.4.4-rc.6",
   "private": true,
   "type": "module",
   "scripts": {
@@ -37,6 +37,7 @@
     "metar-taf-parser": "^9.0.1",
     "nuxt": "^3.13.0",
     "ol": "^10.1.0",
+    "ol-mapbox-style": "^12.3.5",
     "pinia": "^2.2.2",
     "prisma": "^5.19.0",
     "sharp": "^0.33.5",

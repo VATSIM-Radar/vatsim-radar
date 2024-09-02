@@ -25,11 +25,12 @@ export type MapAircraft =
     & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
 
 export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
-export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | 'Jawg' | 'CartoDB' | 'CartoDBLabels';
-export type MapLayoutLayerRadar = 'RadarLabels' | 'RadarNoLabels' | 'RadarSatelliteLabels' | 'RadarSatelliteNoLabels';
-export type MapLayoutLayer = MapLayoutLayerExternal | MapLayoutLayerRadar;
-export type MapLayoutLayerExternalOptions = MapLayoutLayerExternal | 'JawgOrOSM';
-export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions | MapLayoutLayerRadar;
+export type MapLayoutLayerCarto = 'carto';
+export type MapLayoutLayerCartoVariants = `${ MapLayoutLayerCarto }${ 'Vector' | 'Static' }`;
+export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | `${ MapLayoutLayerCartoVariants }Labels` | `${ MapLayoutLayerCartoVariants }NoLabels`;
+export type MapLayoutLayer = MapLayoutLayerExternal | MapLayoutLayerCarto;
+export type MapLayoutLayerExternalOptions = MapLayoutLayerExternal | MapLayoutLayerCarto;
+export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions;
 
 export interface UserLayersTransparencySettings {
     satellite?: number;
@@ -47,6 +48,8 @@ interface IUserLocalSettings {
         layers?: {
             weather2?: MapWeatherLayer | false;
             layer?: MapLayoutLayerWithOptions;
+            layerLabels?: boolean;
+            layerVector?: boolean;
             transparencySettings?: UserLayersTransparencySettings;
         };
     };

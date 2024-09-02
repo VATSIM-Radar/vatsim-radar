@@ -141,7 +141,7 @@ export default defineNuxtConfig({
                 redirect: 'https://discord.gg/MtFKhMPePe',
             },
             '/layers/carto/**': {
-                proxy: 'https://cartodb-basemaps-a.global.ssl.fastly.net/**',
+                proxy: 'https://a.basemaps.cartocdn.com/**',
             },
             '/layers/jawg/**': {
                 proxy: 'https://tile.jawg.io/**',

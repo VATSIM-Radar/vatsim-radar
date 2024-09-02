@@ -34,10 +34,12 @@
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-filters v-if="!store.config.hideHeader"/>
-                <map-layer/>
                 <map-weather v-if="!store.config.hideHeader"/>
             </client-only>
         </div>
+        <client-only v-if="ready">
+            <map-layer/>
+        </client-only>
         <common-popup
             v-if="route.query"
             v-model="isDiscord"
