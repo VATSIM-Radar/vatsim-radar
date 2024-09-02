@@ -13,7 +13,6 @@ import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
-import BaseLayer from 'ol/layer/Base';
 
 defineSlots<{ default: () => any }>();
 
