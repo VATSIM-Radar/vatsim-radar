@@ -68,9 +68,16 @@ export default defineNuxtConfig({
             useAsyncData: {
                 deep: false,
             },
+            nuxtLink: {
+                prefetchOn: {
+                    visibility: false,
+                    interaction: true,
+                },
+            },
         },
         headNext: true,
         inlineRouteRules: true,
+        checkOutdatedBuildInterval: 1000 * 60 * 5,
     },
     runtimeConfig: {
         NAVIGRAPH_CLIENT_ID: process.env.NAVIGRAPH_CLIENT_ID,

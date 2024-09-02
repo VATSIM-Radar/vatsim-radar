@@ -40,6 +40,8 @@ export const useStore = defineStore('index', {
 
         showPilotStats: false,
         dataInProgress: false,
+
+        updateRequired: false,
     }),
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
