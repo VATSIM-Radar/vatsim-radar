@@ -68,12 +68,6 @@ export default defineNuxtConfig({
             useAsyncData: {
                 deep: false,
             },
-            nuxtLink: {
-                prefetchOn: {
-                    visibility: false,
-                    interaction: true,
-                },
-            },
         },
         headNext: true,
         inlineRouteRules: true,
