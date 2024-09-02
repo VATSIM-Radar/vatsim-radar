@@ -50,7 +50,7 @@ export default defineEventHandler(async event => {
 
         const expires = new Date(Date.now() + (token.expires_in * 1000));
 
-        const navigraphUser = await prisma.navigraphUser.findFirst({
+        let navigraphUser = await prisma.navigraphUser.findFirst({
             select: {
                 user: {
                     select: {
@@ -70,6 +70,16 @@ export default defineEventHandler(async event => {
                 statusCode: 401,
                 statusMessage: 'You should be authorized via VATSIM in order to link Navigraph account',
             });
+        }
+
+        if (navigraphUser && user.id !== navigraphUser.user.id) {
+            await prisma.navigraphUser.delete({
+                where: {
+                    id: jwt.sub,
+                },
+            });
+
+            navigraphUser = null;
         }
 
         if (navigraphUser) {
