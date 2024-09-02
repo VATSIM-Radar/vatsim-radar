@@ -97,7 +97,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - Improved great circle support for transoceanic flights that had disconnects
 
-# 0.4.3
+# [0.4.3]
 
 - Slighty improved update browser performance
 - Optimized turns render for very big aircraft list
@@ -107,7 +107,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed aircraft blinking when updating
 - Several map update performance improvements
 
-# 0.4.2
+# [0.4.2]
 
 Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle
 support - and much more.
@@ -156,7 +156,7 @@ support - and much more.
 - Fixed an issue when sometimes data was not updating every 15 seconds
 - Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
 
-# 0.4.1
+# [0.4.1]
 
 - Increased rate for Navigraph AIRAC updates
 - Added transparency settings for OSM and satellite layers
