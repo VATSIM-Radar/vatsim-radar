@@ -77,8 +77,8 @@ const layer = computed<Layer | IVectorLayer>(() => {
                     title: 'CartoDB',
                     url: 'https://cartodb.com/attribution',
                 },
-                url: `/layers/carto/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
-                lightThemeUrl: `/layers/carto/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
+                url: `https://a.basemaps.cartocdn.com/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
+                lightThemeUrl: `https://a.basemaps.cartocdn.com/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
             };
         }
         else {
