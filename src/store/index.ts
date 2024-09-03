@@ -24,8 +24,11 @@ export interface SiteConfig {
     airport?: string;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
+    onlyAirportsAircraft?: boolean;
     showInfoForPrimaryAirport?: boolean;
     area?: [Coordinate, Coordinate];
+    center?: Coordinate;
+    zoom?: number;
 }
 
 export const useStore = defineStore('index', {

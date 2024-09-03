@@ -24,6 +24,16 @@ const idPreset: SiteConfig = {
     ],
 };
 
+const carPreset: SiteConfig = {
+    theme: 'light',
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: true,
+    center: fromLonLat([18.924940, -71.652160].reverse()),
+    zoom: 5,
+    onlyAirportsAircraft: true,
+};
+
 const dashboardPreset: SiteConfig = {
     hideAirports: false,
     hideSectors: false,
@@ -48,6 +58,9 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'id') {
         preset = idPreset;
+    }
+    else if (query.preset === 'car') {
+        preset = carPreset;
     }
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;

@@ -334,7 +334,11 @@ await setupDataFetch({
                 ];
             }
         }
-        else if (store.config.airports) {
+        else if (store.config.area) {
+            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
+            center = getCenter(projectionExtent);
+        }
+        else if (store.config.airports && !store.config.center) {
             const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
 
             if (airports.length) {
@@ -342,10 +346,16 @@ await setupDataFetch({
                 center = getCenter(projectionExtent);
             }
         }
-        else if (store.config.area) {
-            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
-            center = getCenter(projectionExtent);
+
+        if (store.config.center) center = store.config.center;
+
+        let zoom = store.localSettings.zoom ?? 3;
+
+        if (store.config.zoom) zoom = store.config.zoom;
+        else if (store.config.airport) {
+            zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
+        else if (store.config.airports?.length) zoom = 1;
 
         map.value = new Map({
             target: mapContainer.value!,
@@ -358,12 +368,10 @@ await setupDataFetch({
             maxTilesLoading: 128,
             view: new View({
                 center,
-                zoom: store.config.airport
-                    ? store.config.showInfoForPrimaryAirport ? 12 : 14
-                    : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
+                zoom,
                 minZoom: 3,
                 multiWorld: false,
-                showFullExtent: !!store.config.airports?.length,
+                showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: projectionExtent,
             }),
         });
