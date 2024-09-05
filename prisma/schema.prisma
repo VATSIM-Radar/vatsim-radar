@@ -22,6 +22,7 @@ model User {
   discordStrategy DiscordStrategy?
   tokens          UserToken[]
   settings        Json?            @default("{}")
+  mapSettings     Json?            @default("{}")
 }
 
 model UserToken {

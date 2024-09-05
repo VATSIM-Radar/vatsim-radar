@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.1]
+
+- Fixed an issue when aircraft didn't change it's icon to correct one after uploaded flight plan
+
 # [0.4.4]
 
 Big thanks to Felix and DotWallop for making this release possible!

@@ -176,7 +176,7 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
 
     const featureProperties = feature.getProperties() ?? {};
 
-    if (image && featureProperties.imageStatus === status) {
+    if (image && featureProperties.imageStatus === status && featureProperties.icon === icon) {
         image.setRotation(rotation);
     }
     else {
@@ -206,6 +206,7 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
     feature.setProperties({
         ...featureProperties,
         imageStatus: status,
+        icon,
     });
 }
 
