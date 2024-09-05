@@ -143,6 +143,10 @@ const roadmap = reactive<Roadmap[]>([
         title: 'Stage 2',
         items: [
             {
+                title: 'Arrivals rate',
+                status: 'completed',
+            },
+            {
                 title: 'Aircraft tracking',
                 description: 'Including center/zoom to it, any random aicraft on map',
                 status: 'completed',
@@ -221,11 +225,10 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Settings (hide atc/aircraft/gates/etc)',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
-                status: 'todo',
             },
             {
                 title: 'Open Source (code only)',
@@ -244,15 +247,6 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Airport Dashboard Controller Mode',
                 status: 'completed',
             },
-        ],
-    },
-    {
-        title: 'Stage 3',
-        items: [
-            'Ability to run github repo locally',
-            'Oceanic Tracks integration',
-            'Waypoints on map (including aircraft submitted route)',
-            'Events/ATC Bookings',
             {
                 title: 'Favorite pilots/ATC',
                 status: 'todo',
@@ -261,7 +255,20 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Search',
                 status: 'todo',
             },
-            'Friendly mobile version',
+            {
+                title: 'Friendly mobile version',
+                status: 'todo',
+            },
+        ],
+    },
+    {
+        title: 'Stage 3',
+        items: [
+            'Proper Github local setup',
+            'Oceanic Tracks integration',
+            'Waypoints on map (including aircraft submitted route)',
+            'Events/ATC Bookings',
+            'Smart positioning for aircraft info popup',
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
@@ -283,7 +290,6 @@ const roadmap = reactive<Roadmap[]>([
             },
             'Name of aircraft operating company',
             'Images or aircraft type, airline + operator',
-            'Aircraft moving in VATSIM update pause',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
         ],
@@ -298,10 +304,10 @@ const roadmap = reactive<Roadmap[]>([
             'ECFMP integration',
             'Streamers integration',
             '3D map view',
-            'Departure & Arrivals rate',
-            'Smart positioning for aircraft info popup',
             'Twitch/streamers integration',
             'Usage of VatGlasses data',
+            'Distance measuring tool',
+            'Aircraft collision prediction',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
