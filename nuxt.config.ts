@@ -166,6 +166,7 @@ export default defineNuxtConfig({
     },
     vite: {
         build: {
+            cssMinify: 'esbuild',
             rollupOptions: {
                 external: [
                     'sharp',
@@ -173,8 +174,10 @@ export default defineNuxtConfig({
             },
         },
         css: {
+            preprocessorMaxWorkers: true,
             preprocessorOptions: {
                 scss: {
+                    // api: 'modern-compiler',
                     additionalData: `@use "~/scss/colors.scss" as *;@use "~/scss/variables.scss" as *;`,
                 },
             },

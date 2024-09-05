@@ -78,7 +78,9 @@ const mapStore = useMapStore();
 const id = useId();
 const popupId = `${ id }-popup`;
 
-emit('id', id);
+if (id) {
+    emit('id', id);
+}
 emit('popupId', popupId);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
@@ -134,7 +136,7 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
             element: overlayElement.value!,
         });
 
-        if (!props.persistent) mapStore.openOverlayId = id;
+        if (!props.persistent) mapStore.openOverlayId = id ?? null;
         map.value!.addOverlay(overlay.value);
     }
     else if (model.value && overlay.value && !props.persistent && mapStore.openOverlayId !== id) {
