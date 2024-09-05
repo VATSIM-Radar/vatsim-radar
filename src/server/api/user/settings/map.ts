@@ -13,6 +13,15 @@ const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     seenVersion: val => (typeof val === 'string' && val.length <= 15) || val === null,
 };
 
+export interface UserMapSettingsColors {
+    firs?: string;
+    uirs?: string;
+    approach?: string;
+    aircraft?: PartialRecord<MapAircraftStatus, string> & {
+        main?: string;
+    };
+}
+
 export interface UserMapSettings {
     visibility: {
         atc?: Partial<{
@@ -21,16 +30,26 @@ export interface UserMapSettings {
             ground: boolean;
         }> | boolean;
         pilots?: boolean;
+        gates?: boolean;
+        runways?: boolean;
     };
     heatmapLayer?: boolean;
+    groundTraffic?: {
+        hide?: 'always' | 'lowZoom' | 'never';
+        excludeMyArrival?: boolean;
+        excludeMyLocation?: boolean;
+    };
     aircraftScale?: number;
+    airportsMode?: 'staffedOnly' | 'groundTrafficOnly' | 'all';
+    airportsCounters?: {
+        showSameAirportCounter?: boolean;
+        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground';
+        arrivalsMode?: 'total' | 'totalMoving' | 'airborne' | 'ground';
+    };
     colors?: {
-        firs?: string;
-        uirs?: string;
-        approach?: string;
-        aircraft?: PartialRecord<MapAircraftStatus, string> & {
-            main?: string;
-        };
+        light?: UserMapSettingsColors;
+        default?: UserMapSettingsColors;
+        turns?: string;
     };
 }
 
