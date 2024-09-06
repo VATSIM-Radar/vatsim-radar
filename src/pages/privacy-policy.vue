@@ -20,7 +20,7 @@
                         Services on this domain and subdomains would be described from later on as VATSIM Radar
                     </li>
                     <li>
-                        This Privacy Policy was last updated on 21 April 2024 (revision 2)
+                        This Privacy Policy was last updated on 06 September 2024 (revision 3)
                     </li>
                     <li>
                         User agrees to Privacy Policy by using VATSIM Radar
@@ -35,8 +35,7 @@
 
                 <ol>
                     <li>
-                        VATSIM Radar may store your data in persistent DataBase after linking of VATSIM, Navigraph and
-                        Discord accounts
+                        VATSIM Radar may store your data in persistent DataBase after linking of VATSIM, Navigraph, and other accounts, listed below in clause 2.2.
                     </li>
                     <li>
                         Personal data, stored by VATSIM Radar, includes:
@@ -52,14 +51,23 @@
                                 Discord user info: ID and relation with VATSIM account
                             </li>
                             <li>
+                                Patreon user info: ID, nickname and relation with VATSIM account
+                            </li>
+                            <li>
+                                Twitch user info: ID, nickname and relation with VATSIM account
+                            </li>
+                            <li>
                                 User's preferences, including, but not limited to, Settings, Favourite users, Filters,
                                 and other non-3rd party related preferences
                             </li>
-                            <li>
-                                User's preferences data does not include behaviour tracking and does not include any
-                                information that may be used to analyze user's identity
-                            </li>
                         </ol>
+                    </li>
+                    <li>
+                        User's personal data does not include behaviour tracking and does not include any
+                        information that may be used to analyze user's identity
+                    </li>
+                    <li>
+                        User's personal data may also be stored in private containers in CloudFlare and DigitalOcean for backups purposes
                     </li>
                 </ol>
             </li>
@@ -68,7 +76,7 @@
 
                 <ol>
                     <li>
-                        VATSIM Radar may use Cookie, Local Storage or other browser features
+                        VATSIM Radar may use Cookie, Local Storage or other browser storing features
                     </li>
                     <li>
                         Data, stored in browser, includes, but not limited to, authorization token, preferences
@@ -84,7 +92,13 @@
                         VATSIM Radar does not share any data, described in 2. and 3. with any external service
                     </li>
                     <li>
-                        VATSIM Radar does not include any analytics scripts or hidden pixels that can be used to track
+                        VATSIM Radar may use CloudFlare Beacon to track minimum amount of information, as described <a
+                            href="https://developers.cloudflare.com/web-analytics/data-metrics/"
+                            target="_blank"
+                        >here</a>
+                    </li>
+                    <li>
+                        VATSIM Radar does not include any other analytics scripts or hidden pixels that can be used to track
                         user
                     </li>
                     <li>
@@ -102,7 +116,7 @@
                         VATSIM Radar Settings
                     </li>
                     <li>
-                        Data will be automatically permanently deleted withing 24 hours from deletion request
+                        Data will be automatically permanently deleted withing 7 days from deletion request, including 3rd party backups and snapshots
                     </li>
                     <li>
                         User can't disallow using of Browser stored data, such as Cookies, since they are required for
