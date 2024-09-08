@@ -4,4 +4,5 @@ import { setUserLocalSettings } from '~/composables';
 export default defineNuxtPlugin(async () => {
     await initClientDB();
     setUserLocalSettings();
+    setUserMapSettings();
 });

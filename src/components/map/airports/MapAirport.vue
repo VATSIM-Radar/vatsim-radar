@@ -22,7 +22,10 @@
                 >
                     {{ airportName }}
                 </div>
-                <div class="airport_facilities">
+                <div
+                    v-if="!store.mapSettings.visibility?.atcLabels && !isHideAtcType('ground')"
+                    class="airport_facilities"
+                >
                     <div
                         v-for="local in localsFacilities"
                         :key="local.facility"
@@ -341,14 +344,17 @@ function setFeatureStyle(feature: Feature) {
         textCoord,
     });
 
-    feature.setStyle([
+    const style = [
         new Style({
             stroke: new Stroke({
                 color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),
-        new Style({
+    ];
+
+    if (!store.mapSettings.visibility?.atcLabels) {
+        style.push(new Style({
             geometry: new Point(textCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
@@ -367,8 +373,10 @@ function setFeatureStyle(feature: Feature) {
                 }),
                 padding: [3, 1, 2, 3],
             }),
-        }),
-    ]);
+        }));
+    }
+
+    feature.setStyle(style);
 }
 
 function clearArrFeatures() {
@@ -404,15 +412,15 @@ onMounted(async () => {
         immediate: true,
     });
 
-    watch(dataStore.vatsim.updateTimestamp, () => {
-        if (!props.arrAtc?.length || isPrimaryAirport.value) {
+    function initAndUpdateData(force = false) {
+        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach')) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
 
             return;
         }
 
-        if (props.arrAtc.every(x => arrAtcLocal.value.has(x.cid)) && [...arrAtcLocal.value].every(x => props.arrAtc.some(y => y.cid === x))) return;
+        if (!force && props.arrAtc.every(x => arrAtcLocal.value.has(x.cid)) && [...arrAtcLocal.value].every(x => props.arrAtc.some(y => y.cid === x))) return;
         arrAtcLocal.value = new Set<number>(props.arrAtc.map(x => x.cid));
         clearArrFeatures();
 
@@ -468,8 +476,15 @@ onMounted(async () => {
             setFeatureStyle(feature);
             vectorSource.value?.addFeature(feature);
         }
-    }, {
+    }
+
+    watch(dataStore.vatsim.updateTimestamp, () => initAndUpdateData(), {
         immediate: true,
+    });
+
+    watch(() => String(store.mapSettings.visibility?.atcLabels) + JSON.stringify(store.mapSettings.visibility?.atc), () => {
+        initAndUpdateData(true);
+        triggerRef(localsLength);
     });
 
     watch(gates, val => {
@@ -541,7 +556,7 @@ onMounted(async () => {
         });
         runwaysFeatures = [];
 
-        if (!val) return;
+        if (!val?.length) return;
 
         runwaysFeatures = val.map(feature => {
             const runwayFeature = new Feature({

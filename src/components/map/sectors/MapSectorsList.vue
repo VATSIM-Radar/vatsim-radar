@@ -1,10 +1,12 @@
 <template>
-    <map-sector
-        v-for="(sector, index) in firs"
-        :key="sector.fir.feature.id as string + index"
-        :atc="sector.atc"
-        :fir="sector.fir"
-    />
+    <template v-if="!isHideAtcType('firs')">
+        <map-sector
+            v-for="(sector, index) in firs"
+            :key="sector.fir.feature.id as string + index"
+            :atc="sector.atc"
+            :fir="sector.fir"
+        />
+    </template>
 </template>
 
 <script setup lang="ts">

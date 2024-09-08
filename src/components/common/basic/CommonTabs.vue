@@ -90,7 +90,7 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         border: solid transparent;
         border-width: 2px 2px 0;
-        border-radius: 4px;
+        border-radius: 8px 8px 0 0;
 
         transition: 0.3s;
 

@@ -1,13 +1,15 @@
 <template>
-    <map-aircraft
-        v-for="aircraft in visiblePilots"
-        :key="aircraft.cid"
-        :aircraft="aircraft"
-        :is-hovered="hoveredAircraft === aircraft.cid"
-        :show-label="showAircraftLabel.includes(aircraft.cid)"
-        @manualHide="[isManualHover = false]"
-        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
-    />
+    <template v-if="!isHideMapObject('pilots')">
+        <map-aircraft
+            v-for="aircraft in visiblePilots"
+            :key="aircraft.cid"
+            :aircraft="aircraft"
+            :is-hovered="hoveredAircraft === aircraft.cid"
+            :show-label="showAircraftLabel.includes(aircraft.cid)"
+            @manualHide="[isManualHover = false]"
+            @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
+        />
+    </template>
     <!-- We do not set  hoveredAircraft = false in the manualHide event, because this led to a short time when moving with the mouse from the label to the icon where the aircraft got a "not hovered" state. We just switch to ManualHover=false and let the pointermove function handle the removal of the hover state -->
 </template>
 
@@ -25,6 +27,7 @@ import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
 import VectorImageLayer from 'ol/layer/VectorImage';
+import { isHideMapObject } from '~/composables/settings';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);

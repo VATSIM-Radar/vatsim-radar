@@ -275,10 +275,21 @@ img {
 .__section-group {
     display: flex;
     gap: 8px;
+    width: 100%;
 
-    > * {
-        flex: 1 1 0;
-        width: 0;
+    &:not(&--even){
+        > * {
+            flex: 1 1 0;
+            width: 0;
+        }
+    }
+
+    &--even {
+        flex-wrap: wrap;
+
+        > * {
+            width: auto;
+        }
     }
 }
 

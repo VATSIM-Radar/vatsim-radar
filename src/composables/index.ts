@@ -10,6 +10,7 @@ import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
 import { defu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
+import type { IUserMapSettings, UserMapSettings } from '~/server/api/user/settings/map';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -129,6 +130,40 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));
+}
+
+export function setUserMapSettings(settings?: UserMapSettings) {
+    const store = useStore();
+
+    const settingsText = localStorage.getItem('map-settings') ?? '{}';
+    if (!settings && JSON.stringify(store.mapSettings) === settingsText) return;
+
+    let mapSettings = JSON.parse(settingsText) as UserMapSettings;
+    mapSettings = defu(settings || {}, mapSettings);
+
+    store.mapSettings = mapSettings;
+    localStorage.setItem('map-settings', JSON.stringify(mapSettings));
+}
+
+export async function resetUserMapSettings() {
+    const store = useStore();
+    store.mapSettings = {};
+    localStorage.removeItem('map-settings');
+}
+
+export async function fetchUserMapSettings() {
+    const store = useStore();
+    const settings = await $fetch<UserMapSettings>('/api/user/settings/map');
+    store.mapSettings = settings;
+    localStorage.setItem('map-settings', JSON.stringify(settings));
+}
+
+export async function saveUserMapSettings() {
+    const store = useStore();
+    await $fetch<UserMapSettings>('/api/user/settings/map', {
+        method: 'POST',
+        body: store.mapSettings,
+    });
 }
 
 export function useCopyText() {

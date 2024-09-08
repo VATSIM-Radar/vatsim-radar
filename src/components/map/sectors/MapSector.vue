@@ -1,5 +1,5 @@
 <template>
-    <slot v-if="!controllers.length"/>
+    <slot v-if="!controllers.length || store.mapSettings.visibility?.atcLabels"/>
     <map-overlay
         v-else
         :active-z-index="20"
@@ -62,6 +62,7 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import { getAirportCountry } from '~/composables/airport';
 import { useScrollExists } from '~/composables';
+import { useStore } from '~/store';
 
 const props = defineProps({
     fir: {
@@ -87,6 +88,8 @@ const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
+
+const store = useStore();
 
 const locals = computed(() => {
     const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));

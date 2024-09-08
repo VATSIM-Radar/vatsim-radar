@@ -1,20 +1,22 @@
 <template>
-    <map-airport
-        v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList.filter(x => visibleAirports.some(y => y.vatspyAirport.icao === x.airport.icao))"
-        :key="airport.icao + index + (airport.iata ?? 'undefined')"
-        :aircraft="aircraft"
-        :airport="airport"
-        :arr-atc="arrAtc"
-        :features
-        :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
-        :hovered-pixel="hoveredPixel"
-        :is-hovered-airport="airport.icao === hoveredAirportName"
-        :is-visible="visibleAirports.length < 100"
-        :local-atc="localAtc"
-        :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
-        @manualHide="[isManualHover = false, hoveredArrAirport = null]"
-        @manualHover="[isManualHover = true, hoveredArrAirport = airport.iata || airport.icao]"
-    />
+    <template v-if="!isHideMapObject('airports')">
+        <map-airport
+            v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList.filter(x => visibleAirports.some(y => y.vatspyAirport.icao === x.airport.icao))"
+            :key="airport.icao + index + (airport.iata ?? 'undefined')"
+            :aircraft="aircraft"
+            :airport="airport"
+            :arr-atc="arrAtc"
+            :features
+            :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
+            :hovered-pixel="hoveredPixel"
+            :is-hovered-airport="airport.icao === hoveredAirportName"
+            :is-visible="visibleAirports.length < 100"
+            :local-atc="localAtc"
+            :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
+            @manualHide="[isManualHover = false, hoveredArrAirport = null]"
+            @manualHover="[isManualHover = true, hoveredArrAirport = airport.iata || airport.icao]"
+        />
+    </template>
 </template>
 
 <script setup lang="ts">
@@ -178,6 +180,7 @@ watch(map, val => {
 
     attachMoveEnd(setVisibleAirports);
     useUpdateInterval(setVisibleAirports);
+    watch(() => String(isHideMapObject('gates')) + isHideMapObject('runways'), setVisibleAirports);
     attachPointerMove(handlePointerMove);
     val.on('click', handleMapClick);
 }, {
@@ -234,7 +237,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
         return {
             airport: gateAirport.airport,
             gates: gates.filter(x => filteredGates.some(y => y.gate_identifier === x.gate_identifier)),
-            runways: gateAirport.runways,
+            runways: isHideMapObject('runways') ? [] : gateAirport.runways,
         };
     }).filter(x => !!x) as typeof airportsData['value'];
 });
@@ -531,10 +534,12 @@ async function setVisibleAirports() {
         }
 
         airportsData.value = originalAirportsData.value.map(data => {
-            const gatesWithPixel = data.gates.map(x => ({
-                ...x,
-                pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
-            }));
+            const gatesWithPixel = isHideMapObject('gates')
+                ? []
+                : data.gates.map(x => ({
+                    ...x,
+                    pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
+                }));
 
             return {
                 airport: data.airport,
