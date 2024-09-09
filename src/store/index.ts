@@ -29,6 +29,8 @@ export interface SiteConfig {
     area?: [Coordinate, Coordinate];
     center?: Coordinate;
     zoom?: number;
+
+    showCornerLogo?: boolean;
 }
 
 export const useStore = defineStore('index', {

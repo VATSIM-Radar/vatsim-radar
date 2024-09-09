@@ -11,6 +11,7 @@ const saPreset: SiteConfig = {
     hideFooter: true,
     allAircraftGreen: true,
     hideAllExternal: true,
+    showCornerLogo: true,
 };
 
 const idPreset: SiteConfig = {
@@ -22,6 +23,7 @@ const idPreset: SiteConfig = {
         fromLonLat([5.9999611, 91.9999972].reverse()),
         fromLonLat([-9.8339778, 141.0003861].reverse()),
     ],
+    showCornerLogo: true,
 };
 
 const carPreset: SiteConfig = {
@@ -32,6 +34,27 @@ const carPreset: SiteConfig = {
     center: fromLonLat([18.924940, -71.652160].reverse()),
     zoom: 5,
     onlyAirportsAircraft: true,
+    showCornerLogo: false,
+};
+
+const colPreset: SiteConfig = {
+    theme: 'default',
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: true,
+    area: [fromLonLat([6.651113079688614, -92.23834051546821].reverse()), fromLonLat([-4.768948971763558, -57.005187602811105].reverse())],
+    onlyAirportsAircraft: true,
+    showCornerLogo: true,
+};
+
+const urvPreset: SiteConfig = {
+    theme: 'default',
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: true,
+    onlyAirportAircraft: true,
+    onlyAirportsAircraft: true,
+    showCornerLogo: true,
 };
 
 const dashboardPreset: SiteConfig = {
@@ -61,6 +84,12 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'car') {
         preset = carPreset;
+    }
+    else if (query.preset === 'col') {
+        preset = colPreset;
+    }
+    else if (query.preset === 'urv') {
+        preset = urvPreset;
     }
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;

@@ -20,11 +20,7 @@
                 no-prefetch
                 to="/"
             >
-                <logo-icon class="header__logo_icon"/>
-                <div class="header__logo_text">
-                    VATSIM<br>
-                    Radar
-                </div>
+                <common-logo/>
             </nuxt-link>
             <div class="header__sections">
                 <div class="header__sections_section header__buttons">
@@ -336,7 +332,6 @@ import type { UserSettings } from '~/utils/backend/user';
 import DiscordIcon from '@/assets/icons/header/discord.svg?component';
 import GithubIcon from '@/assets/icons/header/github.svg?component';
 import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
-import LogoIcon from '@/assets/icons/basic/logo.svg?component';
 import PatreonIcon from '@/assets/icons/basic/patreon.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
@@ -354,6 +349,7 @@ import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 
 import type { ThemesList } from '~/utils/backend/styles';
+import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -516,29 +512,7 @@ onMounted(() => {
     }
 
     &__logo {
-        user-select: none;
-
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        font-size: 12px;
-        font-weight: 700;
-        color: $lightgray50;
         text-decoration: none;
-
-        &_icon {
-            width: 40px;
-            color: $lightgray100;
-
-            :deep(> rect) {
-                color: $primary500;
-            }
-
-            :deep(.wifi) {
-                color: $darkgray950;
-            }
-        }
     }
 
     &__user {

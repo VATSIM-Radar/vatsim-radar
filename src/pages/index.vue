@@ -35,6 +35,17 @@
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-filters v-if="!store.config.hideHeader"/>
                 <map-weather v-if="!store.config.hideHeader"/>
+                <a
+                    v-if="store.config.showCornerLogo"
+                    class="map_logo"
+                    href="https://vatsim-radar.com"
+                    target="_blank"
+                >
+                    <common-logo
+                        font-size="14px"
+                        width="50px"
+                    />
+                </a>
             </client-only>
         </div>
         <client-only v-if="ready">
@@ -73,6 +84,7 @@ import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[i
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
+import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -484,6 +496,15 @@ await setupDataFetch({
             flex: 1 0 auto;
             border-radius: 16px;
         }
+    }
+
+    &_logo {
+        position: absolute;
+        z-index: 5;
+        bottom: 16px;
+        left: 16px;
+
+        text-decoration: none;
     }
 
     :deep(.ol-attribution) {
