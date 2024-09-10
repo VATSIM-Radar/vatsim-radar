@@ -351,7 +351,7 @@ const aircraftModes: SelectItem<MapAircraftMode>[] = [
     },
 ];
 
-const displayedColumns = ref<MapAircraftKeys[]>([]);
+const displayedColumns = ref<MapAircraftKeys[]>(['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr']);
 const displayableColumns: SelectItem<MapAircraftKeys>[] = [
     {
         value: 'prefiles',
