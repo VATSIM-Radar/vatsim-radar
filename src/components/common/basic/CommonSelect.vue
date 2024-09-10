@@ -71,6 +71,10 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
+    showSelectedValue: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 defineSlots<{ default: (settings: { item: SelectItem }) => any }>();
@@ -93,6 +97,10 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const shownValue = computed<string>(() => {
+    if (!(props.showSelectedValue)) {
+        return props.placeholder || '';
+    }
+
     if (props.items && activeItems.value.length > 1) {
         return `${ activeItems.value.length } selected`;
     }

@@ -48,6 +48,7 @@
                     :items="displayableColumns"
                     multiple
                     placeholder="Displayed columns"
+                    :show-selected-value=false
                     width="200px"
                 />
             </div>
