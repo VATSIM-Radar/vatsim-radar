@@ -50,7 +50,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@nuxt/devtools": "^1.4.1",
+    "@nuxt/devtools": "^1.4.2",
     "@nuxt/eslint": "^0.5.6",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^2.7.2",
