@@ -1,7 +1,7 @@
 <template>
     <template v-if="!isHideMapObject('airports')">
         <map-airport
-            v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList.filter(x => visibleAirports.some(y => y.vatspyAirport.icao === x.airport.icao))"
+            v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getShownAirports"
             :key="airport.icao + index + (airport.iata ?? 'undefined')"
             :aircraft="aircraft"
             :airport="airport"
@@ -72,6 +72,21 @@ const hoveredAirportName = ref<string | null>(null);
 const hoveredArrAirport = ref<string | null>(null);
 const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
+
+const getShownAirports = computed(() => {
+    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao));
+
+    switch (store.mapSettings.airportsMode) {
+        case 'staffedOnly':
+            list = list.filter(x => x.arrAtc.length || x.localAtc.length);
+            break;
+        case 'staffedAndGroundTraffic':
+            list = list.filter(x => x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length);
+            break;
+    }
+
+    return list;
+});
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     if (mapStore.openOverlayId && !mapStore.openApproachOverlay) return;

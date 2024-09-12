@@ -168,6 +168,7 @@
                         center-by="start"
                         class="filters_sections_section_content"
                         location="right"
+                        max-height="50vh"
                         :model-value="selectedFilter === 'settings'"
                         width="450px"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
@@ -203,7 +204,7 @@ import type {
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import MapSettings from '~/components/map/filters/MapSettings.vue';
+import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 
 const store = useStore();
 
@@ -211,7 +212,7 @@ const isOpened = computed(() => store.localSettings.filters?.opened !== false);
 const selectedFilter = ref<string | null>(null);
 
 const selectFilter = (filter: string) => {
-    selectedFilter.value === filter ? selectedFilter.value = null : selectedFilter.value = filter;
+    selectedFilter.value = selectedFilter.value === filter ? null : filter;
 };
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [

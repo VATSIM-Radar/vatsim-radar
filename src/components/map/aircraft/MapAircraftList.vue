@@ -1,7 +1,7 @@
 <template>
     <template v-if="!isHideMapObject('pilots')">
         <map-aircraft
-            v-for="aircraft in visiblePilots"
+            v-for="aircraft in getShownPilots"
             :key="aircraft.cid"
             :aircraft="aircraft"
             :is-hovered="hoveredAircraft === aircraft.cid"
@@ -115,6 +115,38 @@ function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
 }
 
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
+
+const getShownPilots = computed(() => {
+    if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return visiblePilots.value;
+
+    if (store.mapSettings.groundTraffic.hide === 'lowZoom' && mapStore.zoom > 11) return visiblePilots.value;
+    if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return visiblePilots.value;
+
+    const pilots = visiblePilots.value;
+    const me = dataStore.vatsim.data.pilots.value.find(x => x.cid.toString() === store.user?.cid);
+
+    let arrivalAirport = '';
+
+    if (me?.arrival && !store.mapSettings.groundTraffic.excludeMyArrival) {
+        arrivalAirport = me.arrival;
+    }
+
+    const allOnGround: number[] = [];
+
+    for (const airport of dataStore.vatsim.data.airports.value) {
+        if (airport.icao === arrivalAirport) continue;
+
+        if (me && !store.mapSettings.groundTraffic.excludeMyLocation) {
+            const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);
+            if (check) continue;
+        }
+
+        allOnGround.push(...airport.aircraft.groundDep ?? []);
+        allOnGround.push(...airport.aircraft.groundArr ?? []);
+    }
+
+    return pilots.filter(x => !allOnGround.includes(x.cid));
+});
 
 function setVisiblePilots() {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => {

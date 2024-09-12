@@ -161,8 +161,10 @@ export interface IUserMapSettings {
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     airportsCounters: {
         showSameAirportCounter?: boolean;
-        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'hide';
+        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
+        hidePrefiles?: boolean;
+        disableTraining?: boolean;
     };
     colors: {
         light?: UserMapSettingsColors;
