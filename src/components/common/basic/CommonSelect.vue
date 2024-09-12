@@ -71,10 +71,17 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
-    showSelectedValue: {			// ------- showSelectedValue -------
-        type: Boolean,				// Switches between showing the
-        default: true,				// selected items or the placeholder
-    },						// name. Defaults to true.
+    /** showSelectedValue
+      *
+      * Switches between showing
+      * the selected items or the
+      * placeholder name.
+      * @default true
+      */
+    showSelectedValue: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 defineSlots<{ default: (settings: { item: SelectItem }) => any }>();
@@ -97,9 +104,9 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const shownValue = computed<string>(() => {
-    if (!(props.showSelectedValue)) {		// if selected value is not to be shown
-        return props.placeholder || '';		// display the placeholder name
-    }						// else, show selected items
+    if (!(props.showSelectedValue)) {
+        return props.placeholder || '';
+    }
 
     if (props.items && activeItems.value.length > 1) {
         return `${ activeItems.value.length } selected`;
