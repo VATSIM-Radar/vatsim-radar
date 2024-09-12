@@ -71,6 +71,13 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
+    /** showSelectedValue
+      *
+      * Switches between showing
+      * the selected items or the
+      * placeholder name.
+      * @default true
+      */
     showSelectedValue: {
         type: Boolean,
         default: true,
