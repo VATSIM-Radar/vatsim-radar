@@ -119,7 +119,7 @@ export default defineNitroPlugin(app => {
                         name: patron.attributes.full_name,
                     });
                 }
-            } while (counter >= 10);
+            } while (counter > 0);
 
             radarStorage.patreonInfo = {
                 all: myAccount.data[0].attributes.patron_count,
