@@ -1,5 +1,8 @@
 <template>
     <div class="__info-sections">
+        <common-block-title>
+            General
+        </common-block-title>
         <common-toggle
             :model-value="!!store.mapSettings.heatmapLayer"
             @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
@@ -18,7 +21,53 @@
             >
             x{{ store.mapSettings.aircraftScale ?? 1 }}
         </label>
-        <div class="__section-group"/>
+        <common-block-title>
+            Airports Counters
+        </common-block-title>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Departures Mode
+            </div>
+            <common-select
+                :items="countersSelectOptions"
+                :model-value="store.mapSettings.airportsCounters?.departuresMode ?? 'ground'"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ airportsCounters: { departuresMode: $event as any } })"
+            />
+        </div>
+        <common-toggle
+            :model-value="store.mapSettings.airportsCounters?.showSameAirportCounter"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { showSameAirportCounter: $event } })"
+        >
+            Sync arrivals mode with departures
+        </common-toggle>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Arrivals Mode
+            </div>
+            <common-select
+                :disabled="!!store.mapSettings.airportsCounters?.showSameAirportCounter"
+                :items="countersSelectOptions"
+                :model-value="store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground'"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ airportsCounters: { arrivalsMode: $event as any } })"
+            />
+        </div>
+        <common-toggle
+            :model-value="store.mapSettings.airportsCounters?.hidePrefiles"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { hidePrefiles: $event } })"
+        >
+            Hide Prefiles counter
+        </common-toggle>
+        <common-toggle
+            :model-value="store.mapSettings.airportsCounters?.hidePrefiles"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { hidePrefiles: $event } })"
+        >
+            Disable Training counter
+            <template #description>
+                Adds aircraft with same departure-arrival to departures list
+            </template>
+        </common-toggle>
     </div>
 </template>
 
@@ -26,10 +75,14 @@
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
 import type { IUserMapSettings } from '~/server/api/user/settings/map';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import type { SelectItem } from '~/types/components/select';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 const store = useStore();
 
-const countersOptions: Record<IUserMapSettings['airportsCounters']['departuresMode'], string> = {
+// For type safety
+const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
     total: 'Total',
     totalMoving: 'Total with GS > 0',
     airborne: 'Airborne',
@@ -37,6 +90,11 @@ const countersOptions: Record<IUserMapSettings['airportsCounters']['departuresMo
     groundMoving: 'Ground with GS > 0',
     hide: 'Hide',
 };
+
+const countersSelectOptions = Object.entries(countersOptions).map(([key, value]) => ({
+    text: value,
+    value: key,
+} satisfies SelectItem));
 </script>
 
 <style scoped lang="scss">

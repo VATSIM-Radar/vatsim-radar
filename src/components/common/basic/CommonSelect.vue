@@ -5,6 +5,7 @@
         :class="{
             'select--selected': activeItems.length,
             'select--opened': opened,
+            'select--disabled': disabled,
         }"
         @click="opened = !opened"
     >
@@ -65,6 +66,10 @@ const props = defineProps({
         required: true,
     },
     multiple: {
+        type: Boolean,
+        default: false,
+    },
+    disabled: {
         type: Boolean,
         default: false,
     },
@@ -137,6 +142,11 @@ function updateModel(value: SelectItemValueType, add: boolean) {
     text-align: left;
 
     transition: 0.6s;
+
+    &--disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
 
     &_container, &__item {
         overflow: hidden;

@@ -203,8 +203,10 @@ html, body {
         scrollbar-gutter: stable;
     }
 
-    &--theme-light {
-        color-scheme: light;
+    &.theme-light {
+        &, * {
+            color-scheme: light;
+        }
     }
 }
 
@@ -269,6 +271,10 @@ img {
 
     &_title {
         font-size: 13px;
+    }
+
+    &--large-title {
+        grid-template-columns: 30% 65%;
     }
 }
 
