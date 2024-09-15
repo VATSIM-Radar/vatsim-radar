@@ -2719,12 +2719,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.5.4":
+"@types/node@npm:*":
   version: 22.5.4
   resolution: "@types/node@npm:22.5.4"
   dependencies:
     undici-types: "npm:~6.19.2"
   checksum: 10c0/b445daa7eecd761ad4d778b882d6ff7bcc3b4baad2086ea9804db7c5d4a4ab0298b00d7f5315fc640a73b5a1d52bbf9628e09c9fec0cf44dbf9b4df674a8717d
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.5.5":
+  version: 22.5.5
+  resolution: "@types/node@npm:22.5.5"
+  dependencies:
+    undici-types: "npm:~6.19.2"
+  checksum: 10c0/ead9495cfc6b1da5e7025856dcce2591e9bae635357410c0d2dd619fce797d2a1d402887580ca4b336cb78168b195224869967de370a23f61663cf1e4836121c
   languageName: node
   linkType: hard
 
@@ -4753,7 +4762,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.5, debug@npm:^4.3.6":
+"debug@npm:4, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.2, debug@npm:^4.3.3, debug@npm:^4.3.4, debug@npm:^4.3.5, debug@npm:^4.3.6, debug@npm:^4.3.7":
   version: 4.3.7
   resolution: "debug@npm:4.3.7"
   dependencies:
@@ -4941,9 +4950,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:^14.16.1":
-  version: 14.16.1
-  resolution: "discord.js@npm:14.16.1"
+"discord.js@npm:^14.16.2":
+  version: 14.16.2
+  resolution: "discord.js@npm:14.16.2"
   dependencies:
     "@discordjs/builders": "npm:^1.9.0"
     "@discordjs/collection": "npm:1.5.3"
@@ -4957,7 +4966,7 @@ __metadata:
     lodash.snakecase: "npm:4.1.1"
     tslib: "npm:^2.6.3"
     undici: "npm:6.19.8"
-  checksum: 10c0/612b490f0ffd890878dec55aa3d6f681c1eb20c5f2295af9a03f261e3ffcd5a7e36c91b06a2c466483ae5f4b2dec9d9e16ba50d000b1e220024d3e95ab7f8786
+  checksum: 10c0/2b4289d6a3b3f5c2978dbfa840225d2f789eaf161ae85bf12e0125b5096eb64562c170dfc7f0d1ee389beb565cabe45733a27853178b2d0dc78548b5d1a83338
   languageName: node
   linkType: hard
 
@@ -9001,7 +9010,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"picocolors@npm:^1.0.0, picocolors@npm:^1.0.1":
+"picocolors@npm:^1.0.0, picocolors@npm:^1.0.1, picocolors@npm:^1.1.0":
   version: 1.1.0
   resolution: "picocolors@npm:1.1.0"
   checksum: 10c0/86946f6032148801ef09c051c6fb13b5cf942eaf147e30ea79edb91dd32d700934edebe782a1078ff859fb2b816792e97ef4dab03d7f0b804f6b01a0df35e023
@@ -9452,7 +9461,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.0, postcss@npm:^8.4.32, postcss@npm:^8.4.41, postcss@npm:^8.4.43, postcss@npm:^8.4.44, postcss@npm:^8.4.45":
+"postcss@npm:^8.4.0, postcss@npm:^8.4.32, postcss@npm:^8.4.41, postcss@npm:^8.4.43, postcss@npm:^8.4.44":
   version: 8.4.45
   resolution: "postcss@npm:8.4.45"
   dependencies:
@@ -9460,6 +9469,17 @@ __metadata:
     picocolors: "npm:^1.0.1"
     source-map-js: "npm:^1.2.0"
   checksum: 10c0/ad6f8b9b1157d678560373696109745ab97a947d449f8a997acac41c7f1e4c0f3ca4b092d6df1387f430f2c9a319987b1780dbdc27e35800a88cde9b606c1e8f
+  languageName: node
+  linkType: hard
+
+"postcss@npm:^8.4.47":
+  version: 8.4.47
+  resolution: "postcss@npm:8.4.47"
+  dependencies:
+    nanoid: "npm:^3.3.7"
+    picocolors: "npm:^1.1.0"
+    source-map-js: "npm:^1.2.1"
+  checksum: 10c0/929f68b5081b7202709456532cee2a145c1843d391508c5a09de2517e8c4791638f71dd63b1898dba6712f8839d7a6da046c72a5e44c162e908f5911f57b5f44
   languageName: node
   linkType: hard
 
@@ -10701,7 +10721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0":
+"source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0, source-map-js@npm:^1.2.1":
   version: 1.2.1
   resolution: "source-map-js@npm:1.2.1"
   checksum: 10c0/7bda1fc4c197e3c6ff17de1b8b2c20e60af81b63a52cb32ec5a5d67a20a7d42651e2cb34ebe93833c5a2a084377e17455854fee3e21e7925c64a51b6a52b0faf
@@ -11961,13 +11981,13 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.6"
-    "@types/node": "npm:^22.5.4"
+    "@types/node": "npm:^22.5.5"
     "@types/ws": "npm:^8.5.12"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1691.0"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
-    discord.js: "npm:^14.16.1"
+    discord.js: "npm:^14.16.2"
     eslint: "npm:^9.10.0"
     fast-xml-parser: "npm:^4.5.0"
     idb: "npm:^8.0.0"
@@ -11980,7 +12000,7 @@ __metadata:
     ol: "npm:^10.1.0"
     ol-mapbox-style: "npm:^12.3.5"
     pinia: "npm:^2.2.2"
-    postcss: "npm:^8.4.45"
+    postcss: "npm:^8.4.47"
     postcss-html: "npm:^1.7.0"
     prisma: "npm:^5.19.1"
     sass-embedded: "npm:^1.78.0"
@@ -11995,10 +12015,10 @@ __metadata:
     tsx: "npm:4.16.2"
     typescript: "npm:5.6.2"
     ua-parser-js: "npm:2.0.0-beta.3"
-    vite-plugin-eslint2: "npm:^4.4.0"
+    vite-plugin-eslint2: "npm:^4.4.1"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.5.5"
-    vue-router: "npm:^4.4.4"
+    vue-router: "npm:^4.4.5"
     vue-tsc: "npm:2.1.6"
     ws: "npm:^8.18.0"
   languageName: unknown
@@ -12080,22 +12100,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-eslint2@npm:^4.4.0":
-  version: 4.4.0
-  resolution: "vite-plugin-eslint2@npm:4.4.0"
+"vite-plugin-eslint2@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "vite-plugin-eslint2@npm:4.4.1"
   dependencies:
     "@rollup/pluginutils": "npm:^5.1.0"
     chokidar: "npm:^3.6.0"
-    debug: "npm:^4.3.4"
+    debug: "npm:^4.3.7"
   peerDependencies:
     "@types/eslint": ^7.0.0 || ^8.0.0 || ^9.0.0-0
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0-0
     rollup: ^2.0.0 || ^3.0.0 || ^4.0.0
     vite: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
   peerDependenciesMeta:
+    "@types/eslint":
+      optional: true
     rollup:
       optional: true
-  checksum: 10c0/3666ec21e702851c8e1d437123fef3f1101f66f127ca986eb10146ebf969b2218bd3987ab95d4b91244a3a549031da3367124014f38263eb6ecb8c09b0ac228c
+  checksum: 10c0/926c46e48f104e4db3b603dbc833a50958e360c8c7dbdabedc32e95f7d49602b0f0fa5fa4a1841dedb48a2462b1aa42172463e84765b77926bf3362d7e91e6c8
   languageName: node
   linkType: hard
 
@@ -12327,7 +12349,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-router@npm:^4.4.3, vue-router@npm:^4.4.4":
+"vue-router@npm:^4.4.3":
   version: 4.4.4
   resolution: "vue-router@npm:4.4.4"
   dependencies:
@@ -12335,6 +12357,17 @@ __metadata:
   peerDependencies:
     vue: ^3.2.0
   checksum: 10c0/aceb25a66602b0771b86caacf62aa9a21dfec678865aac30c0c2f73622b3049c97909b2609467f0053f6dc4230332eeff05c9823d18d3ffdd5915c7c4ca83e98
+  languageName: node
+  linkType: hard
+
+"vue-router@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "vue-router@npm:4.4.5"
+  dependencies:
+    "@vue/devtools-api": "npm:^6.6.4"
+  peerDependencies:
+    vue: ^3.2.0
+  checksum: 10c0/97764fa57f3338559645e6b86c5001b313bacd753bcacf01ca17770d78794fa564d9c9bd24e9b99104e31d7e484d7c30844099300ec923e0c05d45e27111c0e7
   languageName: node
   linkType: hard
 
