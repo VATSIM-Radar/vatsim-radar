@@ -117,12 +117,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build
-        shell: bash
-        run: docker compose -f docker-compose.nginx.yml build
       - name: Deploy
         shell: bash
-        run: docker compose -f docker-compose.nginx.yml up -d
+        run: docker compose -f docker-compose.nginx.yml up --build --force-recreate -d
       - name: Clear
         shell: bash
         run: docker system prune --force && docker system prune --volumes --force

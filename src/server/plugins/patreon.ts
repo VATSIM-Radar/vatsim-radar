@@ -106,9 +106,6 @@ export default defineNitroPlugin(app => {
                 const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`);
                 counter = data.data.length;
 
-                if (!data.links?.next) break;
-                nextLink = data.links.next;
-
                 for (const user of data.data) {
                     if (user.type !== 'pledge') continue;
                     const level = data.included.find(x => x.type === 'reward' && user.relationships.reward?.data.id === x.id) as PatreonPledgesReward | undefined;
@@ -119,7 +116,10 @@ export default defineNitroPlugin(app => {
                         name: patron.attributes.full_name,
                     });
                 }
-            } while (counter >= 10);
+
+                if (!data.links?.next) break;
+                nextLink = data.links.next;
+            } while (counter > 0);
 
             radarStorage.patreonInfo = {
                 all: myAccount.data[0].attributes.patron_count,

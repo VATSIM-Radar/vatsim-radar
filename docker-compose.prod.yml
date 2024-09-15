@@ -1,5 +1,5 @@
 services:
-  app:
+  frontend: &frontend
     restart: always
     image: ghcr.io/vatsim-radar/vatsim-radar/production
     depends_on:
@@ -7,18 +7,22 @@ services:
         condition: service_started
       db:
         condition: service_healthy
-    ports:
-      - 8080-8081:3000
     healthcheck:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
       interval: 1s
       retries: 360
-    deploy:
-      mode: replicated
-      replicas: 2
-      endpoint_mode: vip
     volumes:
       - /opt/radar-data:/radar/src/data
+
+  app1:
+    <<: *frontend
+    ports:
+      - 8080:3000
+
+  app2:
+    <<: *frontend
+    ports:
+      - 8081:3000
 
   worker:
     image: ghcr.io/vatsim-radar/vatsim-radar/production
