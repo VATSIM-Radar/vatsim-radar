@@ -28,6 +28,7 @@ import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isHideMapObject } from '~/composables/settings';
+import { Heatmap } from 'ol/layer';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -37,6 +38,7 @@ let linesLayer: VectorImageLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
 
+let heatmap: Heatmap | null = null;
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
@@ -174,8 +176,26 @@ function setVisiblePilots() {
 
 useUpdateInterval(handleMoveEnd);
 
+function initHeatmap() {
+    if (store.mapSettings.heatmapLayer) {
+        if (!vectorSource.value || heatmap) return;
+
+        heatmap = new Heatmap({
+            source: vectorSource.value,
+            zIndex: 5,
+        });
+
+        map.value?.addLayer(heatmap);
+    }
+    else if (heatmap) {
+        map.value?.removeLayer(heatmap);
+        heatmap = null;
+    }
+}
+
 watch(dataStore.vatsim.updateTimestamp, () => {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    initHeatmap();
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -320,6 +340,8 @@ watch(map, val => {
         });
     }
 
+    initHeatmap();
+
     val.addLayer(vectorLayer);
     val.addLayer(linesLayer);
 
@@ -338,5 +360,8 @@ onBeforeUnmount(() => {
     if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
     window.removeEventListener('message', receiveMessage);
+    if (heatmap) {
+        map.value?.removeLayer(heatmap);
+    }
 });
 </script>

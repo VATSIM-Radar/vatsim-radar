@@ -9,18 +9,20 @@
         >
             Traffic Heatmap
         </common-toggle>
-        <label class="__section-group">
-            Aircraft scale
+        <div class="__section-group">
+            <div class="__small-title">
+                Aircraft scale
+            </div>
             <input
-                max="2"
-                min="0.1"
-                step="0.1"
+                max="1.5"
+                min="0.5"
+                step="0.05"
                 type="range"
                 :value="String(store.mapSettings.aircraftScale ?? 1)"
                 @input="setUserMapSettings({ aircraftScale: Number(($event.target as HTMLInputElement).value) })"
             >
             x{{ store.mapSettings.aircraftScale ?? 1 }}
-        </label>
+        </div>
         <common-block-title>
             Airports Counters
         </common-block-title>
@@ -60,8 +62,8 @@
             Hide Prefiles counter
         </common-toggle>
         <common-toggle
-            :model-value="store.mapSettings.airportsCounters?.hidePrefiles"
-            @update:modelValue="setUserMapSettings({ airportsCounters: { hidePrefiles: $event } })"
+            :model-value="store.mapSettings.airportsCounters?.disableTraining"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: $event } })"
         >
             Disable Training counter
             <template #description>
@@ -86,6 +88,7 @@ const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['de
     total: 'Total',
     totalMoving: 'Total with GS > 0',
     airborne: 'Airborne',
+    airborneDeparting: 'Airborne + Departing',
     ground: 'Ground (default)',
     groundMoving: 'Ground with GS > 0',
     hide: 'Hide',

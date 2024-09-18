@@ -10,7 +10,7 @@ import { prisma } from '~/utils/backend/prisma';
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
 const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
-const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'airborne', 'hide'];
+const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'airborneDeparting', 'ground', 'groundMoving', 'airborne', 'hide'];
 
 const colors = Object.keys(colorsList);
 
@@ -161,7 +161,7 @@ export interface IUserMapSettings {
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     airportsCounters: {
         showSameAirportCounter?: boolean;
-        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
+        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'airborneDeparting' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
         hidePrefiles?: boolean;
         disableTraining?: boolean;

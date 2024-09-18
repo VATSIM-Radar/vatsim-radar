@@ -4,6 +4,8 @@ import type { IUserMapSettings, UserMapSettingsVisibilityATC } from '~/server/ap
 export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean => {
     const store = useStore();
 
+    if (store.mapSettings.heatmapLayer) return true;
+
     if (typeof store.mapSettings.visibility?.atc === 'object') {
         return !!store.mapSettings.visibility.atc[key];
     }
@@ -13,6 +15,8 @@ export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean 
 
 export const isHideMapObject = (key: keyof IUserMapSettings['visibility']): boolean => {
     const store = useStore();
+
+    if (store.mapSettings.heatmapLayer && key !== 'pilots') return true;
 
     return !!store.mapSettings.visibility?.[key];
 };

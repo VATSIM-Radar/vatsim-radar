@@ -117,7 +117,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px` }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': store.mapSettings.aircraftScale ?? 1 }"
             :z-index="19"
         >
             <div
@@ -247,7 +247,7 @@ const handleMouseEnter = (event: MouseEvent) => {
     else hoveredOverlay.value = true;
 };
 
-const setStyle = async (iconFeature = feature) => {
+const setStyle = async (iconFeature = feature, force = false) => {
     if (!iconFeature) return;
 
     let style = getFeatureStyle(iconFeature);
@@ -258,11 +258,14 @@ const setStyle = async (iconFeature = feature) => {
     }
 
     await loadAircraftIcon(
-        iconFeature,
-        icon.value.icon,
-        degreesToRadians(props.aircraft.heading ?? 0),
-        getStatus.value,
-        style,
+        {
+            feature: iconFeature,
+            icon: icon.value.icon,
+            rotation: degreesToRadians(props.aircraft.heading ?? 0),
+            status: getStatus.value,
+            style,
+            force,
+        },
     );
 
     iconFeature.changed();
@@ -338,6 +341,10 @@ async function setState() {
 }
 
 watch(changeState, setState);
+
+watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+    setStyle(undefined, true);
+});
 
 const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
 const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
@@ -708,7 +715,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => props.showLabel || !!activeCurrentOverlay.value);
+const isShowLabel = computed<boolean>(() => (props.showLabel || !!activeCurrentOverlay.value) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
@@ -801,8 +808,8 @@ onUnmounted(() => {
     user-select: none;
 
     position: absolute;
-    top: calc(var(--imageHeight) / 2);
-    transform: translate(-50%, 0);
+    top: calc(var(--imageHeight) * var(--scale) / 2);
+    transform: translate(-50%, 0) scale(var(--scale));
 
     width: fit-content;
     padding-top: 3px;

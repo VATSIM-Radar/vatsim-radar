@@ -28,15 +28,15 @@ export default defineNuxtModule(async (_, nuxt) => {
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
-                width,
+                width: width * 2,
             });
 
             const info = await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }${ iconKey }.png`));
 
             fullList[icon as AircraftIcon] = {
                 icon: icon as AircraftIcon,
-                width,
-                height: info.height,
+                width: width,
+                height: info.height / 2,
             };
         }
 
