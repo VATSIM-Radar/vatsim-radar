@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.4.5-beta.1]
+
+- Aircraft label is now always shown for your aircraft only, and hidden if needed for those you selected
+- Fixed an issue when flight details were never shown in "Dashboard Only" mode of Airport Dashboard
+- Fixed duplicated Center word for some UIRs
+- Unstaffed airport name label is now centered on dot and not ICAO name
+
 # [0.4.4]
 
 Big thanks to Felix and DotWallop for making this release possible!

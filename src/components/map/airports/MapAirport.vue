@@ -75,7 +75,7 @@
             v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
-            :settings="{ position: [airport.lon, airport.lat], offset: [0, 10], positioning: 'top-center', stopEvent: !!hoveredFacility }"
+            :settings="{ position: [airport.lon, airport.lat], offset: [0, 0], positioning: 'top-center', stopEvent: !!hoveredFacility }"
             :z-index="14"
         >
             <div
@@ -278,6 +278,7 @@ function initAirport() {
         text: new Text({
             font: '12px Montserrat',
             text: airportName.value,
+            offsetY: -10,
             fill: new Fill({
                 color: getAirportColor.value,
             }),
