@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.4.5-rc.2]
+
+- Users who left all tabs are no longer counted in users counter in map footer
+- Requests will no longer fire for unactive tabs
+- Added sort by select to NOTAMs list
+- ATC and Aircraft tabs in Airport overlay are now separated
+
 # [0.4.5-rc.1]
 
 - You can no longer close update popup without updating

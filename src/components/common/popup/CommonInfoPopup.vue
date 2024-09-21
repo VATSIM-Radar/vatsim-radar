@@ -169,7 +169,7 @@ const collapsedOnceSections = new Set<string>([]);
 const activeTab = defineModel('tab', { type: String });
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
-activeTab.value = activeTab.value || props.tabs ? Object.keys(props.tabs ?? {})[0] : '';
+activeTab.value = activeTab.value || props.tabs ? (Object.entries(props.tabs ?? {}).filter(([_, value]) => !value.disabled)[0]?.[0] || Object.keys(props.tabs ?? {})[0]) : '';
 
 const getSections = computed(() => {
     if (!props.tabs) return props.sections ?? [];

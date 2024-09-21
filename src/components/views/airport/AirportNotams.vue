@@ -3,17 +3,13 @@
         v-if="notams?.length"
         class="__info-sections notams"
     >
-        <div class="notams_info">
-            <div class="notams_info_image">
-                <img
-                    alt="FAA"
-                    src="~/assets/images/FAA-logo.svg"
-                >
-            </div>
-            <span>
-                Data provided by <strong>FAA</strong>
-            </span>
-        </div>
+        <common-select
+            :items="sortOptions"
+            :model-value="store.localSettings.filters?.notamsSortBy ?? null"
+            placeholder="Sort By"
+            width="100%"
+            @update:modelValue="setUserLocalSettings({ filters: { notamsSortBy: $event as any } })"
+        />
         <common-copy-info-block :text="notams.map(x => x.formattedText ?? x.text).join('\n\n')"/>
         <div
             v-for="(notam, index) in notams"
@@ -41,6 +37,17 @@
                 </template>
             </common-copy-info-block>
         </div>
+        <div class="notams_info">
+            <div class="notams_info_image">
+                <img
+                    alt="FAA"
+                    src="~/assets/images/FAA-logo.svg"
+                >
+            </div>
+            <span>
+                Data provided by <strong>FAA</strong>
+            </span>
+        </div>
     </div>
 </template>
 
@@ -49,9 +56,38 @@ import { injectAirport } from '~/composables/airport';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
+import type { NotamsSortBy } from '~/types/map';
+import type { SelectItem } from '~/types/components/select';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import { useStore } from '~/store';
 
 const data = injectAirport();
-const notams = computed(() => data.value.notams);
+const notams = computed(() => {
+    const list = data.value.notams ?? [];
+
+    const sortBy = store.localSettings.filters?.notamsSortBy ?? null;
+
+    if (sortBy) {
+        return list.slice(0).sort((a, b) => {
+            let aDate: number, bDate: number;
+
+            if (sortBy.startsWith('start')) {
+                aDate = a.effectiveFrom.startsWith('20') ? new Date(a.effectiveFrom).getTime() : Infinity;
+                bDate = b.effectiveFrom.startsWith('20') ? new Date(b.effectiveFrom).getTime() : Infinity;
+            }
+            else {
+                aDate = a.effectiveTo.startsWith('20') ? new Date(a.effectiveTo).getTime() : Infinity;
+                bDate = b.effectiveTo.startsWith('20') ? new Date(b.effectiveTo).getTime() : Infinity;
+            }
+
+            if (sortBy.endsWith('Asc')) return aDate - bDate;
+            else return bDate - aDate;
+        });
+    }
+
+    return list;
+});
+const store = useStore();
 
 const getNotamType = (type: VatsimAirportDataNotam['type']) => {
     switch (type) {
@@ -66,6 +102,25 @@ const getNotamType = (type: VatsimAirportDataNotam['type']) => {
     return '';
 };
 
+const sortOptions: SelectItem[] = Object.values({
+    startAsc: {
+        value: 'startAsc',
+        text: 'Effective From (oldest)',
+    },
+    startDesc: {
+        value: 'startDesc',
+        text: 'Effective From (newest, default)',
+    },
+    endAsc: {
+        value: 'endAsc',
+        text: 'Effective To (oldest)',
+    },
+    endDesc: {
+        value: 'endDesc',
+        text: 'Effective To (newest)',
+    },
+} satisfies Record<NotamsSortBy, SelectItem>);
+
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
     year: '2-digit',
@@ -78,13 +133,17 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
 
 <style lang="scss" scoped>
 .notams {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
     &_info {
         display: flex;
         gap: 8px;
         align-items: center;
         justify-content: center;
 
-        margin-bottom: 16px;
+        margin-top: 16px;
 
         font-size: 14px;
 
@@ -101,7 +160,6 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     }
 
     &_notam {
-        margin-top: 8px;
         padding-top: 16px;
         border-top: 1px solid $darkgray875;
     }

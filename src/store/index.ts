@@ -48,6 +48,7 @@ export const useStore = defineStore('index', {
         featuredVisibleOnly: false,
 
         updateRequired: false,
+        isTabVisible: false,
 
         viewport: {
             width: 0,

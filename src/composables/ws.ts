@@ -8,6 +8,13 @@ async function decompressBlob(blob: Blob) {
 
 let interval: NodeJS.Timeout | undefined;
 
+export function isTabVisible() {
+    const item = localStorage.getItem('radar-visibility-check');
+    if (!item) return false;
+
+    return (Date.now() - +item) < 1000 * 30;
+}
+
 export function initDataWebsocket(): () => void {
     // const dataStore = useDataStore();
     clearInterval(interval);
@@ -46,6 +53,11 @@ export function initDataWebsocket(): () => void {
         if (localStorage.getItem('radar-socket-closed')) {
             localStorage.removeItem('radar-socket-closed');
             localStorage.removeItem('radar-socket-date');
+            websocket.close();
+            return;
+        }
+
+        if (!isTabVisible()) {
             websocket.close();
             return;
         }
@@ -97,6 +109,7 @@ export function checkForWSData(isMounted: Ref<boolean>): () => void {
         if (!socketDate || +socketDate + (1000 * 20) < date) {
             localStorage.setItem('radar-socket-date', Date.now().toString());
             closeSocket?.();
+            if (!isTabVisible()) return;
             closeSocket = initDataWebsocket();
         }
     }
