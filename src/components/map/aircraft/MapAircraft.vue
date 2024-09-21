@@ -248,6 +248,7 @@ const handleMouseEnter = (event: MouseEvent) => {
 };
 
 const setStyle = async (iconFeature = feature, force = false) => {
+    console.log(iconFeature);
     if (!iconFeature) return;
 
     let style = getFeatureStyle(iconFeature);
@@ -285,7 +286,10 @@ const init = async () => {
 
     const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
 
-    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) return;
+    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) {
+        setState();
+        return;
+    }
 
     if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
 
