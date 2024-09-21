@@ -71,16 +71,16 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
-    /** showSelectedValue
+    /** showPlaceholder
       *
       * Switches between showing
       * the selected items or the
       * placeholder name.
-      * @default true
+      * @default false
       */
-    showSelectedValue: {
+    showPlaceholder: {
         type: Boolean,
-        default: true,
+        default: false,
     },
 });
 
@@ -104,7 +104,7 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const shownValue = computed<string>(() => {
-    if (!(props.showSelectedValue)) {
+    if (props.showPlaceholder) {
         return props.placeholder || '';
     }
 
