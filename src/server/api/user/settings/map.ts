@@ -160,10 +160,10 @@ export interface IUserMapSettings {
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     airportsCounters: {
-        showSameAirportCounter?: boolean;
+        syncDeparturesArrivals?: boolean;
         departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'airborneDeparting' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
-        hidePrefiles?: boolean;
+        horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
         disableTraining?: boolean;
     };
     colors: {

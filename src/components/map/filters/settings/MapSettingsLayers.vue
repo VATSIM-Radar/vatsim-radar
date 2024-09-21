@@ -38,8 +38,8 @@
             />
         </div>
         <common-toggle
-            :model-value="store.mapSettings.airportsCounters?.showSameAirportCounter"
-            @update:modelValue="setUserMapSettings({ airportsCounters: { showSameAirportCounter: $event } })"
+            :model-value="store.mapSettings.airportsCounters?.syncDeparturesArrivals"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { syncDeparturesArrivals: $event } })"
         >
             Sync arrivals mode with departures
         </common-toggle>
@@ -48,19 +48,24 @@
                 Arrivals Mode
             </div>
             <common-select
-                :disabled="!!store.mapSettings.airportsCounters?.showSameAirportCounter"
+                :disabled="!!store.mapSettings.airportsCounters?.syncDeparturesArrivals"
                 :items="countersSelectOptions"
                 :model-value="store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground'"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { arrivalsMode: $event as any } })"
             />
         </div>
-        <common-toggle
-            :model-value="store.mapSettings.airportsCounters?.hidePrefiles"
-            @update:modelValue="setUserMapSettings({ airportsCounters: { hidePrefiles: $event } })"
-        >
-            Hide Prefiles counter
-        </common-toggle>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Horizontal (prefiles)
+            </div>
+            <common-select
+                :items="horizontalSelectOptions"
+                :model-value="store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles'"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ airportsCounters: { horizontalCounter: $event as any } })"
+            />
+        </div>
         <common-toggle
             :model-value="store.mapSettings.airportsCounters?.disableTraining"
             @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: $event } })"
@@ -95,6 +100,19 @@ const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['de
 };
 
 const countersSelectOptions = Object.entries(countersOptions).map(([key, value]) => ({
+    text: value,
+    value: key,
+} satisfies SelectItem));
+
+const horizontalOptions: Record<Required<IUserMapSettings['airportsCounters']>['horizontalCounter'], string> = {
+    total: 'Total airport traffic',
+    prefiles: 'Prefiles (default)',
+    ground: 'Ground',
+    groundMoving: 'Ground with GS > 0',
+    hide: 'Hide',
+};
+
+const horizontalSelectOptions = Object.entries(horizontalOptions).map(([key, value]) => ({
     text: value,
     value: key,
 } satisfies SelectItem));
