@@ -68,6 +68,26 @@ export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPi
 export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
+    if (injected) {
+        return computed(() => {
+            if (filter) {
+                const _filter = toValue(filter);
+
+                if (_filter) {
+                    return {
+                        groundDep: [],
+                        groundArr: [],
+                        prefiles: [],
+                        departures: [],
+                        arrivals: [],
+                        [_filter]: toValue(injected)[_filter],
+                    };
+                }
+            }
+
+            return toValue(injected);
+        });
+    }
 
     const aircraft = computed<AirportPopupPilotList | null>(() => {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao);

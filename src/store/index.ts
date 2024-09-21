@@ -35,8 +35,6 @@ export interface SiteConfig {
 
 export const useStore = defineStore('index', {
     state: () => ({
-        datetime: Date.now(),
-
         user: null as null | FullUser,
         version: '',
         theme: 'default' as ThemesList,
@@ -71,7 +69,6 @@ export const useStore = defineStore('index', {
                 });
 
                 if (versions) {
-                    dataStore.time.value = versions.time;
                     dataStore.vatsim.versions.value = versions;
                 }
 

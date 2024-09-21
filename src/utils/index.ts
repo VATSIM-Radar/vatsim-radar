@@ -1,4 +1,3 @@
-import { useStore } from '~/store';
 import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString } from 'geojson';
 import { LineString, MultiLineString } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
@@ -8,7 +7,7 @@ export function sleep(ms: number) {
 }
 
 export function getHoursAndMinutes(date: number) {
-    const diff = Math.abs(useStore().datetime - date) / (1000 * 60);
+    const diff = Math.abs(useDataStore().time.value - date) / (1000 * 60);
 
     return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
 }

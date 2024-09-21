@@ -267,3 +267,11 @@ export function getFlightRowColor(index: number | null, theme = useStore().theme
             return colorPresets.light[index];
     }
 }
+
+export function getTimeRemains(eta: Date): string | null {
+    const timeRemains = eta.getTime() - useDataStore().time.value;
+    if (timeRemains < 0) return null;
+
+    const minutes = timeRemains / (1000 * 60);
+    return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
+}

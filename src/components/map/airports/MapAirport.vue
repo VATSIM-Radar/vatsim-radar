@@ -75,13 +75,18 @@
             v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
-            :settings="{ position: [airport.lon, airport.lat], offset: [0, 0], positioning: 'top-center', stopEvent: !!hoveredFacility }"
+            :settings="{ position: [airport.lon, airport.lat], offset: [0, -7], positioning: 'top-center', stopEvent: !!hoveredFacility }"
             :z-index="14"
         >
             <div
                 class="airport-square"
-                :style="{ '--color': getAirportColor }"
-            />
+                @click="mapStore.addAirportOverlay(airport.icao)"
+            >
+                <div
+                    class="airport-square_self"
+                    :style="{ '--color': getAirportColor }"
+                />
+            </div>
         </map-overlay>
         <map-overlay
             v-if="hoveredFeature"
@@ -678,9 +683,20 @@ onBeforeUnmount(() => {
 }
 
 .airport-square {
-    width: 4px;
-    height: 4px;
-    background: var(--color);
-    border-radius: 2px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 14px;
+    height: 20px;
+
+    &_self {
+        width: 4px;
+        height: 4px;
+        background: var(--color);
+        border-radius: 2px;
+    }
 }
 </style>

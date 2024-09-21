@@ -7,7 +7,7 @@ import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 
 const revisions: Record<string, number> = {
-    'v2404.2': 1,
+    'v2408.2': 2,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -120,6 +120,9 @@ export async function updateVatSpy() {
     result.id = data.current_commit_hash;
     result.countries = parsedDat.countries.filter(value => value.country && value.code) as typeof result['countries'];
     result.uirs = parsedDat.uirs.filter(value => value.icao && value.name && value.firs) as typeof result['uirs'];
+    parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S1', boundary: 'BIRD' });
+    parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S2', boundary: 'BIRD' });
+    parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S3', boundary: 'BIRD' });
 
     result.airports = parsedDat.airports
         .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)

@@ -1,6 +1,6 @@
 <template>
     <common-popup
-        v-if="!store.config.hideHeader"
+        v-if="!store.config.hideHeader && update.active !== false"
         :model-value="show"
         @update:modelValue="close"
     >
@@ -94,6 +94,7 @@ interface Update {
     name: string;
     height?: string;
     features: UpdateFeature[];
+    active?: boolean;
 }
 
 const store = useStore();
@@ -162,6 +163,7 @@ const update: Update = {
             ],
         },
     ],
+    active: false,
 };
 
 const shownFeatureIndex = ref(0);

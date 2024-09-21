@@ -1,63 +1,81 @@
 import { handleH3Exception } from '~/utils/backend/h3';
 import { validateAirportIcao } from '~/utils/backend/vatsim';
+import { $fetch } from 'ofetch';
 
 export interface VatsimAirportDataNotam {
-    title: string;
-    content: string;
-    startDate?: number;
-    endDate?: number;
+    number: string;
+    type: 'N' | 'R' | 'C';
+    issued: string;
+    effectiveFrom: string;
+    effectiveTo: string | 'PERM';
+    text: string;
+    formattedText?: string;
+    classification: 'INTL' | 'MIL' | 'DOM' | 'LMIL' | 'FDC';
 }
 
-const regex = new RegExp('<b>(?<title>.*)</b> - (?<content>[\\s\\S]*?)<\\/PRE>', 'g');
-const dateRegex = new RegExp('(?<startDate>\\d{2} \\w{3} \\d{2}:\\d{2} \\d{4}) UNTIL (?<endDate>\\d{2} \\w{3} \\d{2}:\\d{2} \\d{4})');
+interface FAAResponse {
+    pageSize: number;
+    pageNum: number;
+    totalCount: number;
+    totalPages: number;
+    items: {
+        properties: {
+            coreNOTAMData: {
+                notam: {
+                    number: string;
+                    type: string;
+                    issued: string;
+                    effectiveStart: string;
+                    effectiveEnd: string;
+                    text: string;
+                    classification: string;
+                };
+                notamTranslation: {
+                    type: 'ICAO';
+                    formattedText: string;
+                }[];
+            };
+        };
+    }[];
+}
 
 export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[] | undefined> => {
     const icao = validateAirportIcao(event);
     if (!icao) return;
 
+    const config = useRuntimeConfig();
+
     try {
         const notams: VatsimAirportDataNotam[] = [];
 
-        const formData = new FormData();
+        const url = new URL('https://external-api.faa.gov/notamapi/v1/notams');
+        url.searchParams.set('responseFormat', 'geoJson');
+        url.searchParams.set('icaoLocation', icao);
+        url.searchParams.set('sortBy', 'effectiveStartDate');
+        url.searchParams.set('sortOrder', 'Desc');
+        url.searchParams.set('pageSize', '1000');
 
-        formData.set('retrieveLocId', icao);
-        formData.set('reportType', 'Report');
-        formData.set('actionType', 'notamRetrievalByICAOs');
-        formData.set('submit', 'View NOTAMs');
-
-        const html = await $fetch<string>('https://www.notams.faa.gov/dinsQueryWeb/queryRetrievalMapAction.do', {
+        const data = await $fetch<FAAResponse>(url.toString(), {
             headers: {
-                'User-Agent': 'VatsimRadar/0.0',
+                client_id: config.FAA_NOTAMS_CLIENT_ID,
+                client_secret: config.FAA_NOTAMS_CLIENT_SECRET,
             },
-            method: 'POST',
-            responseType: 'text',
-            body: formData,
         });
 
-        let result: RegExpExecArray | null;
+        for (const notam of data.items) {
+            const data = notam.properties.coreNOTAMData.notam;
 
-        while ((result = regex.exec(html)) !== null) {
-            const content = result.groups?.content?.trim() ?? '';
-
-            const dates = dateRegex.exec(content);
-            let startDate: number | undefined;
-            let endDate: number | undefined;
-
-            if (dates?.groups) {
-                if (dates?.groups?.startDate) {
-                    startDate = new Date(`${ dates.groups.startDate } UTC+0`).getTime();
-                }
-
-                if (dates?.groups?.endDate) {
-                    endDate = new Date(`${ dates.groups.endDate } UTC+0`).getTime();
-                }
-            }
+            if (data.effectiveEnd !== 'PERM' && data.effectiveEnd.startsWith('20') && new Date(data.effectiveEnd).getTime() < Date.now()) continue;
 
             notams.push({
-                title: result.groups?.title?.replaceAll('</b>', '').trim() ?? '',
-                content,
-                startDate,
-                endDate,
+                number: data.number,
+                type: data.type as any,
+                issued: data.issued,
+                effectiveFrom: data.effectiveStart,
+                effectiveTo: data.effectiveEnd,
+                text: data.text,
+                formattedText: notam.properties.coreNOTAMData.notamTranslation?.[0]?.formattedText,
+                classification: data.classification as any,
             });
         }
 

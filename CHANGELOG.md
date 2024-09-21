@@ -1,5 +1,16 @@
 # Changelog
 
+# [0.4.5-rc.1]
+
+- You can no longer close update popup without updating
+- Map date will no longer show as updated if it's actually not
+- Airport dot is not clickable
+- Frequency should now fit better into aircraft hover single-line layout
+- Improved airport dashboard performance in controller mode
+- Fixed an error in controller mode when aircraft list was not updating until you reload the page
+- Added time remains to pilot card and overlay
+- NOTAMs comeback
+
 # [0.4.5-beta.1]
 
 - Aircraft label is now always shown for your aircraft only, and hidden if needed for those you selected
