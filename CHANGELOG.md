@@ -6,6 +6,7 @@
 - Requests will no longer fire for unactive tabs
 - Added sort by select to NOTAMs list
 - ATC and Aircraft tabs in Airport overlay are now separated
+- Fixed an issue when aircraft type change (for example, after flight plan upload) didn't change map icon
 
 # [0.4.5-rc.1]
 

@@ -247,7 +247,7 @@ const handleMouseEnter = (event: MouseEvent) => {
     else hoveredOverlay.value = true;
 };
 
-const setStyle = async (iconFeature = feature) => {
+const setStyle = async (iconFeature = feature, force = false) => {
     if (!iconFeature) return;
 
     let style = getFeatureStyle(iconFeature);
@@ -257,13 +257,14 @@ const setStyle = async (iconFeature = feature) => {
         iconFeature.setStyle(style);
     }
 
-    await loadAircraftIcon(
-        iconFeature,
-        icon.value.icon,
-        degreesToRadians(props.aircraft.heading ?? 0),
-        getStatus.value,
+    await loadAircraftIcon({
+        feature: iconFeature,
+        icon: icon.value.icon,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        status: getStatus.value,
         style,
-    );
+        force,
+    });
 
     iconFeature.changed();
 };
