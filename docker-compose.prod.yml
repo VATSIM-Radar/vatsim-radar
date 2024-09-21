@@ -1,5 +1,5 @@
 services:
-  frontend: &frontend
+  app1: &frontend
     restart: always
     image: ghcr.io/vatsim-radar/vatsim-radar/production
     depends_on:
@@ -11,13 +11,10 @@ services:
       test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
       interval: 1s
       retries: 360
-    volumes:
-      - /opt/radar-data:/radar/src/data
-
-  app1:
-    <<: *frontend
     ports:
       - 8080:3000
+    volumes:
+      - /opt/radar-data:/radar/src/data
 
   app2:
     <<: *frontend
