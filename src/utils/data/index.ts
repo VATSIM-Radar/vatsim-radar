@@ -60,7 +60,7 @@ export function parseEncoding(text: string, callsignOrAirport?: string) {
 
     const toAnalyse = encoder.encode(text);
 
-    if (callsignOrAirport && (slugs1251.includes(callsignOrAirport.slice(0, 2)) || callsignOrAirport.startsWith('RU'))) {
+    if (callsignOrAirport && (slugs1251.includes(callsignOrAirport.slice(0, 2)) || callsignOrAirport.startsWith('RU') || callsignOrAirport.startsWith('MSK'))) {
         const result = decoder1251.decode(toAnalyse);
 
         if (regex1251.test(result)) {

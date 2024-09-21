@@ -248,7 +248,6 @@ const handleMouseEnter = (event: MouseEvent) => {
 };
 
 const setStyle = async (iconFeature = feature, force = false) => {
-    console.log(iconFeature);
     if (!iconFeature) return;
 
     let style = getFeatureStyle(iconFeature);
