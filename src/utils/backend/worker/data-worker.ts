@@ -286,7 +286,7 @@ CronJob.from({
 
             await updateVatsimExtendedPilots();
 
-            radarStorage.vatsim.data.controllers.push({
+            /* radarStorage.vatsim.data.controllers.push({
                 callsign: 'BIRD_CTR',
                 cid: 3,
                 facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
@@ -312,7 +312,7 @@ CronJob.from({
                 server: '',
                 text_atis: ['test3'],
                 visual_range: 0,
-            });
+            });*/
 
 
             /*            radarStorage.vatsim.data.atis.push({
