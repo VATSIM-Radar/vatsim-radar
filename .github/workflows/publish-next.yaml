@@ -72,6 +72,8 @@ jobs:
             CF_R2_ACCESS_ID=${{ secrets.CF_R2_ACCESS_ID }}
             CF_R2_ACCESS_TOKEN=${{ secrets.CF_R2_ACCESS_TOKEN }}
             PATREON_ACCESS_TOKEN=${{ secrets.PATREON_ACCESS_TOKEN }}
+            FAA_NOTAMS_CLIENT_ID=${{ secrets.FAA_NOTAMS_CLIENT_ID }}
+            FAA_NOTAMS_CLIENT_SECRET=${{ secrets.FAA_NOTAMS_CLIENT_SECRET }}
   deploy:
     runs-on: do-next
     #runs-on: beget

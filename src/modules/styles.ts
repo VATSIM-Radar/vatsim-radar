@@ -17,8 +17,8 @@ function colorToRgb(hex: string): [r: number, g: number, b: number] {
 }
 
 export default defineNuxtModule((_, nuxt) => {
-    let scss = `@function toRawRGB($color) {
-    @return unquote(red($color) + ', ' + green($color) + ', ' + blue($color));
+    let scss = `@use 'sass:color';@function toRawRGB($color) {
+    @return unquote(color.channel($color, "red") + ', ' + color.channel($color, "green") + ', ' + color.channel($color, "blue"));
 }`;
 
     const variables = {} as Record<ColorsList | `${ ColorsList }Hex`, string> & Record<`${ ColorsList }Rgb`, number[]>;

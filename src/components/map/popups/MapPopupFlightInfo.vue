@@ -211,9 +211,10 @@ const getDistAndTime = computed(() => {
         if (!props.pilot.toGoDist || !props.pilot.toGoTime) return null;
 
         const dist = Math.round(props.pilot.toGoDist);
-        const date = datetime.format(new Date(props.pilot.toGoTime!));
+        const goTime = new Date(props.pilot.toGoTime!);
+        const date = datetime.format(goTime);
 
-        return `${ dist } NM at ${ date }Z`;
+        return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
     }
     catch (e) {
         console.error(e);

@@ -247,7 +247,7 @@ const handleMouseEnter = (event: MouseEvent) => {
     else hoveredOverlay.value = true;
 };
 
-const setStyle = async (iconFeature = feature) => {
+const setStyle = async (iconFeature = feature, force = false) => {
     if (!iconFeature) return;
 
     let style = getFeatureStyle(iconFeature);
@@ -257,13 +257,14 @@ const setStyle = async (iconFeature = feature) => {
         iconFeature.setStyle(style);
     }
 
-    await loadAircraftIcon(
-        iconFeature,
-        icon.value.icon,
-        degreesToRadians(props.aircraft.heading ?? 0),
-        getStatus.value,
+    await loadAircraftIcon({
+        feature: iconFeature,
+        icon: icon.value.icon,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        status: getStatus.value,
         style,
-    );
+        force,
+    });
 
     iconFeature.changed();
 };
@@ -284,7 +285,10 @@ const init = async () => {
 
     const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
 
-    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) return;
+    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) {
+        setState();
+        return;
+    }
 
     if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
 
@@ -708,7 +712,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => props.showLabel || !!activeCurrentOverlay.value);
+const isShowLabel = computed<boolean>(() => props.showLabel || activeCurrentOverlay.value?.key === store.user?.cid);
 
 watch(isShowLabel, val => {
     if (!val) {

@@ -113,6 +113,9 @@ export default defineNuxtConfig({
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
         PATREON_ACCESS_TOKEN: process.env.PATREON_ACCESS_TOKEN,
 
+        FAA_NOTAMS_CLIENT_ID: process.env.FAA_NOTAMS_CLIENT_ID,
+        FAA_NOTAMS_CLIENT_SECRET: process.env.FAA_NOTAMS_CLIENT_SECRET,
+
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
@@ -166,6 +169,7 @@ export default defineNuxtConfig({
     },
     vite: {
         build: {
+            cssMinify: 'esbuild',
             rollupOptions: {
                 external: [
                     'sharp',
@@ -173,9 +177,12 @@ export default defineNuxtConfig({
             },
         },
         css: {
+            preprocessorMaxWorkers: true,
             preprocessorOptions: {
                 scss: {
+                    // api: 'modern-compiler',
                     additionalData: `@use "~/scss/colors.scss" as *;@use "~/scss/variables.scss" as *;`,
+                    silenceDeprecations: ['legacy-js-api'],
                 },
             },
         },

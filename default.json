@@ -99,8 +99,7 @@
     ":automergeDisabled",
     ":dependencyDashboard",
     "group:recommended",
-    "replacements:all",
-    "workarounds:all"
+    "replacements:all"
   ],
   "rangeStrategy": "bump",
   "npm": {

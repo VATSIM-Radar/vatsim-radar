@@ -14,20 +14,15 @@
         <common-popup
             v-if="store.updateRequired"
             v-model="updateRequired"
+            disabled
         >
             <template #title>Page Reload Needed</template>
 
             A new VATSIM Radar update is available! Please reload the page to apply the update.
 
             <template #actions>
-                <common-button
-                    type="secondary"
-                    @click="updateRequired = false"
-                >
-                    Negative, I'll pass
-                </common-button>
                 <common-button @click="reload">
-                    Wilco, reload page
+                    Apply and reload
                 </common-button>
             </template>
         </common-popup>
@@ -101,10 +96,6 @@ const hadRestrictedAuth = restrictedState.value;
 const hasObs = () => typeof window.obsstudio !== 'undefined';
 
 onMounted(() => {
-    const interval = setInterval(() => {
-        store.datetime = Date.now();
-    }, 1000);
-
     const handleStorageUpdate = () => {
         setUserLocalSettings();
     };
@@ -112,7 +103,6 @@ onMounted(() => {
     window.addEventListener('storage', handleStorageUpdate);
 
     onBeforeUnmount(() => {
-        clearInterval(interval);
         window.removeEventListener('storage', handleStorageUpdate);
     });
 });
