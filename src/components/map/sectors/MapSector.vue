@@ -108,7 +108,12 @@ const controllers = computed(() => {
 });
 
 const getATCFullName = computed(() => {
-    const prop = !locals.value.length ? globals.value[0] ?? props.fir : props.fir;
+    const prop = props.fir;
+
+    if (!locals.value.length && globals.value[0]) {
+        return globals.value[0].name;
+    }
+
     const country = getAirportCountry(prop.icao);
     if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;

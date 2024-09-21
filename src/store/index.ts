@@ -25,14 +25,17 @@ export interface SiteConfig {
     airport?: string;
     airportMode?: MapAircraftMode;
     onlyAirportAircraft?: boolean;
+    onlyAirportsAircraft?: boolean;
     showInfoForPrimaryAirport?: boolean;
     area?: [Coordinate, Coordinate];
+    center?: Coordinate;
+    zoom?: number;
+
+    showCornerLogo?: boolean;
 }
 
 export const useStore = defineStore('index', {
     state: () => ({
-        datetime: Date.now(),
-
         user: null as null | FullUser,
         version: '',
         theme: 'default' as ThemesList,
@@ -47,6 +50,7 @@ export const useStore = defineStore('index', {
         featuredVisibleOnly: false,
 
         updateRequired: false,
+        isTabVisible: false,
 
         viewport: {
             width: 0,
@@ -68,7 +72,6 @@ export const useStore = defineStore('index', {
                 });
 
                 if (versions) {
-                    dataStore.time.value = versions.time;
                     dataStore.vatsim.versions.value = versions;
                 }
 

@@ -215,7 +215,6 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import { useUpdateInterval } from '#imports';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
@@ -253,7 +252,7 @@ const getCounts = computed(() => {
 });
 
 const getLastUpdated = computed(() => {
-    const updateTimestamp = dataStore.vatsim.updateTimestamp.value;
+    const updateTimestamp = dataStore.vatsim.updateTime.value;
     if (!updateTimestamp) return null;
 
     const date = new Date(updateTimestamp);
@@ -261,10 +260,7 @@ const getLastUpdated = computed(() => {
     return `${ datetime.format(date) } Z`;
 });
 
-const timestamp = ref(Date.now());
-useUpdateInterval(() => timestamp.value = Date.now(), 1000);
-
-const outdated = computed(() => timestamp.value - new Date(dataStore.vatsim.updateTimestamp.value).getTime() > 1000 * 20);
+const outdated = computed(() => dataStore.time.value - dataStore.vatsim.updateTime.value > 1000 * 20);
 
 const popularAirports = computed(() => {
     return dataStore.vatsim.parsedAirports.value.filter(x => !x.airport.isPseudo && x.aircraftCids.length).slice().sort((a, b) => b.aircraftCids.length - a.aircraftCids.length).slice(0, store.featuredVisibleOnly ? 10 : 25);

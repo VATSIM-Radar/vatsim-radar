@@ -185,7 +185,10 @@ export function useCopyText() {
 const iframeWhitelist = [
     'localhost',
     'vatsimsa.com',
+    'vatcar.net',
     'idvacc.id',
+    'vatcol.org',
+    'urrv.me',
 ];
 
 export function useIframeHeader() {
@@ -216,10 +219,14 @@ export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feat
 
 export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
+    const store = useStore();
 
     onMounted(() => {
         callback();
-        const intervalCode = setInterval(callback, interval);
+        const intervalCode = setInterval(() => {
+            if (!store.isTabVisible) return;
+            callback();
+        }, interval);
         onBeforeUnmount(() => clearInterval(intervalCode));
     });
 }

@@ -194,7 +194,7 @@ const features: Feature[] = [
 
         padding: 48px;
 
-        color: $lightgray125;
+        color: $lightgray125Orig;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
         border-radius: 8px;

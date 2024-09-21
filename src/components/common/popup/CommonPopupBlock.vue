@@ -57,6 +57,10 @@
             color: $lightgray150;
             border-left: 1px solid varToRgba('lightgray150', 0.2);
         }
+
+        .__spacer {
+            margin: 0 -16px;
+        }
     }
 
     &, &_content {

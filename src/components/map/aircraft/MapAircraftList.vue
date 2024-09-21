@@ -157,6 +157,17 @@ function setVisiblePilots() {
         return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
     }) ?? [];
 
+    if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
+        const airports = dataStore.vatsim.data.airports.value.filter(x => store.config.airports!.includes(x.icao));
+        if (airports?.length) {
+            const aircraft = airports.flatMap(x => x.aircraft).map(x => Object.values(x)).flat().flat();
+            visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
+        }
+        else {
+            visiblePilots.value = [];
+        }
+    }
+
     if (store.config.airport && store.config.onlyAirportAircraft) {
         const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (airport) {

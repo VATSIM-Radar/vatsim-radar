@@ -1,8 +1,30 @@
 # Changelog
 
-# [0.5.0-alpha.1]
+# [0.4.5-rc.2]
 
-- Fixed an issue when aircraft didn't change it's icon to correct one after uploaded flight plan
+- Users who left all tabs are no longer counted in users counter in map footer
+- Requests will no longer fire for unactive tabs
+- Added sort by select to NOTAMs list
+- ATC and Aircraft tabs in Airport overlay are now separated
+- Fixed an issue when aircraft type change (for example, after flight plan upload) didn't change map icon
+
+# [0.4.5-rc.1]
+
+- You can no longer close update popup without updating
+- Map date will no longer show as updated if it's actually not
+- Airport dot is now clickable
+- Frequency should now fit better into aircraft hover single-line layout
+- Improved airport dashboard performance in controller mode
+- Fixed an error in controller mode when aircraft list was not updating until you reload the page
+- Added time remains to pilot card and overlay
+- NOTAMs comeback
+
+# [0.4.5-beta.1]
+
+- Aircraft label is now always shown for your aircraft only, and hidden if needed for those you selected
+- Fixed an issue when flight details were never shown in "Dashboard Only" mode of Airport Dashboard
+- Fixed duplicated Center word for some UIRs
+- Unstaffed airport name label is now centered on dot and not ICAO name
 
 # [0.4.4]
 

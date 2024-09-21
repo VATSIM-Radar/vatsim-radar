@@ -257,16 +257,14 @@ const setStyle = async (iconFeature = feature, force = false) => {
         iconFeature.setStyle(style);
     }
 
-    await loadAircraftIcon(
-        {
-            feature: iconFeature,
-            icon: icon.value.icon,
-            rotation: degreesToRadians(props.aircraft.heading ?? 0),
-            status: getStatus.value,
-            style,
-            force,
-        },
-    );
+    await loadAircraftIcon({
+        feature: iconFeature,
+        icon: icon.value.icon,
+        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        status: getStatus.value,
+        style,
+        force,
+    });
 
     iconFeature.changed();
 };
@@ -715,7 +713,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => (props.showLabel || !!activeCurrentOverlay.value) && !store.mapSettings.heatmapLayer);
+const isShowLabel = computed<boolean>(() => (props.showLabel || activeCurrentOverlay.value?.key === store.user?.cid) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {

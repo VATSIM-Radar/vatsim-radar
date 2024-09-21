@@ -39,6 +39,8 @@ export interface UserLayersTransparencySettings {
     weatherLight?: number;
 }
 
+export type NotamsSortBy = 'startDesc' | 'startAsc' | 'endAsc' | 'endDesc';
+
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
@@ -52,6 +54,7 @@ interface IUserLocalSettings {
             layerVector?: boolean;
             transparencySettings?: UserLayersTransparencySettings;
         };
+        notamsSortBy?: NotamsSortBy;
     };
 
     traffic: {

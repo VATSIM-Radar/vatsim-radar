@@ -226,6 +226,7 @@
             v-else-if="selectedPilot"
             disabled
             :model-value="!!selectedPilot"
+            @update:modelValue="!$event && (selectedPilot = null)"
         >
             <airport-pilot
                 :cid="selectedPilot"
@@ -746,6 +747,7 @@ await setupDataFetch({
             }
 
             &--popup {
+                position: relative;
                 width: 700px;
                 max-width: 100%;
             }

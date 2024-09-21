@@ -84,9 +84,12 @@
                 v-for="pilot in displayedAircraft"
                 :key="pilot.cid"
                 :bottom-items="[
+                    (pilot.departure && pilot.arrival) ? 'destination': '',
                     pilot.aircraft_faa ?? 'No flight plan',
                     (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
+                    (pilot.eta && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
                     (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
+
                 ]"
                 class="aircraft__pilot"
                 :class="{ 'aircraft__pilot--selected': simpleMode && selected === pilot.cid }"
@@ -126,13 +129,18 @@
                             {{ getLocalPilotStatus(pilot).title }}
                         </div>
                     </div>
+                </template>
+                <template #bottom="{ item }">
                     <div
-                        v-if="pilot.departure && pilot.arrival"
+                        v-if="item === 'destination' && pilot.departure && pilot.arrival"
                         ref="pilots"
                         class="aircraft__pilot_route"
                     >
                         from <strong>{{ pilot.departure }}</strong> to <strong>{{ pilot.arrival }}</strong>
                     </div>
+                    <template v-else>
+                        {{ item }}
+                    </template>
                 </template>
             </common-info-block>
         </div>
@@ -147,7 +155,7 @@ import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
 import { getAircraftForAirport, injectAirport } from '~/composables/airport';
 import type { AirportPopupPilotStatus } from '~/composables/airport';
 import { useDataStore } from '~/composables/data';
-import { getPilotStatus, useShowPilotStats } from '~/composables/pilots';
+import { getPilotStatus, getTimeRemains, useShowPilotStats } from '~/composables/pilots';
 import { useMapStore } from '~/store/map';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
@@ -301,7 +309,7 @@ onBeforeUnmount(() => {
 });
 
 onMounted(() => {
-    if (!displayedAircraft.value.length) {
+    if (!displayedAircraft.value.length && !props.simpleMode) {
         aircraftMode.value = 'arriving';
         if (!displayedAircraft.value.length) aircraftMode.value = 'departed';
     }
@@ -431,10 +439,6 @@ defineExpose({
         background: $darkgray900;
         border: 2px solid transparent;
         transition: 0.3s;
-
-        &_route {
-            margin-top: 4px;
-        }
 
         &_header {
             display: flex;
