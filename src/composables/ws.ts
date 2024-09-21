@@ -12,7 +12,7 @@ export function isTabVisible() {
     const item = localStorage.getItem('radar-visibility-check');
     if (!item) return false;
 
-    return (Date.now() - +item) < 1000 * 30;
+    return (Date.now() - +item) < 1000 * 60 * 2;
 }
 
 export function initDataWebsocket(): () => void {

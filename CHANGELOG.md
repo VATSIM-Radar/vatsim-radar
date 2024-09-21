@@ -12,7 +12,7 @@
 
 - You can no longer close update popup without updating
 - Map date will no longer show as updated if it's actually not
-- Airport dot is not clickable
+- Airport dot is now clickable
 - Frequency should now fit better into aircraft hover single-line layout
 - Improved airport dashboard performance in controller mode
 - Fixed an error in controller mode when aircraft list was not updating until you reload the page
