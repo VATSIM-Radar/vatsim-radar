@@ -51,13 +51,10 @@ export default defineNitroPlugin(app => {
         start: true,
         runOnInit: true,
         onTick: async () => {
-            if (!radarStorage.vatspy.data || transceiversInProgress) return;
+            if (transceiversInProgress) return;
             try {
                 transceiversInProgress = true;
                 radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
-                    parseResponse(responseText) {
-                        return JSON.parse(responseText);
-                    },
                     timeout: 1000 * 30,
                 });
             }
