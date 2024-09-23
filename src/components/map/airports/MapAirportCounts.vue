@@ -164,6 +164,7 @@ const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortened
                 departures = props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [];
                 break;
             case 'airborneDeparting':
+                // TODO: rework this + namings, consider if really needed
                 departures = [
                     ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
                     ...props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [],
