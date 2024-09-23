@@ -56,6 +56,16 @@ export const useStore = defineStore('index', {
             width: 0,
         },
     }),
+    getters: {
+        getCurrentTheme(): 'light' | 'default' {
+            switch (this.theme) {
+                case 'sa':
+                    return 'default';
+            }
+
+            return this.theme;
+        },
+    },
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
             if (this.dataInProgress) return;

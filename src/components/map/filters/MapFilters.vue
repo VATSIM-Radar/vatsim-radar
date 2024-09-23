@@ -168,7 +168,7 @@
                         center-by="start"
                         class="filters_sections_section_content"
                         location="right"
-                        max-height="50vh"
+                        max-height="55vh"
                         :model-value="selectedFilter === 'settings'"
                         width="450px"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"

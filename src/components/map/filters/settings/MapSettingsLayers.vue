@@ -32,6 +32,7 @@
             </div>
             <common-select
                 :items="countersSelectOptions"
+                max-dropdown-height="200px"
                 :model-value="store.mapSettings.airportsCounters?.departuresMode ?? 'ground'"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { departuresMode: $event as any } })"
@@ -49,7 +50,8 @@
             </div>
             <common-select
                 :disabled="!!store.mapSettings.airportsCounters?.syncDeparturesArrivals"
-                :items="countersSelectOptions"
+                :items="countersArrivalSelectOptions"
+                max-dropdown-height="115px"
                 :model-value="store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground'"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { arrivalsMode: $event as any } })"
@@ -61,6 +63,7 @@
             </div>
             <common-select
                 :items="horizontalSelectOptions"
+                max-dropdown-height="85px"
                 :model-value="store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles'"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ airportsCounters: { horizontalCounter: $event as any } })"
@@ -72,7 +75,8 @@
         >
             Disable Training counter
             <template #description>
-                Adds aircraft with same departure-arrival to departures list
+                Disables counter with aircraft on ground with same departure-arrival<br><br>
+                When <strong>not</strong> disabled, those aircraft are always excluded<br> from dep list when on ground
             </template>
         </common-toggle>
     </div>
@@ -90,16 +94,31 @@ const store = useStore();
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
-    total: 'Total',
-    totalMoving: 'Total with GS > 0',
-    airborne: 'Airborne',
+    total: 'Total departures',
+    totalMoving: 'Total departures with GS > 0',
+    airborne: 'Airborne departures',
+    airborneDeparting: 'Airborne + GS > 0',
+    ground: 'Departing (default)',
+    groundMoving: 'Departing with GS > 0',
+    hide: 'Hide',
+};
+
+const countersArrivalOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
+    total: 'Total arrivals',
+    totalMoving: 'Total arrivals with GS > 0',
+    airborne: 'Airborne arrivals',
     airborneDeparting: 'Airborne + Departing',
-    ground: 'Ground (default)',
-    groundMoving: 'Ground with GS > 0',
+    ground: 'Landed (default)',
+    groundMoving: 'Landed with GS > 0',
     hide: 'Hide',
 };
 
 const countersSelectOptions = Object.entries(countersOptions).map(([key, value]) => ({
+    text: value,
+    value: key,
+} satisfies SelectItem));
+
+const countersArrivalSelectOptions = Object.entries(countersArrivalOptions).map(([key, value]) => ({
     text: value,
     value: key,
 } satisfies SelectItem));
@@ -117,7 +136,3 @@ const horizontalSelectOptions = Object.entries(horizontalOptions).map(([key, val
     value: key,
 } satisfies SelectItem));
 </script>
-
-<style scoped lang="scss">
-
-</style>

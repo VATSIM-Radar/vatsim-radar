@@ -1,5 +1,6 @@
 <template>
     <div
+        ref="tooltip"
         class="tooltip"
         :class="[`tooltip--location-${ location }`]"
         @mouseleave="handleClick('mouseLeave')"
@@ -11,7 +12,6 @@
             tabindex="0"
             @click="handleClick('click')"
             @focus="handleClick('focus')"
-            @focusout="handleClick('focusOut')"
         >
             <slot name="activator"/>
         </div>
@@ -93,6 +93,13 @@ const model = defineModel({
     type: Boolean,
     default: false,
 });
+
+const tooltip = ref<HTMLDivElement | null>(null);
+
+useClickOutside({
+    element: tooltip,
+    callback: () => handleClick('focusOut'),
+});
 </script>
 
 <style scoped lang="scss">
@@ -108,6 +115,9 @@ const model = defineModel({
     &_container {
         position: absolute;
         z-index: 5;
+
+        width: v-bind(width);
+        max-width: v-bind(maxWidth);
         padding: 4px;
 
         &_content {
@@ -122,10 +132,7 @@ const model = defineModel({
             }
 
             &_text {
-                width: v-bind(width);
-                max-width: v-bind(maxWidth);
                 padding: 8px;
-
                 font-size: 11px;
                 font-weight: 400;
                 color: $lightgray0;

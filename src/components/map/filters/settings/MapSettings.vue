@@ -11,13 +11,13 @@
                 },
                 colors: {
                     title: 'Colors',
-                    disabled: true,
                 },
             }"
         />
 
         <map-settings-layers v-if="tab === 'layers'"/>
         <map-settings-visibility v-else-if="tab === 'visibility'"/>
+        <map-settings-colors v-else-if="tab === 'colors'"/>
     </div>
 </template>
 
@@ -25,6 +25,7 @@
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import MapSettingsVisibility from '~/components/map/filters/settings/MapSettingsVisibility.vue';
 import MapSettingsLayers from '~/components/map/filters/settings/MapSettingsLayers.vue';
+import MapSettingsColors from '~/components/map/filters/settings/MapSettingsColors.vue';
 
 const tab = ref('layers');
 </script>

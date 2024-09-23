@@ -15,13 +15,17 @@ const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode'
 const colors = Object.keys(colorsList);
 
 // I wrote this myself and very proud tbh
-const hexColorRegex = /^((#(\d{3}|\d{6}))|(rgb(a?)\(\d{1,3},( ?)\d{1,3},( ?)\d{1,3}(\)|,( ?)[0-9.]{1,4}\))))$/;
+export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},( ?)\d{1,3},( ?)\d{1,3}(\)|,( ?)[0-9.]{1,4}\))))$/;
 
 function validateColor(color: unknown) {
-    return typeof color === 'string' && (
-        hexColorRegex.test(color) ||
-        colors.includes(color)
-    );
+    if (!isObject(color)) return false;
+
+    if (typeof color.color !== 'string' || (!hexColorRegex.test(color.color) && !colors.includes(color.color))) return false;
+
+    if ('transparency' in color) {
+        if (typeof color.transparency !== 'number' || color.transparency > 1 || color.transparency < 0) return false;
+        color.transparency = Number(color.transparency.toFixed(1));
+    }
 }
 
 const statuses = Object.keys({
@@ -127,12 +131,17 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
 };
 
+export interface UserMapSettingsColor {
+    color: string;
+    transparency?: number;
+}
+
 export interface UserMapSettingsColors {
-    firs?: string;
-    uirs?: string;
-    approach?: string;
+    firs?: UserMapSettingsColor;
+    uirs?: UserMapSettingsColor;
+    approach?: UserMapSettingsColor;
     aircraft?: PartialRecord<MapAircraftStatus, string> & {
-        main?: string;
+        main?: UserMapSettingsColor;
     };
 }
 

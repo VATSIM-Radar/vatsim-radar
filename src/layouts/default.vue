@@ -266,6 +266,14 @@ img {
     &--large-title {
         grid-template-columns: 30% 65%;
     }
+
+    &--reversed {
+        grid-template-columns: 75% 20%;
+
+        &.__grid-info-sections--large-title {
+            grid-template-columns: 65% 30%;
+        }
+    }
 }
 
 .__section-group {

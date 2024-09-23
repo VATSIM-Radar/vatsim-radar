@@ -76,6 +76,10 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
+    maxDropdownHeight: {
+        type: String,
+        default: '300px',
+    },
 });
 
 defineSlots<{ default: (settings: { item: SelectItem }) => any }>();
@@ -196,7 +200,7 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         overflow: auto;
 
         width: 100%;
-        max-height: 300px;
+        max-height: v-bind(maxDropdownHeight);
         padding: 8px;
 
         background: $darkgray900;

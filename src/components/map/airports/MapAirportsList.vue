@@ -27,7 +27,7 @@ import { Feature } from 'ol';
 import { attachMoveEnd, isPointInExtent } from '~/composables';
 import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
-import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
 import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
@@ -314,25 +314,23 @@ const getAirportsList = computed(() => {
         if (!foundAirports.length) continue;
 
         for (const airport of foundAirports) {
-            if (airport.aircraftList.departures?.includes(pilot.cid) && !airport.aircraft.departures) airport.aircraft.departures = true;
-            if (airport.aircraftList.arrivals?.includes(pilot.cid) && !airport.aircraft.arrivals) airport.aircraft.arrivals = true;
+            if (airport.aircraftList.departures?.includes(pilot.cid)) {
+                airport.aircraft.departures ??= [];
+                airport.aircraft.departures.push(pilot);
+            }
+            if (airport.aircraftList.arrivals?.includes(pilot.cid)) {
+                airport.aircraft.arrivals ??= [];
+                airport.aircraft.arrivals.push(pilot);
+            }
 
             if (airport.aircraftList.groundArr?.includes(pilot.cid)) {
-                if (!airport.aircraft.groundArr) {
-                    airport.aircraft.groundArr = [pilot];
-                }
-                else {
-                    (airport.aircraft.groundArr as VatsimShortenedAircraft[]).push(pilot);
-                }
+                airport.aircraft.groundArr ??= [];
+                airport.aircraft.groundArr.push(pilot);
             }
 
             if (airport.aircraftList.groundDep?.includes(pilot.cid)) {
-                if (!airport.aircraft.groundDep) {
-                    airport.aircraft.groundDep = [pilot];
-                }
-                else {
-                    (airport.aircraft.groundDep as VatsimShortenedAircraft[]).push(pilot);
-                }
+                airport.aircraft.groundDep ??= [];
+                airport.aircraft.groundDep.push(pilot);
             }
         }
     }
@@ -342,12 +340,8 @@ const getAirportsList = computed(() => {
         if (!airport) continue;
 
         if (airport.aircraftList.prefiles?.includes(pilot.cid)) {
-            if (!airport.aircraft.prefiles) {
-                airport.aircraft.prefiles = [pilot];
-            }
-            else {
-                (airport.aircraft.prefiles as VatsimShortenedPrefile[]).push(pilot);
-            }
+            airport.aircraft.prefiles ??= [];
+            airport.aircraft.prefiles.push(pilot);
         }
     }
 

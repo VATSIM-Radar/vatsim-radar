@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.1]
+
+- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes. 
+
 # [0.4.5-rc.2]
 
 - Users who left all tabs are no longer counted in users counter in map footer

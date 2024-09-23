@@ -219,6 +219,7 @@ function airportExistsAtPixel(eventPixel: Pixel) {
 }
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
+    if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
     let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
@@ -258,7 +259,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
 
 async function handleClick(e: MapBrowserEvent<any>) {
-    if (mapStore.openingOverlay) return;
+    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer) return;
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {
