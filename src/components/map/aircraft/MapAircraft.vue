@@ -712,7 +712,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => props.showLabel || activeCurrentOverlay.value?.key === store.user?.cid);
+const isShowLabel = computed<boolean>(() => props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid));
 
 watch(isShowLabel, val => {
     if (!val) {
