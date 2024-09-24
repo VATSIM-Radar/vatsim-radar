@@ -285,7 +285,10 @@ const init = async () => {
 
     const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
 
-    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) return;
+    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) {
+        setState();
+        return;
+    }
 
     if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
 
@@ -713,7 +716,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => (props.showLabel || activeCurrentOverlay.value?.key === store.user?.cid) && !store.mapSettings.heatmapLayer);
+const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid)) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
