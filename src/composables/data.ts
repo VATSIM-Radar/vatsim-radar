@@ -7,7 +7,7 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import type { Ref, WatchStopHandle } from 'vue';
-import type { SimAwareAPIData } from '~/utils/backend/storage';
+import type { SimAwareAPIData, VatglassesAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { clientDB } from '~/utils/client-db';
@@ -15,10 +15,16 @@ import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
+import type { ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
 const simaware = shallowRef<SimAwareAPIData>();
+const vatglasses = shallowRef<VatglassesAPIData>();
+
+
+const vatglassesActivePositions = shallowRef<ActiveVatglassesPositions>({});
+const vatglassesActiveRunways = shallowRef<ActiveVatglassesRunways>({});
 const time = ref(Date.now());
 const stats = shallowRef<{
     cid: number;
@@ -68,6 +74,9 @@ export function useDataStore() {
         vatspy,
         vatsim,
         simaware,
+        vatglasses,
+        vatglassesActivePositions,
+        vatglassesActiveRunways,
         stats,
         time,
     };
@@ -240,6 +249,15 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 }
 
                 dataStore.simaware.value = simaware;
+            }()),
+            (async function() {
+                let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
+                if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
+                    vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
+                    await clientDB.put('data', vatglasses, 'vatglasses');
+                }
+
+                dataStore.vatglasses.value = vatglasses;
             }()),
             (async function() {
                 await store.getVATSIMData();

@@ -1,7 +1,7 @@
 import type { DBSchema, IDBPDatabase } from 'idb';
 import { openDB } from 'idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
-import type { SimAwareAPIData } from '~/utils/backend/storage';
+import type { SimAwareAPIData, VatglassesAPIData } from '~/utils/backend/storage';
 
 interface VatSpyData {
     key: 'vatspy';
@@ -13,8 +13,13 @@ interface SimAwareData {
     value: SimAwareAPIData;
 }
 
+interface VatglassesData {
+    key: 'vatglasses';
+    value: VatglassesAPIData;
+}
+
 interface ClientDB extends DBSchema {
-    data: VatSpyData | SimAwareData;
+    data: VatSpyData | SimAwareData | VatglassesData;
 }
 
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;

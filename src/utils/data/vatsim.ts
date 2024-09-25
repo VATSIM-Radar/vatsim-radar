@@ -140,7 +140,7 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
 
         if (!feature.length) {
             const uir = findUirOrFir(splittedName, atc, true);
-            return uir ?? [];
+            if (uir) return uir;
         }
 
         return {

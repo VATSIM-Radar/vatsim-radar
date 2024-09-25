@@ -2566,6 +2566,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/difference@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@turf/difference@npm:7.1.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.1.0"
+    "@turf/meta": "npm:^7.1.0"
+    "@types/geojson": "npm:^7946.0.10"
+    polygon-clipping: "npm:^0.15.3"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/e4927996b2e45d111ad727b883993a10712590b792d51a01688de3b4e476bf0ec628886fbb2d0476a490f7b2464e6ef9c316158884dd4f99484440bc5028539a
+  languageName: node
+  linkType: hard
+
 "@turf/great-circle@npm:^7.1.0":
   version: 7.1.0
   resolution: "@turf/great-circle@npm:7.1.0"
@@ -2587,6 +2600,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/intersect@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@turf/intersect@npm:7.1.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.1.0"
+    "@turf/meta": "npm:^7.1.0"
+    "@types/geojson": "npm:^7946.0.10"
+    polygon-clipping: "npm:^0.15.3"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/de283d539e1ecf285a6b656019d4779915f25104ba00fa5013092cf7f572dec9b431d28577baa5290d52c92904194291c17c653f7572e9dc0c2cdae0e837a670
+  languageName: node
+  linkType: hard
+
 "@turf/invariant@npm:^7.1.0":
   version: 7.1.0
   resolution: "@turf/invariant@npm:7.1.0"
@@ -2595,6 +2621,41 @@ __metadata:
     "@types/geojson": "npm:^7946.0.10"
     tslib: "npm:^2.6.2"
   checksum: 10c0/63a163ee7babf539af64bd204808979ce45e0d0bf772b3f28cda9fa99ab9c54150ea90d3203ae25cdda1a78eb206faf89db5847dc58ebc0eae8df0dab55822b8
+  languageName: node
+  linkType: hard
+
+"@turf/meta@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@turf/meta@npm:7.1.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.1.0"
+    "@types/geojson": "npm:^7946.0.10"
+  checksum: 10c0/c7aa77ddb28ef5068b031c1b422d2d5dc1df51975f727be42e2d8d500a026a2e667242d6aa06453f757cbd5ead2db0ba6b9a5d2fcf5ab496574cd4c0ae4fe325
+  languageName: node
+  linkType: hard
+
+"@turf/truncate@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@turf/truncate@npm:7.1.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.1.0"
+    "@turf/meta": "npm:^7.1.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/c831fdd257ae4f7ba8eb0a332a4571cc5df400919fd18669fa2a6fd69a9acbebab4924e4ae01bb8d6edf41b2a4e5d74f3f754ee393a6d3b3408728bcb22497c7
+  languageName: node
+  linkType: hard
+
+"@turf/union@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "@turf/union@npm:7.1.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.1.0"
+    "@turf/meta": "npm:^7.1.0"
+    "@types/geojson": "npm:^7946.0.10"
+    polygon-clipping: "npm:^0.15.3"
+    tslib: "npm:^2.6.2"
+  checksum: 10c0/1c60c87a83ab0cb45b952b74e761eedd52f2f148bda4e96ccee7c5c63038ac6d99142d5a5a772e1a49fe66ce8a1344537f4e192991e1fd3214cb406cd7cdd398
   languageName: node
   linkType: hard
 
@@ -2725,6 +2786,13 @@ __metadata:
   version: 3.4.2
   resolution: "@types/luxon@npm:3.4.2"
   checksum: 10c0/d835467de3daf7e17ba78b50bb5a14efd94272439ca067990d71332a54b311544459c69623eddd243b511b28d70194c9591a9ee8cf9c038962c965f991affd7e
+  languageName: node
+  linkType: hard
+
+"@types/merge-ranges@npm:^1":
+  version: 1.0.2
+  resolution: "@types/merge-ranges@npm:1.0.2"
+  checksum: 10c0/ae92d920fa5d6f808651674ac764ec561115883053a417017cbea2527fd4b7425f8dfe94017305e34fd0894c176ba3fb96575bf2e3bda35a2c748bc509a731f8
   languageName: node
   linkType: hard
 
@@ -7851,6 +7919,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"merge-ranges@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "merge-ranges@npm:1.0.2"
+  checksum: 10c0/f9380d4fecd0b3941e96417ea84ce0e4c3b1dcf556d165e83a3e79c98178003fc97b8d950b6e7ed12c4ec2aa2cffd7170c9df5e38ba91c4e125d3d06b6f8f2b7
+  languageName: node
+  linkType: hard
+
 "merge-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
@@ -9043,6 +9118,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"polygon-clipping@npm:^0.15.3":
+  version: 0.15.7
+  resolution: "polygon-clipping@npm:0.15.7"
+  dependencies:
+    robust-predicates: "npm:^3.0.2"
+    splaytree: "npm:^3.1.0"
+  checksum: 10c0/9515283509f1793f22fd87e68662838a6ebbd33cca4fc4bccd9f1b4f366383a4590e9a1cd48287e6897ad018803aeb97ed9ebe38bada5cffa7b4551539a9ab10
+  languageName: node
+  linkType: hard
+
 "possible-typed-array-names@npm:^1.0.0":
   version: 1.0.0
   resolution: "possible-typed-array-names@npm:1.0.0"
@@ -9919,6 +10004,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"robust-predicates@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "robust-predicates@npm:3.0.2"
+  checksum: 10c0/4ecd53649f1c2d49529c85518f2fa69ffb2f7a4453f7fd19c042421c7b4d76c3efb48bc1c740c8f7049346d7cb58cf08ee0c9adaae595cc23564d360adb1fde4
+  languageName: node
+  linkType: hard
+
 "rollup-plugin-visualizer@npm:^5.12.0":
   version: 5.12.0
   resolution: "rollup-plugin-visualizer@npm:5.12.0"
@@ -10765,6 +10857,13 @@ __metadata:
   version: 14.0.1
   resolution: "speakingurl@npm:14.0.1"
   checksum: 10c0/1de1d1b938a7c4d9e79593ff7a26d312ec04a7c3234ca40b7f9b8106daf74ea9d2110a077f5db97ecf3762b83069e3ccbf9694431b51d4fcfd863f0b3333c342
+  languageName: node
+  linkType: hard
+
+"splaytree@npm:^3.1.0":
+  version: 3.1.2
+  resolution: "splaytree@npm:3.1.2"
+  checksum: 10c0/ba82da4e4185d692eb2b1c9e000a9dde6cd713ec447f5c90ec97264ce9de19ba1f5f90fbef8a9ffa37bbbe2e9f4b031c6ee45d4119acbf1cddb93112ec5ecf86
   languageName: node
   linkType: hard
 
@@ -11934,10 +12033,17 @@ __metadata:
     "@prisma/client": "npm:^5.20.0"
     "@stylistic/eslint-plugin": "npm:^2.9.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
+    "@turf/difference": "npm:^7.1.0"
     "@turf/great-circle": "npm:^7.1.0"
+    "@turf/helpers": "npm:^7.1.0"
+    "@turf/intersect": "npm:^7.1.0"
+    "@turf/meta": "npm:^7.1.0"
+    "@turf/truncate": "npm:^7.1.0"
+    "@turf/union": "npm:^7.1.0"
     "@types/adm-zip": "npm:^0.5.5"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.7"
+    "@types/merge-ranges": "npm:^1"
     "@types/node": "npm:^22.7.5"
     "@types/ws": "npm:^8.5.12"
     adm-zip: "npm:^0.5.16"
@@ -11952,6 +12058,7 @@ __metadata:
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
     kafkajs: "npm:^2.2.4"
+    merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.0.1"
     nuxt: "npm:^3.13.2"
     ol: "npm:^10.2.1"
