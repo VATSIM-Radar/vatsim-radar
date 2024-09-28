@@ -48,6 +48,7 @@
                     :items="displayableColumns"
                     multiple
                     placeholder="Displayed columns"
+                    show-placeholder
                     width="200px"
                 />
             </div>
@@ -352,7 +353,13 @@ const aircraftModes: SelectItem<MapAircraftMode>[] = [
     },
 ];
 
-const displayedColumns = ref<MapAircraftKeys[]>([]);
+const displayedColumns = ref<MapAircraftKeys[]>(['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr']);
+// const displayedColumns = useCookie<MapAircraftKeys[]>('dashboard-displayed-columns', {
+//     sameSite: 'strict',
+//     secure: true,
+//     default: () => ['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr'],
+// });
+
 const displayableColumns: SelectItem<MapAircraftKeys>[] = [
     {
         value: 'prefiles',
