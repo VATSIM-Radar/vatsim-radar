@@ -49,6 +49,7 @@
                 readonly
                 :value="text"
             />
+            <slot name="append"/>
         </div>
     </div>
 </template>
@@ -65,7 +66,7 @@ defineProps({
     },
 });
 
-defineSlots<{ default(): any; prepend(): any; actions(): any }>();
+defineSlots<{ default(): any; prepend(): any; append(): any; actions(): any }>();
 
 const copy = useCopyText();
 const expanded = ref(false);

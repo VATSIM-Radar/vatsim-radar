@@ -8,6 +8,7 @@
             <div
                 v-if="localValue"
                 class="popup"
+                :class="{ 'popup--disabled': disabled }"
             >
                 <div
                     class="popup_background"
@@ -179,6 +180,10 @@ onBeforeUnmount(() => {
 
         background: varToRgba('darkgray1000', 0.33);
         backdrop-filter: blur(5px);
+    }
+
+    &--disabled .popup_background {
+        cursor: default;
     }
 
     &_container {

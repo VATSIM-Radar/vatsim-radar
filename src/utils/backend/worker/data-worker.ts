@@ -81,13 +81,10 @@ CronJob.from({
     start: true,
     runOnInit: true,
     onTick: async () => {
-        if (!radarStorage.vatspy.data || transceiversInProgress) return;
+        if (transceiversInProgress) return;
         try {
             transceiversInProgress = true;
             radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
-                parseResponse(responseText) {
-                    return JSON.parse(responseText);
-                },
                 timeout: 1000 * 30,
             });
         }
@@ -285,6 +282,35 @@ CronJob.from({
             updateVatsimMandatoryDataStorage();
 
             await updateVatsimExtendedPilots();
+
+            /* radarStorage.vatsim.data.controllers.push({
+                callsign: 'BIRD_CTR',
+                cid: 3,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });
+
+            radarStorage.vatsim.data.controllers.push({
+                callsign: 'BIRD_S_CTR',
+                cid: 4,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });*/
+
 
             /*            radarStorage.vatsim.data.atis.push({
                 callsign: 'MSK_APP',

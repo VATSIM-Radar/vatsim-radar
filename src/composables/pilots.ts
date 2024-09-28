@@ -169,14 +169,21 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
-export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rotation: number, status: MapAircraftStatus, style: Style) {
+export async function loadAircraftIcon({ feature, icon, status, style, rotation, force }: {
+    feature: Feature;
+    icon: AircraftIcon;
+    rotation: number;
+    status: MapAircraftStatus;
+    style: Style;
+    force?: boolean;
+}) {
     const store = useStore();
 
     const image = style.getImage();
 
     const featureProperties = feature.getProperties() ?? {};
 
-    if (image && featureProperties.imageStatus === status) {
+    if (!force && image && featureProperties.imageStatus === status && featureProperties.icon === icon) {
         image.setRotation(rotation);
     }
     else {
@@ -206,6 +213,7 @@ export async function loadAircraftIcon(feature: Feature, icon: AircraftIcon, rot
     feature.setProperties({
         ...featureProperties,
         imageStatus: status,
+        icon,
     });
 }
 
@@ -266,4 +274,12 @@ export function getFlightRowColor(index: number | null, theme = useStore().theme
         case 'light':
             return colorPresets.light[index];
     }
+}
+
+export function getTimeRemains(eta: Date): string | null {
+    const timeRemains = eta.getTime() - useDataStore().time.value;
+    if (timeRemains < 0) return null;
+
+    const minutes = timeRemains / (1000 * 60);
+    return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
 }

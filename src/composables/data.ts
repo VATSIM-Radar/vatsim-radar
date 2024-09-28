@@ -59,6 +59,7 @@ const vatsim = {
     mandatoryData: shallowRef<VatsimMandatoryConvertedData | null>(null),
     versions: ref<VatDataVersions['vatsim'] | null>(null),
     updateTimestamp: ref(''),
+    updateTime: ref(0),
 };
 
 export function useDataStore() {
@@ -80,6 +81,8 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
 }
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
+    time.value = data.serverTime;
+    vatsim.updateTime.value = data.timestampNum;
     vatsim.mandatoryData.value = {
         pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
             const coords = fromLonLat([lon, lat]);
@@ -126,7 +129,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
 
     function startIntervalChecks() {
         interval = setInterval(async () => {
-            if (mandatoryInProgess) return;
+            if (mandatoryInProgess || !store.isTabVisible) return;
             if (socketsEnabled()) {
                 mandatoryInProgess = true;
 
@@ -149,16 +152,28 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
         }, 2000);
 
         interval = setInterval(async () => {
+            store.isTabVisible = document.visibilityState === 'visible';
+            if (!store.isTabVisible) return;
             await store.getVATSIMData(socketsEnabled());
             onFetch?.();
+            localStorage.setItem('radar-visibility-check', Date.now().toString());
         }, 10000);
     }
 
+    function setVisibilityState() {
+        document.addEventListener('visibilitychange', event => {
+            store.isTabVisible = document.visibilityState === 'visible';
+        });
+    }
+
     onMounted(async () => {
+        store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
         let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
         startIntervalChecks();
+
+        document.addEventListener('visibilitychange', setVisibilityState);
 
         watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
@@ -235,6 +250,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     });
 
     onBeforeUnmount(() => {
+        document.removeEventListener('visibilitychange', setVisibilityState);
         isMounted.value = false;
         ws?.();
         if (interval) {

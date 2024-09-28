@@ -35,6 +35,17 @@
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-filters v-if="!store.config.hideHeader"/>
                 <map-weather v-if="!store.config.hideHeader"/>
+                <a
+                    v-if="store.config.showCornerLogo"
+                    class="map_logo"
+                    href="https://vatsim-radar.com"
+                    target="_blank"
+                >
+                    <common-logo
+                        font-size="14px"
+                        width="50px"
+                    />
+                </a>
             </client-only>
         </div>
         <client-only v-if="ready">
@@ -73,6 +84,7 @@ import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[i
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
+import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -334,7 +346,11 @@ await setupDataFetch({
                 ];
             }
         }
-        else if (store.config.airports) {
+        else if (store.config.area) {
+            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
+            center = getCenter(projectionExtent);
+        }
+        else if (store.config.airports && !store.config.center) {
             const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
 
             if (airports.length) {
@@ -342,10 +358,16 @@ await setupDataFetch({
                 center = getCenter(projectionExtent);
             }
         }
-        else if (store.config.area) {
-            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
-            center = getCenter(projectionExtent);
+
+        if (store.config.center) center = store.config.center;
+
+        let zoom = store.localSettings.zoom ?? 3;
+
+        if (store.config.zoom) zoom = store.config.zoom;
+        else if (store.config.airport) {
+            zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
+        else if (store.config.airports?.length) zoom = 1;
 
         map.value = new Map({
             target: mapContainer.value!,
@@ -358,12 +380,10 @@ await setupDataFetch({
             maxTilesLoading: 128,
             view: new View({
                 center,
-                zoom: store.config.airport
-                    ? store.config.showInfoForPrimaryAirport ? 12 : 14
-                    : store.config.airports?.length ? 1 : store.localSettings.zoom ?? 3,
+                zoom,
                 minZoom: 3,
                 multiWorld: false,
-                showFullExtent: !!store.config.airports?.length,
+                showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: projectionExtent,
             }),
         });
@@ -476,6 +496,15 @@ await setupDataFetch({
             flex: 1 0 auto;
             border-radius: 16px;
         }
+    }
+
+    &_logo {
+        position: absolute;
+        z-index: 5;
+        bottom: 16px;
+        left: 16px;
+
+        text-decoration: none;
     }
 
     :deep(.ol-attribution) {

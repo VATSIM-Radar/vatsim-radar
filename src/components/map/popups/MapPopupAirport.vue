@@ -22,8 +22,6 @@
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
         <template #action-counts>
-
-
             <div
                 class="airport__counts"
                 :class="{ 'airport__counts--ground_departures': listGroundDepartures }"
@@ -295,12 +293,18 @@ const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ??
 
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
+        aircraft: {
+            title: 'Aircraft',
+            disabled: !aircraftCount.value,
+            sections: [],
+        },
         atc: {
-            title: 'ATC & Aircraft',
+            title: 'ATC',
+            disabled: !atc.value.length,
             sections: [],
         },
         info: {
-            title: 'Info & Weather',
+            title: 'Info',
             sections: [],
         },
     };
@@ -359,7 +363,7 @@ const tabs = computed<InfoPopupContent>(() => {
     }
 
     if (aircraftCount.value) {
-        list.atc.sections.push({
+        list.aircraft.sections.push({
             title: 'Aircraft',
             collapsible: true,
             key: 'aircraft',
@@ -397,6 +401,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
 
 onMounted(() => {
     const interval = setInterval(async () => {
+        if (!store.isTabVisible) return;
         props.overlay.data.airport = {
             ...props.overlay.data.airport,
             ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
