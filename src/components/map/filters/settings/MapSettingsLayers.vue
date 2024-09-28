@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
-import type { IUserMapSettings } from '~/server/api/user/settings/map';
+import type { IUserMapSettings } from '~/utils/backend/map-settings';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';

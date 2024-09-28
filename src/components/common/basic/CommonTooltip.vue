@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
+import type { ClickOutsideOptions } from '~/composables/click-outside';
 
 
 const props = defineProps({
@@ -57,6 +58,10 @@ const props = defineProps({
     closeMethod: {
         type: String as PropType<TooltipCloseMethod>,
         default: 'mouseLeave',
+    },
+    clickOutsideOptions: {
+        type: Object as PropType<Omit<ClickOutsideOptions, 'element' | 'callback'>>,
+        default: () => ({}),
     },
 });
 defineSlots<{ default(): any; activator(): any }>();
@@ -94,7 +99,9 @@ const model = defineModel({
 
 const tooltip = ref<HTMLDivElement | null>(null);
 
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
 useClickOutside({
+    ...props.clickOutsideOptions,
     element: tooltip,
     callback: () => handleClick('focusOut'),
 });

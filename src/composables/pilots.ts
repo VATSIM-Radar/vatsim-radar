@@ -202,14 +202,14 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         if (status === 'default') {
             const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ store.theme === 'light' ? '-light' : '' }.png`,
+                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
-                color: color === 'default' ? undefined : color,
-                opacity: Number(!store.mapSettings.heatmapLayer),
+                color: (color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined,
+                opacity: store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1),
             }));
         }
         else {

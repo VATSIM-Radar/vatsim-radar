@@ -8,7 +8,7 @@ import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
-import type { UserMapSettings } from '~/server/api/user/settings/map';
+import type { UserMapSettings } from '~/utils/backend/map-settings';
 
 export interface SiteConfig {
     hideSectors?: boolean;

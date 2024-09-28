@@ -1,5 +1,5 @@
 import { useStore } from '~/store';
-import type { IUserMapSettings, UserMapSettingsVisibilityATC } from '~/server/api/user/settings/map';
+import type { IUserMapSettings, UserMapSettingsVisibilityATC } from '~/utils/backend/map-settings';
 import { useMapStore } from '~/store/map';
 
 export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean => {

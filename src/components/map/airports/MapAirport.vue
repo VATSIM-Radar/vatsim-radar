@@ -577,7 +577,7 @@ onMounted(async () => {
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
+                        color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                     }),
                 }),
             }));

@@ -1,11 +1,13 @@
-import type { UserSettings } from '~/utils/backend/user';
+import type { H3Event } from 'h3';
 import { findUserByCookie } from '~/utils/backend/user';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
-import type { PartialRecord } from '~/types';
-import type { MapAircraftStatus } from '~/composables/pilots';
-import { hexColorRegex, isObject } from '~/utils/shared';
-import { colorsList } from '~/utils/backend/styles';
 import { prisma } from '~/utils/backend/prisma';
+import { colorsList } from '~/utils/backend/styles';
+import { hexColorRegex, isObject } from '~/utils/shared';
+import type { MapAircraftStatus } from '~/composables/pilots';
+import type { PartialRecord } from '~/types';
+import { UserPresetType } from '@prisma/client';
+import type { UserPreset } from '@prisma/client';
 
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
@@ -140,9 +142,8 @@ export interface UserMapSettingsColors {
     uirs?: UserMapSettingsColor;
     approach?: UserMapSettingsColor;
     aircraft?: PartialRecord<MapAircraftStatus, UserMapSettingsColor> & {
-        main?: string;
+        main?: UserMapSettingsColor;
     };
-    gates?: UserMapSettingsColor;
     runways?: UserMapSettingsColor;
 }
 
@@ -185,7 +186,7 @@ export interface IUserMapSettings {
 
 export type UserMapSettings = Partial<IUserMapSettings>;
 
-export default defineEventHandler(async event => {
+export async function handleMapSettingsEvent(event: H3Event) {
     try {
         const user = await findUserByCookie(event);
 
@@ -196,17 +197,45 @@ export default defineEventHandler(async event => {
             });
         }
 
-        const settings = (await prisma.user.findFirst({
-            select: {
-                mapSettings: true,
-            },
-            where: {
-                id: user.id,
-            },
-        }))!.mapSettings ?? {} as UserMapSettings;
+        const id = getRouterParam(event, 'id');
 
-        if (event.method === 'POST') {
-            const body = await readBody<UserSettings>(event);
+        if (id && event.method !== 'GET' && event.method !== 'PUT') {
+            return handleH3Error({
+                event,
+                statusCode: 400,
+                statusMessage: 'Only PUT and GET are allowed when using id',
+            });
+        }
+        else if (!id && event.method !== 'POST') {
+            return handleH3Error({
+                event,
+                statusCode: 400,
+                statusMessage: 'Only POST is allowed when not using id',
+            });
+        }
+
+        let settings: UserPreset | null = null;
+
+        if (id) {
+            settings = await prisma.userPreset.findFirst({
+                where: {
+                    id: +id,
+                    userId: user.id,
+                    type: UserPresetType.MAP_SETTINGS,
+                },
+            }) ?? null;
+
+            if (!settings) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    statusMessage: 'This preset was not found for your user ID',
+                });
+            }
+        }
+
+        if (event.method === 'POST' || event.method === 'PUT') {
+            const body = await readBody<Partial<UserPreset>>(event);
             if (!body) {
                 return handleH3Error({
                     event,
@@ -215,35 +244,84 @@ export default defineEventHandler(async event => {
                 });
             }
 
-            for (const [key, value] of Object.entries(body) as [keyof IUserMapSettings, unknown][]) {
-                if (!(key in validators)) {
-                    return handleH3Error({
-                        event,
-                        statusCode: 400,
-                        statusMessage: `Invalid key given: ${ key }`,
-                    });
-                }
+            if (!body.name && !settings) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    statusMessage: 'Name is required when creating settings',
+                });
+            }
 
-                if (!validators[key](value)) {
-                    return handleH3Error({
-                        event,
-                        statusCode: 400,
-                        statusMessage: `${ key } validation has failed`,
-                    });
+            if (!body.json && !settings) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    statusMessage: 'Json is required when creating settings',
+                });
+            }
+
+            if (body.json) {
+                for (const [key, value] of Object.entries(body.json) as [keyof IUserMapSettings, unknown][]) {
+                    if (!(key in validators)) {
+                        return handleH3Error({
+                            event,
+                            statusCode: 400,
+                            statusMessage: `Invalid key given: ${ key }`,
+                        });
+                    }
+
+                    if (!validators[key](value)) {
+                        return handleH3Error({
+                            event,
+                            statusCode: 400,
+                            statusMessage: `${ key } validation has failed`,
+                        });
+                    }
                 }
             }
 
-            await prisma.user.update({
-                where: {
-                    id: user.id,
-                },
-                data: {
-                    settings: JSON.stringify(body),
-                },
-            });
+            if (body.name && body.name.length > 20) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    statusMessage: 'Name validation failed',
+                });
+            }
+
+            if (settings) {
+                await prisma.userPreset.update({
+                    where: {
+                        id: settings.id,
+                    },
+                    data: {
+                        name: body.name ?? settings.name,
+                        json: (body.json ?? settings.json) as Record<string, any>,
+                    },
+                });
+            }
+            else {
+                await prisma.userPreset.create({
+                    data: {
+                        userId: user.id,
+                        type: UserPresetType.MAP_SETTINGS,
+                        name: body.name as string,
+                        json: body.json as Record<string, any>,
+                    },
+                });
+            }
         }
         else if (event.method === 'GET') {
-            return settings;
+            if (id) {
+                return settings;
+            }
+            else {
+                return prisma.userPreset.findMany({
+                    where: {
+                        userId: user.id,
+                        type: UserPresetType.MAP_SETTINGS,
+                    },
+                });
+            }
         }
         else {
             return handleH3Error({
@@ -260,4 +338,4 @@ export default defineEventHandler(async event => {
     return {
         status: 'ok',
     };
-});
+}

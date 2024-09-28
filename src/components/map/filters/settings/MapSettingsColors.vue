@@ -14,41 +14,53 @@
             </div>
         </div>
         <common-color
+            :default-color="{ color: 'error300' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.approach ?? reactive({ color: 'error300' })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approach: $event } } })"
         >
             Approach tracon/circle
         </common-color>
         <common-color
+            :default-color="{ color: 'success500', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.firs ?? reactive({ color: 'success500', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
             FIR
         </common-color>
         <common-color
+            :default-color="{ color: 'info400', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.uirs ?? reactive({ color: 'info400', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { uirs: $event } } })"
         >
             UIR
+        </common-color>
+        <common-color
+            :default-color="{ color: 'error300', transparency: 0.7 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.runways ?? reactive({ color: 'error300', transparency: 0.7 })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { runways: $event } } })"
+        >
+            Runways
         </common-color>
 
         <common-block-title>
             Aircraft
         </common-block-title>
 
-        <common-select
-            :items="aircraftColors"
-            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.main ?? null"
-            placeholder="Default aircraft color"
-            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { main: $event ?? 'default' } } } })"
-        />
+        <common-color
+            :default-color="{ color: 'primary500' }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.main ?? reactive({ color: 'primary500' })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { main: $event } } } })"
+        >
+            Default
+        </common-color>
 
-        <small> Default aircraft colors are limited<br> due to performance reasons.</small>
+        <small> Default aircraft colors may look weird due to performance reasons.</small>
 
         <common-color
             v-for="(title, key) in aircraftOptions"
             :key
-            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.[key] ?? reactive({ color: hexToRgb(aircraftSvgColors()[key as MapAircraftStatus]) })"
+            :default-color="{ color: hexToRgb(aircraftColors[key as MapAircraftStatus]) }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.[key] ?? reactive({ color: hexToRgb(aircraftColors[key as MapAircraftStatus]) })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { [key]: $event } } } })"
         >
             {{ title }}
@@ -60,8 +72,6 @@
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import { useStore } from '~/store';
-import type { SelectItem } from '~/types/components/select';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import { aircraftSvgColors } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
@@ -71,40 +81,7 @@ const store = useStore();
 
 const themeKey = computed(() => store.getCurrentTheme);
 
-const aircraftColors: SelectItem[] = [
-    {
-        text: 'Default',
-        value: 'default',
-    },
-    {
-        text: 'Neutral blue',
-        value: '#FFDEAD',
-    },
-    {
-        text: 'Cyan',
-        value: '#00FA9A',
-    },
-    {
-        text: 'Aqua',
-        value: '#7FFFD4',
-    },
-    {
-        text: 'Violet',
-        value: '#8A2BE2',
-    },
-    {
-        text: 'Red',
-        value: '#FF6347',
-    },
-    {
-        text: 'Green',
-        value: '#00FF00',
-    },
-    {
-        text: 'Forest',
-        value: '#FFFF00',
-    },
-];
+const aircraftColors = aircraftSvgColors();
 
 // For type safety
 const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {

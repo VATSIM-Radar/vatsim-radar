@@ -2,6 +2,7 @@
     <div class="color-picker">
         <common-tooltip
             v-model="tooltipOpened"
+            :click-outside-options="{ strict: true }"
             close-method="clickOutside"
             location="bottom"
             max-width="100%"
@@ -22,6 +23,10 @@
                             class="color-picker__content_preview"
                         />
                     </div>
+                    <reset-icon
+                        v-if="defaultColor && ((defaultColor.color !== model.color) || (!defaultColor.transparency ? (model.transparency && model.transparency !== 1) : model.transparency !== defaultColor.transparency))"
+                        @click.stop="model = { transparency: 1, ...defaultColor }"
+                    />
                     <common-select
                         class="color-picker__transparency"
                         :items="transparencyOptions"
@@ -71,12 +76,20 @@
 
 <script setup lang="ts">
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import type { UserMapSettingsColor } from '~/server/api/user/settings/map';
+import type { UserMapSettingsColor } from '~/utils/backend/map-settings';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/colors';
 import { hexColorRegex } from '~/utils/shared';
+import ResetIcon from '@/assets/icons/kit/reset.svg?component';
+
+const props = defineProps({
+    defaultColor: {
+        type: Object as PropType<UserMapSettingsColor | null>,
+        default: null,
+    },
+});
 
 defineSlots<{ default: () => any }>();
 
@@ -122,6 +135,12 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
         font-size: 14px;
         font-weight: 600;
+
+        >svg {
+            width: 16px;
+            min-width: 16px;
+            color: $lightgray200;
+        }
     }
 
     &__content {

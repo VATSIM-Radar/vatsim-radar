@@ -10,7 +10,7 @@ import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
 import { defu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
-import type { UserMapSettings } from '~/server/api/user/settings/map';
+import type { UserMapSettings } from '~/utils/backend/map-settings';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);

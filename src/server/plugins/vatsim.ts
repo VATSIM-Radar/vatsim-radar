@@ -16,9 +16,11 @@ export default defineNitroPlugin(app => {
         const [divisions, subdivisions] = await Promise.all([
             $fetch<VatsimDivision[]>('https://api.vatsim.net/api/divisions/', {
                 timeout: 1000 * 60,
+                retry: 5,
             }),
             $fetch<VatsimSubDivision[]>('https://api.vatsim.net/api/subdivisions/', {
                 timeout: 1000 * 60,
+                retry: 5,
             }),
         ]);
 

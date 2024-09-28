@@ -40,6 +40,19 @@ export default defineNuxtModule(async (_, nuxt) => {
             };
         }
 
+        for (let i = 0; i < 2; i++) {
+            let iconContent = iconContents.replaceAll('#F8F8FA', 'white');
+            const iconKey = i === 1 ? '-light' : '';
+            if (i === 1) iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
+
+            const sharpIcon = sharp(Buffer.from(iconContent));
+            sharpIcon.resize({
+                width: width * 2,
+            });
+
+            await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }-white${ iconKey }.png`));
+        }
+
         let svg = optimize(iconContents, {
             plugins: [
                 'removeDimensions',
