@@ -10,7 +10,7 @@ import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
 import { defu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
-import type { IUserMapSettings, UserMapSettings } from '~/server/api/user/settings/map';
+import type { UserMapSettings } from '~/server/api/user/settings/map';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -24,10 +24,10 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
-export function getCurrentThemeRgbColor(color: ColorsList) {
+export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsList): T {
     const store = useStore();
     const theme = store.theme ?? 'default';
-    if (theme === 'default') return radarColors[`${ color }Rgb`];
+    if (theme === 'default') return radarColors[`${ color }Rgb`] as T;
 
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Rgb`] ?? radarColors[`${ color }Rgb`];

@@ -7,6 +7,7 @@ import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
+import { getColorFromSettings } from '~/composables/colors';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -124,13 +125,24 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
+export const getAircraftStatusColor = (status: MapAircraftStatus) => {
+    const store = useStore();
+    let color = aircraftSvgColors()[status];
+    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status];
+    if (settingColor) color = getColorFromSettings(settingColor);
+
+    return color;
+};
+
 export function reColorSvg(svg: string, status: MapAircraftStatus) {
     const store = useStore();
 
+    const color = getAircraftStatusColor(status);
+
     let iconContent = svg
         .replaceAll('\n', '')
-        .replaceAll('white', aircraftSvgColors()[status])
-        .replaceAll('#F8F8FA', aircraftSvgColors()[status]);
+        .replaceAll('white', color)
+        .replaceAll('#F8F8FA', color);
 
     if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
 
@@ -188,6 +200,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     }
     else {
         if (status === 'default') {
+            const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
             style.setImage(new Icon({
                 src: `/aircraft/${ icon }${ store.theme === 'light' ? '-light' : '' }.png`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
@@ -195,6 +208,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
+                color: color === 'default' ? undefined : color,
                 opacity: Number(!store.mapSettings.heatmapLayer),
             }));
         }

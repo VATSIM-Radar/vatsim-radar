@@ -3,19 +3,16 @@ import { findUserByCookie } from '~/utils/backend/user';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import type { PartialRecord } from '~/types';
 import type { MapAircraftStatus } from '~/composables/pilots';
-import { isObject } from '~/utils/shared';
+import { hexColorRegex, isObject } from '~/utils/shared';
 import { colorsList } from '~/utils/backend/styles';
 import { prisma } from '~/utils/backend/prisma';
 
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
 const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
-const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'airborneDeparting', 'ground', 'groundMoving', 'airborne', 'hide'];
+const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'groundMoving', 'airborne', 'hide'];
 
 const colors = Object.keys(colorsList);
-
-// I wrote this myself and very proud tbh
-export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},( ?)\d{1,3},( ?)\d{1,3}(\)|,( ?)[0-9.]{1,4}\))))$/;
 
 function validateColor(color: unknown) {
     if (!isObject(color)) return false;
@@ -24,7 +21,7 @@ function validateColor(color: unknown) {
 
     if ('transparency' in color) {
         if (typeof color.transparency !== 'number' || color.transparency > 1 || color.transparency < 0) return false;
-        color.transparency = Number(color.transparency.toFixed(1));
+        color.transparency = Number(color.transparency.toFixed(2));
     }
 }
 
@@ -45,12 +42,14 @@ function validateTheme(val: unknown): boolean {
     if ('firs' in val && !validateColor(val.firs)) return false;
     if ('uirs' in val && !validateColor(val.uirs)) return false;
     if ('approach' in val && !validateColor(val.approach)) return false;
+    if ('gates' in val && !validateColor(val.gates)) return false;
+    if ('runways' in val && !validateColor(val.runways)) return false;
 
     if ('aircraft' in val) {
         if (!isObject(val.aircraft)) return false;
 
         for (const [key, value] of Object.entries(val.aircraft)) {
-            if (key !== 'main' && !statuses.includes(key)) return false;
+            if (key !== 'main' && !statuses.includes(key) && key !== 'default') return false;
 
             if (!validateColor(value)) return false;
         }
@@ -140,9 +139,11 @@ export interface UserMapSettingsColors {
     firs?: UserMapSettingsColor;
     uirs?: UserMapSettingsColor;
     approach?: UserMapSettingsColor;
-    aircraft?: PartialRecord<MapAircraftStatus, string> & {
-        main?: UserMapSettingsColor;
+    aircraft?: PartialRecord<MapAircraftStatus, UserMapSettingsColor> & {
+        main?: string;
     };
+    gates?: UserMapSettingsColor;
+    runways?: UserMapSettingsColor;
 }
 
 export interface UserMapSettingsVisibilityATC {
@@ -170,7 +171,7 @@ export interface IUserMapSettings {
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     airportsCounters: {
         syncDeparturesArrivals?: boolean;
-        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'airborneDeparting' | 'ground' | 'groundMoving' | 'hide';
+        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
         horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
         disableTraining?: boolean;

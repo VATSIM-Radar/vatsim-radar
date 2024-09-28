@@ -194,6 +194,7 @@ function initHeatmap() {
         heatmap = new Heatmap({
             source: vectorSource.value,
             zIndex: 5,
+            weight: () => 0.5,
         });
 
         map.value?.addLayer(heatmap);

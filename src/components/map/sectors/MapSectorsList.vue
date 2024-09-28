@@ -49,6 +49,12 @@ watch(map, val => {
             wrapX: false,
         });
 
+        const firColor = getSelectedColorFromSettings('firs');
+        const uirColor = getSelectedColorFromSettings('uirs');
+
+        const firColorRaw = getSelectedColorFromSettings('firs', true);
+        const uirColorRaw = getSelectedColorFromSettings('uirs', true);
+
         const defaultStyle = new Style({
             stroke: new Stroke({
                 color: `rgb(${ getCurrentThemeRgbColor('mapSectorBorder').join(',') }, 0.5)`,
@@ -59,10 +65,10 @@ watch(map, val => {
 
         const localStyle = new Style({
             fill: new Fill({
-                color: `rgb(${ getCurrentThemeRgbColor('success500').join(',') }, 0.07)`,
+                color: firColor || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: `rgb(${ getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 4,
@@ -70,10 +76,10 @@ watch(map, val => {
 
         const rootStyle = new Style({
             fill: new Fill({
-                color: `rgb(${ getCurrentThemeRgbColor('info400').join(',') }, 0.07)`,
+                color: uirColor || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: `rgb(${ getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
+                color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 3,
@@ -81,10 +87,10 @@ watch(map, val => {
 
         const hoveredStyle = new Style({
             fill: new Fill({
-                color: `rgb(${ getCurrentThemeRgbColor('success300').join(',') }, 0.2)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: `rgb(${ getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,
@@ -92,10 +98,10 @@ watch(map, val => {
 
         const hoveredRootStyle = new Style({
             fill: new Fill({
-                color: `rgb(${ getCurrentThemeRgbColor('info600').join(',') }, 0.2)`,
+                color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info600').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: `rgb(${ getCurrentThemeRgbColor('info600').join(',') }, 0.6)`,
+                color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info600').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,

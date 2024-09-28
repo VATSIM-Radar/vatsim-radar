@@ -70,10 +70,8 @@ function handleClick(eventType: 'mouseLeave' | 'mouseOver' | 'click' | 'focus' |
             if (props.openMethod === 'mouseOver') model.value = true;
             break;
         case 'click':
-            if (props.closeMethod === 'click') model.value = !model.value;
-            break;
-        case 'focus':
-            if (props.closeMethod === 'clickOutside') model.value = true;
+            if (props.openMethod === 'click' && !model.value) model.value = true;
+            if (props.closeMethod === 'click' && model.value) model.value = false;
             break;
         case 'focusOut':
             if (props.closeMethod === 'clickOutside') model.value = false;
@@ -114,7 +112,7 @@ useClickOutside({
 
     &_container {
         position: absolute;
-        z-index: 5;
+        z-index: 7;
 
         width: v-bind(width);
         max-width: v-bind(maxWidth);

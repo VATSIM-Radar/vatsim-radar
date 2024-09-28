@@ -122,7 +122,7 @@
         >
             <div
                 class="aircraft-label"
-                :style="{ '--color': svgColors[getStatus] }"
+                :style="{ '--color': getAircraftStatusColor(getStatus) }"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -142,13 +142,13 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
-import type { MapAircraftStatus } from '~/composables/pilots';
 import {
-    aircraftSvgColors,
+    getAircraftStatusColor,
     isPilotOnGround,
     loadAircraftIcon,
     usePilotRating,
 } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/pilots';
 import { greatCircleGeometryToOL, sleep } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -194,8 +194,6 @@ const emit = defineEmits({
 });
 
 defineSlots<{ default: () => any }>();
-
-const svgColors = aircraftSvgColors();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
@@ -367,7 +365,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             );
         };
 
-        const color = svgColors[getStatus.value];
+        const color = getAircraftStatusColor(getStatus.value);
 
         let turns: InfluxGeojson | null | undefined = null;
         let firstUpdate = true;

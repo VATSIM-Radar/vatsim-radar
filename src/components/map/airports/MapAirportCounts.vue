@@ -163,13 +163,6 @@ const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortened
             case 'airborne':
                 departures = props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [];
                 break;
-            case 'airborneDeparting':
-                // TODO: rework this + namings, consider if really needed
-                departures = [
-                    ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
-                    ...props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [],
-                ];
-                break;
             case 'ground':
                 departures = groundDep ?? [];
                 break;
@@ -195,12 +188,6 @@ const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortened
                 break;
             case 'airborne':
                 arrivals = props.aircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [];
-                break;
-            case 'airborneDeparting':
-                arrivals = [
-                    ...props.aircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
-                    ...props.aircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [],
-                ];
                 break;
             case 'ground':
                 arrivals = props.aircraft.groundArr ?? [];
@@ -239,10 +226,10 @@ const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortened
         }
     }
 
-    list.groundDep = departures;
+    if (departures.length)list.groundDep = departures;
     if (training.length) list.training = training;
     if (prefiles.length) list.prefiles = prefiles;
-    list.groundArr = arrivals;
+    if (arrivals.length) list.groundArr = arrivals;
 
     return list;
 });

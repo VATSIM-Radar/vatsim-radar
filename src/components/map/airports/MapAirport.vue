@@ -138,6 +138,7 @@ import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { fromLonLat } from 'ol/proj';
+import { getSelectedColorFromSettings } from '~/composables/colors';
 
 const props = defineProps({
     airport: {
@@ -326,7 +327,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.25)`,
+                color: `rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -353,7 +354,7 @@ function setFeatureStyle(feature: Feature) {
     const style = [
         new Style({
             stroke: new Stroke({
-                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+                color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
                 width: 2,
             }),
         }),
@@ -368,14 +369,14 @@ function setFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.error400Hex,
+                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.error400Hex,
+                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),
