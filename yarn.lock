@@ -4843,6 +4843,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"discord-api-types@npm:0.37.100":
+  version: 0.37.100
+  resolution: "discord-api-types@npm:0.37.100"
+  checksum: 10c0/315cfbeb475a98ff711d44cb5dd2aa162730a904692775bf9429c384df597d9b950c20668a2177fd926aed52541d0915688e351906466111aae44d8c2063fb83
+  languageName: node
+  linkType: hard
+
 "discord-api-types@npm:0.37.83":
   version: 0.37.83
   resolution: "discord-api-types@npm:0.37.83"
@@ -4857,9 +4864,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:^14.16.2":
-  version: 14.16.2
-  resolution: "discord.js@npm:14.16.2"
+"discord.js@npm:^14.16.3":
+  version: 14.16.3
+  resolution: "discord.js@npm:14.16.3"
   dependencies:
     "@discordjs/builders": "npm:^1.9.0"
     "@discordjs/collection": "npm:1.5.3"
@@ -4868,12 +4875,12 @@ __metadata:
     "@discordjs/util": "npm:^1.1.1"
     "@discordjs/ws": "npm:1.1.1"
     "@sapphire/snowflake": "npm:3.5.3"
-    discord-api-types: "npm:0.37.97"
+    discord-api-types: "npm:0.37.100"
     fast-deep-equal: "npm:3.1.3"
     lodash.snakecase: "npm:4.1.1"
     tslib: "npm:^2.6.3"
     undici: "npm:6.19.8"
-  checksum: 10c0/2b4289d6a3b3f5c2978dbfa840225d2f789eaf161ae85bf12e0125b5096eb64562c170dfc7f0d1ee389beb565cabe45733a27853178b2d0dc78548b5d1a83338
+  checksum: 10c0/d3cfcbad532bdb4414df9d12bb1a2f6ca18fa1113726b0e759d298e0e7fbcccf88ee485ada519b092f72d1004e9c4c792efbf3728a050bcd4202b6046161cc98
   languageName: node
   linkType: hard
 
@@ -8972,6 +8979,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pinia@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "pinia@npm:2.2.3"
+  dependencies:
+    "@vue/devtools-api": "npm:^6.6.3"
+    vue-demi: "npm:^0.14.10"
+  peerDependencies:
+    "@vue/composition-api": ^1.4.0
+    typescript: ">=4.4.4"
+    vue: ^2.6.14 || ^3.3.0
+  peerDependenciesMeta:
+    "@vue/composition-api":
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/ffa4af7f58313bd4c7cd4c5f42f4a6048baf28086dc371303c405ab0ad08c3599413fe7d34295ca216d21e98f138cba8af6221207456727d177a8b54a17215b1
+  languageName: node
+  linkType: hard
+
 "pkg-types@npm:^1.0.3, pkg-types@npm:^1.1.1, pkg-types@npm:^1.2.0":
   version: 1.2.0
   resolution: "pkg-types@npm:1.2.0"
@@ -11875,7 +11901,7 @@ __metadata:
     aws-sdk: "npm:^2.1691.0"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.7"
-    discord.js: "npm:^14.16.2"
+    discord.js: "npm:^14.16.3"
     eslint: "npm:^9.11.1"
     fast-xml-parser: "npm:^4.5.0"
     idb: "npm:^8.0.0"
@@ -11887,7 +11913,7 @@ __metadata:
     nuxt: "npm:^3.13.2"
     ol: "npm:^10.2.1"
     ol-mapbox-style: "npm:^12.3.5"
-    pinia: "npm:^2.2.2"
+    pinia: "npm:^2.2.3"
     postcss: "npm:^8.4.47"
     postcss-html: "npm:^1.7.0"
     prisma: "npm:^5.20.0"
