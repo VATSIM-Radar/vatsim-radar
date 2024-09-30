@@ -76,6 +76,17 @@ const props = defineProps({
     placeholder: {
         type: String,
     },
+    /** showPlaceholder
+      *
+      * Switches between showing
+      * the selected items or the
+      * placeholder name.
+      * @default false
+      */
+    showPlaceholder: {
+        type: Boolean,
+        default: false,
+    },
     maxDropdownHeight: {
         type: String,
         default: '300px',
@@ -102,6 +113,10 @@ const activeItems = computed<Array<SelectItemValueType>>(() => {
 });
 
 const shownValue = computed<string>(() => {
+    if (props.showPlaceholder) {
+        return props.placeholder || '';
+    }
+
     if (props.items && activeItems.value.length > 1) {
         return `${ activeItems.value.length } selected`;
     }
