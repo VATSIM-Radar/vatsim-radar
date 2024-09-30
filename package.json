@@ -21,7 +21,7 @@
   "dependencies": {
     "@influxdata/influxdb-client": "^1.35.0",
     "@influxdata/influxdb-client-apis": "^1.35.0",
-    "@pinia/nuxt": "^0.5.4",
+    "@pinia/nuxt": "^0.5.5",
     "@prisma/client": "^5.20.0",
     "@turf/great-circle": "^7.1.0",
     "adm-zip": "^0.5.16",

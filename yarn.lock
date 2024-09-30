@@ -2122,13 +2122,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.5.4":
-  version: 0.5.4
-  resolution: "@pinia/nuxt@npm:0.5.4"
+"@pinia/nuxt@npm:^0.5.5":
+  version: 0.5.5
+  resolution: "@pinia/nuxt@npm:0.5.5"
   dependencies:
     "@nuxt/kit": "npm:^3.9.0"
-    pinia: "npm:^2.2.2"
-  checksum: 10c0/c6aee28d7383f023eda38553e5f6e31ee0352a2bc71944c6e2956e0d983458ff4c374f6bcaa99c87a144fb4296e9d952662dd7f7ebbdd9df90f3a28efad98697
+    pinia: "npm:^2.2.3"
+  checksum: 10c0/be38b7d8d148dd12632649496138105a9956c42ce2b99fad35d277aaca46b252fb26d66b984fad8ccf2c1cd3b9407f66816816fa21cab2e60f0b304734a4d677
   languageName: node
   linkType: hard
 
@@ -8972,6 +8972,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pinia@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "pinia@npm:2.2.3"
+  dependencies:
+    "@vue/devtools-api": "npm:^6.6.3"
+    vue-demi: "npm:^0.14.10"
+  peerDependencies:
+    "@vue/composition-api": ^1.4.0
+    typescript: ">=4.4.4"
+    vue: ^2.6.14 || ^3.3.0
+  peerDependenciesMeta:
+    "@vue/composition-api":
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/ffa4af7f58313bd4c7cd4c5f42f4a6048baf28086dc371303c405ab0ad08c3599413fe7d34295ca216d21e98f138cba8af6221207456727d177a8b54a17215b1
+  languageName: node
+  linkType: hard
+
 "pkg-types@npm:^1.0.3, pkg-types@npm:^1.1.1, pkg-types@npm:^1.2.0":
   version: 1.2.0
   resolution: "pkg-types@npm:1.2.0"
@@ -11861,7 +11880,7 @@ __metadata:
     "@nuxt/devtools": "npm:^1.5.1"
     "@nuxt/eslint": "npm:^0.5.7"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
-    "@pinia/nuxt": "npm:^0.5.4"
+    "@pinia/nuxt": "npm:^0.5.5"
     "@prisma/client": "npm:^5.20.0"
     "@stylistic/eslint-plugin": "npm:^2.8.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.0"
