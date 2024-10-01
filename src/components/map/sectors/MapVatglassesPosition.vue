@@ -61,6 +61,10 @@ watch(positionLastUpdated, () => {
     init();
 });
 
+watch(() => store.localSettings.traffic?.vatglassesLevel, () => {
+    init();
+});
+
 
 onMounted(() => {
     init();
