@@ -14,8 +14,8 @@
             :key="countryId"
         >
             <map-vatglasses-position
-                v-for="(position, PositionId) in countryEntries"
-                :key="countryId + '-' + PositionId"
+                v-for="(position, positionId) in countryEntries"
+                :key="countryId + '-' + positionId"
                 :position="position"
             />
         </template>
