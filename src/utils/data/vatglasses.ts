@@ -23,6 +23,7 @@ export interface ActiveVatglassesPosition {
     sectors: TurfFeature<TurfPolygon>[] | null;
     sectorsCombined: TurfFeature<TurfPolygon>[] | null;
     airspaceKeys: string | null;
+    lastUpdated: Ref<string | null>;
 }
 export interface ActiveVatglassesPositions {
     [countryGroupId: string]: {
@@ -35,6 +36,7 @@ export interface ActiveVatglassesRunways {
 }
 
 let activeVatglassesAirspaces: { [countryGroupId: string]: { [vatglassesPositionId: string]: { [index: string]: VatglassesAirspace } } } = {};
+let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
 
 let calls = 0; // used for debug
@@ -44,6 +46,7 @@ function updateVatglassesPositionsAndAirspaces() {
     console.log('Calls', calls); // used for debug
 
     const newActiveVatglassesPositions: ActiveVatglassesPositions = {};
+    updatedVatglassesPositions = {};
 
     const activeVatglassesController: { [countryGroupId: string]: { [vatglassesPositionId: string]: { cid: number; callsign: string } } } = {}; // countryGroupId is the name of the json files which are split into areas
     // Fill the activeVatglassesStations object with the active stations
@@ -68,24 +71,24 @@ function updateVatglassesPositionsAndAirspaces() {
 
 
             // used for debug
-            if (first === 0) {
-                atc.frequency = '134.150';
-                atc.callsign = 'EDMM_ZUG_CTR';
-                atc.cid = 1025793;
-                first++;
-            }
-            else if (first === 1) {
-                // break;
-                if (calls > 3) break;
-                console.log('ALB');
-                atc.frequency = '129.100';
-                atc.callsign = 'EDMM_ALB_CTR';
-                atc.cid = 1025794;
-                first++;
-            }
-            else {
-                break;
-            }
+            // if (first === 0) {
+            //     atc.frequency = '134.150';
+            //     atc.callsign = 'EDMM_ZUG_CTR';
+            //     atc.cid = 1025793;
+            //     first++;
+            // }
+            // else if (first === 1) {
+            //     // break;
+            //     if (calls > 3) break;
+            //     console.log('ALB');
+            //     atc.frequency = '129.100';
+            //     atc.callsign = 'EDMM_ALB_CTR';
+            //     atc.cid = 1025794;
+            //     first++;
+            // }
+            // else {
+            //     break;
+            // }
 
 
             let foundMatchingVatglassesController = false;
@@ -192,7 +195,7 @@ function updateVatglassesPositionsAndAirspaces() {
                 newActiveVatglassesPositions[countryGroupId][positionId] = dataStore.vatglassesActivePositions.value[countryGroupId][positionId];
             }
             else {
-                newActiveVatglassesPositions[countryGroupId][positionId] = { cid: null, callsign: null, sectors: null, sectorsCombined: null, airspaceKeys: null }; // we set null instead of [], because null is the signal for later that we have to recalculate it
+                newActiveVatglassesPositions[countryGroupId][positionId] = { cid: null, callsign: null, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) }; // we set null instead of [], because null is the signal for later that we have to recalculate it
             }
 
             newActiveVatglassesPositions[countryGroupId][positionId].cid = activeVatglassesController[countryGroupId][positionId].cid;
@@ -208,6 +211,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
             if (newActiveVatglassesPositions[countryGroupId][positionId]['sectors'] === null) { // if it is null, it is the signal for us this needs to be (re)calculated
                 // set all active sectors of the position
+                addToUpdatedVatglassesPositions(countryGroupId, positionId);
                 const sectors = [];
                 for (const airspaceId in activeVatglassesAirspaces[countryGroupId][positionId]) {
                     const airspace = activeVatglassesAirspaces[countryGroupId][positionId][airspaceId];
@@ -230,6 +234,20 @@ function resetActiveVatglassesPositions(sector: ActiveVatglassesPosition) {
     sector['sectorsCombined'] = null;
 }
 
+function addToUpdatedVatglassesPositions(countryGroupId: string, vatglassesPositionId: string) {
+    if (!updatedVatglassesPositions[countryGroupId]) {
+        updatedVatglassesPositions[countryGroupId] = {};
+    }
+    updatedVatglassesPositions[countryGroupId][vatglassesPositionId] = null;
+}
+
+function triggerUpdatedVatglassesPositions(newActiveVatglassesPositions: ActiveVatglassesPositions) {
+    for (const countryGroupId in updatedVatglassesPositions) {
+        for (const positionId in updatedVatglassesPositions[countryGroupId]) {
+            newActiveVatglassesPositions[countryGroupId][positionId]['lastUpdated'].value = new Date().toISOString();
+        }
+    }
+}
 
 // return the active sectors of an airspace based on the runways
 function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
@@ -377,6 +395,7 @@ async function combineAllActiveVatglassesSectors(newActiveVatglassesSectors: { [
         for (const positionId in newActiveVatglassesSectors[countryGroupId]) {
             if (!newActiveVatglassesSectors[countryGroupId][positionId]) continue;
             if (newActiveVatglassesSectors[countryGroupId][positionId]['sectorsCombined'] === null) { // if it is null, it is the signal for us this needs to be (re)calculated
+                addToUpdatedVatglassesPositions(countryGroupId, positionId);
                 const sectors = newActiveVatglassesSectors[countryGroupId][positionId]['sectors'];
                 if (sectors) {
                     const splittedSectors = await splitSectorsWithWorker(sectors);
@@ -445,14 +464,15 @@ export async function updateVatglassesState() {
     if (store.localSettings.traffic?.vatglassesLevel === true) {
         await combineAllActiveVatglassesSectors(newActiveVatglassesPositions);
     }
+    triggerUpdatedVatglassesPositions(newActiveVatglassesPositions);
     dataStore.vatglassesActivePositions.value = newActiveVatglassesPositions;
     vatglassesUpdateInProgress = false;
 
 
     console.timeEnd('updateVatglasses');
-    console.log('activeVatglassesSectors', newActiveVatglassesPositions);
+    // console.log('activeVatglassesSectors', newActiveVatglassesPositions);
     // console.log('vatglassesRunways', vatglassesRunways);
-    console.log('activeSectors', activeVatglassesAirspaces);
+    // console.log('activeSectors', activeVatglassesAirspaces);
     // console.log('assignedVatglassesPositions', activeVatglassesPositions);
 }
 
@@ -476,5 +496,3 @@ watch(dataStore.vatglasses, val => {
         updateVatglassesState();
     })();
 });
-
-

@@ -21,7 +21,6 @@ let sectorFeatures: Feature[] = [];
 
 
 const init = () => {
-    console.log('initSectorsComp1');
     if (!vectorSource.value) return;
 
     if (sectorFeatures) {
@@ -31,8 +30,6 @@ const init = () => {
         sectorFeatures = [];
     }
 
-    console.log(store.localSettings.traffic?.vatglassesLevel);
-    console.log(props.position);
     if (store.localSettings.traffic?.vatglassesLevel === true) {
         if (props.position.sectorsCombined) {
             for (const sectorFeature of convertToOpenLayersFeatures(props.position.sectorsCombined ?? [])) {
@@ -57,9 +54,18 @@ const init = () => {
     }
 };
 
-onMounted(init);
 
-watch([() => props.position.sectorsCombined], init); // TODO: this is not working, it is never triggered
+const positionLastUpdated = computed(() => props.position.lastUpdated.value);
+
+watch(positionLastUpdated, () => {
+    init();
+});
+
+
+onMounted(() => {
+    init();
+});
+
 
 onBeforeUnmount(() => {
     if (sectorFeatures) {
