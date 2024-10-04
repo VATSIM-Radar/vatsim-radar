@@ -21,6 +21,21 @@ services:
     ports:
       - 8081:3000
 
+  app3:
+    <<: *frontend
+    ports:
+      - 8082:3000
+
+  app4:
+    <<: *frontend
+    ports:
+      - 8083:3000
+
+  app5:
+    <<: *frontend
+    ports:
+      - 8084:3000
+
   worker:
     image: ghcr.io/vatsim-radar/vatsim-radar/production
     container_name: app-worker
