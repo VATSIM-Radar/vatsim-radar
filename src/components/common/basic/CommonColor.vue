@@ -84,7 +84,7 @@ import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/colors';
 import { hexColorRegex } from '~/utils/shared';
 import ResetIcon from '@/assets/icons/kit/reset.svg?component';
 
-const props = defineProps({
+defineProps({
     defaultColor: {
         type: Object as PropType<UserMapSettingsColor | null>,
         default: null,
