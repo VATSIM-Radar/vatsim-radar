@@ -87,7 +87,7 @@
                     (pilot.departure && pilot.arrival) ? 'destination': '',
                     pilot.aircraft_faa ?? 'No flight plan',
                     (pilot.distance && (aircraftMode !== 'ground' || !pilot.isArrival)) ? `${ Math.round(pilot.distance) }NM ${ aircraftMode !== 'ground' ? 'remains' : '' }` : '',
-                    (pilot.eta && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
+                    (pilot.eta && aircraftMode !== 'ground' && getTimeRemains(pilot.eta)) ? `in ${ getTimeRemains(pilot.eta) }` : '',
                     (pilot.eta && aircraftMode !== 'ground') ? `ETA ${ datetime.format(pilot.eta) }Z` : '',
 
                 ]"
