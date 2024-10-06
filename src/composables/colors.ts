@@ -1,7 +1,6 @@
 import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/map-settings';
 import { getCurrentThemeRgbColor } from '~/composables/index';
 import { useStore } from '~/store';
-import { useMapStore } from '~/store/map';
 
 export function shortHexToLong(hex: string) {
     return hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
