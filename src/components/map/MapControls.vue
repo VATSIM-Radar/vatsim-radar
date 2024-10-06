@@ -64,7 +64,7 @@ import MinusIcon from '@/assets/icons/kit/minus.svg?component';
 import PlusIcon from '@/assets/icons/kit/plus.svg?component';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import RotateCounterclockwise from '@/assets/icons/kit/rotate-counterclockwise.svg?component';
-import RotateReset from '@/assets/icons/kit/rotate-reset.svg?component';
+import RotateReset from '@/assets/icons/kit/reset.svg?component';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';

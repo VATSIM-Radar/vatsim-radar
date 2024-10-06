@@ -1,5 +1,6 @@
 <template>
     <div
+        ref="tooltip"
         class="tooltip"
         :class="[`tooltip--location-${ location }`]"
         @mouseleave="handleClick('mouseLeave')"
@@ -11,7 +12,6 @@
             tabindex="0"
             @click="handleClick('click')"
             @focus="handleClick('focus')"
-            @focusout="handleClick('focusOut')"
         >
             <slot name="activator"/>
         </div>
@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
+import type { ClickOutsideOptions } from '~/composables/click-outside';
 
 
 const props = defineProps({
@@ -58,6 +59,10 @@ const props = defineProps({
         type: String as PropType<TooltipCloseMethod>,
         default: 'mouseLeave',
     },
+    clickOutsideOptions: {
+        type: Object as PropType<Omit<ClickOutsideOptions, 'element' | 'callback'>>,
+        default: () => ({}),
+    },
 });
 defineSlots<{ default(): any; activator(): any }>();
 
@@ -70,10 +75,8 @@ function handleClick(eventType: 'mouseLeave' | 'mouseOver' | 'click' | 'focus' |
             if (props.openMethod === 'mouseOver') model.value = true;
             break;
         case 'click':
-            if (props.closeMethod === 'click') model.value = !model.value;
-            break;
-        case 'focus':
-            if (props.closeMethod === 'clickOutside') model.value = true;
+            if (props.openMethod === 'click' && !model.value) model.value = true;
+            if (props.closeMethod === 'click' && model.value) model.value = false;
             break;
         case 'focusOut':
             if (props.closeMethod === 'clickOutside') model.value = false;
@@ -93,6 +96,15 @@ const model = defineModel({
     type: Boolean,
     default: false,
 });
+
+const tooltip = ref<HTMLDivElement | null>(null);
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+useClickOutside({
+    ...props.clickOutsideOptions,
+    element: tooltip,
+    callback: () => handleClick('focusOut'),
+});
 </script>
 
 <style scoped lang="scss">
@@ -107,7 +119,10 @@ const model = defineModel({
 
     &_container {
         position: absolute;
-        z-index: 5;
+        z-index: 7;
+
+        width: v-bind(width);
+        max-width: v-bind(maxWidth);
         padding: 4px;
 
         &_content {
@@ -122,10 +137,7 @@ const model = defineModel({
             }
 
             &_text {
-                width: v-bind(width);
-                max-width: v-bind(maxWidth);
                 padding: 8px;
-
                 font-size: 11px;
                 font-weight: 400;
                 color: $lightgray0;

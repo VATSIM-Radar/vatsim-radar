@@ -28,12 +28,11 @@
             </div>
         </div>
         <map-controls v-if="!store.config.hideAllExternal"/>
-        <div :key="store.theme ?? 'default'">
+        <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
-                <map-filters v-if="!store.config.hideHeader"/>
                 <map-weather v-if="!store.config.hideHeader"/>
                 <a
                     v-if="store.config.showCornerLogo"
@@ -50,6 +49,7 @@
         </div>
         <client-only v-if="ready">
             <map-layer/>
+            <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
             v-if="route.query"

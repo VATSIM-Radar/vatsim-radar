@@ -1,13 +1,15 @@
 <template>
-    <map-aircraft
-        v-for="aircraft in visiblePilots"
-        :key="aircraft.cid"
-        :aircraft="aircraft"
-        :is-hovered="hoveredAircraft === aircraft.cid"
-        :show-label="showAircraftLabel.includes(aircraft.cid)"
-        @manualHide="[isManualHover = false]"
-        @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
-    />
+    <template v-if="!isHideMapObject('pilots')">
+        <map-aircraft
+            v-for="aircraft in getShownPilots"
+            :key="aircraft.cid"
+            :aircraft="aircraft"
+            :is-hovered="hoveredAircraft === aircraft.cid"
+            :show-label="showAircraftLabel.includes(aircraft.cid)"
+            @manualHide="[isManualHover = false]"
+            @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
+        />
+    </template>
     <!-- We do not set  hoveredAircraft = false in the manualHide event, because this led to a short time when moving with the mouse from the label to the icon where the aircraft got a "not hovered" state. We just switch to ManualHover=false and let the pointermove function handle the removal of the hover state -->
 </template>
 
@@ -25,6 +27,8 @@ import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
 import VectorImageLayer from 'ol/layer/VectorImage';
+import { isHideMapObject } from '~/composables/settings';
+import { Heatmap } from 'ol/layer';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -34,6 +38,7 @@ let linesLayer: VectorImageLayer<any>;
 const linesSource = shallowRef<VectorSource | null>(null);
 provide('lines-source', linesSource);
 
+let heatmap: Heatmap | null = null;
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
@@ -113,6 +118,38 @@ function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
 
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 
+const getShownPilots = computed(() => {
+    if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return visiblePilots.value;
+
+    if (store.mapSettings.groundTraffic.hide === 'lowZoom' && mapStore.zoom > 11) return visiblePilots.value;
+    if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return visiblePilots.value;
+
+    const pilots = visiblePilots.value;
+    const me = dataStore.vatsim.data.pilots.value.find(x => x.cid.toString() === store.user?.cid);
+
+    let arrivalAirport = '';
+
+    if (me?.arrival && !store.mapSettings.groundTraffic.excludeMyArrival) {
+        arrivalAirport = me.arrival;
+    }
+
+    const allOnGround: number[] = [];
+
+    for (const airport of dataStore.vatsim.data.airports.value) {
+        if (airport.icao === arrivalAirport) continue;
+
+        if (me && !store.mapSettings.groundTraffic.excludeMyLocation) {
+            const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);
+            if (check) continue;
+        }
+
+        allOnGround.push(...airport.aircraft.groundDep ?? []);
+        allOnGround.push(...airport.aircraft.groundArr ?? []);
+    }
+
+    return pilots.filter(x => !allOnGround.includes(x.cid));
+});
+
 function setVisiblePilots() {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
@@ -150,8 +187,27 @@ function setVisiblePilots() {
 
 useUpdateInterval(handleMoveEnd);
 
+function initHeatmap() {
+    if (store.mapSettings.heatmapLayer) {
+        if (!vectorSource.value || heatmap) return;
+
+        heatmap = new Heatmap({
+            source: vectorSource.value,
+            zIndex: 5,
+            weight: () => 0.5,
+        });
+
+        map.value?.addLayer(heatmap);
+    }
+    else if (heatmap) {
+        map.value?.removeLayer(heatmap);
+        heatmap = null;
+    }
+}
+
 watch(dataStore.vatsim.updateTimestamp, () => {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    initHeatmap();
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -164,6 +220,7 @@ function airportExistsAtPixel(eventPixel: Pixel) {
 }
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
+    if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
 
     let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
@@ -203,7 +260,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
 
 async function handleClick(e: MapBrowserEvent<any>) {
-    if (mapStore.openingOverlay) return;
+    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer) return;
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {
@@ -296,6 +353,8 @@ watch(map, val => {
         });
     }
 
+    initHeatmap();
+
     val.addLayer(vectorLayer);
     val.addLayer(linesLayer);
 
@@ -314,5 +373,8 @@ onBeforeUnmount(() => {
     if (linesLayer) map.value?.removeLayer(linesLayer);
     map.value?.un('click', handleClick);
     window.removeEventListener('message', receiveMessage);
+    if (heatmap) {
+        map.value?.removeLayer(heatmap);
+    }
 });
 </script>

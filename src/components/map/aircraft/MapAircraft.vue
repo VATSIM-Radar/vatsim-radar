@@ -117,12 +117,12 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px` }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': store.mapSettings.aircraftScale ?? 1 }"
             :z-index="19"
         >
             <div
                 class="aircraft-label"
-                :style="{ '--color': svgColors[getStatus] }"
+                :style="{ '--color': getAircraftStatusColor(getStatus) }"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -142,13 +142,13 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
-import type { MapAircraftStatus } from '~/composables/pilots';
 import {
-    aircraftSvgColors,
+    getAircraftStatusColor,
     isPilotOnGround,
     loadAircraftIcon,
     usePilotRating,
 } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/pilots';
 import { greatCircleGeometryToOL, sleep } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -194,8 +194,6 @@ const emit = defineEmits({
 });
 
 defineSlots<{ default: () => any }>();
-
-const svgColors = aircraftSvgColors();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
@@ -343,6 +341,10 @@ async function setState() {
 
 watch(changeState, setState);
 
+watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+    setStyle(undefined, true);
+});
+
 const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
 const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
 
@@ -363,7 +365,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             );
         };
 
-        const color = svgColors[getStatus.value];
+        const color = getAircraftStatusColor(getStatus.value);
 
         let turns: InfluxGeojson | null | undefined = null;
         let firstUpdate = true;
@@ -712,7 +714,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid));
+const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid)) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
@@ -805,8 +807,8 @@ onUnmounted(() => {
     user-select: none;
 
     position: absolute;
-    top: calc(var(--imageHeight) / 2);
-    transform: translate(-50%, 0);
+    top: calc(var(--imageHeight) * var(--scale) / 2);
+    transform: translate(-50%, 0) scale(var(--scale));
 
     width: fit-content;
     padding-top: 3px;

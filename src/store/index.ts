@@ -8,6 +8,7 @@ import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
+import type { UserMapSettings } from '~/utils/backend/map-settings';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -39,6 +40,7 @@ export const useStore = defineStore('index', {
         version: '',
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
+        mapSettings: {} as UserMapSettings,
         config: {} as SiteConfig,
 
         showPilotStats: false,
@@ -54,6 +56,16 @@ export const useStore = defineStore('index', {
             width: 0,
         },
     }),
+    getters: {
+        getCurrentTheme(): 'light' | 'default' {
+            switch (this.theme) {
+                case 'sa':
+                    return 'default';
+            }
+
+            return this.theme;
+        },
+    },
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
             if (this.dataInProgress) return;

@@ -20,7 +20,7 @@
                 <div
                     class="filters_sections_section"
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'map' }"
-                    @click="selectedFilter = 'map'"
+                    @click="selectFilter('map')"
                 >
                     <common-button :type="selectedFilter === 'map' ? 'primary' : 'secondary'">
                         <template #icon>
@@ -83,7 +83,7 @@
                 <div
                     class="filters_sections_section"
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'weather' }"
-                    @click="selectedFilter = 'weather'"
+                    @click="selectFilter('weather')"
                 >
                     <common-button :type="selectedFilter === 'weather' ? 'primary' : 'secondary'">
                         <template #icon>
@@ -125,7 +125,7 @@
                 <div
                     class="filters_sections_section"
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'filters' }"
-                    @click="selectedFilter = 'filters'"
+                    @click="selectFilter('filters')"
                 >
                     <common-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary'">
                         <template #icon>
@@ -154,6 +154,32 @@
                         </common-toggle>
                     </common-control-block>
                 </div>
+                <div
+                    class="filters_sections_section"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'settings' }"
+                    @click="selectFilter('settings')"
+                >
+                    <common-button :type="selectedFilter === 'settings' ? 'primary' : 'secondary'">
+                        <template #icon>
+                            <layers-icon/>
+                        </template>
+                    </common-button>
+                    <common-control-block
+                        center-by="start"
+                        class="filters_sections_section_content"
+                        location="right"
+                        max-height="55vh"
+                        :model-value="selectedFilter === 'settings'"
+                        width="450px"
+                        @update:modelValue="!$event ? selectedFilter = null : undefined"
+                    >
+                        <template #title>
+                            Map Settings
+                        </template>
+
+                        <map-settings/>
+                    </common-control-block>
+                </div>
             </div>
         </transition>
     </div>
@@ -164,6 +190,7 @@ import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import FiltersIcon from '@/assets/icons/kit/filters.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
+import LayersIcon from '@/assets/icons/kit/layers.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
@@ -177,11 +204,16 @@ import type {
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 
 const store = useStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);
 const selectedFilter = ref<string | null>(null);
+
+const selectFilter = (filter: string) => {
+    selectedFilter.value = selectedFilter.value === filter ? null : filter;
+};
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
@@ -235,7 +267,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 <style scoped lang="scss">
 .filters {
     position: absolute;
-    z-index: 5;
+    z-index: 6;
     top: 16px;
     left: 16px;
 
@@ -276,7 +308,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
             &-leave-active {
                 top: 0;
                 overflow: hidden;
-                max-height: calc(40px * 3 + (8px * 3) / 2);
+                max-height: calc(40px * 4 + 8px * 3);
                 transition: 0.5s cubic-bezier(0.52, 0, 0.195, 1.65)
             }
 

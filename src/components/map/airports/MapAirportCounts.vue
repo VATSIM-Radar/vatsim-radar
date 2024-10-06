@@ -13,25 +13,13 @@
             @mouseleave="aircraftHoveredType = null"
         >
             <div
-                class="airport-counts_item airport-counts_item--groundDep"
-                :class="{ 'airport-counts_item--hidden': !aircraft.groundDep?.length }"
-                @mouseover="$nextTick(() => aircraftHoveredType = 'groundDep')"
+                v-for="(item, key) in getAircraftCounters"
+                :key
+                class="airport-counts_item"
+                :class="[`airport-counts_item--${ key }`, { 'airport-counts_item--hidden': !item?.length }]"
+                @mouseover="$nextTick(() => aircraftHoveredType = key as any)"
             >
-                {{ aircraft.groundDep?.length ?? 0 }}
-            </div>
-            <div
-                v-if="aircraft.prefiles?.length"
-                class="airport-counts_item airport-counts_item--prefiles"
-                @mouseover="$nextTick(() => aircraftHoveredType = 'prefiles')"
-            >
-                {{ aircraft.prefiles?.length ?? 0 }}
-            </div>
-            <div
-                class="airport-counts_item airport-counts_item--groundArr"
-                :class="{ 'airport-counts_item--hidden': !aircraft.groundArr?.length }"
-                @mouseover="$nextTick(() => aircraftHoveredType = 'groundArr')"
-            >
-                {{ aircraft.groundArr?.length ?? 0 }}
+                {{ item?.length ?? 0 }}
             </div>
             <common-popup-block
                 v-if="hoveredAircraft.length"
@@ -48,6 +36,9 @@
                         </template>
                         <template v-else-if="aircraftHoveredType === 'groundArr'">
                             Arrivals
+                        </template>
+                        <template v-else-if="aircraftHoveredType === 'training'">
+                            Training (same arrival)
                         </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
                             Flightplan Prefiles
@@ -107,6 +98,9 @@ import { useMapStore } from '~/store/map';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import type { PartialRecord } from '~/types';
+import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import { useStore } from '~/store';
 
 const props = defineProps({
     airport: {
@@ -127,20 +121,121 @@ const props = defineProps({
     },
 });
 
-const mapStore = useMapStore();
-const aircraftHoveredType = ref<MapAircraftKeys | null>(null);
+type AircraftType = MapAircraftKeys | 'training';
 
-const hoveredAircraft = computed(() => {
-    switch (aircraftHoveredType.value) {
-        case 'groundDep':
-            return props.aircraft?.groundDep ?? [];
-        case 'groundArr':
-            return props.aircraft?.groundArr ?? [];
-        case 'prefiles':
-            return props.aircraft?.prefiles ?? [];
+const store = useStore();
+const mapStore = useMapStore();
+const aircraftHoveredType = ref<AircraftType | null>(null);
+
+const getAircraftCounters = computed<PartialRecord<AircraftType, VatsimShortenedPrefile[]>>(() => {
+    const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
+
+    const departuresMode = store.mapSettings.airportsCounters?.departuresMode ?? 'ground';
+    const arrivalsMode = store.mapSettings.airportsCounters?.syncDeparturesArrivals ? departuresMode : store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground';
+    const prefilesMode = store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles';
+
+    let departures: VatsimShortenedAircraft[] = [];
+    let arrivals: VatsimShortenedAircraft[] = [];
+    let prefiles: Array<VatsimShortenedPrefile | VatsimShortenedAircraft> = [];
+    let training: VatsimShortenedAircraft[] = [];
+
+    let groundDep = props.aircraft.groundDep;
+
+    if (!store.mapSettings.airportsCounters?.disableTraining) {
+        training = props.aircraft?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
+        if (groundDep) groundDep = groundDep.filter(x => !training.some(y => y.cid === x.cid));
     }
 
-    return [];
+    if (departuresMode !== 'hide') {
+        switch (departuresMode) {
+            case 'total':
+                departures = [
+                    ...groundDep ?? [],
+                    ...props.aircraft.departures ?? [],
+                ];
+                break;
+            case 'totalMoving':
+                departures = [
+                    ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
+                    ...props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+            case 'airborne':
+                departures = props.aircraft.departures?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+            case 'ground':
+                departures = groundDep ?? [];
+                break;
+            case 'groundMoving':
+                departures = groundDep?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+        }
+    }
+
+    if (arrivalsMode !== 'hide') {
+        switch (arrivalsMode) {
+            case 'total':
+                arrivals = [
+                    ...props.aircraft.groundArr ?? [],
+                    ...props.aircraft.arrivals ?? [],
+                ];
+                break;
+            case 'totalMoving':
+                arrivals = [
+                    ...props.aircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...props.aircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+            case 'airborne':
+                arrivals = props.aircraft.arrivals?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+            case 'ground':
+                arrivals = props.aircraft.groundArr ?? [];
+                break;
+            case 'groundMoving':
+                arrivals = props.aircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+        }
+    }
+
+    if (prefilesMode !== 'hide') {
+        switch (prefilesMode) {
+            case 'total':
+                prefiles = [
+                    ...groundDep ?? [],
+                    ...props.aircraft.departures ?? [],
+                    ...props.aircraft.groundArr ?? [],
+                    ...props.aircraft.arrivals ?? [],
+                ];
+                break;
+            case 'prefiles':
+                prefiles = props.aircraft.prefiles ?? [];
+                break;
+            case 'ground':
+                prefiles = [
+                    ...groundDep ?? [],
+                    ...props.aircraft.groundArr ?? [],
+                ];
+                break;
+            case 'groundMoving':
+                prefiles = [
+                    ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
+                    ...props.aircraft.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+        }
+    }
+
+    if (departures.length)list.groundDep = departures;
+    if (training.length) list.training = training;
+    if (prefiles.length) list.prefiles = prefiles;
+    if (arrivals.length) list.groundArr = arrivals;
+
+    return list;
+});
+
+const hoveredAircraft = computed(() => {
+    return getAircraftCounters.value[aircraftHoveredType.value ?? 'departures'] ?? [];
 });
 </script>
 
@@ -158,6 +253,10 @@ const hoveredAircraft = computed(() => {
 
         &--prefiles {
             color: $lightgray200;
+        }
+
+        &--training {
+            color: $info500;
         }
 
         &--groundArr {
@@ -210,6 +309,15 @@ const hoveredAircraft = computed(() => {
                 width: 12px;
                 height: 5px;
                 background: currentColor;
+            }
+        }
+
+        &--training {
+            &::before {
+                width: 12px;
+                height: 5px;
+                background: currentColor;
+                border-radius: 10px;
             }
         }
 

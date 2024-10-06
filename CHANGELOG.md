@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.1]
+
+- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes. 
+
 # [0.4.5]
 
 This is a small release with important bug fixes and improvements.

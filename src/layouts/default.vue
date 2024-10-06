@@ -193,8 +193,10 @@ html, body {
         scrollbar-gutter: stable;
     }
 
-    &--theme-light {
-        color-scheme: light;
+    &.theme-light {
+        &, * {
+            color-scheme: light;
+        }
     }
 }
 
@@ -260,16 +262,45 @@ img {
     &_title {
         font-size: 13px;
     }
+
+    &--large-title {
+        grid-template-columns: 30% 65%;
+    }
+
+    &--reversed {
+        grid-template-columns: 75% 20%;
+
+        &.__grid-info-sections--large-title {
+            grid-template-columns: 65% 30%;
+        }
+    }
 }
 
 .__section-group {
     display: flex;
     gap: 8px;
+    width: 100%;
 
-    > * {
-        flex: 1 1 0;
-        width: 0;
+    &:not(&--even){
+        > * {
+            flex: 1 1 0;
+            width: 0;
+        }
     }
+
+    &--even {
+        flex-wrap: wrap;
+
+        > * {
+            width: auto;
+        }
+    }
+}
+
+.__small-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: $lightgray150;
 }
 
 .__spacer {
