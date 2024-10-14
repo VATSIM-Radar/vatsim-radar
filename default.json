@@ -59,21 +59,15 @@
     },
     {
       "matchPackageNames": [
-        "nuxt"
-      ],
-      "matchPackagePatterns": [
-        "^@nuxt"
+        "nuxt",
+        "@nuxt/kit"
       ],
       "rangeStrategy": "bump",
       "groupName": "Nuxt",
-      "separateMinorPatch": true
-    },
-    {
-      "matchPackageNames": [
-        "typescript"
+      "schedule": [
+        "before 4am on tuesday"
       ],
-      "rangeStrategy": "pin",
-      "groupName": "Typescript",
+      "separateMultipleMinor": true,
       "separateMinorPatch": true
     }
   ],
