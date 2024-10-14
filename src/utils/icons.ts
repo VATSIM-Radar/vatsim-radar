@@ -729,20 +729,19 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'EC30':
         case 'EC35':
         case 'EC55':
+        case 'A139':
+        case 'A149':
+        case 'A169':
+        case 'A189':
             return aircraftIcons.ec45;
         case 'AW101':
             return aircraftIcons.eh10;
+        case 'C700':
+        case 'C750':
+            return aircraftIcons.c750;
         case 'A109':
         case 'A119':
         case 'A129':
-        case 'A139':
-            return aircraftIcons.ec45;
-        case 'A149':
-            return aircraftIcons.ec45;
-        case 'A169':
-            return aircraftIcons.ec45;
-        case 'A189':
-            return aircraftIcons.ec45;
         case 'A2RT':
         case 'ALH':
         case 'ALO2':
@@ -958,10 +957,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A748':
         case 'BE58':
         case 'C130':
-        case 'C700':
-            return aircraftIcons.c750;
-        case 'C750':
-            return aircraftIcons.c750;
         case 'CL60':
         case 'E135':
         case 'F117':
