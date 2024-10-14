@@ -1,7 +1,7 @@
 name: Aircraft icon(s)
 description: Suggest aircraft icon(s) you want us to add
-labels: [ "aircraft icon", "pending triage" ]
-assignees: ["daniluk4000", "DotWallop"]
+labels: [ "aircraft icon" ]
+assignees: ["DotWallop"]
 body:
   - type: markdown
     attributes:
