@@ -60,6 +60,7 @@ interface IUserLocalSettings {
     traffic: {
         disableFastUpdate?: boolean;
         showTotalDeparturesInFeaturedAirports?: boolean;
+        vatglassesLevel?: number | boolean;
     };
 
     tutorial: {

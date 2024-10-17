@@ -19,6 +19,69 @@ export interface SimAwareAPIData {
     data: SimAwareData;
 }
 
+export interface VatglassesSector {
+    min?: number;
+    max?: number;
+    runways?: {
+        icao: string;
+        runway: string | string[];
+    }[];
+    points: string[][];
+}
+export interface VatglassesAirspace {
+    id: string;
+    group: string;
+    docs?: string[];
+    fua?: { [key: string]: any }[];
+    owner: string[];
+    sectors: VatglassesSector[];
+}
+export interface VatglassesData {
+    [key: string]: {
+        airports: {
+            [key: string]: {
+                pre?: string[];
+                callsign: string;
+                coord?: number[];
+                runways?: string[];
+                default?: boolean;
+                topdown?: string[];
+                major?: string;
+                end?: {
+                    [key: string]: { [key: string]: string };
+                };
+            };
+        };
+        airspace: VatglassesAirspace[];
+        callsigns: {
+            [key: string]: {
+                [key: string]: string;
+            };
+        };
+        groups: {
+            [key: string]: {
+                name: string;
+            };
+        };
+        positions: {
+            [key: string]: {
+                colours?: {
+                    online?: string[];
+                    hex: string;
+                }[];
+                pre: string[];
+                type: string;
+                frequency?: string;
+                callsign: string;
+            };
+        };
+    };
+}
+export interface VatglassesAPIData {
+    version: string;
+    data: VatglassesData;
+}
+
 interface KafkaExtension {
     date: number;
     deleted: boolean;
@@ -39,6 +102,10 @@ export const radarStorage = {
     simaware: {
         version: '',
         data: null as null | SimAwareData,
+    },
+    vatglasses: {
+        version: '',
+        data: null as null | VatglassesData,
     },
     vatsim: {
         data: null as null | VatsimData,
@@ -83,6 +150,7 @@ export function getDataVersions(): VatDataVersions {
         },
         navigraph: getRadarStorage().navigraph,
         simaware: getRadarStorage().simaware.version,
+        vatglasses: getRadarStorage().vatglasses.version,
     };
 }
 
