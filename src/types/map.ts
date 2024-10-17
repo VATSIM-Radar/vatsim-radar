@@ -54,6 +54,9 @@ interface IUserLocalSettings {
             layerVector?: boolean;
             transparencySettings?: UserLayersTransparencySettings;
         };
+        options?: {
+            airportPopularRings?: boolean; // Shows rings around popular airports
+        };
         notamsSortBy?: NotamsSortBy;
     };
 
