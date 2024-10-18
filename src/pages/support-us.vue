@@ -46,7 +46,7 @@
                     Become a Supporter on Patreon
                 </common-button>
                 <common-button
-                    href="https://vatsim-radar.com/support-us"
+                    href="https://boosty.to/vatsimradar24"
                     target="_blank"
                     type="secondary-875"
                 >
