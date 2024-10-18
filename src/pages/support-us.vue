@@ -6,10 +6,10 @@
         <div class="support_hero">
             <div class="support_hero_title">
                 Support <span>VATSIM Radar</span><br>
-                on <span>Patreon</span>
+                on <span>Patreon</span> or <span>Boosty</span>
             </div>
             <div class="support_hero_text">
-                Our goals for Patreon is to keep <span>VATSIM Radar</span> stable, no matter how it grows. Currently, we need money for <span>DigitalOcean</span> servers, as well as <span>CloudFlare</span> services.<br><br>
+                Our financial goals are to keep <span>VATSIM Radar</span> stable, no matter how it grows. Currently, we need money for <span>DigitalOcean</span> servers, as well as <span>CloudFlare</span> services.<br><br>
                 In future, we may buy some existing features and pay for more services that we may need to improve <span>VATSIM Radar</span>.
             </div>
             <div class="support_hero_stats">
@@ -38,17 +38,25 @@
                     </div>
                 </div>
             </div>
-            <common-button
-                class="support_hero_cta"
-                href="https://patreon.com/vatsimradar24"
-                target="_blank"
-            >
-                Become a Supporter
-            </common-button>
+            <div  class="support_hero_cta">
+                <common-button
+                    href="https://patreon.com/vatsimradar24"
+                    target="_blank"
+                >
+                    Become a Supporter on Patreon
+                </common-button>
+                <common-button
+                    href="https://vatsim-radar.com/support-us"
+                    target="_blank"
+                    type="secondary-875"
+                >
+                    Поддержите нас на Boosty
+                </common-button>
+            </div>
         </div>
         <div class="support_list">
             <div class="support_list_title">
-                Our Supporters
+                Our Patreon Supporters
             </div>
             <div class="support_list_container">
                 <div class="support__list">
@@ -96,10 +104,13 @@
                                 Support our development
                             </li>
                             <li>
-                                Beta versions access (from 3$)
+                                Beta versions access (from 3$/100₽)
                             </li>
                             <li>
-                                Your name on this support page (from 5$)
+                                Name on this page (from 5$, Patreon only)
+                            </li>
+                            <li>
+                                Telegram Chat (from 250₽, Boosty only)
                             </li>
                             <li>
                                 More in future...
@@ -252,6 +263,11 @@ const features: Feature[] = [
                     font-weight: 500;
                 }
             }
+        }
+
+        &_cta {
+            display: flex;
+            gap: 8px;
         }
     }
 
