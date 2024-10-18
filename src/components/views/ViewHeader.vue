@@ -384,7 +384,7 @@ const buttons = computed(() => {
             icon: PathIcon,
         },
         {
-            text: 'Patreon',
+            text: 'Support us',
             path: '/support-us',
             icon: PatreonIcon,
         },
