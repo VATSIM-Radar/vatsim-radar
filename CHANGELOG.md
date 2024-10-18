@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.4.5-1]
+
+- Added schedule to NOTAMS when available
+- Fixed an error when NOTAMS were appearing very slowly in Airport Dashboard
+
 # [0.4.5]
 
 This is a small release with important bug fixes and improvements.
