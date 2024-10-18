@@ -152,6 +152,10 @@
                                 Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
                             </template>
                         </common-toggle>
+                        <common-input-text
+                            :model-value="String(store.localSettings.traffic?.vatglassesLevel)"
+                            @update:modelValue="setUserLocalSettings(setVatglassesLevel($event))"
+                        />
                     </common-control-block>
                 </div>
                 <div
@@ -204,8 +208,15 @@ import type {
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 
+
+function setVatglassesLevel(level: number | string) {
+    if (level === 'true') return { traffic: { vatglassesLevel: true } };
+    if (Number(level) || Number(level) === 0) return { traffic: { vatglassesLevel: Number(level) } };
+    return { traffic: { vatglassesLevel: false } };
+}
 const store = useStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);
