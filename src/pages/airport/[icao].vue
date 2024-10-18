@@ -520,6 +520,7 @@ airportData.value = (await useAsyncData(async () => {
 
 useLazyAsyncData(async () => {
     airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? [];
+    triggerRef(airportData);
 }, {
     server: false,
 });
