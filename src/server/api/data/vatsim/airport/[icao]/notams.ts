@@ -11,6 +11,7 @@ export interface VatsimAirportDataNotam {
     text: string;
     formattedText?: string;
     classification: 'INTL' | 'MIL' | 'DOM' | 'LMIL' | 'FDC';
+    schedule?: string;
 }
 
 interface FAAResponse {
@@ -29,6 +30,7 @@ interface FAAResponse {
                     effectiveEnd: string;
                     text: string;
                     classification: string;
+                    schedule?: string;
                 };
                 notamTranslation: {
                     type: 'ICAO';
@@ -76,6 +78,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[
                 text: data.text,
                 formattedText: notam.properties.coreNOTAMData.notamTranslation?.[0]?.formattedText,
                 classification: data.classification as any,
+                schedule: data.schedule || undefined,
             });
         }
 
