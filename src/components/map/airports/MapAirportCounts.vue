@@ -1,6 +1,6 @@
 <template>
     <map-overlay
-        v-if="!hide && (aircraft.groundDep?.length || aircraft.groundArr?.length || aircraft.prefiles?.length)"
+        v-if="!hide && Object.values(getAircraftCounters).some(x => x.length)"
         :active-z-index="21"
         persistent
         :popup="!!aircraftHoveredType"
@@ -41,7 +41,7 @@
                             Training (same arrival)
                         </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
-                            Flightplan Prefiles
+                            {{ store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
                         </template>
                     </div>
                 </template>

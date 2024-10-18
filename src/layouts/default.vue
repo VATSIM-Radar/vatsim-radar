@@ -261,6 +261,7 @@ img {
 
     &_title {
         font-size: 13px;
+        font-weight: 600;
     }
 
     &--large-title {

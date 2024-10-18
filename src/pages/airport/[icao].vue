@@ -94,28 +94,24 @@
                     <airport-info/>
                 </div>
                 <div
-                    v-if="airportData?.airport?.metar"
+                    v-if="airportData?.airport?.metar || airportData?.airport?.taf"
                     class="airport_column_data"
                 >
                     <div class="airport_column__title">
-                        METAR
+                        <common-tabs
+                            v-model="weatherTab"
+                            :tabs="{ metar: { title: 'METAR' }, taf: { title: 'TAF' } }"
+                        />
                     </div>
-                    <airport-metar/>
+
+                    <airport-metar v-if="weatherTab === 'metar'"/>
+                    <airport-taf v-else/>
                 </div>
             </div>
             <div
-                v-if="airportData?.airport?.taf || airportData.notams?.length"
+                v-if="airportData.notams?.length"
                 class="airport_column"
             >
-                <div
-                    v-if="airportData?.airport?.taf"
-                    class="airport_column_data"
-                >
-                    <div class="airport_column__title">
-                        TAF
-                    </div>
-                    <airport-taf/>
-                </div>
                 <div
                     v-if="airportData?.notams?.length"
                     class="airport_column_data"
@@ -259,6 +255,7 @@ import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -278,8 +275,9 @@ useHead({
     title: icao,
 });
 
-const selectedPilot = ref<number | null>(null);
+const weatherTab = ref('metar');
 
+const selectedPilot = ref<number | null>(null);
 
 const airportMapFrame = ref<HTMLIFrameElement | null>(null);
 let skipSelectedPilotWatch = false;
@@ -310,7 +308,7 @@ watch(selectedPilot, () => {
     }
     if (aircraft.value?.prefiles.find(x => x.cid === selectedPilot.value)) return; // we can not show prefiles on the map, because they are not connected
 
-    if (airportMapFrame.value && selectedPilot.value) {
+    if (airportMapFrame.value) {
         const iframeWindow = airportMapFrame.value.contentWindow;
         const message = { selectedPilot: selectedPilot.value };
         const targetOrigin = config.public.DOMAIN;
@@ -520,6 +518,7 @@ airportData.value = (await useAsyncData(async () => {
 
 useLazyAsyncData(async () => {
     airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? [];
+    triggerRef(airportData);
 }, {
     server: false,
 });
@@ -551,8 +550,12 @@ await setupDataFetch({
         background: $darkgray875 !important;
     }
 
-    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot) {
+    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot), :deep(.tabs_list), :deep(.tabs_tab::after) {
         background: $darkgray900 !important;
+    }
+
+    :deep(.tabs_tab) {
+        border-bottom-color: $darkgray900 !important;
     }
 
     :deep(.aircraft_nav) {

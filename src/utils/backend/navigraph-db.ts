@@ -63,7 +63,7 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
     // @ts-expect-error Types error
     const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
     const admZip = new AdmZip(Buffer.from(zip));
-    admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, undefined, undefined, filename);
+    admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, true, undefined, filename);
 }
 
 export async function initNavigraph() {

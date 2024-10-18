@@ -173,6 +173,7 @@
                         class="filters_sections_section_content"
                         location="right"
                         max-height="55vh"
+                        min-height="400px"
                         :model-value="selectedFilter === 'settings'"
                         width="450px"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
@@ -181,7 +182,39 @@
                             Map Settings
                         </template>
 
-                        <map-settings/>
+                        <template
+                            v-if="store.mapPresets.length < MAX_MAP_PRESETS"
+                            #closeActions
+                        >
+                            <common-tooltip
+                                location="left"
+                                open-method="mouseOver"
+                                width="110px"
+                            >
+                                <template #activator>
+                                    <div class="filters__import">
+                                        <import-icon
+                                            width="18"
+                                            @click="filtersImport?.click()"
+                                        />
+                                        <input
+                                            v-show="false"
+                                            ref="filtersImport"
+                                            accept="application/json"
+                                            type="file"
+                                            @input="importPreset"
+                                        >
+                                    </div>
+                                </template>
+
+                                Import Preset
+                            </common-tooltip>
+                        </template>
+
+                        <map-settings
+                            v-model:imported-preset="importedPreset"
+                            v-model:imported-preset-name="importedPresetName"
+                        />
                     </common-control-block>
                 </div>
             </div>
@@ -193,6 +226,7 @@
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import FiltersIcon from '@/assets/icons/kit/filters.svg?component';
 import MapIcon from '@/assets/icons/kit/map.svg?component';
+import ImportIcon from '@/assets/icons/kit/import.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import LayersIcon from '@/assets/icons/kit/layers.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
@@ -210,6 +244,9 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
+import type { UserMapSettings } from '~/utils/backend/map-settings';
+import { MAX_MAP_PRESETS } from '~/utils/shared';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 
 
 function setVatglassesLevel(level: number | string) {
@@ -225,6 +262,11 @@ const selectedFilter = ref<string | null>(null);
 const selectFilter = (filter: string) => {
     selectedFilter.value = selectedFilter.value === filter ? null : filter;
 };
+
+const filtersImport = useTemplateRef('filtersImport');
+
+const importedPreset = shallowRef<UserMapSettings | false | null>(null);
+const importedPresetName = ref('');
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
@@ -247,6 +289,58 @@ const radarIsCarto = computed(() => !mapLayers.some(x => x.value === store.local
 
 const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
+};
+
+const importPreset = async () => {
+    const file = filtersImport.value?.files?.[0];
+    if (!file) return;
+
+    try {
+        await new Promise<void>((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.addEventListener('load', async () => {
+                const result = JSON.parse(reader.result as string);
+
+                try {
+                    const validation = await $fetch<{ status: 'ok' }>('/api/user/settings/map/validate', {
+                        method: 'POST',
+                        body: 'id' in result
+                            ? result
+                            : {
+                                json: result,
+                            },
+                    });
+
+                    if (validation.status === 'ok') {
+                        if ('id' in result) {
+                            importedPresetName.value = result.name;
+                            importedPreset.value = result.json;
+                        }
+                        else {
+                            importedPresetName.value = '';
+                            importedPreset.value = result;
+                        }
+                    }
+
+                    resolve();
+                }
+                catch (e) {
+                    reject(e);
+                }
+            });
+
+            reader.addEventListener('error', e => {
+                reject(e);
+            });
+
+            reader.readAsText(file);
+        });
+    }
+    catch (e) {
+        console.error(e);
+        importedPreset.value = false;
+    }
 };
 
 const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
@@ -362,6 +456,22 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
         &_image {
             max-width: 40%;
+        }
+    }
+
+    &__import {
+        padding-right: 16px;
+        border-right: 1px solid varToRgba('lightgray150', 0.15);
+
+        svg {
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        @include hover {
+            svg:hover {
+                color:$primary500;
+            }
         }
     }
 }

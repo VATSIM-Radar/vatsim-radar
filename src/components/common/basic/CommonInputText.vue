@@ -72,6 +72,10 @@ const model = defineModel({ type: String, default: null });
         border-color: $primary500
     }
 
+    &_container {
+        width: 100%;
+    }
+
     &__input {
         input {
             width: 100%;

@@ -1,8 +1,47 @@
 # Changelog
 
+# [0.5.0-alpha.4]
+
+## Production Changes
+
+- METAR and TAF in Airport Dashboard have been merged in order to get a better look on NOTAMS
+- Fixed Airport Arrivals hover tooltip width
+- Approaches are now drawn above aircraft
+- Fixed an issue when overlapping approaches could make impossible to open controller info on one of them
+- Fixed an issue when plane was not unselecting in airport dashboard
+
+## QA Changes
+
+- You can now save, import and export settings using presets feature
+- FIR and UIR in settings have been slightly renamed
+- Fixed an issue with aircraft text color not changing when default color is changed
+- Added active color highlight in colors selection
+- You can now close colors popup when re-clicking on title of section name
+- "Approaching" aircraft now have "active" color instead of "hover"
+- You can now modify color of center label
+- You can now modify transparency for gates and airports
+- Fixed an issue when airport counters were not displaying no matter the settings if airport was empty
+- Scale selector is now a regular select
+- Added Hide when ATIS only button to Airports & Traffic
+- ATC & Layers toggles are now displayed normalized to human brain
+
+# [0.5.0-alpha.3]
+
+- Sync themes button is now available for operation
+
+# [0.5.0-alpha.2]
+
+- Improved model matching for A139-189, C700, C750 by StefBrands
+- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2
+
 # [0.5.0-alpha.1]
 
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes. 
+
+# [0.4.5-1]
+
+- Added schedule to NOTAMS when available
+- Fixed an error when NOTAMS were appearing very slowly in Airport Dashboard
 
 # [0.4.5]
 

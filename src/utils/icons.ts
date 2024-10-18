@@ -1,6 +1,13 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'u2'
+    | 'p51'
+    | 'pa24'
+    | 'a339'
+    | 'a338'
+    | 'a20n'
+    | 'p28x'
     | 'g2ca'
     | 'f117'
     | 'e135'
@@ -145,6 +152,34 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    u2: {
+        icon: 'u2',
+        width: getAircraftSizeByCoef(0.52),
+    },
+    p51: {
+        icon: 'p51',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    pa24: {
+        icon: 'pa24',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    a339: {
+        icon: 'a339',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    a338: {
+        icon: 'a338',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    a20n: {
+        icon: 'a20n',
+        width: getAircraftSizeByCoef(0.57),
+    },
+    p28x: {
+        icon: 'p28x',
+        width: getAircraftSizeByCoef(0.15),
+    },
     g2ca: {
         icon: 'g2ca',
         width: getAircraftSizeByCoef(0.11),
@@ -640,7 +675,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     width: number;
 } {
     let faa = 'aircraft_short' in aircraft ? aircraft.aircraft_short : 'flight_plan' in aircraft ? aircraft.flight_plan?.aircraft_short : null;
-    if (faa) faa = faa.split('/')[0];
+    if (faa) faa = faa.toUpperCase().split('/')[0];
+
+    if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
         case 'A306':
@@ -694,8 +731,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B77F':
             return aircraftIcons.b77l;
         case 'B772':
-        case 'A338':
-        case 'A339':
             return aircraftIcons.b772;
         case 'B788':
             return aircraftIcons.b788;
@@ -729,14 +764,19 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'EC30':
         case 'EC35':
         case 'EC55':
+        case 'A139':
+        case 'A149':
+        case 'A169':
+        case 'A189':
             return aircraftIcons.ec45;
         case 'AW101':
             return aircraftIcons.eh10;
+        case 'C700':
+        case 'C750':
+            return aircraftIcons.c750;
         case 'A109':
         case 'A119':
         case 'A129':
-        case 'A139':
-        case 'A149':
         case 'A2RT':
         case 'ALH':
         case 'ALO2':
@@ -952,12 +992,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A748':
         case 'BE58':
         case 'C130':
-        case 'C700':
-        case 'C750':
         case 'CL60':
         case 'E135':
         case 'F117':
         case 'G2CA':
+        case 'A20N':
+        case 'A338':
+        case 'A339':
+        case 'PA24':
+        case 'P51':
+        case 'U2':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

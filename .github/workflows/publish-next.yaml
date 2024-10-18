@@ -106,26 +106,21 @@ jobs:
   deploy-nginx:
     runs-on: do-nginx
     #runs-on: beget
-#    needs:
-#      - push
+    #    needs:
+    #      - push
     permissions:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v4
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Deploy
+      - name: Copy default config
         shell: bash
-        run: docker compose -f docker-compose.nginx.yml up --build --force-recreate -d
-      - name: Clear
+        run: cp .config/nginx/default.conf /etc/nginx/sites-available/default
+      - name: Copy Nginx config
         shell: bash
-        run: docker system prune --force && docker system prune --volumes --force
-
+        run: cp .config/nginx/nginx.conf /etc/nginx/nginx.conf
+      - name: Apply config
+        shell: bash
+        run: service nginx restart
 
   github-release:
     name: Release tag to Github

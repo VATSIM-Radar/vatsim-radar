@@ -180,9 +180,8 @@ export default defineNuxtConfig({
             preprocessorMaxWorkers: true,
             preprocessorOptions: {
                 scss: {
-                    // api: 'modern-compiler',
+                    api: 'modern-compiler',
                     additionalData: `@use "~/scss/colors.scss" as *;@use "~/scss/variables.scss" as *;`,
-                    silenceDeprecations: ['legacy-js-api'],
                 },
             },
         },

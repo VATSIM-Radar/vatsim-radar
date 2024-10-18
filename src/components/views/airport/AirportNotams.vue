@@ -21,17 +21,26 @@
                 <template #prepend>
                     <common-info-block :bottom-items="[notam.classification, getNotamType(notam.type)]">
                         <template #top>
-                            <span
-                                v-if="notam.effectiveFrom || notam.effectiveTo"
-                                class="notams__date"
-                            >
-                                <template v-if="notam.effectiveFrom">
-                                    <strong>{{ notam.effectiveFrom.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveFrom)) }Z` : notam.effectiveFrom }}</strong>
-                                </template>
-                                <template v-if="notam.effectiveTo">
-                                    To <strong>{{ notam.effectiveTo.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveTo)) }Z` : notam.effectiveTo }}</strong>
-                                </template>
-                            </span>
+                            <div class="notams__top">
+                                <span
+                                    v-if="notam.effectiveFrom || notam.effectiveTo"
+                                    class="notams__date"
+                                >
+                                    <template v-if="notam.effectiveFrom">
+                                        <strong>{{ notam.effectiveFrom.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveFrom)) }Z` : notam.effectiveFrom }}</strong>
+                                    </template>
+                                    <template v-if="notam.effectiveTo">
+                                        To <strong>{{ notam.effectiveTo.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveTo)) }Z` : notam.effectiveTo }}</strong>
+                                    </template>
+                                </span>
+                                <span
+                                    v-if="notam.schedule"
+                                    class="notams__calendar"
+                                >
+                                    <calendar-icon width="12"/>
+                                    {{ notam.schedule }}
+                                </span>
+                            </div>
                         </template>
                     </common-info-block>
                 </template>
@@ -60,6 +69,7 @@ import type { NotamsSortBy } from '~/types/map';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import { useStore } from '~/store';
+import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 
 const data = injectAirport();
 const notams = computed(() => {
@@ -152,11 +162,24 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
         }
     }
 
-    &__date {
+    &__date, &__calendar {
         display: block;
         margin-bottom: 4px;
         font-size: 11px;
         line-height: 100%;
+    }
+
+    &__top {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    &__calendar {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        font-weight: bold;
     }
 
     &_notam {

@@ -42,6 +42,7 @@ import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
+import type { FeatureLike } from 'ol/Feature';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -117,18 +118,9 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         mapStore.mapCursorPointerTrigger = false;
     }
 
-    let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
+    let appropriateFeature: FeatureLike | undefined;
 
-    if (!isInvalid) {
-        const pixel = map.value!.getCoordinateFromPixel(e.pixel);
-        const feature = features[0];
-        if (feature) {
-            const textCoord = feature.getProperties().textCoord as Coordinate;
-            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
-        }
-    }
-
-    if (isInvalid || !mapStore.canShowOverlay) {
+    function clear() {
         if (!isManualHover.value) {
             hoveredArrAirport.value = null;
             hoveredPixel.value = null;
@@ -136,18 +128,44 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
             mapStore.openApproachOverlay = false;
         }
         if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
+    }
+
+    if (isManualHover.value || !features.length) {
+        clear();
         return;
     }
 
-    if (isManualHover.value) return;
+    for (const feature of features) {
+        let isInvalid = (feature.getProperties().type !== 'circle' && feature.getProperties().type !== 'tracon');
+
+        if (!isInvalid) {
+            const pixel = map.value!.getCoordinateFromPixel(e.pixel);
+            if (feature) {
+                const textCoord = feature.getProperties().textCoord as Coordinate;
+                isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
+            }
+        }
+
+        if (!isInvalid && mapStore.canShowOverlay) {
+            appropriateFeature = feature;
+            break;
+        }
+    }
+
+    if (!appropriateFeature) {
+        clear();
+
+        return;
+    }
+
     isManualHover.value = false;
 
     if (!hoveredPixel.value) {
         hoveredPixel.value = map.value!.getCoordinateFromPixel(e.pixel);
     }
 
-    hoveredId.value = features[0].getProperties().id;
-    hoveredArrAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
+    hoveredId.value = appropriateFeature.getProperties().id;
+    hoveredArrAirport.value = appropriateFeature.getProperties().iata || appropriateFeature.getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
     mapStore.openApproachOverlay = true;
 }
@@ -167,7 +185,7 @@ watch(map, val => {
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
-            zIndex: 6,
+            zIndex: 7,
             properties: {
                 type: 'arr-atc',
             },
