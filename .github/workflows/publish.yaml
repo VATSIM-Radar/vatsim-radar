@@ -117,7 +117,7 @@ jobs:
         run: cp .config/nginx/nginx.conf /etc/nginx/nginx.conf
       - name: Apply config
         shell: bash
-        run: nginx -s reload
+        run: service nginx restart
 
   github-release:
     name: Release tag to Github
