@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.5.0-alpha.2]
+
+- Improved model matching for A139-189, C700, C750
+- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2
+
 # [0.5.0-alpha.1]
 
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes. 

@@ -1,6 +1,13 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'U2'
+    | 'P51'
+    | 'PA24'
+    | 'A339'
+    | 'A338'
+    | 'A20N'
+    | 'P28X'
     | 'g2ca'
     | 'f117'
     | 'e135'
@@ -145,6 +152,34 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    U2: {
+        icon: 'U2',
+        width: getAircraftSizeByCoef(0.52),
+    },
+    P51: {
+        icon: 'P51',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    PA24: {
+        icon: 'PA24',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    A339: {
+        icon: 'A339',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    A338: {
+        icon: 'A338',
+        width: getAircraftSizeByCoef(1.07),
+    },
+    A20N: {
+        icon: 'A20N',
+        width: getAircraftSizeByCoef(0.57),
+    },
+    P28X: {
+        icon: 'P28X',
+        width: getAircraftSizeByCoef(0.15),
+    },
     g2ca: {
         icon: 'g2ca',
         width: getAircraftSizeByCoef(0.11),
@@ -640,7 +675,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     width: number;
 } {
     let faa = 'aircraft_short' in aircraft ? aircraft.aircraft_short : 'flight_plan' in aircraft ? aircraft.flight_plan?.aircraft_short : null;
-    if (faa) faa = faa.split('/')[0];
+    if (faa) faa = faa.toUpperCase().split('/')[0];
+
+    if (faa?.startsWith('P28')) return aircraftIcons.P28X;
 
     switch (faa) {
         case 'A306':
@@ -694,8 +731,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B77F':
             return aircraftIcons.b77l;
         case 'B772':
-        case 'A338':
-        case 'A339':
             return aircraftIcons.b772;
         case 'B788':
             return aircraftIcons.b788;
@@ -958,6 +993,12 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'E135':
         case 'F117':
         case 'G2CA':
+        case 'A20N':
+        case 'A338':
+        case 'A339':
+        case 'PA24':
+        case 'P51':
+        case 'U2':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
