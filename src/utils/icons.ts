@@ -1,13 +1,13 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
-    | 'U2'
-    | 'P51'
-    | 'PA24'
-    | 'A339'
-    | 'A338'
-    | 'A20N'
-    | 'P28X'
+    | 'u2'
+    | 'p51'
+    | 'pa24'
+    | 'a339'
+    | 'a338'
+    | 'a20n'
+    | 'p28x'
     | 'g2ca'
     | 'f117'
     | 'e135'
@@ -152,32 +152,32 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
-    U2: {
-        icon: 'U2',
+    u2: {
+        icon: 'u2',
         width: getAircraftSizeByCoef(0.52),
     },
-    P51: {
-        icon: 'P51',
+    p51: {
+        icon: 'p51',
         width: getAircraftSizeByCoef(0.19),
     },
-    PA24: {
-        icon: 'PA24',
+    pa24: {
+        icon: 'pa24',
         width: getAircraftSizeByCoef(0.18),
     },
-    A339: {
-        icon: 'A339',
+    a339: {
+        icon: 'a339',
         width: getAircraftSizeByCoef(1.07),
     },
-    A338: {
-        icon: 'A338',
+    a338: {
+        icon: 'a338',
         width: getAircraftSizeByCoef(1.07),
     },
-    A20N: {
-        icon: 'A20N',
+    a20n: {
+        icon: 'a20n',
         width: getAircraftSizeByCoef(0.57),
     },
-    P28X: {
-        icon: 'P28X',
+    p28x: {
+        icon: 'p28x',
         width: getAircraftSizeByCoef(0.15),
     },
     g2ca: {
@@ -677,7 +677,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     let faa = 'aircraft_short' in aircraft ? aircraft.aircraft_short : 'flight_plan' in aircraft ? aircraft.flight_plan?.aircraft_short : null;
     if (faa) faa = faa.toUpperCase().split('/')[0];
 
-    if (faa?.startsWith('P28')) return aircraftIcons.P28X;
+    if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
         case 'A306':
