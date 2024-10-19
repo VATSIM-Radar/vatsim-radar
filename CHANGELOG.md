@@ -2,7 +2,7 @@
 
 # [0.5.0-alpha.2]
 
-- Improved model matching for A139-189, C700, C750
+- Improved model matching for A139-189, C700, C750 by StefBrands
 - New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2
 
 # [0.5.0-alpha.1]
