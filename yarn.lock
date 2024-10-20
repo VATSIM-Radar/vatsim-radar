@@ -12252,7 +12252,7 @@ __metadata:
     tsx: "npm:4.16.2"
     typescript: "npm:5.6.3"
     ua-parser-js: "npm:2.0.0-beta.3"
-    vite-plugin-eslint2: "npm:^5.0.0"
+    vite-plugin-eslint2: "npm:^5.0.1"
     vite-svg-loader: "npm:^5.1.0"
     vue: "npm:^3.5.12"
     vue-router: "npm:^4.4.5"
@@ -12336,9 +12336,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-eslint2@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "vite-plugin-eslint2@npm:5.0.0"
+"vite-plugin-eslint2@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "vite-plugin-eslint2@npm:5.0.1"
   dependencies:
     "@rollup/pluginutils": "npm:^5.1.2"
     debug: "npm:^4.3.7"
@@ -12352,7 +12352,7 @@ __metadata:
       optional: true
     rollup:
       optional: true
-  checksum: 10c0/e0b0b3fcd58de70e359ca898658d5f48fbce24a7617990d7f71ddb71e16f1c8df6ade5e00b1ba05bd3b124ca260cc84c7e7cb72fe4a6511946eaff8bbf21e0e4
+  checksum: 10c0/8532c1b60fcc217129581316122f4e27d47976a9b3bfb20c605a771fb59af59baeced3a265b6560173b93f7ef0d24613af60be76f6f6c187ce3a457a5514ee80
   languageName: node
   linkType: hard
 
