@@ -142,6 +142,25 @@
                 >
                     Runways
                 </common-toggle>
+                <common-toggle
+                    :model-value="!!(store.mapSettings.visibility?.popularAirportRings ?? true)"
+                    @update:modelValue="setUserMapSettings({ visibility: { popularAirportRings: $event } })"
+                >
+                    <div class="tooltip">
+                        Airport popular rings
+                        <common-tooltip
+                            width="150px"
+                        >
+                            <template #activator>
+                                <div>
+                                    <question-icon width="14"/>
+                                </div>
+                            </template>
+                            This will show rings around airport with more than 8 movements in the next hour. The size is decided based on the expected movements in the next hour.
+
+                        </common-tooltip>
+                    </div>
+                </common-toggle>
             </div>
         </template>
     </div>
@@ -153,8 +172,18 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { useStore } from '~/store';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 
 const store = useStore();
 
 const tab = ref('modes');
 </script>
+
+<style scoped lang="scss">
+.tooltip {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+</style>
