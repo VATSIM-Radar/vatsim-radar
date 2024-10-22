@@ -6,8 +6,10 @@
             </div>
             <div class="colors__button">
                 <common-button
+                    v-if="!!store.mapSettings.colors?.[isLightTheme ? 'light' : 'default']"
                     size="S"
                     type="link"
+                    @click="themeSyncActive = true"
                 >
                     Sync themes
                 </common-button>
@@ -65,6 +67,53 @@
         >
             {{ title }}
         </common-color>
+        <common-popup
+            v-model="themeSyncActive"
+            width="100vw"
+        >
+            <template #title>
+                Settings overwrite
+            </template>
+
+            Are you sure you want to overwrite {{ isLightTheme ? 'dark' : 'light' }} theme settings?<br> This change is permanent.
+
+            <template #actions>
+                <common-button
+                    type="secondary-flat"
+                    @click="syncThemes"
+                >
+                    Confirm overwrite
+                </common-button>
+                <common-button
+                    type="secondary-875"
+                    @click="backup"
+                >
+                    Backup data
+                </common-button>
+                <common-button
+                    type="primary"
+                    @click="themeSyncActive = false"
+                >
+                    Cancel that
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            v-model="themeSyncComplete"
+            width="300px"
+        >
+            <template #title>
+                Success
+            </template>
+            Themes have been synced.
+            <template
+                #actions
+            >
+                <common-button  @click="themeSyncComplete = false">
+                    Roger
+                </common-button>
+            </template>
+        </common-popup>
     </div>
 </template>
 
@@ -76,6 +125,7 @@ import { aircraftSvgColors } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import { useFileDownload } from '~/composables/settings';
 
 const store = useStore();
 
@@ -91,6 +141,29 @@ const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
     landed: 'Landed (dahsboard)',
     arriving: 'Arriving (dashboard)',
     departing: 'Departing (dashboard)',
+};
+
+const themeSyncActive = ref(false);
+const themeSyncComplete = ref(false);
+const isLightTheme = computed(() => store.getCurrentTheme === 'light');
+
+const backup = () => {
+    useFileDownload({
+        fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,
+        mime: 'application/json',
+        blob: new Blob([JSON.stringify(store.mapSettings)], { type: 'application/json' }),
+    });
+};
+
+const syncThemes = () => {
+    setUserMapSettings({
+        colors: {
+            [isLightTheme.value ? 'default' : 'light']: store.mapSettings.colors![isLightTheme.value ? 'light' : 'default'],
+        },
+    });
+
+    themeSyncActive.value = false;
+    themeSyncComplete.value = true;
 };
 </script>
 

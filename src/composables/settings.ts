@@ -22,3 +22,32 @@ export const isHideMapObject = (key: keyof IUserMapSettings['visibility']): bool
 
     return !!store.mapSettings.visibility?.[key];
 };
+
+export interface FileDownloadParams {
+    blob: File | Blob | MediaSource;
+    fileName: string;
+    mime: string;
+}
+
+export function useFileDownload(options: FileDownloadParams): void {
+    if (typeof document === 'undefined') {
+        throw new Error('CSR-only method');
+    }
+
+    const linkElement = document.createElement('a');
+
+    linkElement.setAttribute('href', window.URL.createObjectURL(options.blob));
+    linkElement.setAttribute('download', options.fileName);
+    linkElement.dataset.downloadurl = [options.mime, linkElement.download, linkElement.href].join(':');
+
+    if (document.createEvent) {
+        const mouseEvent = document.createEvent('MouseEvents');
+        mouseEvent.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        linkElement.dispatchEvent(mouseEvent);
+    }
+    else {
+        linkElement.click();
+    }
+
+    linkElement.remove();
+}

@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.3]
+
+- Sync themes button is now available for operation
+
 # [0.5.0-alpha.2]
 
 - Improved model matching for A139-189, C700, C750 by StefBrands

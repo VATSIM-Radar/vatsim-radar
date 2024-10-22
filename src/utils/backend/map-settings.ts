@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import { findUserByCookie } from '~/utils/backend/user';
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
+import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 import { colorsList } from '~/utils/backend/styles';
 import { hexColorRegex, isObject } from '~/utils/shared';
@@ -187,6 +187,8 @@ export interface IUserMapSettings {
 export type UserMapSettings = Partial<IUserMapSettings>;
 
 export async function handleMapSettingsEvent(event: H3Event) {
+    let userId: number | undefined;
+
     try {
         const user = await findUserByCookie(event);
 
@@ -196,6 +198,9 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 statusCode: 401,
             });
         }
+
+        userId = user.id;
+        if (await freezeH3Request(event, user.id) !== true) return;
 
         const id = getRouterParam(event, 'id');
 
@@ -300,6 +305,21 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 });
             }
             else {
+                const userPresets = await prisma.userPreset.count({
+                    where: {
+                        userId: user.id,
+                        type: UserPresetType.MAP_SETTINGS,
+                    },
+                });
+
+                if (userPresets > 3) {
+                    return handleH3Error({
+                        event,
+                        statusCode: 400,
+                        statusMessage: 'Only 3 settings presets are allowed',
+                    });
+                }
+
                 await prisma.userPreset.create({
                     data: {
                         userId: user.id,
@@ -333,6 +353,11 @@ export async function handleMapSettingsEvent(event: H3Event) {
     }
     catch (e) {
         return handleH3Exception(event, e);
+    }
+    finally {
+        if (userId) {
+            unfreezeH3Request(userId);
+        }
     }
 
     return {
