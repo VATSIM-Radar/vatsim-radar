@@ -94,42 +94,80 @@ export interface AustraliaSector {
     callsign: string;
 }
 
-export const radarStorage = {
+export interface VatsimStorage {
+    data: VatsimData | null;
+    regularData: VatsimShortenedData | null;
+    mandatoryData: VatsimMandatoryData | null;
+    extendedPilots: VatsimExtendedPilot[];
+    firs: VatSpyDataFeature[];
+    locals: VatSpyDataLocalATC[];
+    airports: MapAirport[];
+    divisions: VatsimDivision[];
+    subDivisions: VatsimSubDivision[];
+    events: VatsimEvent[];
+    transceivers: VatsimTransceiver[];
+    australia: AustraliaSector[];
+    kafka: {
+        pilots: Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>;
+        atc: Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>;
+        prefiles: Array<Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
+    };
+}
+
+export interface RadarStorage {
+    vatspy: {
+        version: string;
+        data: VatSpyData | null;
+    };
+    simaware: {
+        version: string;
+        data: SimAwareData | null;
+    };
+    vatglasses: {
+        version: string;
+        data: VatglassesData | null;
+        activeData: string | null;
+    };
+    vatsim: VatsimStorage;
+    navigraph: typeof cycles | null;
+    patreonInfo: PatreonInfo | null;
+}
+
+export const radarStorage: RadarStorage = {
     vatspy: {
         version: '',
-        data: null as null | VatSpyData,
+        data: null,
     },
     simaware: {
         version: '',
-        data: null as null | SimAwareData,
+        data: null,
     },
     vatglasses: {
         version: '',
-        data: null as null | VatglassesData,
+        data: null,
+        activeData: null,
     },
     vatsim: {
-        data: null as null | VatsimData,
-        regularData: null as null | VatsimShortenedData,
-        mandatoryData: null as null | VatsimMandatoryData,
-        extendedPilots: [] as VatsimExtendedPilot[],
-        firs: [] as VatSpyDataFeature[],
-        locals: [] as VatSpyDataLocalATC[],
-        airports: [] as MapAirport[],
-        divisions: [] as VatsimDivision[],
-        subDivisions: [] as VatsimSubDivision[],
-        events: [] as VatsimEvent[],
-        transceivers: [] as VatsimTransceiver[],
-
-        australia: [] as AustraliaSector[],
-
+        data: null,
+        regularData: null,
+        mandatoryData: null,
+        extendedPilots: [],
+        firs: [],
+        locals: [],
+        airports: [],
+        divisions: [],
+        subDivisions: [],
+        events: [],
+        transceivers: [],
+        australia: [],
         kafka: {
-            pilots: [] as Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>,
-            atc: [] as Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>,
-            prefiles: [] as Array<Partial<VatsimData['prefiles'][0]> & KafkaExtension>,
+            pilots: [],
+            atc: [],
+            prefiles: [],
         },
     },
-    navigraph: null as null | typeof cycles,
-    patreonInfo: null as null | PatreonInfo,
+    navigraph: null,
+    patreonInfo: null,
 };
 
 export function getRadarStorage() {

@@ -377,7 +377,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
-        if (value) {
+        if (false) {
             turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
                 timeout: 1000 * 5,
             }).catch(console.error) ?? null;

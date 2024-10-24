@@ -6,7 +6,7 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref, WatchStopHandle } from 'vue';
+import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type { SimAwareAPIData, VatglassesAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
@@ -31,11 +31,11 @@ const stats = shallowRef<{
     stats: VatsimMemberStats;
 }[]>([]);
 
-type Data = {
+export type VatsimData = {
     [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
 };
 
-const data: Data = {
+const data: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
@@ -68,7 +68,27 @@ const vatsim = {
     updateTime: ref(0),
 };
 
-export function useDataStore() {
+export interface UseDataStore {
+    versions: Ref<null | VatDataVersions>;
+    vatspy: ShallowRef<VatSpyAPIData | undefined>;
+    vatsim: {
+        data: VatsimData;
+        parsedAirports: ShallowRef<AirportsList[]>;
+        _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
+        mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
+        versions: Ref<VatDataVersions['vatsim'] | null>;
+        updateTimestamp: Ref<string>;
+        updateTime: Ref<number>;
+    };
+    simaware: ShallowRef<SimAwareAPIData | undefined>;
+    vatglasses: ShallowRef<VatglassesAPIData | undefined>;
+    vatglassesActivePositions: ShallowRef<ActiveVatglassesPositions>;
+    vatglassesActiveRunways: ShallowRef<ActiveVatglassesRunways>;
+    stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
+    time: Ref<number>;
+}
+
+export function useDataStore(): UseDataStore {
     return {
         versions,
         vatspy,

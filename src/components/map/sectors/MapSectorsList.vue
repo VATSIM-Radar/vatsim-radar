@@ -60,7 +60,7 @@ import VectorImageLayer from 'ol/layer/VectorImage';
 import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 
-import { updateVatglassesState } from '~/utils/data/vatglasses';
+import { initVatglasses } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
 
@@ -256,7 +256,7 @@ watch(map, val => {
     }
 
     val.addLayer(vectorLayer);
-    updateVatglassesState();
+    initVatglasses();
     val.on('click', handleClick);
 }, {
     immediate: true,

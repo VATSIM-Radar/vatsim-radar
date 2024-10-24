@@ -55,13 +55,14 @@ const init = () => {
 };
 
 
-const positionLastUpdated = computed(() => props.position.lastUpdated.value);
+const positionLastUpdated = computed(() => props.position.lastUpdated?.value);
 
 watch(positionLastUpdated, () => {
     init();
 });
 
-watch(() => store.localSettings.traffic?.vatglassesLevel, () => {
+const vatglassLevel = computed(() => store.localSettings.traffic?.vatglassesLevel);
+watch(vatglassLevel, () => {
     init();
 });
 

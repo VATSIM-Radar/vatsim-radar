@@ -31,6 +31,7 @@ export default defineEventHandler(async event => {
     await loadSectors();
     const json = jsonData;
 
+    if (!json.data) return;
 
     // Loop through all keys in the data object and convert coordinates
     Object.keys(json.data).forEach(key => {
