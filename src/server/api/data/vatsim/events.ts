@@ -5,8 +5,8 @@ export default defineEventHandler(event => {
     if (!validateDataReady(event)) return;
 
     return {
-        events: radarStorage.vatsim.events,
-        divisions: radarStorage.vatsim.divisions,
-        subDivisions: radarStorage.vatsim.subDivisions,
+        events: radarStorage.vatsimStatic.events,
+        divisions: radarStorage.vatsimStatic.divisions,
+        subDivisions: radarStorage.vatsimStatic.subDivisions,
     };
 });
