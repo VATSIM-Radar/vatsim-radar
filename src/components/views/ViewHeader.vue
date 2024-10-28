@@ -107,7 +107,7 @@
                     v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
                     :type="!settingsPopup ? 'secondary' : 'primary'"
-                    @click="!store.user ? loginPopup = true : settingsPopup = !settingsPopup"
+                    @click="!store.user ? store.loginPopup = true : settingsPopup = !settingsPopup"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -268,7 +268,7 @@
                 </template>
             </common-info-popup>
         </div>
-        <common-popup v-model="loginPopup">
+        <common-popup v-model="store.loginPopup">
             <template #title>
                 Authorize via VATSIM
             </template>
@@ -276,7 +276,7 @@
             <template #actions>
                 <common-button
                     type="secondary"
-                    @click="loginPopup = false"
+                    @click="store.loginPopup = false"
                 >
                     Stand by
                 </common-button>
@@ -398,7 +398,6 @@ const theme = useCookie<ThemesList>('theme', {
     maxAge: 60 * 60 * 24 * 360,
 });
 
-const loginPopup = ref(false);
 const settingsPopup = ref(false);
 const deletePopup = ref(false);
 const deleteNavigraphPopup = ref(false);

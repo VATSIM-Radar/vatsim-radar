@@ -40,10 +40,10 @@ export function kafkaAddClient(event: KafkaAddClient) {
 }
 
 export function kafkaRemoveClient(event: KafkaRmClient) {
-    const item = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === event.Callsign) ||
+    /* const item = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === event.Callsign) ||
         radarStorage.vatsim.kafka.atc.find(x => x.callsign === event.Callsign);
 
-    if (item) item.deleted = true;
+    if (item) item.deleted = true;*/
 }
 
 export function kafkaUpdateController(event: KafkaAD) {
@@ -162,6 +162,6 @@ export function kafkaUpdatePlan(event: KafkaPlan) {
 }
 
 export function kafkaRemovePlan(event: KafkaDelPlan) {
-    const item = radarStorage.vatsim.kafka.prefiles.find(x => x.callsign === event.Callsign);
-    if (item) item.deleted = true;
+    /* const item = radarStorage.vatsim.kafka.prefiles.find(x => x.callsign === event.Callsign);
+    if (item) item.deleted = true;*/
 }

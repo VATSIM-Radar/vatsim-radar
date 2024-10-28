@@ -42,7 +42,7 @@ export function getColorFromSettings(setting: UserMapSettingsColor, raw?: boolea
     return `rgba(${ rgb.join(',') }, ${ setting.transparency ?? 1 })`;
 }
 
-export function getSelectedColorFromSettings(color: Exclude<keyof UserMapSettingsColors, 'aircraft'>, raw?: boolean) {
+export function getSelectedColorFromSettings(color: Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>, raw?: boolean) {
     const store = useStore();
     const themeKey = store.getCurrentTheme;
 

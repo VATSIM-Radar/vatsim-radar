@@ -2,10 +2,21 @@
     <div class="__info-sections">
         <common-tabs
             v-model="tab"
-            :tabs="{ modes: { title: 'Airports & Traffic' }, hide: { title: 'ATC & Layers' } }"
+            :tabs="{ hide: { title: 'ATC & Layers' }, modes: { title: 'Airports & Traffic' } }"
         />
 
         <template v-if="tab === 'modes'">
+            <common-toggle
+                :model-value="!!store.mapSettings.hideATISOnly"
+                @update:modelValue="setUserMapSettings({ hideATISOnly: $event })"
+            >
+                Hide info when only ATIS
+
+                <template #description>
+                    Hides ATIS button when airport only has ATIS
+                </template>
+            </common-toggle>
+
             <common-block-title>
                 Airports mode
             </common-block-title>
@@ -61,50 +72,46 @@
             </div>
         </template>
         <template v-else>
-            <small>
-                Following settings <strong>hide</strong> elements you toggle.
-            </small>
-
             <common-block-title>
                 ATC
             </common-block-title>
 
             <common-toggle
                 :disabled="store.mapSettings.visibility?.atc === false"
-                :model-value="!!store.mapSettings.visibility?.atcLabels"
-                @update:modelValue="setUserMapSettings({ visibility: { atcLabels: $event } })"
+                :model-value="!store.mapSettings.visibility?.atcLabels"
+                @update:modelValue="setUserMapSettings({ visibility: { atcLabels: !$event } })"
             >
                 Labels
             </common-toggle>
 
             <div class="__section-group __section-group--even">
                 <common-toggle
-                    :model-value="store.mapSettings.visibility?.atc === false"
-                    @update:modelValue="setUserMapSettings({ visibility: { atc: $event ? false : {} } })"
+                    :model-value="store.mapSettings.visibility?.atc !== false"
+                    @update:modelValue="setUserMapSettings({ visibility: { atc: !$event ? false : {} } })"
                 >
                     All
                 </common-toggle>
 
                 <common-toggle
                     :disabled="store.mapSettings.visibility?.atc === false"
-                    :model-value="isHideAtcType('firs')"
-                    @update:modelValue="setUserMapSettings({ visibility: { atc: { firs: $event } } })"
+                    :model-value="!isHideAtcType('firs')"
+                    @update:modelValue="setUserMapSettings({ visibility: { atc: { firs: !$event } } })"
                 >
                     FIRs
                 </common-toggle>
 
                 <common-toggle
                     :disabled="store.mapSettings.visibility?.atc === false"
-                    :model-value="isHideAtcType('approach')"
-                    @update:modelValue="setUserMapSettings({ visibility: { atc: { approach: $event } } })"
+                    :model-value="!isHideAtcType('approach')"
+                    @update:modelValue="setUserMapSettings({ visibility: { atc: { approach: !$event } } })"
                 >
                     Approach
                 </common-toggle>
 
                 <common-toggle
                     :disabled="store.mapSettings.visibility?.atc === false"
-                    :model-value="isHideAtcType('ground')"
-                    @update:modelValue="setUserMapSettings({ visibility: { atc: { ground: $event } } })"
+                    :model-value="!isHideAtcType('ground')"
+                    @update:modelValue="setUserMapSettings({ visibility: { atc: { ground: !$event } } })"
                 >
                     Locals
                 </common-toggle>
@@ -116,29 +123,29 @@
 
             <div class="__section-group __section-group--even">
                 <common-toggle
-                    :model-value="!!store.mapSettings.visibility?.airports"
-                    @update:modelValue="setUserMapSettings({ visibility: { airports: $event } })"
+                    :model-value="!store.mapSettings.visibility?.airports"
+                    @update:modelValue="setUserMapSettings({ visibility: { airports: !$event } })"
                 >
                     Airports
                 </common-toggle>
 
                 <common-toggle
-                    :model-value="!!store.mapSettings.visibility?.pilots"
-                    @update:modelValue="setUserMapSettings({ visibility: { pilots: $event } })"
+                    :model-value="!store.mapSettings.visibility?.pilots"
+                    @update:modelValue="setUserMapSettings({ visibility: { pilots: !$event } })"
                 >
                     Aircraft
                 </common-toggle>
 
                 <common-toggle
-                    :model-value="!!store.mapSettings.visibility?.gates"
-                    @update:modelValue="setUserMapSettings({ visibility: { gates: $event } })"
+                    :model-value="!store.mapSettings.visibility?.gates"
+                    @update:modelValue="setUserMapSettings({ visibility: { gates: !$event } })"
                 >
                     Gates
                 </common-toggle>
 
                 <common-toggle
-                    :model-value="!!store.mapSettings.visibility?.runways"
-                    @update:modelValue="setUserMapSettings({ visibility: { runways: $event } })"
+                    :model-value="!store.mapSettings.visibility?.runways"
+                    @update:modelValue="setUserMapSettings({ visibility: { runways: !$event } })"
                 >
                     Runways
                 </common-toggle>
@@ -156,5 +163,5 @@ import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
 const store = useStore();
 
-const tab = ref('modes');
+const tab = ref('hide');
 </script>

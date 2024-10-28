@@ -3,7 +3,7 @@ import { findUserByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 import { colorsList } from '~/utils/backend/styles';
-import { hexColorRegex, isObject } from '~/utils/shared';
+import { hexColorRegex, isObject, MAX_MAP_PRESETS } from '~/utils/shared';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
 import { UserPresetType } from '@prisma/client';
@@ -13,18 +13,27 @@ const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'appr
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
 const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
 const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'groundMoving', 'airborne', 'hide'];
+const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
 
 const colors = Object.keys(colorsList);
 
-function validateColor(color: unknown) {
+function validateTransparency(transparency: unknown) {
+    if (typeof transparency !== 'number' || transparency > 1 || transparency < 0) return false;
+    return Number(transparency.toFixed(2));
+}
+
+function validateColor(color: unknown): boolean {
     if (!isObject(color)) return false;
 
     if (typeof color.color !== 'string' || (!hexColorRegex.test(color.color) && !colors.includes(color.color))) return false;
 
     if ('transparency' in color) {
-        if (typeof color.transparency !== 'number' || color.transparency > 1 || color.transparency < 0) return false;
-        color.transparency = Number(color.transparency.toFixed(2));
+        const transparency = validateTransparency(color.transparency);
+        if (transparency !== false) color.transparency = transparency;
+        else return false;
     }
+
+    return true;
 }
 
 const statuses = Object.keys({
@@ -43,8 +52,24 @@ function validateTheme(val: unknown): boolean {
 
     if ('firs' in val && !validateColor(val.firs)) return false;
     if ('uirs' in val && !validateColor(val.uirs)) return false;
+    if ('centerText' in val && !validateColor(val.uirs)) return false;
+    if ('centerBg' in val && !validateColor(val.uirs)) return false;
     if ('approach' in val && !validateColor(val.approach)) return false;
-    if ('gates' in val && !validateColor(val.gates)) return false;
+    if ('staffedAirport' in val) {
+        const transparency = validateTransparency(val.staffedAirport);
+        if (transparency !== false) val.staffedAirport = transparency;
+        else return false;
+    }
+    if ('defaultAirport' in val) {
+        const transparency = validateTransparency(val.defaultAirport);
+        if (transparency !== false) val.defaultAirport = transparency;
+        else return false;
+    }
+    if ('gates' in val) {
+        const transparency = validateTransparency(val.gates);
+        if (transparency !== false) val.gates = transparency;
+        else return false;
+    }
     if ('runways' in val && !validateColor(val.runways)) return false;
 
     if ('aircraft' in val) {
@@ -60,10 +85,12 @@ function validateTheme(val: unknown): boolean {
     return true;
 }
 
-function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]) {
+function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]): boolean {
     for (const key in object) {
         if (!allowedKeys.includes(key)) return false;
     }
+
+    return true;
 }
 
 const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
@@ -101,7 +128,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     aircraftScale: val => {
-        return typeof val === 'boolean';
+        return typeof val === 'number' && val > 0 && val < 5;
     },
     airportsMode: val => {
         return typeof val === 'string' && airportsModeKeys.includes(val as any);
@@ -109,11 +136,14 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportsCounters: val => {
         if (!isObject(val)) return false;
 
-        if ('showSameAirportCounter' in val && typeof val.showSameAirportCounter !== 'boolean') return false;
+        if ('syncDeparturesArrivals' in val && typeof val.syncDeparturesArrivals !== 'boolean') return false;
+        if ('disableTraining' in val && typeof val.disableTraining !== 'boolean') return false;
+        if ('syncWithOverlay' in val && typeof val.syncWithOverlay !== 'boolean') return false;
         if ('departuresMode' in val && (typeof val.departuresMode !== 'string' || !counterModeKeys.includes(val.departuresMode as any))) return false;
-        if ('arrivalsMode' in val && (typeof val.departuresMode !== 'string' || !counterModeKeys.includes(val.departuresMode as any))) return false;
+        if ('horizontalCounter' in val && (typeof val.horizontalCounter !== 'string' || !prefilesModeKeys.includes(val.prefilesModeKeys as any))) return false;
+        if ('arrivalsMode' in val && (typeof val.arrivalsMode !== 'string' || !counterModeKeys.includes(val.arrivalsMode as any))) return false;
 
-        if (!validateRandomObjectKeys(val, ['showSameAirportCounter', 'departuresMode', 'arrivalsMode'])) return false;
+        if (!validateRandomObjectKeys(val, ['syncDeparturesArrivals', 'disableTraining', 'syncWithOverlay', 'departuresMode', 'arrivalsMode', 'horizontalCounter'])) return false;
 
         return true;
     },
@@ -130,6 +160,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    hideATISOnly: val => {
+        return typeof val === 'boolean';
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -140,11 +173,16 @@ export interface UserMapSettingsColor {
 export interface UserMapSettingsColors {
     firs?: UserMapSettingsColor;
     uirs?: UserMapSettingsColor;
+    centerText?: UserMapSettingsColor;
+    centerBg?: UserMapSettingsColor;
     approach?: UserMapSettingsColor;
+    staffedAirport?: number;
+    defaultAirport?: number;
     aircraft?: PartialRecord<MapAircraftStatus, UserMapSettingsColor> & {
         main?: UserMapSettingsColor;
     };
     runways?: UserMapSettingsColor;
+    gates?: number;
 }
 
 export interface UserMapSettingsVisibilityATC {
@@ -170,12 +208,14 @@ export interface IUserMapSettings {
     };
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
+    hideATISOnly: boolean;
     airportsCounters: {
         syncDeparturesArrivals?: boolean;
         departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
         horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
         disableTraining?: boolean;
+        syncWithOverlay?: boolean;
     };
     colors: {
         light?: UserMapSettingsColors;
@@ -188,6 +228,8 @@ export type UserMapSettings = Partial<IUserMapSettings>;
 
 export async function handleMapSettingsEvent(event: H3Event) {
     let userId: number | undefined;
+
+    const isValidate = event.path.endsWith('validate');
 
     try {
         const user = await findUserByCookie(event);
@@ -204,14 +246,14 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
         const id = getRouterParam(event, 'id');
 
-        if (id && event.method !== 'GET' && event.method !== 'PUT') {
+        if (id && event.method !== 'GET' && event.method !== 'PUT' && event.method !== 'DELETE') {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only PUT and GET are allowed when using id',
+                statusMessage: 'Only PUT, DELETE and GET are allowed when using id',
             });
         }
-        else if (!id && event.method !== 'POST') {
+        else if (!id && event.method !== 'GET' && event.method !== 'POST') {
             return handleH3Error({
                 event,
                 statusCode: 400,
@@ -249,11 +291,19 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 });
             }
 
-            if (!body.name && !settings) {
+            if (!body.name && !settings && !isValidate) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
                     statusMessage: 'Name is required when creating settings',
+                });
+            }
+
+            if (body.name && body.name.length > 30) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    statusMessage: 'Max name length is 30',
                 });
             }
 
@@ -285,12 +335,20 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 }
             }
 
+            body.json = body.json as Record<string, any>;
+
             if (body.name && body.name.length > 20) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
                     statusMessage: 'Name validation failed',
                 });
+            }
+
+            if (isValidate) {
+                return {
+                    status: 'ok',
+                };
             }
 
             if (settings) {
@@ -300,7 +358,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     },
                     data: {
                         name: body.name ?? settings.name,
-                        json: (body.json ?? settings.json) as Record<string, any>,
+                        json: (body.json ?? settings.json),
                     },
                 });
             }
@@ -312,7 +370,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     },
                 });
 
-                if (userPresets > 3) {
+                if (userPresets > MAX_MAP_PRESETS) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
@@ -325,10 +383,25 @@ export async function handleMapSettingsEvent(event: H3Event) {
                         userId: user.id,
                         type: UserPresetType.MAP_SETTINGS,
                         name: body.name as string,
-                        json: body.json as Record<string, any>,
+                        json: body.json,
                     },
                 });
             }
+
+            return body.json ?? {
+                status: 'ok',
+            };
+        }
+        else if (event.method === 'DELETE' && settings) {
+            await prisma.userPreset.delete({
+                where: {
+                    id: settings.id,
+                },
+            });
+
+            return {
+                status: 'ok',
+            };
         }
         else if (event.method === 'GET') {
             if (id) {
@@ -359,8 +432,8 @@ export async function handleMapSettingsEvent(event: H3Event) {
             unfreezeH3Request(userId);
         }
     }
-
-    return {
-        status: 'ok',
-    };
 }
+
+export type UserMapPreset = UserPreset & {
+    json: UserMapSettings;
+};

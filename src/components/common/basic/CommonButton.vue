@@ -14,6 +14,10 @@
         :style="{
             '--button-width': width,
             '--icon-width': iconWidth,
+            '--primary-color': colorsList[primaryColor],
+            '--link-color': colorsList[linkColor],
+            '--hover-color': colorsList[hoverColor],
+            '--focus-color': colorsList[focusColor],
         }"
         :target="target"
         v-bind="getAttrs"
@@ -38,6 +42,8 @@
 import type { PropType } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
+import { colorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/backend/styles';
 
 const props = defineProps({
     tag: {
@@ -77,6 +83,22 @@ const props = defineProps({
     to: {
         type: [String, Object] as PropType<RouteLocationRaw | string | null | undefined>,
         default: null,
+    },
+    primaryColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary500',
+    },
+    linkColor: {
+        type: String as PropType<ColorsList>,
+        default: 'lightgray150',
+    },
+    hoverColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary400',
+    },
+    focusColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary600',
     },
 });
 
@@ -132,7 +154,7 @@ const getAttrs = computed(() => {
     text-decoration: none;
 
     appearance: none;
-    background: $primary500;
+    background: var(--primary-color);
     border: none;
     border-radius: 8px;
     outline: none;
@@ -142,11 +164,11 @@ const getAttrs = computed(() => {
         transition: 0.3s;
 
         &:hover {
-            background: $primary400;
+            background: var(--hover-color);
         }
 
         &:focus, &:active {
-            background: $primary600;
+            background: var(--focus-color);
         }
     }
 
@@ -231,7 +253,7 @@ const getAttrs = computed(() => {
         padding: 0;
 
         font-size: 10px;
-        color: $lightgray150;
+        color: var(--link-color);
         text-align: left;
         text-decoration: underline;
 
@@ -240,19 +262,22 @@ const getAttrs = computed(() => {
 
         @include hover {
             &:hover {
-                color: $primary500;
+                color: var(--hover-color);
             }
 
             &:focus, &:active {
-                color: $primary600;
+                color: var(--focus-color);
             }
         }
     }
 
     &--disabled {
-        pointer-events: none;
-        cursor: default;
         opacity: 0.5;
+
+        &, &:deep(svg) {
+            pointer-events: none;
+            cursor: default;
+        }
     }
 }
 </style>

@@ -18,6 +18,12 @@
         <div
             class="sector-atc"
             :class="{ 'sector-atc--hovered': isHovered }"
+            :style="{
+                '--bg': getSelectedColorFromSettings('centerBg') ?? undefined,
+                '--bg-raw': getSelectedColorFromSettings('centerBg', true) ?? undefined,
+                '--text': getSelectedColorFromSettings('centerText') ?? undefined,
+                '--text-raw': getSelectedColorFromSettings('centerText', true) ?? undefined,
+            }"
             @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)"
         >
             <div class="sector-atc_name">
@@ -213,21 +219,22 @@ onBeforeUnmount(() => {
 
         font-size: 11px;
         font-weight: 700;
-        color: $lightgray150;
+        color: var(--text, $lightgray150);
         text-align: center;
 
-        background: $darkgray850;
-        border: 1px solid varToRgba('lightgray150', 0.1);
+        background: var(--bg, $darkgray850);
+        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
         border-radius: 4px;
 
         &_sub {
-            color: varToRgba('lightgray150', 0.5);
+            color: rgba(var(--text-raw, var(--lightgray150)), 0.5);
         }
     }
 
     &--hovered .sector-atc_name {
         color: $lightgray100Orig;
         background: $primary500;
+        border-color: varToRgba('lightgray150', 0.1);
 
         &_sub {
             color: $lightgray200Orig;
