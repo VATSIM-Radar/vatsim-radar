@@ -128,7 +128,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
 export const getAircraftStatusColor = (status: MapAircraftStatus) => {
     const store = useStore();
     let color = aircraftSvgColors()[status];
-    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status];
+    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
     if (settingColor) color = getColorFromSettings(settingColor);
 
     return color;

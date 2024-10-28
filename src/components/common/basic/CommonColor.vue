@@ -4,6 +4,7 @@
             v-model="tooltipOpened"
             :click-outside-options="{ strict: true }"
             close-method="clickOutside"
+            :cursor-default="transparencyOnly"
             location="bottom"
             max-width="100%"
             open-method="disabled"
@@ -12,7 +13,7 @@
             <template #activator>
                 <div
                     class="color-picker__container"
-                    @click="tooltipOpened = true"
+                    @click="tooltipOpened = !transparencyOnly && !tooltipOpened"
                 >
                     <div class="color-picker__content">
                         <div class="color-picker__content_text">
@@ -30,15 +31,17 @@
                     <common-select
                         class="color-picker__transparency"
                         :items="transparencyOptions"
+                        max-dropdown-height="150px"
                         :model-value="model.transparency ?? 1"
                         placeholder="Transparency"
                         width="150px"
-                        @click.stop
+                        @click.stop="tooltipOpened = false"
                         @update:modelValue="model = { ...model, transparency: +($event as string) }"
                     />
                     <div
                         class="color-picker__preview"
-                        :style="{ '--color': getColorFromSettings(model) }"
+                        :class="{ 'color-picker__preview--hidden': transparencyOnly }"
+                        :style="{ '--color': model.color && getColorFromSettings(model as UserMapSettingsColor) }"
                     />
                 </div>
             </template>
@@ -66,6 +69,7 @@
                     v-for="(hex, color) in colorsList"
                     :key="color"
                     class="color-picker_list_item"
+                    :class="{ 'color-picker_list_item--active': color === model.color }"
                     :style="{ '--color': hex }"
                     @click="model = { ...model, color }"
                 />
@@ -86,14 +90,18 @@ import ResetIcon from '@/assets/icons/kit/reset.svg?component';
 
 defineProps({
     defaultColor: {
-        type: Object as PropType<UserMapSettingsColor | null>,
+        type: Object as PropType<Partial<UserMapSettingsColor> | null>,
         default: null,
+    },
+    transparencyOnly: {
+        type: Boolean,
+        default: false,
     },
 });
 
 defineSlots<{ default: () => any }>();
 
-const model = defineModel({ type: Object as PropType<UserMapSettingsColor>, default: () => ({} as UserMapSettingsColor) });
+const model = defineModel({ type: Object as PropType<Partial<UserMapSettingsColor>>, default: () => ({} as Partial<UserMapSettingsColor>) });
 
 const themeColor = computed(() => getCurrentThemeHexColor(model.value.color as any));
 
@@ -114,7 +122,7 @@ const colorsList = Object.fromEntries(Object.entries(radarColors).filter(([key])
 const transparencyOptions = computed<SelectItem[]>(() => {
     const options: SelectItem[] = [];
 
-    for (let i = 0.2; i <= 1; i += 0.1) {
+    for (let i = 0.1; i <= 1; i += 0.1) {
         options.unshift({
             value: i,
             text: `${ Math.floor((1 - i) * 100) }%`,
@@ -155,6 +163,11 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         background: var(--color);
         border: 1px solid $lightgray200;
         border-radius: 8px;
+
+        &--hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
     }
 
     &_input {

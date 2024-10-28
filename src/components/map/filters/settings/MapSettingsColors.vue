@@ -27,14 +27,28 @@
             :model-value="store.mapSettings.colors?.[themeKey]?.firs ?? reactive({ color: 'success500', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
-            FIR
+            FIR / ARTCC
         </common-color>
         <common-color
             :default-color="{ color: 'info400', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.uirs ?? reactive({ color: 'info400', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { uirs: $event } } })"
         >
-            UIR
+            UIR / FSS
+        </common-color>
+        <common-color
+            :default-color="{ color: 'lightgray150' }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.centerText ?? reactive({ color: 'lightgray150' })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerText: $event } } })"
+        >
+            Center label (text)
+        </common-color>
+        <common-color
+            :default-color="{ color: 'darkgray850' }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.centerBg ?? reactive({ color: 'darkgray850' })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBg: $event } } })"
+        >
+            Center label (background)
         </common-color>
         <common-color
             :default-color="{ color: 'error300', transparency: 0.7 }"
@@ -42,6 +56,30 @@
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { runways: $event } } })"
         >
             Runways
+        </common-color>
+        <common-color
+            :default-color="{ transparency: 1 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.gates ? { transparency: store.mapSettings.colors?.[themeKey]?.gates ?? 1 } : reactive({ transparency: 1 })"
+            transparency-only
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { gates: $event.transparency } } })"
+        >
+            Gates
+        </common-color>
+        <common-color
+            :default-color="{ transparency: 1 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.staffedAirport ? { transparency: store.mapSettings.colors?.[themeKey]?.staffedAirport ?? 1 } : reactive({ transparency: 1 })"
+            transparency-only
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { staffedAirport: $event.transparency } } })"
+        >
+            Staffed Airport
+        </common-color>
+        <common-color
+            :default-color="{ transparency: 1 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.defaultAirport ? { transparency: store.mapSettings.colors?.[themeKey]?.defaultAirport ?? 1 } : reactive({ transparency: 1 })"
+            transparency-only
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { defaultAirport: $event.transparency } } })"
+        >
+            Unstaffed Airport
         </common-color>
 
         <common-block-title>
@@ -86,7 +124,7 @@
                 </common-button>
                 <common-button
                     type="secondary-875"
-                    @click="backup"
+                    @click="backupMapSettings()"
                 >
                     Backup data
                 </common-button>
@@ -125,7 +163,7 @@ import { aircraftSvgColors } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
-import { useFileDownload } from '~/composables/settings';
+import { backupMapSettings } from '~/composables/settings';
 
 const store = useStore();
 
@@ -138,7 +176,7 @@ const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
     active: 'Active',
     green: 'Own aircraft',
     hover: 'Hover',
-    landed: 'Landed (dahsboard)',
+    landed: 'Landed (dashboard)',
     arriving: 'Arriving (dashboard)',
     departing: 'Departing (dashboard)',
 };
@@ -146,14 +184,6 @@ const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
 const themeSyncActive = ref(false);
 const themeSyncComplete = ref(false);
 const isLightTheme = computed(() => store.getCurrentTheme === 'light');
-
-const backup = () => {
-    useFileDownload({
-        fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,
-        mime: 'application/json',
-        blob: new Blob([JSON.stringify(store.mapSettings)], { type: 'application/json' }),
-    });
-};
 
 const syncThemes = () => {
     setUserMapSettings({

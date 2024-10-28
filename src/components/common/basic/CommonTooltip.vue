@@ -2,7 +2,7 @@
     <div
         ref="tooltip"
         class="tooltip"
-        :class="[`tooltip--location-${ location }`]"
+        :class="[`tooltip--location-${ location }`, { 'tooltip--cursor-default': cursorDefault }]"
         @mouseleave="handleClick('mouseLeave')"
         @mouseover="handleClick('mouseOver')"
     >
@@ -46,7 +46,6 @@ const props = defineProps({
     },
     width: {
         type: String,
-        default: '80px',
     },
     maxWidth: {
         type: String,
@@ -62,6 +61,10 @@ const props = defineProps({
     clickOutsideOptions: {
         type: Object as PropType<Omit<ClickOutsideOptions, 'element' | 'callback'>>,
         default: () => ({}),
+    },
+    cursorDefault: {
+        type: Boolean,
+        default: false,
     },
 });
 defineSlots<{ default(): any; activator(): any }>();
@@ -115,6 +118,10 @@ useClickOutside({
     &_activator {
         cursor: pointer;
         position: relative;
+    }
+
+    &--cursor-default .tooltip_activator {
+        cursor: default;
     }
 
     &_container {

@@ -12,7 +12,7 @@
         >
             <div
                 class="airport"
-                :style="{ '--color': getAirportColor }"
+                :style="{ '--color': getAirportColor, '--opacity': store.mapSettings.colors?.[store.getCurrentTheme]?.staffedAirport ?? 1 }"
                 @click="mapStore.addAirportOverlay(airport.icao)"
                 @mouseleave="hoveredFacility = false"
             >
@@ -23,7 +23,7 @@
                     {{ airportName }}
                 </div>
                 <div
-                    v-if="!store.mapSettings.visibility?.atcLabels && !isHideAtcType('ground')"
+                    v-if="!store.mapSettings.visibility?.atcLabels && !isHideAtcType('ground') && (!store.mapSettings.hideATISOnly || localsFacilities.some(x => x.facility !== -1))"
                     class="airport_facilities"
                 >
                     <div
@@ -67,12 +67,12 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if=" 'lon' in airport && !isPseudoAirport"
+            v-if="'lon' in airport && !isPseudoAirport"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
             :hide="!isVisible"
-            :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
+            :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : -10]"
         />
         <map-overlay
             v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
@@ -228,14 +228,15 @@ const isPseudoAirport = computed(() => {
 });
 
 const getAirportColor = computed(() => {
+    const opacity = store.mapSettings.colors?.[store.getCurrentTheme]?.defaultAirport;
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
     if (!hasOverlay) {
-        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.7)`;
+        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, ${ opacity ?? 0.7 })`;
         return radarColors.lightgray150;
     }
 
-    if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, 0.8)`;
+    if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, ${ opacity ?? 0.8 })`;
     return radarColors.warning700;
 });
 
@@ -514,7 +515,9 @@ onMounted(async () => {
         gatesFeatures = gatesFeatures.filter(x => gates.value?.some(y => y.gate_identifier === x.getProperties().identifier));
 
         for (const gate of gates.value ?? []) {
-            const color = gate.trulyOccupied ? 'rgba(203, 66, 28, 0.8)' : gate.maybeOccupied ? 'rgba(232, 202, 76, 0.8)' : getCurrentThemeHexColor('success500');
+            const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
+
+            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, ${ opacitySetting ?? 0.8 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, ${ opacitySetting ?? 0.8 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
 
             const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
             if (existingFeature) {
@@ -640,6 +643,7 @@ onBeforeUnmount(() => {
 
     &_title, &_facilities {
         user-select: none;
+        opacity: var(--opacity);
     }
 
     &_title {

@@ -1,5 +1,5 @@
 import { useStore } from '~/store';
-import type { IUserMapSettings, UserMapSettingsVisibilityATC } from '~/utils/backend/map-settings';
+import type { IUserMapSettings, UserMapSettings, UserMapSettingsVisibilityATC } from '~/utils/backend/map-settings';
 import { useMapStore } from '~/store/map';
 
 export const isHideAtcType = (key: keyof UserMapSettingsVisibilityATC): boolean => {
@@ -51,3 +51,16 @@ export function useFileDownload(options: FileDownloadParams): void {
 
     linkElement.remove();
 }
+
+export const backupMapSettings = () => {
+    useFileDownload({
+        fileName: `vatsim-radar-current-settings-${ Date.now() }.json`,
+        mime: 'application/json',
+        blob: new Blob([JSON.stringify(useStore().mapSettings)], { type: 'application/json' }),
+    });
+};
+
+export const saveMapSettings = async (preset: UserMapSettings) => {
+    await resetUserMapSettings();
+    setUserMapSettings(preset);
+};

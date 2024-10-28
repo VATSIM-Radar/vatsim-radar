@@ -68,7 +68,6 @@
                     :close-method="arrivalCountTooltipCloseMethod"
                     location="bottom"
                     open-method="mouseOver"
-                    width="100%"
                     @click="arrivalCountTooltipCloseMethod = arrivalCountTooltipCloseMethod === 'mouseLeave' ? 'click' : 'mouseLeave'"
                 >
                     <template #activator>

@@ -226,8 +226,8 @@ const pilot = computed(() => dataStore.vatsim.data.pilots.value.find(x => props.
 
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
-    if (activeCurrentOverlay.value) return 'active';
-    if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
+    if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
+    if (props.isHovered) return 'hover';
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
     if (store.config.airport) {

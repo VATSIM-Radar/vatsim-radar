@@ -284,9 +284,9 @@ CronJob.from({
             await updateVatsimExtendedPilots();
 
             /* radarStorage.vatsim.data.controllers.push({
-                callsign: 'BIRD_CTR',
+                callsign: 'ORF_W_APP',
                 cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -298,9 +298,38 @@ CronJob.from({
             });
 
             radarStorage.vatsim.data.controllers.push({
-                callsign: 'BIRD_S_CTR',
+                callsign: 'PCT_APP',
                 cid: 4,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });
+
+
+            radarStorage.vatsim.data.atis.push({
+                callsign: 'I90_D_APP',
+                cid: 5,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+                frequency: '122.122',
+                last_updated: '',
+                logon_time: '',
+                name: '',
+                rating: 0,
+                server: '',
+                text_atis: ['test3'],
+                visual_range: 0,
+            });
+
+            radarStorage.vatsim.data.controllers.push({
+                callsign: 'ACT_L_APP',
+                cid: 6,
+                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
                 frequency: '122.122',
                 last_updated: '',
                 logon_time: '',
@@ -311,36 +340,7 @@ CronJob.from({
                 visual_range: 0,
             });*/
 
-
-            /*            radarStorage.vatsim.data.atis.push({
-                callsign: 'MSK_APP',
-                cid: 3,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
-                frequency: '122.122',
-                last_updated: '',
-                logon_time: '',
-                name: '',
-                rating: 0,
-                server: '',
-                text_atis: ['test3'],
-                visual_range: 0,
-            });
-
-            radarStorage.vatsim.data.controllers.push({
-                callsign: 'ULLL_APP',
-                cid: 2,
-                facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
-                frequency: '122.122',
-                last_updated: '',
-                logon_time: '',
-                name: '',
-                rating: 0,
-                server: '',
-                text_atis: ['test3'],
-                visual_range: 0,
-            });
-
-            radarStorage.vatsim.data.controllers.push({
+            /* radarStorage.vatsim.data.controllers.push({
                 callsign: 'CHI_APP',
                 cid: 1,
                 facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
