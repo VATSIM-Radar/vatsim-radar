@@ -2733,12 +2733,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/adm-zip@npm:^0.5.5":
-  version: 0.5.5
-  resolution: "@types/adm-zip@npm:0.5.5"
+"@types/adm-zip@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "@types/adm-zip@npm:0.5.6"
   dependencies:
     "@types/node": "npm:*"
-  checksum: 10c0/4976dc61e33534ecfb7eee87e8a587db06420a4eb9f34eee9425aece82e9fdd01ddd22677ff6430c582f4d9735c7d714c71adb8f149e3511bc189501b4113631
+  checksum: 10c0/b38160de2b821693fda78195819efc8961d957c3cd203473aa98209b1adbafceb458c9a48c199e8ce0d3085a9dbce55ffe649cf774f928ea600c03cc97afcad3
   languageName: node
   linkType: hard
 
@@ -12118,7 +12118,7 @@ __metadata:
     "@stylistic/eslint-plugin": "npm:^2.9.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
     "@turf/great-circle": "npm:^7.1.0"
-    "@types/adm-zip": "npm:^0.5.5"
+    "@types/adm-zip": "npm:^0.5.6"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.7"
     "@types/node": "npm:^22.8.1"

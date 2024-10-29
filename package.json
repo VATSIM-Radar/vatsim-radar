@@ -55,7 +55,7 @@
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^2.9.0",
     "@stylistic/stylelint-plugin": "^3.1.1",
-    "@types/adm-zip": "^0.5.5",
+    "@types/adm-zip": "^0.5.6",
     "@types/geojson": "^7946.0.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.8.1",
