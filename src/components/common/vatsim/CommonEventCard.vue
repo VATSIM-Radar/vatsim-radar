@@ -113,11 +113,12 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
     min-height: 52px;
     padding: 8px;
 
+    font-size: 14px;
+
     background: $darkgray900;
     border-radius: 4px;
 
     transition: 0.3s;
-    font-size: 14px;
 
     @include hover {
         &:hover {
@@ -132,51 +133,54 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
 }
 
 .event-card_active {
-  border: 2px solid $info300;
+    border: 2px solid $info300;
 }
 
 .event-card_name_active {
-  color: $info300;
+    color: $info300;
 }
 
 .event-details {
-  background: $darkgray900;
-  margin: 0 20px 0 20px;
-  border: 2px solid $darkgray800;
-  border-top: 0;
-  padding: 8px;
-  border-radius: 4px;
-  font-size: 14px;
+    margin: 0 20px;
+    padding: 8px;
+
+    font-size: 14px;
+
+    background: $darkgray900;
+    border: 2px solid $darkgray800;
+    border-top: 0;
+    border-radius: 4px;
 }
 
 .detail-item {
-  display: grid;
-  grid-template-columns: 200px auto;
-  gap: 8px;
-  align-items: flex-start;
-  justify-content: flex-start;
-  margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 200px auto;
+    gap: 8px;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    margin-bottom: 12px;
 }
 
 .detail-item_header {
-  font-size: 14px;
-  font-weight: 600;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .airport {
-  padding-right: 5px;
+    padding-right: 5px;
 }
 
 .detail-item_content {
-  background: $darkgray875;
-  padding: 8px;
+    padding: 8px;
+    background: $darkgray875;
 }
 
 .departure {
-  font-weight: 700;
+    font-weight: 700;
 }
 
 .arrival {
-  font-weight: 700;
+    font-weight: 700;
 }
 </style>

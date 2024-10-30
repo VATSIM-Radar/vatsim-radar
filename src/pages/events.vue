@@ -23,6 +23,6 @@ const { data } = await useAsyncData('events', async () => {
 
 <style scoped lang="scss">
 .common-event {
-  margin-bottom: 5px;
+    margin-bottom: 5px;
 }
 </style>
