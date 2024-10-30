@@ -13,19 +13,11 @@
 
 <script setup lang="ts">
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import CommonEventCard from '~/components/common/vatsim/CommonEventCard.vue';
+import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 
 const { data } = await useAsyncData('events', async () => {
-    return $fetch<{ events: VatsimEvent[]; divisions: VatsimDivision[]; subDivisions: VatsimSubDivision[] }>('/api/data/vatsim/events');
-});
-
-const datetime = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'UTC',
-    month: 'numeric',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 </script>
 
