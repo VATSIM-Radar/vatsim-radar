@@ -2,7 +2,7 @@
     <div>
         <div
             class="event-card"
-            :class="{ 'active-event': active }"
+            :class="{ 'event-card--active': active }"
             @click="details = !details"
         >
             <div class="event-card_start">
