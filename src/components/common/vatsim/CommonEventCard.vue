@@ -16,7 +16,7 @@
             <div class="event-card_name">
                 {{ props.event.name }} <span
                     v-if="active"
-                    class="active"
+                    class="event-card__active"
                 >Now active!</span>
             </div>
             <div class="event-airports">
