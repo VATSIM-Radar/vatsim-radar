@@ -142,9 +142,8 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
 .event-details {
   background: $darkgray900;
   margin: 0 20px 0 20px;
-  border-left: 2px solid $darkgray800;
-  border-right: 2px solid $darkgray800;
-  border-bottom: 2px solid $darkgray800;
+  border: 2px solid $darkgray800;
+  border-top: 0;
   padding: 8px;
   border-radius: 4px;
   font-size: 14px;
