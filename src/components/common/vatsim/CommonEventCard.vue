@@ -2,24 +2,24 @@
     <div>
         <div
             class="event-card"
-            :class="{ 'event-card--active': active }"
+            :class="{ 'event-card_active': active }"
             @click="details = !details"
         >
             <div class="event-card_start">
                 {{ formattedStart }}Z - {{ formattedEnd }}Z
             </div>
             <div class="event-card_start">
-              <template v-if="props.event.organisers?.length">
-                {{ props.event.organisers[0]?.region }} -> {{ props.event.organisers[0]?.division }}
-              </template>
+                <template v-if="props.event.organisers?.length">
+                    {{ props.event.organisers[0]?.region }} -> {{ props.event.organisers[0]?.division }}
+                </template>
             </div>
             <div class="event-card_name">
                 {{ props.event.name }} <span
                     v-if="active"
-                    class="event-card__active"
+                    class="event-card_name_active"
                 >Now active!</span>
             </div>
-            <div class="event-airports">
+            <div class="event-card_airports">
                 {{ props.event.airports.map((a) => a.icao).join(", ") }}
             </div>
         </div>
@@ -28,10 +28,10 @@
             class="event-details"
         >
             <div class="detail-item">
-                <div class="detail-item-header">
+                <div class="detail-item_header">
                     Description:
                 </div>
-                <div class="detail-item-content">
+                <div class="detail-item_content">
                     {{ props.event.description }}
                 </div>
             </div>
@@ -40,10 +40,10 @@
                 v-if="props.event.airports?.length > 0"
                 class="detail-item"
             >
-                <div class="detail-item-header">
+                <div class="detail-item_header">
                     Airports:
                 </div>
-                <div class="detail-item-content">
+                <div class="detail-item_content">
                     <span
                         v-for="airport in props.event.airports"
                         :key="airport.icao"
@@ -55,10 +55,10 @@
                 v-if="props.event.routes?.length > 0"
                 class="detail-item"
             >
-                <div class="detail-item-header">
+                <div class="detail-item_header">
                     Routes:
                 </div>
-                <div class="detail-item-content">
+                <div class="detail-item_content">
                     <span
                         v-for="route in props.event.routes"
                         :key="route.departure + route.arrival + route.route"
@@ -131,11 +131,11 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
     }
 }
 
-.active-event {
+.event-card_active {
   border: 2px solid $info300;
 }
 
-.active {
+.event-card_name_active {
   color: $info300;
 }
 
@@ -158,7 +158,7 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
   margin-bottom: 12px;
 }
 
-.detail-item-header {
+.detail-item_header {
   font-size: 14px;
   font-weight: 600;
 }
@@ -167,7 +167,7 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
   padding-right: 5px;
 }
 
-.detail-item-content {
+.detail-item_content {
   background: $darkgray875;
   padding: 8px;
 }
