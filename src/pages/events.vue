@@ -1,6 +1,6 @@
 <template>
     <common-page-block>
-        <template #title>VatSIM Events</template>
+        <template #title>VATSIM Events</template>
 
         <common-event-card
             v-for="event in data?.events"
