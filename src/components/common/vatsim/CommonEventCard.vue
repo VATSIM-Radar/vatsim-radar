@@ -9,7 +9,7 @@
                 {{ formattedStart }}Z - {{ formattedEnd }}Z
             </div>
             <div class="event-card_start">
-                <template v-if="props.event.organisers?.length">
+                <template v-if="props.event.organisers?.length > 0">
                     {{ props.event.organisers[0]?.region }} -> {{ props.event.organisers[0]?.division }}
                 </template>
             </div>
