@@ -140,7 +140,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('disableTraining' in val && typeof val.disableTraining !== 'boolean') return false;
         if ('syncWithOverlay' in val && typeof val.syncWithOverlay !== 'boolean') return false;
         if ('departuresMode' in val && (typeof val.departuresMode !== 'string' || !counterModeKeys.includes(val.departuresMode as any))) return false;
-        if ('horizontalCounter' in val && (typeof val.horizontalCounter !== 'string' || !prefilesModeKeys.includes(val.prefilesModeKeys as any))) return false;
+        if ('horizontalCounter' in val && (typeof val.horizontalCounter !== 'string' || !prefilesModeKeys.includes(val.horizontalCounter as any))) return false;
         if ('arrivalsMode' in val && (typeof val.arrivalsMode !== 'string' || !counterModeKeys.includes(val.arrivalsMode as any))) return false;
 
         if (!validateRandomObjectKeys(val, ['syncDeparturesArrivals', 'disableTraining', 'syncWithOverlay', 'departuresMode', 'arrivalsMode', 'horizontalCounter'])) return false;
