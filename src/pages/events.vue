@@ -36,13 +36,13 @@ const groupedEventData = computed(() => {
 .common-event {
     margin-bottom: 5px;
 
-  &__title {
-    margin-bottom: 16px;
-    padding-top: 8px;
+    &__title {
+        margin-bottom: 16px;
+        padding-top: 8px;
 
-    font-size: 20px;
-    font-weight: 500;
-    color: $primary500;
-  }
+        font-size: 20px;
+        font-weight: 500;
+        color: $primary500;
+    }
 }
 </style>
