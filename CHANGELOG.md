@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.5]
+
+- VatSIM events are now shown in their menu section
+
 # [0.5.0-alpha.4]
 
 ## Production Changes

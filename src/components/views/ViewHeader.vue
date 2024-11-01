@@ -370,7 +370,7 @@ const buttons = computed(() => {
         },
         {
             text: 'Events',
-            disabled: true,
+            path: '/events',
             icon: EventsIcon,
         },
         {
