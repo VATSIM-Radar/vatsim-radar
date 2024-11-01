@@ -6,7 +6,7 @@
             v-for="(events, day) in groupedEventData"
             :key="day"
         >
-            <h2 class="common-event__title">{{ day }}</h2>
+            <h2 class="common-event__title">{{ new Date(day).toLocaleDateString() }}</h2>
 
             <common-event-card
                 v-for="event in events"

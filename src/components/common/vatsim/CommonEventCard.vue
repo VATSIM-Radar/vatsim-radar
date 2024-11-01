@@ -8,9 +8,6 @@
             <div class="event-card_start">
                 {{ formattedStart }}Z - {{ formattedEnd }}Z
             </div>
-            <div class="event-card_start">
-                {{ organisers }}
-            </div>
             <div class="event-card_name">
                 {{ props.event.name }} <span
                     v-if="active"
@@ -34,6 +31,17 @@
                 </div>
             </div>
 
+          <div
+              v-if="organisers"
+              class="detail-item"
+          >
+            <div class="detail-item_header">
+              Organisers:
+            </div>
+            <div class="detail-item_content">
+                    {{ organisers }}
+            </div>
+          </div>
             <div
                 v-if="props.event.airports?.length > 0"
                 class="detail-item"
@@ -85,7 +93,7 @@ const props = defineProps({
 
 const details = ref(false);
 
-const formatter = new Intl.DateTimeFormat('en-GB', {
+const formatter = new Intl.DateTimeFormat(undefined, {
     timeZone: 'UTC',
     month: 'numeric',
     day: 'numeric',
@@ -103,7 +111,7 @@ const organisers = computed(() => {
             return 'VATSIM';
         }
         else {
-            return `${ o.region } -> ${ o.division }`;
+            return `${ o.region } / ${ o.division }`;
         }
     }
     return null;
@@ -115,7 +123,7 @@ const organisers = computed(() => {
     cursor: pointer;
 
     display: grid;
-    grid-template-columns: 200px 120px 600px auto 50px;
+    grid-template-columns: 200px 600px auto 50px;
     gap: 8px;
     align-items: center;
     justify-content: flex-start;
