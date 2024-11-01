@@ -54,8 +54,8 @@ let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositio
 
 let calls = 0; // used for debug
 function updateVatglassesPositionsAndAirspaces() {
-    let first = 0; // used for debug
-    first = 0;
+    // let first = 0; // used for debug
+    // first = 0;
     calls++; // used for debug
     console.log('Calls', calls); // used for debug
 

@@ -124,8 +124,10 @@ export interface RadarStorage {
         data: SimAwareData | null;
     };
     vatglasses: {
-        version: string;
-        data: VatglassesData | null;
+        data: {
+            version: string;
+            data: VatglassesData | null;
+        };
         activeData: string | null;
     };
     vatsim: VatsimStorage;
@@ -143,8 +145,10 @@ export const radarStorage: RadarStorage = {
         data: null,
     },
     vatglasses: {
-        version: '',
-        data: null,
+        data: {
+            version: '',
+            data: null,
+        },
         activeData: null,
     },
     vatsim: {
@@ -188,7 +192,7 @@ export function getDataVersions(): VatDataVersions {
         },
         navigraph: getRadarStorage().navigraph,
         simaware: getRadarStorage().simaware.version,
-        vatglasses: getRadarStorage().vatglasses.version,
+        vatglasses: getRadarStorage().vatglasses.data.version,
     };
 }
 

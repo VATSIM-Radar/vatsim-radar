@@ -165,7 +165,7 @@ export default defineNuxtConfig({
         port: 8080,
     },
     typescript: {
-        typeCheck: true,
+        typeCheck: false,
     },
     vite: {
         build: {

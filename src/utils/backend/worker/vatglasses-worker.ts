@@ -5,12 +5,13 @@ import { getRedis } from '~/utils/backend/redis';
 // import type { ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
 import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatglasses';
 import type { ActiveVatglassesAirspaces, ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
-
-import { promises as fs } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
+import { readFileSync } from 'fs';
+import { existsSync } from 'node:fs';
+import { join } from 'path';
 import type { VatglassesAPIData, VatsimStorage } from '../storage';
+
+const DATA_DIR = join(process.cwd(), 'src/data');
+const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
 
 export interface WorkerDataStore {
     vatsim: null | VatsimStorage;
@@ -27,75 +28,31 @@ const workerDataStore: WorkerDataStore = {
     vatglassesActivePositions: {},
     vatglassesActiveAirspaces: {},
 };
-initVatglasses('server', workerDataStore);
 
-
-let jsonData = {};
 async function loadSectors() {
-    try {
-        // const response = await ofetch('./data.json');
-        // jsonData = response;
-        // console.log('Loaded JSON data:', jsonData);
-        // const filename = fileURLToPath(import.meta.url);
-        // const __dirname = dirname(__filename);
-
-        const filePath = join('E:\\AeroNav\\vatsim-radarF\\.nuxt\\dev', 'data.json'); // Adjust the path as needed
-        const fileContent = await fs.readFile(filePath, 'utf8');
-        jsonData = JSON.parse(fileContent);
-        const json = jsonData;
-
-        // @ts-expect-error: only temporary code
-        workerDataStore.vatglasses = json;
-
-        // Loop through all keys in the data object and convert coordinates
-        // @ts-expect-error: only temporary code
-        Object.keys(json.data).forEach(key => {
-            // @ts-expect-error: only temporary code
-            const countryGroup = json.data[key];
-            // @ts-expect-error: only temporary code
-            countryGroup.airspace.forEach(airspace => {
-                // @ts-expect-error: only temporary code
-                airspace.sectors.forEach(sector => {
-                    // @ts-expect-error: only temporary code
-                    sector.points = sector.points.map(point => {
-                        const [lat, lon] = point;
-                        return fromServerLonLat([convertToDecimalDegrees(lon), convertToDecimalDegrees(lat)]);
-                    });
-                });
-            });
-        });
+    if (existsSync(JSON_FILE)) {
+        workerDataStore.vatglasses = JSON.parse(readFileSync(JSON_FILE, 'utf-8'));
     }
-    catch (error) {
-        console.error('Error loading sectors:', error);
-    }
-}
-await loadSectors();
-
-
-function convertToDecimalDegrees(coordinate: string): number {
-    const isNegative = coordinate.startsWith('-');
-    const absCoordinate = isNegative ? coordinate.slice(1) : coordinate;
-
-    const degrees = parseInt(absCoordinate.slice(0, -4), 10);
-    const minutes = parseInt(absCoordinate.slice(-4, -2), 10);
-    const seconds = parseInt(absCoordinate.slice(-2), 10);
-
-    let decimalDegrees = degrees + (minutes / 60) + (seconds / 3600);
-    if (isNegative) {
-        decimalDegrees = -decimalDegrees;
-    }
-
-    return parseFloat(decimalDegrees.toFixed(7));
 }
 
 
 const redisSubscriber = getRedis();
 redisSubscriber.subscribe('data');
-redisSubscriber.on('message', (_, message) => {
-    workerDataStore.vatsim = JSON.parse(message);
+redisSubscriber.subscribe('vatglassesData');
+
+redisSubscriber.on('message', (channel, message) => {
+    if (channel === 'data') {
+        workerDataStore.vatsim = JSON.parse(message);
+    }
+    else if (channel === 'vatglassesData') {
+        loadSectors();
+    }
 });
 
 const redisPublisher = getRedis();
+
+initVatglasses('server', workerDataStore);
+await loadSectors();
 
 CronJob.from({
     cronTime: '*/5 * * * * *',
