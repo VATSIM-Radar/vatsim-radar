@@ -31,17 +31,6 @@
                 </div>
             </div>
 
-          <div
-              v-if="organisers"
-              class="detail-item"
-          >
-            <div class="detail-item_header">
-              Organisers:
-            </div>
-            <div class="detail-item_content">
-                    {{ organisers }}
-            </div>
-          </div>
             <div
                 v-if="props.event.airports?.length > 0"
                 class="detail-item"
@@ -69,6 +58,18 @@
                         v-for="route in props.event.routes"
                         :key="route.departure + route.arrival + route.route"
                     ><span class="departure">{{route.departure}}</span> {{ route.route }} <span class="arrival">{{ route.arrival }}</span><br></span>
+                </div>
+            </div>
+
+            <div
+                v-if="organisers"
+                class="detail-item"
+            >
+                <div class="detail-item_header">
+                    Organisers:
+                </div>
+                <div class="detail-item_content">
+                    {{ organisers }}
                 </div>
             </div>
 
