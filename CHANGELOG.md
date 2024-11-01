@@ -2,7 +2,7 @@
 
 # [0.5.0-alpha.5]
 
-- VatSIM events are now shown in their menu section
+- VATSIM events are now shown in their menu section (by Thorsten)
 
 # [0.5.0-alpha.4]
 
