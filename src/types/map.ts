@@ -70,6 +70,7 @@ interface IUserLocalSettings {
         disableFastUpdate?: boolean;
         showTotalDeparturesInFeaturedAirports?: boolean;
         searchBy?: SearchFilter[];
+        searchLimit?: number;
     };
 
     tutorial: {

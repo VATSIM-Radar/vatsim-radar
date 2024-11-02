@@ -77,6 +77,20 @@
                             Flights
                         </common-button>
                     </div>
+
+                    <common-select
+                        :items="[
+                            { value: 5 },
+                            { value: 10 },
+                            { value: 25 },
+                            { value: 50 },
+                            { value: 75 },
+                        ]"
+                        :model-value="searchLimit"
+                        :placeholder="`Max items per category (${ searchLimit })`"
+                        show-placeholder
+                        @update:modelValue="setUserLocalSettings({ traffic: { searchLimit: $event as number } })"
+                    />
                 </template>
                 <div
                     v-else
@@ -93,7 +107,7 @@
                         </common-block-title>
                         <template v-if="!collapsedData.flights">
                             <common-info-block
-                                v-for="flight in searchResults.flights.slice(0, 10)"
+                                v-for="flight in searchResults.flights.slice(0, searchLimit)"
                                 :key="flight.cid"
                                 is-button
                                 :top-items="[flight.callsign]"
@@ -131,7 +145,7 @@
                         </common-block-title>
                         <template v-if="!collapsedData.airports">
                             <common-info-block
-                                v-for="airport in searchResults.airports.slice(0, 10)"
+                                v-for="airport in searchResults.airports.slice(0, searchLimit)"
                                 :key="airport.icao"
                                 :bottom-items="[airport.name]"
                                 is-button
@@ -151,7 +165,7 @@
                         </common-block-title>
                         <template v-if="!collapsedData.atc">
                             <common-controller-info
-                                :controllers=" searchResults.atc.slice(0, 10)"
+                                :controllers=" searchResults.atc.slice(0, searchLimit)"
                                 is-button
                                 max-height="auto"
                                 show-facility
@@ -180,6 +194,7 @@ import { useMapStore } from '~/store/map';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { MapAircraftStatus } from '~/composables/pilots';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 const filtersEnabled = ref(false);
 const opened = ref(false);
@@ -198,6 +213,7 @@ const isOpened = computed(() => {
 
 const filterBy = computed<SearchFilter[]>(() => store.localSettings.traffic?.searchBy?.length ? store.localSettings.traffic?.searchBy : ['atc', 'flights', 'airports']);
 const filtersCount = computed(() => (filterBy.value.length === 0 || filterBy.value.length === 3) ? 0 : filterBy.value.length);
+const searchLimit = computed(() => store.localSettings.traffic?.searchLimit ?? 10);
 
 const canSearchBy = (filter: SearchFilter): boolean => {
     if (!filtersCount.value) return true;
@@ -245,7 +261,7 @@ function compareFlightWithSearch(search: string, data: SearchResults['flights'])
     });
 }
 
-watch(search, async val => {
+watch([search, opened], async ([val]) => {
     await sleep(500);
     if (search.value !== val) return;
 
@@ -397,6 +413,7 @@ useClickOutside({
         gap: 16px;
 
         width: 100%;
+        min-height: 320px;
         max-height: 50vh;
         padding: 16px;
 
