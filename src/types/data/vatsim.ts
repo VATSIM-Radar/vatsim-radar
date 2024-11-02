@@ -201,7 +201,7 @@ export interface VatsimEvent {
         region: string | null;
         division: string | null;
         subdivision: string | null;
-        organized_by_vatsim: boolean;
+        organised_by_vatsim: boolean;
     }[];
     airports: {
         icao: string;

@@ -45,7 +45,9 @@ export default defineNitroPlugin(app => {
             const myData = await $fetch<{
                 data: VatsimEvent[];
             }>('https://my.vatsim.net/api/v2/events/latest');
-            radarStorage.vatsimStatic.events = myData.data;
+            const inFourWeeks = new Date();
+            inFourWeeks.setDate(inFourWeeks.getDate() + 28);
+            radarStorage.vatsimStatic.events = myData.data.filter(e => new Date(e.start_time) < inFourWeeks);
         },
     });
 

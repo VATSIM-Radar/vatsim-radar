@@ -8,11 +8,6 @@
             <div class="event-card_start">
                 {{ formattedStart }}Z - {{ formattedEnd }}Z
             </div>
-            <div class="event-card_start">
-                <template v-if="props.event.organisers?.length">
-                    {{ props.event.organisers[0]?.region }} -> {{ props.event.organisers[0]?.division }}
-                </template>
-            </div>
             <div class="event-card_name">
                 {{ props.event.name }} <span
                     v-if="active"
@@ -66,6 +61,18 @@
                 </div>
             </div>
 
+            <div
+                v-if="organisers"
+                class="detail-item"
+            >
+                <div class="detail-item_header">
+                    Organisers:
+                </div>
+                <div class="detail-item_content">
+                    {{ organisers }}
+                </div>
+            </div>
+
             <p>More details:                 <a
                 :href="props.event.link"
                 target="_blank"
@@ -87,7 +94,7 @@ const props = defineProps({
 
 const details = ref(false);
 
-const formatter = new Intl.DateTimeFormat('en-GB', {
+const formatter = new Intl.DateTimeFormat(undefined, {
     timeZone: 'UTC',
     month: 'numeric',
     day: 'numeric',
@@ -98,6 +105,18 @@ const formatter = new Intl.DateTimeFormat('en-GB', {
 const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => formatter.format(new Date(props.event.end_time)));
 const active = computed(() => new Date(props.event.start_time) < new Date());
+const organisers = computed(() => {
+    if (props.event.organisers?.length) {
+        const o = props.event.organisers[0];
+        if (o.organised_by_vatsim) {
+            return 'VATSIM';
+        }
+        else {
+            return `${ o.region } / ${ o.division }`;
+        }
+    }
+    return null;
+});
 </script>
 
 <style scoped lang="scss">
@@ -105,7 +124,7 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
     cursor: pointer;
 
     display: grid;
-    grid-template-columns: 200px 120px 600px auto 50px;
+    grid-template-columns: 200px 600px auto 50px;
     gap: 8px;
     align-items: center;
     justify-content: flex-start;
