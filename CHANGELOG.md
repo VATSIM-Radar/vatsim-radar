@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-alpha.6]
+
+- Significantly reduced data consumption
+- Added search field
+- Fixed this annoying issue when airport name "dropped" close to dot
+
 # [0.5.0-alpha.5]
 
 - VATSIM events are now shown in their menu section (by Thorsten)

@@ -12,7 +12,7 @@
             },
         ]"
         :style="{
-            '--button-width': width,
+            '--button-width': width ?? 'auto',
             '--icon-width': iconWidth,
             '--primary-color': colorsList[primaryColor],
             '--link-color': colorsList[linkColor],
@@ -150,7 +150,6 @@ const getAttrs = computed(() => {
     font-size: 13px;
     font-weight: 600;
     color: $lightgray50Orig;
-    text-align: center;
     text-decoration: none;
 
     appearance: none;
@@ -159,6 +158,10 @@ const getAttrs = computed(() => {
     border-radius: 8px;
     outline: none;
     box-shadow: none;
+
+    &_content {
+        width: 100%;
+    }
 
     @include hover {
         transition: 0.3s;
@@ -174,6 +177,7 @@ const getAttrs = computed(() => {
 
     &_icon {
         width: var(--icon-width);
+        min-width: var(--icon-width);
     }
 
     &--type-secondary, &--type-secondary-flat, &--type-secondary-875 {

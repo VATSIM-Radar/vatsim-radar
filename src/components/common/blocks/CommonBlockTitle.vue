@@ -4,6 +4,7 @@
         :class="{
             'title--collapsed': collapsed,
             'title--collapsible': collapsed !== null,
+            'title--remove-margin': removeMargin,
         }"
         @click="collapsed !== null ? collapsed = !collapsed : undefined"
     >
@@ -47,6 +48,10 @@ defineProps({
     bubble: {
         type: [String, Number],
     },
+    removeMargin: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineSlots<{
@@ -83,11 +88,11 @@ const collapsed = defineModel<boolean | null>('collapsed', {
         background: $darkgray850;
     }
 
-    &:not(:only-child) {
+    &:not(:only-child, &--remove-margin) {
         margin-bottom: 16px;
     }
 
-    &_text > *, &_collapse {
+    &_text > *, &_collapse, &_append {
         position: relative;
         z-index: 1;
         background: var(--block-title-background, $darkgray1000);

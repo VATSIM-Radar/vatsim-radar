@@ -7,15 +7,20 @@ export function handleH3Exception(event: H3Event, error: unknown) {
     return handleH3Error({ event, error });
 }
 
-export function handleH3Error({ error, event, statusCode, statusMessage }: { error?: unknown; event: H3Event; statusCode?: number; statusMessage?: string }) {
+export function handleH3Error({ error, event, statusCode = 500, statusMessage }: { error?: unknown; event: H3Event; statusCode?: number; statusMessage?: string }) {
     if (error instanceof H3Error) return error;
 
     if (error) {
         console.error(error);
     }
 
-    // @ts-expect-error Error checking
-    if (error && 'statusCode' in error) statusCode = error.statusCode;
+    try {
+        // @ts-expect-error Error checking
+        if (error && 'statusCode' in error) statusCode = error.statusCode;
+    }
+    finally {
+        //
+    }
 
     return sendError(event, createError({
         statusCode,
