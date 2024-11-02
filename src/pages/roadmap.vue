@@ -169,10 +169,6 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Pilot/airport mouse right click menu',
-                status: 'todo',
-            },
-            {
                 title: 'TMA approach sectors',
                 status: 'completed',
             },
@@ -225,10 +221,11 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Settings (hide atc/aircraft/gates/etc)',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
+                status: 'todo',
             },
             {
                 title: 'Open Source (code only)',
@@ -253,21 +250,27 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Search',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Friendly mobile version',
-                status: 'todo',
+                status: 'in-progress',
             },
         ],
     },
     {
         title: 'Stage 3',
         items: [
+            {
+                title: 'Pilot/airport mouse right click menu',
+            },
             'Proper Github local setup',
             'Oceanic Tracks integration',
             'Waypoints on map (including aircraft submitted route)',
-            'Events/ATC Bookings',
+            {
+                title: 'Events/ATC Bookings',
+                description: 'More complex integration than current events',
+            },
             'Smart positioning for aircraft info popup',
             {
                 title: 'Basic Stats',
@@ -320,7 +323,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 47;
+const percents = 48;
 
 interface RoadmapGroup {
     status: ItemStatus;

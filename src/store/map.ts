@@ -132,7 +132,7 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
             }
         },
-        async addPrefileOverlay(cid: string, tracked = false) {
+        async addPrefileOverlay(cid: string) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
             const store = useStore();
