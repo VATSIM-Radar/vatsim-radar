@@ -24,8 +24,8 @@ export default defineNitroPlugin(app => {
             }),
         ]);
 
-        radarStorage.vatsim.divisions = divisions;
-        radarStorage.vatsim.subDivisions = subdivisions;
+        radarStorage.vatsimStatic.divisions = divisions;
+        radarStorage.vatsimStatic.subDivisions = subdivisions;
     }
 
     CronJob.from({
@@ -42,9 +42,12 @@ export default defineNitroPlugin(app => {
         start: true,
         runOnInit: true,
         onTick: async () => {
-            radarStorage.vatsim.events = (await $fetch<{
+            const myData = await $fetch<{
                 data: VatsimEvent[];
-            }>('https://my.vatsim.net/api/v2/events/latest')).data;
+            }>('https://my.vatsim.net/api/v2/events/latest');
+            const inFourWeeks = new Date();
+            inFourWeeks.setDate(inFourWeeks.getDate() + 28);
+            radarStorage.vatsimStatic.events = myData.data.filter(e => new Date(e.start_time) < inFourWeeks);
         },
     });
 

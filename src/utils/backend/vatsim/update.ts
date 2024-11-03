@@ -2,7 +2,7 @@ import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/ind
 import { useFacilitiesIds } from '~/utils/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
-import type { VatsimExtendedPilot, VatsimMandatoryData } from '~/types/data/vatsim';
+import type { VatsimExtendedPilot, VatsimMandatoryData, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
 import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -102,9 +102,10 @@ export async function updateVatsimExtendedPilots() {
 
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
+        origPilot: VatsimShortenedAircraft;
 
         controllers?: Set<string>;
-    }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({ pilot }));
+    }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({ pilot: structuredClone(pilot), origPilot: pilot }));
 
     for (const fir of firsList.map(x => ({
         controllers: x.controllers.flatMap(x => x.controller?.callsign),
@@ -119,7 +120,7 @@ export async function updateVatsimExtendedPilots() {
         }
     }
 
-    for (const { pilot: extendedPilot, controllers } of pilotsToProcess) {
+    for (const { pilot: extendedPilot, origPilot, controllers } of pilotsToProcess) {
         const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(extendedPilot.cid));
         const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(extendedPilot.cid));
 
@@ -236,6 +237,7 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
+        origPilot.status = extendedPilot.status;
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 }

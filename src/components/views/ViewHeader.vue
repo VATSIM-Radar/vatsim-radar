@@ -27,9 +27,12 @@
                     <common-button
                         v-for="button in buttons"
                         :key="button.text"
+                        class="header__buttons_btn-container"
+                        :class="{ 'header__buttons_btn-container--has-children': button.children }"
                         :disabled="button.disabled"
                         :to="button.path"
-                        :type="button.path === route.path ? 'primary' : 'secondary'"
+                        :type="(button.path === route.path || button.children?.some(x => x.path === route.path)) ? 'primary' : 'secondary'"
+                        :width="button.width"
                     >
                         <template
                             v-if="button.icon"
@@ -37,8 +40,42 @@
                         >
                             <component :is="button.icon"/>
                         </template>
-                        {{ button.text }}
+                        <div class="header__buttons_btn">
+                            <div class="header__buttons_btn_text">
+                                {{ button.text }}
+                            </div>
+                            <div
+                                v-if="button.children"
+                                class="header__buttons_btn_children"
+                            >
+                                <arrow-top-icon class="header__buttons_btn_children_icon"/>
+                                <div class="header__buttons_btn_children_menu">
+                                    <common-button
+                                        v-for="childrenButton in button.children"
+                                        :key="childrenButton.text"
+                                        :disabled="childrenButton.disabled"
+                                        :to="childrenButton.path"
+                                        :type="childrenButton.path === route.path ? 'primary' : 'secondary'"
+                                    >
+                                        <template
+                                            v-if="childrenButton.icon"
+                                            #icon
+                                        >
+                                            <component :is="childrenButton.icon"/>
+                                        </template>
+
+                                        {{ childrenButton.text }}
+                                    </common-button>
+                                </div>
+                            </div>
+                        </div>
                     </common-button>
+                </div>
+                <div
+                    v-if="route.path === '/'"
+                    class="header__sections_section"
+                >
+                    <view-search/>
                 </div>
             </div>
         </div>
@@ -347,9 +384,11 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
+import ViewSearch from '~/components/views/search/ViewSearch.vue';
 
 const route = useRoute();
 const store = useStore();
@@ -361,7 +400,17 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     maxAge: 60 * 60 * 24,
 });
 
-const buttons = computed(() => {
+
+interface HeaderItem {
+    text: string;
+    path?: string;
+    disabled?: boolean;
+    width?: string;
+    icon?: Component;
+    children?: Omit<HeaderItem, 'children' | 'minWidth'>[];
+}
+
+const buttons = computed<HeaderItem[]>(() => {
     return [
         {
             text: 'Map',
@@ -370,7 +419,7 @@ const buttons = computed(() => {
         },
         {
             text: 'Events',
-            disabled: true,
+            path: '/events',
             icon: EventsIcon,
         },
         {
@@ -379,14 +428,28 @@ const buttons = computed(() => {
             icon: DataIcon,
         },
         {
-            text: 'Roadmap',
-            path: '/roadmap',
-            icon: PathIcon,
-        },
-        {
-            text: 'Support us',
-            path: '/support-us',
-            icon: PatreonIcon,
+            text: 'About',
+            width: '150px',
+            children: [
+                {
+                    text: 'Roadmap',
+                    path: '/roadmap',
+                    icon: PathIcon,
+                },
+                {
+                    text: 'Support us',
+                    path: '/support-us',
+                    icon: PatreonIcon,
+                },
+                {
+                    text: 'Privacy Policy',
+                    path: '/privacy-policy',
+                },
+                {
+                    text: 'About Us',
+                    path: '/about',
+                },
+            ],
         },
     ];
 });
@@ -531,8 +594,20 @@ onMounted(() => {
             align-items: center;
 
             & + & {
+                position: relative;
                 padding-left: 16px;
-                border-left: 1px solid varToRgba('lightgray150', 0.2);
+
+                &::before {
+                    content: '';
+
+                    position: absolute;
+                    top: calc(50% - 12px);
+                    left: 0;
+
+                    height: 24px;
+
+                    border-left: 1px solid varToRgba('lightgray150', 0.2);
+                }
             }
         }
     }
@@ -675,6 +750,68 @@ onMounted(() => {
 
         @at-root .header__theme--default .header__theme_item--dark {
             cursor: default;
+        }
+    }
+
+    &__buttons {
+        &_btn {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: space-between;
+
+            width: 100%;
+
+            &-container {
+                position: relative;
+
+                &--has-children {
+                    &:hover {
+                        background: $darkgray875 !important;
+                        border-bottom-right-radius: 0 !important;
+                        border-bottom-left-radius: 0 !important;
+
+                        .header__buttons_btn_children_menu {
+                            visibility: visible;
+                            opacity: 1;
+                        }
+
+                        .header__buttons_btn_children_icon {
+                            transform: rotate(0deg);
+                        }
+                    }
+                }
+            }
+
+            &_children {
+                &_icon {
+                    transform: rotate(180deg);
+                    width: 12px;
+                    transition: 0.3s;
+                }
+
+                &_menu {
+                    position: absolute;
+                    z-index: 10;
+                    top: calc(100% - 1px);
+                    left: 0;
+
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+
+                    width: 100%;
+                    padding: 8px;
+
+                    visibility: hidden;
+                    opacity: 0;
+                    background: $darkgray1000;
+                    border-bottom-right-radius: 8px;
+                    border-bottom-left-radius: 8px;
+
+                    transition: 0.3s;
+                }
+            }
         }
     }
 }

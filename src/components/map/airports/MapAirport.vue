@@ -305,6 +305,7 @@ watch(getAirportColor, () => {
         text: new Text({
             font: '12px Montserrat',
             text: airportName.value,
+            offsetY: -10,
             fill: new Fill({
                 color: getAirportColor.value,
             }),

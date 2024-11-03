@@ -7,7 +7,7 @@ import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 
 const revisions: Record<string, number> = {
-    'v2408.2': 2,
+    'v2408.2': 3,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
