@@ -2007,7 +2007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:3.13.2, @nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.0, @nuxt/kit@npm:^3.13.1, @nuxt/kit@npm:^3.13.2":
+"@nuxt/kit@npm:3.13.2, @nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.9.0":
   version: 3.13.2
   resolution: "@nuxt/kit@npm:3.13.2"
   dependencies:
@@ -2293,13 +2293,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@pinia/nuxt@npm:0.6.1"
+"@pinia/nuxt@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@pinia/nuxt@npm:0.7.0"
   dependencies:
-    "@nuxt/kit": "npm:^3.13.0"
-    pinia: "npm:^2.2.5"
-  checksum: 10c0/ea0b53409e11f81a555d16a93e4a771c095cf9df85d2fe2ba829dfd9821754e22b61e2c6d79ae6e15923be9e4122e2b3ffc1dcf9e191a5e52554aa473020cee6
+    "@nuxt/kit": "npm:^3.9.0"
+    pinia: "npm:^2.2.6"
+  checksum: 10c0/d04299998acd8df128f72906699dba36abcba288faa8faecf910763bd52df778e3493b600676eb84aa8e13ac2cd006933eeae660ad186c9ba3d3dc1a5f461492
   languageName: node
   linkType: hard
 
@@ -9296,6 +9296,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pinia@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "pinia@npm:2.2.6"
+  dependencies:
+    "@vue/devtools-api": "npm:^6.6.3"
+    vue-demi: "npm:^0.14.10"
+  peerDependencies:
+    "@vue/composition-api": ^1.4.0
+    typescript: ">=4.4.4"
+    vue: ^2.6.14 || ^3.5.11
+  peerDependenciesMeta:
+    "@vue/composition-api":
+      optional: true
+    typescript:
+      optional: true
+  checksum: 10c0/2158513467ca95a93114bbc5f446445ec89c4ee8955632abbc8d9be0bdf62e622af82d051b1027b66bf919434c01228f70f0811d7ce30dbeb205c879ce405355
+  languageName: node
+  linkType: hard
+
 "pkg-types@npm:^1.0.3, pkg-types@npm:^1.1.1, pkg-types@npm:^1.2.0":
   version: 1.2.1
   resolution: "pkg-types@npm:1.2.1"
@@ -12192,7 +12211,7 @@ __metadata:
     "@nuxt/devtools": "npm:^1.6.0"
     "@nuxt/eslint": "npm:^0.6.1"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
-    "@pinia/nuxt": "npm:^0.6.1"
+    "@pinia/nuxt": "npm:^0.7.0"
     "@prisma/client": "npm:^5.21.1"
     "@stylistic/eslint-plugin": "npm:^2.10.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
