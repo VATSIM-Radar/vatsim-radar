@@ -351,7 +351,7 @@ function setBorderFeatureStyle(feature: Feature) {
     feature.setStyle(style);
 }
 
-function seLabelFeatureStyle(feature: Feature) {
+function setLabelFeatureStyle(feature: Feature) {
     const style = [
         new Style({
             text: new Text({
@@ -488,7 +488,7 @@ onMounted(async () => {
                         id,
                     });
 
-                    seLabelFeatureStyle(labelFeature);
+                    setLabelFeatureStyle(labelFeature);
 
                     features.push({
                         id,
