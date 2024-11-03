@@ -93,7 +93,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     if (mapStore.openOverlayId && !mapStore.openApproachOverlay) return;
 
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
-        hitTolerance: 5,
+        hitTolerance: 0,
         layerFilter: layer => layer === vectorLayer,
     }).filter(x => x.getProperties().type !== 'background');
 
@@ -136,15 +136,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     }
 
     for (const feature of features) {
-        let isInvalid = (feature.getProperties().type !== 'circle' && feature.getProperties().type !== 'tracon');
-
-        if (!isInvalid) {
-            const pixel = map.value!.getCoordinateFromPixel(e.pixel);
-            if (feature) {
-                const textCoord = feature.getProperties().textCoord as Coordinate;
-                isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
-            }
-        }
+        const isInvalid = (feature.getProperties().type !== 'tracon-label');
 
         if (!isInvalid && mapStore.canShowOverlay) {
             appropriateFeature = feature;
@@ -160,9 +152,11 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     isManualHover.value = false;
 
-    if (!hoveredPixel.value) {
-        hoveredPixel.value = map.value!.getCoordinateFromPixel(e.pixel);
-    }
+    const extent = appropriateFeature.getGeometry()?.getExtent();
+    const bottomMiddle = [(extent![0] + extent![2]) / 2, extent![1]];
+    const pixel = map.value!.getPixelFromCoordinate(bottomMiddle);
+    pixel[1] += 5; // Move overlay by 5 pixels to the bottom
+    hoveredPixel.value = map.value!.getCoordinateFromPixel(pixel);
 
     hoveredId.value = appropriateFeature.getProperties().id;
     hoveredArrAirport.value = appropriateFeature.getProperties().iata || appropriateFeature.getProperties().icao;
