@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-alpha.7]
+
+- Improved TRACON label behaviour by Felix
+
 # [0.5.0-alpha.6]
 
 - Significantly reduced data consumption
