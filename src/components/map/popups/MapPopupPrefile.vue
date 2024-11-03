@@ -11,7 +11,7 @@
         <template #title>
             <div class="pilot-header">
                 <div class="pilot-header_title">
-                    {{ props.overlay.data.prefile.callsign }}
+                    {{ props.overlay.data.prefile.callsign }} ({{ props.overlay?.data.prefile.cid }})
                 </div>
                 <common-blue-bubble
                     v-if="props.overlay.data.prefile.flight_plan.flight_rules !== 'I'"
@@ -24,6 +24,19 @@
         </template>
         <template #plan>
             <map-popup-flight-plan :flight-plan="props.overlay?.data.prefile.flight_plan"/>
+        </template>
+        <template #actions>
+            <common-button-group>
+                <common-button
+                    :href="`https://stats.vatsim.net/stats/${ props.overlay?.data.prefile.cid }`"
+                    target="_blank"
+                >
+                    <template #icon>
+                        <stats-icon/>
+                    </template>
+                    Stats
+                </common-button>
+            </common-button-group>
         </template>
     </common-info-popup>
 </template>
@@ -38,6 +51,9 @@ import type { VatsimPrefile } from '~/types/data/vatsim';
 import type { IFetchError } from 'ofetch';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import StatsIcon from '@/assets/icons/kit/stats.svg?component';
 
 const props = defineProps({
     overlay: {

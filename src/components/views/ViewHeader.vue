@@ -762,6 +762,8 @@ onMounted(() => {
 
             width: 100%;
 
+            text-align: left;
+
             &-container {
                 position: relative;
 

@@ -100,6 +100,10 @@ const props = defineProps({
         type: String as PropType<ColorsList>,
         default: 'primary600',
     },
+    textAlign: {
+        type: String,
+        default: 'center',
+    },
 });
 
 defineEmits({
@@ -150,6 +154,7 @@ const getAttrs = computed(() => {
     font-size: 13px;
     font-weight: 600;
     color: $lightgray50Orig;
+    text-align: v-bind(textAlign);
     text-decoration: none;
 
     appearance: none;

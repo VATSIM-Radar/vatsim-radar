@@ -4659,6 +4659,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"croner@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "croner@npm:9.0.0"
+  checksum: 10c0/c530c80f580d4d8638ac114c97467806d7e016d9ff28033bbf29f21fad160467cbeeff7247f4a2cc68b4e5be2350f28cf3f5329a9a6a901acb0de4dd0caeef08
+  languageName: node
+  linkType: hard
+
 "cronstrue@npm:^2.50.0":
   version: 2.51.0
   resolution: "cronstrue@npm:2.51.0"
@@ -12199,6 +12206,7 @@ __metadata:
     aws-sdk: "npm:^2.1691.0"
     chardet: "npm:^2.0.0"
     cron: "npm:^3.1.8"
+    croner: "npm:^9.0.0"
     discord.js: "npm:^14.16.3"
     eslint: "npm:^9.14.0"
     fast-xml-parser: "npm:^4.5.0"

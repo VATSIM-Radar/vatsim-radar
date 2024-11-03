@@ -340,16 +340,12 @@ watch(hoveredFeature, val => {
 });
 
 function setBorderFeatureStyle(feature: Feature) {
-    const style = [
-        new Style({
-            stroke: new Stroke({
-                color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
-                width: 2,
-            }),
+    feature.setStyle(new Style({
+        stroke: new Stroke({
+            color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+            width: 2,
         }),
-    ];
-
-    feature.setStyle(style);
+    }));
 }
 
 function setLabelFeatureStyle(feature: Feature) {

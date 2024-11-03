@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-alpha.8]
+
+- Improved overall stability to prevent issues when Radar suddenly stops updating data
+- Added CID and Stats link to Prefiles
+- (QA) Fixed an issues when some buttons text was not centered
+
 # [0.5.0-alpha.7]
 
 - Improved TRACON label behaviour by Felix

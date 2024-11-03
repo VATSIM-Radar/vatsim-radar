@@ -2,7 +2,12 @@ import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/ind
 import { useFacilitiesIds } from '~/utils/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
-import type { VatsimExtendedPilot, VatsimMandatoryData, VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type {
+    VatsimExtendedPilot,
+    VatsimMandatoryData,
+    VatsimShortenedAircraft,
+    VatsimTransceiver,
+} from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
 import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -259,4 +264,22 @@ export async function updateAustraliaData() {
         callsign: sector.Callsign,
         frequency: sector.Frequency,
     }));
+}
+
+let transceiversInProgress = false;
+
+export async function updateTransceivers() {
+    if (transceiversInProgress) return;
+    try {
+        transceiversInProgress = true;
+        radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
+            timeout: 1000 * 30,
+        });
+    }
+    catch (e) {
+        console.error(e);
+    }
+    finally {
+        transceiversInProgress = false;
+    }
 }

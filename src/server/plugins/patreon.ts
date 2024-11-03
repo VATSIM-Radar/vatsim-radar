@@ -1,6 +1,6 @@
-import { CronJob } from 'cron';
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/backend/storage';
+import { defineCronJob } from '~/utils/backend';
 
 interface PatreonAccount {
     data: {
@@ -88,45 +88,40 @@ export default defineNitroPlugin(app => {
         },
     });
 
-    CronJob.from({
-        cronTime: '15 * * * *',
-        runOnInit: true,
-        start: true,
-        onTick: async () => {
-            const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns');
-            const campaign = myAccount.data[0].id;
-            if (!campaign) return;
+    defineCronJob('15 * * * *', async () => {
+        const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns');
+        const campaign = myAccount.data[0].id;
+        if (!campaign) return;
 
-            let counter = 0;
-            let nextLink = '';
+        let counter = 0;
+        let nextLink = '';
 
-            const patrons: PatreonPledge[] = [];
+        const patrons: PatreonPledge[] = [];
 
-            do {
-                const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`);
-                counter = data.data.length;
+        do {
+            const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`);
+            counter = data.data.length;
 
-                for (const user of data.data) {
-                    if (user.type !== 'pledge') continue;
-                    const level = data.included.find(x => x.type === 'reward' && user.relationships.reward?.data.id === x.id) as PatreonPledgesReward | undefined;
-                    const patron = data.included.find(x => x.type === 'user' && user.relationships.patron?.data.id === x.id) as PatreonPledgesUser | undefined;
-                    if (!level || typeof level.attributes.amount_cents !== 'number' || level.attributes.amount_cents < 500 || !patron) continue;
-                    patrons.push({
-                        levelId: level.id,
-                        name: patron.attributes.full_name,
-                    });
-                }
+            for (const user of data.data) {
+                if (user.type !== 'pledge') continue;
+                const level = data.included.find(x => x.type === 'reward' && user.relationships.reward?.data.id === x.id) as PatreonPledgesReward | undefined;
+                const patron = data.included.find(x => x.type === 'user' && user.relationships.patron?.data.id === x.id) as PatreonPledgesUser | undefined;
+                if (!level || typeof level.attributes.amount_cents !== 'number' || level.attributes.amount_cents < 500 || !patron) continue;
+                patrons.push({
+                    levelId: level.id,
+                    name: patron.attributes.full_name,
+                });
+            }
 
-                if (!data.links?.next) break;
-                nextLink = data.links.next;
-            } while (counter > 0);
+            if (!data.links?.next) break;
+            nextLink = data.links.next;
+        } while (counter > 0);
 
-            radarStorage.patreonInfo = {
-                all: myAccount.data[0].attributes.patron_count,
-                paid: myAccount.data[0].attributes.paid_member_count,
-                budget: myAccount.data[0].attributes.pledge_sum / 100,
-                highlighted: patrons,
-            };
-        },
+        radarStorage.patreonInfo = {
+            all: myAccount.data[0].attributes.patron_count,
+            paid: myAccount.data[0].attributes.paid_member_count,
+            budget: myAccount.data[0].attributes.pledge_sum / 100,
+            highlighted: patrons,
+        };
     });
 });

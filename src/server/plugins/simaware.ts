@@ -1,13 +1,6 @@
-import { CronJob } from 'cron';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
+import { defineCronJob } from '~/utils/backend';
 
 export default defineNitroPlugin(app => {
-    CronJob.from({
-        cronTime: '15 * * * *',
-        runOnInit: true,
-        start: true,
-        onTick: async () => {
-            await updateSimAware();
-        },
-    });
+    defineCronJob('15 * * * *', updateSimAware);
 });
