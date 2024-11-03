@@ -422,17 +422,49 @@ onMounted(async () => {
         const features: ArrFeature[] = [];
 
         if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
+            const borderFeature = new Feature({
+                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                icao: props.airport.icao,
+                iata: props.airport.iata,
+                id: 'circle',
+                type: 'circle',
+            });
+
+            setBorderFeatureStyle(borderFeature);
+
             features.push({
                 id: 'circle',
-                feature: new Feature({
-                    geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                feature: borderFeature,
+                controllers: props.arrAtc,
+            });
+
+
+            if (!store.mapSettings.visibility?.atcLabels) {
+                const feature = borderFeature;
+                const geometry = feature.getGeometry();
+                const extent = feature.getGeometry()?.getExtent();
+                const topCoord = [extent![0], extent![3]];
+                let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                if (feature.getProperties().label_lat) {
+                    textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                }
+
+                const labelFeature = new Feature({
+                    geometry: new Point(textCoord),
+                    type: 'tracon-label',
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     id: 'circle',
-                    type: 'circle',
-                }),
-                controllers: props.arrAtc,
-            });
+                });
+
+                setLabelFeatureStyle(labelFeature);
+
+                features.push({
+                    id: 'circle',
+                    feature: labelFeature,
+                    controllers: props.arrAtc,
+                });
+            }
         }
         else {
             const leftAtc = props.arrAtc.filter(x => !props.features.some(y => y.controllers.some(y => y.cid === x.cid)));
@@ -490,7 +522,6 @@ onMounted(async () => {
                     features.push({
                         id,
                         feature: labelFeature,
-                        traconFeature,
                         controllers: [
                             ...controllers,
                             ...leftAtc,
