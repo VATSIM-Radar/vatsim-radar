@@ -3,6 +3,7 @@
 # [0.5.0-alpha.7]
 
 - Improved TRACON label behaviour by Felix
+- Added cyrillic improvements for Kazakhstan and Kyrgyzstan
 
 # [0.5.0-alpha.6]
 
