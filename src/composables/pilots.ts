@@ -23,13 +23,13 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
 }
 
-export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null) {
+export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
 
     view?.animate({
         center: [pilot.longitude, pilot.latitude],
-        zoom: isPilotOnGround(pilot) ? 17 : 7,
+        zoom: zoom ?? (isPilotOnGround(pilot) ? 17 : 7),
     });
 }
 

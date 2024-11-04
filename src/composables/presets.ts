@@ -57,6 +57,16 @@ const urvPreset: SiteConfig = {
     showCornerLogo: true,
 };
 
+const vatsupPreset: SiteConfig = {
+    theme: 'default',
+    hideHeader: true,
+    hideFooter: true,
+    showCornerLogo: false,
+    hideOverlays: true,
+    hideAirports: true,
+    hideSectors: true,
+};
+
 const dashboardPreset: SiteConfig = {
     hideAirports: false,
     hideSectors: false,
@@ -93,6 +103,9 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'dashboard') {
         preset = dashboardPreset;
+    }
+    else if (query.preset === 'vatsup') {
+        preset = vatsupPreset;
     }
 
     preset = structuredClone(preset);
