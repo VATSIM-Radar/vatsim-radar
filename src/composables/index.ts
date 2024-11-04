@@ -202,6 +202,7 @@ const iframeWhitelist = [
     'idvacc.id',
     'vatcol.org',
     'urrv.me',
+    'vatsim.net',
 ];
 
 export function useIframeHeader() {
