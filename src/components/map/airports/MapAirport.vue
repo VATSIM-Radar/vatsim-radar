@@ -522,6 +522,7 @@ onMounted(async () => {
                     features.push({
                         id,
                         feature: labelFeature,
+                        traconFeature,
                         controllers: [
                             ...controllers,
                             ...leftAtc,
