@@ -2007,7 +2007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:3.13.2, @nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.0, @nuxt/kit@npm:^3.13.1, @nuxt/kit@npm:^3.13.2":
+"@nuxt/kit@npm:3.13.2, @nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.9.0":
   version: 3.13.2
   resolution: "@nuxt/kit@npm:3.13.2"
   dependencies:
@@ -2293,13 +2293,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "@pinia/nuxt@npm:0.6.1"
+"@pinia/nuxt@npm:^0.7.0":
+  version: 0.7.0
+  resolution: "@pinia/nuxt@npm:0.7.0"
   dependencies:
-    "@nuxt/kit": "npm:^3.13.0"
-    pinia: "npm:^2.2.5"
-  checksum: 10c0/ea0b53409e11f81a555d16a93e4a771c095cf9df85d2fe2ba829dfd9821754e22b61e2c6d79ae6e15923be9e4122e2b3ffc1dcf9e191a5e52554aa473020cee6
+    "@nuxt/kit": "npm:^3.9.0"
+    pinia: "npm:^2.2.6"
+  checksum: 10c0/d04299998acd8df128f72906699dba36abcba288faa8faecf910763bd52df778e3493b600676eb84aa8e13ac2cd006933eeae660ad186c9ba3d3dc1a5f461492
   languageName: node
   linkType: hard
 
@@ -2898,12 +2898,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.8.6":
+"@types/node@npm:*":
   version: 22.8.6
   resolution: "@types/node@npm:22.8.6"
   dependencies:
     undici-types: "npm:~6.19.8"
   checksum: 10c0/d3a11f2549234a91a4c5d0ff35ab4bdcb7ba34db4d3f1d189be39b8bd41c19aac98d117150a95a9c5a9d45b1014135477ea240b2b8317c86ae3d3cf1c3b3f8f4
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.8.7":
+  version: 22.8.7
+  resolution: "@types/node@npm:22.8.7"
+  dependencies:
+    undici-types: "npm:~6.19.8"
+  checksum: 10c0/14372885db80059ed6e92c320b2bcd8f7dc271698adce11f51aa0f424a3f82aa1749a4f66321b87043791b894346b2458d514cbb65ce70167c2fd8a78a124947
   languageName: node
   linkType: hard
 
@@ -9277,9 +9286,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pinia@npm:^2.2.5":
-  version: 2.2.5
-  resolution: "pinia@npm:2.2.5"
+"pinia@npm:^2.2.6":
+  version: 2.2.6
+  resolution: "pinia@npm:2.2.6"
   dependencies:
     "@vue/devtools-api": "npm:^6.6.3"
     vue-demi: "npm:^0.14.10"
@@ -9292,7 +9301,7 @@ __metadata:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/57356934b8ce799b7a718edcd4743f87d3c34d5dc41d33a04b1b2ec130d4b020c7c9fe437222aab42b249665cd1a866e3dafd2d9130606adc781b70b09c00c2d
+  checksum: 10c0/2158513467ca95a93114bbc5f446445ec89c4ee8955632abbc8d9be0bdf62e622af82d051b1027b66bf919434c01228f70f0811d7ce30dbeb205c879ce405355
   languageName: node
   linkType: hard
 
@@ -12192,7 +12201,7 @@ __metadata:
     "@nuxt/devtools": "npm:^1.6.0"
     "@nuxt/eslint": "npm:^0.6.1"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
-    "@pinia/nuxt": "npm:^0.6.1"
+    "@pinia/nuxt": "npm:^0.7.0"
     "@prisma/client": "npm:^5.21.1"
     "@stylistic/eslint-plugin": "npm:^2.10.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
@@ -12200,7 +12209,7 @@ __metadata:
     "@types/adm-zip": "npm:^0.5.6"
     "@types/geojson": "npm:^7946.0.14"
     "@types/jsonwebtoken": "npm:^9.0.7"
-    "@types/node": "npm:^22.8.6"
+    "@types/node": "npm:^22.8.7"
     "@types/ws": "npm:^8.5.13"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1691.0"
@@ -12219,7 +12228,7 @@ __metadata:
     nuxt: "npm:^3.13.2"
     ol: "npm:^10.2.1"
     ol-mapbox-style: "npm:^12.3.5"
-    pinia: "npm:^2.2.5"
+    pinia: "npm:^2.2.6"
     postcss: "npm:^8.4.47"
     postcss-html: "npm:^1.7.0"
     prisma: "npm:^5.21.1"
