@@ -63,8 +63,6 @@ const vatsupPreset: SiteConfig = {
     hideFooter: true,
     showCornerLogo: false,
     hideOverlays: true,
-    hideAirports: true,
-    hideSectors: true,
 };
 
 const dashboardPreset: SiteConfig = {
