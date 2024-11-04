@@ -94,14 +94,14 @@ export function findAtcAirport(atc: VatsimShortenedController) {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
 }
 
-export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null) {
+export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
     if (!airport) return;
 
     view?.animate({
         center: [airport.lon, airport.lat],
-        zoom: 14,
+        zoom: zoom ?? 14,
     });
 }
 

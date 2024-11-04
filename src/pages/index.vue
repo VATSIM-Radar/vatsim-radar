@@ -5,7 +5,8 @@
             class="map_container"
         />
         <div
-            v-if="ready && !store.config.hideOverlays"
+            v-if="ready"
+            v-show="!store.config.hideOverlays"
             ref="popups"
             class="map_popups"
             :style="{
@@ -14,7 +15,7 @@
             }"
         >
             <div
-                v-if="popupsHeight"
+                v-if="popupsHeight || store.config.hideOverlays"
                 class="map_popups_list"
             >
                 <transition-group name="map_popups_popup--appear">
@@ -137,6 +138,17 @@ async function checkAndAddOwnAircraft() {
     }
 }
 
+const getRouteZoom = (): number | null => {
+    if (typeof route.query.zoom === 'string') {
+        const queryZoom = parseInt(route.query.zoom, 10);
+        if (isNaN(queryZoom)) return null;
+
+        return queryZoom;
+    }
+
+    return null;
+};
+
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
@@ -235,7 +247,7 @@ const restoreOverlays = async () => {
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {
             mapStore.overlays.map(x => x.type === 'pilot' && (x.data.tracked = false));
             overlay.data.tracked = true;
-            showPilotOnMap(overlay.data.pilot, map.value);
+            showPilotOnMap(overlay.data.pilot, map.value, getRouteZoom() ?? undefined);
         }
     }
     else if (route.query.airport) {
@@ -249,7 +261,7 @@ const restoreOverlays = async () => {
 
         if (overlay && overlay.type === 'airport' && airport) {
             overlay.sticky = true;
-            showAirportOnMap(airport, map.value);
+            showAirportOnMap(airport, map.value, getRouteZoom() ?? undefined);
         }
     }
 };
@@ -329,6 +341,18 @@ await setupDataFetch({
         projectionExtent[2] *= 2;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
+        let zoom = store.localSettings.zoom ?? 3;
+
+        if (typeof route.query.center === 'string') {
+            const coords = route.query.center.split(',').map(x => +x);
+            if (coords.length !== 2 || coords.some(x => typeof x !== 'number' || isNaN(x))) return;
+
+            center = coords;
+        }
+
+        const routeZoom = getRouteZoom();
+
+        if (routeZoom) zoom = routeZoom;
 
         if (store.config.airport) {
             const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
@@ -360,8 +384,6 @@ await setupDataFetch({
         }
 
         if (store.config.center) center = store.config.center;
-
-        let zoom = store.localSettings.zoom ?? 3;
 
         if (store.config.zoom) zoom = store.config.zoom;
         else if (store.config.airport) {
