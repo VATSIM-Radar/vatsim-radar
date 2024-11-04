@@ -640,7 +640,7 @@ await setupDataFetch({
 
         width: 0;
 
-        &--aircraft {
+        &--aircraft:not(:nth-child(2), :only-child) {
             flex-grow: 2;
             max-width: max(20%, 280px);
         }
