@@ -140,7 +140,7 @@ async function checkAndAddOwnAircraft() {
 
 const getRouteZoom = (): number | null => {
     if (typeof route.query.zoom === 'string') {
-        const queryZoom = parseInt(route.query.zoom, 10);
+        const queryZoom = +route.query.zoom;
         if (isNaN(queryZoom)) return null;
 
         return queryZoom;
