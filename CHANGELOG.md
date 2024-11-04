@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-alpha.9]
+
+- You can now copy and save current map location via browser URL 
+- You can now copy and save most of Airport Dashboard settings via browser URL
+- (QA) Fixed "maybe occupied" gate color
+
 # [0.5.0-alpha.8]
 
 - Improved overall stability to prevent issues when Radar suddenly stops updating data

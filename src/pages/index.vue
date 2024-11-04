@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -347,7 +347,7 @@ await setupDataFetch({
             const coords = route.query.center.split(',').map(x => +x);
             if (coords.length !== 2 || coords.some(x => typeof x !== 'number' || isNaN(x))) return;
 
-            center = coords;
+            center = fromLonLat(coords);
         }
 
         const routeZoom = getRouteZoom();
@@ -404,6 +404,7 @@ await setupDataFetch({
                 center,
                 zoom,
                 minZoom: 3,
+                maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: projectionExtent,
@@ -463,6 +464,13 @@ await setupDataFetch({
             mapStore.zoom = view.getZoom() ?? 0;
             mapStore.rotation = toDegrees(view.getRotation() ?? 0);
             mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+            router.replace({
+                query: {
+                    center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
+                    zoom: view.getZoom()?.toFixed(2),
+                },
+            });
 
             setUserLocalSettings({
                 location: view.getCenter(),

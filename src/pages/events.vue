@@ -30,6 +30,10 @@ const { data } = await useAsyncData('events', async () => {
 const groupedEventData = computed(() => {
     return Object.groupBy(data.value?.events || [], event => event.start_time.substring(0, 10));
 });
+
+useHead({
+    title: 'Events',
+});
 </script>
 
 <style scoped lang="scss">

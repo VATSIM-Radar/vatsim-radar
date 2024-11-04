@@ -258,6 +258,7 @@ import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
 const route = useRoute();
+const router = useRouter();
 const store = useStore();
 const dataStore = useDataStore();
 const ready = ref(false);
@@ -496,6 +497,50 @@ const controllerMode = useCookie<boolean>('controller-mode', {
 });
 
 const showPilotStats = useShowPilotStats();
+
+const settings = computed(() => ({
+    aircraft: aircraftMode.value,
+    weather: weatherTab.value,
+    columns: displayedColumns.value.join(','),
+    mode: mapMode.value,
+    controller: Number(controllerMode.value).toString(),
+    stats: Number(showPilotStats.value).toString(),
+}) satisfies Record<string, string | null | undefined>);
+
+onMounted(() => {
+    for (const setting in settings.value) {
+        const query = route.query[setting];
+        if (typeof query !== 'string' || !query.trim()) continue;
+
+        const arr = query.split(',');
+
+        switch (setting) {
+            case 'aircraft':
+                if (aircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
+                break;
+            case 'weather':
+                if (query === 'metar' || query === 'taf') weatherTab.value = query as any;
+                break;
+            case 'columns':
+                if (arr.every(x => displayedColumns.value.includes(x as any))) displayedColumns.value = arr as any;
+                break;
+            case 'controller':
+                controllerMode.value = Boolean(query);
+                break;
+            case 'stats':
+                showPilotStats.value = Boolean(query);
+                break;
+        }
+    }
+});
+
+watch(settings, () => {
+    router.replace({
+        query: settings.value,
+    });
+}, {
+    deep: true,
+});
 
 airportData.value = (await useAsyncData(async () => {
     try {
