@@ -2,7 +2,7 @@ import { ofetch } from 'ofetch';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import { View } from 'ol';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import type { Coordinate } from 'ol/coordinate';
 import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
@@ -22,6 +22,10 @@ const projection = view.getProjection();
 
 export function fromServerLonLat(coordinate: Coordinate) {
     return fromLonLat(coordinate, projection);
+}
+
+export function toServerLonLat(coordinate: Coordinate) {
+    return toLonLat(coordinate, projection);
 }
 
 export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {

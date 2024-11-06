@@ -34,7 +34,7 @@ const flightKeys = Object.keys({
     transponder: true,
 } satisfies Record<keyof InfluxFlight, true>) as Array<keyof InfluxFlight>;
 
-async function getFlightRows(query: string) {
+export async function getFlightRows(query: string) {
     const rows: Record<string, InfluxFlight> = {};
     const result = await influxDBQuery.collectRows<{ _time: string; _value: any; _field: keyof InfluxFlight; cid: string }>(query);
 
