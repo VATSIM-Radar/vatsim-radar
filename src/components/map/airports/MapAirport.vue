@@ -421,7 +421,7 @@ onMounted(async () => {
     });
 
     function initAndUpdateData(force = false) {
-        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach') || store.localSettings.traffic?.vatglassesLevel !== false) {
+        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach') || store.mapSettings.vatglasses?.active) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
 
@@ -486,7 +486,8 @@ onMounted(async () => {
         }
     }
 
-    watch([dataStore.vatsim.updateTimestamp, store.localSettings.traffic?.vatglassesLevel], () => initAndUpdateData(), {
+    const isVatglassesActive = computed(() => store.mapSettings.vatglasses?.active);
+    watch([dataStore.vatsim.updateTimestamp, isVatglassesActive], () => initAndUpdateData(), {
         immediate: true,
     });
 

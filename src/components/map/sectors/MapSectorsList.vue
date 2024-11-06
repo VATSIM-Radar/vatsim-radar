@@ -92,6 +92,7 @@ const vatglassesPopupIsShown = ref(false);
 
 let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
+    //TODO: don't show popup when clicked target has an aircraft
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
     if (lastEventPixel && lastEventPixel[0] === eventPixel[0] && lastEventPixel[1] === eventPixel[1]) {

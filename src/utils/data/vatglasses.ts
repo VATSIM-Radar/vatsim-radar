@@ -619,7 +619,7 @@ async function initVatglassesCombined() {
             }
         }
 
-        // TODO: We have to check existing runways with the runways from the server data and reset all changed icao codes
+        // Check existing runways with the runways from the server data and reset all changed icao codes
         const serverRunways = data.vatglassesActiveRunways;
         const localRunways = dataStore.vatglassesActiveRunways.value;
 
@@ -652,19 +652,15 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
         worker = new combinedWorker();
 
-
-        // TODO: check why the inital data is not always empty. i think it is because the vatsim data is not ready yet, but check that
-        console.log('activePositions1', dataStore.vatglassesActivePositions.value);
         updateVatglassesStateLocal();
-        console.log('activePositions2', dataStore.vatglassesActivePositions.value);
 
-        if (store.mapSettings.vatglasses?.combined) {
+        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
+
+        if (vatglassesCombined) {
             await initVatglassesCombined();
         }
-
-        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined);
-        // if initVatglassesCombined was not called yet, we have to watch the vatglassesCombined value to call it when needed
-        if (!combineDataInitialized) {
+        else {
+            // initVatglassesCombined is not called now, so we have to watch the vatglassesCombined value to call it when needed
             let vatglassesCombinedWatcher: ReturnType<typeof watch> | null = null;
 
             if (!combineDataInitialized) {
@@ -679,7 +675,6 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         }
         watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], () => {
             updateVatglassesStateLocal();
-            console.log(dataStore.vatglassesActivePositions.value);
         });
 
         watch(dataStore.vatglasses, val => {
