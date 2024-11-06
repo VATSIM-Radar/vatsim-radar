@@ -44,6 +44,7 @@ export type NotamsSortBy = 'startDesc' | 'startAsc' | 'endAsc' | 'endDesc';
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
+    vatglassesLevel: number;
 
     filters: {
         opened?: boolean;
@@ -60,7 +61,6 @@ interface IUserLocalSettings {
     traffic: {
         disableFastUpdate?: boolean;
         showTotalDeparturesInFeaturedAirports?: boolean;
-        vatglassesLevel?: number | boolean;
     };
 
     tutorial: {

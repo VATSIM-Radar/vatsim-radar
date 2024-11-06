@@ -26,6 +26,12 @@ If we want to get the initial load of the combined sectors, we need sectorsCombi
 */
 
 
+export interface VatglassesActiveData {
+    vatglassesActiveRunways: ActiveVatglassesRunways;
+    vatglassesActivePositions: ActiveVatglassesPositions;
+    version: string;
+}
+
 export interface ActiveVatglassesPosition {
     cid: number | null;
     callsign: string | null;
@@ -54,7 +60,7 @@ let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositio
 
 let calls = 0; // used for debug
 function updateVatglassesPositionsAndAirspaces() {
-    // let first = 0; // used for debug
+    // const first = 0; // used for debug
     // first = 0;
     calls++; // used for debug
     console.log('Calls', calls); // used for debug
@@ -107,20 +113,20 @@ function updateVatglassesPositionsAndAirspaces() {
             if (!atc) continue;
 
 
-            // used for debug
+            // // used for debug
             // if (first === 0) {
             //     atc.frequency = '134.150';
             //     atc.callsign = 'EDMM_ZUG_CTR';
             //     atc.cid = 1025793;
-            //     first++;
+            //     // first++;
             // }
             // else if (first === 1) {
-            //     // break;
+            //     break;
             //     if (calls > 3) break;
             //     atc.frequency = '129.100';
             //     atc.callsign = 'EDMM_ALB_CTR';
             //     atc.cid = 1025794;
-            //     first++;
+            //     // first++;
             // }
             // else {
             //     break;
@@ -272,7 +278,6 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-
                 newActiveVatglassesPositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId)).filter(sector => sector !== false) || [];
             }
         }
@@ -298,7 +303,9 @@ function triggerUpdatedVatglassesPositions(newActiveVatglassesPositions: ActiveV
     if (mode === 'local') {
         for (const countryGroupId in updatedVatglassesPositions) {
             for (const positionId in updatedVatglassesPositions[countryGroupId]) {
-                if (newActiveVatglassesPositions[countryGroupId][positionId]['lastUpdated']?.value) newActiveVatglassesPositions[countryGroupId][positionId]['lastUpdated'].value = new Date().toISOString();
+                if (newActiveVatglassesPositions[countryGroupId][positionId]['lastUpdated']) {
+                    newActiveVatglassesPositions[countryGroupId][positionId]['lastUpdated'].value = new Date().toISOString();
+                }
             }
         }
     }
@@ -309,7 +316,6 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways?.value ?? workerDataStore.vatglassesActiveRunways;
     const result: VatglassesSector[] = [];
     for (const sector of airspace.sectors) {
-        result.push(sector);
         if (sector.runways) {
             let configActive = true;
             for (const sectorRunway of sector.runways) {
@@ -507,8 +513,9 @@ async function waitForRunningVatglassesUpdate() {
     }
 }
 
+
 // Call this function when a runway was changed at the frontend
-export async function activeRunwayChanged(icao: string | string[]) {
+export async function activeRunwayChanged(icao: string | string[], callUpdated = true) {
     await waitForRunningVatglassesUpdate();
     if (typeof icao === 'string') icao = [icao];
 
@@ -535,7 +542,7 @@ export async function activeRunwayChanged(icao: string | string[]) {
         }
     }
 
-    updateVatglassesStateLocal();
+    if (callUpdated) updateVatglassesStateLocal();
 }
 
 let vatglassesUpdateInProgress = false;
@@ -544,21 +551,21 @@ export async function updateVatglassesStateLocal() {
     const store = useStore();
     if (vatglassesUpdateInProgress) return;
 
-    console.time('updateVatglasses');
+    console.time('updateVatglassesStateLocal');
 
     vatglassesUpdateInProgress = true;
     const newActiveVatglassesPositions = updateVatglassesPositionsAndAirspaces();
-    if (store.localSettings.traffic?.vatglassesLevel === true) {
-        console.log('starting Cmonibning');
+    if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined) {
+        console.log('starting combining');
         await combineAllActiveVatglassesSectors(newActiveVatglassesPositions);
-        console.log('finished comiobiniung');
+        console.log('finished combining');
     }
     dataStore.vatglassesActivePositions.value = newActiveVatglassesPositions;
     triggerUpdatedVatglassesPositions(newActiveVatglassesPositions);
     vatglassesUpdateInProgress = false;
 
 
-    console.timeEnd('updateVatglasses');
+    console.timeEnd('updateVatglassesStateLocal');
     // console.log('activeVatglassesSectors', newActiveVatglassesPositions);
     // console.log('vatglassesRunways', vatglassesRunways);
     // console.log('activeSectors', activeVatglassesAirspaces);
@@ -568,7 +575,7 @@ export async function updateVatglassesStateLocal() {
 export async function updateVatglassesStateServer() {
     if (vatglassesUpdateInProgress) return;
 
-    console.time('updateVatglasses');
+    console.time('updateVatglassesStateServer');
 
     vatglassesUpdateInProgress = true;
     const newActiveVatglassesPositions = updateVatglassesPositionsAndAirspaces();
@@ -579,47 +586,98 @@ export async function updateVatglassesStateServer() {
     vatglassesUpdateInProgress = false;
 
 
-    console.timeEnd('updateVatglasses');
+    console.timeEnd('updateVatglassesStateServer');
     // console.log('activeVatglassesSectors', newActiveVatglassesPositions);
     // console.log('vatglassesRunways', vatglassesRunways);
     // console.log('activeSectors', activeVatglassesAirspaces);
     // console.log('assignedVatglassesPositions', activeVatglassesPositions);
 }
+
+// This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
+let combineDataInitialized = false;
+async function initVatglassesCombined() {
+    console.log('initVatglassesCombined');
+    combineDataInitialized = true;
+    try {
+        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatglasses-active`));
+        const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
+        if (vatglassesDataVersion === data.version) {
+            for (const countryGroupId in data.vatglassesActivePositions) {
+                for (const positionId in data.vatglassesActivePositions[countryGroupId]) {
+                    const serverPosition = data.vatglassesActivePositions[countryGroupId][positionId];
+                    const localPosition = dataStore.vatglassesActivePositions.value[countryGroupId]?.[positionId];
+
+                    if (localPosition) {
+                        if (serverPosition.airspaceKeys === localPosition.airspaceKeys) {
+                            localPosition.sectorsCombined = serverPosition.sectorsCombined;
+                            if (localPosition.lastUpdated) {
+                                localPosition.lastUpdated.value = new Date().toISOString();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // TODO: We have to check existing runways with the runways from the server data and reset all changed icao codes
+        const serverRunways = data.vatglassesActiveRunways;
+        const localRunways = dataStore.vatglassesActiveRunways.value;
+
+        for (const icao in localRunways) {
+            if (localRunways[icao].active !== serverRunways?.[icao].active) {
+                await activeRunwayChanged(icao, false);
+            }
+        }
+        // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
+        updateVatglassesStateLocal();
+    }
+    catch {
+        console.error('Error fetching or processing vatglasses-active data');
+        // Optionally, you can handle the error further, such as displaying a user-friendly message
+    }
+}
+
 export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null) {
+    console.log('doingVatglassesInit');
     if (inputMode === 'server') {
         mode = 'server';
         if (serverDataStore) workerDataStore = serverDataStore;
     }
     else {
+        const { useStore } = await import('~/store');
+
         mode = 'local';
         dataStore = useDataStore();
+        const store = useStore();
         const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
-        // Use the imported worker
         worker = new combinedWorker();
 
 
-        try {
-            const data = JSON.parse(await $fetch(`/api/data/vatglasses-active`));
-            for (const countryGroupId in data.vatglassesActivePositions) {
-                const positions = data.vatglassesActivePositions[countryGroupId];
-                for (const positionId in positions) {
-                    data.vatglassesActivePositions[countryGroupId][positionId].lastUpdated = ref(new Date().toISOString());
-                }
-            }
-
-            dataStore.vatglassesActivePositions.value = data.vatglassesActivePositions;
-            dataStore.vatglassesActiveRunways.value = data.vatglassesActiveRunways;
-        }
-        catch {
-            console.error('Error fetching or processing vatglasses-active data');
-            // Optionally, you can handle the error further, such as displaying a user-friendly message
-        }
-
+        // TODO: check why the inital data is not always empty. i think it is because the vatsim data is not ready yet, but check that
         console.log('activePositions1', dataStore.vatglassesActivePositions.value);
         updateVatglassesStateLocal();
         console.log('activePositions2', dataStore.vatglassesActivePositions.value);
 
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals], () => {
+        if (store.mapSettings.vatglasses?.combined) {
+            await initVatglassesCombined();
+        }
+
+        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined);
+        // if initVatglassesCombined was not called yet, we have to watch the vatglassesCombined value to call it when needed
+        if (!combineDataInitialized) {
+            let vatglassesCombinedWatcher: ReturnType<typeof watch> | null = null;
+
+            if (!combineDataInitialized) {
+                vatglassesCombinedWatcher = watch([vatglassesCombined], () => {
+                    initVatglassesCombined();
+                    if (combineDataInitialized && vatglassesCombinedWatcher) {
+                        vatglassesCombinedWatcher();
+                        vatglassesCombinedWatcher = null;
+                    }
+                });
+            }
+        }
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], () => {
             updateVatglassesStateLocal();
             console.log(dataStore.vatglassesActivePositions.value);
         });

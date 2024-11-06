@@ -1,5 +1,5 @@
 <template>
-    <template v-if="!isHideAtcType('firs') && store.localSettings.traffic?.vatglassesLevel === false">
+    <template v-if="!isHideAtcType('firs') && !store.mapSettings.vatglasses?.active">
         <map-sector
             v-for="(sector, index) in firs"
             :key="sector.fir.feature.id as string + index"
@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="store.localSettings.traffic?.vatglassesLevel !== false">
+    <template v-if="store.mapSettings.vatglasses?.active">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"

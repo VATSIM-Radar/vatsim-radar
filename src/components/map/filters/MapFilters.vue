@@ -152,10 +152,6 @@
                                 Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
                             </template>
                         </common-toggle>
-                        <common-input-text
-                            :model-value="String(store.localSettings.traffic?.vatglassesLevel)"
-                            @update:modelValue="setUserLocalSettings(setVatglassesLevel($event))"
-                        />
                     </common-control-block>
                 </div>
                 <div
@@ -249,11 +245,6 @@ import { MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 
 
-function setVatglassesLevel(level: number | string) {
-    if (level === 'true') return { traffic: { vatglassesLevel: true } };
-    if (Number(level) || Number(level) === 0) return { traffic: { vatglassesLevel: Number(level) } };
-    return { traffic: { vatglassesLevel: false } };
-}
 const store = useStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);

@@ -22,6 +22,7 @@ let sectorFeatures: Feature[] = [];
 
 const init = () => {
     if (!vectorSource.value) return;
+    if (!store.mapSettings.vatglasses?.active) return;
 
     if (sectorFeatures) {
         for (const feature of sectorFeatures) {
@@ -30,7 +31,7 @@ const init = () => {
         sectorFeatures = [];
     }
 
-    if (store.localSettings.traffic?.vatglassesLevel === true) {
+    if (store.mapSettings.vatglasses.combined) {
         if (props.position.sectorsCombined) {
             for (const sectorFeature of convertToOpenLayersFeatures(props.position.sectorsCombined ?? [])) {
                 sectorFeatures.push(sectorFeature);
@@ -38,11 +39,10 @@ const init = () => {
             }
         }
     }
-
-    else if (typeof store.localSettings.traffic?.vatglassesLevel === 'number') {
+    else {
         const sectorsAtLevel = [];
         for (const sector of props.position.sectors ?? []) {
-            if (sector.properties?.min <= store.localSettings.traffic?.vatglassesLevel && sector.properties?.max >= store.localSettings.traffic?.vatglassesLevel) {
+            if (sector.properties?.min <= (store.localSettings.vatglassesLevel ?? 240) && sector.properties?.max >= (store.localSettings.vatglassesLevel ?? 240)) {
                 sectorsAtLevel.push(sector);
             }
         }
@@ -61,8 +61,10 @@ watch(positionLastUpdated, () => {
     init();
 });
 
-const vatglassLevel = computed(() => store.localSettings.traffic?.vatglassesLevel);
-watch(vatglassLevel, () => {
+const vatglassesLevel = computed(() => store.localSettings.vatglassesLevel);
+const vatglassesActive = computed(() => store.mapSettings.vatglasses?.active);
+const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined);
+watch([vatglassesLevel, vatglassesActive, vatglassesCombined], () => {
     init();
 });
 

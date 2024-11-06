@@ -74,18 +74,21 @@ CronJob.from({
             }
         }
 
-        await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
-            redisPublisher.publish('vatglassesActive', JSON.stringify({
-                vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
-                vatglassesActivePositions: outputVatglassesActivePositions,
-                // vatglassesActiveAirspaces: workerDataStore.vatglassesActiveAirspaces,
-            }), err => {
-                clearTimeout(timeout);
-                if (err) return reject(err);
-                resolve();
+        if (workerDataStore.vatglasses) {
+            await new Promise<void>((resolve, reject) => {
+                const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+                redisPublisher.publish('vatglassesActive', JSON.stringify({
+                    vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
+                    vatglassesActivePositions: outputVatglassesActivePositions,
+                    version: workerDataStore.vatglasses?.version,
+                    // vatglassesActiveAirspaces: workerDataStore.vatglassesActiveAirspaces,
+                }), err => {
+                    clearTimeout(timeout);
+                    if (err) return reject(err);
+                    resolve();
+                });
             });
-        });
+        }
     },
 });
 

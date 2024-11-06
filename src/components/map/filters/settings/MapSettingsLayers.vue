@@ -17,6 +17,39 @@
         >
             Traffic Heatmap
         </common-toggle>
+        <div class="__grid-info-sections __grid-info-sections--inline">
+            <common-toggle
+                :model-value="!!store.mapSettings.vatglasses?.active"
+                @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            >
+                VATGlasses Layer
+            </common-toggle>
+            <common-toggle
+                :model-value="store.mapSettings.vatglasses?.combined"
+                @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
+            >
+                Combined Mode
+            </common-toggle>
+        </div>
+        <div v-if="!store.mapSettings.vatglasses?.combined">
+            <div class="__grid-info-sections_title">
+                VATGlasses Layer Value
+            </div>
+            <input
+                v-model="vatglassesLevel"
+                max="430"
+                min="0"
+                step="10"
+                type="range"
+            >
+            <input
+                v-model="vatglassesLevel"
+                max="430"
+                min="0"
+                step="10"
+                type="number"
+            >
+        </div>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Aircraft scale
@@ -132,6 +165,15 @@ import { resetUserMapSettings } from '~/composables';
 const store = useStore();
 
 const resetActive = ref(false);
+
+const vatglassesLevel = computed({
+    get() {
+        return store.localSettings.vatglassesLevel;
+    },
+    set(value) {
+        setUserLocalSettings({ vatglassesLevel: value });
+    },
+});
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
