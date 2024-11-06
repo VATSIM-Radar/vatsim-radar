@@ -9,7 +9,7 @@
                     v-bind="inputAttrs"
                     v-model="model"
                     :placeholder
-                    type="text"
+                    :type="inputType"
                     @blur="focused = false"
                     @change="$emit('change', $event)"
                     @focus="focused = true"
@@ -28,6 +28,10 @@ defineProps({
     inputAttrs: {
         type: Object as PropType<Record<string, any>>,
         default: () => {},
+    },
+    inputType: {
+        type: String,
+        default: 'text',
     },
     placeholder: {
         type: String,

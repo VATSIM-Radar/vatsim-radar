@@ -17,7 +17,7 @@
         >
             Traffic Heatmap
         </common-toggle>
-        <div class="__grid-info-sections __grid-info-sections--inline">
+        <div class="vatglassesLevel-container">
             <common-toggle
                 :model-value="!!store.mapSettings.vatglasses?.active"
                 @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
@@ -31,25 +31,36 @@
                 Combined Mode
             </common-toggle>
         </div>
-        <div v-if="!store.mapSettings.vatglasses?.combined">
+
+
+        <div
+            v-if="store.mapSettings.vatglasses?.active && !store.mapSettings.vatglasses?.combined"
+            class="__grid-info-sections __grid-info-sections--large-title"
+        >
             <div class="__grid-info-sections_title">
-                VATGlasses Layer Value
+                VATGlasses Level
             </div>
-            <input
-                v-model="vatglassesLevel"
-                max="430"
-                min="0"
-                step="10"
-                type="range"
-            >
-            <input
-                v-model="vatglassesLevel"
-                max="430"
-                min="0"
-                step="10"
-                type="number"
-            >
+            <div class="vatglassesLevel-container">
+                <input
+                    v-model="vatglassesLevel"
+                    max="430"
+                    min="0"
+                    step="10"
+                    type="range"
+                >
+                <common-input-text
+                    v-model="vatglassesLevel"
+                    class="vatglassesLevel-input"
+                    :input-attrs="{
+                        max: 430,
+                        min: 0,
+                        step: 10,
+                    }"
+                    input-type="number"
+                />
+            </div>
         </div>
+
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Aircraft scale
@@ -159,6 +170,7 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { backupMapSettings } from '~/composables/settings';
 import { resetUserMapSettings } from '~/composables';
 
@@ -168,10 +180,12 @@ const resetActive = ref(false);
 
 const vatglassesLevel = computed({
     get() {
-        return store.localSettings.vatglassesLevel;
+        return store.localSettings.vatglassesLevel?.toString();
     },
     set(value) {
-        setUserLocalSettings({ vatglassesLevel: value });
+        if (value !== undefined) {
+            setUserLocalSettings({ vatglassesLevel: Number(value) });
+        }
     },
 });
 
@@ -230,3 +244,12 @@ const scaleOptions = computed<SelectItem[]>(() => {
     return options;
 });
 </script>
+
+
+<style scoped>
+.vatglassesLevel-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+</style>

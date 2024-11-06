@@ -41,7 +41,7 @@
                         v-for="(sector, index) in sectorsAtClick"
                         :key="index"
                     >
-                        {{ sector.vatglassesPositionId }} ({{ dataStore.vatglassesActivePositions.value[sector.countryGroupId][sector.vatglassesPositionId].callsign }}) FL{{ sector.altrangeMin ?? sector.min }} - FL{{ sector.altrangeMax ?? sector.max }}
+                        {{ sector.vatglassesPositionId }} ({{ dataStore.vatglassesActivePositions.value[sector.countryGroupId][sector.vatglassesPositionId].callsign }}) {{ formatNumber(sector.altrangeMin ?? sector.min) }} - {{ formatNumber(sector.altrangeMax ?? sector.max) }}
                     </li>
                 </ul>
 
@@ -92,7 +92,7 @@ const vatglassesPopupIsShown = ref(false);
 
 let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
-    //TODO: don't show popup when clicked target has an aircraft
+    // TODO: don't show popup when clicked target has an aircraft
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
     if (lastEventPixel && lastEventPixel[0] === eventPixel[0] && lastEventPixel[1] === eventPixel[1]) {
@@ -135,6 +135,11 @@ function hexToRgb(hex: string): string {
 
     // Return the RGB color
     return `${ r }, ${ g }, ${ b }`;
+}
+
+function formatNumber(number: number) {
+    if (number === 0) return 'GND';
+    return 'FL' + number.toString().padStart(3, '0');
 }
 
 watch(map, val => {
