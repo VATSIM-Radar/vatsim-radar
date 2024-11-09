@@ -1,8 +1,5 @@
 import { CronJob } from 'cron';
-// import { getServerVatsimLiveData, radarStorage } from '../storage';
 import { getRedis } from '~/utils/backend/redis';
-// import type { VatglassesAPIData } from '~/utils/backend/storage';
-// import type { ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
 import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatglasses';
 import type { ActiveVatglassesAirspaces, ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
 import { readFileSync } from 'fs';
@@ -81,7 +78,6 @@ CronJob.from({
                     vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
                     vatglassesActivePositions: outputVatglassesActivePositions,
                     version: workerDataStore.vatglasses?.version,
-                    // vatglassesActiveAirspaces: workerDataStore.vatglassesActiveAirspaces,
                 }), err => {
                     clearTimeout(timeout);
                     if (err) return reject(err);
@@ -92,10 +88,3 @@ CronJob.from({
     },
 });
 
-/*
-redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
-    clearTimeout(timeout);
-    if (err) return reject(err);
-    resolve();
-});
-*/

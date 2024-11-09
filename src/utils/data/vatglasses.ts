@@ -134,6 +134,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
 
             let foundMatchingVatglassesController = false;
+            let doublePositionMatch = false;
             // We sort the keys with the first two chars of the callsign, so we can check first the most likely countryGroupIds
             const keys = Object.keys(vatglassesData);
             const searchString = atc.callsign.substring(0, 2);
@@ -149,7 +150,10 @@ function updateVatglassesPositionsAndAirspaces() {
                     if (vatglassesPosition.frequency !== atc.frequency) continue;
                     if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;
                     if (!vatglassesPosition.pre.some((prefix: string) => atc.callsign.startsWith(prefix))) continue;
-                    if (activeVatglassesController?.[countryGroupId]?.[vatglassesPositionId] != null) continue; // There is already a controller assigned to this vatglasses position
+                    if (activeVatglassesController?.[countryGroupId]?.[vatglassesPositionId] != null) {
+                        doublePositionMatch = true;
+                        continue; // There is already a controller assigned to this vatglasses position
+                    }
 
 
                     if (!activeVatglassesController[countryGroupId]) {
@@ -159,6 +163,11 @@ function updateVatglassesPositionsAndAirspaces() {
                     foundMatchingVatglassesController = true;
                     break;
                 }
+            }
+
+
+            if (!foundMatchingVatglassesController && !doublePositionMatch) {
+                // TODO: If we have a controller with no fitting vatglasses position, add a fallback to vatspy data. My idea is to add it to the activeVatglassesController, maybe as countryGroupId 'fallback' and as vatglassesPositionId the login code
             }
         }
     }
@@ -515,6 +524,7 @@ async function waitForRunningVatglassesUpdate() {
 
 
 // Call this function when a runway was changed at the frontend
+// TODO: Idea, we could watch the active value of dataStore.vatglassesActiveRunways, then we would not have to call this function somewhere else when a runway was changed
 export async function activeRunwayChanged(icao: string | string[], callUpdated = true) {
     await waitForRunningVatglassesUpdate();
     if (typeof icao === 'string') icao = [icao];
