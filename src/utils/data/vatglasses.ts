@@ -10,6 +10,7 @@ import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
+let store;
 let mode: 'local' | 'server';
 let facilities: {
     ATIS: number;
@@ -557,9 +558,8 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
 
 let vatglassesUpdateInProgress = false;
 export async function updateVatglassesStateLocal() {
-    const { useStore } = await import('~/store');
-    const store = useStore();
     if (vatglassesUpdateInProgress) return;
+    if (store.mapSettings.vatglasses?.active === false) return;
 
     console.time('updateVatglassesStateLocal');
 
@@ -658,7 +658,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
         mode = 'local';
         dataStore = useDataStore();
-        const store = useStore();
+        store = useStore();
         const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
         worker = new combinedWorker();
 
