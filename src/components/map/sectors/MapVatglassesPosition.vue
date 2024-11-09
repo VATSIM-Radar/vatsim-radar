@@ -1,3 +1,7 @@
+<template>
+    <slot/>
+</template>
+
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
@@ -13,6 +17,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+defineSlots<{ default: () => any }>();
 
 const store = useStore();
 
@@ -68,11 +74,9 @@ watch([vatglassesLevel, vatglassesActive, vatglassesCombined], () => {
     init();
 });
 
-
 onMounted(() => {
     init();
 });
-
 
 onBeforeUnmount(() => {
     if (sectorFeatures) {

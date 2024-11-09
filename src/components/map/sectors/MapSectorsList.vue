@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="store.mapSettings.vatglasses?.active">
+    <template v-else-if="!isHideAtcType('firs') && store.mapSettings.vatglasses?.active">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -36,6 +36,7 @@
                 <template #title>
                     Positions
                 </template>
+
                 <ul>
                     <li
                         v-for="(sector, index) in sectorsAtClick"
@@ -63,6 +64,7 @@ import MapSector from '~/components/map/sectors/MapSector.vue';
 import { initVatglasses } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
+import { useMapStore } from '~/store/map';
 
 
 let vectorLayer: VectorImageLayer<any>;
@@ -71,6 +73,7 @@ provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const store = useStore();
+const mapStore = useMapStore();
 
 
 const firs = computed(() => {
@@ -86,7 +89,7 @@ const firs = computed(() => {
 interface FeatureProperties {
     [key: string]: any;
 }
-const sectorsAtClick = ref<FeatureProperties>([]);
+const sectorsAtClick = shallowRef<FeatureProperties>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
 
@@ -108,34 +111,24 @@ async function handleClick(e: MapBrowserEvent<any>) {
         layerFilter: layer => layer.getProperties().type === 'sectors',
     });
 
-
-    console.log('clicksectors', featureSectors);
     const sectors: FeatureProperties = [];
     featureSectors.map(feature => {
         const properties = feature.getProperties() as FeatureProperties;
         sectors.push(properties);
-        console.log(properties);
     });
 
     sectorsAtClick.value = sectors;
 
     getCoordinates.value = e.coordinate;
-    vatglassesPopupIsShown.value = sectorsAtClick.value.length ? true : false;
+    vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
 }
 
-
-function hexToRgb(hex: string): string {
-    // Remove the hash at the start if it's there
-    hex = hex.replace(/^#/, '');
-
-    // Parse the r, g, b values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
-
-    // Return the RGB color
-    return `${ r }, ${ g }, ${ b }`;
-}
+watch(() => mapStore.extent, () => {
+    // Change of map position
+    sectorsAtClick.value = [];
+    vatglassesPopupIsShown.value = false;
+    lastEventPixel = null;
+});
 
 function formatNumber(number: number) {
     if (number === 0) return 'GND';

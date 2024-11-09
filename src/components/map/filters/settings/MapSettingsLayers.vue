@@ -17,21 +17,44 @@
         >
             Traffic Heatmap
         </common-toggle>
-        <div class="vatglassesLevel-container">
+
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Aircraft scale
+            </div>
+            <common-select
+                :items="scaleOptions"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.aircraftScale ?? null"
+                placeholder="Choose Scale"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
+            />
+        </div>
+
+        <common-block-title>
+            VATGlasses
+        </common-block-title>
+
+        <div class="__section-group __section-group--even">
             <common-toggle
                 :model-value="!!store.mapSettings.vatglasses?.active"
                 @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
             >
-                VATGlasses Layer
+                Enable VATGlasses
             </common-toggle>
             <common-toggle
+                :disabled="!store.mapSettings.vatglasses?.active"
                 :model-value="store.mapSettings.vatglasses?.combined"
                 @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
             >
                 Combined Mode
+
+                <template #description>
+                    All sectors at once. Eats performance.
+                </template>
             </common-toggle>
         </div>
-
 
         <div
             v-if="store.mapSettings.vatglasses?.active && !store.mapSettings.vatglasses?.combined"
@@ -40,7 +63,7 @@
             <div class="__grid-info-sections_title">
                 VATGlasses Level
             </div>
-            <div class="vatglassesLevel-container">
+            <div class="__section-group">
                 <input
                     v-model="vatglassesLevel"
                     max="430"
@@ -61,19 +84,6 @@
             </div>
         </div>
 
-        <div class="__grid-info-sections __grid-info-sections--large-title">
-            <div class="__grid-info-sections_title">
-                Aircraft scale
-            </div>
-            <common-select
-                :items="scaleOptions"
-                max-dropdown-height="200px"
-                :model-value="store.mapSettings.aircraftScale ?? null"
-                placeholder="Choose Scale"
-                width="100%"
-                @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
-            />
-        </div>
         <common-block-title>
             Airports Counters
         </common-block-title>
@@ -244,12 +254,3 @@ const scaleOptions = computed<SelectItem[]>(() => {
     return options;
 });
 </script>
-
-
-<style scoped>
-.vatglassesLevel-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-</style>
