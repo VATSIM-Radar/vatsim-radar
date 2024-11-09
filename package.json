@@ -36,7 +36,7 @@
     "jwks-rsa": "^3.1.0",
     "kafkajs": "^2.2.4",
     "metar-taf-parser": "^9.0.1",
-    "nuxt": "^3.13.2",
+    "nuxt": "^3.14.159",
     "ol": "^10.2.1",
     "ol-mapbox-style": "^12.3.5",
     "pinia": "^2.2.6",
