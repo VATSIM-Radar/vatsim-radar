@@ -199,6 +199,7 @@ export interface IUserMapSettings {
         pilots?: boolean;
         gates?: boolean;
         runways?: boolean;
+        popularAirportRings?: boolean;
     };
     heatmapLayer: boolean;
     groundTraffic: {

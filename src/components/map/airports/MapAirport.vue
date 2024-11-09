@@ -128,6 +128,7 @@ import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
+import type { StoreOverlayAirport } from '~/store/map';
 import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
@@ -201,6 +202,9 @@ const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source'
 const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
+const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
+const detailedAircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);
+
 const hoveredController = ref<boolean>(false);
 
 const facilityScroll = useScrollExists(computed(() => {
@@ -261,6 +265,8 @@ const localsFacilities = computed(() => {
 
 let feature: Feature | null = null;
 let hoverFeature: Feature | null = null;
+let popularRingCircleFeature: Feature | null = null;
+let popularRingLabelFeature: Feature | null = null;
 
 interface ArrFeature {
     id: string;
@@ -275,6 +281,7 @@ let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
 const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
+const showPopularRing = computed(() => !(store.mapSettings.visibility?.popularAirportRings ?? true));
 
 function initAirport() {
     if (!('lon' in props.airport) || isPseudoAirport.value) return;
@@ -296,6 +303,114 @@ function initAirport() {
     }));
 
     airportsSource.value?.addFeature(feature);
+}
+
+const ringStyle = new Style({
+    stroke: new Stroke({
+        color: `rgba(${ radarColors.airportPopularRingRgb.join(',') }, 0.4)`,
+        width: 1,
+    }),
+});
+const popularRingLabelStyle = (icao: string) => {
+    return new Style({
+        text: new Text({
+            text: icao,
+            font: '10px Montserrat',
+            fill: new Fill({
+                color: `rgba(${ radarColors.airportPopularRingRgb.join(',') }, 0.8)`,
+            }),
+            offsetY: -5,
+        }),
+    })
+}
+
+function setPopularRing() {
+    clearPopularRing();
+
+    const minMovement: number = 8; // minimum required movements to show the ring
+    const maxMovement: number = 120; // the number of movements when the maximum radius is reached
+    const minRadius: number = 70000; // the radius at the minimum movements
+    const maxRadius: number = 1200000; // the radius at the maximum movements
+
+    if (isPrimaryAirport.value) return;
+    if (!showPopularRing.value) return;
+
+    const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === props.airport.icao);
+
+    if ((vatAirport?.aircraft?.arrivals?.length || 0) + (vatAirport?.aircraft?.groundDep?.length || 0) < minMovement) return; // We know for sure the airport has less than the minimum relevant movements, we don#t show the ring and skip the rest
+
+    if (!airportData.value) { // check if airportData is already initialized
+        // the airportData is not yet initialized, so we do it by setting the icao code. This automatically fills the detailedAircraft variable
+        // we trigger the initialization of the airportData here to make sure it is not initialized when the rings are disabled for performance reasons
+        airportData.value = {
+            icao: props.airport.icao,
+        };
+    }
+
+
+    // calculate movementCounter
+    const departureCounter: number = (detailedAircraft.value?.groundDep.length || 0) + (detailedAircraft.value?.prefiles.length || 0);
+    let arrivalCounter: number = 0;
+    if (detailedAircraft.value?.arrivals) {
+        for (let i = 0; i < detailedAircraft.value?.arrivals.length; i++) {
+            const arrival = detailedAircraft.value?.arrivals[i];
+            if (!arrival.eta) continue;
+
+            const currentDate = new Date() as Date;
+            const differenceInMs = arrival.eta.getTime() - currentDate.getTime();
+            const differenceInMinutes = differenceInMs / (1000 * 60);
+
+            if (differenceInMinutes > 0 && differenceInMinutes < 60) arrivalCounter++;
+        }
+    }
+    const movementCounter: number = departureCounter + arrivalCounter;
+
+    let radius: number = 0; // radius is in meter
+    if (movementCounter >= maxMovement) {
+        radius = maxRadius;
+    }
+    else if (movementCounter > minMovement) {
+        radius = minRadius + ((movementCounter - minMovement) * ((maxRadius - minRadius) / (maxMovement - minMovement)));
+    }
+
+    if (!radius) return; // If radius is 0, we don't need to draw the ring
+    if (!('lon' in props.airport)) return;
+
+    popularRingCircleFeature = new Feature({
+        geometry: new Circle([props.airport.lon, props.airport.lat], radius),
+        type: 'airportPopularRing',
+        icao: props.airport.icao,
+    });
+    popularRingCircleFeature.setStyle(ringStyle);
+    airportsSource.value?.addFeature(popularRingCircleFeature);
+
+
+    // Calculate the top position of the circle for the text
+    const geometry = popularRingCircleFeature.getGeometry();
+    const center = geometry?.getCenter();
+    const topPosition = [center[0], center[1] + radius];
+
+    // Create a new point feature for the text
+    popularRingLabelFeature = new Feature({
+        geometry: new Point(topPosition),
+        type: 'airportPopularLabel',
+        icao: props.airport.icao,
+    });
+    popularRingLabelFeature.setStyle(popularRingLabelStyle(props.airport.icao));
+    airportsSource.value?.addFeature(popularRingLabelFeature);
+}
+
+function clearPopularRing() {
+    if (popularRingCircleFeature) {
+        airportsSource.value?.removeFeature(popularRingCircleFeature);
+        popularRingCircleFeature.dispose();
+        popularRingCircleFeature = null;
+    }
+    if (popularRingLabelFeature) {
+        airportsSource.value?.removeFeature(popularRingLabelFeature);
+        popularRingLabelFeature.dispose();
+        popularRingLabelFeature = null;
+    }
 }
 
 watch(getAirportColor, () => {
@@ -407,7 +522,18 @@ onMounted(async () => {
         immediate: true,
     });
 
+    watch(showPopularRing, (newValue, oldValue) => {
+        if (newValue) {
+            setPopularRing();
+        }
+        else {
+            clearPopularRing();
+        }
+    });
+
     function initAndUpdateData(force = false) {
+        setPopularRing();
+
         if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach')) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
@@ -645,6 +771,7 @@ onMounted(async () => {
         deep: true,
     });
 
+
     if (isPrimaryAirport.value) {
         const overlay = await mapStore.addAirportOverlay(props.airport.icao);
         if (overlay) {
@@ -667,6 +794,7 @@ onBeforeUnmount(() => {
     }
 
     clearArrFeatures();
+    clearPopularRing();
 
     gatesFeatures.forEach(feature => {
         vectorSource.value?.removeFeature(feature);
