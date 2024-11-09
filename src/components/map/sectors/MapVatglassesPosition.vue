@@ -7,13 +7,13 @@ import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import { convertToOpenLayersFeatures } from '~/utils/data/vatglasses';
-import type { ActiveVatglassesPosition } from '~/utils/data/vatglasses';
+import type { VatglassesActivePosition } from '~/utils/data/vatglasses';
 import type { Feature } from 'ol';
 import { useStore } from '~/store';
 
 const props = defineProps({
     position: {
-        type: Object as PropType<ActiveVatglassesPosition>,
+        type: Object as PropType<VatglassesActivePosition>,
         required: true,
     },
 });

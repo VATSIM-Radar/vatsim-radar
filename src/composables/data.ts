@@ -15,7 +15,7 @@ import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
-import type { ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
+import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -23,8 +23,8 @@ const simaware = shallowRef<SimAwareAPIData>();
 const vatglasses = shallowRef<VatglassesAPIData>();
 
 
-const vatglassesActivePositions = shallowRef<ActiveVatglassesPositions>({});
-const vatglassesActiveRunways = shallowRef<ActiveVatglassesRunways>({});
+const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
+const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
 const time = ref(Date.now());
 const stats = shallowRef<{
     cid: number;
@@ -82,8 +82,8 @@ export interface UseDataStore {
     };
     simaware: ShallowRef<SimAwareAPIData | undefined>;
     vatglasses: ShallowRef<VatglassesAPIData | undefined>;
-    vatglassesActivePositions: ShallowRef<ActiveVatglassesPositions>;
-    vatglassesActiveRunways: ShallowRef<ActiveVatglassesRunways>;
+    vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
+    vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
 }

@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
 import { getRedis } from '~/utils/backend/redis';
 import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatglasses';
-import type { ActiveVatglassesAirspaces, ActiveVatglassesPositions, ActiveVatglassesRunways } from '~/utils/data/vatglasses';
+import type { VatglassesActiveAirspaces, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { readFileSync } from 'fs';
 import { existsSync } from 'node:fs';
 import { join } from 'path';
@@ -13,9 +13,9 @@ const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
 export interface WorkerDataStore {
     vatsim: null | VatsimStorage;
     vatglasses: null | VatglassesAPIData;
-    vatglassesActiveRunways: ActiveVatglassesRunways;
-    vatglassesActivePositions: ActiveVatglassesPositions;
-    vatglassesActiveAirspaces: ActiveVatglassesAirspaces;
+    vatglassesActiveRunways: VatglassesActiveRunways;
+    vatglassesActivePositions: VatglassesActivePositions;
+    vatglassesActiveAirspaces: VatglassesActiveAirspaces;
 }
 
 const workerDataStore: WorkerDataStore = {
@@ -60,7 +60,7 @@ CronJob.from({
         console.log('Updated VATGlasses state');
 
         // Loop through copiedDataStore.vatglassesActivePositions and set sectors to null. We will set the sectors in the client to avoid sending a lot of data
-        const outputVatglassesActivePositions: ActiveVatglassesPositions = {};
+        const outputVatglassesActivePositions: VatglassesActivePositions = {};
         for (const countryGroupId in workerDataStore.vatglassesActivePositions) {
             const positions = workerDataStore.vatglassesActivePositions[countryGroupId];
             for (const positionId in positions) {
