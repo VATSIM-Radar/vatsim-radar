@@ -279,7 +279,7 @@ const roadmap = reactive<Roadmap[]>([
             'Hoppie integration',
             {
                 title: 'PWA',
-                description: 'Basically PC version of VATSIM Radar',
+                status: 'completed',
             },
             'Bookmarks',
         ],

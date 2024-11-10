@@ -33,6 +33,7 @@
                         :to="button.path"
                         :type="(button.path === route.path || button.children?.some(x => x.path === route.path)) ? 'primary' : 'secondary'"
                         :width="button.width"
+                        @click="button.action?.()"
                     >
                         <template
                             v-if="button.icon"
@@ -56,6 +57,7 @@
                                         :disabled="childrenButton.disabled"
                                         :to="childrenButton.path"
                                         :type="childrenButton.path === route.path ? 'primary' : 'secondary'"
+                                        @click="childrenButton.action?.()"
                                     >
                                         <template
                                             v-if="childrenButton.icon"
@@ -400,9 +402,12 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     maxAge: 60 * 60 * 24,
 });
 
+const app = useNuxtApp();
+
 
 interface HeaderItem {
     text: string;
+    action?: () => any;
     path?: string;
     disabled?: boolean;
     width?: string;

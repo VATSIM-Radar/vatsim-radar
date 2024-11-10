@@ -86,7 +86,3 @@ watch(customUrl, val => {
     }
 });
 </script>
-
-<style scoped lang="scss">
-
-</style>

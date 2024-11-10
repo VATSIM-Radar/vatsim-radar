@@ -3,6 +3,7 @@
         v-if="!hadRestrictedAuth"
         class="app"
     >
+        <nuxt-pwa-manifest/>
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <client-only>
@@ -12,7 +13,7 @@
             <slot/>
         </div>
         <common-popup
-            v-if="store.updateRequired"
+            v-if="store.updateRequired || $pwa?.needRefresh"
             v-model="updateRequired"
             disabled
         >
@@ -35,12 +36,6 @@
                 v-else
                 class="app_footer_info"
             >
-                <nuxt-link
-                    no-prefetch
-                    to="/privacy-policy"
-                >
-                    Privacy Policy
-                </nuxt-link>
                 <div v-if="store.version">
                     v{{ store.version }}
                 </div>
@@ -70,8 +65,12 @@ defineSlots<{ default: () => any }>();
 const store = useStore();
 const route = useRoute();
 const updateRequired = ref(true);
+const { $pwa } = useNuxtApp();
 
-const reload = () => location.reload();
+const reload = () => {
+    if ($pwa?.needRefresh) $pwa.updateServiceWorker();
+    else location.reload();
+};
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',

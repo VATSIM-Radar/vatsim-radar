@@ -6,6 +6,7 @@
 - Fixed rare case when airport would not show on map
 - You can no longer view airport arrival rate when overlay is collapsed
 - Added Share window to Filters & Traffic with ability to share current URL with friends - including overlay
+- Added PWA integration with ability to install VATSIM Radar on your PC or Phone (Chromium only)
 
 ## QA Changes
 

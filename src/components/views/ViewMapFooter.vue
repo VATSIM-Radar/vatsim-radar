@@ -132,13 +132,6 @@
                     </div>
                 </div>
             </div>
-            <nuxt-link
-                class="map-footer_left_section map-footer__text"
-                no-prefetch
-                to="/privacy-policy"
-            >
-                Privacy Policy
-            </nuxt-link>
             <div
                 v-if="store.version"
                 class="map-footer_left_section map-footer__text"
