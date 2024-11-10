@@ -402,8 +402,6 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     maxAge: 60 * 60 * 24,
 });
 
-const app = useNuxtApp();
-
 
 interface HeaderItem {
     text: string;
