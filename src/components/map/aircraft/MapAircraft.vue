@@ -60,7 +60,9 @@
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
                         <template #top>
-                            {{ parseEncoding(pilot.name) }}
+                            <common-spoiler type="pilot">
+                                {{ parseEncoding(pilot.name) }}
+                            </common-spoiler>
                         </template>
                         <template
                             v-if="pilot.pilot_rating !== 0 || pilot.military_rating"
@@ -123,6 +125,7 @@
             <div
                 class="aircraft-label"
                 :style="{ '--color': getAircraftStatusColor(getStatus) }"
+                @click="mapStore.togglePilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -168,6 +171,7 @@ import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
     aircraft: {

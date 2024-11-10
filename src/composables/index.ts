@@ -11,6 +11,8 @@ import type { Style } from 'ol/style';
 import { createDefu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
+import { isFetchError } from '../utils/shared';
+import { toRaw } from 'vue';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -171,12 +173,24 @@ export async function fetchUserMapSettings() {
     localStorage.setItem('map-settings', JSON.stringify(settings));
 }
 
-export async function saveUserMapSettings() {
+export async function sendUserMapSettings(name: string, json: UserMapSettings, retryMethod: () => Promise<any>) {
     const store = useStore();
-    await $fetch<UserMapSettings>('/api/user/settings/map', {
-        method: 'POST',
-        body: store.mapSettings,
-    });
+    try {
+        return await $fetch<UserMapSettings>(`/api/user/settings/map${ store.mapPresetsSaveFail ? '?force=1' : '' }`, {
+            method: 'POST',
+            body: {
+                name,
+                json: toRaw(json),
+            },
+        });
+    }
+    catch (e) {
+        if (isFetchError(e) && e.statusCode === 409) {
+            store.mapPresetsSaveFail = retryMethod;
+        }
+
+        throw e;
+    }
 }
 
 export function useCopyText() {

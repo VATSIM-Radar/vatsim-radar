@@ -69,6 +69,29 @@
                 </common-button>
             </template>
         </common-popup>
+        <common-popup
+            :model-value="!!store.mapPresetsSaveFail"
+            @update:modelValue="$event === false && (store.mapPresetsSaveFail = $event)"
+        >
+            <template #title>
+                A preset with this name already exists
+            </template>
+
+            You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
+
+            <template #actions>
+                <common-button
+                    hover-color="error700"
+                    primary-color="error500"
+                    @click="typeof store.mapPresetsSaveFail === 'function' && store.mapPresetsSaveFail().then(() => store.mapPresetsSaveFail = false)"
+                >
+                    Overwrite my old preset
+                </common-button>
+                <common-button @click="store.mapPresetsSaveFail = false">
+                    I'll rename it
+                </common-button>
+            </template>
+        </common-popup>
     </div>
 </template>
 
@@ -78,11 +101,12 @@ import MapSettingsVisibility from '~/components/map/filters/settings/MapSettings
 import MapSettingsLayers from '~/components/map/filters/settings/MapSettingsLayers.vue';
 import MapSettingsColors from '~/components/map/filters/settings/MapSettingsColors.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import type { UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
+import type { IUserMapSettings, UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
 import MapSettingsPresets from '~/components/map/filters/settings/MapSettingsPresets.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { useStore } from '~/store';
 import { saveMapSettings } from '~/composables/settings';
+import { sendUserMapSettings } from '~/composables';
 
 const importedPreset = defineModel('importedPreset', {
     type: [Object, Boolean] as PropType<UserMapSettings | false | null>,
@@ -104,13 +128,7 @@ const { refresh } = await useLazyAsyncData(async () => {
 });
 
 const createPreset = async () => {
-    await saveMapSettings(await $fetch<UserMapSettings>('/api/user/settings/map', {
-        method: 'POST',
-        body: {
-            name: importedPresetName.value,
-            json: importedPreset.value,
-        },
-    }));
+    await saveMapSettings(await sendUserMapSettings(importedPresetName.value, importedPreset.value as IUserMapSettings, createPreset));
     importedPreset.value = null;
     refresh();
 };

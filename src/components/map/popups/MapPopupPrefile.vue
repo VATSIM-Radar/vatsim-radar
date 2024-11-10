@@ -11,7 +11,13 @@
         <template #title>
             <div class="pilot-header">
                 <div class="pilot-header_title">
-                    {{ props.overlay.data.prefile.callsign }} ({{ props.overlay?.data.prefile.cid }})
+                    {{ props.overlay.data.prefile.callsign }}
+                    <common-spoiler
+                        is-cid
+                        type="pilot"
+                    >
+                        ({{ props.overlay?.data.prefile.cid }})
+                    </common-spoiler>
                 </div>
                 <common-blue-bubble
                     v-if="props.overlay.data.prefile.flight_plan.flight_rules !== 'I'"
@@ -54,6 +60,7 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import StatsIcon from '@/assets/icons/kit/stats.svg?component';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
     overlay: {

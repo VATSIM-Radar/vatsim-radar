@@ -151,6 +151,7 @@ const getRouteZoom = (): number | null => {
 
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
+    const routeOverlays = Array.isArray(route.query['overlay[]']) && route.query['overlay[]'];
     const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
@@ -262,6 +263,42 @@ const restoreOverlays = async () => {
         if (overlay && overlay.type === 'airport' && airport) {
             overlay.sticky = true;
             showAirportOnMap(airport, map.value, getRouteZoom() ?? undefined);
+        }
+    }
+
+    if (routeOverlays) {
+        for (const overlay of routeOverlays) {
+            if (!overlay) continue;
+            const data = overlay.split(';');
+
+            const type = data.find(x => x.startsWith('type='))?.split('=')[1];
+            const key = data.find(x => x.startsWith('key='))?.split('=')[1];
+            const sticky = data.find(x => x.startsWith('sticky='))?.split('=')[1] === '1';
+            const collapsed = data.find(x => x.startsWith('collapsed='))?.split('=')[1] === '1';
+
+            if (!type || !key) continue;
+
+            let addedOverlay;
+
+            switch (type) {
+                case 'pilot':
+                    addedOverlay = await mapStore.addPilotOverlay(key);
+                    break;
+                case 'prefile':
+                    addedOverlay = await mapStore.addPrefileOverlay(key);
+                    break;
+                case 'airport':
+                    addedOverlay = await mapStore.addAirportOverlay(key);
+                    break;
+                case 'atc':
+                    addedOverlay = await mapStore.addAtcOverlay(key);
+                    break;
+            }
+
+            if (addedOverlay) {
+                addedOverlay.sticky = sticky;
+                addedOverlay.collapsed = collapsed;
+            }
         }
     }
 };

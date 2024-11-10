@@ -150,6 +150,26 @@
                     Runways
                 </common-toggle>
             </div>
+
+            <common-block-title>
+                Personal Info
+            </common-block-title>
+
+            <div class="__section-group __section-group--even">
+                <common-toggle
+                    :model-value="!store.mapSettings.visibility?.pilotsInfo"
+                    @update:modelValue="setUserMapSettings({ visibility: { pilotsInfo: !$event } })"
+                >
+                    Pilots
+                </common-toggle>
+
+                <common-toggle
+                    :model-value="!store.mapSettings.visibility?.atcInfo"
+                    @update:modelValue="setUserMapSettings({ visibility: { atcInfo: !$event } })"
+                >
+                    Controllers
+                </common-toggle>
+            </div>
         </template>
     </div>
 </template>

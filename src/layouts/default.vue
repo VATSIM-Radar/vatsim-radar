@@ -251,6 +251,10 @@ img {
         font-weight: 600;
         border-top: 1px solid varToRgba('lightgray150', 0.15);
     }
+
+    &--gap-16 {
+        gap: 16px;
+    }
 }
 
 .__grid-info-sections {

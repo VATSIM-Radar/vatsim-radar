@@ -43,6 +43,7 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
+        mapPresetsSaveFail: false as false | (() => Promise<any>),
         config: {} as SiteConfig,
 
         showPilotStats: false,

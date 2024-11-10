@@ -98,6 +98,13 @@ export const useMapStore = defineStore('map', {
             this.overlays.push(newOverlay);
             return this.overlays.find(x => x.id === id)! as O;
         },
+        togglePilotOverlay(cid: string, tracked = false) {
+            const existingOverlay = this.overlays.find(x => x.type === 'pilot' && x.key === cid);
+            if (existingOverlay) {
+                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.key !== cid);
+            }
+            else return this.addPilotOverlay(cid, tracked);
+        },
         async addPilotOverlay(cid: string, tracked = false) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;

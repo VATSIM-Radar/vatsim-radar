@@ -287,9 +287,9 @@ defineCronJob('* * * * * *', async () => {
         });*/
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'CHI_APP',
+            callsign: 'FSM_TWR',
             cid: 1,
-            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().TWR,
             frequency: '122.122',
             last_updated: '',
             logon_time: '',

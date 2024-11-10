@@ -48,16 +48,22 @@
                             </div>
                         </template>
                         <template v-else-if="index === 1">
-                            <div class="atc-popup__controller">
-                                <div class="atc-popup__controller_name">
-                                    {{ item }}
+                            <common-spoiler type="controller">
+                                <div class="atc-popup__controller">
+                                    <div class="atc-popup__controller_name">
+                                        {{ item }}
+                                    </div>
+                                    <common-blue-bubble class="atc-popup__controller_rating">
+                                        {{
+                                            dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
+                                        }}
+                                    </common-blue-bubble>
                                 </div>
-                                <common-blue-bubble class="atc-popup__controller_rating">
-                                    {{
-                                        dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
-                                    }}
-                                </common-blue-bubble>
-                            </div>
+
+                                <template #name>
+                                    Controller
+                                </template>
+                            </common-spoiler>
                         </template>
                         <template v-else-if="index === 2">
                             <div class="atc-popup__frequency">
@@ -107,6 +113,7 @@ import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 defineProps({
     controllers: {

@@ -143,15 +143,7 @@
                             Filters & Traffic
                         </template>
 
-                        <common-toggle
-                            :model-value="!!store.localSettings.traffic?.disableFastUpdate"
-                            @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
-                        >
-                            Disable fast update
-                            <template #description>
-                                Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
-                            </template>
-                        </common-toggle>
+                        <map-filters-traffic/>
                     </common-control-block>
                 </div>
                 <div
@@ -242,6 +234,7 @@ import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
 import { MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 
 const store = useStore();
 

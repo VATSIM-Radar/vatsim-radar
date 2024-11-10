@@ -28,7 +28,7 @@
             >
                 <common-tooltip
                     location="bottom"
-                    :open-method="store.localSettings.tutorial?.mapAirportPopupDepartureCount ? 'disabled' : 'mouseOver'"
+                    :open-method="(overlay.collapsed || store.localSettings.tutorial?.mapAirportPopupDepartureCount) ? 'disabled' : 'mouseOver'"
                     width="120px"
                     @click="setUserLocalSettings({ tutorial: { mapAirportPopupDepartureCount: true } })"
                 >
@@ -67,7 +67,7 @@
                     :class="{ 'detailed_counts--ground_departures': listGroundDepartures }"
                     :close-method="arrivalCountTooltipCloseMethod"
                     location="bottom"
-                    open-method="mouseOver"
+                    :open-method="overlay.collapsed ? 'disabled' : 'mouseOver'"
                     @click="arrivalCountTooltipCloseMethod = arrivalCountTooltipCloseMethod === 'mouseLeave' ? 'click' : 'mouseLeave'"
                 >
                     <template #activator>

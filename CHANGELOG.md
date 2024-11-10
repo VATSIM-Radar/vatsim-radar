@@ -1,5 +1,21 @@
 # Changelog
 
+# [0.5.0-beta.1]
+
+- Fixed ENOB_CTR and other oceanic sectors names
+- Fixed rare case when airport would not show on map
+- You can no longer view airport arrival rate when overlay is collapsed
+- Added Share window to Filters & Traffic with ability to share current URL with friends - including overlay
+
+## QA Changes
+
+- Training Counter is now not reversed
+- Search now also shows aircraft type
+- You will now receive a warning when trying to upload preset with same name
+- "Overwrite" button in presets is now working properly
+- You can now hide pilots/controllers personal info
+- You can now search controllers by their CIDs as well
+
 # [0.5.0-alpha.9]
 
 - You can now copy and save current map location via browser URL 

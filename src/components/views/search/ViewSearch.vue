@@ -109,6 +109,7 @@
                             <common-info-block
                                 v-for="flight in searchResults.flights.slice(0, searchLimit)"
                                 :key="flight.cid"
+                                :bottom-items="[flight.aircraft_short, flight.departure]"
                                 is-button
                                 :top-items="[flight.callsign]"
                                 @click="'status' in flight ? mapStore.addPilotOverlay(flight.cid.toString(), true) : mapStore.addPrefileOverlay(flight.cid.toString())"
@@ -126,10 +127,14 @@
                                     </div>
                                 </template>
                                 <template
-                                    v-if="flight.departure"
-                                    #bottom
+                                    #bottom="{ item, index }"
                                 >
-                                    from <strong>{{ flight.departure }}</strong> to <strong>{{ flight.arrival }}</strong>
+                                    <template v-if="index === 1">
+                                        from <strong>{{ flight.departure }}</strong> to <strong>{{ flight.arrival }}</strong>
+                                    </template>
+                                    <template v-else>
+                                        {{ item }}
+                                    </template>
                                 </template>
                             </common-info-block>
                         </template>
@@ -303,6 +308,7 @@ watch([search, opened], async ([val]) => {
             x.controller.callsign.includes(val) ||
             x.controller.name.toUpperCase().includes(val) ||
             x.controller.frequency.includes(val) ||
+            x.controller.cid.toString().includes(val) ||
             x.controller.text_atis?.includes(val)).map(x => x.controller);
 
         atc = atc.concat(
@@ -311,6 +317,7 @@ watch([search, opened], async ([val]) => {
                 x.atc.callsign.includes(val) ||
                 x.atc.name.toUpperCase().includes(val) ||
                 x.atc.frequency.includes(val) ||
+                x.atc.cid.toString().includes(val) ||
                 x.atc.text_atis?.includes(val)).map(x => x.atc),
         );
 

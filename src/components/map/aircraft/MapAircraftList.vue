@@ -286,7 +286,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
 
 async function handleClick(e: MapBrowserEvent<any>) {
-    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer) return;
+    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || isManualHover.value) return;
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {

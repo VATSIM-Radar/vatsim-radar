@@ -77,13 +77,13 @@
             />
         </div>
         <common-toggle
-            :model-value="store.mapSettings.airportsCounters?.disableTraining"
-            @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: $event } })"
+            :model-value="!store.mapSettings.airportsCounters?.disableTraining"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: !$event } })"
         >
-            Disable Training counter
+            Training counter
             <template #description>
-                Disables counter with aircraft on ground with same departure-arrival<br><br>
-                When <strong>not</strong> disabled, those aircraft are always excluded<br> from dep list when on ground
+                Enables counter with aircraft on ground with same departure-arrival<br><br>
+                When enabled, those aircraft are always excluded<br> from dep list when on ground
             </template>
         </common-toggle>
 

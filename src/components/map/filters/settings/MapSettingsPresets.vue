@@ -3,7 +3,10 @@
         v-if="presets"
         class="presets"
     >
-        <div class="__info-sections">
+        <div
+            v-if="store.user"
+            class="__info-sections"
+        >
             <div
                 v-if="!currentPreset"
                 class="presets__create __info-sections"
@@ -142,6 +145,12 @@
                 </template>
             </template>
         </div>
+        <common-button
+            v-else
+            href="/api/auth/vatsim/redirect"
+        >
+            Authorize to manage presets
+        </common-button>
 
         <template v-if="activePreset">
             <common-popup v-model="states.load">
@@ -228,6 +237,7 @@ import ExportIcon from '@/assets/icons/kit/load.svg?component';
 import LoadIcon from '@/assets/icons/kit/load-on-pc.svg?component';
 import EditIcon from '@/assets/icons/kit/edit.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import { sendUserMapSettings } from '~/composables';
 
 const props = defineProps({
     refreshPresets: {
@@ -264,13 +274,7 @@ const isCurrentPreset = (preset: UserMapPreset) => {
 };
 
 const createPreset = async () => {
-    saveMapSettings(await $fetch<UserMapSettings>('/api/user/settings/map', {
-        method: 'POST',
-        body: {
-            name: newPresetName.value,
-            json: toRaw(store.mapSettings),
-        },
-    }));
+    await saveMapSettings(await sendUserMapSettings(newPresetName.value, store.mapSettings, createPreset));
     props.refreshPresets();
 };
 
@@ -283,12 +287,12 @@ const exportPreset = (preset: UserMapPreset) => {
 };
 
 const overwritePreset = async () => {
-    saveMapSettings(await $fetch<UserMapSettings>(`/api/user/settings/map/${ activePreset.value!.id }`, {
+    await $fetch<UserMapSettings>(`/api/user/settings/map/${ activePreset.value!.id }`, {
         method: 'PUT',
         body: {
-            json: toRaw(activePreset.value!.json),
+            json: toRaw(store.mapSettings),
         },
-    }));
+    });
     props.refreshPresets();
 };
 
