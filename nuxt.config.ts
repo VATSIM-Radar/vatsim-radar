@@ -198,7 +198,7 @@ export default defineNuxtConfig({
             ],
         },
         devOptions: {
-            enabled: true,
+            enabled: false,
         },
     },
     vite: {
