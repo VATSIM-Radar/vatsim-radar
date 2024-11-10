@@ -230,8 +230,6 @@ watch(map, val => {
                 type: 'sectors',
             },
             style: function(feature) {
-                // if (feature.getGeometry()?.getType() !== 'MultiPolygon') return;
-
                 const type = feature.getProperties().type;
 
                 switch (type) {

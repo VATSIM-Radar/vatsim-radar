@@ -57,7 +57,6 @@ CronJob.from({
     start: true,
     onTick: async () => {
         await updateVatglassesStateServer();
-        console.log('Updated VATGlasses state');
 
         // Loop through copiedDataStore.vatglassesActivePositions and set sectors to null. We will set the sectors in the client to avoid sending a lot of data
         const outputVatglassesActivePositions: VatglassesActivePositions = {};

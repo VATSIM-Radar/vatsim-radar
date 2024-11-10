@@ -17,7 +17,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             const currentPolygon = sectors[i];
             truncate(currentPolygon, { mutate: true, precision: 1 });
             let offset = 0;
-            if (currentPolygon.properties?.max % 10 !== 0 && currentPolygon.properties?.max % 10 !== 5 && currentPolygon.properties?.max !== 999) {
+            if (currentPolygon.properties?.max % 10 !== 0 && currentPolygon.properties?.max % 10 !== 5 && currentPolygon.properties?.max <= 999) {
                 offset = 1;
             }
             // currentPolygon.properties.altrange = [[currentPolygon.properties?.min, currentPolygon.properties?.max % 10 === 4 ? currentPolygon.properties?.max + 1 : currentPolygon.properties?.max]];

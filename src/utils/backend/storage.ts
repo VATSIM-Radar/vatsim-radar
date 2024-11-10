@@ -32,7 +32,7 @@ export interface VatglassesAirspace {
     id: string;
     group: string;
     docs?: string[];
-    fua?: { [key: string]: any }[];
+    fua?: Record<string, any>[];
     owner: string[];
     sectors: VatglassesSector[];
 }
@@ -210,6 +210,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         ratings: storage.vatsim.regularData!.ratings,
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
+        vatglassesActiveData: storage.vatglasses.activeData,
     };
 }
 
