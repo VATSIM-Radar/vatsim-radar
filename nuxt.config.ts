@@ -166,8 +166,10 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     pwa: {
+        registerType: 'autoUpdate',
         client: {
             periodicSyncForUpdates: 1000 * 60 * 5,
+            installPrompt: true,
         },
         manifest: {
             name: 'VATSIM Radar',

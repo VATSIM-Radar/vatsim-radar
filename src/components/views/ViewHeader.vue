@@ -402,12 +402,15 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     maxAge: 60 * 60 * 24,
 });
 
+const app = useNuxtApp();
+
 
 interface HeaderItem {
     text: string;
     action?: () => any;
     path?: string;
     disabled?: boolean;
+    hide?: boolean;
     width?: string;
     icon?: Component;
     children?: Omit<HeaderItem, 'children' | 'minWidth'>[];
@@ -452,7 +455,14 @@ const buttons = computed<HeaderItem[]>(() => {
                     text: 'About Us',
                     path: '/about',
                 },
-            ],
+                {
+                    text: 'Install App',
+                    hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
+                    action: () => {
+                        return app.$pwa?.install().then(console.log).catch(console.error);
+                    },
+                },
+            ].filter(x => !x.hide),
         },
     ];
 });
