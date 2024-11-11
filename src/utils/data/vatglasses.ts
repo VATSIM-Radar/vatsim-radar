@@ -609,7 +609,7 @@ async function initVatglassesCombined() {
     console.log('initVatglassesCombined');
     combineDataInitialized = true;
     try {
-        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatglasses-active`));
+        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
         if (vatglassesDataVersion === data.version) {
             for (const countryGroupId in data.vatglassesActivePositions) {
