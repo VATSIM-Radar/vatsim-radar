@@ -42,7 +42,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
                     const difference2 = difference(featureCollection([resultPolygon, remainingOfCurrentPolygon]));
 
                     if (difference1) {
-                        difference1.properties = JSON.parse(JSON.stringify(difference1.properties));
+                        difference1.properties = structuredClone(difference1.properties);
                         remainingOfCurrentPolygon = difference1;
                     }
                     else {
@@ -51,14 +51,14 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
 
                     if (difference2) {
                         flattenEach(difference2, function(currentFeature) {
-                            currentFeature.properties = JSON.parse(JSON.stringify(resultPolygon.properties));
+                            currentFeature.properties = structuredClone(resultPolygon.properties);
                             newResultPolygons.push(currentFeature as TurfFeature<TurfPolygon>);
                         });
                     }
 
                     flattenEach(intersection, function(currentFeature) {
-                        currentFeature.properties = JSON.parse(JSON.stringify(resultPolygon.properties));
-                        if (currentFeature.properties) currentFeature.properties.altrange = mergeRanges([...JSON.parse(JSON.stringify(resultPolygon.properties?.altrange)) ?? [], ...JSON.parse(JSON.stringify(currentPolygon.properties?.altrange)) ?? []]);
+                        currentFeature.properties = structuredClone(resultPolygon.properties);
+                        if (currentFeature.properties) currentFeature.properties.altrange = mergeRanges([...structuredClone(resultPolygon.properties?.altrange) ?? [], ...structuredClone(currentPolygon.properties?.altrange) ?? []]);
                         newResultPolygons.push(currentFeature as TurfFeature<TurfPolygon>);
                     });
                 }
@@ -69,7 +69,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
 
             if (remainingOfCurrentPolygon) {
                 flattenEach(remainingOfCurrentPolygon, function(currentFeature) {
-                    currentFeature.properties = JSON.parse(JSON.stringify(currentPolygon.properties));
+                    currentFeature.properties = structuredClone(currentPolygon.properties);
                     newResultPolygons.push(currentFeature as TurfFeature<TurfPolygon>);
                 });
             }
@@ -123,7 +123,7 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
             const combined = union((featureCollection(sectors)));
             if (combined) {
                 flattenEach(combined, function(currentFeature) {
-                    currentFeature.properties = JSON.parse(JSON.stringify(combined.properties));
+                    currentFeature.properties = structuredClone(combined.properties);
                     if (currentFeature.properties) currentFeature.properties.countryGroupId = sectors[0].properties?.countryGroupId;
                     if (currentFeature.properties) currentFeature.properties.vatglassesPositionId = sectors[0].properties?.vatglassesPositionId;
                     if (currentFeature.properties) currentFeature.properties.colour = sectors[0].properties?.colour;
