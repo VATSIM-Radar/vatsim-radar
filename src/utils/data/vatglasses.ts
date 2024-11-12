@@ -624,6 +624,14 @@ async function initVatglassesCombined() {
                     const localPosition = dataStore.vatglassesActivePositions.value[countryGroupId]?.[positionId];
 
                     if (localPosition) {
+                        if (serverPosition.sectorsCombined) {
+                            // overwrite the property atc of the combined sectors with the atc from the local server data. I don't know if it would be a problem if we use the atc data from the server, but to make it consistent that the atc property is always a reference to the local data, we overwrite it here
+                            for (const sector of serverPosition.sectorsCombined) {
+                                if (sector.properties) {
+                                    sector.properties.atc = localPosition.atc;
+                                }
+                            }
+                        }
                         if (serverPosition.airspaceKeys === localPosition.airspaceKeys) {
                             localPosition.sectorsCombined = serverPosition.sectorsCombined;
                             if (localPosition.lastUpdated) {
@@ -672,7 +680,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
         const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
 
-        if (vatglassesCombined) {
+        if (unref(vatglassesCombined)) {
             await initVatglassesCombined();
         }
         else {
@@ -681,6 +689,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
             if (!combineDataInitialized) {
                 vatglassesCombinedWatcher = watch([vatglassesCombined], () => {
+                    console.log('hesaiditcahnged');
                     initVatglassesCombined();
                     if (combineDataInitialized && vatglassesCombinedWatcher) {
                         vatglassesCombinedWatcher();

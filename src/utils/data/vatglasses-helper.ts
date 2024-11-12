@@ -122,7 +122,7 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
             const combined = union((featureCollection(sectors)));
             if (combined) {
                 flattenEach(combined, function(currentFeature) {
-                    currentFeature.properties = structuredClone(combined.properties);
+                    currentFeature.properties = structuredClone(sectors[0].properties);
                     const properties = currentFeature.properties as VatglassesSectorProperties;
                     [properties.min, properties.max] = altrange.split('-').map(Number);
 
