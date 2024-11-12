@@ -6,6 +6,7 @@ import intersect from '@turf/intersect';
 import truncate from '@turf/truncate';
 import mergeRanges from 'merge-ranges';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, MultiPolygon as TurfMultiPolygon } from 'geojson';
+import type { VatglassesSectorProperties } from './vatglasses';
 
 
 export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
@@ -110,11 +111,9 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
         }
         if (sectors.length === 1) {
             const combined = sectors[0];
-            if (combined.properties) combined.properties.countryGroupId = sectors[0].properties?.countryGroupId;
-            if (combined.properties) combined.properties.vatglassesPositionId = sectors[0].properties?.vatglassesPositionId;
-            if (combined.properties) combined.properties.colour = sectors[0].properties?.colour;
-            if (combined.properties) combined.properties.type = 'vatglasses';
-            if (combined.properties) [combined.properties.altrangeMin, combined.properties.altrangeMax] = altrange.split('-').map(Number);
+            const properties = combined.properties as VatglassesSectorProperties;
+            [properties.min, properties.max] = altrange.split('-').map(Number);
+
             combinedGroupSectors.push(combined);
             continue;
         }
@@ -124,11 +123,9 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
             if (combined) {
                 flattenEach(combined, function(currentFeature) {
                     currentFeature.properties = structuredClone(combined.properties);
-                    if (currentFeature.properties) currentFeature.properties.countryGroupId = sectors[0].properties?.countryGroupId;
-                    if (currentFeature.properties) currentFeature.properties.vatglassesPositionId = sectors[0].properties?.vatglassesPositionId;
-                    if (currentFeature.properties) currentFeature.properties.colour = sectors[0].properties?.colour;
-                    if (currentFeature.properties) currentFeature.properties.type = 'vatglasses';
-                    if (currentFeature.properties) [currentFeature.properties.altrangeMin, currentFeature.properties.altrangeMax] = altrange.split('-').map(Number);
+                    const properties = currentFeature.properties as VatglassesSectorProperties;
+                    [properties.min, properties.max] = altrange.split('-').map(Number);
+
                     combinedGroupSectors.push(currentFeature as TurfFeature<TurfPolygon>);
                 });
             }

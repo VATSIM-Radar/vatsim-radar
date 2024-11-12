@@ -7,6 +7,7 @@ import { GeoJSON } from 'ol/format';
 import type { VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -34,8 +35,7 @@ export interface VatglassesActiveData {
 }
 
 export interface VatglassesActivePosition {
-    cid: number | null;
-    callsign: string | null;
+    atc: VatsimShortenedController;
     sectors: TurfFeature<TurfPolygon>[] | null;
     sectorsCombined: TurfFeature<TurfPolygon>[] | null;
     airspaceKeys: string | null;
@@ -53,6 +53,16 @@ export interface VatglassesActiveRunways {
 
 export interface VatglassesActiveAirspaces {
     [countryGroupId: string]: { [vatglassesPositionId: string]: { [index: string]: VatglassesAirspace } };
+}
+
+export interface VatglassesSectorProperties {
+    min: number;
+    max: number;
+    countryGroupId: string;
+    vatglassesPositionId: string;
+    atc: VatsimShortenedController;
+    colour: string;
+    type: 'vatglasses';
 }
 
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
@@ -89,7 +99,7 @@ function updateVatglassesPositionsAndAirspaces() {
         };
     }
 
-    const vatglassesActiveController: { [countryGroupId: string]: { [vatglassesPositionId: string]: { cid: number; callsign: string } } } = {}; // countryGroupId is the name of the json files which are split into areas
+    const vatglassesActiveController: { [countryGroupId: string]: { [vatglassesPositionId: string]: VatsimShortenedController } } = {}; // countryGroupId is the name of the json files which are split into areas
     // Fill the vatglassesActiveStations object with the active stations
     if (vatglassesData) {
         const arrivalController = [];
@@ -112,7 +122,6 @@ function updateVatglassesPositionsAndAirspaces() {
                 atc = fir.atc;
             }
             if (!atc) continue;
-
 
             // // used for debug
             // if (first === 0) {
@@ -160,7 +169,7 @@ function updateVatglassesPositionsAndAirspaces() {
                     if (!vatglassesActiveController[countryGroupId]) {
                         vatglassesActiveController[countryGroupId] = {};
                     }
-                    vatglassesActiveController[countryGroupId][vatglassesPositionId] = { cid: atc.cid, callsign: atc.callsign };
+                    vatglassesActiveController[countryGroupId][vatglassesPositionId] = atc;
                     foundMatchingVatglassesController = true;
                     break;
                 }
@@ -260,16 +269,12 @@ function updateVatglassesPositionsAndAirspaces() {
             }
             else {
                 if (mode === 'server') {
-                    newVatglassesActivePositions[countryGroupId][positionId] = { cid: null, callsign: null, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null }; // we set null instead of [], because null is the signal for later that we have to recalculate it
+                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveController[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null }; // we set null instead of [], because null is the signal for later that we have to recalculate it
                 }
                 else {
-                    newVatglassesActivePositions[countryGroupId][positionId] = { cid: null, callsign: null, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) }; // we set null instead of [], because null is the signal for later that we have to recalculate it
+                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveController[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) }; // we set null instead of [], because null is the signal for later that we have to recalculate it
                 }
             }
-
-            newVatglassesActivePositions[countryGroupId][positionId].cid = vatglassesActiveController[countryGroupId][positionId].cid;
-            newVatglassesActivePositions[countryGroupId][positionId].callsign = vatglassesActiveController[countryGroupId][positionId].callsign;
-
 
             // Check if the airspaces of a position have changed and reset the sectors if they have changed so they will be recalculated
             const airspacesIndexesJoined = newVatglassesActivePositions[countryGroupId][positionId].airspaceKeys;
@@ -288,7 +293,7 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId)).filter(sector => sector !== false) || [];
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc)).filter(sector => sector !== false) || [];
             }
         }
     }
@@ -357,7 +362,7 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 
 // Converts from vatglasses sector format to geojson format
-function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string) {
+function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? workerDataStore.vatglasses?.data;
     try {
         // Create a polygon turf object
@@ -389,9 +394,10 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
             max: sector.max ?? 999,
             countryGroupId: countryGroupId,
             vatglassesPositionId: positionId,
+            atc: atc,
             colour: colour,
             type: 'vatglasses',
-        });
+        } as VatglassesSectorProperties);
         return geoJsonPolygon;
     }
     catch (e) {

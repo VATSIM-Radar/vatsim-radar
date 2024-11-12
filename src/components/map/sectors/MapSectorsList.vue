@@ -42,7 +42,7 @@
                         v-for="(sector, index) in sectorsAtClick"
                         :key="index"
                     >
-                        {{ sector.vatglassesPositionId }} ({{ dataStore.vatglassesActivePositions.value[sector.countryGroupId][sector.vatglassesPositionId].callsign }}) {{ formatNumber(sector.altrangeMin ?? sector.min) }} - {{ formatNumber(sector.altrangeMax ?? sector.max) }}
+                        {{ sector.vatglassesPositionId }} ({{ sector.atc.callsign }}) {{ formatNumber(sector.min) }} - {{ formatNumber(sector.max) }}
                     </li>
                 </ul>
 
@@ -62,6 +62,7 @@ import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 
 import { initVatglasses } from '~/utils/data/vatglasses';
+import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
 import { useMapStore } from '~/store/map';
@@ -86,10 +87,7 @@ const firs = computed(() => {
 });
 
 
-interface FeatureProperties {
-    [key: string]: any;
-}
-const sectorsAtClick = shallowRef<FeatureProperties>([]);
+const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
 
@@ -111,9 +109,9 @@ async function handleClick(e: MapBrowserEvent<any>) {
         layerFilter: layer => layer.getProperties().type === 'sectors',
     });
 
-    const sectors: FeatureProperties = [];
+    const sectors: VatglassesSectorProperties[] = [];
     featureSectors.map(feature => {
-        const properties = feature.getProperties() as FeatureProperties;
+        const properties = feature.getProperties() as VatglassesSectorProperties;
         sectors.push(properties);
     });
 
