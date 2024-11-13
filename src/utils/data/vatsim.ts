@@ -319,7 +319,7 @@ export function getAirportsList() {
 
             airports.push({
                 icao: airport.icao,
-                iata: airportExist ? airport.iata : someAirportExist.iata,
+                iata: airportExist ? airport.iata : someAirportExist?.iata,
                 isPseudo: !airportExist,
                 isSimAware: !someAirportExist,
                 aircraft: {},
