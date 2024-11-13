@@ -166,6 +166,7 @@ const getAttrs = computed(() => {
 
     &_content {
         width: 100%;
+        min-width: max-content;
     }
 
     @include hover {
@@ -237,6 +238,7 @@ const getAttrs = computed(() => {
 
     &--orientation-vertical {
         flex-direction: column;
+        text-align: center;
     }
 
     &--icon {

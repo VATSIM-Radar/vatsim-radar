@@ -16,7 +16,9 @@
             type="secondary-875"
             @click.stop="showAirportOnMap(airport.airport, map)"
         >
-            <location-icon width="14"/>
+            <template #icon>
+                <location-icon width="14"/>
+            </template>
         </common-button>
         <div class="airport-card_icao">
             {{ airport.airport.icao }}

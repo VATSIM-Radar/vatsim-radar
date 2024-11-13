@@ -17,6 +17,7 @@
             <div
                 v-if="popupsHeight || store.config.hideOverlays"
                 class="map_popups_list"
+                :class="{ 'map_popups_list--empty': !mapStore.overlays.length }"
             >
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
@@ -622,7 +623,9 @@ await setupDataFetch({
             transition: 0.5s ease-in-out;
 
             @include mobileOnly {
-                width: 100%;
+                &:not(&--empty) {
+                    width: 100%;
+                }
             }
         }
 
