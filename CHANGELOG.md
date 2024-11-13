@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-beta.2]
+
+- Very basic header/footer mobile version. Most elements were removed. Please do not report bugs/suggestions for now
+- Added mobile/tablet support for roadmap
+- Overlays on mobile will not overlap with filters anymore
+
 # [0.5.0-beta.1]
 
 - Fixed ENOB_CTR and other oceanic sectors names

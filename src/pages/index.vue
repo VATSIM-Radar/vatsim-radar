@@ -553,6 +553,8 @@ await setupDataFetch({
 
     width: 100%;
 
+    border-radius: 16px;
+
     &_container {
         z-index: 5;
         display: flex;
@@ -603,6 +605,11 @@ await setupDataFetch({
         width: calc(100% - 48px);
         height: calc(100% - 48px);
 
+        @include mobileOnly {
+            left: 40px + 8px + 16px;
+            width: calc(100% - 40px - 8px - 8px - 16px);
+        }
+
         &_list {
             z-index: 6;
 
@@ -613,6 +620,10 @@ await setupDataFetch({
             max-height: var(--overlays-height);
 
             transition: 0.5s ease-in-out;
+
+            @include mobileOnly {
+                width: 100%;
+            }
         }
 
         &_popup {

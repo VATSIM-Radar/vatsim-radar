@@ -470,6 +470,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
     &__col {
         width: 100%;
 
+        @include mobile {
+            padding: 16px 0;
+            background: $darkgray900;
+            border-radius: 16px;
+        }
+
         &_title {
             margin-bottom: 16px;
 
@@ -506,6 +512,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             gap: 16px;
 
             max-height: 65vh;
+
+            @include mobile {
+                max-height: 20vh;
+            }
 
             &_group {
                 &_title {
@@ -579,6 +589,22 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &--status-completed {
             --status-color: #{$success500};
+        }
+    }
+
+    &_cols {
+        @include mobileOnly {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @include tablet {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 8px));
+
+            >*:last-child {
+                grid-column: span 2;
+            }
         }
     }
 }

@@ -22,7 +22,7 @@
             >
                 <common-logo/>
             </nuxt-link>
-            <div class="header__sections">
+            <div class="header__sections __from-tablet">
                 <div class="header__sections_section header__buttons">
                     <common-button
                         v-for="button in buttons"
@@ -82,7 +82,7 @@
             </div>
         </div>
         <div class="header_right header__sections">
-            <div class="header__sections_section">
+            <div class="header__sections_section __from-tablet">
                 <div
                     class="header__theme"
                     :class="[`header__theme--${ store.theme ?? 'default' }`]"
@@ -103,7 +103,7 @@
             </div>
             <div
                 v-if="config.public.IS_DOWN !== 'true'"
-                class="header__sections_section"
+                class="header__sections_section __from-tablet"
             >
                 <common-button
                     v-if="!store.user"

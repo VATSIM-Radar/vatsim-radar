@@ -25,7 +25,7 @@
                     }}
                 </div>
             </div>
-            <div class="map-footer_left_section">
+            <div class="map-footer_left_section __from-tablet">
                 <common-button
                     size="S"
                     :type="store.featuredAirportsOpen ? 'primary' : 'secondary'"
@@ -90,7 +90,7 @@
                     </div>
                 </common-control-block>
             </div>
-            <div class="map-footer_left_section">
+            <div class="map-footer_left_section __from-tablet">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
                         <span>{{ getCounts.total }}</span> connections
@@ -141,7 +141,7 @@
         </div>
         <div
             v-if="getLastUpdated"
-            class="map-footer_right"
+            class="map-footer_right __from-tablet"
             :class="{ 'map-footer_right--outdated': outdated }"
         >
             Map last updated: {{ getLastUpdated }}

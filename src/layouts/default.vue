@@ -315,4 +315,32 @@ img {
     color: $primary500;
     text-decoration: underline;
 }
+
+@include fromTablet {
+    .__mobile {
+        display: none !important;
+    }
+}
+
+@include mobile {
+    .__desktop {
+        display: none !important;
+    }
+}
+
+@include mobileOnly {
+    .__tablet {
+        display: none !important;
+    }
+
+    .__from-tablet {
+        display: none !important;
+    }
+}
+
+@include pc {
+    .__tablet {
+        display: none !important;
+    }
+}
 </style>

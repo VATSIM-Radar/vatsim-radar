@@ -209,6 +209,10 @@ watch(getSections, sections => {
     background: $darkgray1000;
     border-radius: 8px;
 
+    @include mobileOnly {
+        width: 100%;
+    }
+
     &--absolute {
         position: absolute;
     }
