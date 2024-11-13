@@ -75,14 +75,14 @@
                 </div>
                 <div
                     v-if="route.path === '/'"
-                    class="header__sections_section"
+                    class="header__sections_section __desktop"
                 >
                     <view-search/>
                 </div>
             </div>
         </div>
         <div class="header_right header__sections">
-            <div class="header__sections_section __from-tablet">
+            <div class="header__sections_section __desktop">
                 <div
                     class="header__theme"
                     :class="[`header__theme--${ store.theme ?? 'default' }`]"
@@ -103,7 +103,7 @@
             </div>
             <div
                 v-if="config.public.IS_DOWN !== 'true'"
-                class="header__sections_section __from-tablet"
+                class="header__sections_section __desktop"
             >
                 <common-button
                     v-if="!store.user"

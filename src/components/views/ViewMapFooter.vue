@@ -90,7 +90,7 @@
                     </div>
                 </common-control-block>
             </div>
-            <div class="map-footer_left_section __from-tablet">
+            <div class="map-footer_left_section __desktop">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
                         <span>{{ getCounts.total }}</span> connections
