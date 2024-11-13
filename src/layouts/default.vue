@@ -117,6 +117,8 @@ useHead(() => {
         .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
         .join(';');
 
+    const themeColor = getCurrentThemeHexColor('darkgray1000');
+
     return {
         titleTemplate(title) {
             if (!title) return 'VATSIM Radar';
@@ -130,6 +132,14 @@ useHead(() => {
             {
                 name: 'keywords',
                 content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
+            },
+            {
+                name: 'msapplication-TileColor',
+                content: themeColor,
+            },
+            {
+                name: 'theme-color',
+                content: themeColor,
             },
         ],
         htmlAttrs: {

@@ -173,13 +173,13 @@ export default defineNuxtConfig({
         },
         manifest: {
             name: 'VATSIM Radar',
-            short_name: 'VR',
+            short_name: 'VATSIM Radar',
             description: 'VATSIM Traffic Monitoring Service',
-            theme_color: '#3B6CEC',
+            theme_color: '???',
             orientation: 'portrait',
             display: 'standalone',
             // @ts-expect-error tabbed not supported here
-            display_override: ['window-controls-overlay', 'tabbed', 'minimal-ui', 'standalone'],
+            display_override: ['window-controls-overlay', 'tabbed', 'standalone'],
             start_url: '/',
             dir: 'ltr',
             lang: 'en',
