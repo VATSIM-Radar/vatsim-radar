@@ -277,3 +277,8 @@ export function useScrollExists(element: Ref<Element | null | undefined>): Ref<b
 
     return scrollExists;
 }
+
+export const useIsMobile = () => computed(() => useStore().isMobile);
+export const useIsPC = () => computed(() => useStore().isPC);
+export const useIsTablet = () => computed(() => useStore().isTablet);
+export const useIsMobileOrTablet = () => computed(() => useStore().isMobileOrTablet);

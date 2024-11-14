@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.0-beta.3]
+
+- Basic Mobile menu. Search is INOP
+
 # [0.5.0-beta.2]
 
 - Very basic header/footer mobile version. Most elements were removed. Please do not report bugs/suggestions for now

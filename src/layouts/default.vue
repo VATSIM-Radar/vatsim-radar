@@ -50,7 +50,7 @@
 
 <script lang="ts" setup>
 import { useStore } from '~/store';
-import ViewHeader from '~/components/views/ViewHeader.vue';
+import ViewHeader from '~/components/views/header/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
@@ -104,6 +104,17 @@ onMounted(() => {
     onBeforeUnmount(() => {
         window.removeEventListener('storage', handleStorageUpdate);
     });
+
+    if (!theme.value) {
+        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+            theme.value = 'light';
+        }
+        else {
+            theme.value = 'default';
+        }
+
+        store.theme = theme.value;
+    }
 });
 
 useHead(() => {

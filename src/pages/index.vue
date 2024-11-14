@@ -580,6 +580,10 @@ await setupDataFetch({
     :deep(.ol-attribution) {
         background: $darkgray1000;
 
+        @include mobile {
+            background: transparent;
+        }
+
         ul {
             text-shadow: none;
 

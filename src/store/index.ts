@@ -56,10 +56,18 @@ export const useStore = defineStore('index', {
         isTabVisible: false,
 
         loginPopup: false,
+        deleteAccountPopup: false,
+        deleteNavigraphPopup: false,
 
         viewport: {
             width: 0,
         },
+
+        isMobile: false,
+        isTablet: false,
+        isMobileOrTablet: false,
+        isPC: false,
+        scrollbarWidth: 0,
     }),
     getters: {
         getCurrentTheme(): 'light' | 'default' {

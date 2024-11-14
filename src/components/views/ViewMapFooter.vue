@@ -96,7 +96,7 @@
                         <span>{{ getCounts.total }}</span> connections
                     </div>
                     <div class="map-footer__connections_title">
-                        <span>{{ dataStore.vatsim.data.general?.value?.onlineWSUsers }}</span> in VATSIM Radar
+                        <span>{{ getCounts.inRadar }}</span> in VATSIM Radar
                     </div>
                     <div class="map-footer__connections_info">
                         <div class="map-footer__connections_info_item">
@@ -212,6 +212,7 @@ import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vu
 import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import { useOnlineCounters } from '~/composables/navigation';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -226,23 +227,7 @@ const datetime = new Intl.DateTimeFormat([], {
     second: '2-digit',
 });
 
-const getCounts = computed(() => {
-    const [atc, atis] = dataStore.vatsim.data.locals.value.reduce((acc, atc) => {
-        if (atc.isATIS) acc[0]++;
-        else acc[1]++;
-        return acc;
-    }, [0, 0]);
-
-    return {
-        total: dataStore.vatsim.data.general.value?.unique_users,
-        firs: dataStore.vatsim.data.firs.value.length,
-        atc,
-        atis,
-        pilots: dataStore.vatsim.data.pilots.value.length,
-        sups: dataStore.vatsim.data.general.value?.supsCount,
-        adm: dataStore.vatsim.data.general.value?.admCount,
-    };
-});
+const getCounts = useOnlineCounters();
 
 const getLastUpdated = computed(() => {
     const updateTimestamp = dataStore.vatsim.updateTime.value;
