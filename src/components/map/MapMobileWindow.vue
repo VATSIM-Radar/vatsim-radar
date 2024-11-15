@@ -3,7 +3,7 @@
         <div
             v-if="store.featuredAirportsOpen || (overlay && !overlay.collapsed)"
             class="mobile-window"
-            :style="{ '--collapsed-height': `${ collapsedOverlaysHeight }px` }"
+            :style="{ '--collapsed-height': `${ overlaysHeight }px` }"
         >
             <common-info-popup
                 v-if="store.featuredAirportsOpen"
@@ -28,35 +28,35 @@
         </div>
     </transition>
     <div
-        v-if="collapsedOverlays.length"
+        v-if="mapStore.overlays.length"
         class="mobile-overlays"
     >
         <common-button
-            v-for="collapsedOverlay in collapsedOverlays"
-            :key="collapsedOverlay.id"
+            v-for="item in mapStore.overlays"
+            :key="item.id"
             size="S"
-            type="secondary"
-            @click="[collapsedOverlay.collapsed = false, mapStore.activeMobileOverlay = collapsedOverlay.id]"
+            :type="item.collapsed ? 'secondary' : 'primary'"
+            @click="mapStore.activeMobileOverlay === item.id ? [item.collapsed = true, mapStore.activeMobileOverlay = null] : [mapStore.overlays.forEach(x => x.collapsed = true), item.collapsed = false, mapStore.activeMobileOverlay = item.id]"
         >
             <div class="mobile-overlays__collapsed-btn">
                 <span>
-                    <template v-if="collapsedOverlay.type === 'pilot'">
-                        {{ collapsedOverlay.data.pilot.callsign }}
+                    <template v-if="item.type === 'pilot'">
+                        {{ item.data.pilot.callsign }}
                     </template>
-                    <template v-else-if="collapsedOverlay.type === 'prefile'">
-                        {{ collapsedOverlay.data.prefile.callsign }}
+                    <template v-else-if="item.type === 'prefile'">
+                        {{ item.data.prefile.callsign }}
                     </template>
-                    <template v-else-if="collapsedOverlay.type === 'atc'">
-                        {{ collapsedOverlay.data.callsign }}
+                    <template v-else-if="item.type === 'atc'">
+                        {{ item.data.callsign }}
                     </template>
-                    <template v-else-if="collapsedOverlay.type === 'airport'">
-                        {{ collapsedOverlay.data.icao }}
+                    <template v-else-if="item.type === 'airport'">
+                        {{ item.data.icao }}
                     </template>
                 </span>
 
                 <div
                     class="mobile-overlays__collapsed-btn_close"
-                    @click="mapStore.overlays = mapStore.overlays.filter(x => x.id !== collapsedOverlay.id)"
+                    @click="mapStore.overlays = mapStore.overlays.filter(x => x.id !== item.id)"
                 >
                     <close-icon width="12"/>
                 </div>
@@ -77,7 +77,6 @@ const store = useStore();
 const mapStore = useMapStore();
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
-const collapsedOverlays = computed(() => mapStore.overlays.filter(x => x.collapsed));
 
 onMounted(() => {
     const uncollapsed = mapStore.overlays.find(x => !x.collapsed);
@@ -97,12 +96,12 @@ onMounted(() => {
     }
 });
 
-const collapsedOverlaysHeight = computed(() => {
+const overlaysHeight = computed(() => {
     const btnHeight = 32;
     const gap = 8;
     const perRow = 2;
 
-    const rows = Math.ceil(collapsedOverlays.value.length / perRow);
+    const rows = Math.ceil(mapStore.overlays.length / perRow);
 
     return (rows * btnHeight) + (gap * (rows - 1)) + 8;
 });
