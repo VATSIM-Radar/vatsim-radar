@@ -18,7 +18,7 @@
             <nuxt-link
                 class="header__logo"
                 no-prefetch
-                to="/src/public"
+                to="/"
             >
                 <common-logo/>
             </nuxt-link>
@@ -115,7 +115,12 @@
                     href="/api/auth/vatsim/redirect"
                     size="S"
                 >
-                    Connect VATSIM
+                    <template v-if="isMobile">
+                        Login
+                    </template>
+                    <template v-else>
+                        Connect VATSIM
+                    </template>
                 </common-button>
                 <div
                     v-else
@@ -151,8 +156,8 @@
                 <common-button
                     v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
-                    :type="!settingsPopup ? 'secondary' : 'primary'"
-                    @click="!store.user ? store.loginPopup = true : settingsPopup = !settingsPopup"
+                    :type="!store.settingsPopup ? 'secondary' : 'primary'"
+                    @click="!store.user ? store.loginPopup = true : store.settingsPopup = !store.settingsPopup"
                 >
                     <template #icon>
                         <settings-icon/>
@@ -185,7 +190,7 @@
                 <view-header-mobile-menu v-model="mobileMenuOpened"/>
             </div>
 
-            <view-header-settings v-model="settingsPopup"/>
+            <view-header-settings v-model="store.settingsPopup"/>
         </div>
         <view-header-popups/>
     </header>
@@ -223,7 +228,6 @@ const notamCookie = useCookie<boolean>('notam-closed', {
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
 
-const settingsPopup = ref(false);
 const mobileMenuOpened = ref(false);
 </script>
 

@@ -3,6 +3,7 @@ import MapIcon from 'assets/icons/kit/map.svg?component';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 import EventsIcon from 'assets/icons/kit/event.svg?component';
 import PathIcon from 'assets/icons/kit/path.svg?component';
+import { useStore } from '~/store';
 
 export interface HeaderItem {
     text: string;
@@ -19,6 +20,8 @@ export interface HeaderItem {
 export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const app = useNuxtApp();
     const route = useRoute();
+    const store = useStore();
+    const isMobile = useIsMobile();
 
     return [
         {
@@ -35,6 +38,12 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             text: 'Stats',
             disabled: true,
             icon: DataIcon,
+        },
+        {
+            text: 'Featured Airports',
+            active: !!store.featuredAirportsOpen,
+            hide: !isMobile.value || route.path !== '/',
+            action: () => store.featuredAirportsOpen = !store.featuredAirportsOpen,
         },
         {
             text: 'About',
@@ -60,6 +69,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
                 {
                     text: 'Install App',
+                    active: false,
                     hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
                     action: () => {
                         return app.$pwa?.install().then(console.log).catch(console.error);
@@ -67,16 +77,24 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
             ].filter(x => !x.hide),
         },
-    ].map(x => {
+    ].filter(x => !x.hide).map(x => {
         return {
             ...x,
-            active: (x.path === route.path || !!x.children?.some(x => x.path === route.path)),
+            active: x.active ?? (x.path === route.path || !!x.children?.some(x => x.path === route.path)),
             children: x.children && x.children.map(x => ({
                 ...x,
-                active: x.path === route.path,
+                active: x.active ?? x.path === route.path,
             })),
         } satisfies HeaderItem as HeaderItem;
     });
+});
+
+const datetime = new Intl.DateTimeFormat(['en-GB'], {
+    timeZone: 'UTC',
+    localeMatcher: 'best fit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
 });
 
 export const useOnlineCounters = () => computed(() => {
@@ -88,6 +106,10 @@ export const useOnlineCounters = () => computed(() => {
         return acc;
     }, [0, 0]);
 
+    const updateTimestamp = dataStore.vatsim.updateTime.value;
+
+    const date = updateTimestamp ? new Date(updateTimestamp) : null;
+
     return {
         inRadar: dataStore.vatsim.data.general?.value?.onlineWSUsers,
         total: dataStore.vatsim.data.general.value?.unique_users,
@@ -97,5 +119,6 @@ export const useOnlineCounters = () => computed(() => {
         pilots: dataStore.vatsim.data.pilots.value.length,
         sups: dataStore.vatsim.data.general.value?.supsCount,
         adm: dataStore.vatsim.data.general.value?.admCount,
+        lastUpdated: date && `${ datetime.format(date) } Z`,
     };
 });

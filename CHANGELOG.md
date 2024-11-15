@@ -1,5 +1,16 @@
 # Changelog
 
+# [0.5.0-beta.4]
+
+Map is now expected to be fully optimized for mobile. WIP: airport dashboard, events, support us
+
+- Added Last updated to mobile menu
+- Redesigned mobile menu slighly
+- Ported featured airports to mobile
+- Removed small aircraft overlay
+- Optimized errors page for mobile
+- Optimized overlays for mobile phones
+
 # [0.5.0-beta.3]
 
 - Basic Mobile menu. Search is INOP

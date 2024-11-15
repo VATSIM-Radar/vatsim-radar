@@ -163,6 +163,61 @@ useHead(() => {
         }],
     };
 });
+
+function setWindowStore() {
+    store.isMobile = window.innerWidth < 700;
+    store.isMobileOrTablet = window.innerWidth < 1366;
+    store.isTablet = window.innerWidth < 1366 && window.innerWidth >= 700;
+    store.isPC = window.innerWidth >= 1366;
+    store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
+}
+
+const listener = () => {
+    store.viewport.width = window.innerWidth;
+    setWindowStore();
+};
+
+let windowInterval: NodeJS.Timeout | undefined;
+
+onNuxtReady(() => {
+    document.addEventListener('resize', listener);
+
+    setWindowStore();
+    windowInterval = setInterval(setWindowStore, 500);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('resize', listener);
+    clearInterval(windowInterval);
+});
+
+const headers = useRequestHeaders(['user-agent']);
+
+await useAsyncData('default-init', async () => {
+    if (headers?.['user-agent'] && import.meta.server) {
+        const { UAParser } = await import('ua-parser-js');
+        const browser = new UAParser(headers['user-agent'] || '');
+        const type = browser.getDevice().type;
+        let parsedType: 'tablet' | 'mobile' | undefined;
+
+        switch (type) {
+            case 'mobile':
+            case 'wearable':
+                parsedType = 'mobile';
+                break;
+            case 'tablet':
+                parsedType = 'tablet';
+                break;
+        }
+
+        store.isMobile = parsedType === 'mobile';
+        store.isTablet = parsedType === 'tablet';
+        store.isMobileOrTablet = store.isMobile || store.isTablet;
+        store.isPC = !store.isMobile && !store.isTablet;
+    }
+
+    return true;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -290,6 +345,13 @@ img {
 
     &--large-title {
         grid-template-columns: 30% 65%;
+
+        @include mobileOnly {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
     }
 
     &--reversed {
@@ -306,11 +368,15 @@ img {
     gap: 8px;
     width: 100%;
 
-    &:not(&--even){
+    &:not(&--even, &--even-mobile){
         > * {
             flex: 1 1 0;
             width: 0;
         }
+    }
+
+    &--align-center {
+        align-items: center;
     }
 
     &--even {
@@ -318,6 +384,16 @@ img {
 
         > * {
             width: auto;
+        }
+    }
+
+    @include mobileOnly {
+        &--even-mobile {
+            flex-wrap: wrap;
+
+            > * {
+                width: auto;
+            }
         }
     }
 }

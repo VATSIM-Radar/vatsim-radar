@@ -18,7 +18,7 @@
             >
                 <div
                     class="airport_title"
-                    @mouseover="hoveredFacility = true"
+                    @mouseover="!isMobileOrTablet && (hoveredFacility = true)"
                 >
                     {{ airportName }}
                 </div>
@@ -32,6 +32,7 @@
                         class="airport_facilities_facility"
                         :class="{ 'airport_facilities_facility--hovered': hoveredFacility === local.facility }"
                         :style="{ background: getControllerPositionColor(local.atc[0]) }"
+                        @click.stop="hoveredFacility = local.facility"
                         @mouseover="hoveredFacility = local.facility"
                     >
                         {{
@@ -202,6 +203,7 @@ const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
 const hoveredController = ref<boolean>(false);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
     return atcPopup.value?.$el.querySelector('.atc-popup_list');

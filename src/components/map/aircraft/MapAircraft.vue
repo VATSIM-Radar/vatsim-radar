@@ -14,7 +14,7 @@
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
-                v-if="pilot"
+                v-if="pilot && !isMobileOrTablet"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"
@@ -125,7 +125,7 @@
             <div
                 class="aircraft-label"
                 :style="{ '--color': getAircraftStatusColor(getStatus) }"
-                @click="mapStore.togglePilotOverlay(aircraft.cid.toString())"
+                @click="!isMobileOrTablet && mapStore.togglePilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -217,6 +217,7 @@ const turnsFirstGroupTimestamp = ref('');
 const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
 const turnsFirstGroup = shallowRef<InfluxGeojson['features'][0] | null>(null);
 const linesUpdateInProgress = ref(false);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);

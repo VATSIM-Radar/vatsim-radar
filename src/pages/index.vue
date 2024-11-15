@@ -4,8 +4,9 @@
             ref="mapContainer"
             class="map_container"
         />
+
         <div
-            v-if="ready"
+            v-if="ready && !isMobile"
             v-show="!store.config.hideOverlays"
             ref="popups"
             class="map_popups"
@@ -29,6 +30,13 @@
                 </transition-group>
             </div>
         </div>
+        <div
+            v-else-if="ready && isMobile"
+            v-show="!store.config.hideOverlays"
+        >
+            <map-mobile-window/>
+        </div>
+
         <map-controls v-if="!store.config.hideAllExternal"/>
         <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
@@ -87,6 +95,7 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
+import { DoubleClickZoom } from 'ol/interaction';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -104,6 +113,8 @@ const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
+const isMobile = useIsMobile();
+const isMobileOrTablet = useIsMobileOrTablet();
 
 if (route.query.discord === '1') {
     router.replace({
@@ -322,32 +333,36 @@ const overlaysHeight = computed(() => {
 });
 
 watch([overlays, popupsHeight], () => {
-    if (!popups.value) return;
-    const baseHeight = 56;
-    const collapsed = mapStore.overlays.filter(x => x.collapsed);
-    const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
+    if (!popups.value && !isMobile.value) return;
+    if (import.meta.server) return;
 
-    const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
+    if (popups.value) {
+        const baseHeight = 56;
+        const collapsed = mapStore.overlays.filter(x => x.collapsed);
+        const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
-    // Max 4 uncollapsed on screen
-    const minHeight = Math.floor(totalHeight / 4);
-    const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
+        const collapsedHeight = collapsed.length * baseHeight;
+        const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
 
-    const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
+        // Max 4 uncollapsed on screen
+        const minHeight = Math.floor(totalHeight / 4);
+        const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
 
-    collapsed.forEach(overlay => {
-        overlay._maxHeight = baseHeight;
-    });
+        const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
-    uncollapsed.forEach((overlay, index) => {
-        if (index < maxUncollapsed) {
-            overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
-        }
-        else {
-            overlay.collapsed = true;
-        }
-    });
+        collapsed.forEach(overlay => {
+            overlay._maxHeight = baseHeight;
+        });
+
+        uncollapsed.forEach((overlay, index) => {
+            if (index < maxUncollapsed) {
+                overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
+            }
+            else {
+                overlay.collapsed = true;
+            }
+        });
+    }
 
     localStorage.setItem('overlays', JSON.stringify(
         overlays.value.map(x => ({
@@ -357,7 +372,6 @@ watch([overlays, popupsHeight], () => {
     ));
 }, {
     deep: true,
-    immediate: true,
 });
 
 await setupDataFetch({
@@ -449,6 +463,14 @@ await setupDataFetch({
             }),
         });
 
+        if (isMobileOrTablet.value) {
+            let dblClickInteraction;
+
+            if (dblClickInteraction) {
+                map.value.removeInteraction(dblClickInteraction);
+            }
+        }
+
         map.value.getTargetElement().style.cursor = 'grab';
         map.value.on('pointerdrag', function() {
             map.value!.getTargetElement().style.cursor = 'grabbing';
@@ -528,8 +550,9 @@ await setupDataFetch({
                 popupsHeight.value = popups.value?.clientHeight ?? 0;
             });
             resizeObserver.observe(popups.value!);
-            await restoreOverlays();
         }
+
+        await restoreOverlays();
     },
 });
 </script>

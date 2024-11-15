@@ -58,6 +58,7 @@ export const useStore = defineStore('index', {
         loginPopup: false,
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
+        settingsPopup: false,
 
         viewport: {
             width: 0,

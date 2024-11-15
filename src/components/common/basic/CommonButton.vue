@@ -14,10 +14,10 @@
         :style="{
             '--button-width': width ?? 'auto',
             '--icon-width': iconWidth,
-            '--primary-color': colorsList[primaryColor],
-            '--link-color': colorsList[linkColor],
-            '--hover-color': colorsList[hoverColor],
-            '--focus-color': colorsList[focusColor],
+            '--primary-color': radarColors[primaryColor],
+            '--link-color': radarColors[linkColor],
+            '--hover-color': radarColors[hoverColor],
+            '--focus-color': radarColors[focusColor],
         }"
         :target="target"
         v-bind="getAttrs"
@@ -42,8 +42,8 @@
 import type { PropType } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
-import { colorsList } from '~/utils/backend/styles';
 import type { ColorsList } from '~/utils/backend/styles';
+import { radarColors } from '#build/radar/colors';
 
 const props = defineProps({
     tag: {

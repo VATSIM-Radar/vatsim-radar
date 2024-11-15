@@ -46,6 +46,10 @@ console.error(props.error);
     text-align: center;
     text-transform: uppercase;
 
+    @include mobileOnly {
+        font-size: 10vw;
+    }
+
     &::before {
         content: counter(variable);
         counter-reset: variable var(--status-code);
@@ -62,6 +66,10 @@ console.error(props.error);
 
         -webkit-text-fill-color: transparent;
         text-fill-color: transparent;
+
+        @include mobileOnly {
+            font-size: 50vw;
+        }
     }
 
     &_title {
@@ -71,6 +79,10 @@ console.error(props.error);
     &_image {
         height: 38dvh;
         margin: -24px 0 24px;
+
+        @include mobileOnly {
+            width: 100%;
+        }
     }
 }
 </style>

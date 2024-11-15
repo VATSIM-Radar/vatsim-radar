@@ -24,6 +24,7 @@
             {{ airport.airport.icao }}
         </div>
         <common-info-block
+            v-if="!isMobile"
             :bottom-items="[ country?.country, airport.airport.name ]"
             class="airport-card_info"
         >
@@ -33,6 +34,7 @@
                 </span>
             </template>
         </common-info-block>
+        <div v-else/>
         <div class="airport-card_data">
             <div class="airport-card_data_counts">
                 <div class="airport-card_data_counts_counter">
@@ -101,6 +103,7 @@ const ids = useFacilitiesIds();
 const mapStore = useMapStore();
 const store = useStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
+const isMobile = useIsMobile();
 
 interface Controller {
     facility: number;
@@ -172,14 +175,15 @@ const controllers = computed<Controller[]>(() => {
 
     transition: 0.3s;
 
+    @include mobileOnly {
+        grid-template-columns: 24px 32px 40px 1fr 88px;
+        justify-content: space-between;
+    }
+
     @include hover {
         &:hover {
             background: $darkgray875;
         }
-    }
-
-    &--no-index {
-        grid-template-columns: 24px 32px 40px 200px 88px;
     }
 
     &_index {

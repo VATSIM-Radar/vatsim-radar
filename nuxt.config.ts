@@ -125,6 +125,7 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
         '@vite-pwa/nuxt',
+        '@vueuse/nuxt',
     ],
     eslint: {
         checker: {

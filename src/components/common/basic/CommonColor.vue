@@ -144,6 +144,14 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         font-size: 14px;
         font-weight: 600;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+
+            .color-picker__content {
+                width: 100%;
+            }
+        }
+
         >svg {
             width: 16px;
             min-width: 16px;

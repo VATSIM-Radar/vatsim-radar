@@ -163,7 +163,7 @@
                         max-height="55vh"
                         min-height="400px"
                         :model-value="selectedFilter === 'settings'"
-                        width="450px"
+                        :width="isMobile ? undefined : '450px'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
@@ -249,6 +249,7 @@ const filtersImport = useTemplateRef('filtersImport');
 
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
+const isMobile = useIsMobile();
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {

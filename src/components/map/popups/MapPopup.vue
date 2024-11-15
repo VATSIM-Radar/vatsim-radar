@@ -3,7 +3,7 @@
         v-if="overlay?.data"
         class="map-popup"
         :style="{
-            '--max-height': `${ overlay._maxHeight }px`,
+            '--max-height': overlay._maxHeight ? `${ overlay._maxHeight }px` : maxHeight,
             '--position-x': typeof overlay.position === 'object' ? `${ overlay.position.x }%` : undefined,
             '--position-y': typeof overlay.position === 'object' ? `${ overlay.position.y }%` : undefined,
         }"
@@ -35,6 +35,9 @@ defineProps({
     overlay: {
         type: Object as PropType<StoreOverlay>,
         required: true,
+    },
+    maxHeight: {
+        type: String,
     },
 });
 const MapPopupPilot = defineAsyncComponent(() => import('./MapPopupPilot.vue'));

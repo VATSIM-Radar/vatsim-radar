@@ -19,7 +19,6 @@
                 </div>
             </div>
             <div class="__spacer"/>
-            <view-header-theme-switcher class="mobile-menu__flex-start"/>
             <div class="mobile-menu__menu">
                 <template
                     v-for="button in headerMenu.filter(x => !x.disabled)"
@@ -66,6 +65,36 @@
                     </template>
                 </template>
             </div>
+            <div class="__section-group __section-group--even __section-group--align-center">
+                <view-header-theme-switcher/>
+                <common-button
+                    href="https://github.com/VATSIM-Radar/vatsim-radar"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <github-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    href="/discord"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <discord-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    v-if="config.public.IS_DOWN !== 'true'"
+                    type="secondary"
+                    @click="[!store.user ? store.loginPopup = true : store.settingsPopup = true, model = false]"
+                >
+                    <template #icon>
+                        <settings-icon/>
+                    </template>
+                </common-button>
+            </div>
         </div>
     </transition>
 </template>
@@ -74,20 +103,27 @@
 import { useHeaderMenu, useOnlineCounters } from '~/composables/navigation';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ViewHeaderThemeSwitcher from '~/components/views/header/ViewHeaderThemeSwitcher.vue';
+import DiscordIcon from 'assets/icons/header/discord.svg?component';
+import GithubIcon from 'assets/icons/header/github.svg?component';
+import SettingsIcon from 'assets/icons/kit/settings.svg?component';
+import { useStore } from '~/store';
 
 const model = defineModel({ type: Boolean, required: true });
 
 const onlineCounters = useOnlineCounters();
+const store = useStore();
 const headerMenu = useHeaderMenu();
+const config = useRuntimeConfig();
 
-const counters = computed(() => [
+const counters = computed(() => ([
     ['Connections', onlineCounters.value.total],
     ['In VATSIM Radar', onlineCounters.value.inRadar],
     ['Pilots', onlineCounters.value.pilots],
     ['ATC', onlineCounters.value.firs + onlineCounters.value.atc],
     ['Supervisors', onlineCounters.value.sups],
     ['Admins', onlineCounters.value.adm],
-].filter(x => x[1]));
+    ['Last updated', onlineCounters.value.lastUpdated],
+] satisfies [string, unknown][]).filter(x => x[1]));
 </script>
 
 <style scoped lang="scss">
@@ -97,14 +133,14 @@ const counters = computed(() => [
     position: fixed;
     z-index: 50;
     top: 56px;
-    left: 8px;
+    left: 7px;
 
     overflow: auto;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 16px;
 
-    width: calc(100% - 16px);
+    width: calc(100% - 14px);
     height: calc(100% - 56px);
     padding: 16px;
 
@@ -152,7 +188,7 @@ const counters = computed(() => [
 
     &__menu {
         display: flex;
-        flex-wrap: wrap;
+        flex-direction: column;
         gap: 8px;
     }
 }

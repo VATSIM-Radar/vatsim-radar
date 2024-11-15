@@ -74,6 +74,8 @@ export const useMapStore = defineStore('map', {
 
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],
+
+        activeMobileOverlay: null as null | string,
     }),
     getters: {
         canShowOverlay(): boolean {
@@ -82,7 +84,8 @@ export const useMapStore = defineStore('map', {
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
-            const id = crypto.randomUUID();
+            // const id = crypto.randomUUID();
+            const id = Math.random().toString();
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
             }
@@ -96,6 +99,7 @@ export const useMapStore = defineStore('map', {
             } as O;
 
             this.overlays.push(newOverlay);
+            this.activeMobileOverlay = id;
             return this.overlays.find(x => x.id === id)! as O;
         },
         togglePilotOverlay(cid: string, tracked = false) {

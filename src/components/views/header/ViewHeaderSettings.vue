@@ -186,6 +186,10 @@ watch(settings, () => {
     top: calc(100% + 24px);
     right: -4px;
 
+    @include mobileOnly {
+        width: calc(100dvw - 96px) !important;
+    }
+
     &__block {
         display: flex;
         flex-direction: column;

@@ -2,6 +2,7 @@
     <div class="__info-sections">
         <common-tabs
             v-model="tab"
+            mobile-vertical
             :tabs="{ hide: { title: 'ATC & Layers' }, modes: { title: 'Airports & Traffic' } }"
         />
 

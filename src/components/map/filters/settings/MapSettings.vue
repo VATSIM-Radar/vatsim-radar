@@ -9,6 +9,7 @@
 
         <common-tabs
             v-model="tab"
+            mobile-vertical
             :tabs="{
                 layers: {
                     title: 'General',
@@ -119,6 +120,7 @@ const importedPresetName = defineModel('importedPresetName', {
 });
 
 const store = useStore();
+const isMobile = useIsMobile();
 
 const tab = ref('layers');
 const { refresh } = await useLazyAsyncData(async () => {
