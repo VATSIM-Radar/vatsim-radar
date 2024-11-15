@@ -95,7 +95,6 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
-import { DoubleClickZoom } from 'ol/interaction';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
