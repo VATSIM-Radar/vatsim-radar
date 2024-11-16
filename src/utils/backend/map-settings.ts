@@ -14,6 +14,7 @@ const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['alway
 const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
 const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'groundMoving', 'airborne', 'hide'];
 const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
+const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
 
 const colors = Object.keys(colorsList);
 
@@ -118,6 +119,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     heatmapLayer: val => {
         return typeof val === 'boolean';
     },
+    highlightEmergency: val => {
+        return typeof val === 'boolean';
+    },
     groundTraffic: val => {
         if (!isObject(val)) return false;
 
@@ -152,8 +156,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     colors: val => {
         if (!isObject(val)) return false;
 
-        // TODO
-        if ('turns' in val) return false;
+        if ('turns' in val && (typeof val.turns !== 'string' || !turnsKeys.includes(val.turns as any))) return false;
 
         if (!validateRandomObjectKeys(val, ['turns', 'light', 'default'])) return false;
 
@@ -193,6 +196,8 @@ export interface UserMapSettingsVisibilityATC {
     ground: boolean;
 }
 
+export type UserMapSettingsTurns = 'magma' | 'inferno' | 'rainbow' | 'viridis';
+
 export interface IUserMapSettings {
     visibility: {
         atc?: Partial<UserMapSettingsVisibilityATC> | boolean;
@@ -205,6 +210,7 @@ export interface IUserMapSettings {
         atcInfo?: boolean;
     };
     heatmapLayer: boolean;
+    highlightEmergency: boolean;
     groundTraffic: {
         hide?: 'always' | 'lowZoom' | 'never';
         excludeMyArrival?: boolean;
@@ -224,7 +230,7 @@ export interface IUserMapSettings {
     colors: {
         light?: UserMapSettingsColors;
         default?: UserMapSettingsColors;
-        turns?: string;
+        turns?: UserMapSettingsTurns;
     };
 }
 

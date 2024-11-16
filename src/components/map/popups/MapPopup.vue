@@ -3,7 +3,7 @@
         v-if="overlay?.data"
         class="map-popup"
         :style="{
-            '--max-height': overlay._maxHeight ? `${ overlay._maxHeight }px` : maxHeight,
+            '--max-height': maxHeight ?? `${ overlay._maxHeight }px`,
             '--position-x': typeof overlay.position === 'object' ? `${ overlay.position.x }%` : undefined,
             '--position-y': typeof overlay.position === 'object' ? `${ overlay.position.y }%` : undefined,
         }"

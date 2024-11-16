@@ -283,12 +283,14 @@ export const useShowPilotStats = () => {
 export function getFlightRowColor(index: number | null, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
 
+    const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
+
     switch (theme) {
         case 'sa':
         case 'default':
-            return colorPresets.dark[index];
+            return colorPresets[turnsTheme].dark[index];
         case 'light':
-            return colorPresets.light[index];
+            return colorPresets[turnsTheme].light[index];
     }
 }
 

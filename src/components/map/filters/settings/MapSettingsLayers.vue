@@ -17,6 +17,12 @@
         >
             Traffic Heatmap
         </common-toggle>
+        <common-toggle
+            :model-value="!!store.mapSettings.highlightEmergency"
+            @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
+        >
+            Highlight Emergency Aircraft
+        </common-toggle>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Aircraft scale

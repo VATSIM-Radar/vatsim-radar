@@ -421,6 +421,12 @@ onMounted(() => {
         }
     }
 
+    @include mobileOnly {
+        :deep(.info-popup_content_tabs) {
+            margin-top: 20px;
+        }
+    }
+
     &__name {
         font-size: 12px;
         font-weight: 600;
@@ -447,7 +453,7 @@ onMounted(() => {
         @include mobileOnly {
             &--root {
                 position: absolute;
-                top: 30px;
+                top: 40px;
                 right: 0;
 
                 padding: 4px;

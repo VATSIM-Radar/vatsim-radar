@@ -234,6 +234,12 @@ const getStatus = computed<MapAircraftStatus>(() => {
     if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
     if (props.isHovered) return 'hover';
 
+    if (store.mapSettings.highlightEmergency) {
+        if (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500') {
+            return 'landed';
+        }
+    }
+
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
     if (store.config.airport) {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);

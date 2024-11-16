@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-rc.2]
+
+- You can now change turns theme
+- You can now enable emergency aircraft highlighting
+- Added copy button to controller frequencies
+
 # [0.5.0-rc.1]
 
 - New icons from DotWallop: SR22, GLEX, BE60

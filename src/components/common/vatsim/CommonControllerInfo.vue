@@ -66,8 +66,18 @@
                             </common-spoiler>
                         </template>
                         <template v-else-if="index === 2">
-                            <div class="atc-popup__frequency">
-                                {{ item }}
+                            <div
+                                class="atc-popup__frequency"
+                                @click.stop="[copy(item as string), copiedFor = controller.cid]"
+                            >
+                                <template v-if="!isCopied(controller.cid)">
+                                    {{ item }}
+
+                                    <save-icon width="12"/>
+                                </template>
+                                <template v-else>
+                                    Copied!
+                                </template>
                             </div>
                         </template>
                         <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length)">
@@ -114,6 +124,7 @@ import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import SaveIcon from '@/assets/icons/kit/save.svg?component';
 
 defineProps({
     controllers: {
@@ -146,6 +157,12 @@ defineSlots<{ title(): any; additionalTitle(): any }>();
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const { copy, copyState } = useCopyText();
+const copiedFor = ref(0);
+
+const isCopied = (cid: number) => {
+    return copiedFor.value === cid && copyState.value;
+};
 
 const getATIS = (controller: VatsimShortenedController) => {
     if (!controller.isATIS) return controller.text_atis;
@@ -209,6 +226,9 @@ const getATIS = (controller: VatsimShortenedController) => {
     }
 
     &__frequency {
+        display: flex;
+        gap: 4px;
+        align-items: center;
         color: $primary400;
     }
 

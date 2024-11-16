@@ -50,7 +50,7 @@
                         v-for="airport in props.event.airports"
                         :key="airport.icao"
                         :href="`/?airport=${ airport.icao }`"
-                        target="_blank"
+                        :target="app.$pwa?.isPWAInstalled ? undefined : '_blank'"
                         type="link"
                     >
                         {{airport.icao}}
@@ -143,6 +143,7 @@ const formatter = new Intl.DateTimeFormat(['de-DE'], {
 
 const { copy: baseCopy } = useCopyText();
 
+const app = useNuxtApp();
 const description = computed(() => parse(props.event.description));
 const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => formatter.format(new Date(props.event.end_time)));
