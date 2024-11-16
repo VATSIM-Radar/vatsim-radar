@@ -193,6 +193,10 @@ const getATIS = (controller: VatsimShortenedController) => {
         &--absolute {
             position: absolute;
         }
+
+        @include mobileOnly {
+            max-width: 80vw;
+        }
     }
 
     &_title {

@@ -370,7 +370,7 @@ watch(() => mapStore.overlays.length, () => {
 
         overflow: auto;
         display: flex;
-        flex-direction: column-reverse;
+        flex-direction: column;
         gap: 8px;
         align-items: center;
 

@@ -4,21 +4,6 @@
             v-if="model"
             class="mobile-menu"
         >
-            <div class="mobile-menu__stats">
-                <div
-                    v-for="[title, counter] in counters"
-                    :key="title"
-                    class="mobile-menu__stats_item"
-                >
-                    <div class="mobile-menu__stats_item_title">
-                        {{ title }}
-                    </div>
-                    <div class="mobile-menu__stats_item_text">
-                        {{ counter }}
-                    </div>
-                </div>
-            </div>
-            <div class="__spacer"/>
             <div class="mobile-menu__menu">
                 <template
                     v-for="button in headerMenu.filter(x => !x.disabled)"
@@ -65,6 +50,7 @@
                     </template>
                 </template>
             </div>
+            <div class="__spacer"/>
             <div class="mobile-menu__links">
                 <view-header-theme-switcher/>
                 <common-button
@@ -95,6 +81,20 @@
                     </template>
                 </common-button>
                 <common-airac/>
+            </div>
+            <div class="mobile-menu__stats">
+                <div
+                    v-for="[title, counter] in counters"
+                    :key="title"
+                    class="mobile-menu__stats_item"
+                >
+                    <div class="mobile-menu__stats_item_title">
+                        {{ title }}
+                    </div>
+                    <div class="mobile-menu__stats_item_text">
+                        {{ counter }}
+                    </div>
+                </div>
             </div>
         </div>
     </transition>
@@ -200,6 +200,11 @@ const counters = computed(() => ([
         display: flex;
         flex-direction: column;
         gap: 8px;
+
+        @include tablet {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 8px));
+        }
     }
 
     &__links {

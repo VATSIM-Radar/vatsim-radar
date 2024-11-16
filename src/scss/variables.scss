@@ -37,3 +37,11 @@ $defaultPageHeight: calc(32px + 56px);
         @content;
     }
 }
+
+@mixin mobileSafariOnly() {
+    @include mobileOnly() {
+        @supports (-webkit-hyphens:none) {
+            @content;
+        }
+    }
+}

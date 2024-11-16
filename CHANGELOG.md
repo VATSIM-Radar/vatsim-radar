@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.5.0-rc.3]
+
+- Mobile search moved to top
+- Mobile Safari font size in input will now be huge. Because Safari. Deal with it.
+- Reordered burger menu to be more intuitive with menu on top
+- Fixed too huge ATC popup size
+
 # [0.5.0-rc.2]
 
 - You can now change turns theme
