@@ -76,16 +76,18 @@ export const useMapStore = defineStore('map', {
         turnsResponse: [] as TurnsBulkReturn[],
 
         activeMobileOverlay: null as null | string,
+        autoShowTracks: null as null | boolean,
     }),
     getters: {
         canShowOverlay(): boolean {
-            return this.zoom > 4 && !this.moving;
+            return !this.moving;
         },
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
-            // const id = crypto.randomUUID();
-            const id = Math.random().toString();
+            const id = crypto.randomUUID();
+            const isMobile = useIsMobile();
+
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
             }
@@ -98,8 +100,14 @@ export const useMapStore = defineStore('map', {
                 ...overlay,
             } as O;
 
+            if (isMobile.value) {
+                this.overlays.forEach(x => {
+                    x.collapsed = false;
+                });
+            }
             this.overlays.push(newOverlay);
             this.activeMobileOverlay = id;
+
             return this.overlays.find(x => x.id === id)! as O;
         },
         togglePilotOverlay(cid: string, tracked = false) {
@@ -216,7 +224,7 @@ export const useMapStore = defineStore('map', {
                     key: airport,
                     data: {
                         icao: airport,
-                        showTracks: store.user?.settings.autoShowAirportTracks,
+                        showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                     },
                     type: 'airport',
                     sticky: false,

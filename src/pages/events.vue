@@ -1,12 +1,12 @@
 <template>
     <common-page-block>
-        <template #title>VATSIM Events (Alpha)</template>
+        <template #title>VATSIM Events (Beta)</template>
 
         <template
             v-for="(events, day) in groupedEventData"
             :key="day"
         >
-            <h2 class="common-event__title">{{ new Date(day).toLocaleDateString() }}</h2>
+            <h2 class="common-event__title">{{ datetime.format(new Date(day)) }}</h2>
 
             <common-event-card
                 v-for="event in events"
@@ -25,6 +25,14 @@ import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 
 const { data } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
+});
+
+const datetime = new Intl.DateTimeFormat(['de-DE'], {
+    timeZone: 'UTC',
+    localeMatcher: 'best fit',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
 });
 
 const groupedEventData = computed(() => {
@@ -47,6 +55,17 @@ useHead({
         font-size: 20px;
         font-weight: 500;
         color: $primary500;
+    }
+
+    :deep(a) {
+        color: $primary500;
+        @include hover {
+            transition: 0.3s;
+
+            &:hover {
+                color: $primary300;
+            }
+        }
     }
 }
 </style>

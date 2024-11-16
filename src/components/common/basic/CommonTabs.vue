@@ -73,6 +73,11 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         background: $darkgray1000;
         border-bottom: 2px solid $primary700;
 
+        @include mobile {
+            gap: 4px;
+            padding: 0 8px;
+        }
+
         @at-root .tabs--vertical & {
             flex-direction: column;
             height: auto;

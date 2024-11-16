@@ -5,25 +5,12 @@
     >
         <div class="map-footer_left">
             <div
-                v-if="dataStore.versions.value?.navigraph"
+                v-if="dataStore.versions.value?.navigraph && !isMobile"
                 class="map-footer_left_section"
                 title="Navigraph Data AIRAC"
-                @click="!store.user?.hasFms ? airacPopup = true : undefined"
+                @click="!store.user?.hasFms ? store.airacPopup = true : undefined"
             >
-                <div
-                    class="map-footer__airac"
-                    :class="{ 'map-footer__airac--current': !!store.user?.hasFms }"
-                >
-                    <img
-                        alt="Navigraph"
-                        src="@/assets/icons/header/navigraph.svg"
-                        width="20"
-                    >
-
-                    AIRAC {{
-                        dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
-                    }}
-                </div>
+                <common-airac/>
             </div>
             <div class="map-footer_left_section __from-tablet">
                 <common-button
@@ -98,13 +85,13 @@
         </div>
         <div
             v-if="getCounts.lastUpdated"
-            class="map-footer_right __from-tablet"
+            class="map-footer_right"
             :class="{ 'map-footer_right--outdated': outdated }"
         >
             Map last updated: {{ getCounts.lastUpdated }}
         </div>
     </footer>
-    <common-popup v-model="airacPopup">
+    <common-popup v-model="store.airacPopup">
         <template #title>
             AIRAC upgrade
         </template>
@@ -128,7 +115,7 @@
             <common-button
                 v-else
                 type="secondary"
-                @click="airacPopup = false"
+                @click="store.airacPopup = false"
             >
                 Cancel
             </common-button>
@@ -168,14 +155,15 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
 import { useOnlineCounters } from '~/composables/navigation';
 import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
+import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
-const airacPopup = ref(false);
 
 const getCounts = useOnlineCounters();
 
 const outdated = computed(() => dataStore.time.value - dataStore.vatsim.updateTime.value > 1000 * 20);
+const isMobile = useIsMobile();
 </script>
 
 <style scoped lang="scss">
@@ -216,30 +204,11 @@ const outdated = computed(() => dataStore.time.value - dataStore.vatsim.updateTi
         }
     }
 
-    &__airac, &__connections {
+    &__connections {
+        display: flex;
         padding: 8px 12px;
         background: $darkgray950;
         border-radius: 8px;
-    }
-
-    &__airac {
-        cursor: pointer;
-
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        font-weight: 600;
-
-        &--current {
-            cursor: default;
-            color: $lightgray125;
-            background: linear-gradient(90deg, rgba(184, 42, 20, 0.25) 0%, $darkgray950 75%);
-        }
-    }
-
-    &__connections {
-        display: flex;
 
         span {
             font-weight: 600;

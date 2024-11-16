@@ -65,7 +65,7 @@
                     </template>
                 </template>
             </div>
-            <div class="__section-group __section-group--even __section-group--align-center">
+            <div class="mobile-menu__links">
                 <view-header-theme-switcher/>
                 <common-button
                     href="https://github.com/VATSIM-Radar/vatsim-radar"
@@ -94,6 +94,7 @@
                         <settings-icon/>
                     </template>
                 </common-button>
+                <common-airac/>
             </div>
         </div>
     </transition>
@@ -107,6 +108,7 @@ import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import { useStore } from '~/store';
+import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 
 const model = defineModel({ type: Boolean, required: true });
 
@@ -170,6 +172,10 @@ const counters = computed(() => ([
         gap: 8px;
         font-size: 12px;
 
+        @include tablet {
+            font-size: 14px;
+        }
+
         &_item {
             display: flex;
             gap: 4px;
@@ -179,6 +185,10 @@ const counters = computed(() => ([
 
             background: $darkgray900;
             border-radius: 8px;
+
+            @include tablet {
+                padding: 12px;
+            }
 
             &_title {
                 font-weight: 600;
@@ -190,6 +200,13 @@ const counters = computed(() => ([
         display: flex;
         flex-direction: column;
         gap: 8px;
+    }
+
+    &__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
     }
 }
 </style>

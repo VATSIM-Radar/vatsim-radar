@@ -1,6 +1,9 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'be60'
+    | 'glex'
+    | 'sr22'
     | 'u2'
     | 'p51'
     | 'pa24'
@@ -152,6 +155,18 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    be60: {
+        icon: 'be60',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    glex: {
+        icon: 'glex',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    sr22: {
+        icon: 'sr22',
+        width: getAircraftSizeByCoef(0.19),
+    },
     u2: {
         icon: 'u2',
         width: getAircraftSizeByCoef(0.52),
@@ -908,6 +923,11 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.be58;
         case 'K100':
             return aircraftIcons.kodi;
+        case 'SR22T':
+        case 'SR20':
+            return aircraftIcons.sr22;
+        case 'B60T':
+            return aircraftIcons.be60;
         case 'B731':
         case 'B732':
         case 'B733':
@@ -1003,6 +1023,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'PA24':
         case 'P51':
         case 'U2':
+        case 'SR22':
+        case 'GLEX':
+        case 'BE60':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

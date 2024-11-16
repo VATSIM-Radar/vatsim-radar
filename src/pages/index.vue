@@ -114,6 +114,7 @@ const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
+const config = useRuntimeConfig();
 
 if (route.query.discord === '1') {
     router.replace({
@@ -162,8 +163,8 @@ const getRouteZoom = (): number | null => {
 
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
-    const routeOverlays = Array.isArray(route.query['overlay[]']) && route.query['overlay[]'];
-    const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
+    const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
+    const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
@@ -232,7 +233,7 @@ const restoreOverlays = async () => {
                 data: {
                     icao: overlay.key,
                     airport: data[0].value,
-                    showTracks: store.user?.settings.autoShowAirportTracks,
+                    showTracks: mapStore.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                 },
             };
         }
@@ -277,7 +278,7 @@ const restoreOverlays = async () => {
         }
     }
 
-    if (routeOverlays) {
+    if (routeOverlays?.length) {
         for (const overlay of routeOverlays) {
             if (!overlay) continue;
             const data = overlay.split(';');
@@ -394,17 +395,6 @@ await setupDataFetch({
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
         let zoom = store.localSettings.zoom ?? 3;
 
-        if (typeof route.query.center === 'string') {
-            const coords = route.query.center.split(',').map(x => +x);
-            if (coords.length !== 2 || coords.some(x => typeof x !== 'number' || isNaN(x))) return;
-
-            center = fromLonLat(coords);
-        }
-
-        const routeZoom = getRouteZoom();
-
-        if (routeZoom) zoom = routeZoom;
-
         if (store.config.airport) {
             const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
 
@@ -441,6 +431,21 @@ await setupDataFetch({
             zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
         else if (store.config.airports?.length) zoom = 1;
+
+        if (typeof route.query.center === 'string' && route.query.center) {
+            const coords = route.query.center.split(',').map(x => +x);
+            if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
+                center = fromLonLat(coords);
+            }
+        }
+
+        if (typeof route.query.tracks === 'string') {
+            mapStore.autoShowTracks = route.query.tracks === '1';
+        }
+
+        const routeZoom = getRouteZoom();
+
+        if (routeZoom) zoom = routeZoom;
 
         map.value = new Map({
             target: mapContainer.value!,
@@ -513,34 +518,6 @@ await setupDataFetch({
             }
         });
 
-        map.value.on('movestart', () => {
-            moving = true;
-            mapStore.moving = true;
-        });
-        map.value.on('moveend', async () => {
-            moving = false;
-            const view = map.value!.getView();
-            mapStore.zoom = view.getZoom() ?? 0;
-            mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-            mapStore.extent = view.calculateExtent(map.value!.getSize());
-
-            router.replace({
-                query: {
-                    center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
-                    zoom: view.getZoom()?.toFixed(2),
-                },
-            });
-
-            setUserLocalSettings({
-                location: view.getCenter(),
-                zoom: view.getZoom(),
-            });
-
-            await sleep(300);
-            if (moving) return;
-            mapStore.moving = false;
-        });
-
         await nextTick();
         popupsHeight.value = popups.value?.clientHeight ?? 0;
 
@@ -552,6 +529,42 @@ await setupDataFetch({
         }
 
         await restoreOverlays();
+
+        map.value.on('movestart', () => {
+            moving = true;
+            mapStore.moving = true;
+        });
+        map.value.on('moveend', async () => {
+            moving = false;
+            const view = map.value!.getView();
+            mapStore.zoom = view.getZoom() ?? 0;
+            mapStore.rotation = toDegrees(view.getRotation() ?? 0);
+            mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+            const query = {
+                center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
+                zoom: view.getZoom()?.toFixed(2),
+            };
+
+            router.replace({
+                query,
+            });
+
+            const targetOrigin = config.public.DOMAIN;
+            window.parent.postMessage({
+                type: 'move',
+                query,
+            }, targetOrigin);
+
+            setUserLocalSettings({
+                location: view.getCenter(),
+                zoom: view.getZoom(),
+            });
+
+            await sleep(300);
+            if (moving) return;
+            mapStore.moving = false;
+        });
     },
 });
 </script>

@@ -1,5 +1,24 @@
 # Changelog
 
+# [0.5.0-rc.1]
+
+- New icons from DotWallop: SR22, GLEX, BE60
+- Replaced AIRAC on mobile with Map last updated
+- Added burger menu for tablets
+- Airport Dashboard has been optimized for mobile/tablet
+- Support Us has been optimized for mobile/tablet
+- Added traffic counters to collapsed airport overlay on mobile
+- Added slight animation to overlay navigation on mobile
+- Redesigned events page
+  - Added markdown parse for text
+  - Added prefile on simbrief/vatsim/copy for each route
+  - Added support for mobile/tablet
+  - Added banner
+- Overlays from inserted link will now replace existing overlays rather than oppending them
+- Removed overlay zoom restriction
+- Added ability to toggle arrivals tracks for airport dashboard
+- Zoom is now also remembered in airport dashboard
+
 # [0.5.0-beta.4]
 
 Map is now expected to be fully optimized for mobile. WIP: airport dashboard, events, support us

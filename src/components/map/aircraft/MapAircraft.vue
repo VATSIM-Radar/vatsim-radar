@@ -308,6 +308,7 @@ const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type =
 
 const isPropsHovered = computed(() => props.isHovered);
 const airportOverlayTracks = computed(() => pilot.value && pilot.value.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.value?.arrival && x.data.showTracks));
+
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
 function clearLineFeatures(features = lineFeatures.value) {

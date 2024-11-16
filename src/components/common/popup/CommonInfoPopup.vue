@@ -240,6 +240,10 @@ watch(getSections, sections => {
             display: flex;
             gap: 16px;
 
+            @include mobileOnly {
+                flex-wrap: wrap;
+            }
+
             &_action {
                 user-select: none;
 

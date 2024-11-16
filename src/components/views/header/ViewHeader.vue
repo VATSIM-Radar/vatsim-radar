@@ -79,8 +79,8 @@
                     </common-button>
                 </div>
                 <div
-                    v-if="route.path === '/'"
-                    class="header__sections_section __desktop"
+                    v-if="route.path === '/' && !isMobileOrTablet"
+                    class="header__sections_section"
                 >
                     <view-search/>
                 </div>
@@ -88,7 +88,7 @@
         </div>
         <div class="header_right header__sections">
             <div
-                v-if="!isMobile"
+                v-if="!isMobileOrTablet"
                 class="header__sections_section"
             >
                 <view-header-theme-switcher/>
@@ -99,7 +99,8 @@
             >
                 <common-button
                     size="S"
-                    type="secondary"
+                    :type="store.searchActive ? 'primary' : 'secondary'"
+                    @click="store.searchActive = !store.searchActive"
                 >
                     <template #icon>
                         <search-icon/>
@@ -130,7 +131,7 @@
                 </div>
             </div>
             <div
-                v-if="!isMobile"
+                v-if="!isMobileOrTablet"
                 class="header__sections_section"
             >
                 <common-button
@@ -165,7 +166,7 @@
                 </common-button>
             </div>
             <div
-                v-if="isMobile"
+                v-if="isMobileOrTablet"
                 class="header__sections_section"
             >
                 <common-button
@@ -193,6 +194,9 @@
             <view-header-settings v-model="store.settingsPopup"/>
         </div>
         <view-header-popups/>
+        <transition name="header--mobile-search">
+            <view-search v-if="isMobileOrTablet && store.searchActive"/>
+        </transition>
     </header>
 </template>
 
@@ -451,6 +455,19 @@ const mobileMenuOpened = ref(false);
                     transform: translateY(-4px) rotate(-45deg);
                 }
             }
+        }
+    }
+
+    &--mobile-search {
+        &-enter-active,
+        &-leave-active {
+            transition: 0.3s;
+        }
+
+        &-enter-from,
+        &-leave-to {
+            top: calc(100% - 10px);
+            opacity: 0;
         }
     }
 }

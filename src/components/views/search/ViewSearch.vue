@@ -4,37 +4,39 @@
         class="search"
         :class="{ 'search--opened': isOpened || opened }"
     >
-        <common-input-text
-            v-model="search"
-            class="search_input"
-            placeholder="Search"
-            @update:focused="$event && ([opened = true, filtersEnabled = false])"
-        >
-            <template #icon>
-                <search-icon width="16"/>
-            </template>
-        </common-input-text>
-        <transition
-            name="search_filters--appear"
-        >
-            <common-button
-                v-if="opened"
-                class="search_filters"
-                :type="filtersEnabled ? 'primary' : 'secondary'"
-                @click="filtersEnabled = !filtersEnabled"
+        <div class="search_container">
+            <common-input-text
+                v-model="search"
+                class="search_input"
+                placeholder="Search"
+                @update:focused="$event && ([opened = true, filtersEnabled = false])"
             >
                 <template #icon>
-                    <filter-icon/>
-
-                    <div
-                        v-if="filtersCount"
-                        class="search_filters_badge"
-                    >
-                        {{ filtersCount }}
-                    </div>
+                    <search-icon width="16"/>
                 </template>
-            </common-button>
-        </transition>
+            </common-input-text>
+            <transition
+                name="search_filters--appear"
+            >
+                <common-button
+                    v-if="opened"
+                    class="search_filters"
+                    :type="filtersEnabled ? 'primary' : 'secondary'"
+                    @click="filtersEnabled = !filtersEnabled"
+                >
+                    <template #icon>
+                        <filter-icon/>
+
+                        <div
+                            v-if="filtersCount"
+                            class="search_filters_badge"
+                        >
+                            {{ filtersCount }}
+                        </div>
+                    </template>
+                </common-button>
+            </transition>
+        </div>
         <transition name="search_window--appear">
             <div
                 v-if="isOpened"
@@ -349,21 +351,62 @@ useClickOutside({
         filtersEnabled.value = false;
     },
 });
+
+watch(() => mapStore.overlays.length, () => {
+    store.searchActive = false;
+});
 </script>
 
 <style scoped lang="scss">
 .search {
     position: relative;
-    display: flex;
-    gap: 8px;
 
-    & &_input {
-        width: 280px;
-        height: 40px;
+    @include mobile {
+        scrollbar-gutter: stable;
+
+        position: absolute;
+        top: 100%;
+        left: 0;
+
+        overflow: auto;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 8px;
+        align-items: center;
+
+        width: 100%;
+        height: calc(100vh - 56px);
+        padding: 16px;
+
+        background: $darkgray950;
     }
 
-    &--opened .search_input {
-        width: 240px;
+    &_container {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+
+        @include mobile {
+            position: sticky;
+            bottom: 0;
+        }
+    }
+
+    @include pc {
+        & &_input {
+            width: 280px;
+            height: 40px;
+        }
+
+        &--opened .search_input {
+            width: 240px;
+        }
+    }
+
+    @include mobile {
+        & &_input {
+            height: 40px;
+        }
     }
 
     &_filters {
@@ -428,6 +471,27 @@ useClickOutside({
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
 
+        @include mobile {
+            position: relative;
+            top: 0;
+
+            min-height: unset;
+            max-height: unset;
+
+            border-radius: 8px;
+        }
+
+        @include tablet {
+            .__info-sections {
+                flex-direction: row;
+                flex-wrap: wrap;
+
+                .title {
+                    width: 100%;
+                }
+            }
+        }
+
         &--appear {
             &-enter-active,
             &-leave-active {
@@ -438,6 +502,10 @@ useClickOutside({
             &-leave-to {
                 top: calc(100% - 20px);
                 opacity: 0;
+
+                @include mobile {
+                    top: -5px;
+                }
             }
         }
 

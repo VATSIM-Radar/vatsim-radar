@@ -23,7 +23,7 @@
         </template>
         <template #action-counts>
             <div
-                class="airport__counts"
+                class="airport__counts airport__counts--root"
                 :class="{ 'airport__counts--ground_departures': listGroundDepartures }"
             >
                 <common-tooltip
@@ -443,6 +443,19 @@ onMounted(() => {
         font-size: 12px;
         font-weight: 700;
         line-height: 100%;
+
+        @include mobileOnly {
+            &--root {
+                position: absolute;
+                top: 30px;
+                right: 0;
+
+                padding: 4px;
+
+                background: $darkgray1000;
+                border-radius: 4px;
+            }
+        }
 
         &--ground_departures {
             gap: 14px;

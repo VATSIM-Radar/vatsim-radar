@@ -59,6 +59,8 @@ export const useStore = defineStore('index', {
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
         settingsPopup: false,
+        airacPopup: false,
+        searchActive: false,
 
         viewport: {
             width: 0,

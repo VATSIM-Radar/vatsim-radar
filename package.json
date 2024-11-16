@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "0.5.0-beta.4",
+  "version": "0.5.0-rc.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -39,6 +39,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "kafkajs": "^2.2.4",
+    "marked": "^15.0.0",
     "metar-taf-parser": "^9.0.1",
     "nuxt": "^3.14.159",
     "ol": "^10.2.1",
