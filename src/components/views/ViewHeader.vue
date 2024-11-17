@@ -374,7 +374,7 @@ const notamCookie = useCookie<boolean>('notam-closed', {
 });
 
 const curTime = ref(Date.now());
-const eventTime = new Date(2024, 10, 18, 18).getTime();
+const eventTime = 1731945600000;
 
 const hoursRemain = computed(() => `0${ Math.floor(((eventTime - curTime.value) / (1000 * 60 * 60)) % 60) }`.slice(-2));
 const minsRemain = computed(() => `0${ Math.floor(((eventTime - curTime.value) / (1000 * 60)) % 60) }`.slice(-2));
