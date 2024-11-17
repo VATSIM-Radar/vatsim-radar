@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!notamCookie && (eventTime - curTime) > (1000 * 60 * 60)"
+        v-if="!notamCookie && (eventTime - curTime) > (-1 * 1000 * 60 * 60)"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
@@ -8,7 +8,12 @@
 
             <client-only>
                 <div class="header-error__clock">
-                    {{ hoursRemain }}:{{ minsRemain }}:{{ secondsRemain }}
+                    <template v-if="eventTime - curTime > 0">
+                        {{ hoursRemain }}:{{ minsRemain }}:{{ secondsRemain }}
+                    </template>
+                    <template v-else>
+                        LIVE
+                    </template>
                 </div>
                 <common-button
                     class="header-error__action"
