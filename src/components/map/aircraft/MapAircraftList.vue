@@ -6,6 +6,7 @@
             :aircraft="aircraft"
             :can-show-tracks="showTracks.find(x => x.pilot.cid === aircraft.cid)?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
+            :is-visible="showTracks.find(x => x.pilot.cid === aircraft.cid)?.isShown ?? true"
             :show-label="showAircraftLabel.includes(aircraft.cid)"
             @manualHide="[isManualHover = false]"
             @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"

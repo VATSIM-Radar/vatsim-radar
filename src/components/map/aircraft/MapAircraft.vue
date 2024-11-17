@@ -190,6 +190,10 @@ const props = defineProps({
         type: String as PropType<'short' | 'full' | null>,
         default: null,
     },
+    isVisible: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -659,7 +663,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrivalAirport && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
             const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
 
