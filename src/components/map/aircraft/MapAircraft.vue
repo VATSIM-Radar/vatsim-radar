@@ -381,7 +381,13 @@ async function toggleAirportLines(value = canShowLines.value) {
             );
         };
 
-        const color = getAircraftStatusColor(getStatus.value);
+        let color = getAircraftStatusColor(getStatus.value);
+
+        if (store.mapSettings.colors?.turnsTransparency) {
+            const rgb = hexToRgb(color);
+
+            color = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+        }
 
         let turns: InfluxGeojson | null | undefined = null;
         let firstUpdate = true;

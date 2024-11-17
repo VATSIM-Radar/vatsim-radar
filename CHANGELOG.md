@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.0-rc.6]
+
+- Renamed arrival tracks to just tracks
+- Renamed Arriving & Landed to just "Arrivals"
+- Added ability to modify turns transparency
+
 # [0.5.0-rc.5]
 
 - Fixed map filters displaying "below" mobile bottom nav menu

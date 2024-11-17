@@ -159,7 +159,13 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         if ('turns' in val && (typeof val.turns !== 'string' || !turnsKeys.includes(val.turns as any))) return false;
 
-        if (!validateRandomObjectKeys(val, ['turns', 'light', 'default'])) return false;
+        if ('turnsTransparency' in val) {
+            const transparency = validateTransparency(val.turnsTransparency);
+            if (transparency !== false) val.turnsTransparency = transparency;
+            else return false;
+        }
+
+        if (!validateRandomObjectKeys(val, ['turns', 'turnsTransparency', 'light', 'default'])) return false;
 
         if ('default' in val && !validateTheme(val.default)) return false;
         if ('light' in val && !validateTheme(val.light)) return false;
@@ -247,6 +253,7 @@ export interface IUserMapSettings {
         light?: UserMapSettingsColors;
         default?: UserMapSettingsColors;
         turns?: UserMapSettingsTurns;
+        turnsTransparency?: number;
     };
 }
 

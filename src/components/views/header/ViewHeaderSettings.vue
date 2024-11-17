@@ -103,7 +103,7 @@
                     Auto-show airport tracks
 
                     <template #description>
-                        Enabling this will auto-show aircraft arrival tracks for any airport overlay you open.
+                        Enabling this will auto-show aircraft tracks for any airport overlay you open.
                     </template>
                 </common-toggle>
             </div>

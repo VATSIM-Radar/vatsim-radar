@@ -241,7 +241,7 @@ const tab = ref('hide');
 const tracksOptions: SelectItem<NonNullable<IUserMapSettings['tracks']['mode']>>[] = [
     {
         value: 'arrivalsAndLanded',
-        text: 'Arriving & Landed',
+        text: 'Arrivals',
     },
     {
         value: 'arrivalsOnly',

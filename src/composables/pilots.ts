@@ -241,7 +241,16 @@ const lineStyles: {
 }[] = [];
 
 export function getAircraftLineStyle(color: string | number | null, width = 1.5, lineDash?: number[]): Style {
-    const hex = typeof color === 'string' ? color : getFlightRowColor(color);
+    const store = useStore();
+
+    let hex = typeof color === 'string' ? color : getFlightRowColor(color);
+
+    if (store.mapSettings.colors?.turnsTransparency) {
+        const rgb = hexToRgb(hex);
+
+        hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+    }
+
     const existingStyle = lineStyles.find(x => x.color === hex && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
     if (existingStyle) return existingStyle.style;
 

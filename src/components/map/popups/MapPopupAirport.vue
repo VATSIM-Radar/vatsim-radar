@@ -186,7 +186,7 @@
                     :model-value="!!props.overlay.data.showTracks"
                     @update:modelValue="props.overlay.data.showTracks = $event"
                 >
-                    Show tracks for arriving
+                    Show aircraft tracks
                 </common-toggle>
             </div>
             <airport-aircraft nav-offset="56px"/>

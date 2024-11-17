@@ -27,6 +27,14 @@
             />
         </div>
         <common-color
+            :default-color="{ transparency: 1 }"
+            :model-value="store.mapSettings.colors?.turnsTransparency ? { transparency: store.mapSettings.colors?.turnsTransparency ?? 1 } : reactive({ transparency: 1 })"
+            transparency-only
+            @update:modelValue="setUserMapSettings({ colors: { turnsTransparency: $event.transparency } })"
+        >
+            Turns transparency
+        </common-color>
+        <common-color
             :default-color="{ color: 'error300' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.approach ?? reactive({ color: 'error300' })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approach: $event } } })"
