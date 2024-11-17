@@ -165,38 +165,23 @@ defineCronJob('* * * * * *', async () => {
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;
 
-            let controllerPrefix = '';
-            const controllerPostfix = controllerSplit[controllerSplit.length - 1];
-            if (controllerSplit.length === 3) controllerPrefix = controllerSplit.slice(0, 2).join('_');
-            else if (controllerSplit.length === 2) controllerPrefix = controllerSplit[0];
+            const australiaSectors = allowedAustraliaSectors.filter(x => {
+                const freq = parseFloat(x.frequency).toString();
 
-            const australiaSector = allowedAustraliaSectors.some(x => {
-                const split = x.callsign.split('_');
-                return x.frequency === controller.frequency && controllerPrefix.includes(split[0]) && controllerPostfix === split[split.length - 1] && (split.length === 1 || controller.callsign.endsWith(split[split.length - 1]));
+                return controller.text_atis?.some(y => y.includes(freq)) && controller.text_atis?.some(y => y.includes(x.name));
             });
 
-            if (!australiaSector) continue;
+            if (!australiaSectors) continue;
 
-            const extending = getTransceiverData(controller.callsign, true);
-            if (extending.frequencies.length <= 1) continue;
+            for (const sector of australiaSectors) {
+                const freq = parseFloat(sector.frequency).toString();
+                if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
 
-            for (const frequency of extending.frequencies) {
-                if (frequency === controller.frequency) continue;
-
-                const sectors = allowedAustraliaSectors.filter(x => {
-                    const split = x.callsign.split('_');
-
-                    return x.frequency === frequency && controllerPostfix === split[split.length - 1];
+                radarStorage.vatsim.data.controllers.push({
+                    ...controller,
+                    callsign: sector.callsign,
+                    frequency: sector.frequency,
                 });
-                if (!sectors) continue;
-
-                for (const sector of sectors) {
-                    radarStorage.vatsim.data.controllers.push({
-                        ...controller,
-                        callsign: sector.callsign,
-                        frequency,
-                    });
-                }
             }
         }
 

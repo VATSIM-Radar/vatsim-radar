@@ -1,5 +1,10 @@
 # Changelog
 
+# [0.5.0-rc.4]
+
+- Fixed some Australian airports showing twice on map
+- Fixed Australian extending feature to now rely on controller ATIS
+
 # [0.5.0-rc.3]
 
 - Mobile search moved to top
