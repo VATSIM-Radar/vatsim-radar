@@ -254,7 +254,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Friendly mobile version',
-                status: 'in-progress',
+                status: 'completed',
             },
         ],
     },
@@ -280,6 +280,10 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'PWA',
                 status: 'completed',
+            },
+            {
+                title: 'Usage of VatGlasses data',
+                status: 'in-progress',
             },
             'Bookmarks',
         ],
@@ -308,7 +312,6 @@ const roadmap = reactive<Roadmap[]>([
             'Streamers integration',
             '3D map view',
             'Twitch/streamers integration',
-            'Usage of VatGlasses data',
             'Distance measuring tool',
             'Aircraft collision prediction',
             {
