@@ -14,7 +14,6 @@ import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
-import { getTransceiverData } from '~/utils/backend/vatsim';
 import { redis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
 
