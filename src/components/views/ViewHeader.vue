@@ -1,10 +1,22 @@
 <template>
     <div
-        v-if="false && !notamCookie"
+        v-if="!notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            VATSIM Radar will undergo maintenance on August 11th at 14:00z with expected downtime of 5-10 minutes, during which online services may be temporally unavailable. Thank you for your patience.
+            Join us for presentation of Major Update 0.5.0 on Monday, 16:00z!
+
+            <div class="header-error__clock">
+                {{ hoursRemain }}:{{ minsRemain }}:{{ secondsRemain }}
+            </div>
+            <common-button
+                class="header-error__action"
+                href="https://www.youtube.com/live/FaYfNPyBjkI"
+                size="S"
+                target="_blank"
+            >
+                YouTube
+            </common-button>
         </div>
         <div
             class="header-error_close"
@@ -361,6 +373,13 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     maxAge: 60 * 60 * 24,
 });
 
+const curTime = ref(Date.now());
+const eventTime = new Date(2024, 10, 18, 18).getTime();
+
+const hoursRemain = computed(() => `0${ Math.floor(((eventTime - curTime.value) / (1000 * 60 * 60)) % 60) }`.slice(-2));
+const minsRemain = computed(() => `0${ Math.floor(((eventTime - curTime.value) / (1000 * 60)) % 60) }`.slice(-2));
+const secondsRemain = computed(() => `0${ Math.floor(((eventTime - curTime.value) / (1000)) % 60) }`.slice(-2));
+
 const buttons = computed(() => {
     return [
         {
@@ -442,6 +461,12 @@ onMounted(() => {
 
         store.theme = theme.value;
     }
+
+    const interval = setInterval(() => {
+        curTime.value = Date.now();
+    }, 1000);
+
+    onBeforeUnmount(() => clearInterval(interval));
 });
 </script>
 
@@ -484,6 +509,32 @@ onMounted(() => {
                 font-weight: 700;
                 letter-spacing: 2px;
             }
+        }
+
+        &_text {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        &__clock {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            min-width: 90px;
+            height: 24px;
+            padding: 0 16px;
+
+            line-height: 100%;
+
+            background: $primary700;
+            border-radius: 8px;
+        }
+
+        &__action {
+            height: 24px !important;
+            min-height: unset !important;
         }
 
         &_close {
