@@ -149,7 +149,7 @@ const getShownPilots = computed(() => {
         allOnGround.push(...airport.aircraft.groundArr ?? []);
     }
 
-    return pilots.filter(x => !allOnGround.includes(x.cid));
+    return pilots.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || !allOnGround.includes(x.cid));
 });
 
 function setVisiblePilots() {
