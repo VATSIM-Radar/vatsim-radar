@@ -6,17 +6,19 @@
         <div class="header-error_text">
             Join us for presentation of Major Update 0.5.0 on Monday, 16:00z!
 
-            <div class="header-error__clock">
-                {{ hoursRemain }}:{{ minsRemain }}:{{ secondsRemain }}
-            </div>
-            <common-button
-                class="header-error__action"
-                href="https://www.youtube.com/live/FaYfNPyBjkI"
-                size="S"
-                target="_blank"
-            >
-                YouTube
-            </common-button>
+            <client-only>
+                <div class="header-error__clock">
+                    {{ hoursRemain }}:{{ minsRemain }}:{{ secondsRemain }}
+                </div>
+                <common-button
+                    class="header-error__action"
+                    href="https://www.youtube.com/live/FaYfNPyBjkI"
+                    size="S"
+                    target="_blank"
+                >
+                    YouTube
+                </common-button>
+            </client-only>
         </div>
         <div
             class="header-error_close"
