@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!notamCookie"
+        v-if="!notamCookie && (eventTime - curTime) > (1000 * 60 * 60)"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
