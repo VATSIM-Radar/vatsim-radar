@@ -7,6 +7,27 @@
         />
 
         <template v-if="tab === 'modes'">
+
+            <common-block-title>
+                Airports
+            </common-block-title>
+
+            <div class="__grid-info-sections __grid-info-sections--large-title">
+                <div class="__grid-info-sections_title">
+                    Display mode
+                </div>
+
+                <common-select
+                    :items="[
+                        { text: 'All', value: 'all' },
+                        { text: 'Staffed only', value: 'staffedOnly' },
+                        { text: 'Staffed or has ground traffic', value: 'staffedAndGroundTraffic' },
+                    ]"
+                    :model-value="store.mapSettings.airportsMode ?? 'all'"
+                    @update:modelValue="setUserMapSettings({ airportsMode: $event as any })"
+                />
+            </div>
+
             <common-toggle
                 :model-value="!!store.mapSettings.hideATISOnly"
                 @update:modelValue="setUserMapSettings({ hideATISOnly: $event })"
@@ -19,18 +40,47 @@
             </common-toggle>
 
             <common-block-title>
-                Airports mode
+                Tracks (turns)
             </common-block-title>
 
-            <common-select
-                :items="[
-                    { text: 'All', value: 'all' },
-                    { text: 'Staffed only', value: 'staffedOnly' },
-                    { text: 'Staffed or has ground traffic', value: 'staffedAndGroundTraffic' },
-                ]"
-                :model-value="store.mapSettings.airportsMode ?? 'all'"
-                @update:modelValue="setUserMapSettings({ airportsMode: $event as any })"
-            />
+            <div class="__grid-info-sections __grid-info-sections--large-title">
+                <div class="__grid-info-sections_title">
+                    Airport traffic mode
+                </div>
+
+                <common-select
+                    :items="tracksOptions"
+                    :model-value="store.mapSettings.tracks?.mode ?? 'arrivalsOnly'"
+                    placeholder="Choose Scale"
+                    width="100%"
+                    @update:modelValue="setUserMapSettings({ tracks: { mode: $event as any } })"
+                />
+            </div>
+
+            <div class="__grid-info-sections __grid-info-sections--large-title">
+                <div class="__grid-info-sections_title">
+                    Max. tracks displayed
+                </div>
+
+                <common-select
+                    :items="[ { value: 50 }, { value: 40 }, { value: 25 }, { value: 15 }, { value: 10 } ]"
+                    :model-value="store.mapSettings.tracks?.limit ?? 50"
+                    placeholder="Limit"
+                    width="100%"
+                    @update:modelValue="setUserMapSettings({ tracks: { limit: $event as number } })"
+                />
+            </div>
+
+            <common-toggle
+                :model-value="store.mapSettings.tracks?.showOutOfBounds !== true"
+                @update:modelValue="setUserMapSettings({ tracks: { showOutOfBounds: !$event } })"
+            >
+                Hide when aircraft not visible
+
+                <template #description>
+                    Improves performance
+                </template>
+            </common-toggle>
 
             <common-block-title>
                 Ground traffic
@@ -181,8 +231,37 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { useStore } from '~/store';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import type { SelectItem } from '~/types/components/select';
+import type { IUserMapSettings } from '~/utils/backend/map-settings';
 
 const store = useStore();
 
 const tab = ref('hide');
+
+const tracksOptions: SelectItem<NonNullable<IUserMapSettings['tracks']['mode']>>[] = [
+    {
+        value: 'arrivalsAndLanded',
+        text: 'Arriving & Landed',
+    },
+    {
+        value: 'arrivalsOnly',
+        text: 'Airborne Arrivals (default)',
+    },
+    {
+        value: 'departures',
+        text: 'Airborne Departures',
+    },
+    {
+        value: 'ground',
+        text: 'Ground traffic',
+    },
+    {
+        value: 'allAirborne',
+        text: 'All Airborne',
+    },
+    {
+        value: 'all',
+        text: 'All',
+    },
+];
 </script>

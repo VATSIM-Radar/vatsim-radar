@@ -222,6 +222,11 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
             transition: 0.3s;
 
+            @include mobileOnly {
+                width: calc(15cqw - 4px * 5 / 6);
+                height: calc(15cqw - 4px * 5 / 6);
+            }
+
             &--active {
                 border-color: $primary500;
                 border-width: 2px;

@@ -15,6 +15,7 @@ const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly'
 const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'groundMoving', 'airborne', 'hide'];
 const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
 const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
+const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
 
 const colors = Object.keys(colorsList);
 
@@ -168,6 +169,16 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     hideATISOnly: val => {
         return typeof val === 'boolean';
     },
+    tracks: val => {
+        if (!isObject(val)) return false;
+        if (!validateRandomObjectKeys(val, ['mode', 'showOutOfBounds'])) return false;
+
+        if ('mode' in val && (typeof val.mode !== 'string' || !tracksKeys.includes(val.mode as any))) return false;
+        if ('showOutOfBounds' in val && typeof val.showOutOfBounds !== 'boolean') return false;
+        if ('limit' in val && (typeof val.limit !== 'number' || isNaN(val.limit) || val.limit < 1 || val.limit > 50)) return false;
+
+        return true;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -218,6 +229,11 @@ export interface IUserMapSettings {
     };
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
+    tracks: {
+        mode?: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
+        showOutOfBounds?: boolean;
+        limit?: number;
+    };
     hideATISOnly: boolean;
     airportsCounters: {
         syncDeparturesArrivals?: boolean;

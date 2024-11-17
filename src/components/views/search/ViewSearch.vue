@@ -97,8 +97,12 @@
                 <div
                     v-else
                     class="__info-sections"
+                    :class="{ 'search__results-airports-match': exactAirportsMatch }"
                 >
-                    <template v-if="searchResults.flights && canSearchBy('flights')">
+                    <div
+                        v-if="searchResults.flights && canSearchBy('flights')"
+                        class="__info-sections search__results search__results--flights"
+                    >
                         <common-block-title
                             :bubble="searchResults.flights.length"
                             :collapsed="collapsedData.flights ?? false"
@@ -140,8 +144,11 @@
                                 </template>
                             </common-info-block>
                         </template>
-                    </template>
-                    <template v-if="searchResults.airports && canSearchBy('airports')">
+                    </div>
+                    <div
+                        v-if="searchResults.airports && canSearchBy('airports')"
+                        class="__info-sections search__results search__results--airports"
+                    >
                         <common-block-title
                             :bubble="searchResults.airports.length"
                             :collapsed="collapsedData.airports ?? false"
@@ -160,8 +167,11 @@
                                 @click="mapStore.addAirportOverlay(airport.icao)"
                             />
                         </template>
-                    </template>
-                    <template v-if="searchResults.atc && canSearchBy('atc')">
+                    </div>
+                    <div
+                        v-if="searchResults.atc && canSearchBy('atc')"
+                        class="__info-sections search__results search__results--atc"
+                    >
                         <common-block-title
                             :bubble="searchResults.atc.length"
                             :collapsed="collapsedData.atc ?? false"
@@ -179,7 +189,7 @@
                                 small
                             />
                         </template>
-                    </template>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -206,6 +216,7 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 const filtersEnabled = ref(false);
 const opened = ref(false);
 const search = ref('');
+const exactAirportsMatch = ref(false);
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -281,7 +292,7 @@ watch([search, opened], async ([val]) => {
 
     const results: Partial<SearchResults> = {};
 
-    let exactAirportsMatch = false;
+    exactAirportsMatch.value = false;
 
     if (canSearchBy('airports')) {
         // Search by exact key
@@ -290,7 +301,7 @@ watch([search, opened], async ([val]) => {
         if (!airports.length) {
             airports = dataStore.vatspy.value?.data.airports.filter(x => !x.isPseudo && (x.icao.includes(val) || x.iata?.includes(val) || x.name.toUpperCase().includes(val))) ?? [];
         }
-        else exactAirportsMatch = true;
+        else exactAirportsMatch.value = true;
 
         if (airports.length) {
             airports = airports.sort((a, b) => {
@@ -326,12 +337,12 @@ watch([search, opened], async ([val]) => {
         if (atc.length) results.atc = atc;
     }
 
-    if (canSearchBy('flights') && !exactAirportsMatch) {
+    if (canSearchBy('flights')) {
         let flights: SearchResults['flights'] = compareFlightWithSearch(val, dataStore.vatsim.data.pilots.value);
 
         flights = flights.concat(compareFlightWithSearch(val, dataStore.vatsim.data.prefiles.value));
 
-        flights = flights.sort((a, b) => {
+        flights = flights.sort((a, b) => a.callsign.localeCompare(b.callsign, undefined, { numeric: true })).sort((a, b) => {
             if (a.callsign.includes(val) && !b.callsign.includes(val)) return -1;
             if (!a.callsign.includes(val) && b.callsign.includes(val)) return 1;
             return 0;
@@ -527,5 +538,20 @@ watch(() => mapStore.overlays.length, () => {
         }
     }
 
+    &__results {
+        &-airports-match {
+            .search__results--flights {
+                order: 3;
+            }
+
+            .search__results--atc {
+                order: 2;
+            }
+
+            .search__results--airports {
+                order: 1;
+            }
+        }
+    }
 }
 </style>

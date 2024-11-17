@@ -140,7 +140,7 @@ export type VatsimShortenedData = {
     pilots: Array<
         Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> &
         Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>> &
-        Partial<Pick<VatsimExtendedPilot, 'status'>>
+        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>>
     >;
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];

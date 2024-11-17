@@ -22,7 +22,14 @@
                     class="info-popup_header_actions_action info-popup_header_actions_action--collapse"
                     @click="collapsed = !collapsed"
                 >
-                    <arrow-top-icon width="14"/>
+                    <arrow-top-icon
+                        v-if="!isMobile"
+                        width="14"
+                    />
+                    <div
+                        v-else
+                        class="info-popup_header_actions_action--collapse_line"
+                    />
                 </div>
                 <div
                     v-if="!disabled"
@@ -165,6 +172,7 @@ const collapsed = defineModel('collapsed', {
 });
 const collapsedSections = ref<string[]>([]);
 const collapsedOnceSections = new Set<string>([]);
+const isMobile = useIsMobile();
 
 const activeTab = defineModel('tab', { type: String });
 
@@ -274,6 +282,13 @@ watch(getSections, sections => {
                     &:not(.info-popup_header_actions_action--close) >*:hover {
                         color: $primary500;
                     }
+                }
+
+                &--collapse .info-popup_header_actions_action--collapse_line {
+                    width: 16px;
+                    height: 2px;
+                    background: currentColor;
+                    border-radius: 8px;
                 }
             }
         }

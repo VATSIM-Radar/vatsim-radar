@@ -243,6 +243,8 @@ export async function updateVatsimExtendedPilots() {
         }
 
         origPilot.status = extendedPilot.status;
+        origPilot.toGoDist = extendedPilot.toGoDist;
+        origPilot.depDist = extendedPilot.depDist;
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 }

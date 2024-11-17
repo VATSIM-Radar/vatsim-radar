@@ -186,6 +186,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    canShowTracks: {
+        type: String as PropType<'short' | 'full' | null>,
+        default: null,
+    },
 });
 
 const emit = defineEmits({
@@ -313,7 +317,7 @@ const init = async () => {
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
 
 const isPropsHovered = computed(() => props.isHovered);
-const airportOverlayTracks = computed(() => pilot.value && pilot.value.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.value?.arrival && x.data.showTracks));
+const airportOverlayTracks = computed(() => props.canShowTracks);
 
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
@@ -390,9 +394,11 @@ async function toggleAirportLines(value = canShowLines.value) {
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
         if (value) {
-            turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
-                timeout: 1000 * 5,
-            }).catch(console.error) ?? null;
+            turns = airportOverlayTracks.value !== 'short'
+                ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
+                    timeout: 1000 * 5,
+                }).catch(console.error) ?? null
+                : null;
 
             if (turnsStart.value) {
                 if (turns?.flightPlanTime === turnsStart.value) {
@@ -429,7 +435,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             return;
         }
 
-        if (turns?.features.length) {
+        if (turns?.features.length && airportOverlayTracks.value !== 'short') {
             if (depLine) {
                 depLine.dispose();
                 linesSource.value?.removeFeature(depLine);
@@ -611,7 +617,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (departureAirport) {
+            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20) {
                 const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
@@ -647,7 +653,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrivalAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (arrivalAirport && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
             const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
 

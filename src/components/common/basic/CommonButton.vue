@@ -169,7 +169,7 @@ const getAttrs = computed(() => {
         min-width: max-content;
     }
 
-    @include hover {
+    @include pc {
         transition: 0.3s;
 
         &:hover {

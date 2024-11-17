@@ -1,5 +1,19 @@
 # Changelog
 
+# [0.5.0-rc.5]
+
+- Fixed map filters displaying "below" mobile bottom nav menu
+- Mobile overlay collapse icon replaced with "minus"
+- Fixed rare cases when you could have both mobile bottom nav buttons highlighted
+- icao/iata search now puts airports on top instead of removing flights search results
+- Fixed aircraft tracks disappearing when clicking on map with "Arrival Tracks" enabled in airport dashboard
+- Max showed tracks limit is now 50
+- Added tracks mode modifications
+- Added ability to view aircraft track even when out of bound
+- Increased selected colors size on mobile
+- Added alphabetic sort to flights search results
+- Added Update popup
+
 # [0.5.0-rc.4]
 
 - Fixed some Australian airports showing twice on map

@@ -102,7 +102,7 @@ export const useMapStore = defineStore('map', {
 
             if (isMobile.value) {
                 this.overlays.forEach(x => {
-                    x.collapsed = false;
+                    x.collapsed = true;
                 });
             }
             this.overlays.push(newOverlay);

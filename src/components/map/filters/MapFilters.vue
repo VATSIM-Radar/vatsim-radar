@@ -355,7 +355,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 <style scoped lang="scss">
 .filters {
     position: absolute;
-    z-index: 6;
+    z-index: 8;
     top: 16px;
     left: 16px;
 
