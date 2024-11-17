@@ -532,10 +532,11 @@ onMounted(() => {
             align-items: center;
             justify-content: center;
 
-            min-width: 90px;
             height: 24px;
             padding: 0 16px;
 
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
             line-height: 100%;
 
             background: $primary700;
