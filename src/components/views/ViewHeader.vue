@@ -508,6 +508,10 @@ onMounted(() => {
                 font-size: 15px;
                 font-weight: 700;
                 letter-spacing: 2px;
+
+                @include mobileOnly {
+                    display: none;
+                }
             }
         }
 
@@ -515,6 +519,10 @@ onMounted(() => {
             display: flex;
             gap: 8px;
             align-items: center;
+
+            @include mobileOnly {
+                flex-wrap: wrap;
+            }
         }
 
         &__clock {
