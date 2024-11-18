@@ -220,6 +220,24 @@ function airportExistsAtPixel(eventPixel: Pixel) {
     return featuresAirport.length > 0;
 }
 
+function traconLabelExistsAtPixel(eventPixel: Pixel) {
+    const features = map.value!.getFeaturesAtPixel(eventPixel, {
+        hitTolerance: 0,
+        layerFilter: layer => layer.getProperties().type === 'arr-atc',
+    });
+
+    if (features.length > 0) {
+        for (const feature of features) {
+            const isInvalid = (feature.getProperties().type !== 'tracon-label');
+
+            if (!isInvalid && mapStore.canShowOverlay) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
@@ -253,6 +271,13 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         return;
     }
 
+    // we give priority to tracon labels
+    if (traconLabelExistsAtPixel(eventPixel)) {
+        hoveredAircraft.value = null;
+        return;
+    }
+
+    if (isManualHover.value) return;
 
     isManualHover.value = false;
     hoveredAircraft.value = features[0].cid;

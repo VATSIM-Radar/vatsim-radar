@@ -302,10 +302,9 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 const {
                     isDataReady,
                 } = await import('~/utils/backend/storage');
-                if (!isDataReady()) return;
+                if (!isDataReady()) return true;
 
                 mapStore.dataReady = true;
-                return true;
             }
 
             return true;

@@ -1,13 +1,6 @@
-import { CronJob } from 'cron';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
+import { defineCronJob } from '~/utils/backend';
 
 export default defineNitroPlugin(app => {
-    CronJob.from({
-        cronTime: '15 * * * *',
-        runOnInit: true,
-        start: true,
-        onTick: async () => {
-            await updateVatSpy();
-        },
-    });
+    defineCronJob('15 * * * *', updateVatSpy);
 });

@@ -1,6 +1,7 @@
 import type { PartialRecord } from '~/types/index';
-import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate';
+import type { VatSpyAirport } from '~/types/data/vatspy';
 
 export interface MapAirport {
     icao: string;
@@ -41,6 +42,14 @@ export interface UserLayersTransparencySettings {
 
 export type NotamsSortBy = 'startDesc' | 'startAsc' | 'endAsc' | 'endDesc';
 
+export interface SearchResults {
+    flights: (VatsimShortenedAircraft | VatsimShortenedPrefile)[];
+    airports: VatSpyAirport[];
+    atc: VatsimShortenedController[];
+}
+
+export type SearchFilter = keyof SearchResults;
+
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
@@ -61,6 +70,8 @@ interface IUserLocalSettings {
     traffic: {
         disableFastUpdate?: boolean;
         showTotalDeparturesInFeaturedAirports?: boolean;
+        searchBy?: SearchFilter[];
+        searchLimit?: number;
     };
 
     tutorial: {

@@ -92,7 +92,7 @@
             </div>
         </map-overlay>
         <map-overlay
-            v-if="hoveredFeature"
+            v-if="hoveredFeature && !hoveredFacility"
             model-value
             :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: approachScroll }"
             :z-index="21"
@@ -305,6 +305,7 @@ watch(getAirportColor, () => {
         text: new Text({
             font: '12px Montserrat',
             text: airportName.value,
+            offsetY: -10,
             fill: new Fill({
                 color: getAirportColor.value,
             }),
@@ -338,32 +339,18 @@ watch(hoveredFeature, val => {
     }
 });
 
-function setFeatureStyle(feature: Feature) {
-    const geometry = feature.getGeometry();
-    const extent = feature.getGeometry()?.getExtent();
-    const topCoord = [extent![0], extent![3]];
-    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
-    if (feature.getProperties().label_lat) {
-        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
-    }
+function setBorderFeatureStyle(feature: Feature) {
+    feature.setStyle(new Style({
+        stroke: new Stroke({
+            color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+            width: 2,
+        }),
+    }));
+}
 
-    feature.setProperties({
-        ...feature.getProperties(),
-        textCoord,
-    });
-
+function setLabelFeatureStyle(feature: Feature) {
     const style = [
         new Style({
-            stroke: new Stroke({
-                color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
-                width: 2,
-            }),
-        }),
-    ];
-
-    if (!store.mapSettings.visibility?.atcLabels) {
-        style.push(new Style({
-            geometry: new Point(textCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: feature.getProperties()?._traconId || airportName.value,
@@ -381,8 +368,8 @@ function setFeatureStyle(feature: Feature) {
                 }),
                 padding: [3, 1, 2, 3],
             }),
-        }));
-    }
+        }),
+    ];
 
     feature.setStyle(style);
 }
@@ -455,10 +442,10 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const geoFeature = geojson.readFeature(traconFeature) as Feature<any>;
+                const borderFeature = geojson.readFeature(traconFeature) as Feature<any>;
 
-                geoFeature.setProperties({
-                    ...(geoFeature?.getProperties() ?? {}),
+                borderFeature.setProperties({
+                    ...(borderFeature?.getProperties() ?? {}),
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     type: 'tracon',
@@ -466,22 +453,56 @@ onMounted(async () => {
                     id,
                 });
 
+                setBorderFeatureStyle(borderFeature);
+
                 features.push({
                     id,
-                    feature: geoFeature,
+                    feature: borderFeature,
                     traconFeature,
                     controllers: [
                         ...controllers,
                         ...leftAtc,
                     ],
                 });
+
+
+                if (!store.mapSettings.visibility?.atcLabels) {
+                    const feature = borderFeature;
+                    const geometry = feature.getGeometry();
+                    const extent = feature.getGeometry()?.getExtent();
+                    const topCoord = [extent![0], extent![3]];
+                    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                    if (feature.getProperties().label_lat) {
+                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                    }
+
+                    const labelFeature = new Feature({
+                        geometry: new Point(textCoord),
+                        type: 'tracon-label',
+                        icao: props.airport.icao,
+                        iata: props.airport.iata,
+                        _traconId: traconFeature.properties?.id,
+                        id,
+                    });
+
+                    setLabelFeatureStyle(labelFeature);
+
+                    features.push({
+                        id,
+                        feature: labelFeature,
+                        traconFeature,
+                        controllers: [
+                            ...controllers,
+                            ...leftAtc,
+                        ],
+                    });
+                }
             }
         }
 
         arrFeatures.value = features;
 
         for (const { feature } of features) {
-            setFeatureStyle(feature);
             vectorSource.value?.addFeature(feature);
         }
     }

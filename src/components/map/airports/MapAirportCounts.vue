@@ -41,7 +41,7 @@
                             Training (same arrival)
                         </template>
                         <template v-else-if="aircraftHoveredType === 'prefiles'">
-                            {{ store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
+                            {{ !store.mapSettings.airportsCounters?.horizontalCounter || store.mapSettings.airportsCounters?.horizontalCounter === 'prefiles' ? 'Flightplan Prefiles' : 'Horizontal Counter' }}
                         </template>
                     </div>
                 </template>

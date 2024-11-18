@@ -151,6 +151,11 @@ export const radarStorage: RadarStorage = {
         },
         activeData: null,
     },
+    vatsimStatic: {
+        divisions: [] as VatsimDivision[],
+        subDivisions: [] as VatsimSubDivision[],
+        events: [] as VatsimEvent[],
+    },
     vatsim: {
         data: null,
         regularData: null,

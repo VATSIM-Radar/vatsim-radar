@@ -1,12 +1,10 @@
-import { CronJob } from 'cron';
-import type { VatsimDivision, VatsimEvent, VatsimSubDivision, VatsimTransceiver } from '~/types/data/vatsim';
+import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { updateAustraliaData } from '~/utils/backend/vatsim/update';
+import { updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { getRedis } from '~/utils/backend/redis';
+import { defineCronJob } from '~/utils/backend';
 
 export default defineNitroPlugin(app => {
-    let transceiversInProgress = false;
-
     const redisSubscriber = getRedis();
     redisSubscriber.subscribe('data');
     redisSubscriber.on('message', (_, message) => {
@@ -25,57 +23,20 @@ export default defineNitroPlugin(app => {
             }),
         ]);
 
-        radarStorage.vatsim.divisions = divisions;
-        radarStorage.vatsim.subDivisions = subdivisions;
+        radarStorage.vatsimStatic.divisions = divisions;
+        radarStorage.vatsimStatic.subDivisions = subdivisions;
     }
 
-    CronJob.from({
-        cronTime: '15 0 * * *',
-        start: true,
-        runOnInit: true,
-        onTick: async () => {
-            await fetchDivisions();
-        },
+    defineCronJob('30 * * * *', async () => {
+        const myData = await $fetch<{
+            data: VatsimEvent[];
+        }>('https://my.vatsim.net/api/v2/events/latest');
+        const inFourWeeks = new Date();
+        inFourWeeks.setDate(inFourWeeks.getDate() + 28);
+        radarStorage.vatsimStatic.events = myData.data.filter(e => new Date(e.start_time) < inFourWeeks);
     });
 
-    CronJob.from({
-        cronTime: '30 * * * *',
-        start: true,
-        runOnInit: true,
-        onTick: async () => {
-            radarStorage.vatsim.events = (await $fetch<{
-                data: VatsimEvent[];
-            }>('https://my.vatsim.net/api/v2/events/latest')).data;
-        },
-    });
-
-    CronJob.from({
-        cronTime: '* * * * * *',
-        start: true,
-        runOnInit: true,
-        onTick: async () => {
-            if (transceiversInProgress) return;
-            try {
-                transceiversInProgress = true;
-                radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
-                    timeout: 1000 * 30,
-                });
-            }
-            catch (e) {
-                console.error(e);
-            }
-            finally {
-                transceiversInProgress = false;
-            }
-        },
-    });
-
-    CronJob.from({
-        cronTime: '15 * * * *',
-        runOnInit: true,
-        start: true,
-        onTick: async () => {
-            await updateAustraliaData();
-        },
-    });
+    defineCronJob('15 0 * * *', fetchDivisions);
+    defineCronJob('* * * * * *', updateTransceivers);
+    defineCronJob('15 * * * *', updateAustraliaData);
 });

@@ -8,7 +8,7 @@ import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
 import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
-import { defu } from 'defu';
+import { createDefu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
 
@@ -118,6 +118,19 @@ export function attachPointerMove(callback: (event: any) => unknown) {
     });
 }
 
+const customDefu = createDefu((obj, key, value) => {
+    if (Array.isArray(obj[key]) && Array.isArray(value)) {
+        obj[key] = value;
+        return true;
+    }
+
+    if (value === null) {
+        // @ts-expect-error Dunno why it says that
+        obj[key] = null;
+        return true;
+    }
+});
+
 export function setUserLocalSettings(settings?: UserLocalSettings) {
     const store = useStore();
 
@@ -125,7 +138,7 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
     if (!settings && JSON.stringify(store.localSettings) === settingsText) return;
 
     let localSettings = JSON.parse(settingsText) as UserLocalSettings;
-    localSettings = defu(settings || {}, localSettings);
+    localSettings = customDefu(settings || {}, localSettings);
     if (settings?.location) localSettings.location = settings.location;
 
     store.localSettings = localSettings;
@@ -139,7 +152,7 @@ export function setUserMapSettings(settings?: UserMapSettings) {
     if (!settings && JSON.stringify(store.mapSettings) === settingsText) return;
 
     let mapSettings = JSON.parse(settingsText) as UserMapSettings;
-    mapSettings = defu(settings || {}, mapSettings);
+    mapSettings = customDefu(settings || {}, mapSettings);
 
     store.mapSettings = mapSettings;
     localStorage.setItem('map-settings', JSON.stringify(mapSettings));

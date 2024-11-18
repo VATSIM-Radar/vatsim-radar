@@ -36,10 +36,19 @@
         "*"
       ],
       "matchUpdateTypes": [
-        "minor",
-        "patch"
+        "minor"
       ],
       "matchCurrentVersion": "!/^0/"
+    },
+    {
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch",
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ]
     },
     {
       "matchPackageNames": [
@@ -47,6 +56,7 @@
       ],
       "rangeStrategy": "bump",
       "groupName": "Vue",
+      "separateMultipleMinor": true,
       "separateMinorPatch": true
     },
     {
@@ -64,9 +74,6 @@
       ],
       "rangeStrategy": "bump",
       "groupName": "Nuxt",
-      "schedule": [
-        "before 4am on tuesday"
-      ],
       "separateMultipleMinor": true,
       "separateMinorPatch": true
     }
@@ -84,6 +91,7 @@
   "vulnerabilityAlerts": {
     "commitMessageSuffix": "chore(deps-security)"
   },
+  "separateMultipleMajor": true,
   "updateInternalDeps": true,
   "baseBranches": [
     "next",
@@ -98,6 +106,9 @@
   "rangeStrategy": "bump",
   "npm": {
     "commitMessageTopic": "{{prettyDepType}} {{depName}}"
+  },
+  "constraints": {
+    "node": "^20 || ^22"
   },
   "updateLockFiles": true
 }
