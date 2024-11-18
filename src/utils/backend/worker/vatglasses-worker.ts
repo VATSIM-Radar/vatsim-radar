@@ -1,4 +1,4 @@
-import { CronJob } from 'cron';
+import { defineCronJob } from '~/utils/backend';
 import { getRedis } from '~/utils/backend/redis';
 import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatglasses';
 import type { VatglassesActiveAirspaces, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
@@ -51,39 +51,34 @@ const redisPublisher = getRedis();
 initVatglasses('server', workerDataStore);
 await loadSectors();
 
-CronJob.from({
-    cronTime: '*/5 * * * * *',
-    runOnInit: true,
-    start: true,
-    onTick: async () => {
-        await updateVatglassesStateServer();
+defineCronJob('15 * * * *', async () => {
+    await updateVatglassesStateServer();
 
-        // Loop through copiedDataStore.vatglassesActivePositions and set sectors to null. We will set the sectors in the client to avoid sending a lot of data
-        const outputVatglassesActivePositions: VatglassesActivePositions = {};
-        for (const countryGroupId in workerDataStore.vatglassesActivePositions) {
-            const positions = workerDataStore.vatglassesActivePositions[countryGroupId];
-            for (const positionId in positions) {
-                if (!outputVatglassesActivePositions[countryGroupId]) outputVatglassesActivePositions[countryGroupId] = {};
-                const shallowCopy = { ...positions[positionId] };
-                shallowCopy.sectors = null;
-                outputVatglassesActivePositions[countryGroupId][positionId] = shallowCopy;
-            }
+    // Loop through copiedDataStore.vatglassesActivePositions and set sectors to null. We will set the sectors in the client to avoid sending a lot of data
+    const outputVatglassesActivePositions: VatglassesActivePositions = {};
+    for (const countryGroupId in workerDataStore.vatglassesActivePositions) {
+        const positions = workerDataStore.vatglassesActivePositions[countryGroupId];
+        for (const positionId in positions) {
+            if (!outputVatglassesActivePositions[countryGroupId]) outputVatglassesActivePositions[countryGroupId] = {};
+            const shallowCopy = { ...positions[positionId] };
+            shallowCopy.sectors = null;
+            outputVatglassesActivePositions[countryGroupId][positionId] = shallowCopy;
         }
+    }
 
-        if (workerDataStore.vatglasses) {
-            await new Promise<void>((resolve, reject) => {
-                const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
-                redisPublisher.publish('vatglassesActive', JSON.stringify({
-                    vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
-                    vatglassesActivePositions: outputVatglassesActivePositions,
-                    version: workerDataStore.vatglasses?.version,
-                }), err => {
-                    clearTimeout(timeout);
-                    if (err) return reject(err);
-                    resolve();
-                });
+    if (workerDataStore.vatglasses) {
+        await new Promise<void>((resolve, reject) => {
+            const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+            redisPublisher.publish('vatglassesActive', JSON.stringify({
+                vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
+                vatglassesActivePositions: outputVatglassesActivePositions,
+                version: workerDataStore.vatglasses?.version,
+            }), err => {
+                clearTimeout(timeout);
+                if (err) return reject(err);
+                resolve();
             });
-        }
-    },
+        });
+    }
 });
 
