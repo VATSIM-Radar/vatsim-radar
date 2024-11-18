@@ -5,7 +5,10 @@
         @update:modelValue="close"
     >
         <template #title>
-            <div class="update_title">
+            <div
+                ref="title"
+                class="update_title"
+            >
                 <span>
                     <template v-if="update.type === 'major'">
                         Major
@@ -99,6 +102,7 @@ interface Update {
 
 const store = useStore();
 const images = import.meta.glob('../../assets/update/*', { import: 'default', eager: true });
+const title = useTemplateRef('title');
 
 const update: Update = {
     type: 'major',
@@ -183,6 +187,13 @@ const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
 
 const show = ref(store.user?.settings.seenVersion !== update.name && localStorage.getItem('seen-version') !== update.name);
 
+watch(shownFeatureIndex, () => {
+    if (title.value) {
+        const popup = title.value.closest('.popup_container');
+        if (popup) popup.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
+
 const close = () => {
     localStorage.setItem('seen-version', update.name);
     if (store.user) {
@@ -212,6 +223,11 @@ const close = () => {
         line-height: 100%;
         color: $lightgray150;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+            max-width: 80%;
+        }
+
         span {
             font-weight: 700;
             color: $primary500;
@@ -226,6 +242,11 @@ const close = () => {
         width: 100vw;
         max-width: 650px;
         height: var(--height);
+
+        @include mobileOnly {
+            width: 80dvw;
+            height: auto;
+        }
 
         &_title {
             font-family: $openSansFont;

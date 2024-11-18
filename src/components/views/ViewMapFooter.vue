@@ -161,9 +161,22 @@ const store = useStore();
 const dataStore = useDataStore();
 
 const getCounts = useOnlineCounters();
+const curDate = ref(Date.now());
 
-const outdated = computed(() => dataStore.time.value - dataStore.vatsim.updateTime.value > 1000 * 20);
+const outdated = computed(() => {
+    return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 20;
+});
 const isMobile = useIsMobile();
+
+onMounted(() => {
+    const interval = setInterval(() => {
+        curDate.value = Date.now();
+    }, 1000);
+
+    onBeforeUnmount(() => {
+        clearInterval(interval);
+    });
+});
 </script>
 
 <style scoped lang="scss">

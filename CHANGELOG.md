@@ -5,7 +5,7 @@
 ## Highlights
 
 - ⚙️ Map Settings: personalize the map with nearly limitless options
-- 🔍 Search Feature: effortlessly find airports, controllers, or pilots.
+- 🔍 Search Feature: effortlessly find airports, controllers, or pilots
 - 📅 Events Hub: discover and explore community-organized events with all the details you need
 - 📦 Progressive Web App (PWA): install VATSIM Radar on your device for easy access (use Safari's "Add to Home Screen" for iOS/iPadOS)
 - 📱 Mobile-Friendly Design: seamlessly use VATSIM Radar on phones and tablets
