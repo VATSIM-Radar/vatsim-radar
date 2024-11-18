@@ -76,6 +76,12 @@
                                 </span>
                                 {{ item }}
                             </template>
+                            <common-spoiler
+                                v-else-if="item === pilot.name"
+                                type="pilot"
+                            >
+                                {{ pilot.name }}
+                            </common-spoiler>
                             <div
                                 v-else
                                 class="airport-counts__popup-info"
@@ -101,6 +107,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { PartialRecord } from '~/types';
 import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
     airport: {
