@@ -22,6 +22,10 @@
             @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
         >
             Highlight Emergency Aircraft
+
+            <template #description>
+                Aircraft squawking 7700 and 7600
+            </template>
         </common-toggle>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
