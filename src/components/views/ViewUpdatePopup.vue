@@ -5,7 +5,10 @@
         @update:modelValue="close"
     >
         <template #title>
-            <div class="update_title">
+            <div
+                ref="title"
+                class="update_title"
+            >
                 <span>
                     <template v-if="update.type === 'major'">
                         Major
@@ -98,78 +101,98 @@ interface Update {
 }
 
 const store = useStore();
-const images = import.meta.glob('../../assets/update/*.png', { import: 'default', eager: true });
+const images = import.meta.glob('../../assets/update/*', { import: 'default', eager: true });
+const title = useTemplateRef('title');
 
 const update: Update = {
-    type: 'minor',
-    name: '0.4.4',
+    type: 'major',
+    name: '0.5.0',
     height: '500px',
     features: [
         {
-            title: 'Featured Airports',
-            image: images['../../assets/update/airports.png'],
-            description: 'Introducing 0.4.4, our QoL-focused update!<br><br>' +
-                'It took a bit longer to develop it than we thought, but we have fixed more than 30 community-reported issues and requested features.<br><br>' +
-                `Let's start with Featured Airports!`,
-            list: [
-                'View most popular airports, sorted by traffic',
-                'View most quiet, yet staffed airports: take first flights, find interesting airports, or support controller(s) on this position',
-                'Filter airports by visible to easily find those in area you want',
-                'Switch between ground and total departures to get a quick look at airport traffic',
-            ],
-        },
-        {
-            title: 'New layer: Carto Vector',
-            image: images['../../assets/update/layers.png'],
-            description: 'Due to default Carto dark theme still being... well, too dark, and MapBox/Jawg costed too much, we have added Carto Vector mode!',
-            list: [
-                'Enjoy improved dark mode in Vector mode, which is more bright and modern',
-                'New layers are rendered on your PC and consume less traffic',
-                'Beware of performance: it may degrade on low-performance machines',
-            ],
-        },
-        {
-            title: 'Aircraft Icons',
+            title: 'Welcome to newest VATSIM Radar update!',
             image: images['../../assets/update/aircraft.png'],
+            description: `Introducing 0.5.0, our largest update ever.<br><br>
+                It's packed with a bunch of features. To get a video version, please visit our <a href="https://www.youtube.com/live/FaYfNPyBjkI" target="_blank">Showcase stream</a>.`,
             list: [
-                'Icons were added for Cessnas, Airbus, BALLs, fighters, and many other types!',
-                'Thanks to DotWallop for this contribution',
+                'Map Settings with never seen before customization',
+                'Basic Events page',
+                'Search',
+                'Mobile version',
+                'Desktop/Mobile PWA clients',
             ],
         },
         {
-            title: 'Airport Arrival Rate',
-            image: images['../../assets/update/arrival.png'],
+            title: 'Map Settings',
+            image: images['../../assets/update/settings.png'],
+            description: 'Enjoy Map Settings - customize a bunch of stuff:',
             list: [
-                'We now show estimated Arrival Rate for airports!',
-                'This is shown in Airport Dashboard and Airport Overlay (via arrival counter hover)',
-                'While this is not precise number, it may still help controllers to measure incoming airport load',
-                'Thanks to Felix for this contribution',
+                'Enable Traffic Heatmap, emergency aircraft highlight',
+                'Modify airport counters',
+                'Hide almost anything on map - including personal info, ground traffic and "random" airports',
+                'Customize how tracks are shown - including their color',
+                'Speaking of - customize color and transparency of almost anything on map',
+                'Save all of this as presets - and share those presets with friends!',
+            ],
+        },
+        {
+            title: 'Search',
+            image: images['../../assets/update/search.png'],
+            list: [
+                'Search for flights, atc, airports',
+                'Search by CIDs, callsigns, and other things',
+                'Customize how many search results are displayed',
+                'Open overlays by clicking on anything you found',
+            ],
+        },
+        {
+            title: 'Clients + Mobile version',
+            image: images['../../assets/update/client.jpg'],
+            list: [
+                'Added mobile/tablet optimization',
+                'Added "Install App" into "about" dropdown menu',
+                'Added official PWA support',
+            ],
+        },
+        {
+            title: 'Events page',
+            image: images['../../assets/update/events.jpg'],
+            list: [
+                'Enjoy basic events page',
+                'Prefile recommended routes on VATSIM/SimBrief',
+                'View events airports on map',
+                'More to come',
             ],
         },
         {
             title: 'Quality of Life',
-            description: 'We have made so many changes this update... Come visit our Discord for full changelog: https://vatsim-radar.com/discord',
+            description: 'Come visit our Discord for full changelog: https://vatsim-radar.com/discord',
             image: images['../../assets/update/quality.png'],
             list: [
-                'UI improvements with partial redesigns',
-                '?pilot link now also supports callsign, not only CID',
-                'New tracks colors, adapted for both light and dark themes',
-                'New stepclimbs display with kilometers support',
-                'TRACONs labels placement improvements',
-                'Brand new Patreon page with benefits, goals, and highlighted supporters',
-                'Support for RMP controllers and Australia extending sectors',
-                'Many bug fixes for TRACONs',
+                'New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60 (+ imporved model matching)',
+                'Improved Approach TRACON label rendering (by Felix)',
+                'Reduced data consumption',
+                'Copy button for controllers frequencies',
+                'Your current position on map/controller dashboard is now remembered in GET parameters for you to save last position/settings',
+                'Added "Share" window into filters dropdown - usable for PWAs, and also you can copy link which includes overlay from here',
                 'Many other changes, fixes and improvements',
             ],
         },
     ],
-    active: false,
+    active: true,
 };
 
 const shownFeatureIndex = ref(0);
 const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
 
 const show = ref(store.user?.settings.seenVersion !== update.name && localStorage.getItem('seen-version') !== update.name);
+
+watch(shownFeatureIndex, () => {
+    if (title.value) {
+        const popup = title.value.closest('.popup_container');
+        if (popup) popup.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+});
 
 const close = () => {
     localStorage.setItem('seen-version', update.name);
@@ -200,6 +223,11 @@ const close = () => {
         line-height: 100%;
         color: $lightgray150;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+            max-width: 80%;
+        }
+
         span {
             font-weight: 700;
             color: $primary500;
@@ -215,6 +243,11 @@ const close = () => {
         max-width: 650px;
         height: var(--height);
 
+        @include mobileOnly {
+            width: 80dvw;
+            height: auto;
+        }
+
         &_title {
             font-family: $openSansFont;
             font-size: 14px;
@@ -224,7 +257,7 @@ const close = () => {
 
         &_image {
             height: 200px;
-            background: no-repeat center / cover;
+            background: no-repeat top / cover;
             border: 2px solid $darkgray800;
             border-radius: 8px;
         }

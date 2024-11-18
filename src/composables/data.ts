@@ -66,6 +66,7 @@ const vatsim = {
     versions: ref<VatDataVersions['vatsim'] | null>(null),
     updateTimestamp: ref(''),
     updateTime: ref(0),
+    localUpdateTime: ref(0),
 };
 
 export interface UseDataStore {
@@ -112,6 +113,7 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     time.value = data.serverTime;
     vatsim.updateTime.value = data.timestampNum;
+    vatsim.localUpdateTime.value = Date.now();
     vatsim.mandatoryData.value = {
         pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
             const coords = fromLonLat([lon, lat]);

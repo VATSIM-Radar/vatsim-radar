@@ -4,7 +4,9 @@
             v-for="aircraft in getShownPilots"
             :key="aircraft.cid"
             :aircraft="aircraft"
+            :can-show-tracks="showTracks.find(x => x.pilot.cid === aircraft.cid)?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
+            :is-visible="showTracks.find(x => x.pilot.cid === aircraft.cid)?.isShown ?? true"
             :show-label="showAircraftLabel.includes(aircraft.cid)"
             @manualHide="[isManualHover = false]"
             @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
@@ -19,7 +21,7 @@ import VectorLayer from 'ol/layer/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
-import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
+import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
@@ -50,7 +52,6 @@ const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref(false);
 const showAircraftLabel = ref<number[]>([]);
 
-
 // The next 3 functions are used to get data to and from the airport dashboard page. When an aircraft is selected it is sent to the airport dashboard so we can open the pilot overlay. We also receive the event from the dashboard when an aircraft is clicked in the dashboard, we then select it on the map.
 function receiveMessage(event: MessageEvent) {
     if (event.origin !== config.public.DOMAIN) {
@@ -74,7 +75,6 @@ function sendSelectedPilotToDashboard(cid: number | null = null) {
     const targetOrigin = config.public.DOMAIN;
     window.parent.postMessage(message, targetOrigin);
 }
-
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
     if (!pixel) return [];
@@ -118,6 +118,7 @@ function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
 }
 
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
+const showTracks = shallowRef<{ show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }[]>([]);
 
 const getShownPilots = computed(() => {
     if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return visiblePilots.value;
@@ -148,15 +149,118 @@ const getShownPilots = computed(() => {
         allOnGround.push(...airport.aircraft.groundArr ?? []);
     }
 
-    return pilots.filter(x => !allOnGround.includes(x.cid));
+    return pilots.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || !allOnGround.includes(x.cid));
 });
 
 function setVisiblePilots() {
+    showTracks.value = [];
+
+    const {
+        mode: tracksMode = 'arrivalsOnly',
+        limit: tracksLimit = 50,
+        showOutOfBounds = false,
+    } = store.mapSettings.tracks ?? {};
+
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
-        return mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
+        // Don't iterate through pilots if no need
+        // TODO: convert pilots and other things to a map
+        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.pilots.value.find(y => y.cid === x.cid);
+
+        const isShown = mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
+
+        if (!pilot || (!isShown && !showOutOfBounds)) return isShown;
+
+        let hasTracks = false;
+
+        let canShowForDepartures = false;
+        let canShowForArrivals = false;
+        const isOnGroundDep = pilot.status === 'depTaxi' || pilot.status === 'depGate';
+        const isOnGroundArr = pilot.status === 'arrGate' || pilot.status === 'arrTaxi';
+        const isOnGround = isOnGroundDep || isOnGroundArr;
+
+        if (tracksMode === 'all') {
+            canShowForDepartures = true;
+            canShowForArrivals = true;
+        }
+        else if (tracksMode === 'allAirborne') {
+            canShowForDepartures = !isOnGround;
+            canShowForArrivals = !isOnGround;
+        }
+        else if (tracksMode === 'departures') {
+            canShowForDepartures = !isOnGround;
+        }
+        else if (tracksMode === 'ground') {
+            canShowForDepartures = pilot.status === 'depTaxi';
+            canShowForArrivals = pilot.status === 'arrTaxi';
+        }
+        else if (tracksMode === 'arrivalsAndLanded') {
+            canShowForArrivals = true;
+        }
+        else if (tracksMode === 'arrivalsOnly') {
+            canShowForArrivals = !isOnGround;
+        }
+
+        if (canShowForDepartures) {
+            const airport = pilot.departure && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.departure && x.data.showTracks);
+            if (airport) {
+                hasTracks = true;
+                showTracks.value.push({
+                    pilot,
+                    show: 'full',
+                    isShown,
+                    isDeparture: true,
+                });
+            }
+        }
+
+        if (canShowForArrivals) {
+            const airport = pilot.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.arrival && x.data.showTracks);
+            const duplicate = showTracks.value.find(x => x.pilot.cid === pilot.cid);
+            if (airport) {
+                hasTracks = true;
+
+                if (duplicate) duplicate.isArrival = true;
+                else {
+                    showTracks.value.push({
+                        pilot,
+                        show: 'full',
+                        isShown,
+                        isArrival: true,
+                    });
+                }
+            }
+        }
+
+        return isShown || (hasTracks && showOutOfBounds);
     }) ?? [];
+
+    if (showTracks.value.length > tracksLimit) {
+        showTracks.value = showTracks.value.filter(x => (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
+            const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
+            const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
+            const aDist = (aGoDist && aDepDist)
+                ? aGoDist > aDepDist
+                    ? aDepDist
+                    : aGoDist
+                : aGoDist ?? aDepDist;
+
+            const bGoDist = (b.isArrival && b.pilot.toGoDist) || 0;
+            const bDepDist = (b.isDeparture && b.pilot.depDist) || 0;
+            const bDist = (bGoDist && bDepDist)
+                ? bGoDist > bDepDist
+                    ? bDepDist
+                    : bGoDist
+                : bGoDist ?? bDepDist;
+
+            return aDist - bDist;
+        }).map((x, index) => {
+            if (index >= tracksLimit) x.show = 'short';
+
+            return x;
+        }).filter((x, index) => index < 50 || x.isShown);
+    }
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
         const airports = dataStore.vatsim.data.airports.value.filter(x => store.config.airports!.includes(x.icao));
@@ -176,8 +280,12 @@ function setVisiblePilots() {
             visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
 
             if (store.config.airportMode && store.config.airportMode !== 'all') {
-                if (store.config.airportMode === 'ground') visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
-                else visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+                if (store.config.airportMode === 'ground') {
+                    visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                }
+                else {
+                    visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+                }
             }
         }
         else {
@@ -284,9 +392,8 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     mapStore.mapCursorPointerTrigger = 1;
 }
 
-
 async function handleClick(e: MapBrowserEvent<any>) {
-    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer) return;
+    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || isManualHover.value) return;
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {
@@ -295,7 +402,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
         if (features.length < 1) {
             if (store.config.hideOverlays) {
-                mapStore.overlays = [];
+                mapStore.overlays = mapStore.overlays.filter(x => x.type === 'airport');
             }
             sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
             return;
@@ -337,6 +444,11 @@ function handleMoveEnd() {
 }
 
 attachMoveEnd(handleMoveEnd);
+
+watch(() => store.mapSettings.tracks ?? {}, handleMoveEnd, {
+    deep: true,
+    immediate: true,
+});
 
 watch(map, val => {
     if (!val) return;

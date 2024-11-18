@@ -254,7 +254,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Friendly mobile version',
-                status: 'in-progress',
+                status: 'completed',
             },
         ],
     },
@@ -279,7 +279,11 @@ const roadmap = reactive<Roadmap[]>([
             'Hoppie integration',
             {
                 title: 'PWA',
-                description: 'Basically PC version of VATSIM Radar',
+                status: 'completed',
+            },
+            {
+                title: 'Usage of VatGlasses data',
+                status: 'in-progress',
             },
             'Bookmarks',
         ],
@@ -308,7 +312,6 @@ const roadmap = reactive<Roadmap[]>([
             'Streamers integration',
             '3D map view',
             'Twitch/streamers integration',
-            'Usage of VatGlasses data',
             'Distance measuring tool',
             'Aircraft collision prediction',
             {
@@ -470,6 +473,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
     &__col {
         width: 100%;
 
+        @include mobile {
+            padding: 16px 0;
+            background: $darkgray900;
+            border-radius: 16px;
+        }
+
         &_title {
             margin-bottom: 16px;
 
@@ -506,6 +515,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             gap: 16px;
 
             max-height: 65vh;
+
+            @include mobile {
+                max-height: 20vh;
+            }
 
             &_group {
                 &_title {
@@ -579,6 +592,22 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &--status-completed {
             --status-color: #{$success500};
+        }
+    }
+
+    &_cols {
+        @include mobileOnly {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @include tablet {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 8px));
+
+            >*:last-child {
+                grid-column: span 2;
+            }
         }
     }
 }

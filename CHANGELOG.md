@@ -1,63 +1,107 @@
 # Changelog
 
-# [0.5.0-alpha.8]
+# [0.5.0-final]
 
-- Improved overall stability to prevent issues when Radar suddenly stops updating data
-- Added CID and Stats link to Prefiles
-- (QA) Fixed an issues when some buttons text was not centered
+## Highlights
 
-# [0.5.0-alpha.7]
+- ⚙️ Map Settings: personalize the map with great variation of options
+- 🔍 Search Feature: effortlessly find airports, controllers, or pilots
+- 📅 Events Hub (Beta): discover and explore network events with all the details you need
+- 📦 Progressive Web App (PWA): install VATSIM Radar on your device/PC for easy access (use Safari's "Add to Home Screen" for iOS/iPadOS)
+- 📱 Mobile-Friendly Design: seamlessly use VATSIM Radar on phones and tablets
+- ✨ Quality of life: enjoy new aircraft icons, community-driven enhancements, and bug fixes
 
-- Improved TRACON label behaviour by Felix
-- Added cyrillic improvements for Kazakhstan and Kyrgyzstan
+### Map Settings
 
-# [0.5.0-alpha.6]
+Added Map Settings into Filters menu.
 
+Available settings:
+
+#### General
+
+- Enable Traffic Heatmap to get beautiful screenshots of active map areas
+- Highlight aircraft squawking 7700/7600
+- Change aircraft scale
+- Change what is displayed in airports counters
+- Disable training counter
+
+#### Visibility
+
+- Hide almost any layer on map
+- Hide unstaffed ("random") airports from map
+- Hide "A" ATC letter if this is the only ground "controller" for this airport
+- Change how many tracks are displayed on map, and toggle tracks for departures, all traffic, etc
+- Hide ground aircraft if zoomed out - or all of them
+
+#### Colors
+
+Change colors or transparency for almost anything you see on map
+
+#### Manage
+
+- Save your settings to database (up to 5 presets per user)
+- Apply settings from old presets
+- Export presets to share with friend
+- Import presets to apply shared settings
+
+### Search
+
+- Search by airports, atc or pilots - including FAA LID, IATA, ICAO, and CIDs
+- Remove search results to for example only search for pilots
+- Control how many results are displayed
+
+### Events page
+
+Made by Thorsten. 
+
+- Basic, beta implementation
+- View valuable info and beautiful banner
+- Prefile routes on VATSIM or SimBrief - or copy them to clickboard
+- Open participating airports from event block
+
+## Features and improvements
+
+### Features
+
+- You can now copy and save current map location via browser URL
+- You can now copy and save most of Airport Dashboard settings via browser URL
+- Added PWA integration with ability to install VATSIM Radar on your PC or Phone ("Install app" button in "About", on iOS use "Add to home screen")
+- Added Share window to Filters & Traffic with ability to share current URL with friends - including overlay
+- Mobile/Tablet versions have been added
+- Added ability to toggle arrivals tracks for airport dashboard
+- Added training counter
+
+### Improvements
+
+- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes
+- Improved model matching for A139-189, C700, C750 by StefBrands
+- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60
 - Significantly reduced data consumption
-- Added search field
-- Fixed this annoying issue when airport name "dropped" close to dot
+- Added copy button to controller frequencies
+- Max showed tracks limit is now 50
 
-# [0.5.0-alpha.5]
-
-- VATSIM events are now shown in their menu section (by Thorsten)
-
-# [0.5.0-alpha.4]
-
-## Production Changes
+### UI/UX
 
 - METAR and TAF in Airport Dashboard have been merged in order to get a better look on NOTAMS
-- Fixed Airport Arrivals hover tooltip width
 - Approaches are now drawn above aircraft
+- Added CID and Stats link to Prefiles
+- Added cyrillic improvements for Kazakhstan and Kyrgyzstan
+- Improved TRACON label behaviour by Felix
+- Removed overlay zoom restriction
+
+## Bug Fixes
+
 - Fixed an issue when overlapping approaches could make impossible to open controller info on one of them
 - Fixed an issue when plane was not unselecting in airport dashboard
-
-## QA Changes
-
-- You can now save, import and export settings using presets feature
-- FIR and UIR in settings have been slightly renamed
-- Fixed an issue with aircraft text color not changing when default color is changed
-- Added active color highlight in colors selection
-- You can now close colors popup when re-clicking on title of section name
-- "Approaching" aircraft now have "active" color instead of "hover"
-- You can now modify color of center label
-- You can now modify transparency for gates and airports
-- Fixed an issue when airport counters were not displaying no matter the settings if airport was empty
-- Scale selector is now a regular select
-- Added Hide when ATIS only button to Airports & Traffic
-- ATC & Layers toggles are now displayed normalized to human brain
-
-# [0.5.0-alpha.3]
-
-- Sync themes button is now available for operation
-
-# [0.5.0-alpha.2]
-
-- Improved model matching for A139-189, C700, C750 by StefBrands
-- New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2
-
-# [0.5.0-alpha.1]
-
-- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes. 
+- Fixed Airport Arrivals hover tooltip width
+- Fixed this annoying issue when airport name "dropped" close to dot
+- Improved overall stability to prevent issues when Radar suddenly stops updating data
+- You can no longer view airport arrival rate when overlay is collapsed
+- Fixed ENOB_CTR and other oceanic sectors names
+- Fixed rare case when airport would not show on map
+- Mobile Safari font size in input will now be huge. Because Safari. Deal with it.
+- Fixed some Australian airports showing twice on map
+- Fixed Australian extending feature to now rely on controller ATIS
 
 # [0.4.5-1]
 

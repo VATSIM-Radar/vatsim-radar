@@ -24,13 +24,13 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
 }
 
-export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null) {
+export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
 
     view?.animate({
         center: [pilot.longitude, pilot.latitude],
-        zoom: isPilotOnGround(pilot) ? 17 : 7,
+        zoom: zoom ?? (isPilotOnGround(pilot) ? 17 : 7),
     });
 }
 
@@ -202,7 +202,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         if (status === 'default') {
             const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
+                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
@@ -241,7 +241,16 @@ const lineStyles: {
 }[] = [];
 
 export function getAircraftLineStyle(color: string | number | null, width = 1.5, lineDash?: number[]): Style {
-    const hex = typeof color === 'string' ? color : getFlightRowColor(color);
+    const store = useStore();
+
+    let hex = typeof color === 'string' ? color : getFlightRowColor(color);
+
+    if (store.mapSettings.colors?.turnsTransparency) {
+        const rgb = hexToRgb(hex);
+
+        hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+    }
+
     const existingStyle = lineStyles.find(x => x.color === hex && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
     if (existingStyle) return existingStyle.style;
 
@@ -283,12 +292,14 @@ export const useShowPilotStats = () => {
 export function getFlightRowColor(index: number | null, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
 
+    const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
+
     switch (theme) {
         case 'sa':
         case 'default':
-            return colorPresets.dark[index];
+            return colorPresets[turnsTheme].dark[index];
         case 'light':
-            return colorPresets.light[index];
+            return colorPresets[turnsTheme].light[index];
     }
 }
 

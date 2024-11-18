@@ -112,6 +112,10 @@ const model = defineModel({ type: String, default: null });
                 color: varToRgba('lightgray150', 0.5);
                 opacity: 1
             }
+
+            @include mobileSafariOnly {
+                font-size: 16px;
+            }
         }
     }
 }

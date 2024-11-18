@@ -143,15 +143,7 @@
                             Filters & Traffic
                         </template>
 
-                        <common-toggle
-                            :model-value="!!store.localSettings.traffic?.disableFastUpdate"
-                            @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
-                        >
-                            Disable fast update
-                            <template #description>
-                                Sets update to once per 15 seconds. Expected delay from 15 to 45 seconds, but it will consume much less traffic
-                            </template>
-                        </common-toggle>
+                        <map-filters-traffic/>
                     </common-control-block>
                 </div>
                 <div
@@ -171,7 +163,7 @@
                         max-height="55vh"
                         min-height="400px"
                         :model-value="selectedFilter === 'settings'"
-                        width="450px"
+                        :width="isMobile ? undefined : '450px'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
@@ -243,6 +235,7 @@ import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
 import { MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 
 
 const store = useStore();
@@ -258,6 +251,7 @@ const filtersImport = useTemplateRef('filtersImport');
 
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
+const isMobile = useIsMobile();
 
 const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
@@ -363,7 +357,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 <style scoped lang="scss">
 .filters {
     position: absolute;
-    z-index: 6;
+    z-index: 8;
     top: 16px;
     left: 16px;
 

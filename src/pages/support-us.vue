@@ -210,6 +210,11 @@ const features: Feature[] = [
         background: url("@/assets/images/support-us-bg.png") center / cover;
         border-radius: 8px;
 
+        @include mobile {
+            gap: 16px;
+            padding: 16px;
+        }
+
         &_title, &_text {
             span {
                 font-weight: 700;
@@ -221,6 +226,10 @@ const features: Feature[] = [
             font-family: $openSansFont;
             font-size: 40px;
             font-weight: 700;
+
+            @include mobile {
+                font-size: 24px;
+            }
         }
 
         &_text {
@@ -233,20 +242,26 @@ const features: Feature[] = [
             align-items: center;
             text-align: center;
 
+            @include mobileOnly {
+                gap: 24px;
+            }
+
             &_item {
                 position: relative;
 
-                &:not(:last-child)::after {
-                    content: '';
+                @include fromTablet {
+                    &:not(:last-child)::after {
+                        content: '';
 
-                    position: absolute;
-                    top: calc(50% - 12px);
-                    left: calc(100% + 40px);
+                        position: absolute;
+                        top: calc(50% - 12px);
+                        left: calc(100% + 40px);
 
-                    width: 1px;
-                    height: 24px;
+                        width: 1px;
+                        height: 24px;
 
-                    background: varToRgba('lightgray150', 0.15);
+                        background: varToRgba('lightgray150', 0.15);
+                    }
                 }
 
                 &_title {
@@ -256,11 +271,19 @@ const features: Feature[] = [
                     font-weight: 700;
                     line-height: 100%;
                     color: $primary500;
+
+                    @include mobile {
+                        font-size: 24px;
+                    }
                 }
 
                 &_subtitle {
                     font-size: 15px;
                     font-weight: 500;
+
+                    @include mobile {
+                        font-size: 12px;
+                    }
                 }
             }
         }
@@ -268,6 +291,10 @@ const features: Feature[] = [
         &_cta {
             display: flex;
             gap: 8px;
+
+            @include mobileOnly {
+                flex-direction: column;
+            }
         }
     }
 
@@ -275,11 +302,21 @@ const features: Feature[] = [
         margin-top: 32px;
         padding: 48px;
 
+        @include mobile {
+            margin-top: 16px;
+            padding: 0;
+        }
+
         &_title {
             margin-bottom: 32px;
             font-family: $openSansFont;
             font-size: 32px;
             font-weight: 700;
+
+            @include mobile {
+                margin-bottom: 16px;
+                font-size: 24px;
+            }
         }
 
         &_container {
@@ -288,6 +325,13 @@ const features: Feature[] = [
             grid-template-columns: 70% 25%;
             align-items: flex-start;
             justify-content: space-between;
+
+            @media (max-width: 1100px) {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
         }
     }
 
@@ -297,20 +341,26 @@ const features: Feature[] = [
         flex-direction: column;
         gap: 24px;
 
-        &--membership {
-            position: sticky;
-            top: 20px;
+        @include mobileOnly {
+            gap: 8px;
+        }
 
-            &::after {
-                content: '';
+        @include fromTablet {
+            &--membership {
+                position: sticky;
+                top: 20px;
 
-                position: absolute;
-                left: -2.25cqi;
+                &::after {
+                    content: '';
 
-                width: 1px;
-                height: 100%;
+                    position: absolute;
+                    left: -2.25cqi;
 
-                background: varToRgba('lightgray150', 0.15);
+                    width: 1px;
+                    height: 100%;
+
+                    background: varToRgba('lightgray150', 0.15);
+                }
             }
         }
 
@@ -322,6 +372,10 @@ const features: Feature[] = [
 
             background: $darkgray900;
             border-radius: 8px;
+
+            @include mobileOnly {
+                font-size: 13px;
+            }
 
             &--type-instructor {
                 --gradient: linear-gradient(90deg, #984EF9 0%, #DA5525 60%, #EAC453 100%);
@@ -368,6 +422,10 @@ const features: Feature[] = [
                 font-size: 24px;
                 font-weight: 700;
 
+                @include mobileOnly {
+                    font-size: 17px;
+                }
+
                 .support__list_item_title_text {
                     background: var(--gradient);
                     background-clip: text;
@@ -380,6 +438,10 @@ const features: Feature[] = [
                 display: flex;
                 flex-wrap: wrap;
                 gap: 16px;
+
+                @include mobileOnly {
+                    gap: 8px;
+                }
             }
 
             ul.support__list_item_list {

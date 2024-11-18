@@ -84,7 +84,6 @@
         </template>
         <template #flight>
             <map-popup-flight-info
-                :key="dataStore.vatsim.updateTimestamp.value.toString()"
                 class="pilot__content __info-sections"
                 :is-offline="isOffline"
                 :pilot

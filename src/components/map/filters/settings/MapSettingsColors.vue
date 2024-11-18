@@ -15,6 +15,25 @@
                 </common-button>
             </div>
         </div>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Turns theme
+            </div>
+            <common-select
+                :items="[{ value: 'magma' }, { value: 'inferno' }, { value: 'rainbow' }, { value: 'viridis' }]"
+                :model-value="store.mapSettings.colors?.turns ?? null"
+                placeholder="Magma"
+                @update:modelValue="setUserMapSettings({ colors: { turns: $event as any } })"
+            />
+        </div>
+        <common-color
+            :default-color="{ transparency: 1 }"
+            :model-value="store.mapSettings.colors?.turnsTransparency ? { transparency: store.mapSettings.colors?.turnsTransparency ?? 1 } : reactive({ transparency: 1 })"
+            transparency-only
+            @update:modelValue="setUserMapSettings({ colors: { turnsTransparency: $event.transparency } })"
+        >
+            Turns transparency
+        </common-color>
         <common-color
             :default-color="{ color: 'error300' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.approach ?? reactive({ color: 'error300' })"
@@ -103,7 +122,7 @@
             :model-value="store.mapSettings.colors?.[themeKey]?.aircraft?.[key] ?? reactive({ color: hexToRgb(aircraftColors[key as MapAircraftStatus]) })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { aircraft: { [key]: $event } } } })"
         >
-            {{ title }}
+            <span v-html="title"/>
         </common-color>
         <common-popup
             v-model="themeSyncActive"
@@ -164,6 +183,7 @@ import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { backupMapSettings } from '~/composables/settings';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 const store = useStore();
 
@@ -176,7 +196,7 @@ const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
     active: 'Active',
     green: 'Own aircraft',
     hover: 'Hover',
-    landed: 'Landed (dashboard)',
+    landed: 'Landed (dashboard <br>or emergency)',
     arriving: 'Arriving (dashboard)',
     departing: 'Departing (dashboard)',
 };

@@ -25,10 +25,6 @@ export default defineNuxtConfig({
                     href: '/favicon-16x16.png',
                 },
                 {
-                    rel: 'manifest',
-                    href: '/site.webmanifest',
-                },
-                {
                     rel: 'mask-icon',
                     href: '/safari-pinned-tab.svg',
                     color: '#3b6cec',
@@ -62,6 +58,7 @@ export default defineNuxtConfig({
         server: true,
     },
     experimental: {
+        appManifest: true,
         asyncContext: true,
         clientFallback: false,
         defaults: {
@@ -127,6 +124,8 @@ export default defineNuxtConfig({
         '@pinia/nuxt',
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
+        '@vite-pwa/nuxt',
+        '@vueuse/nuxt',
     ],
     eslint: {
         checker: {
@@ -166,6 +165,42 @@ export default defineNuxtConfig({
     },
     typescript: {
         typeCheck: true,
+    },
+    pwa: {
+        registerType: 'autoUpdate',
+        client: {
+            periodicSyncForUpdates: 1000 * 60 * 5,
+            installPrompt: true,
+        },
+        manifest: {
+            name: 'VATSIM Radar',
+            short_name: 'VATSIM Radar',
+            description: 'VATSIM Traffic Monitoring Service',
+            theme_color: '???',
+            orientation: 'portrait',
+            display: 'standalone',
+            // @ts-expect-error tabbed not supported here
+            display_override: ['window-controls-overlay', 'tabbed', 'standalone'],
+            start_url: '/',
+            dir: 'ltr',
+            lang: 'en',
+            handle_links: 'not-preferred',
+            icons: [
+                {
+                    src: 'android-chrome-192x192.png',
+                    sizes: '192x192',
+                    type: 'image/png',
+                },
+                {
+                    src: 'android-chrome-512x512.png',
+                    sizes: '512x512',
+                    type: 'image/png',
+                },
+            ],
+        },
+        devOptions: {
+            enabled: false,
+        },
     },
     vite: {
         build: {

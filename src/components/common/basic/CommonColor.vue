@@ -144,6 +144,14 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         font-size: 14px;
         font-weight: 600;
 
+        @include mobileOnly {
+            flex-wrap: wrap;
+
+            .color-picker__content {
+                width: 100%;
+            }
+        }
+
         >svg {
             width: 16px;
             min-width: 16px;
@@ -213,6 +221,11 @@ const transparencyOptions = computed<SelectItem[]>(() => {
             border-radius: 4px;
 
             transition: 0.3s;
+
+            @include mobileOnly {
+                width: calc(15cqw - 4px * 5 / 6);
+                height: calc(15cqw - 4px * 5 / 6);
+            }
 
             &--active {
                 border-color: $primary500;

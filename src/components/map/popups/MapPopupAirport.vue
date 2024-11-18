@@ -23,12 +23,12 @@
         </template>
         <template #action-counts>
             <div
-                class="airport__counts"
+                class="airport__counts airport__counts--root"
                 :class="{ 'airport__counts--ground_departures': listGroundDepartures }"
             >
                 <common-tooltip
                     location="bottom"
-                    :open-method="store.localSettings.tutorial?.mapAirportPopupDepartureCount ? 'disabled' : 'mouseOver'"
+                    :open-method="(overlay.collapsed || store.localSettings.tutorial?.mapAirportPopupDepartureCount) ? 'disabled' : 'mouseOver'"
                     width="120px"
                     @click="setUserLocalSettings({ tutorial: { mapAirportPopupDepartureCount: true } })"
                 >
@@ -67,7 +67,7 @@
                     :class="{ 'detailed_counts--ground_departures': listGroundDepartures }"
                     :close-method="arrivalCountTooltipCloseMethod"
                     location="bottom"
-                    open-method="mouseOver"
+                    :open-method="overlay.collapsed ? 'disabled' : 'mouseOver'"
                     @click="arrivalCountTooltipCloseMethod = arrivalCountTooltipCloseMethod === 'mouseLeave' ? 'click' : 'mouseLeave'"
                 >
                     <template #activator>
@@ -186,7 +186,7 @@
                     :model-value="!!props.overlay.data.showTracks"
                     @update:modelValue="props.overlay.data.showTracks = $event"
                 >
-                    Show tracks for arriving
+                    Show aircraft tracks
                 </common-toggle>
             </div>
             <airport-aircraft nav-offset="56px"/>
@@ -421,6 +421,12 @@ onMounted(() => {
         }
     }
 
+    @include mobileOnly {
+        :deep(.info-popup_content_tabs) {
+            margin-top: 20px;
+        }
+    }
+
     &__name {
         font-size: 12px;
         font-weight: 600;
@@ -443,6 +449,19 @@ onMounted(() => {
         font-size: 12px;
         font-weight: 700;
         line-height: 100%;
+
+        @include mobileOnly {
+            &--root {
+                position: absolute;
+                top: 40px;
+                right: 0;
+
+                padding: 4px;
+
+                background: $darkgray1000;
+                border-radius: 4px;
+            }
+        }
 
         &--ground_departures {
             gap: 14px;

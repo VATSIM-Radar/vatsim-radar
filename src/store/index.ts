@@ -43,6 +43,7 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
+        mapPresetsSaveFail: false as false | (() => Promise<any>),
         config: {} as SiteConfig,
 
         showPilotStats: false,
@@ -55,10 +56,21 @@ export const useStore = defineStore('index', {
         isTabVisible: false,
 
         loginPopup: false,
+        deleteAccountPopup: false,
+        deleteNavigraphPopup: false,
+        settingsPopup: false,
+        airacPopup: false,
+        searchActive: false,
 
         viewport: {
             width: 0,
         },
+
+        isMobile: false,
+        isTablet: false,
+        isMobileOrTablet: false,
+        isPC: false,
+        scrollbarWidth: 0,
     }),
     getters: {
         getCurrentTheme(): 'light' | 'default' {

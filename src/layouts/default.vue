@@ -3,6 +3,7 @@
         v-if="!hadRestrictedAuth"
         class="app"
     >
+        <nuxt-pwa-manifest/>
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <client-only>
@@ -12,7 +13,7 @@
             <slot/>
         </div>
         <common-popup
-            v-if="store.updateRequired"
+            v-if="store.updateRequired || $pwa?.needRefresh"
             v-model="updateRequired"
             disabled
         >
@@ -35,12 +36,6 @@
                 v-else
                 class="app_footer_info"
             >
-                <nuxt-link
-                    no-prefetch
-                    to="/privacy-policy"
-                >
-                    Privacy Policy
-                </nuxt-link>
                 <div v-if="store.version">
                     v{{ store.version }}
                 </div>
@@ -55,7 +50,7 @@
 
 <script lang="ts" setup>
 import { useStore } from '~/store';
-import ViewHeader from '~/components/views/ViewHeader.vue';
+import ViewHeader from '~/components/views/header/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
 import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
@@ -70,8 +65,12 @@ defineSlots<{ default: () => any }>();
 const store = useStore();
 const route = useRoute();
 const updateRequired = ref(true);
+const { $pwa } = useNuxtApp();
 
-const reload = () => location.reload();
+const reload = () => {
+    if ($pwa?.needRefresh) $pwa.updateServiceWorker();
+    else location.reload();
+};
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
@@ -105,6 +104,17 @@ onMounted(() => {
     onBeforeUnmount(() => {
         window.removeEventListener('storage', handleStorageUpdate);
     });
+
+    if (!theme.value) {
+        if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
+            theme.value = 'light';
+        }
+        else {
+            theme.value = 'default';
+        }
+
+        store.theme = theme.value;
+    }
 });
 
 useHead(() => {
@@ -117,6 +127,8 @@ useHead(() => {
         .filter(([key]) => key.endsWith('Rgb'))
         .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
         .join(';');
+
+    const themeColor = getCurrentThemeHexColor('darkgray1000');
 
     return {
         titleTemplate(title) {
@@ -132,6 +144,14 @@ useHead(() => {
                 name: 'keywords',
                 content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
             },
+            {
+                name: 'msapplication-TileColor',
+                content: themeColor,
+            },
+            {
+                name: 'theme-color',
+                content: themeColor,
+            },
         ],
         htmlAttrs: {
             lang: 'en',
@@ -142,6 +162,61 @@ useHead(() => {
             innerHTML: `:root {${ css }}`,
         }],
     };
+});
+
+function setWindowStore() {
+    store.isMobile = window.innerWidth < 700;
+    store.isMobileOrTablet = window.innerWidth < 1366;
+    store.isTablet = window.innerWidth < 1366 && window.innerWidth >= 700;
+    store.isPC = window.innerWidth >= 1366;
+    store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
+}
+
+const listener = () => {
+    store.viewport.width = window.innerWidth;
+    setWindowStore();
+};
+
+let windowInterval: NodeJS.Timeout | undefined;
+
+onNuxtReady(() => {
+    document.addEventListener('resize', listener);
+
+    setWindowStore();
+    windowInterval = setInterval(setWindowStore, 500);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('resize', listener);
+    clearInterval(windowInterval);
+});
+
+const headers = useRequestHeaders(['user-agent']);
+
+await useAsyncData('default-init', async () => {
+    if (headers?.['user-agent'] && import.meta.server) {
+        const { UAParser } = await import('ua-parser-js');
+        const browser = new UAParser(headers['user-agent'] || '');
+        const type = browser.getDevice().type;
+        let parsedType: 'tablet' | 'mobile' | undefined;
+
+        switch (type) {
+            case 'mobile':
+            case 'wearable':
+                parsedType = 'mobile';
+                break;
+            case 'tablet':
+                parsedType = 'tablet';
+                break;
+        }
+
+        store.isMobile = parsedType === 'mobile';
+        store.isTablet = parsedType === 'tablet';
+        store.isMobileOrTablet = store.isMobile || store.isTablet;
+        store.isPC = !store.isMobile && !store.isTablet;
+    }
+
+    return true;
 });
 </script>
 
@@ -251,6 +326,10 @@ img {
         font-weight: 600;
         border-top: 1px solid varToRgba('lightgray150', 0.15);
     }
+
+    &--gap-16 {
+        gap: 16px;
+    }
 }
 
 .__grid-info-sections {
@@ -266,6 +345,13 @@ img {
 
     &--large-title {
         grid-template-columns: 30% 65%;
+
+        @include mobileOnly {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-start;
+        }
     }
 
     &--reversed {
@@ -282,11 +368,15 @@ img {
     gap: 8px;
     width: 100%;
 
-    &:not(&--even){
+    &:not(&--even, &--even-mobile){
         > * {
             flex: 1 1 0;
             width: 0;
         }
+    }
+
+    &--align-center {
+        align-items: center;
     }
 
     &--even {
@@ -294,6 +384,16 @@ img {
 
         > * {
             width: auto;
+        }
+    }
+
+    @include mobileOnly {
+        &--even-mobile {
+            flex-wrap: wrap;
+
+            > * {
+                width: auto;
+            }
         }
     }
 }
@@ -311,5 +411,33 @@ img {
 .__link {
     color: $primary500;
     text-decoration: underline;
+}
+
+@include fromTablet {
+    .__mobile {
+        display: none !important;
+    }
+}
+
+@include mobile {
+    .__desktop {
+        display: none !important;
+    }
+}
+
+@include mobileOnly {
+    .__tablet {
+        display: none !important;
+    }
+
+    .__from-tablet {
+        display: none !important;
+    }
+}
+
+@include pc {
+    .__tablet {
+        display: none !important;
+    }
 }
 </style>

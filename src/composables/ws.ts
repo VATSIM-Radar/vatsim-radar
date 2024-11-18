@@ -40,11 +40,11 @@ export function initDataWebsocket(): () => void {
     }, 2000);
 
     websocket.addEventListener('open', () => {
-        console.info('WebSocket was opened');
+        console.info('WebSocket was opened', new Date().toISOString());
     });
 
     websocket.addEventListener('close', () => {
-        console.info('WebSocket was closed');
+        console.info('WebSocket was closed', new Date().toISOString());
         clearInterval(interval);
     });
     websocket.addEventListener('error', console.error);

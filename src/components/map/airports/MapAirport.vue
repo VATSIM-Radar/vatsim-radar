@@ -18,7 +18,7 @@
             >
                 <div
                     class="airport_title"
-                    @mouseover="hoveredFacility = true"
+                    @mouseover="!isMobileOrTablet && (hoveredFacility = true)"
                 >
                     {{ airportName }}
                 </div>
@@ -32,6 +32,7 @@
                         class="airport_facilities_facility"
                         :class="{ 'airport_facilities_facility--hovered': hoveredFacility === local.facility }"
                         :style="{ background: getControllerPositionColor(local.atc[0]) }"
+                        @click.stop="hoveredFacility = local.facility"
                         @mouseover="hoveredFacility = local.facility"
                     >
                         {{
@@ -202,6 +203,7 @@ const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
 const hoveredController = ref<boolean>(false);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
     return atcPopup.value?.$el.querySelector('.atc-popup_list');
@@ -422,17 +424,49 @@ onMounted(async () => {
         const features: ArrFeature[] = [];
 
         if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
+            const borderFeature = new Feature({
+                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                icao: props.airport.icao,
+                iata: props.airport.iata,
+                id: 'circle',
+                type: 'circle',
+            });
+
+            setBorderFeatureStyle(borderFeature);
+
             features.push({
                 id: 'circle',
-                feature: new Feature({
-                    geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                feature: borderFeature,
+                controllers: props.arrAtc,
+            });
+
+
+            if (!store.mapSettings.visibility?.atcLabels) {
+                const feature = borderFeature;
+                const geometry = feature.getGeometry();
+                const extent = feature.getGeometry()?.getExtent();
+                const topCoord = [extent![0], extent![3]];
+                let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                if (feature.getProperties().label_lat) {
+                    textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                }
+
+                const labelFeature = new Feature({
+                    geometry: new Point(textCoord),
+                    type: 'tracon-label',
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     id: 'circle',
-                    type: 'circle',
-                }),
-                controllers: props.arrAtc,
-            });
+                });
+
+                setLabelFeatureStyle(labelFeature);
+
+                features.push({
+                    id: 'circle',
+                    feature: labelFeature,
+                    controllers: props.arrAtc,
+                });
+            }
         }
         else {
             const leftAtc = props.arrAtc.filter(x => !props.features.some(y => y.controllers.some(y => y.cid === x.cid)));
@@ -539,7 +573,7 @@ onMounted(async () => {
         for (const gate of gates.value ?? []) {
             const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
 
-            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, ${ opacitySetting ?? 0.8 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, ${ opacitySetting ?? 0.8 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
+            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, ${ opacitySetting ?? 0.8 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('warning400').join(',') }, ${ opacitySetting ?? 0.8 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
 
             const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
             if (existingFeature) {

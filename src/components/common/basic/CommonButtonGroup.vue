@@ -42,31 +42,45 @@ export default defineComponent({
     background: $darkgray950;
     border-radius: 8px;
 
+    @include mobileOnly {
+        flex-wrap: wrap;
+        gap: 8px;
+        background: transparent;
+    }
+
     &_button {
         position: relative;
         display: flex;
         flex: 1 1 0;
         width: 0;
 
+        @include mobileOnly {
+            flex: auto;
+            width: auto;
+            background: $darkgray950;
+        }
+
         :deep(> .button) {
             width: 100%;
         }
 
-        &:not(:last-child) {
-            margin-right: 8px;
-            padding-right: 9px;
+        @include fromTablet {
+            &:not(:last-child) {
+                margin-right: 8px;
+                padding-right: 9px;
 
-            &::after {
-                content: '';
+                &::after {
+                    content: '';
 
-                position: absolute;
-                left: 100%;
+                    position: absolute;
+                    left: 100%;
 
-                align-self: center;
+                    align-self: center;
 
-                height: 24px;
+                    height: 24px;
 
-                border-right: 1px solid varToRgba('lightgray150', 0.2);
+                    border-right: 1px solid varToRgba('lightgray150', 0.2);
+                }
             }
         }
     }

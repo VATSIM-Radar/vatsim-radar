@@ -121,8 +121,9 @@ const getATCFullName = computed(() => {
     }
 
     const country = getAirportCountry(prop.icao);
-    if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;
+
+    if ('isOceanic' in prop && prop.isOceanic && !country.callsign) return `${ prop.name } Radio`;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 

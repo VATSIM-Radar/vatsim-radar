@@ -74,15 +74,20 @@ export const useMapStore = defineStore('map', {
 
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],
+
+        activeMobileOverlay: null as null | string,
+        autoShowTracks: null as null | boolean,
     }),
     getters: {
         canShowOverlay(): boolean {
-            return this.zoom > 4 && !this.moving;
+            return !this.moving;
         },
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
             const id = crypto.randomUUID();
+            const isMobile = useIsMobile();
+
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {
                 (overlay.position as number)++;
             }
@@ -95,8 +100,22 @@ export const useMapStore = defineStore('map', {
                 ...overlay,
             } as O;
 
+            if (isMobile.value) {
+                this.overlays.forEach(x => {
+                    x.collapsed = true;
+                });
+            }
             this.overlays.push(newOverlay);
+            this.activeMobileOverlay = id;
+
             return this.overlays.find(x => x.id === id)! as O;
+        },
+        togglePilotOverlay(cid: string, tracked = false) {
+            const existingOverlay = this.overlays.find(x => x.type === 'pilot' && x.key === cid);
+            if (existingOverlay) {
+                this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.key !== cid);
+            }
+            else return this.addPilotOverlay(cid, tracked);
         },
         async addPilotOverlay(cid: string, tracked = false) {
             if (this.openingOverlay) return;
@@ -205,7 +224,7 @@ export const useMapStore = defineStore('map', {
                     key: airport,
                     data: {
                         icao: airport,
-                        showTracks: store.user?.settings.autoShowAirportTracks,
+                        showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                     },
                     type: 'airport',
                     sticky: false,

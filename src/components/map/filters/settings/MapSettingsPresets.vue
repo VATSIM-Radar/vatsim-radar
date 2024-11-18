@@ -3,7 +3,10 @@
         v-if="presets"
         class="presets"
     >
-        <div class="__info-sections">
+        <div
+            v-if="store.user"
+            class="__info-sections"
+        >
             <div
                 v-if="!currentPreset"
                 class="presets__create __info-sections"
@@ -12,7 +15,7 @@
                     Save Current Settings
                 </common-block-title>
 
-                <div class="presets__row">
+                <div class="presets__row presets__row--no-wrap">
                     <common-input-text
                         v-model="newPresetName"
                         placeholder="Preset Name"
@@ -43,7 +46,10 @@
                     Saved Presets
                 </common-block-title>
 
-                <div class="__grid-info-sections">
+                <div
+                    class="__grid-info-sections"
+                    :class="{ '__grid-info-sections--large-title': isMobile }"
+                >
                     <div class="__grid-info-sections_title">
                         Preset
                     </div>
@@ -118,7 +124,10 @@
                 </div>
 
                 <template v-if="activePreset">
-                    <div class="__grid-info-sections">
+                    <div
+                        class="__grid-info-sections"
+                        :class="{ '__grid-info-sections--large-title': isMobile }"
+                    >
                         <div class="__grid-info-sections_title">
                             Rename Preset
                         </div>
@@ -142,6 +151,12 @@
                 </template>
             </template>
         </div>
+        <common-button
+            v-else
+            href="/api/auth/vatsim/redirect"
+        >
+            Authorize to manage presets
+        </common-button>
 
         <template v-if="activePreset">
             <common-popup v-model="states.load">
@@ -228,6 +243,7 @@ import ExportIcon from '@/assets/icons/kit/load.svg?component';
 import LoadIcon from '@/assets/icons/kit/load-on-pc.svg?component';
 import EditIcon from '@/assets/icons/kit/edit.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import { sendUserMapSettings } from '~/composables';
 
 const props = defineProps({
     refreshPresets: {
@@ -240,6 +256,7 @@ const presets = computed(() => store.mapPresets);
 
 const newPresetName = ref('');
 const activePreset = shallowRef<UserMapPreset | null>(null);
+const isMobile = useIsMobile();
 
 const currentPreset = computed(() => {
     return presets.value.find(x => JSON.stringify(x.json) === JSON.stringify(store.mapSettings))?.id ?? null;
@@ -264,13 +281,7 @@ const isCurrentPreset = (preset: UserMapPreset) => {
 };
 
 const createPreset = async () => {
-    saveMapSettings(await $fetch<UserMapSettings>('/api/user/settings/map', {
-        method: 'POST',
-        body: {
-            name: newPresetName.value,
-            json: toRaw(store.mapSettings),
-        },
-    }));
+    await saveMapSettings(await sendUserMapSettings(newPresetName.value, store.mapSettings, createPreset));
     props.refreshPresets();
 };
 
@@ -283,12 +294,12 @@ const exportPreset = (preset: UserMapPreset) => {
 };
 
 const overwritePreset = async () => {
-    saveMapSettings(await $fetch<UserMapSettings>(`/api/user/settings/map/${ activePreset.value!.id }`, {
+    await $fetch<UserMapSettings>(`/api/user/settings/map/${ activePreset.value!.id }`, {
         method: 'PUT',
         body: {
-            json: toRaw(activePreset.value!.json),
+            json: toRaw(store.mapSettings),
         },
-    }));
+    });
     props.refreshPresets();
 };
 
@@ -323,6 +334,13 @@ const presetsSelectList = computed<SelectItem[]>(() => presets.value.map(x => ({
         gap: 16px;
         align-items: center;
 
+        &:not(.presets__row--no-wrap) {
+            @include mobileOnly {
+                flex-wrap: wrap;
+                row-gap: 8px;
+            }
+        }
+
         .button {
             min-width: 32px;
         }
@@ -331,6 +349,10 @@ const presetsSelectList = computed<SelectItem[]>(() => presets.value.map(x => ({
             width: 1px;
             height: 24px;
             background: varToRgba('lightgray150', 0.2);
+
+            @include mobileOnly {
+                display: none;
+            }
         }
     }
 

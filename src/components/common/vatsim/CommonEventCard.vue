@@ -26,8 +26,15 @@
                 <div class="detail-item_header">
                     Description:
                 </div>
-                <div class="detail-item_content">
-                    {{ props.event.description }}
+                <div
+                    class="detail-item_content event-details__description"
+                    :class="{ 'event-details__description--has-banner': props.event.banner }"
+                >
+                    <div v-html="description"/>
+                    <img
+                        v-if="props.event.banner"
+                        :src="props.event.banner"
+                    >
                 </div>
             </div>
 
@@ -38,12 +45,16 @@
                 <div class="detail-item_header">
                     Airports:
                 </div>
-                <div class="detail-item_content">
-                    <span
+                <div class="detail-item_content event-card__airports-links">
+                    <common-button
                         v-for="airport in props.event.airports"
                         :key="airport.icao"
-                        class="airport"
-                    >{{airport.icao}}</span>
+                        :href="`/?airport=${ airport.icao }`"
+                        :target="app.$pwa?.isPWAInstalled ? undefined : '_blank'"
+                        type="link"
+                    >
+                        {{airport.icao}}
+                    </common-button>
                 </div>
             </div>
             <div
@@ -53,11 +64,36 @@
                 <div class="detail-item_header">
                     Routes:
                 </div>
-                <div class="detail-item_content">
-                    <span
+                <div class="detail-item_content event-card__routes">
+                    <div
                         v-for="route in props.event.routes"
                         :key="route.departure + route.arrival + route.route"
-                    ><span class="departure">{{route.departure}}</span> {{ route.route }} <span class="arrival">{{ route.arrival }}</span><br></span>
+                        class="event-card__routes_route"
+                    >
+                        <div class="event-card__routes_route_airports">
+                            <span @click="baseCopy(route.departure)">{{ route.departure }}</span>
+                            <span @click="baseCopy(route.route)">{{ route.route }}</span>
+                            <span @click="baseCopy(route.arrival)">{{ route.arrival }}</span>
+                        </div>
+
+                        <common-button-group class="event-card__routes_route_actions">
+                            <common-button
+                                :href="encodeURI(`https://my.vatsim.net/pilots/flightplan?departure=${ route.departure }&arrival=${ route.arrival }&route=${ route.route }`)"
+                                target="_blank"
+                            >
+                                Prefile on VATSIM
+                            </common-button>
+                            <common-button
+                                :href="encodeURI(`https://dispatch.simbrief.com/options/custom?orig=${ route.departure }&dest=${ route.arrival }&route=${ route.route }`)"
+                                target="_blank"
+                            >
+                                Prefile on SimBrief
+                            </common-button>
+                            <common-button @click="baseCopy(`${ route.departure } ${ route.route } ${ route.arrival }`)">
+                                Copy Route
+                            </common-button>
+                        </common-button-group>
+                    </div>
                 </div>
             </div>
 
@@ -84,6 +120,9 @@
 
 <script setup lang="ts">
 import type { VatsimEvent } from '~/types/data/vatsim';
+import { parse } from 'marked';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const props = defineProps({
     event: {
@@ -94,7 +133,7 @@ const props = defineProps({
 
 const details = ref(false);
 
-const formatter = new Intl.DateTimeFormat(undefined, {
+const formatter = new Intl.DateTimeFormat(['de-DE'], {
     timeZone: 'UTC',
     month: 'numeric',
     day: 'numeric',
@@ -102,6 +141,10 @@ const formatter = new Intl.DateTimeFormat(undefined, {
     minute: '2-digit',
 });
 
+const { copy: baseCopy } = useCopyText();
+
+const app = useNuxtApp();
+const description = computed(() => parse(props.event.description));
 const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => formatter.format(new Date(props.event.end_time)));
 const active = computed(() => new Date(props.event.start_time) < new Date());
@@ -139,6 +182,13 @@ const organisers = computed(() => {
 
     transition: 0.3s;
 
+    @include mobile {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
     @include hover {
         &:hover {
             background: $darkgray875;
@@ -149,14 +199,59 @@ const organisers = computed(() => {
         font-size: 14px;
         font-weight: 600;
     }
-}
 
-.event-card_active {
-    border: 2px solid $info300;
-}
+    &_active {
+        border: 2px solid $info300;
+    }
 
-.event-card_name_active {
-    color: $info300;
+    &_name_active {
+        color: $info300;
+    }
+
+    &__routes {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 100%;
+
+        &_route {
+            padding: 8px;
+            background: $darkgray800;
+            border-radius: 8px;
+
+            &_airports {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                margin-bottom: 8px;
+
+                span:not(:nth-child(2)) {
+                    padding: 4px;
+                    background: $darkgray900;
+                    border-radius: 4px;
+                }
+
+                span {
+                    cursor: pointer;
+                }
+            }
+
+            @include fromTablet {
+                &_actions {
+                    min-width: 500px;
+                }
+            }
+        }
+    }
+
+    &__airports-links {
+        display: flex;
+        gap: 4px;
+
+        .button {
+            font-size: 14px !important;
+        }
+    }
 }
 
 .event-details {
@@ -169,6 +264,43 @@ const organisers = computed(() => {
     border: 2px solid $darkgray800;
     border-top: 0;
     border-radius: 4px;
+
+    @include mobileOnly {
+        margin: 0;
+    }
+
+    &__description {
+        &--has-banner {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+
+            @include mobileOnly {
+                flex-direction: column;
+
+                img{
+                    order: 1;
+                }
+
+                div {
+                    order: 2;
+                }
+            }
+
+            img {
+                max-width: 30%;
+                border-radius: 16px;
+
+                @include mobileOnly {
+                    max-width: 100%;
+                }
+
+                @include tablet {
+                    max-width: 40%;
+                }
+            }
+        }
+    }
 }
 
 .detail-item {
@@ -179,6 +311,11 @@ const organisers = computed(() => {
     justify-content: flex-start;
 
     margin-bottom: 12px;
+
+    @include mobile {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 .detail-item_header {
@@ -186,20 +323,12 @@ const organisers = computed(() => {
     font-weight: 600;
 }
 
-.airport {
-    padding-right: 5px;
-}
-
 .detail-item_content {
     padding: 8px;
     background: $darkgray875;
-}
-
-.departure {
-    font-weight: 700;
-}
-
-.arrival {
-    font-weight: 700;
+    @include mobile {
+        overflow: auto;
+        max-height: 25vh;
+    }
 }
 </style>

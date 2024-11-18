@@ -20,6 +20,12 @@ $defaultPageHeight: calc(32px + 56px);
     }
 }
 
+@mixin fromTablet() {
+    @media all and (min-width: 700px) {
+        @content;
+    }
+}
+
 @mixin pc() {
     @media all and (min-width: 1366px) {
         @content;
@@ -29,5 +35,13 @@ $defaultPageHeight: calc(32px + 56px);
 @mixin hover() {
     @media (any-hover: hover) and (hover: hover) {
         @content;
+    }
+}
+
+@mixin mobileSafariOnly() {
+    @include mobileOnly() {
+        @supports (-webkit-hyphens:none) {
+            @content;
+        }
     }
 }

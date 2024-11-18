@@ -79,10 +79,18 @@ const getShownAirports = computed(() => {
 
     switch (store.mapSettings.airportsMode) {
         case 'staffedOnly':
-            list = list.filter(x => x.arrAtc.length || x.localAtc.length);
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length;
+            });
             break;
         case 'staffedAndGroundTraffic':
-            list = list.filter(x => x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length);
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length;
+            });
             break;
     }
 

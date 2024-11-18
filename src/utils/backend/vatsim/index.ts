@@ -115,11 +115,12 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
         }
     }
 
-    let vatspy = radarStorage.vatspy.data?.keyAirports.iata[callsignAirport];
+    let vatspy = radarStorage.vatspy.data?.keyAirports.realIata[callsignAirport] || radarStorage.vatspy.data?.keyAirports.iata[callsignAirport];
+    const icao = radarStorage.vatspy.data?.keyAirports.realIcao[callsignAirport] || radarStorage.vatspy.data?.keyAirports.icao[callsignAirport];
     let isIata = true;
     if (!vatspy) {
         isIata = false;
-        vatspy = radarStorage.vatspy.data?.keyAirports.icao[callsignAirport];
+        vatspy = icao;
     }
 
     if (vatspy && simaware) {
@@ -128,10 +129,10 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
             isSimAware: true,
         };
     }
-    else if (vatspy && isIata && radarStorage.vatspy.data?.keyAirports.icao[callsignAirport]?.iata !== vatspy.iata) {
+    else if (vatspy && isIata && icao && icao.iata !== vatspy.iata) {
         vatspy = {
             ...vatspy,
-            iata: radarStorage.vatspy.data!.keyAirports.icao[callsignAirport]?.iata,
+            iata: icao.iata,
         };
     }
 

@@ -4,37 +4,39 @@
         class="search"
         :class="{ 'search--opened': isOpened || opened }"
     >
-        <common-input-text
-            v-model="search"
-            class="search_input"
-            placeholder="Search"
-            @update:focused="$event && ([opened = true, filtersEnabled = false])"
-        >
-            <template #icon>
-                <search-icon width="16"/>
-            </template>
-        </common-input-text>
-        <transition
-            name="search_filters--appear"
-        >
-            <common-button
-                v-if="opened"
-                class="search_filters"
-                :type="filtersEnabled ? 'primary' : 'secondary'"
-                @click="filtersEnabled = !filtersEnabled"
+        <div class="search_container">
+            <common-input-text
+                v-model="search"
+                class="search_input"
+                placeholder="Search"
+                @update:focused="$event && ([opened = true, filtersEnabled = false])"
             >
                 <template #icon>
-                    <filter-icon/>
-
-                    <div
-                        v-if="filtersCount"
-                        class="search_filters_badge"
-                    >
-                        {{ filtersCount }}
-                    </div>
+                    <search-icon width="16"/>
                 </template>
-            </common-button>
-        </transition>
+            </common-input-text>
+            <transition
+                name="search_filters--appear"
+            >
+                <common-button
+                    v-if="opened"
+                    class="search_filters"
+                    :type="filtersEnabled ? 'primary' : 'secondary'"
+                    @click="filtersEnabled = !filtersEnabled"
+                >
+                    <template #icon>
+                        <filter-icon/>
+
+                        <div
+                            v-if="filtersCount"
+                            class="search_filters_badge"
+                        >
+                            {{ filtersCount }}
+                        </div>
+                    </template>
+                </common-button>
+            </transition>
+        </div>
         <transition name="search_window--appear">
             <div
                 v-if="isOpened"
@@ -95,8 +97,12 @@
                 <div
                     v-else
                     class="__info-sections"
+                    :class="{ 'search__results-airports-match': exactAirportsMatch }"
                 >
-                    <template v-if="searchResults.flights && canSearchBy('flights')">
+                    <div
+                        v-if="searchResults.flights && canSearchBy('flights')"
+                        class="__info-sections search__results search__results--flights"
+                    >
                         <common-block-title
                             :bubble="searchResults.flights.length"
                             :collapsed="collapsedData.flights ?? false"
@@ -109,6 +115,7 @@
                             <common-info-block
                                 v-for="flight in searchResults.flights.slice(0, searchLimit)"
                                 :key="flight.cid"
+                                :bottom-items="[flight.aircraft_short, flight.departure]"
                                 is-button
                                 :top-items="[flight.callsign]"
                                 @click="'status' in flight ? mapStore.addPilotOverlay(flight.cid.toString(), true) : mapStore.addPrefileOverlay(flight.cid.toString())"
@@ -126,15 +133,22 @@
                                     </div>
                                 </template>
                                 <template
-                                    v-if="flight.departure"
-                                    #bottom
+                                    #bottom="{ item, index }"
                                 >
-                                    from <strong>{{ flight.departure }}</strong> to <strong>{{ flight.arrival }}</strong>
+                                    <template v-if="index === 1">
+                                        from <strong>{{ flight.departure }}</strong> to <strong>{{ flight.arrival }}</strong>
+                                    </template>
+                                    <template v-else>
+                                        {{ item }}
+                                    </template>
                                 </template>
                             </common-info-block>
                         </template>
-                    </template>
-                    <template v-if="searchResults.airports && canSearchBy('airports')">
+                    </div>
+                    <div
+                        v-if="searchResults.airports && canSearchBy('airports')"
+                        class="__info-sections search__results search__results--airports"
+                    >
                         <common-block-title
                             :bubble="searchResults.airports.length"
                             :collapsed="collapsedData.airports ?? false"
@@ -153,8 +167,11 @@
                                 @click="mapStore.addAirportOverlay(airport.icao)"
                             />
                         </template>
-                    </template>
-                    <template v-if="searchResults.atc && canSearchBy('atc')">
+                    </div>
+                    <div
+                        v-if="searchResults.atc && canSearchBy('atc')"
+                        class="__info-sections search__results search__results--atc"
+                    >
                         <common-block-title
                             :bubble="searchResults.atc.length"
                             :collapsed="collapsedData.atc ?? false"
@@ -172,7 +189,7 @@
                                 small
                             />
                         </template>
-                    </template>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -199,6 +216,7 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 const filtersEnabled = ref(false);
 const opened = ref(false);
 const search = ref('');
+const exactAirportsMatch = ref(false);
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -274,7 +292,7 @@ watch([search, opened], async ([val]) => {
 
     const results: Partial<SearchResults> = {};
 
-    let exactAirportsMatch = false;
+    exactAirportsMatch.value = false;
 
     if (canSearchBy('airports')) {
         // Search by exact key
@@ -283,7 +301,7 @@ watch([search, opened], async ([val]) => {
         if (!airports.length) {
             airports = dataStore.vatspy.value?.data.airports.filter(x => !x.isPseudo && (x.icao.includes(val) || x.iata?.includes(val) || x.name.toUpperCase().includes(val))) ?? [];
         }
-        else exactAirportsMatch = true;
+        else exactAirportsMatch.value = true;
 
         if (airports.length) {
             airports = airports.sort((a, b) => {
@@ -303,6 +321,7 @@ watch([search, opened], async ([val]) => {
             x.controller.callsign.includes(val) ||
             x.controller.name.toUpperCase().includes(val) ||
             x.controller.frequency.includes(val) ||
+            x.controller.cid.toString().includes(val) ||
             x.controller.text_atis?.includes(val)).map(x => x.controller);
 
         atc = atc.concat(
@@ -311,18 +330,19 @@ watch([search, opened], async ([val]) => {
                 x.atc.callsign.includes(val) ||
                 x.atc.name.toUpperCase().includes(val) ||
                 x.atc.frequency.includes(val) ||
+                x.atc.cid.toString().includes(val) ||
                 x.atc.text_atis?.includes(val)).map(x => x.atc),
         );
 
         if (atc.length) results.atc = atc;
     }
 
-    if (canSearchBy('flights') && !exactAirportsMatch) {
+    if (canSearchBy('flights')) {
         let flights: SearchResults['flights'] = compareFlightWithSearch(val, dataStore.vatsim.data.pilots.value);
 
         flights = flights.concat(compareFlightWithSearch(val, dataStore.vatsim.data.prefiles.value));
 
-        flights = flights.sort((a, b) => {
+        flights = flights.sort((a, b) => a.callsign.localeCompare(b.callsign, undefined, { numeric: true })).sort((a, b) => {
             if (a.callsign.includes(val) && !b.callsign.includes(val)) return -1;
             if (!a.callsign.includes(val) && b.callsign.includes(val)) return 1;
             return 0;
@@ -342,21 +362,62 @@ useClickOutside({
         filtersEnabled.value = false;
     },
 });
+
+watch(() => mapStore.overlays.length, () => {
+    store.searchActive = false;
+});
 </script>
 
 <style scoped lang="scss">
 .search {
     position: relative;
-    display: flex;
-    gap: 8px;
 
-    & &_input {
-        width: 280px;
-        height: 40px;
+    @include mobile {
+        scrollbar-gutter: stable;
+
+        position: absolute;
+        top: 100%;
+        left: 0;
+
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: center;
+
+        width: 100%;
+        height: calc(100vh - 56px);
+        padding: 16px;
+
+        background: $darkgray950;
     }
 
-    &--opened .search_input {
-        width: 240px;
+    &_container {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+
+        @include mobile {
+            position: sticky;
+            bottom: 0;
+        }
+    }
+
+    @include pc {
+        & &_input {
+            width: 280px;
+            height: 40px;
+        }
+
+        &--opened .search_input {
+            width: 240px;
+        }
+    }
+
+    @include mobile {
+        & &_input {
+            height: 40px;
+        }
     }
 
     &_filters {
@@ -421,6 +482,27 @@ useClickOutside({
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
 
+        @include mobile {
+            position: relative;
+            top: 0;
+
+            min-height: unset;
+            max-height: unset;
+
+            border-radius: 8px;
+        }
+
+        @include tablet {
+            .__info-sections {
+                flex-direction: row;
+                flex-wrap: wrap;
+
+                .title {
+                    width: 100%;
+                }
+            }
+        }
+
         &--appear {
             &-enter-active,
             &-leave-active {
@@ -431,6 +513,10 @@ useClickOutside({
             &-leave-to {
                 top: calc(100% - 20px);
                 opacity: 0;
+
+                @include mobile {
+                    top: -5px;
+                }
             }
         }
 
@@ -452,5 +538,20 @@ useClickOutside({
         }
     }
 
+    &__results {
+        &-airports-match {
+            .search__results--flights {
+                order: 3;
+            }
+
+            .search__results--atc {
+                order: 2;
+            }
+
+            .search__results--airports {
+                order: 1;
+            }
+        }
+    }
 }
 </style>
