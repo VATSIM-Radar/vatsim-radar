@@ -24,7 +24,7 @@ import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
-import { attachMoveEnd, isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent, useIsMobileOrTablet } from '~/composables';
 import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
@@ -73,6 +73,7 @@ const hoveredAirportName = ref<string | null>(null);
 const hoveredArrAirport = ref<string | null>(null);
 const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 const getShownAirports = computed(() => {
     let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao));
@@ -172,8 +173,10 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     mapStore.openApproachOverlay = true;
 }
 
-function handleMapClick() {
+function handleMapClick(e: MapBrowserEvent<any>) {
     if (hoveredAirportName.value) mapStore.addAirportOverlay(hoveredAirportName.value);
+
+    if (isMobileOrTablet.value) handlePointerMove(e);
 }
 
 watch(map, val => {
