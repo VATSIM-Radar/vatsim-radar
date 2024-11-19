@@ -167,7 +167,12 @@ defineCronJob('* * * * * *', async () => {
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
-                return controller.text_atis?.some(y => y.includes(freq)) && controller.text_atis?.some(y => y.includes(x.name));
+                return controller.text_atis?.some(
+                    y => y.includes(freq),
+                ) &&
+                    controller.text_atis?.some(
+                        y => y.split(' ').some(y => y.toUpperCase() === x.name),
+                    );
             });
 
             if (!australiaSectors) continue;
