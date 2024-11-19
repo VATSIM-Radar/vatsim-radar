@@ -9,7 +9,16 @@
                 :bottom-items="[...usePilotRating(pilot), stats ? `${ stats }h total time` : undefined]"
                 class="flight-info__card"
                 :top-items="[parseEncoding(pilot.name), pilot.cid]"
-            />
+            >
+                <template #top="{ item, index }">
+                    <common-spoiler
+                        :is-cid="index === 1"
+                        type="pilot"
+                    >
+                        {{ item }}
+                    </common-spoiler>
+                </template>
+            </common-info-block>
             <common-button
                 v-if="showStats"
                 class="flight-info_self_stats"
@@ -22,7 +31,10 @@
                 </template>
             </common-button>
         </div>
-        <common-info-block class="flight-info__card">
+        <common-info-block
+            :key="dataStore.vatsim.updateTimestamp.value.toString()"
+            class="flight-info__card"
+        >
             <template #top>
                 <div class="flight-info__card_route">
                     <div
@@ -165,6 +177,7 @@ import { useMapStore } from '~/store/map';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
     pilot: {

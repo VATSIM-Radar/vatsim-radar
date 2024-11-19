@@ -50,13 +50,15 @@ let slugs1251: string[] = [];
 
 const regex1251 = new RegExp('([Ћ¤ґ®©Єþðîí])', 'i');
 
+const countries1251 = ['Russia', 'Belarus', 'Armenia', 'Ukraine', 'Kazakhstan', 'Kyrgyzstan'];
+
 export function parseEncoding(text: string, callsignOrAirport?: string) {
     try {
         return decodeURIComponent(escape(text));
     }
     catch { /* empty */ }
 
-    if (!slugs1251.length) slugs1251 = useDataStore().vatspy.value?.data.countries.filter(x => x.country === 'Russia' || x.country === 'Belarus' || x.country === 'Armenia' || x.country === 'Ukraine').map(x => x.code) ?? [];
+    if (!slugs1251.length) slugs1251 = useDataStore().vatspy.value?.data.countries.filter(x => countries1251.includes(x.country)).map(x => x.code) ?? [];
 
     const toAnalyse = encoder.encode(text);
 

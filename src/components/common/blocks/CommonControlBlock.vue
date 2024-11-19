@@ -18,6 +18,10 @@
             <div class="control-block_header_title">
                 <slot name="title"/>
             </div>
+            <template v-if="$slots.closeActions">
+                <div class="__spacer"/>
+                <slot name="closeActions"/>
+            </template>
             <div
                 v-if="!disabled"
                 class="control-block_header_close"
@@ -58,6 +62,9 @@ const props = defineProps({
     maxWidth: {
         type: String,
     },
+    minHeight: {
+        type: String,
+    },
     maxHeight: {
         type: String,
     },
@@ -75,7 +82,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default(): any; title(): any }>();
+defineSlots<{ default(): any; title(): any; closeActions(): any }>();
 
 const block = ref<HTMLDivElement | null>(null);
 
@@ -103,6 +110,7 @@ useClickOutside({
 
     width: v-bind(width);
     max-width: v-bind(maxWidth);
+    min-height: v-bind(minHeight);
     padding: 16px;
 
     color: $lightgray150;

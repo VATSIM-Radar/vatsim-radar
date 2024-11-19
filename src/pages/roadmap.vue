@@ -169,10 +169,6 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Pilot/airport mouse right click menu',
-                status: 'todo',
-            },
-            {
                 title: 'TMA approach sectors',
                 status: 'completed',
             },
@@ -225,10 +221,11 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Settings (hide atc/aircraft/gates/etc)',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
+                status: 'todo',
             },
             {
                 title: 'Open Source (code only)',
@@ -253,21 +250,27 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Search',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Friendly mobile version',
-                status: 'todo',
+                status: 'completed',
             },
         ],
     },
     {
         title: 'Stage 3',
         items: [
+            {
+                title: 'Pilot/airport mouse right click menu',
+            },
             'Proper Github local setup',
             'Oceanic Tracks integration',
             'Waypoints on map (including aircraft submitted route)',
-            'Events/ATC Bookings',
+            {
+                title: 'Events/ATC Bookings',
+                description: 'More complex integration than current events',
+            },
             'Smart positioning for aircraft info popup',
             {
                 title: 'Basic Stats',
@@ -276,7 +279,11 @@ const roadmap = reactive<Roadmap[]>([
             'Hoppie integration',
             {
                 title: 'PWA',
-                description: 'Basically PC version of VATSIM Radar',
+                status: 'completed',
+            },
+            {
+                title: 'Usage of VatGlasses data',
+                status: 'in-progress',
             },
             'Bookmarks',
         ],
@@ -305,7 +312,6 @@ const roadmap = reactive<Roadmap[]>([
             'Streamers integration',
             '3D map view',
             'Twitch/streamers integration',
-            'Usage of VatGlasses data',
             'Distance measuring tool',
             'Aircraft collision prediction',
             {
@@ -320,7 +326,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 47;
+const percents = 48;
 
 interface RoadmapGroup {
     status: ItemStatus;
@@ -467,6 +473,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
     &__col {
         width: 100%;
 
+        @include mobile {
+            padding: 16px 0;
+            background: $darkgray900;
+            border-radius: 16px;
+        }
+
         &_title {
             margin-bottom: 16px;
 
@@ -503,6 +515,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             gap: 16px;
 
             max-height: 65vh;
+
+            @include mobile {
+                max-height: 20vh;
+            }
 
             &_group {
                 &_title {
@@ -576,6 +592,22 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         &--status-completed {
             --status-color: #{$success500};
+        }
+    }
+
+    &_cols {
+        @include mobileOnly {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        @include tablet {
+            display: grid;
+            grid-template-columns: repeat(2, calc(50% - 8px));
+
+            >*:last-child {
+                grid-column: span 2;
+            }
         }
     }
 }

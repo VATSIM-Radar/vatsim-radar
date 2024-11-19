@@ -20,6 +20,10 @@
     background: $darkgray950;
     border-radius: 16px;
 
+    @include mobileOnly {
+        padding: 8px;
+    }
+
     &_title {
         margin-bottom: 16px;
         padding-bottom: 8px;
@@ -29,6 +33,10 @@
         color: $primary500;
 
         border-bottom: 1px solid varToRgba('lightgray150', 0.2);
+
+        @include mobileOnly {
+            font-size: 24px;
+        }
     }
 }
 </style>

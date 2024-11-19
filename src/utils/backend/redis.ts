@@ -6,4 +6,6 @@ export const redis = new IORedis({
     port: 6379,
     family: 4,
     db: 0,
+    maxRetriesPerRequest: null,
+    autoResubscribe: true,
 });

@@ -4,8 +4,9 @@
             ref="mapContainer"
             class="map_container"
         />
+
         <div
-            v-if="ready"
+            v-if="ready && !isMobile"
             v-show="!store.config.hideOverlays"
             ref="popups"
             class="map_popups"
@@ -17,6 +18,7 @@
             <div
                 v-if="popupsHeight || store.config.hideOverlays"
                 class="map_popups_list"
+                :class="{ 'map_popups_list--empty': !mapStore.overlays.length }"
             >
                 <transition-group name="map_popups_popup--appear">
                     <map-popup
@@ -28,13 +30,19 @@
                 </transition-group>
             </div>
         </div>
+        <div
+            v-else-if="ready && isMobile"
+            v-show="!store.config.hideOverlays"
+        >
+            <map-mobile-window/>
+        </div>
+
         <map-controls v-if="!store.config.hideAllExternal"/>
-        <div :key="store.theme ?? 'default'">
+        <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
                 <map-aircraft-list/>
                 <map-sectors-list v-if="!store.config.hideSectors"/>
                 <map-airports-list v-if="!store.config.hideAirports"/>
-                <map-filters v-if="!store.config.hideHeader"/>
                 <map-weather v-if="!store.config.hideHeader"/>
                 <a
                     v-if="store.config.showCornerLogo"
@@ -51,6 +59,7 @@
         </div>
         <client-only v-if="ready">
             <map-layer/>
+            <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
             v-if="route.query"
@@ -68,7 +77,7 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
-import { fromLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -103,6 +112,9 @@ const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
+const isMobile = useIsMobile();
+const isMobileOrTablet = useIsMobileOrTablet();
+const config = useRuntimeConfig();
 
 if (route.query.discord === '1') {
     router.replace({
@@ -140,7 +152,7 @@ async function checkAndAddOwnAircraft() {
 
 const getRouteZoom = (): number | null => {
     if (typeof route.query.zoom === 'string') {
-        const queryZoom = parseInt(route.query.zoom, 10);
+        const queryZoom = +route.query.zoom;
         if (isNaN(queryZoom)) return null;
 
         return queryZoom;
@@ -151,7 +163,8 @@ const getRouteZoom = (): number | null => {
 
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
-    const overlays = JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
+    const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
+    const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(console.error);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
@@ -220,7 +233,7 @@ const restoreOverlays = async () => {
                 data: {
                     icao: overlay.key,
                     airport: data[0].value,
-                    showTracks: store.user?.settings.autoShowAirportTracks,
+                    showTracks: mapStore.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                 },
             };
         }
@@ -264,6 +277,42 @@ const restoreOverlays = async () => {
             showAirportOnMap(airport, map.value, getRouteZoom() ?? undefined);
         }
     }
+
+    if (routeOverlays?.length) {
+        for (const overlay of routeOverlays) {
+            if (!overlay) continue;
+            const data = overlay.split(';');
+
+            const type = data.find(x => x.startsWith('type='))?.split('=')[1];
+            const key = data.find(x => x.startsWith('key='))?.split('=')[1];
+            const sticky = data.find(x => x.startsWith('sticky='))?.split('=')[1] === '1';
+            const collapsed = data.find(x => x.startsWith('collapsed='))?.split('=')[1] === '1';
+
+            if (!type || !key) continue;
+
+            let addedOverlay;
+
+            switch (type) {
+                case 'pilot':
+                    addedOverlay = await mapStore.addPilotOverlay(key);
+                    break;
+                case 'prefile':
+                    addedOverlay = await mapStore.addPrefileOverlay(key);
+                    break;
+                case 'airport':
+                    addedOverlay = await mapStore.addAirportOverlay(key);
+                    break;
+                case 'atc':
+                    addedOverlay = await mapStore.addAtcOverlay(key);
+                    break;
+            }
+
+            if (addedOverlay) {
+                addedOverlay.sticky = sticky;
+                addedOverlay.collapsed = collapsed;
+            }
+        }
+    }
 };
 
 function updateMapCursor() {
@@ -284,32 +333,36 @@ const overlaysHeight = computed(() => {
 });
 
 watch([overlays, popupsHeight], () => {
-    if (!popups.value) return;
-    const baseHeight = 56;
-    const collapsed = mapStore.overlays.filter(x => x.collapsed);
-    const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
+    if (!popups.value && !isMobile.value) return;
+    if (import.meta.server) return;
 
-    const collapsedHeight = collapsed.length * baseHeight;
-    const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
+    if (popups.value) {
+        const baseHeight = 56;
+        const collapsed = mapStore.overlays.filter(x => x.collapsed);
+        const uncollapsed = mapStore.overlays.filter(x => !x.collapsed);
 
-    // Max 4 uncollapsed on screen
-    const minHeight = Math.floor(totalHeight / 4);
-    const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
+        const collapsedHeight = collapsed.length * baseHeight;
+        const totalHeight = popups.value.clientHeight - (overlaysGap * (mapStore.overlays.length - 1));
 
-    const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
+        // Max 4 uncollapsed on screen
+        const minHeight = Math.floor(totalHeight / 4);
+        const maxUncollapsed = Math.floor((totalHeight - collapsedHeight) / minHeight);
 
-    collapsed.forEach(overlay => {
-        overlay._maxHeight = baseHeight;
-    });
+        const maxHeight = Math.floor((totalHeight - collapsedHeight) / (uncollapsed.length < maxUncollapsed ? uncollapsed.length : maxUncollapsed));
 
-    uncollapsed.forEach((overlay, index) => {
-        if (index < maxUncollapsed) {
-            overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
-        }
-        else {
-            overlay.collapsed = true;
-        }
-    });
+        collapsed.forEach(overlay => {
+            overlay._maxHeight = baseHeight;
+        });
+
+        uncollapsed.forEach((overlay, index) => {
+            if (index < maxUncollapsed) {
+                overlay._maxHeight = (overlay.maxHeight && overlay.maxHeight < maxHeight) ? overlay.maxHeight : maxHeight;
+            }
+            else {
+                overlay.collapsed = true;
+            }
+        });
+    }
 
     localStorage.setItem('overlays', JSON.stringify(
         overlays.value.map(x => ({
@@ -319,7 +372,6 @@ watch([overlays, popupsHeight], () => {
     ));
 }, {
     deep: true,
-    immediate: true,
 });
 
 await setupDataFetch({
@@ -342,17 +394,6 @@ await setupDataFetch({
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
         let zoom = store.localSettings.zoom ?? 3;
-
-        if (typeof route.query.center === 'string') {
-            const coords = route.query.center.split(',').map(x => +x);
-            if (coords.length !== 2 || coords.some(x => typeof x !== 'number' || isNaN(x))) return;
-
-            center = coords;
-        }
-
-        const routeZoom = getRouteZoom();
-
-        if (routeZoom) zoom = routeZoom;
 
         if (store.config.airport) {
             const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
@@ -391,6 +432,21 @@ await setupDataFetch({
         }
         else if (store.config.airports?.length) zoom = 1;
 
+        if (typeof route.query.center === 'string' && route.query.center) {
+            const coords = route.query.center.split(',').map(x => +x);
+            if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
+                center = fromLonLat(coords);
+            }
+        }
+
+        if (typeof route.query.tracks === 'string') {
+            mapStore.autoShowTracks = route.query.tracks === '1';
+        }
+
+        const routeZoom = getRouteZoom();
+
+        if (routeZoom) zoom = routeZoom;
+
         map.value = new Map({
             target: mapContainer.value!,
             controls: [
@@ -404,11 +460,20 @@ await setupDataFetch({
                 center,
                 zoom,
                 minZoom: 3,
+                maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: projectionExtent,
             }),
         });
+
+        if (isMobileOrTablet.value) {
+            let dblClickInteraction;
+
+            if (dblClickInteraction) {
+                map.value.removeInteraction(dblClickInteraction);
+            }
+        }
 
         map.value.getTargetElement().style.cursor = 'grab';
         map.value.on('pointerdrag', function() {
@@ -453,6 +518,18 @@ await setupDataFetch({
             }
         });
 
+        await nextTick();
+        popupsHeight.value = popups.value?.clientHeight ?? 0;
+
+        if (popups.value) {
+            const resizeObserver = new ResizeObserver(() => {
+                popupsHeight.value = popups.value?.clientHeight ?? 0;
+            });
+            resizeObserver.observe(popups.value!);
+        }
+
+        await restoreOverlays();
+
         map.value.on('movestart', () => {
             moving = true;
             mapStore.moving = true;
@@ -464,6 +541,21 @@ await setupDataFetch({
             mapStore.rotation = toDegrees(view.getRotation() ?? 0);
             mapStore.extent = view.calculateExtent(map.value!.getSize());
 
+            const query = {
+                center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
+                zoom: view.getZoom()?.toFixed(2),
+            };
+
+            router.replace({
+                query,
+            });
+
+            const targetOrigin = config.public.DOMAIN;
+            window.parent.postMessage({
+                type: 'move',
+                query,
+            }, targetOrigin);
+
             setUserLocalSettings({
                 location: view.getCenter(),
                 zoom: view.getZoom(),
@@ -473,17 +565,6 @@ await setupDataFetch({
             if (moving) return;
             mapStore.moving = false;
         });
-
-        await nextTick();
-        popupsHeight.value = popups.value?.clientHeight ?? 0;
-
-        if (popups.value) {
-            const resizeObserver = new ResizeObserver(() => {
-                popupsHeight.value = popups.value?.clientHeight ?? 0;
-            });
-            resizeObserver.observe(popups.value!);
-            await restoreOverlays();
-        }
     },
 });
 </script>
@@ -508,6 +589,8 @@ await setupDataFetch({
 
     width: 100%;
 
+    border-radius: 16px;
+
     &_container {
         z-index: 5;
         display: flex;
@@ -531,6 +614,10 @@ await setupDataFetch({
 
     :deep(.ol-attribution) {
         background: $darkgray1000;
+
+        @include mobile {
+            background: transparent;
+        }
 
         ul {
             text-shadow: none;
@@ -558,6 +645,11 @@ await setupDataFetch({
         width: calc(100% - 48px);
         height: calc(100% - 48px);
 
+        @include mobileOnly {
+            left: 40px + 8px + 16px;
+            width: calc(100% - 40px - 8px - 8px - 16px);
+        }
+
         &_list {
             z-index: 6;
 
@@ -568,6 +660,12 @@ await setupDataFetch({
             max-height: var(--overlays-height);
 
             transition: 0.5s ease-in-out;
+
+            @include mobileOnly {
+                &:not(&--empty) {
+                    width: 100%;
+                }
+            }
         }
 
         &_popup {

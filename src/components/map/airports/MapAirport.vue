@@ -12,23 +12,27 @@
         >
             <div
                 class="airport"
-                :style="{ '--color': getAirportColor }"
+                :style="{ '--color': getAirportColor, '--opacity': store.mapSettings.colors?.[store.getCurrentTheme]?.staffedAirport ?? 1 }"
                 @click="mapStore.addAirportOverlay(airport.icao)"
                 @mouseleave="hoveredFacility = false"
             >
                 <div
                     class="airport_title"
-                    @mouseover="hoveredFacility = true"
+                    @mouseover="!isMobileOrTablet && (hoveredFacility = true)"
                 >
                     {{ airportName }}
                 </div>
-                <div class="airport_facilities">
+                <div
+                    v-if="!store.mapSettings.visibility?.atcLabels && !isHideAtcType('ground') && (!store.mapSettings.hideATISOnly || localsFacilities.some(x => x.facility !== -1))"
+                    class="airport_facilities"
+                >
                     <div
                         v-for="local in localsFacilities"
                         :key="local.facility"
                         class="airport_facilities_facility"
                         :class="{ 'airport_facilities_facility--hovered': hoveredFacility === local.facility }"
                         :style="{ background: getControllerPositionColor(local.atc[0]) }"
+                        @click.stop="hoveredFacility = local.facility"
                         @mouseover="hoveredFacility = local.facility"
                     >
                         {{
@@ -64,12 +68,12 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if=" 'lon' in airport && !isPseudoAirport"
+            v-if="'lon' in airport && !isPseudoAirport"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
             :hide="!isVisible"
-            :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : 0]"
+            :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : -10]"
         />
         <map-overlay
             v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
@@ -89,7 +93,7 @@
             </div>
         </map-overlay>
         <map-overlay
-            v-if="hoveredFeature"
+            v-if="hoveredFeature && !hoveredFacility"
             model-value
             :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: approachScroll }"
             :z-index="21"
@@ -135,6 +139,7 @@ import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { fromLonLat } from 'ol/proj';
+import { getSelectedColorFromSettings } from '~/composables/colors';
 
 const props = defineProps({
     airport: {
@@ -198,6 +203,7 @@ const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
 const hoveredController = ref<boolean>(false);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
     return atcPopup.value?.$el.querySelector('.atc-popup_list');
@@ -224,14 +230,15 @@ const isPseudoAirport = computed(() => {
 });
 
 const getAirportColor = computed(() => {
+    const opacity = store.mapSettings.colors?.[store.getCurrentTheme]?.defaultAirport;
     const hasOverlay = mapStore.overlays.some(x => x.type === 'pilot' && (x.data.pilot.airport === props.airport.icao || x.data.pilot.flight_plan?.departure === props.airport.icao || x.data.pilot.flight_plan?.arrival === props.airport.icao));
 
     if (!hasOverlay) {
-        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.7)`;
+        if (!props.localAtc?.length) return `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, ${ opacity ?? 0.7 })`;
         return radarColors.lightgray150;
     }
 
-    if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, 0.8)`;
+    if (!props.localAtc?.length) return `rgba(${ radarColors.warning700Rgb.join(',') }, ${ opacity ?? 0.8 })`;
     return radarColors.warning700;
 });
 
@@ -300,6 +307,7 @@ watch(getAirportColor, () => {
         text: new Text({
             font: '12px Montserrat',
             text: airportName.value,
+            offsetY: -10,
             fill: new Fill({
                 color: getAirportColor.value,
             }),
@@ -323,7 +331,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.25)`,
+                color: `rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`,
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -333,48 +341,39 @@ watch(hoveredFeature, val => {
     }
 });
 
-function setFeatureStyle(feature: Feature) {
-    const geometry = feature.getGeometry();
-    const extent = feature.getGeometry()?.getExtent();
-    const topCoord = [extent![0], extent![3]];
-    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
-    if (feature.getProperties().label_lat) {
-        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
-    }
-
-    feature.setProperties({
-        ...feature.getProperties(),
-        textCoord,
-    });
-
-    feature.setStyle([
-        new Style({
-            stroke: new Stroke({
-                color: `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
-                width: 2,
-            }),
+function setBorderFeatureStyle(feature: Feature) {
+    feature.setStyle(new Style({
+        stroke: new Stroke({
+            color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+            width: 2,
         }),
+    }));
+}
+
+function setLabelFeatureStyle(feature: Feature) {
+    const style = [
         new Style({
-            geometry: new Point(textCoord),
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: feature.getProperties()?._traconId || airportName.value,
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: radarColors.error400Hex,
+                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: radarColors.error400Hex,
+                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
                 }),
                 padding: [3, 1, 2, 3],
             }),
         }),
-    ]);
+    ];
+
+    feature.setStyle(style);
 }
 
 function clearArrFeatures() {
@@ -410,32 +409,64 @@ onMounted(async () => {
         immediate: true,
     });
 
-    watch(dataStore.vatsim.updateTimestamp, () => {
-        if (!props.arrAtc?.length || isPrimaryAirport.value) {
+    function initAndUpdateData(force = false) {
+        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach')) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
 
             return;
         }
 
-        if (props.arrAtc.every(x => arrAtcLocal.value.has(x.cid)) && [...arrAtcLocal.value].every(x => props.arrAtc.some(y => y.cid === x))) return;
+        if (!force && props.arrAtc.every(x => arrAtcLocal.value.has(x.cid)) && [...arrAtcLocal.value].every(x => props.arrAtc.some(y => y.cid === x))) return;
         arrAtcLocal.value = new Set<number>(props.arrAtc.map(x => x.cid));
         clearArrFeatures();
 
         const features: ArrFeature[] = [];
 
         if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
+            const borderFeature = new Feature({
+                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                icao: props.airport.icao,
+                iata: props.airport.iata,
+                id: 'circle',
+                type: 'circle',
+            });
+
+            setBorderFeatureStyle(borderFeature);
+
             features.push({
                 id: 'circle',
-                feature: new Feature({
-                    geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                feature: borderFeature,
+                controllers: props.arrAtc,
+            });
+
+
+            if (!store.mapSettings.visibility?.atcLabels) {
+                const feature = borderFeature;
+                const geometry = feature.getGeometry();
+                const extent = feature.getGeometry()?.getExtent();
+                const topCoord = [extent![0], extent![3]];
+                let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                if (feature.getProperties().label_lat) {
+                    textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                }
+
+                const labelFeature = new Feature({
+                    geometry: new Point(textCoord),
+                    type: 'tracon-label',
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     id: 'circle',
-                    type: 'circle',
-                }),
-                controllers: props.arrAtc,
-            });
+                });
+
+                setLabelFeatureStyle(labelFeature);
+
+                features.push({
+                    id: 'circle',
+                    feature: labelFeature,
+                    controllers: props.arrAtc,
+                });
+            }
         }
         else {
             const leftAtc = props.arrAtc.filter(x => !props.features.some(y => y.controllers.some(y => y.cid === x.cid)));
@@ -445,10 +476,10 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const geoFeature = geojson.readFeature(traconFeature) as Feature<any>;
+                const borderFeature = geojson.readFeature(traconFeature) as Feature<any>;
 
-                geoFeature.setProperties({
-                    ...(geoFeature?.getProperties() ?? {}),
+                borderFeature.setProperties({
+                    ...(borderFeature?.getProperties() ?? {}),
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     type: 'tracon',
@@ -456,26 +487,67 @@ onMounted(async () => {
                     id,
                 });
 
+                setBorderFeatureStyle(borderFeature);
+
                 features.push({
                     id,
-                    feature: geoFeature,
+                    feature: borderFeature,
                     traconFeature,
                     controllers: [
                         ...controllers,
                         ...leftAtc,
                     ],
                 });
+
+
+                if (!store.mapSettings.visibility?.atcLabels) {
+                    const feature = borderFeature;
+                    const geometry = feature.getGeometry();
+                    const extent = feature.getGeometry()?.getExtent();
+                    const topCoord = [extent![0], extent![3]];
+                    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                    if (feature.getProperties().label_lat) {
+                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                    }
+
+                    const labelFeature = new Feature({
+                        geometry: new Point(textCoord),
+                        type: 'tracon-label',
+                        icao: props.airport.icao,
+                        iata: props.airport.iata,
+                        _traconId: traconFeature.properties?.id,
+                        id,
+                    });
+
+                    setLabelFeatureStyle(labelFeature);
+
+                    features.push({
+                        id,
+                        feature: labelFeature,
+                        traconFeature,
+                        controllers: [
+                            ...controllers,
+                            ...leftAtc,
+                        ],
+                    });
+                }
             }
         }
 
         arrFeatures.value = features;
 
         for (const { feature } of features) {
-            setFeatureStyle(feature);
             vectorSource.value?.addFeature(feature);
         }
-    }, {
+    }
+
+    watch(dataStore.vatsim.updateTimestamp, () => initAndUpdateData(), {
         immediate: true,
+    });
+
+    watch(() => String(store.mapSettings.visibility?.atcLabels) + JSON.stringify(store.mapSettings.visibility?.atc), () => {
+        initAndUpdateData(true);
+        triggerRef(localsLength);
     });
 
     watch(gates, val => {
@@ -498,7 +570,9 @@ onMounted(async () => {
         gatesFeatures = gatesFeatures.filter(x => gates.value?.some(y => y.gate_identifier === x.getProperties().identifier));
 
         for (const gate of gates.value ?? []) {
-            const color = gate.trulyOccupied ? 'rgba(203, 66, 28, 0.8)' : gate.maybeOccupied ? 'rgba(232, 202, 76, 0.8)' : getCurrentThemeHexColor('success500');
+            const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
+
+            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, ${ opacitySetting ?? 0.8 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('warning400').join(',') }, ${ opacitySetting ?? 0.8 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
 
             const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
             if (existingFeature) {
@@ -547,7 +621,7 @@ onMounted(async () => {
         });
         runwaysFeatures = [];
 
-        if (!val) return;
+        if (!val?.length) return;
 
         runwaysFeatures = val.map(feature => {
             const runwayFeature = new Feature({
@@ -561,7 +635,7 @@ onMounted(async () => {
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
+                        color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                     }),
                 }),
             }));
@@ -624,6 +698,7 @@ onBeforeUnmount(() => {
 
     &_title, &_facilities {
         user-select: none;
+        opacity: var(--opacity);
     }
 
     &_title {

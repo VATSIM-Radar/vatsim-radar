@@ -22,6 +22,8 @@ model User {
   discordStrategy DiscordStrategy?
   tokens          UserToken[]
   settings        Json?            @default("{}")
+  presets         UserPreset[]
+  requests        UserRequest[]
 }
 
 model UserToken {
@@ -31,6 +33,26 @@ model UserToken {
   refreshMaxDate    DateTime
   userId            Int
   user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+}
+
+model UserRequest {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+enum UserPresetType {
+  MAP_SETTINGS
+}
+
+model UserPreset {
+  id     Int            @id @default(autoincrement())
+  type   UserPresetType
+  name   String
+  json   Json
+  userId Int
+  user   User           @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
 enum AuthType {

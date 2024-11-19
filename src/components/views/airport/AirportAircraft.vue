@@ -442,7 +442,10 @@ defineExpose({
 
         &_header {
             display: flex;
+            flex-wrap: wrap;
+            row-gap: 4px;
             justify-content: space-between;
+
             line-height: 100%;
 
             &_title {

@@ -4,7 +4,13 @@
         :class="{ 'input--focused': focused }"
     >
         <div class="input_container">
-            <div class="input__input">
+            <label class="input__input">
+                <div
+                    v-if="$slots.icon"
+                    class="input__input_icon"
+                >
+                    <slot name="icon"/>
+                </div>
                 <input
                     v-bind="inputAttrs"
                     v-model="model"
@@ -16,7 +22,7 @@
                     @focusout="focused = false"
                     @input="$emit('input', $event)"
                 >
-            </div>
+            </label>
         </div>
     </div>
 </template>
@@ -42,6 +48,8 @@ defineEmits({
         return true;
     },
 });
+
+defineSlots<{ icon: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
 const model = defineModel({ type: String, default: null });
@@ -72,11 +80,20 @@ const model = defineModel({ type: String, default: null });
         border-color: $primary500
     }
 
+    &_container {
+        width: 100%;
+    }
+
     &__input {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
         input {
             width: 100%;
             padding: 12px 0;
 
+            font-family: $defaultFont;
             font-size: 13px;
             font-weight: 600;
             color:$lightgray150;
@@ -90,6 +107,10 @@ const model = defineModel({ type: String, default: null });
             &::placeholder {
                 color: varToRgba('lightgray150', 0.5);
                 opacity: 1
+            }
+
+            @include mobileSafariOnly {
+                font-size: 16px;
             }
         }
     }

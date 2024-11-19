@@ -1,6 +1,7 @@
 import type { PartialRecord } from '~/types/index';
-import type { VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate';
+import type { VatSpyAirport } from '~/types/data/vatspy';
 
 export interface MapAirport {
     icao: string;
@@ -20,9 +21,9 @@ export type MapAircraftKeys = keyof MapAirport['aircraft'];
 export type MapAircraftList = MapAirport['aircraft'];
 export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;
 
-export type MapAircraft =
-    PartialRecord<keyof Pick<MapAirport['aircraft'], 'groundDep' | 'groundArr' | 'prefiles'>, VatsimShortenedPrefile[]>
-    & PartialRecord<keyof Pick<MapAirport['aircraft'], 'departures' | 'arrivals'>, boolean>;
+export type MapAircraft = PartialRecord<Exclude<keyof MapAirport['aircraft'], 'prefiles'>, VatsimShortenedAircraft[]> & {
+    prefiles?: VatsimShortenedPrefile[];
+};
 
 export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
 export type MapLayoutLayerCarto = 'carto';
@@ -40,6 +41,14 @@ export interface UserLayersTransparencySettings {
 }
 
 export type NotamsSortBy = 'startDesc' | 'startAsc' | 'endAsc' | 'endDesc';
+
+export interface SearchResults {
+    flights: (VatsimShortenedAircraft | VatsimShortenedPrefile)[];
+    airports: VatSpyAirport[];
+    atc: VatsimShortenedController[];
+}
+
+export type SearchFilter = keyof SearchResults;
 
 interface IUserLocalSettings {
     location: Coordinate;
@@ -60,6 +69,8 @@ interface IUserLocalSettings {
     traffic: {
         disableFastUpdate?: boolean;
         showTotalDeparturesInFeaturedAirports?: boolean;
+        searchBy?: SearchFilter[];
+        searchLimit?: number;
     };
 
     tutorial: {

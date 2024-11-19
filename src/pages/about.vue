@@ -4,7 +4,7 @@
             About
         </template>
 
-        VATSIM Radar is volunteer free project, that aims to do it's best in terms of collecting and showing data.<br><br>
+        VATSIM Radar is a free, volunteer-driven project, that aims to do it's best in terms of collecting and showing data.<br><br>
 
         Project does not aim to replace VatGlasses or Volanta for example, or create it's own database of custom data (except for gates maybe).<br><br>
 

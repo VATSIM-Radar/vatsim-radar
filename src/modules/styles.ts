@@ -17,8 +17,8 @@ function colorToRgb(hex: string): [r: number, g: number, b: number] {
 }
 
 export default defineNuxtModule((_, nuxt) => {
-    let scss = `@use 'sass:color';@function toRawRGB($color) {
-    @return unquote(color.channel($color, "red") + ', ' + color.channel($color, "green") + ', ' + color.channel($color, "blue"));
+    let scss = `@use 'sass:color';@use 'sass:map';@use 'sass:string';@function toRawRGB($color) {
+    @return string.unquote(color.channel($color, "red") + ', ' + color.channel($color, "green") + ', ' + color.channel($color, "blue"));
 }`;
 
     const variables = {} as Record<ColorsList | `${ ColorsList }Hex`, string> & Record<`${ ColorsList }Rgb`, number[]>;
@@ -56,7 +56,7 @@ export default defineNuxtModule((_, nuxt) => {
                 scss += `\ni${ color }: var(--${ color }, $${ color }Raw),`;
             }
             else if (i === 2) {
-                const mapGet = `map-get($colorsMap, i${ color })`;
+                const mapGet = `map.get($colorsMap, i${ color })`;
                 const value = `rgb(${ mapGet })`;
                 scss += `\n$${ color }: ${ value };`;
             }
@@ -64,8 +64,8 @@ export default defineNuxtModule((_, nuxt) => {
 
         if (i === 1) {
             scss += `\n);@function varToRgba($colorName, $opacity) {
-    @if (map-has-key($colorsMap, 'i#{$colorName}')) {
-        @return rgba(map-get($colorsMap, 'i#{$colorName}'), $opacity)
+    @if (map.has-key($colorsMap, 'i#{$colorName}')) {
+        @return rgba(map.get($colorsMap, 'i#{$colorName}'), $opacity)
     } 
     @else {
         @return rgba(var(--#{$colorName}), $opacity)

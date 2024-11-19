@@ -53,6 +53,11 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
 
         -webkit-text-fill-color: transparent;
         text-fill-color: transparent;
+
+        @include mobileOnly {
+            top: 0;
+            font-size: 40vw;
+        }
     }
 
     &_image {
@@ -66,6 +71,12 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         :deep(path) {
             fill: $darkgray1000;
         }
+
+        @include mobileOnly {
+            left: auto;
+            aspect-ratio: 1424 / 947;
+            width: auto;
+        }
     }
 
     &_content {
@@ -74,16 +85,28 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         &_title {
             font-weight: 700;
         }
+
+        @include mobileOnly {
+            font-size: 10vw;
+        }
     }
 
     &_gps {
+        z-index: 1;
+
         padding: 4px 104px;
 
         font-size: 24px;
         text-transform: uppercase;
+        white-space: nowrap;
 
         border: 1px solid $warning500;
         border-radius: 1px;
+        @include mobileOnly {
+            width: 100%;
+            margin-bottom: 10vh;
+            padding: 4px;
+        }
     }
 }
 </style>

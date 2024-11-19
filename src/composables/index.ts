@@ -8,8 +8,11 @@ import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
 import { setHeader, getRequestHeader } from 'h3';
 import type { Style } from 'ol/style';
-import { defu } from 'defu';
+import { createDefu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
+import type { UserMapSettings } from '~/utils/backend/map-settings';
+import { isFetchError } from '../utils/shared';
+import { toRaw } from 'vue';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -23,10 +26,10 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
-export function getCurrentThemeRgbColor(color: ColorsList) {
+export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsList): T {
     const store = useStore();
     const theme = store.theme ?? 'default';
-    if (theme === 'default') return radarColors[`${ color }Rgb`];
+    if (theme === 'default') return radarColors[`${ color }Rgb`] as T;
 
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Rgb`] ?? radarColors[`${ color }Rgb`];
@@ -117,6 +120,19 @@ export function attachPointerMove(callback: (event: any) => unknown) {
     });
 }
 
+const customDefu = createDefu((obj, key, value) => {
+    if (Array.isArray(obj[key]) && Array.isArray(value)) {
+        obj[key] = value;
+        return true;
+    }
+
+    if (value === null) {
+        // @ts-expect-error Dunno why it says that
+        obj[key] = null;
+        return true;
+    }
+});
+
 export function setUserLocalSettings(settings?: UserLocalSettings) {
     const store = useStore();
 
@@ -124,11 +140,57 @@ export function setUserLocalSettings(settings?: UserLocalSettings) {
     if (!settings && JSON.stringify(store.localSettings) === settingsText) return;
 
     let localSettings = JSON.parse(settingsText) as UserLocalSettings;
-    localSettings = defu(settings || {}, localSettings);
+    localSettings = customDefu(settings || {}, localSettings);
     if (settings?.location) localSettings.location = settings.location;
 
     store.localSettings = localSettings;
     localStorage.setItem('local-settings', JSON.stringify(localSettings));
+}
+
+export function setUserMapSettings(settings?: UserMapSettings) {
+    const store = useStore();
+
+    const settingsText = localStorage.getItem('map-settings') ?? '{}';
+    if (!settings && JSON.stringify(store.mapSettings) === settingsText) return;
+
+    let mapSettings = JSON.parse(settingsText) as UserMapSettings;
+    mapSettings = customDefu(settings || {}, mapSettings);
+
+    store.mapSettings = mapSettings;
+    localStorage.setItem('map-settings', JSON.stringify(mapSettings));
+}
+
+export async function resetUserMapSettings() {
+    const store = useStore();
+    store.mapSettings = {};
+    localStorage.removeItem('map-settings');
+}
+
+export async function fetchUserMapSettings() {
+    const store = useStore();
+    const settings = await $fetch<UserMapSettings>('/api/user/settings/map');
+    store.mapSettings = settings;
+    localStorage.setItem('map-settings', JSON.stringify(settings));
+}
+
+export async function sendUserMapSettings(name: string, json: UserMapSettings, retryMethod: () => Promise<any>) {
+    const store = useStore();
+    try {
+        return await $fetch<UserMapSettings>(`/api/user/settings/map${ store.mapPresetsSaveFail ? '?force=1' : '' }`, {
+            method: 'POST',
+            body: {
+                name,
+                json: toRaw(json),
+            },
+        });
+    }
+    catch (e) {
+        if (isFetchError(e) && e.statusCode === 409) {
+            store.mapPresetsSaveFail = retryMethod;
+        }
+
+        throw e;
+    }
 }
 
 export function useCopyText() {
@@ -215,3 +277,8 @@ export function useScrollExists(element: Ref<Element | null | undefined>): Ref<b
 
     return scrollExists;
 }
+
+export const useIsMobile = () => computed(() => useStore().isMobile);
+export const useIsPC = () => computed(() => useStore().isPC);
+export const useIsTablet = () => computed(() => useStore().isTablet);
+export const useIsMobileOrTablet = () => computed(() => useStore().isMobileOrTablet);

@@ -5,6 +5,7 @@
         :class="{
             'select--selected': activeItems.length,
             'select--opened': opened,
+            'select--disabled': disabled,
         }"
         @click="opened = !opened"
     >
@@ -68,6 +69,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    disabled: {
+        type: Boolean,
+        default: false,
+    },
     placeholder: {
         type: String,
     },
@@ -81,6 +86,10 @@ const props = defineProps({
     showPlaceholder: {
         type: Boolean,
         default: false,
+    },
+    maxDropdownHeight: {
+        type: String,
+        default: '300px',
     },
 });
 
@@ -153,6 +162,11 @@ function updateModel(value: SelectItemValueType, add: boolean) {
 
     transition: 0.6s;
 
+    &--disabled {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
     &_container, &__item {
         overflow: hidden;
         text-overflow: ellipsis;
@@ -201,7 +215,7 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         overflow: auto;
 
         width: 100%;
-        max-height: 300px;
+        max-height: v-bind(maxDropdownHeight);
         padding: 8px;
 
         background: $darkgray900;

@@ -1,5 +1,5 @@
 <template>
-    <slot v-if="!controllers.length"/>
+    <slot v-if="!controllers.length || store.mapSettings.visibility?.atcLabels"/>
     <map-overlay
         v-else
         :active-z-index="20"
@@ -18,6 +18,12 @@
         <div
             class="sector-atc"
             :class="{ 'sector-atc--hovered': isHovered }"
+            :style="{
+                '--bg': getSelectedColorFromSettings('centerBg') ?? undefined,
+                '--bg-raw': getSelectedColorFromSettings('centerBg', true) ?? undefined,
+                '--text': getSelectedColorFromSettings('centerText') ?? undefined,
+                '--text-raw': getSelectedColorFromSettings('centerText', true) ?? undefined,
+            }"
             @mouseover="$nextTick(() => isHovered = mapStore.canShowOverlay)"
         >
             <div class="sector-atc_name">
@@ -62,6 +68,7 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import { getAirportCountry } from '~/composables/airport';
 import { useScrollExists } from '~/composables';
+import { useStore } from '~/store';
 
 const props = defineProps({
     fir: {
@@ -88,6 +95,8 @@ const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
+const store = useStore();
+
 const locals = computed(() => {
     const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
 
@@ -112,8 +121,9 @@ const getATCFullName = computed(() => {
     }
 
     const country = getAirportCountry(prop.icao);
-    if ('isOceanic' in prop && prop.isOceanic) return `${ prop.name } Radio`;
     if (!country) return prop.name;
+
+    if ('isOceanic' in prop && prop.isOceanic && !country.callsign) return `${ prop.name } Radio`;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 
@@ -210,21 +220,22 @@ onBeforeUnmount(() => {
 
         font-size: 11px;
         font-weight: 700;
-        color: $lightgray150;
+        color: var(--text, $lightgray150);
         text-align: center;
 
-        background: $darkgray850;
-        border: 1px solid varToRgba('lightgray150', 0.1);
+        background: var(--bg, $darkgray850);
+        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
         border-radius: 4px;
 
         &_sub {
-            color: varToRgba('lightgray150', 0.5);
+            color: rgba(var(--text-raw, var(--lightgray150)), 0.5);
         }
     }
 
     &--hovered .sector-atc_name {
         color: $lightgray100Orig;
         background: $primary500;
+        border-color: varToRgba('lightgray150', 0.1);
 
         &_sub {
             color: $lightgray200Orig;

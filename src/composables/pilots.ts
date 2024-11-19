@@ -7,6 +7,7 @@ import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
+import { getColorFromSettings } from '~/composables/colors';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -124,13 +125,24 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
+export const getAircraftStatusColor = (status: MapAircraftStatus) => {
+    const store = useStore();
+    let color = aircraftSvgColors()[status];
+    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
+    if (settingColor) color = getColorFromSettings(settingColor);
+
+    return color;
+};
+
 export function reColorSvg(svg: string, status: MapAircraftStatus) {
     const store = useStore();
 
+    const color = getAircraftStatusColor(status);
+
     let iconContent = svg
         .replaceAll('\n', '')
-        .replaceAll('white', aircraftSvgColors()[status])
-        .replaceAll('#F8F8FA', aircraftSvgColors()[status]);
+        .replaceAll('white', color)
+        .replaceAll('#F8F8FA', color);
 
     if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
 
@@ -188,24 +200,28 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     }
     else {
         if (status === 'default') {
+            const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ store.theme === 'light' ? '-light' : '' }.png`,
-                width: radarIcons[icon].width,
+                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
+                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
+                color: (color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined,
+                opacity: store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1),
             }));
         }
         else {
             const svg = await fetchAircraftIcon(icon);
             style.setImage(new Icon({
                 src: svgToDataURI(reColorSvg(svg, status)),
-                width: radarIcons[icon].width,
+                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
+                opacity: Number(!store.mapSettings.heatmapLayer),
             }));
         }
     }
@@ -225,7 +241,16 @@ const lineStyles: {
 }[] = [];
 
 export function getAircraftLineStyle(color: string | number | null, width = 1.5, lineDash?: number[]): Style {
-    const hex = typeof color === 'string' ? color : getFlightRowColor(color);
+    const store = useStore();
+
+    let hex = typeof color === 'string' ? color : getFlightRowColor(color);
+
+    if (store.mapSettings.colors?.turnsTransparency) {
+        const rgb = hexToRgb(hex);
+
+        hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+    }
+
     const existingStyle = lineStyles.find(x => x.color === hex && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
     if (existingStyle) return existingStyle.style;
 
@@ -267,12 +292,14 @@ export const useShowPilotStats = () => {
 export function getFlightRowColor(index: number | null, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
 
+    const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
+
     switch (theme) {
         case 'sa':
         case 'default':
-            return colorPresets.dark[index];
+            return colorPresets[turnsTheme].dark[index];
         case 'light':
-            return colorPresets.light[index];
+            return colorPresets[turnsTheme].light[index];
     }
 }
 

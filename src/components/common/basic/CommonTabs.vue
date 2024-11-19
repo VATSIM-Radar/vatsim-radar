@@ -1,5 +1,8 @@
 <template>
-    <div class="tabs">
+    <div
+        class="tabs"
+        :class="{ 'tabs--vertical': isMobile && mobileVertical }"
+    >
         <div class="tabs_list">
             <div
                 v-for="(tab, key) in tabs"
@@ -38,11 +41,17 @@ const props = defineProps({
         type: Object as PropType<Record<string, Tab>>,
         required: true,
     },
+    mobileVertical: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineSlots<{
     [key: string]: () => any;
 }>();
+
+const isMobile = useIsMobile();
 
 const model = defineModel({ type: String });
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss,vue/no-ref-object-reactivity-loss
@@ -63,6 +72,17 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         background: $darkgray1000;
         border-bottom: 2px solid $primary700;
+
+        @include mobile {
+            gap: 4px;
+            padding: 0 8px;
+        }
+
+        @at-root .tabs--vertical & {
+            flex-direction: column;
+            height: auto;
+            padding: 0;
+        }
     }
 
     &_tab {
@@ -90,9 +110,14 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         border: solid transparent;
         border-width: 2px 2px 0;
-        border-radius: 4px;
+        border-radius: 8px 8px 0 0;
 
         transition: 0.3s;
+
+        @at-root .tabs--vertical & {
+            flex: auto;
+            width: 100%;
+        }
 
         &::after {
             content: '';
@@ -106,6 +131,10 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
             background: $darkgray1000;
 
             transition: 0.3s;
+
+            @at-root .tabs--vertical & {
+                background: $primary700;
+            }
         }
 
         @include hover {

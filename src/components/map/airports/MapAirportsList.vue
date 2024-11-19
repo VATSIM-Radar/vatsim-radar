@@ -1,20 +1,22 @@
 <template>
-    <map-airport
-        v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getAirportsList.filter(x => visibleAirports.some(y => y.vatspyAirport.icao === x.airport.icao))"
-        :key="airport.icao + index + (airport.iata ?? 'undefined')"
-        :aircraft="aircraft"
-        :airport="airport"
-        :arr-atc="arrAtc"
-        :features
-        :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
-        :hovered-pixel="hoveredPixel"
-        :is-hovered-airport="airport.icao === hoveredAirportName"
-        :is-visible="visibleAirports.length < 100"
-        :local-atc="localAtc"
-        :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
-        @manualHide="[isManualHover = false, hoveredArrAirport = null]"
-        @manualHover="[isManualHover = true, hoveredArrAirport = airport.iata || airport.icao]"
-    />
+    <template v-if="!isHideMapObject('airports')">
+        <map-airport
+            v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getShownAirports"
+            :key="airport.icao + index + (airport.iata ?? 'undefined')"
+            :aircraft="aircraft"
+            :airport="airport"
+            :arr-atc="arrAtc"
+            :features
+            :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
+            :hovered-pixel="hoveredPixel"
+            :is-hovered-airport="airport.icao === hoveredAirportName"
+            :is-visible="visibleAirports.length < 100"
+            :local-atc="localAtc"
+            :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
+            @manualHide="[isManualHover = false, hoveredArrAirport = null]"
+            @manualHover="[isManualHover = true, hoveredArrAirport = airport.iata || airport.icao]"
+        />
+    </template>
 </template>
 
 <script setup lang="ts">
@@ -22,10 +24,10 @@ import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
-import { attachMoveEnd, isPointInExtent } from '~/composables';
+import { attachMoveEnd, isPointInExtent, useIsMobileOrTablet } from '~/composables';
 import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
-import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
 import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
@@ -40,6 +42,7 @@ import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
+import type { FeatureLike } from 'ol/Feature';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -70,12 +73,36 @@ const hoveredAirportName = ref<string | null>(null);
 const hoveredArrAirport = ref<string | null>(null);
 const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
+const isMobileOrTablet = useIsMobileOrTablet();
+
+const getShownAirports = computed(() => {
+    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao));
+
+    switch (store.mapSettings.airportsMode) {
+        case 'staffedOnly':
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length;
+            });
+            break;
+        case 'staffedAndGroundTraffic':
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length;
+            });
+            break;
+    }
+
+    return list;
+});
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     if (mapStore.openOverlayId && !mapStore.openApproachOverlay) return;
 
     const features = map.value!.getFeaturesAtPixel(e.pixel, {
-        hitTolerance: 5,
+        hitTolerance: 0,
         layerFilter: layer => layer === vectorLayer,
     }).filter(x => x.getProperties().type !== 'background');
 
@@ -100,18 +127,9 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
         mapStore.mapCursorPointerTrigger = false;
     }
 
-    let isInvalid = features.length !== 1 || (features[0].getProperties().type !== 'circle' && features[0].getProperties().type !== 'tracon');
+    let appropriateFeature: FeatureLike | undefined;
 
-    if (!isInvalid) {
-        const pixel = map.value!.getCoordinateFromPixel(e.pixel);
-        const feature = features[0];
-        if (feature) {
-            const textCoord = feature.getProperties().textCoord as Coordinate;
-            isInvalid = Math.abs(pixel[1] - textCoord[1]) > 10000 || Math.abs(pixel[0] - textCoord[0]) > 20000;
-        }
-    }
-
-    if (isInvalid || !mapStore.canShowOverlay) {
+    function clear() {
         if (!isManualHover.value) {
             hoveredArrAirport.value = null;
             hoveredPixel.value = null;
@@ -119,24 +137,46 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
             mapStore.openApproachOverlay = false;
         }
         if (mapStore.mapCursorPointerTrigger === 2) mapStore.mapCursorPointerTrigger = false;
+    }
+
+    if (isManualHover.value || !features.length) {
+        clear();
         return;
     }
 
-    if (isManualHover.value) return;
-    isManualHover.value = false;
+    for (const feature of features) {
+        const isInvalid = (feature.getProperties().type !== 'tracon-label');
 
-    if (!hoveredPixel.value) {
-        hoveredPixel.value = map.value!.getCoordinateFromPixel(e.pixel);
+        if (!isInvalid && mapStore.canShowOverlay) {
+            appropriateFeature = feature;
+            break;
+        }
     }
 
-    hoveredId.value = features[0].getProperties().id;
-    hoveredArrAirport.value = features[0].getProperties().iata || features[0].getProperties().icao;
+    if (!appropriateFeature) {
+        clear();
+
+        return;
+    }
+
+    isManualHover.value = false;
+
+    const extent = appropriateFeature.getGeometry()?.getExtent();
+    const bottomMiddle = [(extent![0] + extent![2]) / 2, extent![1]];
+    const pixel = map.value!.getPixelFromCoordinate(bottomMiddle);
+    pixel[1] += 5; // Move overlay by 5 pixels to the bottom
+    hoveredPixel.value = map.value!.getCoordinateFromPixel(pixel);
+
+    hoveredId.value = appropriateFeature.getProperties().id;
+    hoveredArrAirport.value = appropriateFeature.getProperties().iata || appropriateFeature.getProperties().icao;
     mapStore.mapCursorPointerTrigger = 2;
     mapStore.openApproachOverlay = true;
 }
 
-function handleMapClick() {
+function handleMapClick(e: MapBrowserEvent<any>) {
     if (hoveredAirportName.value) mapStore.addAirportOverlay(hoveredAirportName.value);
+
+    if (isMobileOrTablet.value) handlePointerMove(e);
 }
 
 watch(map, val => {
@@ -150,7 +190,7 @@ watch(map, val => {
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
-            zIndex: 6,
+            zIndex: 7,
             properties: {
                 type: 'arr-atc',
             },
@@ -178,6 +218,7 @@ watch(map, val => {
 
     attachMoveEnd(setVisibleAirports);
     useUpdateInterval(setVisibleAirports);
+    watch(() => String(isHideMapObject('gates')) + isHideMapObject('runways'), setVisibleAirports);
     attachPointerMove(handlePointerMove);
     val.on('click', handleMapClick);
 }, {
@@ -234,7 +275,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
         return {
             airport: gateAirport.airport,
             gates: gates.filter(x => filteredGates.some(y => y.gate_identifier === x.gate_identifier)),
-            runways: gateAirport.runways,
+            runways: isHideMapObject('runways') ? [] : gateAirport.runways,
         };
     }).filter(x => !!x) as typeof airportsData['value'];
 });
@@ -296,25 +337,23 @@ const getAirportsList = computed(() => {
         if (!foundAirports.length) continue;
 
         for (const airport of foundAirports) {
-            if (airport.aircraftList.departures?.includes(pilot.cid) && !airport.aircraft.departures) airport.aircraft.departures = true;
-            if (airport.aircraftList.arrivals?.includes(pilot.cid) && !airport.aircraft.arrivals) airport.aircraft.arrivals = true;
+            if (airport.aircraftList.departures?.includes(pilot.cid)) {
+                airport.aircraft.departures ??= [];
+                airport.aircraft.departures.push(pilot);
+            }
+            if (airport.aircraftList.arrivals?.includes(pilot.cid)) {
+                airport.aircraft.arrivals ??= [];
+                airport.aircraft.arrivals.push(pilot);
+            }
 
             if (airport.aircraftList.groundArr?.includes(pilot.cid)) {
-                if (!airport.aircraft.groundArr) {
-                    airport.aircraft.groundArr = [pilot];
-                }
-                else {
-                    (airport.aircraft.groundArr as VatsimShortenedAircraft[]).push(pilot);
-                }
+                airport.aircraft.groundArr ??= [];
+                airport.aircraft.groundArr.push(pilot);
             }
 
             if (airport.aircraftList.groundDep?.includes(pilot.cid)) {
-                if (!airport.aircraft.groundDep) {
-                    airport.aircraft.groundDep = [pilot];
-                }
-                else {
-                    (airport.aircraft.groundDep as VatsimShortenedAircraft[]).push(pilot);
-                }
+                airport.aircraft.groundDep ??= [];
+                airport.aircraft.groundDep.push(pilot);
             }
         }
     }
@@ -324,12 +363,8 @@ const getAirportsList = computed(() => {
         if (!airport) continue;
 
         if (airport.aircraftList.prefiles?.includes(pilot.cid)) {
-            if (!airport.aircraft.prefiles) {
-                airport.aircraft.prefiles = [pilot];
-            }
-            else {
-                (airport.aircraft.prefiles as VatsimShortenedPrefile[]).push(pilot);
-            }
+            airport.aircraft.prefiles ??= [];
+            airport.aircraft.prefiles.push(pilot);
         }
     }
 
@@ -531,10 +566,12 @@ async function setVisibleAirports() {
         }
 
         airportsData.value = originalAirportsData.value.map(data => {
-            const gatesWithPixel = data.gates.map(x => ({
-                ...x,
-                pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
-            }));
+            const gatesWithPixel = isHideMapObject('gates')
+                ? []
+                : data.gates.map(x => ({
+                    ...x,
+                    pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
+                }));
 
             return {
                 airport: data.airport,

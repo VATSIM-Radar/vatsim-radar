@@ -9,6 +9,7 @@
                 v-if="localValue"
                 class="popup"
                 :class="{ 'popup--disabled': disabled }"
+                :style="{ '--width': width }"
             >
                 <div
                     class="popup_background"
@@ -66,6 +67,10 @@ const props = defineProps({
     disabled: {
         type: Boolean,
         default: false,
+    },
+    width: {
+        type: String,
+        default: 'auto',
     },
 });
 
@@ -191,6 +196,7 @@ onBeforeUnmount(() => {
 
         overflow: auto;
 
+        width: var(--width);
         max-width: 700px;
         max-height: 80vh;
         padding: 8px;

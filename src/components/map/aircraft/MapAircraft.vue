@@ -14,7 +14,7 @@
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
-                v-if="pilot"
+                v-if="pilot && !isMobileOrTablet"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"
@@ -60,7 +60,9 @@
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
                         <template #top>
-                            {{ parseEncoding(pilot.name) }}
+                            <common-spoiler type="pilot">
+                                {{ parseEncoding(pilot.name) }}
+                            </common-spoiler>
                         </template>
                         <template
                             v-if="pilot.pilot_rating !== 0 || pilot.military_rating"
@@ -117,12 +119,13 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px` }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': store.mapSettings.aircraftScale ?? 1 }"
             :z-index="19"
         >
             <div
                 class="aircraft-label"
-                :style="{ '--color': svgColors[getStatus] }"
+                :style="{ '--color': getAircraftStatusColor(getStatus) }"
+                @click="!isMobileOrTablet && mapStore.togglePilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
@@ -142,13 +145,13 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
-import type { MapAircraftStatus } from '~/composables/pilots';
 import {
-    aircraftSvgColors,
+    getAircraftStatusColor,
     isPilotOnGround,
     loadAircraftIcon,
     usePilotRating,
 } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/pilots';
 import { greatCircleGeometryToOL, sleep } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
@@ -168,6 +171,7 @@ import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
     aircraft: {
@@ -179,6 +183,14 @@ const props = defineProps({
         default: false,
     },
     showLabel: {
+        type: Boolean,
+        default: false,
+    },
+    canShowTracks: {
+        type: String as PropType<'short' | 'full' | null>,
+        default: null,
+    },
+    isVisible: {
         type: Boolean,
         default: false,
     },
@@ -194,8 +206,6 @@ const emit = defineEmits({
 });
 
 defineSlots<{ default: () => any }>();
-
-const svgColors = aircraftSvgColors();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
@@ -215,6 +225,7 @@ const turnsFirstGroupTimestamp = ref('');
 const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
 const turnsFirstGroup = shallowRef<InfluxGeojson['features'][0] | null>(null);
 const linesUpdateInProgress = ref(false);
+const isMobileOrTablet = useIsMobileOrTablet();
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
@@ -228,8 +239,14 @@ const pilot = computed(() => dataStore.vatsim.data.pilots.value.find(x => props.
 
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
-    if (activeCurrentOverlay.value) return 'active';
-    if (props.isHovered || (airportOverlayTracks.value && !isOnGround.value)) return 'hover';
+    if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
+    if (props.isHovered) return 'hover';
+
+    if (store.mapSettings.highlightEmergency) {
+        if (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500') {
+            return 'landed';
+        }
+    }
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
     if (store.config.airport) {
@@ -304,7 +321,8 @@ const init = async () => {
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
 
 const isPropsHovered = computed(() => props.isHovered);
-const airportOverlayTracks = computed(() => pilot.value && pilot.value.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.value?.arrival && x.data.showTracks));
+const airportOverlayTracks = computed(() => props.canShowTracks);
+
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
 function clearLineFeatures(features = lineFeatures.value) {
@@ -343,6 +361,10 @@ async function setState() {
 
 watch(changeState, setState);
 
+watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+    setStyle(undefined, true);
+});
+
 const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
 const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
 
@@ -363,7 +385,13 @@ async function toggleAirportLines(value = canShowLines.value) {
             );
         };
 
-        const color = svgColors[getStatus.value];
+        let color = getAircraftStatusColor(getStatus.value);
+
+        if (store.mapSettings.colors?.turnsTransparency) {
+            const rgb = hexToRgb(color);
+
+            color = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+        }
 
         let turns: InfluxGeojson | null | undefined = null;
         let firstUpdate = true;
@@ -376,9 +404,11 @@ async function toggleAirportLines(value = canShowLines.value) {
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
         if (value) {
-            turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
-                timeout: 1000 * 5,
-            }).catch(console.error) ?? null;
+            turns = airportOverlayTracks.value !== 'short'
+                ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
+                    timeout: 1000 * 5,
+                }).catch(console.error) ?? null
+                : null;
 
             if (turnsStart.value) {
                 if (turns?.flightPlanTime === turnsStart.value) {
@@ -415,7 +445,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             return;
         }
 
-        if (turns?.features.length) {
+        if (turns?.features.length && airportOverlayTracks.value !== 'short') {
             if (depLine) {
                 depLine.dispose();
                 linesSource.value?.removeFeature(depLine);
@@ -597,7 +627,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (departureAirport) {
+            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20) {
                 const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
@@ -633,7 +663,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrivalAirport && (!airportOverlayTracks.value || (distance() ?? 100) > 40 || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
             const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
 
@@ -712,7 +742,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid));
+const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid)) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
@@ -805,8 +835,8 @@ onUnmounted(() => {
     user-select: none;
 
     position: absolute;
-    top: calc(var(--imageHeight) / 2);
-    transform: translate(-50%, 0);
+    top: calc(var(--imageHeight) * var(--scale) / 2);
+    transform: translate(-50%, 0) scale(var(--scale));
 
     width: fit-content;
     padding-top: 3px;

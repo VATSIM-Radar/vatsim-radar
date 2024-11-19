@@ -8,6 +8,8 @@ import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
+import type { UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
+import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -39,6 +41,9 @@ export const useStore = defineStore('index', {
         version: '',
         theme: 'default' as ThemesList,
         localSettings: {} as UserLocalSettings,
+        mapSettings: {} as UserMapSettings,
+        mapPresets: [] as UserMapPreset[],
+        mapPresetsSaveFail: false as false | (() => Promise<any>),
         config: {} as SiteConfig,
 
         showPilotStats: false,
@@ -50,10 +55,33 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
 
+        loginPopup: false,
+        deleteAccountPopup: false,
+        deleteNavigraphPopup: false,
+        settingsPopup: false,
+        airacPopup: false,
+        searchActive: false,
+
         viewport: {
             width: 0,
         },
+
+        isMobile: false,
+        isTablet: false,
+        isMobileOrTablet: false,
+        isPC: false,
+        scrollbarWidth: 0,
     }),
+    getters: {
+        getCurrentTheme(): 'light' | 'default' {
+            switch (this.theme) {
+                case 'sa':
+                    return 'default';
+            }
+
+            return this.theme;
+        },
+    },
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
             if (this.dataInProgress) return;
@@ -94,7 +122,7 @@ export const useStore = defineStore('index', {
 
                     if (!mapStore.localTurns.size) return;
 
-                    mapStore.turnsResponse = await $fetch('/api/data/vatsim/pilot/turns', {
+                    mapStore.turnsResponse = await $fetch<TurnsBulkReturn[]>('/api/data/vatsim/pilot/turns', {
                         method: 'POST',
                         body: [...mapStore.localTurns],
                     });

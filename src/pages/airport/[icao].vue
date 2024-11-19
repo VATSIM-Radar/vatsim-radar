@@ -26,7 +26,10 @@
                     width="200px"
                 />
             </div>
-            <div class="airport_header_section">
+            <div
+                v-if="!isMobileOrTablet"
+                class="airport_header_section"
+            >
                 <common-select
                     v-model="mapMode"
                     :items="mapModes"
@@ -37,6 +40,11 @@
             <div class="airport_header_section">
                 <common-toggle v-model="controllerMode">
                     Controller Mode
+                </common-toggle>
+            </div>
+            <div class="airport_header_section">
+                <common-toggle v-model="arrivalTracks">
+                    Arrival Tracks
                 </common-toggle>
             </div>
             <div
@@ -94,28 +102,24 @@
                     <airport-info/>
                 </div>
                 <div
-                    v-if="airportData?.airport?.metar"
+                    v-if="airportData?.airport?.metar || airportData?.airport?.taf"
                     class="airport_column_data"
                 >
                     <div class="airport_column__title">
-                        METAR
+                        <common-tabs
+                            v-model="weatherTab"
+                            :tabs="{ metar: { title: 'METAR' }, taf: { title: 'TAF' } }"
+                        />
                     </div>
-                    <airport-metar/>
+
+                    <airport-metar v-if="weatherTab === 'metar'"/>
+                    <airport-taf v-else/>
                 </div>
             </div>
             <div
-                v-if="airportData?.airport?.taf || airportData.notams?.length"
+                v-if="airportData.notams?.length"
                 class="airport_column"
             >
-                <div
-                    v-if="airportData?.airport?.taf"
-                    class="airport_column_data"
-                >
-                    <div class="airport_column__title">
-                        TAF
-                    </div>
-                    <airport-taf/>
-                </div>
                 <div
                     v-if="airportData?.notams?.length"
                     class="airport_column_data"
@@ -209,9 +213,10 @@
             class="airport_map"
         >
             <iframe
+                v-if="mounted"
                 ref="airportMapFrame"
                 class="airport_map_iframe"
-                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }`"
+                :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }`"
             />
             <transition name="airport_map_pilot--appear">
                 <airport-pilot
@@ -259,11 +264,13 @@ import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
 const route = useRoute();
+const router = useRouter();
 const store = useStore();
 const dataStore = useDataStore();
-const ready = ref(false);
+const mounted = ref(false);
 const config = useRuntimeConfig();
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
@@ -272,14 +279,21 @@ const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
 const atc = getATCForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 const aircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
+const isMobileOrTablet = useIsMobileOrTablet();
+
 provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
 useHead({
     title: icao,
 });
 
-const selectedPilot = ref<number | null>(null);
+const weatherTab = ref('metar');
 
+const selectedPilot = ref<number | null>(null);
+const ready = ref(false);
+
+const mapQuery = shallowRef<null | Record<string, any>>(null);
+const savedZoom = shallowRef<null | string>(null);
 
 const airportMapFrame = ref<HTMLIFrameElement | null>(null);
 let skipSelectedPilotWatch = false;
@@ -292,6 +306,10 @@ function receiveMessage(event: MessageEvent) {
             selectedPilot.value = event.data.selectedPilot;
             skipSelectedPilotWatch = true; // the change in the line above will trigger the watch of selectedPilot. But here in this function we have received the change from the iframe, so we need to skip the watch, because we don't need to send a message back to the iframe
         }
+    }
+
+    if (event.data && event.data.type === 'move') {
+        mapQuery.value = event.data.query;
     }
 }
 
@@ -310,7 +328,7 @@ watch(selectedPilot, () => {
     }
     if (aircraft.value?.prefiles.find(x => x.cid === selectedPilot.value)) return; // we can not show prefiles on the map, because they are not connected
 
-    if (airportMapFrame.value && selectedPilot.value) {
+    if (airportMapFrame.value) {
         const iframeWindow = airportMapFrame.value.contentWindow;
         const message = { selectedPilot: selectedPilot.value };
         const targetOrigin = config.public.DOMAIN;
@@ -497,7 +515,67 @@ const controllerMode = useCookie<boolean>('controller-mode', {
     default: () => false,
 });
 
+const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
+    sameSite: 'strict',
+    secure: true,
+    default: () => false,
+});
+
 const showPilotStats = useShowPilotStats();
+
+const settings = computed(() => ({
+    zoom: mapQuery.value?.zoom,
+    aircraft: aircraftMode.value,
+    weather: weatherTab.value,
+    columns: displayedColumns.value.join(','),
+    mode: mapMode.value,
+    controller: Number(controllerMode.value).toString(),
+    stats: Number(showPilotStats.value).toString(),
+    tracks: Number(arrivalTracks.value).toString(),
+}) satisfies Record<string, string | null | undefined>);
+
+onMounted(() => {
+    // if (typeof route.query.center === 'string') savedLocation.value = route.query.center;
+    if (typeof route.query.zoom === 'string') savedZoom.value = route.query.zoom;
+
+    for (const setting in settings.value) {
+        const query = route.query[setting];
+        if (typeof query !== 'string' || !query.trim()) continue;
+
+        const arr = query.split(',');
+
+        switch (setting) {
+            case 'aircraft':
+                if (aircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
+                break;
+            case 'weather':
+                if (query === 'metar' || query === 'taf') weatherTab.value = query as any;
+                break;
+            case 'columns':
+                if (arr.every(x => displayedColumns.value.includes(x as any))) displayedColumns.value = arr as any;
+                break;
+            case 'controller':
+                controllerMode.value = query === '1';
+                break;
+            case 'stats':
+                showPilotStats.value = query === '1';
+                break;
+            case 'tracks':
+                arrivalTracks.value = query === '1';
+                break;
+        }
+    }
+
+    mounted.value = true;
+
+    watch(settings, () => {
+        router.replace({
+            query: settings.value,
+        });
+    }, {
+        deep: true,
+    });
+});
 
 airportData.value = (await useAsyncData(async () => {
     try {
@@ -552,8 +630,12 @@ await setupDataFetch({
         background: $darkgray875 !important;
     }
 
-    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot) {
+    :deep(.title_text_content), :deep(.aircraft_list__filter), :deep(.title_collapse), :deep(.pilot), :deep(.tabs_list), :deep(.tabs_tab::after) {
         background: $darkgray900 !important;
+    }
+
+    :deep(.tabs_tab) {
+        border-bottom-color: $darkgray900 !important;
     }
 
     :deep(.aircraft_nav) {
@@ -581,20 +663,22 @@ await setupDataFetch({
         &_section {
             position: relative;
 
-            &:not(:last-child) {
-                padding-right: 16px;
+            @include pc {
+                &:not(:last-child) {
+                    padding-right: 16px;
 
-                &::after {
-                    content: '';
+                    &::after {
+                        content: '';
 
-                    position: absolute;
-                    top: calc(50% - 12px);
-                    left: 100%;
+                        position: absolute;
+                        top: calc(50% - 12px);
+                        left: 100%;
 
-                    width: 1px;
-                    height: 24px;
+                        width: 1px;
+                        height: 24px;
 
-                    background: varToRgba('lightgray150', 0.2);
+                        background: varToRgba('lightgray150', 0.2);
+                    }
                 }
             }
         }
@@ -622,10 +706,27 @@ await setupDataFetch({
         gap: 16px;
         height: var(--dashboard-height);
 
+        @include mobile {
+            flex-direction: column;
+            height: auto;
+        }
+
         &--aircraft-cols-4, &--aircraft-cols-5 {
             :deep(.aircraft_list) {
                 flex-direction: column;
                 flex-wrap: nowrap;
+            }
+
+            @include mobile {
+                flex-direction: row;
+
+                .airport_column {
+                    min-width: 400px;
+
+                    @include mobileOnly {
+                        min-width: 80vw;
+                    }
+                }
             }
         }
     }
@@ -638,9 +739,15 @@ await setupDataFetch({
 
         width: 0;
 
-        &--aircraft {
-            flex-grow: 2;
-            max-width: max(20%, 280px);
+        @include mobile {
+            width: 100%;
+        }
+
+        @include pc {
+            &--aircraft:not(:nth-child(2), :only-child) {
+                flex-grow: 2;
+                max-width: max(20%, 280px);
+            }
         }
 
         &_data {

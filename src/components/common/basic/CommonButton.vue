@@ -12,8 +12,12 @@
             },
         ]"
         :style="{
-            '--button-width': width,
+            '--button-width': width ?? 'auto',
             '--icon-width': iconWidth,
+            '--primary-color': radarColors[primaryColor],
+            '--link-color': radarColors[linkColor],
+            '--hover-color': radarColors[hoverColor],
+            '--focus-color': radarColors[focusColor],
         }"
         :target="target"
         v-bind="getAttrs"
@@ -38,6 +42,8 @@
 import type { PropType } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
+import type { ColorsList } from '~/utils/backend/styles';
+import { radarColors } from '#build/radar/colors';
 
 const props = defineProps({
     tag: {
@@ -77,6 +83,26 @@ const props = defineProps({
     to: {
         type: [String, Object] as PropType<RouteLocationRaw | string | null | undefined>,
         default: null,
+    },
+    primaryColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary500',
+    },
+    linkColor: {
+        type: String as PropType<ColorsList>,
+        default: 'lightgray150',
+    },
+    hoverColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary400',
+    },
+    focusColor: {
+        type: String as PropType<ColorsList>,
+        default: 'primary600',
+    },
+    textAlign: {
+        type: String,
+        default: 'center',
     },
 });
 
@@ -128,30 +154,36 @@ const getAttrs = computed(() => {
     font-size: 13px;
     font-weight: 600;
     color: $lightgray50Orig;
-    text-align: center;
+    text-align: v-bind(textAlign);
     text-decoration: none;
 
     appearance: none;
-    background: $primary500;
+    background: var(--primary-color);
     border: none;
     border-radius: 8px;
     outline: none;
     box-shadow: none;
 
-    @include hover {
+    &_content {
+        width: 100%;
+        min-width: max-content;
+    }
+
+    @include pc {
         transition: 0.3s;
 
         &:hover {
-            background: $primary400;
+            background: var(--hover-color);
         }
 
         &:focus, &:active {
-            background: $primary600;
+            background: var(--focus-color);
         }
     }
 
     &_icon {
         width: var(--icon-width);
+        min-width: var(--icon-width);
     }
 
     &--type-secondary, &--type-secondary-flat, &--type-secondary-875 {
@@ -206,6 +238,7 @@ const getAttrs = computed(() => {
 
     &--orientation-vertical {
         flex-direction: column;
+        text-align: center;
     }
 
     &--icon {
@@ -231,7 +264,7 @@ const getAttrs = computed(() => {
         padding: 0;
 
         font-size: 10px;
-        color: $lightgray150;
+        color: var(--link-color);
         text-align: left;
         text-decoration: underline;
 
@@ -240,19 +273,22 @@ const getAttrs = computed(() => {
 
         @include hover {
             &:hover {
-                color: $primary500;
+                color: var(--hover-color);
             }
 
             &:focus, &:active {
-                color: $primary600;
+                color: var(--focus-color);
             }
         }
     }
 
     &--disabled {
-        pointer-events: none;
-        cursor: default;
         opacity: 0.5;
+
+        &, &:deep(svg) {
+            pointer-events: none;
+            cursor: default;
+        }
     }
 }
 </style>

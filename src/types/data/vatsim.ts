@@ -137,7 +137,11 @@ export interface VatsimData {
 
 export type VatsimShortenedData = {
     general: VatsimGeneral;
-    pilots: Array<Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> & Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
+    pilots: Array<
+        Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> &
+        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>> &
+        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>>
+    >;
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
@@ -201,7 +205,7 @@ export interface VatsimEvent {
         region: string | null;
         division: string | null;
         subdivision: string | null;
-        organized_by_vatsim: boolean;
+        organised_by_vatsim: boolean;
     }[];
     airports: {
         icao: string;
