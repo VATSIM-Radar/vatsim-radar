@@ -364,7 +364,7 @@ defineCronJob('* * * * * *', async () => {
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
-            redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
+            redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
                 resolve();

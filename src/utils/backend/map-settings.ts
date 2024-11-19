@@ -122,7 +122,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     highlightEmergency: val => {
         return typeof val === 'boolean';
-    },    
+    },
     vatglasses: val => {
         if (!isObject(val)) return false;
 

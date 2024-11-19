@@ -230,7 +230,6 @@ import type {
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
 import { MAX_MAP_PRESETS } from '~/utils/shared';
