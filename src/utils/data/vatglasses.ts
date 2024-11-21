@@ -8,10 +8,11 @@ import type { VatglassesAirspace, VatglassesSector } from '~/utils/backend/stora
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { useStore } from '~/store';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
-let store;
+let store: ReturnType<typeof useStore>;
 let mode: 'local' | 'server';
 let facilities: {
     ATIS: number;
