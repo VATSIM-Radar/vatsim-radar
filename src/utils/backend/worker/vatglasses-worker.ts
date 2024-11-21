@@ -51,7 +51,8 @@ const redisPublisher = getRedis();
 initVatglasses('server', workerDataStore);
 await loadSectors();
 
-defineCronJob('15 * * * *', async () => {
+
+async function updateVatglassesActive() {
     await updateVatglassesStateServer();
 
     // Loop through copiedDataStore.vatglassesActivePositions and set sectors to null. We will set the sectors in the client to avoid sending a lot of data
@@ -80,5 +81,10 @@ defineCronJob('15 * * * *', async () => {
             });
         });
     }
+}
+
+// We are generating the combined data every 30 seconds. We could also call it in the redisSubscriber above every time we get new VATSIM data, but then the combine function would be way more often.
+defineCronJob('*/30 * * * * *', async () => {
+    await updateVatglassesActive();
 });
 
