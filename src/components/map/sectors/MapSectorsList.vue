@@ -214,7 +214,7 @@ watch(map, val => {
                     color: `rgb(${ hexToRgb(color) }, 0.2)`,
                 }),
                 stroke: new Stroke({
-                    color: `rgb(${ hexToRgb(color) }, 0.2)`,
+                    color: `rgb(${ hexToRgb(color) }, 0.6)`,
                     width: 1,
                 }),
                 zIndex: altMax,
