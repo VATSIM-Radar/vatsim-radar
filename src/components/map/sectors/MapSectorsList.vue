@@ -60,12 +60,12 @@ import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPositio
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
+import { attachMoveEnd } from '~/composables';
 
 import { initVatglasses } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
-import { useMapStore } from '~/store/map';
 
 
 let vectorLayer: VectorImageLayer<any>;
@@ -74,7 +74,6 @@ provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const store = useStore();
-const mapStore = useMapStore();
 
 
 const firs = computed(() => {
@@ -121,7 +120,8 @@ async function handleClick(e: MapBrowserEvent<any>) {
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
 }
 
-watch(() => mapStore.extent, () => {
+
+attachMoveEnd(() => {
     // Change of map position
     sectorsAtClick.value = [];
     vatglassesPopupIsShown.value = false;
