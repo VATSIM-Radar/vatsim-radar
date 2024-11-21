@@ -102,7 +102,6 @@ export async function updateVatglassesData() {
         if (!currentSHA) currentSHA = getStoredSHA();
 
         if (latestSHA !== currentSHA) {
-            console.log('SHA has changed. Downloading new data...');
             const zip = await downloadZip(GITHUB_ZIP_URL);
             const combinedData = combineJsonFiles(zip);
             const convertedData = convertCoords(combinedData);
@@ -122,11 +121,9 @@ export async function updateVatglassesData() {
                     resolve();
                 });
             });
-            console.log(`Data updated and saved to ${ JSON_FILE }`);
         }
         else {
             await getFileDataAndStore();
-            console.log('SHA has not changed. No update needed.');
         }
     }
     catch (error) {

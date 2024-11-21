@@ -70,13 +70,7 @@ let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
 
-let calls = 0; // used for debug
 function updateVatglassesPositionsAndAirspaces() {
-    // const first = 0; // used for debug
-    // first = 0;
-    calls++; // used for debug
-    console.log('Calls', calls); // used for debug
-
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
 
@@ -123,26 +117,6 @@ function updateVatglassesPositionsAndAirspaces() {
                 atc = fir.atc;
             }
             if (!atc) continue;
-
-            // // used for debug
-            // if (first === 0) {
-            //     atc.frequency = '134.150';
-            //     atc.callsign = 'EDMM_ZUG_CTR';
-            //     atc.cid = 1025793;
-            //     // first++;
-            // }
-            // else if (first === 1) {
-            //     break;
-            //     if (calls > 3) break;
-            //     atc.frequency = '129.100';
-            //     atc.callsign = 'EDMM_ALB_CTR';
-            //     atc.cid = 1025794;
-            //     // first++;
-            // }
-            // else {
-            //     break;
-            // }
-
 
             let foundMatchingVatglassesController = false;
             let doublePositionMatch = false;
@@ -401,8 +375,8 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
         } as VatglassesSectorProperties);
         return geoJsonPolygon;
     }
-    catch (e) {
-        console.log(e);
+    catch {
+        console.error('Convert failed');
     }
 
     return false;
@@ -573,9 +547,7 @@ export async function updateVatglassesStateLocal() {
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
     if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined) {
-        console.log('starting combining');
         await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
-        console.log('finished combining');
     }
     dataStore.vatglassesActivePositions.value = newVatglassesActivePositions;
     triggerUpdatedVatglassesPositions(newVatglassesActivePositions);
@@ -583,16 +555,12 @@ export async function updateVatglassesStateLocal() {
 
 
     console.timeEnd('updateVatglassesStateLocal');
-    // console.log('activeVatglassesSectors', newActiveVatglassesPositions);
-    // console.log('vatglassesRunways', vatglassesRunways);
-    // console.log('activeSectors', activeVatglassesAirspaces);
-    // console.log('assignedVatglassesPositions', activeVatglassesPositions);
 }
 
 export async function updateVatglassesStateServer() {
     if (vatglassesUpdateInProgress) return;
 
-    console.time('updateVatglassesStateServer');
+    // console.time('updateVatglassesStateServer');
 
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
@@ -603,17 +571,12 @@ export async function updateVatglassesStateServer() {
     vatglassesUpdateInProgress = false;
 
 
-    console.timeEnd('updateVatglassesStateServer');
-    // console.log('activeVatglassesSectors', newActiveVatglassesPositions);
-    // console.log('vatglassesRunways', vatglassesRunways);
-    // console.log('activeSectors', activeVatglassesAirspaces);
-    // console.log('assignedVatglassesPositions', activeVatglassesPositions);
+    // console.timeEnd('updateVatglassesStateServer');
 }
 
 // This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
 let combineDataInitialized = false;
 async function initVatglassesCombined() {
-    console.log('initVatglassesCombined');
     combineDataInitialized = true;
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
@@ -663,7 +626,6 @@ async function initVatglassesCombined() {
 }
 
 export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null) {
-    console.log('doingVatglassesInit');
     if (inputMode === 'server') {
         mode = 'server';
         if (serverDataStore) workerDataStore = serverDataStore;
@@ -690,7 +652,6 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
             if (!combineDataInitialized) {
                 vatglassesCombinedWatcher = watch([vatglassesCombined], () => {
-                    console.log('hesaiditcahnged');
                     initVatglassesCombined();
                     if (combineDataInitialized && vatglassesCombinedWatcher) {
                         vatglassesCombinedWatcher();

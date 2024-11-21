@@ -78,8 +78,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             resultPolygons = newResultPolygons;
         }
     }
-    catch (e) {
-        console.log(e);
+    catch {
         console.error('Vatglasses sector split failed');
     }
 
@@ -130,9 +129,8 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
                 });
             }
         }
-        catch (e) {
+        catch {
             console.error('Error combining sectors ' + sectors[0].properties?.countryGroupId + ' ' + sectors[0].properties?.vatglassesPositionId);
-            console.log(e);
         }
     }
     return combinedGroupSectors;
