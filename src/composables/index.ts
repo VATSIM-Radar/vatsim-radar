@@ -217,6 +217,7 @@ const iframeWhitelist = [
     'vatcol.org',
     'urrv.me',
     'vatsim.net',
+    'vatsim-petersburg.com',
 ];
 
 export function useIframeHeader() {
