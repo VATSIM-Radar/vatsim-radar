@@ -76,6 +76,28 @@ const dashboardPreset: SiteConfig = {
     showInfoForPrimaryAirport: true,
 };
 
+const myulllSmallPreset: SiteConfig = {
+    theme: 'light',
+    hideHeader: true,
+    hideFooter: true,
+    hideAllExternal: true,
+    hideOverlays: true,
+    center: fromLonLat([59.61687, 30.96264].reverse()),
+    zoom: 7.45,
+    onlyAirportsAircraft: true,
+    showCornerLogo: false,
+};
+
+const myulllLargePreset: SiteConfig = {
+    theme: 'light',
+    hideHeader: true,
+    hideFooter: true,
+    hideOverlays: true,
+    center: fromLonLat([62.99630, 44.72724].reverse()),
+    zoom: 5.21,
+    showCornerLogo: false,
+};
+
 export function checkAndSetMapPreset() {
     const query = useRoute().query;
     const store = useStore();
@@ -104,6 +126,12 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'vatsup') {
         preset = vatsupPreset;
+    }
+    else if (query.preset === 'myulllsmall') {
+        preset = myulllSmallPreset;
+    }
+    else if (query.preset === 'myullllarge') {
+        preset = myulllLargePreset;
     }
 
     preset = structuredClone(preset);
