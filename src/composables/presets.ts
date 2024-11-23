@@ -86,7 +86,7 @@ const myulllSmallPreset: SiteConfig = {
     zoom: 7.45,
     onlyAirportsAircraft: true,
     showCornerLogo: false,
-}
+};
 
 const myulllLargePreset: SiteConfig = {
     theme: 'light',
@@ -96,7 +96,7 @@ const myulllLargePreset: SiteConfig = {
     center: fromLonLat([62.99630, 44.72724].reverse()),
     zoom: 5.21,
     showCornerLogo: false,
-}
+};
 
 export function checkAndSetMapPreset() {
     const query = useRoute().query;
@@ -126,9 +126,11 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'vatsup') {
         preset = vatsupPreset;
-    } else if (query.preset === 'myulllsmall') {
+    }
+    else if (query.preset === 'myulllsmall') {
         preset = myulllSmallPreset;
-    } else if (query.preset === 'myullllarge') {
+    }
+    else if (query.preset === 'myullllarge') {
         preset = myulllLargePreset;
     }
 
