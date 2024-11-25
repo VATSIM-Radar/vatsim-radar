@@ -232,7 +232,7 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
-import { MAX_MAP_PRESETS } from '~/utils/shared';
+import { isFetchError, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 
@@ -285,6 +285,17 @@ const importPreset = async () => {
             reader.addEventListener('load', async () => {
                 const result = JSON.parse(reader.result as string);
 
+                function saveResult() {
+                    if ('id' in result) {
+                        importedPresetName.value = result.name;
+                        importedPreset.value = result.json;
+                    }
+                    else {
+                        importedPresetName.value = '';
+                        importedPreset.value = result;
+                    }
+                }
+
                 try {
                     const validation = await $fetch<{ status: 'ok' }>('/api/user/settings/map/validate', {
                         method: 'POST',
@@ -295,21 +306,18 @@ const importPreset = async () => {
                             },
                     });
 
-                    if (validation.status === 'ok') {
-                        if ('id' in result) {
-                            importedPresetName.value = result.name;
-                            importedPreset.value = result.json;
-                        }
-                        else {
-                            importedPresetName.value = '';
-                            importedPreset.value = result;
-                        }
-                    }
+                    if (validation.status === 'ok') saveResult();
 
                     resolve();
                 }
                 catch (e) {
-                    reject(e);
+                    if (!isFetchError(e) || e.statusCode !== 409) {
+                        reject(e);
+                    }
+                    else {
+                        saveResult();
+                        resolve();
+                    }
                 }
             });
 

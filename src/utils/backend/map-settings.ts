@@ -105,8 +105,8 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
             if (isObject(val.atc) && !Object.entries(val.atc).every(([key, value]) => visibilityKeys.includes(key as any) && typeof value === 'boolean')) return false;
         }
 
-        if ('atcLabels' in val && typeof val.pilots !== 'boolean') return false;
-        if ('airports' in val && typeof val.pilots !== 'boolean') return false;
+        if ('atcLabels' in val && typeof val.atcLabels !== 'boolean') return false;
+        if ('airports' in val && typeof val.airports !== 'boolean') return false;
         if ('pilots' in val && typeof val.pilots !== 'boolean') return false;
         if ('gates' in val && typeof val.gates !== 'boolean') return false;
         if ('runways' in val && typeof val.runways !== 'boolean') return false;
@@ -128,7 +128,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         if ('hide' in val && (typeof val.hide !== 'string' || !groundHideKeys.includes(val.hide as any))) return false;
         if ('excludeMyArrival' in val && typeof val.excludeMyArrival !== 'boolean') return false;
-        if ('excludeMyLocation' in val && typeof val.excludeMyArrival !== 'boolean') return false;
+        if ('excludeMyLocation' in val && typeof val.excludeMyLocation !== 'boolean') return false;
 
         if (!validateRandomObjectKeys(val, ['hide', 'excludeMyArrival', 'excludeMyLocation'])) return false;
 
