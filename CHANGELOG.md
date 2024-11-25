@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.5.0.1]
+
+A small hotfix with an issue when you could not save your map preset, if:
+- You had once changed visibility of atc labels or airports without changing visibility of aircraft
+- You pressed exclude my location without excluding arrival for airports hide
+- You had the same local preset as the one you import
+
 # [0.5.0]
 
 ## Highlights
