@@ -8,6 +8,7 @@ import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings } from '~/composables/colors';
+import { useMapStore } from '~/store/map';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -190,6 +191,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     force?: boolean;
 }) {
     const store = useStore();
+    const mapStore = useMapStore();
 
     const image = style.getImage();
 
@@ -199,11 +201,20 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         image.setRotation(rotation);
     }
     else {
+        const width = radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1);
+        const height = radarIcons[icon].height * (store.mapSettings.aircraftScale ?? 1);
+        let size = [width * 2, height * 2];
+        let scale = mapStore.zoom > 10 ? 0.5 : (mapStore.zoom / 10 / 2);
+
+        if (scale > 0.5) scale = 0.5;
+        if (scale < 0.3) scale = 0.3;
+
         if (status === 'default') {
             const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
             style.setImage(new Icon({
                 src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
-                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
+                size,
+                scale,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
@@ -214,9 +225,12 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         }
         else {
             const svg = await fetchAircraftIcon(icon);
+            size = size.map(x => x / 2);
+            scale *= 2;
             style.setImage(new Icon({
                 src: svgToDataURI(reColorSvg(svg, status)),
-                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
+                size,
+                scale,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop

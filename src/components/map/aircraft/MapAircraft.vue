@@ -361,7 +361,7 @@ async function setState() {
 
 watch(changeState, setState);
 
-watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer, () => mapStore.zoom], () => {
     setStyle(undefined, true);
 });
 
