@@ -25,7 +25,7 @@
     "@prisma/client": "^5.22.0",
     "@turf/great-circle": "^7.1.0",
     "@vite-pwa/nuxt": "^0.10.6",
-    "@vueuse/components": "^11.2.0",
+    "@vueuse/components": "^12.0.0",
     "@vueuse/core": "^11.2.0",
     "@vueuse/nuxt": "^11.2.0",
     "adm-zip": "^0.5.16",
