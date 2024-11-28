@@ -2955,15 +2955,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^5.22.0":
-  version: 5.22.0
-  resolution: "@prisma/client@npm:5.22.0"
+"@prisma/client@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@prisma/client@npm:6.0.0"
   peerDependencies:
     prisma: "*"
   peerDependenciesMeta:
     prisma:
       optional: true
-  checksum: 10c0/ad111b931f184249794f811637456eb38dcfd0d7047e5a1f64804e5256f462fa3ee7c7a552fc8fa181e8daacc2b958af7426cb57bf0dc66605c3ef7c4aef4afb
+  checksum: 10c0/8aa4540623ee1d1b5b4e86d12c8779883c68ed8bf87f9dd7b5e2a619bb0567972e920290d217d5fdc9b11f059c24dad666a1078f7370dfdba85a68a3c1de29f4
   languageName: node
   linkType: hard
 
@@ -13749,7 +13749,7 @@ __metadata:
     "@nuxt/eslint": "npm:^0.7.0"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.7.0"
-    "@prisma/client": "npm:^5.22.0"
+    "@prisma/client": "npm:^6.0.0"
     "@stylistic/eslint-plugin": "npm:^2.10.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
     "@turf/great-circle": "npm:^7.1.0"
