@@ -53,7 +53,7 @@
                         :top-items="[
                             pilot.callsign,
                             pilot.aircraft_faa ?? 'No flight plan',
-                            (aircraftHoveredType === 'groundArr' ? pilot.departure : pilot.arrival) || null,
+                            (pilot.departure !== airport.icao ? pilot.departure : pilot.arrival) || null,
                             pilot.name,
                         ]"
                         @click="aircraftHoveredType !== 'prefiles' ? mapStore.addPilotOverlay(pilot.cid.toString()) : mapStore.addPrefileOverlay(pilot.cid.toString())"
@@ -67,7 +67,7 @@
                             </div>
                             <template v-else-if="index === 2 && pilot.departure">
                                 <span class="airport-counts__popup-info">
-                                    <template v-if="aircraftHoveredType === 'groundArr'">
+                                    <template v-if="pilot.departure !== airport.icao">
                                         from
                                     </template>
                                     <template v-else>

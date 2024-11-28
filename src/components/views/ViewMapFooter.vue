@@ -164,7 +164,7 @@ const getCounts = useOnlineCounters();
 const curDate = ref(Date.now());
 
 const outdated = computed(() => {
-    return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 20;
+    return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
 });
 const isMobile = useIsMobile();
 

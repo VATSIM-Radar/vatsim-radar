@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.1-beta.1]
+
+- Map last updated now turns red after 1 minute not updated, not 20 seconds
+- Improved horizontal counter destination/arrival display
+- Fixed turns color sometimes become black
+
 # [0.5.0.1-final]
 
 A small hotfix with an issue when you could not save your map preset, if:
