@@ -782,6 +782,7 @@ onUnmounted(() => {
     padding: 8px;
 
     font-size: 13px;
+    word-break: break-word;
 
     background: $darkgray1000;
     border-radius: 8px;
