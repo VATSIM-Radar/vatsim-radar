@@ -1,5 +1,5 @@
 <template>
-    <template v-if="!isHideAtcType('firs') && !store.mapSettings.vatglasses?.active">
+    <template v-if="!isHideAtcType('firs')">
         <map-sector
             v-for="(sector, index) in firs"
             :key="sector.fir.feature.id as string + index"
@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-else-if="!isHideAtcType('firs') && store.mapSettings.vatglasses?.active">
+    <template v-if="!isHideAtcType('firs') && store.mapSettings.vatglasses?.active">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -114,7 +114,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
         sectors.push(properties);
     });
 
-    sectorsAtClick.value = sectors;
+    sectorsAtClick.value = sectors.filter(x => x.atc);
 
     getCoordinates.value = e.coordinate;
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
@@ -208,6 +208,7 @@ watch(map, val => {
         });
 
         const vatglassesStyle = (color: string, altMax: number = 1): Style => {
+            // console.log('color',color)
             return new Style({
 
                 fill: new Fill({
@@ -242,6 +243,7 @@ watch(map, val => {
                     case 'hovered-root':
                         return hoveredRootStyle;
                     case 'vatglasses':
+                        // console.log(feature.getProperties());
                         return vatglassesStyle(feature.getProperties().colour, feature.getProperties().max);
                     default:
                         return localStyle;

@@ -95,6 +95,7 @@ function updateVatglassesPositionsAndAirspaces() {
     }
 
     const vatglassesActiveController: { [countryGroupId: string]: { [vatglassesPositionId: string]: VatsimShortenedController } } = {}; // countryGroupId is the name of the json files which are split into areas
+    const fallbackPositions: VatsimShortenedController[] = [];
     // Fill the vatglassesActiveStations object with the active stations
     if (vatglassesData) {
         const arrivalController = [];
@@ -152,7 +153,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
 
             if (!foundMatchingVatglassesController && !doublePositionMatch) {
-                // TODO: If we have a controller with no fitting vatglasses position, add a fallback to vatspy data. My idea is to add it to the vatglassesActiveController, maybe as countryGroupId 'fallback' and as vatglassesPositionId the login code
+                fallbackPositions.push(atc);
             }
         }
     }
@@ -273,6 +274,11 @@ function updateVatglassesPositionsAndAirspaces() {
         }
     }
 
+    newVatglassesActivePositions['fallback'] = {};
+    for (const atc of fallbackPositions) {
+        newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) };
+    }
+
     return newVatglassesActivePositions;
 }
 
@@ -357,10 +363,11 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
 
         else {
             if (mode === 'local') {
-                colour = getCurrentThemeRgbColor('success500').join(',');
+                const [r, g, b] = getCurrentThemeRgbColor('success500');
+                colour = rgbToHex(r, g, b);
             }
             else {
-                colour = '0,255,0';
+                colour = '#008856';
             }
         }
         const geoJsonPolygon: TurfFeature<TurfPolygon> = polygon([convertedPoints], {

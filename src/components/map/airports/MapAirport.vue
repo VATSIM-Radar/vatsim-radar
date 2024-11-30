@@ -410,7 +410,7 @@ onMounted(async () => {
     });
 
     function initAndUpdateData(force = false) {
-        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach') || store.mapSettings.vatglasses?.active) {
+        if (!props.arrAtc?.length || isPrimaryAirport.value || isHideAtcType('approach')) {
             clearArrFeatures();
             arrAtcLocal.value.clear();
 
@@ -542,7 +542,8 @@ onMounted(async () => {
     }
 
     const isVatglassesActive = computed(() => store.mapSettings.vatglasses?.active);
-    watch([dataStore.vatsim.updateTimestamp, isVatglassesActive], () => initAndUpdateData(), {
+    const vatglassesFallbacks = computed(() => dataStore.vatglassesActivePositions.value['fallback']);
+    watch([dataStore.vatsim.updateTimestamp, isVatglassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
         immediate: true,
     });
 
