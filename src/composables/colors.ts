@@ -9,16 +9,16 @@ export function shortHexToLong(hex: string) {
 }
 
 export function hexToRgb(hex: string): string {
-    // Remove the hash at the start if it's there
-    hex = shortHexToLong(hex).replace(/^#/, '');
+    if (hex.startsWith('rgb')) {
+        return `${ hex.split('(')[1].split(')')[0].split(',').slice(0, 3) }`;
+    }
 
-    // Parse the r, g, b values
-    const r = parseInt(hex.substring(0, 2), 16);
-    const g = parseInt(hex.substring(2, 4), 16);
-    const b = parseInt(hex.substring(4, 6), 16);
+    // Remove the hash at the start if it's there
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(shortHexToLong(hex));
+    if (!result) throw new Error(`Failed to convert color ${ hex } from hex to rgb`);
 
     // Return the RGB color
-    return `${ r },${ g },${ b }`;
+    return `${ parseInt(result[1], 16) },${ parseInt(result[2], 16) },${ parseInt(result[3], 16) }`;
 }
 
 export function componentToHex(component: number) {

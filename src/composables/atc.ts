@@ -3,6 +3,8 @@ import { getHoursAndMinutes } from '~/utils';
 import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import type { VatSpyData } from '~/types/data/vatspy';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -94,10 +96,14 @@ export function findAtcAirport(atc: VatsimShortenedController) {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
 }
 
-export function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
+export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
+    const mapStore = useMapStore();
     const view = map?.getView();
     if (!airport) return;
+
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    await nextTick();
 
     view?.animate({
         center: [airport.lon, airport.lat],
@@ -110,5 +116,5 @@ export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
     const airport = findAtcAirport(atc);
     if (!airport) return;
 
-    showAirportOnMap(airport, map);
+    return showAirportOnMap(airport, map);
 }

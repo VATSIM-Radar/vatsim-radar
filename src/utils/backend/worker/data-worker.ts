@@ -169,7 +169,12 @@ defineCronJob('* * * * * *', async () => {
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
-                return controller.text_atis?.some(y => y.includes(freq)) && controller.text_atis?.some(y => y.includes(x.name));
+                return controller.text_atis?.some(
+                    y => y.includes(freq),
+                ) &&
+                    controller.text_atis?.some(
+                        y => y.split(' ').some(y => y.toUpperCase() === x.name),
+                    );
             });
 
             if (!australiaSectors) continue;
@@ -216,9 +221,9 @@ defineCronJob('* * * * * *', async () => {
         await updateVatsimExtendedPilots();
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'ORF_W_APP',
+            callsign: 'ANK_W_CTR',
             cid: 3,
-            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
             frequency: '122.122',
             last_updated: '',
             logon_time: '',
@@ -270,12 +275,40 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3'],
             visual_range: 0,
-        });*/
+        });
 
-        /* radarStorage.vatsim.data.controllers.push({
+        radarStorage.vatsim.data.controllers.push({
             callsign: 'FSM_TWR',
             cid: 1,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().TWR,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'CHI_X_APP',
+            cid: 11,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'SCT_APP',
+            cid: 12,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
             logon_time: '',
@@ -341,7 +374,7 @@ defineCronJob('* * * * * *', async () => {
                 influxDBWrite.writeRecords(data);
 
                 await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+                    const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
                     await influxDBWrite.flush(true).catch(console.error);
                     clearTimeout(timeout);
                     resolve();
@@ -363,7 +396,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+            const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
             redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);

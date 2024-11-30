@@ -345,8 +345,9 @@ const changeState = computed(() => {
     return values.map(x => String(x)).join(',');
 });
 
-async function setState() {
-    if (!isInit.value) return;
+async function setState(val?: string, oldVal?: string) {
+    if (!isInit.value || (val && oldVal && val === oldVal)) return;
+
     canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
     await Promise.allSettled([

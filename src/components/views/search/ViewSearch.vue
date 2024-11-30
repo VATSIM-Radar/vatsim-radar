@@ -118,7 +118,7 @@
                                 :bottom-items="[flight.aircraft_short, flight.departure]"
                                 is-button
                                 :top-items="[flight.callsign]"
-                                @click="'status' in flight ? mapStore.addPilotOverlay(flight.cid.toString(), true) : mapStore.addPrefileOverlay(flight.cid.toString())"
+                                @click="['status' in flight ? mapStore.addPilotOverlay(flight.cid.toString(), true) : mapStore.addPrefileOverlay(flight.cid.toString()), opened = false]"
                             >
                                 <template #top>
                                     <div class="search_window__flight">
@@ -164,7 +164,7 @@
                                 :bottom-items="[airport.name]"
                                 is-button
                                 :top-items="[airport.icao, getAirportCountry(airport.icao)?.country]"
-                                @click="mapStore.addAirportOverlay(airport.icao)"
+                                @click="[mapStore.addAirportOverlay(airport.icao), showAirportOnMap(airport, map), opened = false]"
                             />
                         </template>
                     </div>
@@ -187,6 +187,7 @@
                                 max-height="auto"
                                 show-facility
                                 small
+                                @overlay="opened = false"
                             />
                         </template>
                     </div>
@@ -212,6 +213,9 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import { showAirportOnMap } from '~/composables/atc';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
 
 const filtersEnabled = ref(false);
 const opened = ref(false);
@@ -221,6 +225,8 @@ const exactAirportsMatch = ref(false);
 const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+
+const map = inject<ShallowRef<Map | null>>('map')!;
 
 const collapsedData = reactive<PartialRecord<keyof SearchResults, boolean>>({});
 const searchResults = shallowRef<Partial<SearchResults>>({});

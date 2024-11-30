@@ -30,16 +30,6 @@ export default defineNuxtConfig({
                     color: '#3b6cec',
                 },
             ],
-            meta: [
-                {
-                    name: 'msapplication-TileColor',
-                    content: '#3b6cec',
-                },
-                {
-                    name: 'theme-color',
-                    content: '#3b6cec',
-                },
-            ],
         },
     },
     build: {
@@ -125,7 +115,6 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
         '@vite-pwa/nuxt',
-        '@vueuse/nuxt',
     ],
     eslint: {
         checker: {
@@ -177,7 +166,6 @@ export default defineNuxtConfig({
             short_name: 'VATSIM Radar',
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
-            orientation: 'portrait',
             display: 'standalone',
             // @ts-expect-error tabbed not supported here
             display_override: ['window-controls-overlay', 'tabbed', 'standalone'],

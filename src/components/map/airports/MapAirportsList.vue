@@ -36,7 +36,7 @@ import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
-import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyData, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { intersects } from 'ol/extent';
 import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
@@ -293,6 +293,7 @@ export interface AirportsList {
     airport: VatSpyAirport;
     localAtc: VatsimShortenedController[];
     arrAtc: VatsimShortenedController[];
+    arrAtcInfo: VatSpyDataLocalATC[];
     features: AirportTraconFeature[];
     isSimAware: boolean;
 }
@@ -303,15 +304,16 @@ const getAirportsList = computed(() => {
         vatsimAirport,
         vatspyAirport,
     }) => ({
-        aircraft: {} as MapAircraft,
+        aircraft: {},
         aircraftList: vatsimAirport.aircraft,
         aircraftCids: Object.values(vatsimAirport.aircraft).flatMap(x => x),
         airport: vatspyAirport,
-        localAtc: [] as VatsimShortenedController[],
-        arrAtc: [] as VatsimShortenedController[],
-        features: [] as AirportTraconFeature[],
+        localAtc: [],
+        arrAtc: [],
+        arrAtcInfo: [],
+        features: [],
         isSimAware: vatsimAirport.isSimAware,
-    } satisfies AirportsList));
+    } satisfies AirportsList as AirportsList));
 
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
@@ -383,6 +385,7 @@ const getAirportsList = computed(() => {
 
         if (isArr) {
             airport.arrAtc.push(atc.atc);
+            airport.arrAtcInfo.push(atc);
             continue;
         }
 
@@ -393,7 +396,11 @@ const getAirportsList = computed(() => {
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
 
-        let airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
+        let airport = airports.find(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
+
+        if (!airport) {
+            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
+        }
 
         if (!airport) {
             airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
@@ -434,12 +441,13 @@ const getAirportsList = computed(() => {
 
     // Strict check
     for (const { airport, prefixes, suffix, sector } of sectors) {
-        for (const controller of airport.arrAtc) {
+        for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
             const splittedCallsign = controller.callsign.split('_');
 
             if (
                 (!suffix || controller.callsign.endsWith(suffix)) &&
                 (
+                    (tracon && prefixes.includes(tracon)) ||
                     // Match AIRPORT_TYPE_NAME
                     prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
                     // Match AIRPORT_NAME
