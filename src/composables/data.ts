@@ -80,6 +80,7 @@ export interface UseDataStore {
         versions: Ref<VatDataVersions['vatsim'] | null>;
         updateTimestamp: Ref<string>;
         updateTime: Ref<number>;
+        localUpdateTime: Ref<number>;
     };
     simaware: ShallowRef<SimAwareAPIData | undefined>;
     vatglasses: ShallowRef<VatglassesAPIData | undefined>;

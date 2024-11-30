@@ -130,6 +130,11 @@ export interface RadarStorage {
         };
         activeData: string | null;
     };
+    vatsimStatic: {
+        divisions: VatsimDivision[];
+        subDivisions: VatsimSubDivision[];
+        events: VatsimEvent[];
+    };
     vatsim: VatsimStorage;
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
@@ -152,9 +157,9 @@ export const radarStorage: RadarStorage = {
         activeData: null,
     },
     vatsimStatic: {
-        divisions: [] as VatsimDivision[],
-        subDivisions: [] as VatsimSubDivision[],
-        events: [] as VatsimEvent[],
+        divisions: [],
+        subDivisions: [],
+        events: [],
     },
     vatsim: {
         data: null,
