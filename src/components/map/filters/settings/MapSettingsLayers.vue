@@ -90,7 +90,7 @@
             :model-value="!store.mapSettings.airportsCounters?.disableTraining"
             @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: !$event } })"
         >
-            Training counter
+            Locals counter
             <template #description>
                 Enables counter with aircraft on ground with same departure-arrival<br><br>
                 When enabled, those aircraft are always excluded<br> from dep list when on ground

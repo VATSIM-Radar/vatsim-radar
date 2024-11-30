@@ -134,6 +134,7 @@ export const useMapStore = defineStore('map', {
 
                 const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
+                if (tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
 
                 return this.addOverlay<StoreOverlayPilot>({

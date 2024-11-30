@@ -316,7 +316,10 @@ export function getAirportsList() {
         const duplicateAirport = airports.find(x => x.icao === airport.icao && x.iata !== airport.iata);
 
         if (duplicateAirport) {
-            atc.airport = duplicateAirport;
+            atc.airport = {
+                ...duplicateAirport,
+                tracon: atc.airport.iata,
+            };
             return;
         }
 

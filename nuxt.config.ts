@@ -176,7 +176,6 @@ export default defineNuxtConfig({
             short_name: 'VATSIM Radar',
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
-            orientation: 'portrait',
             display: 'standalone',
             // @ts-expect-error tabbed not supported here
             display_override: ['window-controls-overlay', 'tabbed', 'standalone'],

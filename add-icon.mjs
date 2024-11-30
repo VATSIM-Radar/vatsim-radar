@@ -24,6 +24,8 @@ catch { /* empty */ }
 
 if (invalidIcon) renameSync(`./src/assets/icons/aircraft/${ icon.toUpperCase() }.svg`, `./src/assets/icons/aircraft/${ icon.toLowerCase() }.svg`);
 
+readFileSync(`./src/assets/icons/aircraft/${ icon.toLowerCase() }.svg`);
+
 const toAddType = iconsFile.findIndex(x => x.includes(`type AircraftIcon =`));
 iconsFile.splice(toAddType + 1, 0, `    | '${ icon }'`);
 

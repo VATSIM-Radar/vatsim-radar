@@ -138,6 +138,7 @@ const init = () => {
     if (!localFeature) {
         localFeature = geoJson.readFeature({
             ...props.fir.feature,
+            id: undefined,
             properties: {
                 ...(props.fir.feature.properties ?? {}),
                 type: localFeatureType,
@@ -155,7 +156,7 @@ const init = () => {
     if (!rootFeature && globals.value.length && !locals.value.length) {
         rootFeature = geoJson.readFeature({
             ...props.fir.feature,
-            id: `${ props.fir.feature.id }-root`,
+            id: undefined,
             properties: {
                 ...(props.fir.feature.properties ?? {}),
                 type: rootFeatureType,

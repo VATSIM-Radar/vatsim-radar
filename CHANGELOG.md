@@ -1,10 +1,22 @@
 # Changelog
 
-# [0.5.1-beta.1]
+# [0.5.1-rc.1]
 
 - Map last updated now turns red after 1 minute not updated, not 20 seconds
 - Improved horizontal counter destination/arrival display
 - Fixed turns color sometimes become black
+- Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue may have to reinstall the app
+- Once again fixed USA TRACONs, such as Houston approach, SCT_APP, CHI_X_APP, PCT_APP. I'm really sorry this kept happening each major update folks
+- Fixed the way VATSIM Radar searches for VatSpy data feature to more rely on boundary ID than on ICAO
+- Fixed very rare case with some of FIR/ARTCC sector not displayed. Fixes new Turkish LTBB sector
+- Updated date format for events to use best format for current system
+- Improved events datetime display to match timezone
+- Clicking on airport in search will now result in focusing on it
+- Clicking on search result in search will not result in it's closing
+- Fixed an issue with infinite zoom while switching between tracked aircraft
+- New icons from DotWallop: ATR4x, ATR7x, FA10, GL5T, GL7T, GLF5-6, DIMO. Can someone stop this guy?
+- Added model matching for C310 (as C172 for now)
+- Reduced aircraft icon maximum default size from 40px to 35px
 
 # [0.5.0.1-final]
 

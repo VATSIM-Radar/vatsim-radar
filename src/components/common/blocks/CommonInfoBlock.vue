@@ -152,6 +152,8 @@ defineSlots<{
         align-items: center;
         justify-content: flex-start;
 
+        word-break: break-word;
+
         > *:only-child {
             width: 100%;
         }
