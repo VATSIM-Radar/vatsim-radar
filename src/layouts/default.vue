@@ -138,7 +138,7 @@ useHead(() => {
         meta: [
             {
                 name: 'description',
-                content: 'Explore VATSIM Network, track pilots, view ATC - and more!',
+                content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
             },
             {
                 name: 'keywords',

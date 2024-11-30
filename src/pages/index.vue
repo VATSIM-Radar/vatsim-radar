@@ -332,6 +332,15 @@ const overlaysHeight = computed(() => {
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
 });
 
+useHead(() => ({
+    link: [
+        {
+            rel: 'canonical',
+            href: `${ config.public.DOMAIN }`,
+        },
+    ],
+}));
+
 watch([overlays, popupsHeight], () => {
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
