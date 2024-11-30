@@ -3638,10 +3638,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/rbush@npm:3.0.3":
-  version: 3.0.3
-  resolution: "@types/rbush@npm:3.0.3"
-  checksum: 10c0/a0c2425eb9cb43f442ef48d9d0221c006e0f7303c35f97d443c9832e7c824572b7206a68f9ffe486ba0789cc19600732c3412729211f0c1a5058e7b3f0fd937d
+"@types/rbush@npm:4.0.0":
+  version: 4.0.0
+  resolution: "@types/rbush@npm:4.0.0"
+  checksum: 10c0/15a4da94a2591aedf7915061ce07a85d99ba762b89b25f46dd8b8c09a3cd6087335839773ba99a5159d3db3e97a98856bc94c1eb8e0f93b89edc19bc608998c9
   languageName: node
   linkType: hard
 
@@ -7245,7 +7245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geotiff@npm:^2.0.7":
+"geotiff@npm:^2.1.3":
   version: 2.1.3
   resolution: "geotiff@npm:2.1.3"
   dependencies:
@@ -10050,18 +10050,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol@npm:^10.2.1":
-  version: 10.2.1
-  resolution: "ol@npm:10.2.1"
+"ol@npm:^10.3.0":
+  version: 10.3.0
+  resolution: "ol@npm:10.3.0"
   dependencies:
-    "@types/rbush": "npm:3.0.3"
+    "@types/rbush": "npm:4.0.0"
     color-rgba: "npm:^3.0.0"
     color-space: "npm:^2.0.1"
     earcut: "npm:^3.0.0"
-    geotiff: "npm:^2.0.7"
+    geotiff: "npm:^2.1.3"
     pbf: "npm:4.0.1"
     rbush: "npm:^4.0.0"
-  checksum: 10c0/2095cedff8009c4bb8593195b5df21ffcbb6f5db1bec2bdc6669de4515206f1877cd6e5142cfe8763a2736d36b2e4f5e5c6843dabf07a55954bb52a564245f09
+  checksum: 10c0/b2581c53cb43fd81ee1b59cedc714f428b7745aae44fc73066673421a7c4c189f50a7d81eef34f82220a29103d68f8e02926fac06aeea1d5425a79b2284d949c
   languageName: node
   linkType: hard
 
@@ -13808,7 +13808,7 @@ __metadata:
     marked: "npm:^15.0.3"
     metar-taf-parser: "npm:^9.0.1"
     nuxt: "npm:^3.14.1592"
-    ol: "npm:^10.2.1"
+    ol: "npm:^10.3.0"
     ol-mapbox-style: "npm:^12.3.5"
     pinia: "npm:^2.2.8"
     postcss: "npm:^8.4.49"
