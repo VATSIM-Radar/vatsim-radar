@@ -40,6 +40,7 @@ function validateColor(color: unknown): boolean {
 
 const statuses = Object.keys({
     default: true,
+    ground: true,
     green: true,
     active: true,
     hover: true,

@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.1-rc.2]
+
+- (QA) Fixed all new aircraft icons having size of A380
+- Added support of MIA_123_CTR extending to ZMO_123_CTR
+- You can now change colors of aircraft on ground separately from airborne
+
 # [0.5.1-rc.1]
 
 - Map last updated now turns red after 1 minute not updated, not 20 seconds

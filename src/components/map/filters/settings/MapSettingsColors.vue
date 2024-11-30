@@ -46,28 +46,28 @@
             :model-value="store.mapSettings.colors?.[themeKey]?.firs ?? reactive({ color: 'success500', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
-            FIR / ARTCC
+            FIR (ARTCC)
         </common-color>
         <common-color
             :default-color="{ color: 'info400', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.uirs ?? reactive({ color: 'info400', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { uirs: $event } } })"
         >
-            UIR / FSS
+            UIR (FSS)
         </common-color>
         <common-color
             :default-color="{ color: 'lightgray150' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.centerText ?? reactive({ color: 'lightgray150' })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerText: $event } } })"
         >
-            Center label (text)
+            FIR label (text)
         </common-color>
         <common-color
             :default-color="{ color: 'darkgray850' }"
             :model-value="store.mapSettings.colors?.[themeKey]?.centerBg ?? reactive({ color: 'darkgray850' })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBg: $event } } })"
         >
-            Center label (background)
+            FIR label (background)
         </common-color>
         <common-color
             :default-color="{ color: 'error300', transparency: 0.7 }"
@@ -193,7 +193,8 @@ const aircraftColors = aircraftSvgColors();
 
 // For type safety
 const aircraftOptions: PartialRecord<MapAircraftStatus, string> = {
-    active: 'Active',
+    ground: 'On ground',
+    active: 'Active (has overlay)',
     green: 'Own aircraft',
     hover: 'Hover',
     landed: 'Landed (dashboard <br>or emergency)',

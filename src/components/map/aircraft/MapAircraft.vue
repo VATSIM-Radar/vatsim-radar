@@ -256,7 +256,7 @@ const getStatus = computed<MapAircraftStatus>(() => {
         if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
     }
 
-    return 'default';
+    return isOnGround.value ? 'ground' : 'default';
 });
 
 const handleMouseEnter = (event: MouseEvent) => {

@@ -154,6 +154,20 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
+        /* radarStorage.vatsim.data.controllers.push({
+            callsign: 'MIA_123_CTR',
+            cid: 3,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });*/
+
         const length = radarStorage.vatsim.data!.controllers.length;
 
         const allowedAustraliaFacilities = ['CTR', 'APP', 'DEP'];
@@ -161,8 +175,16 @@ defineCronJob('* * * * * *', async () => {
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
+
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;
+
+            if (controller.callsign.startsWith('MIA_') && controllerSplit.length === 3 && controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
+                radarStorage.vatsim.data.controllers.push({
+                    ...controller,
+                    callsign: `ZMO_${ controllerSplit[1] }_CTR`,
+                });
+            }
 
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();

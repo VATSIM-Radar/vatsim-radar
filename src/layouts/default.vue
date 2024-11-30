@@ -59,6 +59,7 @@ import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { UAParser } from 'ua-parser-js';
 
 defineSlots<{ default: () => any }>();
 
@@ -195,7 +196,6 @@ const headers = useRequestHeaders(['user-agent']);
 
 await useAsyncData('default-init', async () => {
     if (headers?.['user-agent'] && import.meta.server) {
-        const { UAParser } = await import('ua-parser-js');
         const browser = new UAParser(headers['user-agent'] || '');
         const type = browser.getDevice().type;
         let parsedType: 'tablet' | 'mobile' | undefined;
