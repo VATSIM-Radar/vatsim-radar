@@ -13,6 +13,8 @@ export function hexToRgb(hex: string): string {
         return `${ hex.split('(')[1].split(')')[0].split(',').slice(0, 3) }`;
     }
 
+    if (!hex.startsWith('#')) return hex;
+
     // Remove the hash at the start if it's there
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(shortHexToLong(hex));
     if (!result) throw new Error(`Failed to convert color ${ hex } from hex to rgb`);
