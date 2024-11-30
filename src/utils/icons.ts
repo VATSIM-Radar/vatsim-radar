@@ -767,7 +767,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.a343;
         case 'A359':
             return aircraftIcons.a359;
-        case 'A35k':
+        case 'A35K':
             return aircraftIcons.a35k;
         case 'A388':
         case 'A380':
