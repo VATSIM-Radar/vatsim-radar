@@ -16,6 +16,7 @@
 - New icons from DotWallop: ATR4x, ATR7x, FA10, GL5T, GL7T, GLF5-6, DIMO. Can someone stop this guy?
 - Added model matching for C310 (as C172 for now)
 - Reduced aircraft icon maximum default size from 40px to 35px
+- Fixed A35K model matching
 
 # [0.5.0.1-final]
 
