@@ -1,6 +1,6 @@
 # Changelog
 
-# [0.5.1-1-final]
+# [0.5.1-1]
 
 - You can now once again hover over aircraft overlay in resized window
 - Fixed search window sometimes lagging and taking whole screen height
