@@ -129,7 +129,8 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
 export const getAircraftStatusColor = (status: MapAircraftStatus) => {
     const store = useStore();
     let color = aircraftSvgColors()[status];
-    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
+    let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
+    if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
     if (settingColor) color = getColorFromSettings(settingColor);
 
     return color;
@@ -201,7 +202,10 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     }
     else {
         if (status === 'default' || status === 'ground') {
-            const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
+            let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
+
+            if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+
             style.setImage(new Icon({
                 src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),

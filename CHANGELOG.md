@@ -1,9 +1,13 @@
 # Changelog
 
+# [0.5.1-rc.3]
+
+- Fixed an issue when tracks sometimes were not appearing in airport dashboard
+- (QA) Fixed an issue when new ground color setting affected ground aircraft even when not set
+
 # [0.5.1-rc.2]
 
 - (QA) Fixed all new aircraft icons having size of A380
-- Added support of MIA_123_CTR extending to ZMO_123_CTR
 - You can now change colors of aircraft on ground separately from airborne
 
 # [0.5.1-rc.1]
