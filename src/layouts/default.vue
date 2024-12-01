@@ -106,7 +106,7 @@ onMounted(() => {
         window.removeEventListener('storage', handleStorageUpdate);
     });
 
-    if (!theme.value) {
+    if (!theme.value && !route.query.preset) {
         if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
             theme.value = 'light';
         }

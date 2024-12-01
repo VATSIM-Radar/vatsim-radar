@@ -395,6 +395,7 @@ async function handleMoveEnd() {
     mapStore.extent = view.calculateExtent(map.value!.getSize());
 
     const query = {
+        ...route.query,
         center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
         zoom: view.getZoom()?.toFixed(2),
     };

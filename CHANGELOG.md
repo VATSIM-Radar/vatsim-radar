@@ -36,7 +36,7 @@ A small hotfix with an issue when you could not save your map preset, if:
 - You pressed exclude my location without excluding arrival for airports hide
 - You had the same local preset as the one you import
 
-# [0.5.0-final]
+# [0.5.0]
 
 ## Highlights
 
