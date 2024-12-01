@@ -14,12 +14,14 @@ import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
-import { redis } from '~/utils/backend/redis';
+import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
 
 initInfluxDB();
 initKafka();
 initNavigraph().catch(console.error);
+
+const redisPublisher = getRedis();
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -417,7 +419,7 @@ defineCronJob('* * * * * *', async () => {
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
-            redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
+            redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
                 resolve();

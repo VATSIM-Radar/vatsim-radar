@@ -40,6 +40,59 @@
                 @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
             />
         </div>
+
+        <common-block-title>
+            VATGlasses
+        </common-block-title>
+
+        <div class="__section-group __section-group--even">
+            <common-toggle
+                :model-value="!!store.mapSettings.vatglasses?.active"
+                @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            >
+                Enable VATGlasses
+            </common-toggle>
+            <common-toggle
+                :disabled="!store.mapSettings.vatglasses?.active"
+                :model-value="store.mapSettings.vatglasses?.combined"
+                @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
+            >
+                Combined Mode
+
+                <template #description>
+                    All sectors at once. Eats performance.
+                </template>
+            </common-toggle>
+        </div>
+
+        <div
+            v-if="store.mapSettings.vatglasses?.active && !store.mapSettings.vatglasses?.combined"
+            class="__grid-info-sections __grid-info-sections--large-title"
+        >
+            <div class="__grid-info-sections_title">
+                VATGlasses Level
+            </div>
+            <div class="__section-group">
+                <input
+                    v-model="vatglassesLevel"
+                    max="430"
+                    min="0"
+                    step="10"
+                    type="range"
+                >
+                <common-input-text
+                    v-model="vatglassesLevel"
+                    class="vatglassesLevel-input"
+                    :input-attrs="{
+                        max: 430,
+                        min: 0,
+                        step: 10,
+                    }"
+                    input-type="number"
+                />
+            </div>
+        </div>
+
         <common-block-title>
             Airports Counters
         </common-block-title>
@@ -136,12 +189,24 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { backupMapSettings } from '~/composables/settings';
 import { resetUserMapSettings } from '~/composables';
 
 const store = useStore();
 
 const resetActive = ref(false);
+
+const vatglassesLevel = computed({
+    get() {
+        return store.localSettings.vatglassesLevel?.toString();
+    },
+    set(value) {
+        if (value !== undefined) {
+            setUserLocalSettings({ vatglassesLevel: Number(value) });
+        }
+    },
+});
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

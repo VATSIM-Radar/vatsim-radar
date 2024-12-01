@@ -6,8 +6,8 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
-import type { Ref, WatchStopHandle } from 'vue';
-import type { SimAwareAPIData } from '~/utils/backend/storage';
+import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
+import type { SimAwareAPIData, VatglassesAPIData } from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
 import { clientDB } from '~/utils/client-db';
@@ -15,21 +15,27 @@ import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
+import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
 const simaware = shallowRef<SimAwareAPIData>();
+const vatglasses = shallowRef<VatglassesAPIData>();
+
+
+const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
+const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
 const time = ref(Date.now());
 const stats = shallowRef<{
     cid: number;
     stats: VatsimMemberStats;
 }[]>([]);
 
-type Data = {
+export type VatsimData = {
     [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
 };
 
-const data: Data = {
+const data: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
@@ -63,12 +69,36 @@ const vatsim = {
     localUpdateTime: ref(0),
 };
 
-export function useDataStore() {
+export interface UseDataStore {
+    versions: Ref<null | VatDataVersions>;
+    vatspy: ShallowRef<VatSpyAPIData | undefined>;
+    vatsim: {
+        data: VatsimData;
+        parsedAirports: ShallowRef<AirportsList[]>;
+        _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
+        mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
+        versions: Ref<VatDataVersions['vatsim'] | null>;
+        updateTimestamp: Ref<string>;
+        updateTime: Ref<number>;
+        localUpdateTime: Ref<number>;
+    };
+    simaware: ShallowRef<SimAwareAPIData | undefined>;
+    vatglasses: ShallowRef<VatglassesAPIData | undefined>;
+    vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
+    vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
+    stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
+    time: Ref<number>;
+}
+
+export function useDataStore(): UseDataStore {
     return {
         versions,
         vatspy,
         vatsim,
         simaware,
+        vatglasses,
+        vatglassesActivePositions,
+        vatglassesActiveRunways,
         stats,
         time,
     };
@@ -242,6 +272,15 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 }
 
                 dataStore.simaware.value = simaware;
+            }()),
+            (async function() {
+                let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
+                if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
+                    vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
+                    await clientDB.put('data', vatglasses, 'vatglasses');
+                }
+
+                dataStore.vatglasses.value = vatglasses;
             }()),
             (async function() {
                 await store.getVATSIMData();

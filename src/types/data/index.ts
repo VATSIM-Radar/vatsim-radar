@@ -7,4 +7,5 @@ export interface VatDataVersions {
     };
     navigraph: typeof cycles | null;
     simaware: string;
+    vatglasses: string;
 }

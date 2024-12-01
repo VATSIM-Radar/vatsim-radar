@@ -90,6 +90,7 @@ const hasScroll = useScrollExists(computed(() => {
 }));
 
 const mapStore = useMapStore();
+const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
 let localFeature: Feature | undefined;
@@ -98,15 +99,23 @@ let rootFeature: Feature | undefined;
 const store = useStore();
 
 const locals = computed(() => {
-    const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
+    if (!dataStore.vatglassesActivePositions.value) return [];
 
-    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    let filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
+    filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    if (!store.mapSettings.vatglasses?.active || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
+
+    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
 const globals = computed(() => {
-    const filtered = props.atc.filter(x => x.icao && x.controller);
+    let filtered = props.atc.filter(x => x.icao && x.controller);
+    filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    if (!store.mapSettings.vatglasses?.active || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
 
-    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
 const controllers = computed(() => {
@@ -178,7 +187,7 @@ const init = () => {
 
 onMounted(init);
 
-watch([() => props.atc, isHovered], init);
+watch([() => props.atc, isHovered, locals], init);
 
 onBeforeUnmount(() => {
     if (localFeature) {

@@ -7,21 +7,74 @@
             :fir="sector.fir"
         />
     </template>
+
+    <template v-if="!isHideAtcType('firs') && store.mapSettings.vatglasses?.active">
+        <template
+            v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
+            :key="countryId"
+        >
+            <map-vatglasses-position
+                v-for="(position, positionId) in countryEntries"
+                :key="countryId + '-' + positionId"
+                :position="position"
+            />
+        </template>
+
+
+        <map-overlay
+            class="vatglasses-overlay"
+            :model-value="vatglassesPopupIsShown"
+            :settings="{
+                position: getCoordinates,
+                offset: [15, -15],
+            }"
+            :z-index="20"
+        >
+            <common-popup-block
+                class="aircraft-hover"
+            >
+                <template #title>
+                    Positions
+                </template>
+
+                <ul>
+                    <li
+                        v-for="(sector, index) in sectorsAtClick"
+                        :key="index"
+                    >
+                        {{ sector.vatglassesPositionId }} ({{ sector.atc.callsign }}) {{ formatNumber(sector.min) }} - {{ formatNumber(sector.max) }}
+                    </li>
+                </ul>
+
+            </common-popup-block>
+        </map-overlay>
+    </template>
 </template>
 
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
+import type { Map, MapBrowserEvent } from 'ol';
 import { Fill, Stroke, Style } from 'ol/style';
-import MapSector from '~/components/map/sectors/MapSector.vue';
+import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
+import { useStore } from '~/store';
+import MapSector from '~/components/map/sectors/MapSector.vue';
+import { attachMoveEnd } from '~/composables';
+
+import { initVatglasses } from '~/utils/data/vatglasses';
+import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
+
+import type { Pixel } from 'ol/pixel';
+
 
 let vectorLayer: VectorImageLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
+const store = useStore();
+
 
 const firs = computed(() => {
     const list = dataStore.vatspy.value!.data.firs;
@@ -29,9 +82,56 @@ const firs = computed(() => {
         fir,
         atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || (fir.callsign && fir.callsign === x.callsign)))) ?? [],
     }));
-
     return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex));
 });
+
+
+const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
+const getCoordinates = ref([0, 0]);
+const vatglassesPopupIsShown = ref(false);
+
+let lastEventPixel: Pixel | null = null;
+async function handleClick(e: MapBrowserEvent<any>) {
+    // TODO: don't show popup when clicked target has an aircraft
+    const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
+
+    if (lastEventPixel && lastEventPixel[0] === eventPixel[0] && lastEventPixel[1] === eventPixel[1]) {
+        // same location, close popup
+        sectorsAtClick.value = [];
+        vatglassesPopupIsShown.value = false;
+        lastEventPixel = null;
+        return;
+    }
+    lastEventPixel = eventPixel;
+    const featureSectors = map.value!.getFeaturesAtPixel(eventPixel, {
+        hitTolerance: 0, // we use 6 instead of 5 because of the aircraft icons size, it is just for cosmetic reasons
+        layerFilter: layer => layer.getProperties().type === 'sectors',
+    });
+
+    const sectors: VatglassesSectorProperties[] = [];
+    featureSectors.map(feature => {
+        const properties = feature.getProperties() as VatglassesSectorProperties;
+        sectors.push(properties);
+    });
+
+    sectorsAtClick.value = sectors.filter(x => x.atc);
+
+    getCoordinates.value = e.coordinate;
+    vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
+}
+
+
+attachMoveEnd(() => {
+    // Change of map position
+    sectorsAtClick.value = [];
+    vatglassesPopupIsShown.value = false;
+    lastEventPixel = null;
+});
+
+function formatNumber(number: number) {
+    if (number === 0) return 'GND';
+    return 'FL' + number.toString().padStart(3, '0');
+}
 
 watch(map, val => {
     if (!val) return;
@@ -107,6 +207,21 @@ watch(map, val => {
             zIndex: 5,
         });
 
+        const vatglassesStyle = (color: string, altMax: number = 1): Style => {
+            // console.log('color',color)
+            return new Style({
+
+                fill: new Fill({
+                    color: `rgb(${ hexToRgb(color) }, 0.2)`,
+                }),
+                stroke: new Stroke({
+                    color: `rgb(${ hexToRgb(color) }, 0.6)`,
+                    width: 1,
+                }),
+                zIndex: altMax,
+            });
+        };
+
         vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
@@ -114,8 +229,6 @@ watch(map, val => {
                 type: 'sectors',
             },
             style: function(feature) {
-                if (feature.getGeometry()?.getType() !== 'MultiPolygon') return;
-
                 const type = feature.getProperties().type;
 
                 switch (type) {
@@ -129,12 +242,19 @@ watch(map, val => {
                         return hoveredStyle;
                     case 'hovered-root':
                         return hoveredRootStyle;
+                    case 'vatglasses':
+                        // console.log(feature.getProperties());
+                        return vatglassesStyle(feature.getProperties().colour, feature.getProperties().max);
+                    default:
+                        return localStyle;
                 }
             },
         });
     }
 
     val.addLayer(vectorLayer);
+    initVatglasses();
+    val.on('click', handleClick);
 }, {
     immediate: true,
 });

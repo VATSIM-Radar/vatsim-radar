@@ -384,6 +384,10 @@ const getAirportsList = computed(() => {
         if (!airport) continue;
 
         if (isArr) {
+            if (store.mapSettings.vatglasses?.active && dataStore.vatglassesActivePositions.value['fallback']) {
+                const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+                if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+            }
             airport.arrAtc.push(atc.atc);
             airport.arrAtcInfo.push(atc);
             continue;
