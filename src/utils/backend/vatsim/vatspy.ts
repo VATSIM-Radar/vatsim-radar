@@ -7,7 +7,7 @@ import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 
 const revisions: Record<string, number> = {
-    'v2408.2': 3,
+    'v2410.1': 1,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -59,6 +59,7 @@ function parseDatFile<S extends Record<string, { title: string; children: Record
 export async function updateVatSpy() {
     const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/', {
         timeout: 1000 * 60,
+        retry: 3,
     });
     if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
     if (radarStorage.vatspy.version === data.current_commit_hash) return;
@@ -154,8 +155,8 @@ export async function updateVatSpy() {
     parsedDat.firs
         .filter(value => value.icao && value.name)
         .forEach(value => {
-            let boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
-            if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
+            let boundaries = geojson.features.filter(x => x.properties?.id === value.boundary);
+            if (!boundaries.length) boundaries = geojson.features.filter(x => x.properties?.id === value.icao);
             if (!boundaries.length) {
                 console.warn(`FIR didn't find it's feature in geojson (${ value.icao }, ${ value.boundary })`);
                 return;

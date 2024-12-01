@@ -31,7 +31,7 @@
                         controller.frequency,
                         (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
                     ]"
-                    @click="mapStore.addAtcOverlay(controller.callsign)"
+                    @click="[mapStore.addAtcOverlay(controller.callsign), emit('overlay')]"
                 >
                     <template #top="{ item, index }">
                         <template v-if="index === 0 && showFacility">
@@ -68,9 +68,9 @@
                         <template v-else-if="index === 2">
                             <div
                                 class="atc-popup__frequency"
-                                @click.stop="[copy(item as string), copiedFor = controller.cid]"
+                                @click.stop="[copy(item as string), copiedFor = controller.callsign]"
                             >
-                                <template v-if="!isCopied(controller.cid)">
+                                <template v-if="!isCopied(controller.callsign)">
                                     {{ item }}
 
                                     <save-icon width="12"/>
@@ -153,15 +153,19 @@ defineProps({
     },
 });
 
+const emit = defineEmits({
+    overlay() {
+        return true;
+    },
+});
 defineSlots<{ title(): any; additionalTitle(): any }>();
-
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
-const copiedFor = ref(0);
+const copiedFor = ref('');
 
-const isCopied = (cid: number) => {
-    return copiedFor.value === cid && copyState.value;
+const isCopied = (key: string) => {
+    return copiedFor.value === key && copyState.value;
 };
 
 const getATIS = (controller: VatsimShortenedController) => {

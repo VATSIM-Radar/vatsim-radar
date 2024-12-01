@@ -332,6 +332,15 @@ const overlaysHeight = computed(() => {
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
 });
 
+useHead(() => ({
+    link: [
+        {
+            rel: 'canonical',
+            href: `${ config.public.DOMAIN }`,
+        },
+    ],
+}));
+
 watch([overlays, popupsHeight], () => {
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
@@ -373,6 +382,43 @@ watch([overlays, popupsHeight], () => {
 }, {
     deep: true,
 });
+
+let moving = true;
+let success = false;
+
+async function handleMoveEnd() {
+    if (!success) return;
+    moving = false;
+    const view = map.value!.getView();
+    mapStore.zoom = view.getZoom() ?? 0;
+    mapStore.rotation = toDegrees(view.getRotation() ?? 0);
+    mapStore.extent = view.calculateExtent(map.value!.getSize());
+
+    const query = {
+        ...route.query,
+        center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
+        zoom: view.getZoom()?.toFixed(2),
+    };
+
+    router.replace({
+        query,
+    });
+
+    const targetOrigin = config.public.DOMAIN;
+    window.parent.postMessage({
+        type: 'move',
+        query,
+    }, targetOrigin);
+
+    setUserLocalSettings({
+        location: view.getCenter(),
+        zoom: view.getZoom(),
+    });
+
+    await sleep(300);
+    if (moving) return;
+    mapStore.moving = false;
+}
 
 await setupDataFetch({
     async onFetch() {
@@ -483,8 +529,6 @@ await setupDataFetch({
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
 
-        let moving = true;
-
         map.value.getTargetElement().addEventListener('mousedown', event => {
             const target = event.target as HTMLCanvasElement;
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
@@ -536,36 +580,10 @@ await setupDataFetch({
         });
         map.value.on('moveend', async () => {
             moving = false;
-            const view = map.value!.getView();
-            mapStore.zoom = view.getZoom() ?? 0;
-            mapStore.rotation = toDegrees(view.getRotation() ?? 0);
-            mapStore.extent = view.calculateExtent(map.value!.getSize());
-
-            const query = {
-                ...route.query,
-                center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
-                zoom: view.getZoom()?.toFixed(2),
-            };
-
-            router.replace({
-                query,
-            });
-
-            const targetOrigin = config.public.DOMAIN;
-            window.parent.postMessage({
-                type: 'move',
-                query,
-            }, targetOrigin);
-
-            setUserLocalSettings({
-                location: view.getCenter(),
-                zoom: view.getZoom(),
-            });
-
-            await sleep(300);
-            if (moving) return;
-            mapStore.moving = false;
+            handleMoveEnd();
         });
+
+        success = true;
     },
 });
 </script>

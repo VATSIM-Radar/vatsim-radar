@@ -5,7 +5,7 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
 export function defineCronJob(pattern: string, func: () => any, options: CronOptions & { runOnInit: false }): Cron;
 export function defineCronJob(pattern: string, func: () => any, options?: CronOptions & { runOnInit?: boolean }): Cron | Promise<Cron> {
     const cron = new Cron(pattern, {
-        protect: true,
+        // protect: true,
         ...options,
     }, func);
 

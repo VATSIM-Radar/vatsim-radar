@@ -256,7 +256,7 @@ const getStatus = computed<MapAircraftStatus>(() => {
         if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
     }
 
-    return 'default';
+    return isOnGround.value ? 'ground' : 'default';
 });
 
 const handleMouseEnter = (event: MouseEvent) => {
@@ -345,8 +345,9 @@ const changeState = computed(() => {
     return values.map(x => String(x)).join(',');
 });
 
-async function setState() {
-    if (!isInit.value) return;
+async function setState(val?: string, oldVal?: string) {
+    if (!isInit.value || (val && oldVal && val === oldVal)) return;
+
     canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
     await Promise.allSettled([
@@ -627,7 +628,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20) {
+            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20 && props.isVisible) {
                 const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
@@ -781,6 +782,7 @@ onUnmounted(() => {
     padding: 8px;
 
     font-size: 13px;
+    word-break: break-word;
 
     background: $darkgray1000;
     border-radius: 8px;

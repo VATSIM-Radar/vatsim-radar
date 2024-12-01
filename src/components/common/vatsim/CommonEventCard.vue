@@ -6,7 +6,9 @@
             @click="details = !details"
         >
             <div class="event-card_start">
-                {{ formattedStart }}Z - {{ formattedEnd }}Z
+                <client-only>
+                    {{ formattedStart }} - {{ formattedEnd }}
+                </client-only>
             </div>
             <div class="event-card_name">
                 {{ props.event.name }} <span
@@ -133,10 +135,14 @@ const props = defineProps({
 
 const details = ref(false);
 
-const formatter = new Intl.DateTimeFormat(['de-DE'], {
-    timeZone: 'UTC',
-    month: 'numeric',
-    day: 'numeric',
+const formatter = new Intl.DateTimeFormat(['en-DE'], {
+    hour: '2-digit',
+    minute: '2-digit',
+});
+
+const formatterWithDate = new Intl.DateTimeFormat(['de-DE'], {
+    day: '2-digit',
+    month: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
 });
@@ -146,7 +152,13 @@ const { copy: baseCopy } = useCopyText();
 const app = useNuxtApp();
 const description = computed(() => parse(props.event.description));
 const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
-const formattedEnd = computed(() => formatter.format(new Date(props.event.end_time)));
+const formattedEnd = computed(() => {
+    const date = new Date(props.event.end_time);
+
+    if (date.getDate() !== new Date(props.event.start_time).getDate()) return formatterWithDate.format(date);
+
+    return formatter.format(date);
+});
 const active = computed(() => new Date(props.event.start_time) < new Date());
 const organisers = computed(() => {
     if (props.event.organisers?.length) {

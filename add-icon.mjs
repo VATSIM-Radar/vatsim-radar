@@ -1,14 +1,14 @@
 import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
-const { values: { icon, width } } = parseArgs({
+const { values: { icon, coefficient } } = parseArgs({
     args: process.argv,
     allowPositionals: true,
     options: {
         icon: {
             type: 'string',
         },
-        width: {
+        coefficient: {
             type: 'string',
         },
     },
@@ -24,13 +24,15 @@ catch { /* empty */ }
 
 if (invalidIcon) renameSync(`./src/assets/icons/aircraft/${ icon.toUpperCase() }.svg`, `./src/assets/icons/aircraft/${ icon.toLowerCase() }.svg`);
 
+readFileSync(`./src/assets/icons/aircraft/${ icon.toLowerCase() }.svg`);
+
 const toAddType = iconsFile.findIndex(x => x.includes(`type AircraftIcon =`));
 iconsFile.splice(toAddType + 1, 0, `    | '${ icon }'`);
 
 const toAddDefinition = iconsFile.findIndex(x => x.includes(`export const aircraftIcons`));
 iconsFile.splice(toAddDefinition + 1, 0, `    ${ icon }: {
         icon: '${ icon }',
-        width: getAircraftSizeByCoef(${ width }),
+        width: getAircraftSizeByCoef(${ coefficient }),
     },`);
 
 const toAddMatching = iconsFile.findIndex(x => x.includes(`return aircraftIcons[faa`));

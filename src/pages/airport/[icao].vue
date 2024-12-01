@@ -283,9 +283,15 @@ const isMobileOrTablet = useIsMobileOrTablet();
 
 provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
-useHead({
+useHead(() => ({
     title: icao,
-});
+    link: [
+        {
+            rel: 'canonical',
+            href: `${ config.public.DOMAIN }/airport/${ icao.value }`,
+        },
+    ],
+}));
 
 const weatherTab = ref('metar');
 

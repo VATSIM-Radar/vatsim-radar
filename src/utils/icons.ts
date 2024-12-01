@@ -1,6 +1,15 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'at7x'
+    | 'at4x'
+    | 'dimo'
+    | 'glf6'
+    | 'glf5'
+    | 'gl7t'
+    | 'gl5t'
+    | 'fa20'
+    | 'fa10'
     | 'be60'
     | 'glex'
     | 'sr22'
@@ -141,7 +150,7 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
 
     if (!strict) {
         if (size < 15) return 15;
-        if (size > 40) return 40;
+        if (size > 35) return 35;
     }
 
     return Math.round(size);
@@ -155,6 +164,42 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    at7x: {
+        icon: 'at7x',
+        width: getAircraftSizeByCoef(0.45),
+    },
+    at4x: {
+        icon: 'at4x',
+        width: getAircraftSizeByCoef(0.38),
+    },
+    dimo: {
+        icon: 'dimo',
+        width: getAircraftSizeByCoef(0.13),
+    },
+    glf6: {
+        icon: 'glf6',
+        width: getAircraftSizeByCoef(0.51),
+    },
+    glf5: {
+        icon: 'glf5',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    gl7t: {
+        icon: 'gl7t',
+        width: getAircraftSizeByCoef(0.53),
+    },
+    gl5t: {
+        icon: 'gl5t',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    fa20: {
+        icon: 'fa20',
+        width: getAircraftSizeByCoef(0.27),
+    },
+    fa10: {
+        icon: 'fa10',
+        width: getAircraftSizeByCoef(0.22),
+    },
     be60: {
         icon: 'be60',
         width: getAircraftSizeByCoef(0.20),
@@ -722,7 +767,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.a343;
         case 'A359':
             return aircraftIcons.a359;
-        case 'A35k':
+        case 'A35K':
             return aircraftIcons.a35k;
         case 'A388':
         case 'A380':
@@ -928,6 +973,20 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.sr22;
         case 'B60T':
             return aircraftIcons.be60;
+        case 'C310':
+            return aircraftIcons.c172;
+        case 'GL6T':
+            return aircraftIcons.gl5t;
+        case 'AT42':
+        case 'AT43':
+        case 'AT45':
+        case 'AT46':
+            return aircraftIcons.at4x;
+        case 'AT72':
+        case 'AT73':
+        case 'AT75':
+        case 'AT76':
+            return aircraftIcons.at7x;
         case 'B731':
         case 'B732':
         case 'B733':
@@ -1026,6 +1085,13 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'SR22':
         case 'GLEX':
         case 'BE60':
+        case 'FA10':
+        case 'FA20':
+        case 'GL5T':
+        case 'GL7T':
+        case 'GLF5':
+        case 'GLF6':
+        case 'DIMO':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
