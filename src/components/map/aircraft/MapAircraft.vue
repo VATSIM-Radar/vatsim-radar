@@ -628,7 +628,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20) {
+            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20 && props.isVisible) {
                 const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
