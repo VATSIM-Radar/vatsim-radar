@@ -165,6 +165,26 @@ useHead(() => {
     };
 });
 
+let parser: UAParser | undefined;
+
+async function getDeviceType(uaParser = parser) {
+    if (!uaParser) return;
+    const type = (await uaParser.getDevice().withFeatureCheck()).type;
+    let parsedType: 'desktop' | 'tablet' | 'mobile' = 'desktop';
+
+    switch (type) {
+        case 'mobile':
+        case 'wearable':
+            parsedType = 'mobile';
+            break;
+        case 'tablet':
+            parsedType = 'tablet';
+            break;
+    }
+
+    return parsedType;
+}
+
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
     store.isMobileOrTablet = window.innerWidth < 1366;
@@ -180,11 +200,13 @@ const listener = () => {
 
 let windowInterval: NodeJS.Timeout | undefined;
 
-onNuxtReady(() => {
+onNuxtReady(async () => {
     document.addEventListener('resize', listener);
+    parser = new UAParser(navigator.userAgent);
 
     setWindowStore();
     windowInterval = setInterval(setWindowStore, 500);
+    store.device = await getDeviceType() ?? 'desktop';
 });
 
 onBeforeUnmount(() => {
@@ -214,6 +236,7 @@ await useAsyncData('default-init', async () => {
         store.isTablet = parsedType === 'tablet';
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
+        store.device = await getDeviceType() ?? 'desktop';
     }
 
     return true;

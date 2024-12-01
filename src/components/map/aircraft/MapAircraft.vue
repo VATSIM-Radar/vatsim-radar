@@ -14,7 +14,7 @@
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
-                v-if="pilot && !isMobileOrTablet"
+                v-if="pilot && !store.isTouch"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"

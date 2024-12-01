@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.5.1-1-final]
+
+- You can now once again hover over aircraft overlay in resized window
+- Fixed search window sometimes lagging and taking whole screen height
+- Increased map settings height on mobile devices
+
 # [0.5.1-final]
 
 ## Notable changes
