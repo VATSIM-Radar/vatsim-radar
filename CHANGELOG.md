@@ -1,6 +1,6 @@
 # Changelog
 
-# [0.5.1]
+# [0.5.1-final]
 
 ## Notable changes
 
