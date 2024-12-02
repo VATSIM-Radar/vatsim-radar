@@ -56,7 +56,7 @@ jobs:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
       - name: Deploy App
-        run: kubectl apply -f .config/k8s/next/app.yml
+        run: kubectl replace -f .config/k8s/next/app.yml --force
       - name: Validate App
         run: kubectl rollout status deployment app-next
       - name: Validate Worker
