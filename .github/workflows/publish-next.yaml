@@ -34,12 +34,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Add .env file
         run: echo "${{ secrets.ENV }}" > .env
-      - name: Test .env file
-        run: ls -la
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           tags: ghcr.io/vatsim-radar/vatsim-radar/next:latest
+          context: .
           push: true
           file: .config/Dockerfile
 
