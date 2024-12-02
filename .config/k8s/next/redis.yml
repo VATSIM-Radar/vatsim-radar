@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis-next
 spec:
   ports:
     - port: 6379
