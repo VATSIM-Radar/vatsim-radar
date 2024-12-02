@@ -89,7 +89,7 @@ spec:
               memory: 1Gi
           readinessProbe:
             tcpSocket:
-              port: 3000
+              port: 8880
             initialDelaySeconds: 5
             periodSeconds: 15
             successThreshold: 1
