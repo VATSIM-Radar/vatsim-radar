@@ -24,4 +24,4 @@ spec:
               service:
                 name: app-worker
                 port:
-                  number: 8800
+                  number: 8880
