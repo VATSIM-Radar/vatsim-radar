@@ -102,7 +102,9 @@ jobs:
 
   github-release:
     name: Release tag to Github
-    needs: deploy
+    needs:
+      - deploy-app
+      - deploy-db-redis
     runs-on: ubuntu-latest
     permissions:
       contents: write
