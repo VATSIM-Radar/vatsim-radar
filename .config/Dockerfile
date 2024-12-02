@@ -11,9 +11,8 @@ RUN apt-get install -y default-mysql-client
 
 RUN yarn
 
-RUN ls -la
-
 COPY . /radar
+RUN ls -la
 RUN npx prisma generate
 RUN yarn build
 
