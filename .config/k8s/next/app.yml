@@ -76,7 +76,7 @@ spec:
           imagePullPolicy: Always
           command: ["/radar/.config/worker-prod.sh"]
           ports:
-            - containerPort: 3000
+            - containerPort: 8880
           volumeMounts:
             - name: radar-data
               mountPath: /radar/src/data
@@ -106,7 +106,7 @@ metadata:
   name: worker-next
 spec:
   ports:
-    - port: 3000
+    - port: 8880
   selector:
     app: worker-next
 ---
