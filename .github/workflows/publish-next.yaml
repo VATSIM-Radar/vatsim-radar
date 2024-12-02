@@ -56,7 +56,7 @@ jobs:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
       - name: Deploy App
-        run: kubectl apply -f .config/k8s/ingress.yml
+        run: kubectl apply -f .config/k8s/next/app.yml
       - name: Validate App
         run: kubectl rollout status deployment app-next
       - name: Validate Worker
@@ -75,12 +75,14 @@ jobs:
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
+      - name: Deploy Volume
+        run: kubectl apply -f .config/k8s/next/volume.yml
       - name: Deploy Redis
-        run: kubectl apply -f .config/k8s/redis.yml
+        run: kubectl apply -f .config/k8s/next/redis.yml
       - name: Validate Redis
         run: kubectl rollout status deployment redis-next
       - name: Deploy DB
-        run: kubectl apply -f .config/k8s/db.yml
+        run: kubectl apply -f .config/k8s/next/db.yml
       - name: Validate DB
         run: kubectl rollout status deployment db-next
 
