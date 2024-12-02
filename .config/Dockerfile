@@ -17,4 +17,4 @@ RUN npx prisma generate
 RUN yarn build
 
 EXPOSE 3000
-CMD ["sh", "-c", "npx prisma migrate deploy && export $(grep -v '^#' .env | xargs) && node /radar/.output/server/index.mjs"]
+CMD ["sh", "-c", "npx prisma migrate deploy && export $(grep -v '^#' /radar/.env | xargs) && node /radar/.output/server/index.mjs"]
