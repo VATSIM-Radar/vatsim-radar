@@ -43,6 +43,7 @@ jobs:
           file: .config/Dockerfile
 
   deploy-app:
+    runs-on: ubuntu-latest
     needs:
       - push
     permissions:
@@ -62,6 +63,7 @@ jobs:
         run: kubectl rollout status deployment worker-next
 
   deploy-db-redis:
+    runs-on: ubuntu-latest
     needs:
       - push
     permissions:
@@ -83,9 +85,7 @@ jobs:
         run: kubectl rollout status deployment db-next
 
   deploy-ingress:
-    #runs-on: beget
-    #    needs:
-    #      - push
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
