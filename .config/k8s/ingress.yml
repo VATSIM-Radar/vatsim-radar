@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
 spec:
   rules:
-    - host: "do-next.vatsim-radar.com"
+    - host: "next.vatsim-radar.com"
       http:
         paths:
           - pathType: Prefix
