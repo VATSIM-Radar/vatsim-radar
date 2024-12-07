@@ -25,3 +25,20 @@ spec:
                 name: worker-next
                 port:
                   number: 8880
+    - host: "vatsim-radar.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-prod
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: "/ws"
+            backend:
+              service:
+                name: worker-prod
+                port:
+                  number: 8880

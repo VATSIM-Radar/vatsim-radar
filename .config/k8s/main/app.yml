@@ -1,0 +1,140 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-prod
+spec:
+  progressDeadlineSeconds: 360
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-prod
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: app-prod
+    spec:
+      containers:
+        - name: app-prod
+          image: ghcr.io/vatsim-radar/vatsim-radar/production
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          volumeMounts:
+            - name: radar-data
+              mountPath: /radar/src/data
+          resources:
+            requests:
+              cpu: 300m
+              memory: 300Mi
+            limits:
+              cpu: 950m
+              memory: 950Mi
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 10
+            timeoutSeconds: 15
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        doks.digitalocean.com/node-pool: premium-amd
+      volumes:
+        - name: radar-data
+          hostPath:
+            path: /opt/prod/data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker-prod
+spec:
+  progressDeadlineSeconds: 360
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: worker-prod
+  template:
+    metadata:
+      labels:
+        app: worker-prod
+    spec:
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        doks.digitalocean.com/node-pool: premium-amd
+      containers:
+        - name: worker
+          image: ghcr.io/vatsim-radar/vatsim-radar/production
+          imagePullPolicy: Always
+          command: ["/radar/.config/worker-prod.sh"]
+          ports:
+            - containerPort: 8880
+          volumeMounts:
+            - name: radar-data
+              mountPath: /radar/src/data
+          resources:
+            requests:
+              cpu: 300m
+              memory: 300Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          readinessProbe:
+            tcpSocket:
+              port: 8880
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 10
+            timeoutSeconds: 15
+      volumes:
+        - name: radar-data
+          hostPath:
+            path: /opt/prod/data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: worker-prod
+spec:
+  ports:
+    - port: 8880
+  selector:
+    app: worker-prod
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-prod
+spec:
+  ports:
+    - port: 3000
+  selector:
+    app: app-prod
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: app-prod-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: app-prod
+  minReplicas: 1
+  maxReplicas: 12
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
