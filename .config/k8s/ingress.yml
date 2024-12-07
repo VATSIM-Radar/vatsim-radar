@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-default
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  rules:
+    - host: "next.vatsim-radar.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-next
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: "/ws"
+            backend:
+              service:
+                name: worker-next
+                port:
+                  number: 8880
+    - host: "vatsim-radar.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: app-prod
+                port:
+                  number: 3000
+          - pathType: Prefix
+            path: "/ws"
+            backend:
+              service:
+                name: worker-prod
+                port:
+                  number: 8880

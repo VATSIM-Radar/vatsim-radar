@@ -1,7 +1,7 @@
 import IORedis from 'ioredis';
 
 export const redis = new IORedis({
-    host: 'redis',
+    host: process.env.REDIS_HOST,
     password: 'RADAR',
     port: 6379,
     family: 4,

@@ -32,99 +32,85 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add .env file
+        run: echo "${{ secrets.ENV }}" > .env
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           tags: ghcr.io/vatsim-radar/vatsim-radar/next:latest
+          context: .
           push: true
           file: .config/Dockerfile
-          build-args: |
-            DOMAIN=${{ vars.DOMAIN }}
-            NAVIGRAPH_CLIENT_ID=${{ vars.NAVIGRAPH_CLIENT_ID }}
-            NAVIGRAPH_SERVER_ID=${{ vars.NAVIGRAPH_SERVER_ID }}
-            VATSIM_CLIENT_ID=${{ vars.VATSIM_CLIENT_ID }}
-            VATSIM_ENDPOINT=${{ vars.VATSIM_ENDPOINT }}
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            NAVIGRAPH_CLIENT_SECRET=${{ secrets.NAVIGRAPH_CLIENT_SECRET }}
-            NAVIGRAPH_SERVER_SECRET=${{ secrets.NAVIGRAPH_SERVER_SECRET }}
-            VATSIM_CLIENT_SECRET=${{ secrets.VATSIM_CLIENT_SECRET }}
-            DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
-            DISCORD_CLIENT_ID=${{ secrets.DISCORD_CLIENT_ID }}
-            DISCORD_SERVER_ID=${{ vars.DISCORD_SERVER_ID }}
-            DISCORD_INTERNAL_SERVER_ID=${{ vars.DISCORD_INTERNAL_SERVER_ID }}
-            DISCORD_RELEASES_CHANNEL_ID=${{ vars.DISCORD_RELEASES_CHANNEL_ID }}
-            DISCORD_ROLE_ID=${{ vars.DISCORD_ROLE_ID }}
-            ACCESS_BY_DISCORD_ROLES=${{ vars.ACCESS_BY_DISCORD_ROLES }}
-            IS_DOWN=${{ vars.IS_DOWN }}
-            VATSIM_KAFKA_BROKER=${{ secrets.VATSIM_KAFKA_BROKER }}
-            VATSIM_KAFKA_USER=${{ secrets.VATSIM_KAFKA_USER }}
-            VATSIM_KAFKA_PASSWORD=${{ secrets.VATSIM_KAFKA_PASSWORD }}
-            VATSIM_KAFKA_GROUP=${{ secrets.VATSIM_KAFKA_GROUP }}
-            INFLUX_URL=${{ secrets.INFLUX_URL }}
-            INFLUX_TOKEN=${{ secrets.INFLUX_TOKEN }}
-            INFLUX_ORG=${{ secrets.INFLUX_ORG }}
-            INFLUX_BUCKET_MAIN=${{ secrets.INFLUX_BUCKET_MAIN }}
-            INFLUX_BUCKET_ONLINE=${{ secrets.INFLUX_BUCKET_ONLINE }}
-            INFLUX_ENABLE_WRITE=${{ vars.INFLUX_ENABLE_WRITE }}
-            INFLUX_BUCKET_PLANS=${{ secrets.INFLUX_BUCKET_PLANS }}
-            DISABLE_WEBSOCKETS=${{ vars.DISABLE_WEBSOCKETS }}
-            CF_R2_API=${{ secrets.CF_R2_API }}
-            CF_R2_ACCESS_ID=${{ secrets.CF_R2_ACCESS_ID }}
-            CF_R2_ACCESS_TOKEN=${{ secrets.CF_R2_ACCESS_TOKEN }}
-            PATREON_ACCESS_TOKEN=${{ secrets.PATREON_ACCESS_TOKEN }}
-            FAA_NOTAMS_CLIENT_ID=${{ secrets.FAA_NOTAMS_CLIENT_ID }}
-            FAA_NOTAMS_CLIENT_SECRET=${{ secrets.FAA_NOTAMS_CLIENT_SECRET }}
-  deploy:
-    runs-on: do-next
-    #runs-on: beget
+
+  deploy-app:
+    runs-on: ubuntu-latest
     needs:
       - push
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy App
+        run: kubectl apply -f .config/k8s/next/app.yml
+      - name: Apply App
+        run: kubectl rollout restart deployment app-next
+      - name: Apply Worker
+        run: kubectl rollout restart deployment worker-next
+      - name: Validate App
+        run: kubectl rollout status deployment app-next
+      - name: Validate Worker
+        run: kubectl rollout status deployment worker-next
+
+  deploy-db-redis:
+    runs-on: ubuntu-latest
+    needs:
+      - push
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy Volume
+        run: kubectl apply -f .config/k8s/next/volume.yml
+      - name: Deploy Redis
+        run: kubectl apply -f .config/k8s/next/redis.yml
+      - name: Validate Redis
+        run: kubectl rollout status deployment redis-next
+      - name: Deploy DB
+        run: kubectl apply -f .config/k8s/next/db.yml
+      - name: Validate DB
+        run: kubectl rollout status deployment db-next
+
+  deploy-ingress:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: read
     steps:
       - uses: actions/checkout@v4
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull
-        shell: bash
-        run: docker pull ghcr.io/vatsim-radar/vatsim-radar/next:latest
-      - name: Build
-        shell: bash
-        run: docker compose -f docker-compose.next.yml build
-      - name: Deploy
-        shell: bash
-        run: docker compose -f docker-compose.next.yml up -d
-      - name: Clear
-        shell: bash
-        run: docker system prune --force && docker system prune --volumes --force
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy Ingress
+        run: kubectl apply -f .config/k8s/ingress.yml
 
-  deploy-nginx:
-    runs-on: do-nginx
-    #runs-on: beget
-    #    needs:
-    #      - push
-    permissions:
-      contents: read
-      packages: read
-    steps:
-      - name: Copy default config
-        shell: bash
-        run: cp .config/nginx/default.conf /etc/nginx/sites-available/default
-      - name: Copy Nginx config
-        shell: bash
-        run: cp .config/nginx/nginx.conf /etc/nginx/nginx.conf
-      - name: Apply config
-        shell: bash
-        run: service nginx restart
 
   github-release:
     name: Release tag to Github
-    needs: deploy
+    needs:
+      - deploy-app
+      - deploy-db-redis
     runs-on: ubuntu-latest
     permissions:
       contents: write
