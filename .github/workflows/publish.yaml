@@ -80,13 +80,13 @@ jobs:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
       - name: Deploy Volume
-        run: kubectl apply -f .config/k8s/prod/volume.yml
+        run: kubectl apply -f .config/k8s/main/volume.yml
       - name: Deploy Redis
-        run: kubectl apply -f .config/k8s/prod/redis.yml
+        run: kubectl apply -f .config/k8s/main/redis.yml
       - name: Validate Redis
         run: kubectl rollout status deployment redis
       - name: Deploy DB
-        run: kubectl apply -f .config/k8s/prod/db.yml
+        run: kubectl apply -f .config/k8s/main/db.yml
       - name: Validate DB
         run: kubectl rollout status deployment db
 
