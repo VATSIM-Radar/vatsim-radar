@@ -138,3 +138,6 @@ spec:
         target:
           type: Utilization
           averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
