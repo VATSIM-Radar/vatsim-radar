@@ -26,7 +26,7 @@ spec:
         app: db
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic
+        doks.digitalocean.com/node-pool: basic-2
       containers:
         - name: db
           image: mysql
