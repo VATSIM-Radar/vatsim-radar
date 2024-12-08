@@ -15,15 +15,17 @@ enum DiscordStrategy {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  navigraph       NavigraphUser?
-  vatsim          VatsimUser?
-  discordId       String?
-  discordStrategy DiscordStrategy?
-  tokens          UserToken[]
-  settings        Json?            @default("{}")
-  presets         UserPreset[]
-  requests        UserRequest[]
+  id                   Int                @id @default(autoincrement())
+  navigraph            NavigraphUser?
+  vatsim               VatsimUser?
+  discordId            String?
+  discordStrategy      DiscordStrategy?
+  showFriendsInProfile Boolean            @default(false)
+  tokens               UserToken[]
+  settings             Json?              @default("{}")
+  presets              UserPreset[]
+  requests             UserRequest[]
+  lists                UserTrackingList[]
 }
 
 model UserToken {
@@ -44,6 +46,9 @@ model UserRequest {
 
 enum UserPresetType {
   MAP_SETTINGS
+  FILTER
+  BOOKMARK
+  DASHBOARD_BOOKMARK
 }
 
 model UserPreset {
@@ -53,6 +58,14 @@ model UserPreset {
   json   Json
   userId Int
   user   User           @relation(onDelete: Cascade, fields: [userId], references: [id])
+}
+
+model UserTrackingList {
+  id     Int    @id @default(autoincrement())
+  name   String
+  users  Json
+  userId Int
+  user   User   @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
 enum AuthType {
