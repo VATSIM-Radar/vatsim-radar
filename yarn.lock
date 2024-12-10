@@ -3367,6 +3367,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stylistic/eslint-plugin@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "@stylistic/eslint-plugin@npm:2.12.0"
+  dependencies:
+    "@typescript-eslint/utils": "npm:^8.13.0"
+    eslint-visitor-keys: "npm:^4.2.0"
+    espree: "npm:^10.3.0"
+    estraverse: "npm:^5.3.0"
+    picomatch: "npm:^4.0.2"
+  peerDependencies:
+    eslint: ">=8.40.0"
+  checksum: 10c0/07313f2bfe625b811d359550e5cb61a1578b51c75c8fe2a3fc17d77588d27aeb442b7a269feada2b135a7c2ce0e9fbeb78ea6ac2298d3c403966d1873dbce8bc
+  languageName: node
+  linkType: hard
+
 "@stylistic/stylelint-plugin@npm:^3.1.1":
   version: 3.1.1
   resolution: "@stylistic/stylelint-plugin@npm:3.1.1"
@@ -5412,13 +5427,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:^3.2.1":
-  version: 3.2.1
-  resolution: "cron@npm:3.2.1"
+"cron@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "cron@npm:3.3.0"
   dependencies:
     "@types/luxon": "npm:~3.4.0"
     luxon: "npm:~3.5.0"
-  checksum: 10c0/26e2ea54c4e15abbc70d391b6366b7e9c72281637cdf0c077726b03a65901c013b2817854ef942f02c452b40b6d482f879d0eeb2a8f7b0c6cc53694e740bf1fa
+  checksum: 10c0/f550ad7a5071dc3d77e3fea656d08ced720a2c66a28b0a50573188c2ebf2c6575ebfba0d652968f2e50cc316a0dcd3292d040ae750d23e63d2a4d73654de4ccf
   languageName: node
   linkType: hard
 
@@ -13872,7 +13887,7 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.9.0"
     "@prisma/client": "npm:^6.0.1"
-    "@stylistic/eslint-plugin": "npm:^2.11.0"
+    "@stylistic/eslint-plugin": "npm:^2.12.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
     "@turf/great-circle": "npm:^7.1.0"
     "@types/adm-zip": "npm:^0.5.7"
@@ -13884,7 +13899,7 @@ __metadata:
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.0.0"
-    cron: "npm:^3.2.1"
+    cron: "npm:^3.3.0"
     croner: "npm:^9.0.0"
     discord.js: "npm:^14.16.3"
     eslint: "npm:^9.16.0"
