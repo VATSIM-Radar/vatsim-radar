@@ -8,19 +8,11 @@ export default defineNitroPlugin(app => {
         const fetchedNumberOfVirtualCallsigns = await $fetch<Callsigns>('https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&rows=0');
         const fetchedCallsigns = await $fetch<Callsigns>(`https://gng.aero-nav.com/AERONAV/icao_airlines?action=get&rows=${ fetchedNumberOfCallsigns }`);
         const fetchedVirtualCallsigns = await $fetch<Callsigns>(`https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&rows=${ fetchedNumberOfVirtualCallsigns }`);
-        radarStorage.callsigns = [
-            ...fetchedCallsigns.rows.map(c => ({
-                icao: c.icao,
-                name: c.airline,
-                callsign: c.callsign,
-                country: c.country,
-            })),
-            ...fetchedVirtualCallsigns.rows.map(c => ({
-                icao: c.icao,
-                name: c.airline,
-                callsign: c.callsign,
-                country: c.country,
-            })),
-        ];
+        radarStorage.callsigns = [...fetchedCallsigns.rows, ...fetchedVirtualCallsigns.rows].map(c => ({
+            icao: c.icao,
+            name: c.airline,
+            callsign: c.callsign,
+            country: c.country,
+        }));
     });
 });
