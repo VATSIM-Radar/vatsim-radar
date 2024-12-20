@@ -1,5 +1,9 @@
 # Changelog
 
+# [0.5.2-alpha.1]
+
+- Callsigns API added
+
 # [0.5.1-1-final]
 
 - You can now once again hover over aircraft overlay in resized window

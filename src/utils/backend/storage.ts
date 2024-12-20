@@ -31,6 +31,13 @@ export interface AustraliaSector {
     callsign: string;
 }
 
+export interface Callsign {
+    icao: string;
+    name: string;
+    callsign: string;
+    country: string;
+}
+
 export const radarStorage = {
     vatspy: {
         version: '',
@@ -68,6 +75,7 @@ export const radarStorage = {
     },
     navigraph: null as null | typeof cycles,
     patreonInfo: null as null | PatreonInfo,
+    callsigns: null as null | Callsign[],
 };
 
 export function getRadarStorage() {
