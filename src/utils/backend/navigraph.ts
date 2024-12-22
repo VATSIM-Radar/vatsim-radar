@@ -8,7 +8,7 @@ import { navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigra
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
-import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
+import type { NavigraphGate, NavigraphLayout, NavigraphLayoutType, NavigraphRunway } from '~/types/data/navigraph';
 import { $fetch } from 'ofetch';
 
 function base64URLEncode(str: Buffer) {
@@ -100,7 +100,7 @@ export function getNavigraphGwtResult(token: string) {
             jsonwebtoken.verify(token, publicCertificate, tokenValidationOptions, (error, decodedAndVerifiedToken) => {
                 if (error) {
                     reject(createError({
-                        statusMessage: 'Token validation failed',
+                        data: 'Token validation failed',
                         status: 401,
                     }));
                 }
@@ -263,4 +263,18 @@ export async function getNavigraphGates({ user, icao, event }: {
     });
 
     return gates;
+}
+
+export async function getNavigraphLayout({ icao, exclude = ['asrnedge', 'asrnnode', 'frequencyarea'], include = [] }: {
+    icao: string;
+    exclude?: NavigraphLayoutType[];
+    include?: NavigraphLayoutType[];
+}) {
+    const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
+    url.searchParams.set('projection', 'EPSG:4326');
+    url.searchParams.set('format', 'geojson');
+    if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
+    else if (include.length) url.searchParams.set('include', include.join(','));
+
+    return $fetch<NavigraphLayout>(url.toString());
 }

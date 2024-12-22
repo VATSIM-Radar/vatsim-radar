@@ -68,7 +68,7 @@ export default defineEventHandler(async event => {
             return handleH3Error({
                 event,
                 statusCode: 401,
-                statusMessage: 'You should be authorized via VATSIM in order to link Navigraph account',
+                data: 'You should be authorized via VATSIM in order to link Navigraph account',
             });
         }
 

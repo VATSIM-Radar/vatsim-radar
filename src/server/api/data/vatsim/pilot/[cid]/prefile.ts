@@ -8,7 +8,7 @@ export default defineEventHandler((event): VatsimPrefile | undefined => {
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid CID',
+            data: 'Invalid CID',
         });
         return;
     }
@@ -18,7 +18,7 @@ export default defineEventHandler((event): VatsimPrefile | undefined => {
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Prefile with this cid was not found',
+            data: 'Prefile with this cid was not found',
         });
         return;
     }

@@ -7,7 +7,7 @@ export default defineEventHandler(async (event): Promise<VatsimMemberStats | und
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid CID',
+            data: 'Invalid CID',
         });
         return;
     }

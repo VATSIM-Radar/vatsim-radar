@@ -12,7 +12,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid code',
+            data: 'Invalid code',
         });
         return;
     }

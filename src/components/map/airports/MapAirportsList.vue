@@ -520,10 +520,10 @@ const vatAirportsList = computed(() => {
 
 async function setVisibleAirports() {
     const extent = mapStore.extent.slice();
-    extent[0] -= 200000;
-    extent[1] -= 200000;
-    extent[2] += 200000;
-    extent[3] += 200000;
+    extent[0] -= 100000;
+    extent[1] -= 100000;
+    extent[2] += 100000;
+    extent[3] += 100000;
 
     // @ts-expect-error Dynamic return value
     airportsList.value = vatAirportsList.value.map(x => {
