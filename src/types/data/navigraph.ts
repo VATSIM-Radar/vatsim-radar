@@ -28,6 +28,7 @@ export interface NavigraphAirportData {
     airport: string;
     gates: NavigraphGate[];
     runways: NavigraphRunway[];
+    layout?: NavigraphLayout;
 }
 
 export type NavigraphLayoutType = | 'aerodromereferencepoint'

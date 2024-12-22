@@ -91,11 +91,26 @@
             Map last updated: {{ getCounts.lastUpdated }}
         </div>
     </footer>
-    <common-popup v-model="store.airacPopup">
+    <common-popup
+        v-model="store.airacPopup"
+        width="600px"
+    >
         <template #title>
-            AIRAC upgrade
+            Connect Navigraph
         </template>
-        You can upgrade your AIRAC to access latest data for gates, runways and more in the future, by purchasing and linking a Navigraph subscription.
+        Connect Navigraph for:
+
+        <ul>
+            <li>
+                Better data for gates and runways
+            </li>
+            <li>
+                Airport Layouts (Navigraph Ultimate only)
+            </li>
+            <li>
+                Airways/waypoints AIRAC upgrade (coming soon)
+            </li>
+        </ul>
         <template #actions>
             <common-button
                 v-if="!store.user || store.user?.hasFms === null"
@@ -123,7 +138,7 @@
                 v-if="store.user?.hasFms === null"
                 href="/api/auth/navigraph/redirect"
             >
-                Link Navigraph
+                Connect Navigraph
             </common-button>
             <common-button
                 v-else-if="store.user?.hasFms === false"
@@ -143,7 +158,7 @@
                 v-else
                 href="/api/auth/vatsim/redirect"
             >
-                Login
+                Connect
             </common-button>
         </template>
     </common-popup>

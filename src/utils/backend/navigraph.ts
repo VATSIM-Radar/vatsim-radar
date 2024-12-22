@@ -4,7 +4,12 @@ import type { GetPublicKeyOrSecret } from 'jsonwebtoken';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import jwksClient from 'jwks-rsa';
-import { navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph-db';
+import {
+    checkNavigraphToken,
+    navigraphAccessKey,
+    navigraphCurrentDb,
+    navigraphOutdatedDb,
+} from '~/utils/backend/navigraph-db';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
@@ -265,16 +270,25 @@ export async function getNavigraphGates({ user, icao, event }: {
     return gates;
 }
 
-export async function getNavigraphLayout({ icao, exclude = ['asrnedge', 'asrnnode', 'frequencyarea'], include = [] }: {
+export async function getNavigraphLayout({
+    icao,
+    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
+    include = [],
+}: {
     icao: string;
     exclude?: NavigraphLayoutType[];
     include?: NavigraphLayoutType[];
 }) {
+    await checkNavigraphToken();
     const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
     url.searchParams.set('projection', 'EPSG:4326');
     url.searchParams.set('format', 'geojson');
     if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
     else if (include.length) url.searchParams.set('include', include.join(','));
 
-    return $fetch<NavigraphLayout>(url.toString());
+    return $fetch<NavigraphLayout>(url.toString(), {
+        headers: {
+            Authorization: `Bearer ${ navigraphAccessKey.token }`,
+        },
+    });
 }

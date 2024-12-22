@@ -66,7 +66,7 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
     admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, true, undefined, filename);
 }
 
-export async function initNavigraph() {
+export async function checkNavigraphToken() {
     if (!navigraphAccessKey.token || !navigraphAccessKey.expires || navigraphAccessKey.expires < Date.now()) {
         const form = new URLSearchParams();
         form.set('client_id', process.env.NAVIGRAPH_SERVER_ID!);
@@ -86,6 +86,10 @@ export async function initNavigraph() {
         navigraphAccessKey.token = access_token;
         navigraphAccessKey.expires = Date.now() + (expires_in * 1000);
     }
+}
+
+export async function initNavigraph() {
+    await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
         headers: {

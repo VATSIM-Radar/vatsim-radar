@@ -1,7 +1,9 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
-import { getNavigraphGates, getNavigraphRunways } from '~/utils/backend/navigraph';
-import type { NavigraphAirportData } from '~/types/data/navigraph';
+import { getNavigraphGates, getNavigraphLayout, getNavigraphRunways } from '~/utils/backend/navigraph';
+import type { NavigraphAirportData, NavigraphGate, NavigraphLayout, NavigraphRunway } from '~/types/data/navigraph';
+import type { FeatureCollection, Point } from 'geojson';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 export default defineEventHandler(async (event): Promise<NavigraphAirportData | undefined> => {
     const user = await findAndRefreshFullUserByCookie(event);
@@ -17,24 +19,58 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         return;
     }
 
-    const [runways, gates] = await Promise.all([
-        getNavigraphRunways({
-            user,
-            event,
-            icao,
-        }),
-        getNavigraphGates({
-            user,
-            event,
-            icao,
-        }),
-    ]);
+    const query = getQuery(event);
+    const isLayout = query.layout !== '0' && !!user?.hasFms && user.hasCharts;
+    const dataFromLayout = isLayout && query.originalData !== '1';
 
-    if (!runways || !gates) return;
+    let layout: NavigraphLayout | null | undefined = null;
+
+    let gates: NavigraphGate[] | undefined;
+    let runways: NavigraphRunway[] | undefined;
+
+    if (isLayout) {
+        layout = await getNavigraphLayout({ icao }).catch(() => undefined);
+    }
+
+    if (!dataFromLayout || !isLayout || !layout || !('parkingstandlocation' in layout) || !(layout.parkingstandlocation as FeatureCollection).features.length) {
+        gates = await getNavigraphGates({
+            user,
+            event,
+            icao,
+        });
+
+        runways = await getNavigraphRunways({
+            user,
+            event,
+            icao,
+        });
+
+        if (!gates || !runways) return;
+    }
+    else {
+        const _layout = layout as NavigraphLayout;
+
+        gates = _layout.parkingstandlocation?.features.map(feature => {
+            const coords = fromServerLonLat((feature.geometry as Point).coordinates);
+
+            return {
+                gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
+                gate_longitude: coords[0],
+                gate_latitude: coords[1],
+                name: feature.properties!.idstd || feature.properties!.termref,
+                airport_identifier: feature.properties!.idarpt,
+            };
+        }) ?? [];
+
+        gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
+
+        delete layout.parkingstandlocation;
+    }
 
     return {
         airport: icao,
-        runways,
-        gates,
+        runways: runways ?? [],
+        gates: gates as NavigraphGate[],
+        layout: layout as NavigraphLayout,
     };
 });

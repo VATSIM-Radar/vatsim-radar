@@ -487,7 +487,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: false,
         });
     }
 
