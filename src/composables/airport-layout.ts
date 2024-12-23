@@ -13,7 +13,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
 
     const themeStyles = {
         deicing: {
-            default: getCurrentThemeRgbColor('primary600').join(','),
+            default: getCurrentThemeRgbColor('primary400').join(','),
             light: getCurrentThemeRgbColor('primary300').join(','),
         },
         taxiway: {
@@ -142,7 +142,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
         deicingarea: feature => {
             const options: StyleOptions = {
                 fill: new Fill({
-                    color: `rgba(${ themeStyles.deicing[theme] }, 1)`,
+                    color: `rgba(${ themeStyles.deicing[theme] }, 0.3)`,
                 }),
                 zIndex: 1,
             };
@@ -152,9 +152,9 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                     text: feature.getProperties().ident,
                     placement: 'line',
                     textBaseline: 'bottom',
-                    font: '12px Montserrat',
+                    font: 'bold 12px Montserrat',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
+                        color: `rgba(${ themeStyles.deicing[theme] }, 1)`,
                     }),
                     maxAngle: 0,
                 });
@@ -183,6 +183,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                     color: `rgba(${ themeStyles.taxiwayWhite[theme] }, 0.4)`,
                     lineDash: [4, 6],
                 }),
+                zIndex: 2,
             });
 
             if (feature.getProperties().idlin) {
