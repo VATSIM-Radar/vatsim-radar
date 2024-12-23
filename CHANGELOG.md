@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.0.0-alpha.1]
+
+- Added Airport Layouts for Navigraph Ultimate members - those include taxiways, updated gates, and much more
+  - TODO: settings to disable airport layouts, disable taxiways, fallback to previous gates data, and more based on your feedback
+  - Early Adopters: please test performance, colors decisions, especially for light theme. I'm open to any suggestions - we can change any color you see
+  - Please note: I can NOT add background to taxiways/holding points, I can only move/recolor text, but nothing else, sorry
+
 # [0.5.1-1-final]
 
 - You can now once again hover over aircraft overlay in resized window
