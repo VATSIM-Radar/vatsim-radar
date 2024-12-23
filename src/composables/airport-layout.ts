@@ -171,6 +171,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             stroke: new Stroke({
                 color: `rgba(${ themeStyles.taxiway[theme] }, 0.4)`,
             }),
+            zIndex: 2,
         }),
         taxiwayelement: new Style({
             fill: new Fill({
