@@ -156,6 +156,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
                     }),
+                    maxAngle: 0,
                 });
             }
 
@@ -377,7 +378,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                         justify: 'center',
                         textBaseline: 'middle',
                         fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
                         }),
                         rotateWithView: true,
                     }),
