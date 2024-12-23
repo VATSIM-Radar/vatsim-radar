@@ -71,8 +71,12 @@ export const useStore = defineStore('index', {
         isMobileOrTablet: false,
         isPC: false,
         scrollbarWidth: 0,
+        device: 'desktop' as 'desktop' | 'mobile' | 'tablet',
     }),
     getters: {
+        isTouch(): boolean {
+            return this.device !== 'desktop';
+        },
         getCurrentTheme(): 'light' | 'default' {
             switch (this.theme) {
                 case 'sa':

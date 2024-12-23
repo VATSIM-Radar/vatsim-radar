@@ -40,6 +40,7 @@ function validateColor(color: unknown): boolean {
 
 const statuses = Object.keys({
     default: true,
+    ground: true,
     green: true,
     active: true,
     hover: true,
@@ -297,14 +298,14 @@ export async function handleMapSettingsEvent(event: H3Event) {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only PUT, DELETE and GET are allowed when using id',
+                data: 'Only PUT, DELETE and GET are allowed when using id',
             });
         }
         else if (!id && event.method !== 'GET' && event.method !== 'POST') {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only POST is allowed when not using id',
+                data: 'Only POST is allowed when not using id',
             });
         }
 
@@ -324,7 +325,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'This preset was not found for your user ID',
+                    data: 'This preset was not found for your user ID',
                 });
             }
         }
@@ -335,7 +336,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'You must pass body to this route',
+                    data: 'You must pass body to this route',
                 });
             }
 
@@ -343,7 +344,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Name is required when creating settings',
+                    data: 'Name is required when creating settings',
                 });
             }
 
@@ -351,7 +352,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Max name length is 30',
+                    data: 'Max name length is 30',
                 });
             }
 
@@ -359,7 +360,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Json is required when creating settings',
+                    data: 'Json is required when creating settings',
                 });
             }
 
@@ -378,7 +379,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                         return handleH3Error({
                             event,
                             statusCode: 400,
-                            statusMessage: `${ key } validation has failed`,
+                            data: `${ key } validation has failed`,
                         });
                     }
                 }
@@ -389,7 +390,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        statusMessage: 'Name validation failed: max 20 symbols are allowed',
+                        data: 'Name validation failed: max 20 symbols are allowed',
                     });
                 }
 
@@ -407,7 +408,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                         return handleH3Error({
                             event,
                             statusCode: 409,
-                            statusMessage: 'A preset with this name already exists',
+                            data: 'A preset with this name already exists',
                         });
                     }
                 }
@@ -442,7 +443,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        statusMessage: 'Only 3 settings presets are allowed',
+                        data: 'Only 3 settings presets are allowed',
                     });
                 }
 
@@ -483,7 +484,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Incorrect method received',
+                data: 'Incorrect method received',
             });
         }
     }

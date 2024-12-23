@@ -93,10 +93,10 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: str
     return getGeojsonForData(rows.features, rows.flightPlanStart);
 }
 
-function outputInfluxValue(value: string | number | boolean) {
+function outputInfluxValue(value: string | number | boolean, isFloat = false) {
     if (typeof value === 'string') return `"${ value.replaceAll('"', '\\"') }"`;
     if (typeof value === 'number') {
-        if (!value.toString().includes('.')) return `${ value }i`;
+        if (!value.toString().includes('.') && !isFloat) return `${ value }i`;
         return value;
     }
     if (typeof value === 'boolean') return String(value);
@@ -150,7 +150,7 @@ export function getPlanInfluxDataForPilots() {
 
         const entries = Object.entries(obj)
             .filter(([key, value]) => value !== undefined && value !== null)
-            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!) }`)
+            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!, key === 'latitude' || key === 'longitude') }`)
             .join(',');
 
         if (!entries || someMissing) return;

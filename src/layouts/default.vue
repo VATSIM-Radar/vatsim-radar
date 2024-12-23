@@ -59,6 +59,7 @@ import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { UAParser } from 'ua-parser-js';
 
 defineSlots<{ default: () => any }>();
 
@@ -105,7 +106,7 @@ onMounted(() => {
         window.removeEventListener('storage', handleStorageUpdate);
     });
 
-    if (!theme.value) {
+    if (!theme.value && !route.query.preset) {
         if (window.matchMedia?.('(prefers-color-scheme: light)').matches) {
             theme.value = 'light';
         }
@@ -164,6 +165,26 @@ useHead(() => {
     };
 });
 
+let parser: UAParser | undefined;
+
+async function getDeviceType(uaParser = parser) {
+    if (!uaParser) return;
+    const type = (await uaParser.getDevice().withFeatureCheck()).type;
+    let parsedType: 'desktop' | 'tablet' | 'mobile' = 'desktop';
+
+    switch (type) {
+        case 'mobile':
+        case 'wearable':
+            parsedType = 'mobile';
+            break;
+        case 'tablet':
+            parsedType = 'tablet';
+            break;
+    }
+
+    return parsedType;
+}
+
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
     store.isMobileOrTablet = window.innerWidth < 1366;
@@ -179,11 +200,13 @@ const listener = () => {
 
 let windowInterval: NodeJS.Timeout | undefined;
 
-onNuxtReady(() => {
+onNuxtReady(async () => {
     document.addEventListener('resize', listener);
+    parser = new UAParser(navigator.userAgent);
 
     setWindowStore();
     windowInterval = setInterval(setWindowStore, 500);
+    store.device = await getDeviceType() ?? 'desktop';
 });
 
 onBeforeUnmount(() => {
@@ -195,7 +218,6 @@ const headers = useRequestHeaders(['user-agent']);
 
 await useAsyncData('default-init', async () => {
     if (headers?.['user-agent'] && import.meta.server) {
-        const { UAParser } = await import('ua-parser-js');
         const browser = new UAParser(headers['user-agent'] || '');
         const type = browser.getDevice().type;
         let parsedType: 'tablet' | 'mobile' | undefined;
@@ -214,6 +236,7 @@ await useAsyncData('default-init', async () => {
         store.isTablet = parsedType === 'tablet';
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
+        store.device = await getDeviceType() ?? 'desktop';
     }
 
     return true;

@@ -335,6 +335,12 @@ const mobileMenuOpened = ref(false);
                 gap: 12px;
             }
 
+            @include mobile {
+                .search {
+                    display: none !important;
+                }
+            }
+
             & + & {
                 position: relative;
                 padding-left: 16px;

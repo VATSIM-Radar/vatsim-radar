@@ -23,9 +23,9 @@ const json = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf-8
 function parseMarkdown() {
     let CHANGELOG: string | null = null;
 
-    if (changelog.includes(`# ${ json.version }`)) {
+    if (changelog.includes(`# [${ json.version }]`)) {
         CHANGELOG = changelog
-            .split(`# ${ json.version }`)[1]
+            .split(`# [${ json.version }]`)[1]
             .split(/^#\s.*/gm)[0];
         CHANGELOG = `## Update v${ json.version } has just been released!\n${ CHANGELOG }`;
     }

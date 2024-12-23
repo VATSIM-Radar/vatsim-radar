@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-next
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis-next
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-next
+spec:
+  progressDeadlineSeconds: 60
+  strategy:
+    type: Recreate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-next
+  template:
+    metadata:
+      labels:
+        app: redis-next
+    spec:
+      nodeSelector:
+        doks.digitalocean.com/node-pool: basic-2
+      containers:
+        - name: redis-next
+          image: redis
+          args: ["redis-server", "/usr/local/etc/redis/redis.conf", "--requirepass", "RADAR"]
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-next-config
+              mountPath: /usr/local/etc/redis
+      volumes:
+        - name: redis-next-config
+          configMap:
+            name: redis-next-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-next-config
+data:
+  redis.conf: |
+    client-output-buffer-limit normal 836870912 836870912 0
+    client-output-buffer-limit slave 836870912 836870912 0
+    client-output-buffer-limit pubsub 836870912 836870912 0

@@ -166,39 +166,39 @@ type AircraftIcons = {
 export const aircraftIcons: AircraftIcons = {
     at7x: {
         icon: 'at7x',
-        width: getAircraftSizeByCoef(27.05),
+        width: getAircraftSizeByCoef(0.45),
     },
     at4x: {
         icon: 'at4x',
-        width: getAircraftSizeByCoef(22.67),
+        width: getAircraftSizeByCoef(0.38),
     },
     dimo: {
         icon: 'dimo',
-        width: getAircraftSizeByCoef(7.10),
+        width: getAircraftSizeByCoef(0.13),
     },
     glf6: {
         icon: 'glf6',
-        width: getAircraftSizeByCoef(30.35),
+        width: getAircraftSizeByCoef(0.51),
     },
     glf5: {
         icon: 'glf5',
-        width: getAircraftSizeByCoef(28.48),
+        width: getAircraftSizeByCoef(0.47),
     },
     gl7t: {
         icon: 'gl7t',
-        width: getAircraftSizeByCoef(32),
+        width: getAircraftSizeByCoef(0.53),
     },
     gl5t: {
         icon: 'gl5t',
-        width: getAircraftSizeByCoef(28.7),
+        width: getAircraftSizeByCoef(0.48),
     },
     fa20: {
         icon: 'fa20',
-        width: getAircraftSizeByCoef(17.15),
+        width: getAircraftSizeByCoef(0.27),
     },
     fa10: {
         icon: 'fa10',
-        width: getAircraftSizeByCoef(13.08),
+        width: getAircraftSizeByCoef(0.22),
     },
     be60: {
         icon: 'be60',
@@ -767,7 +767,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.a343;
         case 'A359':
             return aircraftIcons.a359;
-        case 'A35k':
+        case 'A35K':
             return aircraftIcons.a35k;
         case 'A388':
         case 'A380':

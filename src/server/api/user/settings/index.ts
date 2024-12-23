@@ -27,7 +27,7 @@ export default defineEventHandler(async event => {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only POST methods are allowed for this route',
+                data: 'Only POST methods are allowed for this route',
             });
         }
 
@@ -36,7 +36,7 @@ export default defineEventHandler(async event => {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'You must pass body to this route',
+                data: 'You must pass body to this route',
             });
         }
 
@@ -45,7 +45,7 @@ export default defineEventHandler(async event => {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: `Invalid key given: ${ key }`,
+                    data: `Invalid key given: ${ key }`,
                 });
             }
 
@@ -53,7 +53,7 @@ export default defineEventHandler(async event => {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: `${ key } validation has failed`,
+                    data: `${ key } validation has failed`,
                 });
             }
         }

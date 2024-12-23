@@ -98,8 +98,7 @@
   "separateMultipleMajor": true,
   "updateInternalDeps": true,
   "baseBranches": [
-    "next",
-    "/^release\\/.*/"
+    "next"
   ],
   "extends": [
     ":automergeDisabled",

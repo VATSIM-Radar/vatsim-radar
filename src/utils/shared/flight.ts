@@ -63,13 +63,11 @@ export const colorPresets: Record<UserMapSettingsTurns, { dark: ColorPreset; lig
 };
 
 export function getFlightRowGroup(altitude?: number | null): number | null {
-    const rowGroup: number | null = null;
+    if (!altitude) return 0;
 
-    if (!altitude) return rowGroup;
-
-    const alt = altitude - 100;
+    const alt = (altitude || 0) - 100;
 
     const index = colorSteps.findIndex(x => alt <= x);
-    if (index === -1) return colorSteps[colorSteps.length - 1];
+    if (index === -1) return colorSteps.length - 1;
     return index;
 }

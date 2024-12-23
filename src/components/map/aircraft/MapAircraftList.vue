@@ -237,7 +237,7 @@ function setVisiblePilots() {
     }) ?? [];
 
     if (showTracks.value.length > tracksLimit) {
-        showTracks.value = showTracks.value.filter(x => (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
+        showTracks.value = showTracks.value.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
             const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
             const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
             const aDist = (aGoDist && aDepDist)
@@ -256,10 +256,10 @@ function setVisiblePilots() {
 
             return aDist - bDist;
         }).map((x, index) => {
-            if (index >= tracksLimit) x.show = 'short';
+            if (index >= tracksLimit && !mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid)) x.show = 'short';
 
             return x;
-        }).filter((x, index) => index < 50 || x.isShown);
+        }).filter((x, index) => index < 50 || x.isShown || mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid));
     }
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
@@ -487,7 +487,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: false,
         });
     }
 

@@ -1,21 +1,51 @@
 # Changelog
 
-# [0.5.1-rc.1]
+# [1.0.0-alpha.1.1]
 
-- Map last updated now turns red after 1 minute not updated, not 20 seconds
-- Improved horizontal counter destination/arrival display
-- Fixed turns color sometimes become black
+- Fixed some gates missing
+- Fixed too many taxiway labels appearing on map
+
+# [1.0.0-alpha.1]
+
+- Added Airport Layouts for Navigraph Ultimate members - those include taxiways, updated gates, and much more
+  - TODO: settings to disable airport layouts, disable taxiways, fallback to previous gates data, and more based on your feedback
+  - Early Adopters: please test performance, colors decisions, especially for light theme. I'm open to any suggestions - we can change any color you see
+  - Please note: I can NOT add background to taxiways/holding points, I can only move/recolor text, but nothing else, sorry
+
+# [0.5.1-1-final]
+
+- You can now once again hover over aircraft overlay in resized window
+- Fixed search window sometimes lagging and taking whole screen height
+- Increased map settings height on mobile devices
+
+# [0.5.1-final]
+
+## Notable changes
+
 - Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue may have to reinstall the app
 - Once again fixed USA TRACONs, such as Houston approach, SCT_APP, CHI_X_APP, PCT_APP. I'm really sorry this kept happening each major update folks
-- Fixed the way VATSIM Radar searches for VatSpy data feature to more rely on boundary ID than on ICAO
-- Fixed very rare case with some of FIR/ARTCC sector not displayed. Fixes new Turkish LTBB sector
+- New icons from DotWallop: ATR4x, ATR7x, FA10, GL5T, GL7T, GLF5-6, DIMO
+- Added model matching for C310 (as C172 for now)
+
+## Features and Improvements
+
+- You can now change colors of aircraft on ground separately from airborne
+- Map last updated now turns red after 1 minute not updated, not 20 seconds
+- Improved horizontal counter destination/arrival display
 - Improved events datetime display to match timezone
 - Clicking on airport in search will now result in focusing on it
 - Clicking on search result in search will not result in it's closing
-- Fixed an issue with infinite zoom while switching between tracked aircraft
-- New icons from DotWallop: ATR4x, ATR7x, FA10, GL5T, GL7T, GLF5-6, DIMO. Can someone stop this guy?
-- Added model matching for C310 (as C172 for now)
 - Reduced aircraft icon maximum default size from 40px to 35px
+
+## Bug fixes
+
+- Simple departure line will no longer be drawn if aircraft is not visible
+- Fixed an issue when tracks sometimes were not appearing in airport dashboard
+- Fixed turns color sometimes become black
+- Fixed the way VATSIM Radar searches for VatSpy data feature to more rely on boundary ID than on ICAO
+- Fixed very rare case with some of FIR/ARTCC sector not displayed. Fixes new Turkish LTBB sector
+- Fixed an issue with infinite zoom while switching between tracked aircraft
+- Fixed A35K model matching
 
 # [0.5.0.1-final]
 
@@ -24,7 +54,7 @@ A small hotfix with an issue when you could not save your map preset, if:
 - You pressed exclude my location without excluding arrival for airports hide
 - You had the same local preset as the one you import
 
-# [0.5.0-final]
+# [0.5.0]
 
 ## Highlights
 

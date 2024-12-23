@@ -115,6 +115,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     return {
         active: getCurrentThemeHexColor('warning700'),
         default: getCurrentThemeHexColor('primary500'),
+        ground: getCurrentThemeHexColor('primary500'),
         green: getCurrentThemeHexColor('success500'),
         hover: getCurrentThemeHexColor('warning600'),
         neutral: getCurrentThemeHexColor('lightgray150'),
@@ -128,7 +129,8 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
 export const getAircraftStatusColor = (status: MapAircraftStatus) => {
     const store = useStore();
     let color = aircraftSvgColors()[status];
-    const settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
+    let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
+    if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
     if (settingColor) color = getColorFromSettings(settingColor);
 
     return color;
@@ -156,7 +158,7 @@ function svgToDataURI(svg: string) {
     return `data:image/svg+xml,${ encoded }`;
 }
 
-export type MapAircraftStatus = 'default' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
+export type MapAircraftStatus = 'default' | 'ground' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
 
 export async function fetchAircraftIcon(icon: AircraftIcon) {
     const store = useStore();
@@ -199,8 +201,11 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         image.setRotation(rotation);
     }
     else {
-        if (status === 'default') {
-            const color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+        if (status === 'default' || status === 'ground') {
+            let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
+
+            if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
+
             style.setImage(new Icon({
                 src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),

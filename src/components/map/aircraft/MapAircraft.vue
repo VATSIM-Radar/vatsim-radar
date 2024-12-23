@@ -14,7 +14,7 @@
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
             <common-popup-block
-                v-if="pilot && !isMobileOrTablet"
+                v-if="pilot && !store.isTouch"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"
@@ -256,7 +256,7 @@ const getStatus = computed<MapAircraftStatus>(() => {
         if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
     }
 
-    return 'default';
+    return isOnGround.value ? 'ground' : 'default';
 });
 
 const handleMouseEnter = (event: MouseEvent) => {
@@ -628,7 +628,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         else {
             clearLineFeatures();
 
-            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20) {
+            if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20 && props.isVisible) {
                 const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
                 const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
 
@@ -782,6 +782,7 @@ onUnmounted(() => {
     padding: 8px;
 
     font-size: 13px;
+    word-break: break-word;
 
     background: $darkgray1000;
     border-radius: 8px;

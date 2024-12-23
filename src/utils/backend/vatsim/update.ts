@@ -79,7 +79,7 @@ export function updateVatsimMandatoryDataStorage() {
     radarStorage.vatsim.mandatoryData = newData;
 }
 
-const gates: Record<string, NavigraphGate[]> = {};
+const gates: Record<string, NavigraphGate[] | undefined> = {};
 
 async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
     const existing = gates[icao];
@@ -88,9 +88,9 @@ async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
     gates[icao] = await getNavigraphGates({
         user: null,
         icao: icao,
-    }).catch(console.error) || [];
+    }).catch(console.error) || undefined;
 
-    return gates[icao];
+    return gates[icao] ?? [];
 }
 
 export async function updateVatsimExtendedPilots() {

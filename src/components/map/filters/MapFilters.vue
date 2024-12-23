@@ -163,7 +163,7 @@
                         max-height="55vh"
                         min-height="400px"
                         :model-value="selectedFilter === 'settings'"
-                        :width="isMobile ? undefined : '450px'"
+                        :width="isMobile ? 'calc(100dvw - 100px)' : '450px'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
