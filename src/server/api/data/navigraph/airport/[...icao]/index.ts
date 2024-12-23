@@ -19,6 +19,7 @@ const allowedProperties: PartialRecord<NavigraphLayoutType, string[]> = {
     runwaythreshold: ['idthr', 'brngtrue'],
     finalapproachandtakeoffarea: ['idrwy'],
     verticalpolygonalstructure: ['plysttyp', 'ident'],
+    deicingarea: ['ident'],
 };
 
 export default defineEventHandler(async (event): Promise<NavigraphAirportData | undefined> => {

@@ -115,6 +115,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             stroke: new Stroke({
                 color: `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.1)`,
             }),
+            zIndex: 2,
         }),
         apronelement: new Style({
             fill: new Fill({
@@ -138,11 +139,28 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                 color: `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.1)`,
             }),
         }),
-        deicingarea: new Style({
-            fill: new Fill({
-                color: `rgba(${ themeStyles.deicing[theme] }, 1)`,
-            }),
-        }),
+        deicingarea: feature => {
+            const options: StyleOptions = {
+                fill: new Fill({
+                    color: `rgba(${ themeStyles.deicing[theme] }, 1)`,
+                }),
+                zIndex: 1,
+            };
+
+            if (feature.getProperties().ident) {
+                options.text = new Text({
+                    text: feature.getProperties().ident,
+                    placement: 'line',
+                    textBaseline: 'bottom',
+                    font: '12px Montserrat',
+                    fill: new Fill({
+                        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
+                    }),
+                });
+            }
+
+            return new Style(options);
+        },
         serviceroad: new Style({
             fill: new Fill({
                 color: `rgba(${ themeStyles.apron1000 }, 0.2)`,
