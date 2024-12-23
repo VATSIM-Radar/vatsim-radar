@@ -22,9 +22,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-          volumeMounts:
-            - name: radar-data
-              mountPath: /radar/src/data
           resources:
             requests:
               cpu: 300m
@@ -44,10 +41,6 @@ spec:
         - name: ghcr-login-secret
       nodeSelector:
         doks.digitalocean.com/node-pool: premium-amd
-      volumes:
-        - name: radar-data
-          hostPath:
-            path: /opt/next/data
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -77,9 +70,6 @@ spec:
           command: ["/radar/.config/worker-prod.sh"]
           ports:
             - containerPort: 8880
-          volumeMounts:
-            - name: radar-data
-              mountPath: /radar/src/data
           resources:
             requests:
               cpu: 300m
@@ -95,10 +85,6 @@ spec:
             successThreshold: 1
             failureThreshold: 10
             timeoutSeconds: 15
-      volumes:
-        - name: radar-data
-          hostPath:
-            path: /opt/next/data
 ---
 apiVersion: v1
 kind: Service
