@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0-alpha.1.1]
+
+- Fixed some gates missing
+
 # [1.0.0-alpha.1]
 
 - Added Airport Layouts for Navigraph Ultimate members - those include taxiways, updated gates, and much more

@@ -67,17 +67,41 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     else {
         const _layout = layout as NavigraphLayout;
 
-        gates = _layout.parkingstandlocation?.features.map(feature => {
-            const coords = fromServerLonLat((feature.geometry as Point).coordinates);
+        gates = [
+            ..._layout.parkingstandlocation?.features.map(feature => {
+                const coords = fromServerLonLat((feature.geometry as Point).coordinates);
 
-            return {
-                gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
-                gate_longitude: coords[0],
-                gate_latitude: coords[1],
-                name: feature.properties!.idstd || feature.properties!.termref,
-                airport_identifier: feature.properties!.idarpt,
-            };
-        }) ?? [];
+                return {
+                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
+                    gate_longitude: coords[0],
+                    gate_latitude: coords[1],
+                    name: feature.properties!.idstd || feature.properties!.termref,
+                    airport_identifier: feature.properties!.idarpt,
+                };
+            }) ?? [],
+            ..._layout.parkingstandarea?.features.filter(x => x.properties?.centroid && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
+                const coords = fromServerLonLat((feature.properties!.centroid as Point).coordinates);
+
+                return {
+                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
+                    gate_longitude: coords[0],
+                    gate_latitude: coords[1],
+                    name: feature.properties!.idstd || feature.properties!.termref,
+                    airport_identifier: feature.properties!.idarpt,
+                };
+            }) ?? [],
+            ..._layout.standguidanceline?.features.filter(x => x.properties?.midpoint && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
+                const coords = fromServerLonLat((feature.properties!.midpoint as Point).coordinates);
+
+                return {
+                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
+                    gate_longitude: coords[0],
+                    gate_latitude: coords[1],
+                    name: feature.properties!.idstd || feature.properties!.termref,
+                    airport_identifier: feature.properties!.idarpt,
+                };
+            }) ?? [],
+        ];
 
         gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
 
