@@ -7,7 +7,7 @@ export default defineEventHandler(async event => {
         return handleH3Error({
             event,
             statusCode: 423,
-            statusMessage: 'Data is not ready yet',
+            data: 'Data is not ready yet',
         });
     }
 
