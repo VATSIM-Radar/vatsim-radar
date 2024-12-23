@@ -67,6 +67,8 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         delete layout.parkingstandlocation;
     }
 
+    setResponseHeader(event, 'Cache-Control', 'private, max-age=604800, stale-while-revalidate=86400, immutable');
+
     return {
         airport: icao,
         runways: runways ?? [],
