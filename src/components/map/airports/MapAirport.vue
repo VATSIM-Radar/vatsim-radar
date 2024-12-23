@@ -200,6 +200,7 @@ const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
 const layerSource = inject<ShallowRef<VectorSource | null>>('layer-source')!;
+const gatesSource = inject<ShallowRef<VectorSource | null>>('gates-source')!;
 const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
@@ -556,7 +557,7 @@ onMounted(async () => {
     watch(gates, val => {
         if (!val?.length) {
             gatesFeatures.forEach(feature => {
-                vectorSource.value?.removeFeature(feature);
+                gatesSource.value?.removeFeature(feature);
                 feature.dispose();
             });
             gatesFeatures = [];
@@ -565,7 +566,7 @@ onMounted(async () => {
 
         for (const gate of gatesFeatures) {
             if (!gates.value?.find(x => x.gate_identifier === gate.getProperties().identifier)) {
-                vectorSource.value?.removeFeature(gate);
+                gatesSource.value?.removeFeature(gate);
                 gate.dispose();
             }
         }
@@ -598,7 +599,6 @@ onMounted(async () => {
                             rotation: toRadians(0),
                             padding: [2, 0, 2, 2],
                         }),
-                        zIndex: 3,
                     }));
                 }
             }
@@ -625,10 +625,9 @@ onMounted(async () => {
                         rotation: toRadians(0),
                         padding: [2, 0, 2, 2],
                     }),
-                    zIndex: 3,
                 }));
                 gatesFeatures.push(feature);
-                layerSource.value?.addFeature(feature);
+                gatesSource.value?.addFeature(feature);
             }
         }
     }, {
@@ -643,6 +642,7 @@ onMounted(async () => {
         'constructionarea',
         'deicingarea',
         'finalapproachandtakeoffarea',
+        'taxiwayintersectionmarking',
         'runwaythreshold',
         'runwaydisplacedarea',
         'runwayelement',
@@ -750,7 +750,7 @@ onBeforeUnmount(() => {
     clearArrFeatures();
 
     gatesFeatures.forEach(feature => {
-        vectorSource.value?.removeFeature(feature);
+        gatesSource.value?.removeFeature(feature);
         feature.dispose();
     });
     runwaysFeatures.forEach(feature => {
@@ -758,7 +758,7 @@ onBeforeUnmount(() => {
         feature.dispose();
     });
     layoutFeatures.forEach(feature => {
-        vectorSource.value?.removeFeature(feature);
+        layerSource.value?.removeFeature(feature);
         feature.dispose();
     });
 });
