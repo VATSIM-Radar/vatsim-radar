@@ -1,9 +1,25 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { getNavigraphGates, getNavigraphLayout, getNavigraphRunways } from '~/utils/backend/navigraph';
-import type { NavigraphAirportData, NavigraphGate, NavigraphLayout, NavigraphRunway } from '~/types/data/navigraph';
+import type {
+    NavigraphAirportData,
+    NavigraphGate,
+    NavigraphLayout,
+    NavigraphLayoutType,
+    NavigraphRunway,
+} from '~/types/data/navigraph';
 import type { FeatureCollection, Point } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
+import type { PartialRecord } from '~/types';
+
+const allowedProperties: PartialRecord<NavigraphLayoutType, string[]> = {
+    taxiwayintersectionmarking: ['idlin'],
+    taxiwayguidanceline: ['color', 'style', 'idlin'],
+    taxiwayholdingposition: ['idlin', 'catstop'],
+    runwaythreshold: ['idthr', 'brngtrue'],
+    finalapproachandtakeoffarea: ['idrwy'],
+    verticalpolygonalstructure: ['plysttyp', 'ident'],
+};
 
 export default defineEventHandler(async (event): Promise<NavigraphAirportData | undefined> => {
     const user = await findAndRefreshFullUserByCookie(event);
@@ -62,9 +78,22 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             };
         }) ?? [];
 
-        // gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
+        gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
 
         delete layout.parkingstandlocation;
+
+        Object.entries(_layout).forEach(([key, value]) => {
+            const property = allowedProperties[key as NavigraphLayoutType];
+            if (!property?.length) value.features.forEach(feature => feature.properties = {});
+            else {
+                value.features.forEach(feature => {
+                    for (const i in feature.properties) {
+                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                        if (!property.includes(i)) delete feature.properties[i];
+                    }
+                });
+            }
+        });
     }
 
     if (!import.meta.dev) {

@@ -646,7 +646,7 @@ async function setVisibleAirports() {
             if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
                 originalAirportsData.value = [
                     ...originalAirportsData.value,
-                    ...(await Promise.all(navigraphAirports.filter(x => !originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ x.vatsimAirport.icao }?isLayout=${ (store.user?.hasCharts && store.user?.hasFms) ? '1' : '0' }`)))).flatMap(x => x ?? []),
+                    ...(await Promise.all(navigraphAirports.filter(x => !originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ x.vatsimAirport.icao }?v=${ store.version }&isLayout=${ (store.user?.hasCharts && store.user?.hasFms) ? '1' : '0' }`)))).flatMap(x => x ?? []),
                 ];
             }
 

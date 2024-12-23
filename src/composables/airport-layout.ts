@@ -181,7 +181,6 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
 
             return style;
         },
-        // TODO: colored/dashed lines (ENGM example)
         taxiwayguidanceline: feature => {
             const color = feature.getProperties().color;
             const style = feature.getProperties().style;
