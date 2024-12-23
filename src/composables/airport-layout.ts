@@ -234,11 +234,12 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                 options.text = new Text({
                     text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
                     font: 'bold 12px Montserrat',
-                    placement: 'line',
+                    // placement: 'line',
                     fill: new Fill({
                         color: `rgba(${ textColor }, 0.6)`,
                     }),
                     textBaseline: 'middle',
+                    padding: [25, 25, 25, 25],
                 });
             }
 

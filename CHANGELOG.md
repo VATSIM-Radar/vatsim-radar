@@ -3,6 +3,7 @@
 # [1.0.0-alpha.1.1]
 
 - Fixed some gates missing
+- Fixed too many taxiway labels appearing on map
 
 # [1.0.0-alpha.1]
 
