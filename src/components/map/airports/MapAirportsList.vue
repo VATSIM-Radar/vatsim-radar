@@ -269,8 +269,8 @@ watch(map, val => {
         const styles = airportLayoutStyles();
 
         gatesLayer = new VectorLayer<any>({
+            declutter: false,
             source: gatesSource.value,
-            declutter: true,
             properties: {
                 type: 'airport-layer',
             },

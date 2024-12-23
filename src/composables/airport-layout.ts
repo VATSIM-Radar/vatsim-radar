@@ -13,7 +13,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
 
     const themeStyles = {
         deicing: {
-            default: getCurrentThemeRgbColor('primary700').join(','),
+            default: getCurrentThemeRgbColor('primary600').join(','),
             light: getCurrentThemeRgbColor('primary300').join(','),
         },
         taxiway: {
@@ -53,8 +53,8 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             light: getCurrentThemeRgbColor('darkgray850').join(','),
         },
         terminal: {
-            default: getCurrentThemeRgbColor('info500').join(','),
-            light: getCurrentThemeRgbColor('info300').join(','),
+            default: getCurrentThemeRgbColor('darkgray875').join(','),
+            light: getCurrentThemeRgbColor('darkgray800').join(','),
         },
         apron850: {
             default: getCurrentThemeRgbColor('darkgray850').join(','),
@@ -98,12 +98,11 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.1)`,
         }),
         text: new Text({
-            text: 'Heli',
-            font: '14px Montserrat',
+            text: 'H',
+            font: 'bold 14px Montserrat',
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
             }),
-            rotateWithView: true,
         }),
         zIndex: 2,
     });
@@ -348,16 +347,20 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             if (feature.getProperties().plysttyp === 1) {
                 return new Style({
                     fill: new Fill({
-                        color: `rgba(${ themeStyles.terminal[theme] }, 0.8)`,
+                        color: `rgba(${ themeStyles.terminal[theme] }, 1)`,
+                    }),
+                    stroke: new Stroke({
+                        color: `rgba(${ getCurrentThemeRgbColor('lightgray200').join(',') }, 0.1)`,
+                        width: 2,
                     }),
                     text: new Text({
                         text: feature.getProperties().ident,
-                        font: '10px Montserrat',
+                        font: 'bold 10px Montserrat',
                         textAlign: 'center',
                         justify: 'center',
                         textBaseline: 'middle',
                         fill: new Fill({
-                            color: `rgba(${ radarColors.lightgray125Rgb.join(',') }, 1)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
                         }),
                         rotateWithView: true,
                     }),

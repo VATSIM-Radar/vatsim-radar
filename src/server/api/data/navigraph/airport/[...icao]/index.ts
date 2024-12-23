@@ -62,7 +62,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             };
         }) ?? [];
 
-        gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
+        // gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
 
         delete layout.parkingstandlocation;
     }
