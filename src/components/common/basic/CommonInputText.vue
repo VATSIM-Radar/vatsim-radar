@@ -49,7 +49,7 @@ defineEmits({
     },
 });
 
-defineSlots<{ icon: () => any }>();
+defineSlots<{ icon?: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
 const model = defineModel({ type: String, default: null });

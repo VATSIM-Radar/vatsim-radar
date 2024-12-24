@@ -82,7 +82,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default(): any; title(): any; closeActions(): any }>();
+defineSlots<{ default?(): any; title?(): any; closeActions?(): any }>();
 
 const block = ref<HTMLDivElement | null>(null);
 

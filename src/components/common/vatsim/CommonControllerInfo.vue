@@ -158,7 +158,7 @@ const emit = defineEmits({
         return true;
     },
 });
-defineSlots<{ title(): any; additionalTitle(): any }>();
+defineSlots<{ title?(): any; additionalTitle?(): any }>();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();

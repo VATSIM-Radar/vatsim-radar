@@ -30,7 +30,7 @@ defineProps({
     },
 });
 
-defineSlots<{ default: () => any; description: () => any }>();
+defineSlots<{ default?: () => any; description?: () => any }>();
 
 const model = defineModel({
     type: Boolean,

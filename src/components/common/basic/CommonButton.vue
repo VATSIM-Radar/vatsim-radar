@@ -113,8 +113,8 @@ defineEmits({
 });
 
 defineSlots<{
-    default(): any;
-    icon(): any;
+    default?(): any;
+    icon?(): any;
 }>();
 
 const getTag = computed(() => {
