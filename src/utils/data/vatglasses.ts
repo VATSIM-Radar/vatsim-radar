@@ -206,7 +206,6 @@ function updateVatglassesPositionsAndAirspaces() {
         for (const positionId in vatglassesActiveController[countryGroupId]) {
             if (!vatglassesActiveAirspaces[countryGroupId] || !vatglassesActiveAirspaces[countryGroupId][positionId] || Object.keys(vatglassesActiveAirspaces[countryGroupId][positionId]).length === 0) {
                 const controller = vatglassesActiveController[countryGroupId][positionId];
-                console.log('new fallback', controller)
                 if (!fallbackPositions.some(fallback => fallback.callsign === controller.callsign)) {
                     fallbackPositions.push(controller);
                 }
