@@ -16,6 +16,7 @@ const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode'
 const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
 const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
 const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
+const navigraphKeys: Array<keyof IUserMapSettings['navigraphLayers']> = ['disable', 'gatesFallback', 'hideTaxiways', 'hideGateGuidance', 'hideRunwayExit', 'hideDeicing'];
 
 const colors = Object.keys(colorsList);
 
@@ -145,6 +146,15 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    navigraphLayers: val => {
+        if (!isObject(val)) return false;
+
+        if (!validateRandomObjectKeys(val, navigraphKeys)) return false;
+
+        if (!Object.values(val).every(x => typeof x === 'boolean')) return false;
+
+        return true;
+    },
     aircraftScale: val => {
         return typeof val === 'number' && val > 0 && val < 5;
     },
@@ -248,6 +258,14 @@ export interface IUserMapSettings {
         excludeMyArrival?: boolean;
         excludeMyLocation?: boolean;
     };
+    navigraphLayers: Partial<{
+        disable: boolean;
+        gatesFallback?: boolean;
+        hideTaxiways?: boolean;
+        hideGateGuidance?: boolean;
+        hideRunwayExit?: boolean;
+        hideDeicing?: boolean;
+    }>;
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     tracks: {

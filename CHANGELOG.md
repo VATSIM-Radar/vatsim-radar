@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.0.0-alpha.2]
+
+- Updated taxiways colors
+- You can now disable Navigraph Layers, as well as disable new gates system, taxiways, runway exits, gate guidance, deicing pads
+
 # [1.0.0-alpha.1.1]
 
 - Fixed some gates missing

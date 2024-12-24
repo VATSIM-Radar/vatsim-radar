@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.0.0-alpha.1.1",
+  "version": "1.0.0-alpha.2",
   "private": true,
   "type": "module",
   "scripts": {
@@ -84,9 +84,9 @@
     "stylelint-config-recommended-vue": "^1.5.0",
     "stylelint-config-standard": "^36.0.1",
     "tsx": "4.16.2",
-    "typescript": "5.6.3",
+    "typescript": "5.7.2",
     "vite-plugin-eslint2": "^5.0.3",
-    "vue-tsc": "2.1.10"
+    "vue-tsc": "2.2.0"
   },
   "resolutions": {
     "vite-plugin-checker": "^0.8.0"

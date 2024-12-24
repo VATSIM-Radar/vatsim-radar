@@ -636,46 +636,54 @@ onMounted(async () => {
         immediate: true,
     });
 
-    const supportedLayouts: NavigraphLayoutType[] = [
-        'parkingstandarea',
-        'apronelement',
-        'arrestinggearlocation',
-        'blastpad',
-        'constructionarea',
-        'deicingarea',
-        'finalapproachandtakeoffarea',
-        'taxiwayintersectionmarking',
-        'runwaythreshold',
-        'runwaydisplacedarea',
-        'runwayelement',
-        'runwayexitline',
-        'runwayintersection',
-        'runwaymarking',
-        'runwayshoulder',
-        'frequencyarea',
-        'serviceroad',
-        'standguidanceline',
-        'taxiwayelement',
-        'taxiwayholdingposition',
-        'taxiwayshoulder',
-        'verticallinestructure',
-        'verticalpolygonalstructure',
-        'taxiwayguidanceline',
-    ];
+    const supportedLayouts = computed(() => {
+        const supported: NavigraphLayoutType[] = [
+            'parkingstandarea',
+            'apronelement',
+            'arrestinggearlocation',
+            'blastpad',
+            'constructionarea',
+            'finalapproachandtakeoffarea',
+            'runwaythreshold',
+            'runwaydisplacedarea',
+            'runwayelement',
+            'runwayintersection',
+            'runwaymarking',
+            'runwayshoulder',
+            'frequencyarea',
+            'serviceroad',
+            'taxiwayshoulder',
+            'verticallinestructure',
+            'verticalpolygonalstructure',
+        ];
 
-    watch(layout, val => {
+        const disabledTaxiways = store.mapSettings.navigraphLayers?.hideTaxiways;
+        const disabledGates = store.mapSettings.navigraphLayers?.hideGateGuidance;
+        const disabledRunways = store.mapSettings.navigraphLayers?.hideRunwayExit;
+        const disabledDeicing = store.mapSettings.navigraphLayers?.hideDeicing;
+
+        if (!disabledTaxiways) supported.push('taxiwayelement', 'taxiwayholdingposition', 'taxiwayguidanceline', 'taxiwayintersectionmarking');
+        if (!disabledGates) supported.push('standguidanceline');
+        if (!disabledRunways) supported.push('runwayexitline');
+        if (!disabledDeicing) supported.push('deicingarea');
+
+        return supported;
+    });
+
+    watch([layout, supportedLayouts], ([val]) => {
+        layoutFeatures.forEach(feature => {
+            layerSource.value?.removeFeature(feature);
+            feature.dispose();
+        });
+        layoutFeatures = [];
+
         if (!val) {
-            layoutFeatures.forEach(feature => {
-                layerSource.value?.removeFeature(feature);
-                feature.dispose();
-            });
-            layoutFeatures = [];
             return;
         }
 
         for (const [_key, value] of Object.entries(val)) {
             const key = _key as NavigraphLayoutType;
-            if (!supportedLayouts.includes(key)) continue;
+            if (!supportedLayouts.value.includes(key)) continue;
 
             const features = geojson.readFeatures(value, {
                 dataProjection: 'EPSG:4326',

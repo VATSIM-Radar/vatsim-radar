@@ -49,7 +49,7 @@ export interface RadioItem<T extends string | number | null = string | number | 
 
 defineProps<RadioItem & { name?: string }>();
 
-defineSlots<{ default(): any; hint(): any }>();
+defineSlots<{ default?(): any; hint?(): any }>();
 
 const id = useId();
 
