@@ -201,6 +201,18 @@ function updateVatglassesPositionsAndAirspaces() {
         }
     }
 
+    // It is possible that a position is defined in VatGlasses data but no airspaces are defined for it. In this case, it is not added to the fallbackPositions above, because the position exists, but no airspace is defined for it. We have to add it to the fallbackPositions here.
+    for (const countryGroupId in vatglassesActiveController) {
+        for (const positionId in vatglassesActiveController[countryGroupId]) {
+            if (!vatglassesActiveAirspaces[countryGroupId] || !vatglassesActiveAirspaces[countryGroupId][positionId] || Object.keys(vatglassesActiveAirspaces[countryGroupId][positionId]).length === 0) {
+                const controller = vatglassesActiveController[countryGroupId][positionId];
+                console.log('new fallback', controller)
+                if (!fallbackPositions.some(fallback => fallback.callsign === controller.callsign)) {
+                    fallbackPositions.push(controller);
+                }
+            }
+        }
+    }
 
     // set required runways (required are runways which are used to show sectors with an active position) and default active runway
     const vatglassesRunwaysUpdated: VatglassesActiveRunways = {};
