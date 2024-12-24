@@ -17,10 +17,6 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "matchPackageNames": "typescript",
-      "allowedVersions": "<5.7"
-    },
-    {
       "matchPackageNames": [
         "tsx"
       ],
