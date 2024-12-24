@@ -141,47 +141,52 @@ const geoJson = new GeoJSON();
 const init = () => {
     if (!vectorSource.value) return;
 
-    const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
-    const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
+    try {
+        const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+        const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
-    if (!localFeature) {
-        localFeature = geoJson.readFeature({
-            ...props.fir.feature,
-            id: undefined,
-            properties: {
-                ...(props.fir.feature.properties ?? {}),
+        if (!localFeature) {
+            localFeature = geoJson.readFeature({
+                ...props.fir.feature,
+                id: undefined,
+                properties: {
+                    ...(props.fir.feature.properties ?? {}),
+                    type: localFeatureType,
+                },
+            }) as Feature<any>;
+
+            vectorSource.value.addFeature(localFeature);
+        }
+        else if (localFeature && localFeature.getProperties().type !== localFeatureType) {
+            localFeature.setProperties({
                 type: localFeatureType,
-            },
-        }) as Feature<any>;
+            });
+        }
 
-        vectorSource.value.addFeature(localFeature);
-    }
-    else if (localFeature && localFeature.getProperties().type !== localFeatureType) {
-        localFeature.setProperties({
-            type: localFeatureType,
-        });
-    }
+        if (!rootFeature && globals.value.length && !locals.value.length) {
+            rootFeature = geoJson.readFeature({
+                ...props.fir.feature,
+                id: undefined,
+                properties: {
+                    ...(props.fir.feature.properties ?? {}),
+                    type: rootFeatureType,
+                },
+            }) as Feature<any>;
 
-    if (!rootFeature && globals.value.length && !locals.value.length) {
-        rootFeature = geoJson.readFeature({
-            ...props.fir.feature,
-            id: undefined,
-            properties: {
-                ...(props.fir.feature.properties ?? {}),
+            vectorSource.value.addFeature(rootFeature);
+        }
+        else if (rootFeature && rootFeature.getProperties().type !== rootFeatureType) {
+            rootFeature.setProperties({
                 type: rootFeatureType,
-            },
-        }) as Feature<any>;
-
-        vectorSource.value.addFeature(rootFeature);
+            });
+        }
+        else if (rootFeature && (!globals.value.length || locals.value.length)) {
+            vectorSource.value?.removeFeature(rootFeature);
+            rootFeature = undefined;
+        }
     }
-    else if (rootFeature && rootFeature.getProperties().type !== rootFeatureType) {
-        rootFeature.setProperties({
-            type: rootFeatureType,
-        });
-    }
-    else if (rootFeature && (!globals.value.length || locals.value.length)) {
-        vectorSource.value?.removeFeature(rootFeature);
-        rootFeature = undefined;
+    catch (e) {
+        console.error(e);
     }
 };
 

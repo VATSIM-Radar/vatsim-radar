@@ -141,7 +141,6 @@ function updateVatglassesPositionsAndAirspaces() {
                         continue; // There is already a controller assigned to this vatglasses position
                     }
 
-
                     if (!vatglassesActiveController[countryGroupId]) {
                         vatglassesActiveController[countryGroupId] = {};
                     }
@@ -150,7 +149,6 @@ function updateVatglassesPositionsAndAirspaces() {
                     break;
                 }
             }
-
 
             if (!foundMatchingVatglassesController && !doublePositionMatch) {
                 fallbackPositions.push(atc);
@@ -276,7 +274,12 @@ function updateVatglassesPositionsAndAirspaces() {
 
     newVatglassesActivePositions['fallback'] = {};
     for (const atc of fallbackPositions) {
-        newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) };
+        if (mode === 'server') {
+            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null };
+        }
+        else {
+            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) };
+        }
     }
 
     return newVatglassesActivePositions;

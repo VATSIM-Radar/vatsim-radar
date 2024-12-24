@@ -37,15 +37,10 @@
                     Positions
                 </template>
 
-                <ul>
-                    <li
-                        v-for="(sector, index) in sectorsAtClick"
-                        :key="index"
-                    >
-                        {{ sector.vatglassesPositionId }} ({{ sector.atc.callsign }}) {{ formatNumber(sector.min) }} - {{ formatNumber(sector.max) }}
-                    </li>
-                </ul>
-
+                <common-controller-info
+                    :controllers="sectorsAtClick.map(x => x.atc)"
+                    show-atis
+                />
             </common-popup-block>
         </map-overlay>
     </template>
@@ -60,13 +55,13 @@ import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPositio
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
-import { attachMoveEnd } from '~/composables';
+import { attachMoveEnd, collapsingWithOverlay } from '~/composables';
 
 import { initVatglasses } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
-
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 
 let vectorLayer: VectorImageLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -74,7 +69,6 @@ provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const store = useStore();
-
 
 const firs = computed(() => {
     const list = dataStore.vatspy.value!.data.firs;
@@ -94,6 +88,8 @@ let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
     // TODO: don't show popup when clicked target has an aircraft
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
+
+    if (collapsingWithOverlay(map, eventPixel, [])) return;
 
     if (lastEventPixel && lastEventPixel[0] === eventPixel[0] && lastEventPixel[1] === eventPixel[1]) {
         // same location, close popup

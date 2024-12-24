@@ -50,7 +50,7 @@
                 :model-value="!!store.mapSettings.vatglasses?.active"
                 @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
             >
-                Enable VATGlasses
+                Enable VATGlasses (BETA)
             </common-toggle>
             <common-toggle
                 :disabled="!store.mapSettings.vatglasses?.active"
