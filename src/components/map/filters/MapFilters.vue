@@ -236,6 +236,7 @@ import { isFetchError, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 
+
 const store = useStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);

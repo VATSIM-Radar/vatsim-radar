@@ -1,12 +1,13 @@
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 import { updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
-import { redis } from '~/utils/backend/redis';
+import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
 
 export default defineNitroPlugin(app => {
-    redis.subscribe('data');
-    redis.on('message', (_, message) => {
+    const redisSubscriber = getRedis();
+    redisSubscriber.subscribe('data');
+    redisSubscriber.on('message', (_, message) => {
         radarStorage.vatsim = JSON.parse(message);
     });
 
