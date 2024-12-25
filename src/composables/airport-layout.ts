@@ -144,7 +144,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                 fill: new Fill({
                     color: `rgba(${ themeStyles.deicing[theme] }, 0.3)`,
                 }),
-                zIndex: 1,
+                zIndex: 3,
             };
 
             if (feature.getProperties().ident) {
@@ -242,7 +242,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                         textBaseline: 'middle',
                         padding: [25, 25, 25, 25],
                     }),
-                    zIndex: 3,
+                    zIndex: 4,
                 }));
             }
 
@@ -251,9 +251,9 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
         taxiwayholdingposition: feature => {
             const options: StyleOptions = {
                 stroke: new Stroke({
-                    color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.8)`,
+                    color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.6)`,
                 }),
-                zIndex: 4,
+                zIndex: 5,
             };
 
             if (feature.getProperties().idlin) {
@@ -262,7 +262,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                     font: 'bold 12px Montserrat',
                     placement: 'line',
                     fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.8)`,
+                        color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.7)`,
                     }),
                     textBaseline: 'bottom',
                     textAlign: 'left',
@@ -270,8 +270,8 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             }
 
             if (feature.getProperties().catstop === 2) {
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.8)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.8)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.6)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.7)`);
             }
 
             return new Style(options);
@@ -303,7 +303,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
             stroke: new Stroke({
                 color: `rgba(${ themeStyles.taxiway[theme] }, 0.5)`,
             }),
-            zIndex: 2,
+            zIndex: 4,
         }),
         runwaythreshold: feature => new Style({
             text: new Text({
@@ -322,7 +322,7 @@ export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style 
                 }),
                 padding: [2, 0, 2, 2],
             }),
-            zIndex: 5,
+            zIndex: 6,
         }),
         runwayintersection: new Style({
             fill: new Fill({
