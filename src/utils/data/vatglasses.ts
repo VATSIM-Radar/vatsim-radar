@@ -101,7 +101,7 @@ function updateVatglassesPositionsAndAirspaces() {
         const arrivalController = [];
         const locals = dataStore?.vatsim?.data?.locals.value ?? workerDataStore?.vatsim?.locals;
         for (const atc of locals) {
-            if (!atc.isATIS && atc.atc.facility === facilities.APP) {
+            if (!atc.isATIS && [facilities.APP, facilities.TWR, facilities.GND].includes(atc.atc.facility)) {
                 arrivalController.push(atc);
             }
         }
