@@ -2448,7 +2448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/devtools@npm:^1.6.4":
+"@nuxt/devtools@npm:^1.6.4, @nuxt/devtools@npm:^1.7.0":
   version: 1.7.0
   resolution: "@nuxt/devtools@npm:1.7.0"
   dependencies:
@@ -13850,7 +13850,7 @@ __metadata:
   dependencies:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
-    "@nuxt/devtools": "npm:^1.6.4"
+    "@nuxt/devtools": "npm:^1.7.0"
     "@nuxt/eslint": "npm:^0.7.4"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.9.0"
