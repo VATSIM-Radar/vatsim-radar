@@ -124,11 +124,6 @@ attachMoveEnd(() => {
     lastEventPixel = null;
 });
 
-function formatNumber(number: number) {
-    if (number === 0) return 'GND';
-    return 'FL' + number.toString().padStart(3, '0');
-}
-
 watch(map, val => {
     if (!val) return;
 
