@@ -9848,7 +9848,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuxt@npm:^3.14.1592":
+"nuxt@npm:^3.15.0":
   version: 3.15.0
   resolution: "nuxt@npm:3.15.0"
   dependencies:
@@ -13879,7 +13879,7 @@ __metadata:
     kafkajs: "npm:^2.2.4"
     marked: "npm:^15.0.4"
     metar-taf-parser: "npm:^9.0.1"
-    nuxt: "npm:^3.14.1592"
+    nuxt: "npm:^3.15.0"
     ol: "npm:^10.3.1"
     ol-mapbox-style: "npm:^12.4.0"
     pinia: "npm:^2.3.0"
