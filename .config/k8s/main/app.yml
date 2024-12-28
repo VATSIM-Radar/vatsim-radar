@@ -25,7 +25,7 @@ spec:
           resources:
             requests:
               cpu: 800m
-              memory: 800Mi
+              memory: 300Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -73,7 +73,7 @@ spec:
           resources:
             requests:
               cpu: 800m
-              memory: 800Mi
+              memory: 300Mi
             limits:
               cpu: 1000m
               memory: 1Gi
