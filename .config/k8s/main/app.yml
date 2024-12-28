@@ -24,11 +24,11 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 300m
-              memory: 300Mi
+              cpu: 800m
+              memory: 800Mi
             limits:
-              cpu: 950m
-              memory: 950Mi
+              cpu: 1000m
+              memory: 1Gi
           readinessProbe:
             tcpSocket:
               port: 3000
@@ -40,7 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-amd
+        doks.digitalocean.com/node-pool: basic
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -62,7 +62,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-amd
+        doks.digitalocean.com/node-pool: basic
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/production
@@ -72,8 +72,8 @@ spec:
             - containerPort: 8880
           resources:
             requests:
-              cpu: 300m
-              memory: 300Mi
+              cpu: 800m
+              memory: 800Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 270
+          averageUtilization: 100
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 120
