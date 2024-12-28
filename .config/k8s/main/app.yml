@@ -24,7 +24,7 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 500m
+              cpu: 400m
               memory: 300Mi
             limits:
               cpu: 950m
@@ -72,7 +72,7 @@ spec:
             - containerPort: 8880
           resources:
             requests:
-              cpu: 500m
+              cpu: 400m
               memory: 300Mi
             limits:
               cpu: 1000m
@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 160
+          averageUtilization: 220
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 120
