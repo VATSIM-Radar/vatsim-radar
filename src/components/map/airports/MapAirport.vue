@@ -140,6 +140,7 @@ import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     airport: {
@@ -545,9 +546,9 @@ onMounted(async () => {
         }
     }
 
-    const isVatglassesActive = computed(() => store.mapSettings.vatglasses?.active);
+    const vatGlassesActive = isVatGlassesActive();
     const vatglassesFallbacks = computed(() => dataStore.vatglassesActivePositions.value['fallback']);
-    watch([dataStore.vatsim.updateTimestamp, isVatglassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
+    watch([dataStore.vatsim.updateTimestamp, vatGlassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
         immediate: true,
     });
 

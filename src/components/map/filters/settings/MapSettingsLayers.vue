@@ -42,15 +42,26 @@
         </div>
 
         <common-block-title>
-            VATGlasses
+            VATGlasses (BETA)
         </common-block-title>
 
         <div class="__section-group __section-group--even">
             <common-toggle
+                v-if="store.user"
+                :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+            >
+                Auto-enable
+
+                <template #description>
+                    Enables when you have active flight
+                </template>
+            </common-toggle>
+            <common-toggle
                 :model-value="!!store.mapSettings.vatglasses?.active"
                 @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
             >
-                Enable VATGlasses (BETA)
+                Toggle Active
             </common-toggle>
             <common-toggle
                 :disabled="!store.mapSettings.vatglasses?.active"

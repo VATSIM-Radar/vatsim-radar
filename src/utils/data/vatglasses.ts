@@ -558,10 +558,29 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
     if (callUpdated) updateVatglassesStateLocal();
 }
 
+export const isVatGlassesActive = () => computed(() => {
+    if (typeof window === 'undefined') return false;
+
+    const store = useNuxtApp().$pinia.state.value.index;
+    dataStore ??= useDataStore();
+
+    const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
+
+    if (store.mapSettings.vatglasses?.active) return true;
+
+    if (isAuto) {
+        if (store.user) {
+            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
+        }
+    }
+
+    return false;
+});
+
 let vatglassesUpdateInProgress = false;
 export async function updateVatglassesStateLocal() {
     if (vatglassesUpdateInProgress) return;
-    if (store.mapSettings.vatglasses?.active === false) return;
+    if (!isVatGlassesActive().value) return;
 
     console.time('updateVatglassesStateLocal');
 

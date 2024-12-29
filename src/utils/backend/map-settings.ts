@@ -129,9 +129,10 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if (!isObject(val)) return false;
 
         if ('active' in val && typeof val.active !== 'boolean') return false;
+        if ('autoEnable' in val && typeof val.autoEnable !== 'boolean') return false;
         if ('combined' in val && typeof val.combined !== 'boolean') return false;
 
-        if (!validateRandomObjectKeys(val, ['active', 'combined'])) return false;
+        if (!validateRandomObjectKeys(val, ['active', 'combined', 'autoEnable'])) return false;
 
         return true;
     },
@@ -251,6 +252,7 @@ export interface IUserMapSettings {
     highlightEmergency: boolean;
     vatglasses: {
         active?: boolean;
+        autoEnable?: boolean;
         combined?: boolean;
     };
     groundTraffic: {

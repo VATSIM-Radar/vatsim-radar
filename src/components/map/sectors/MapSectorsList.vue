@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="!isHideAtcType('firs') && store.mapSettings.vatglasses?.active">
+    <template v-if="!isHideAtcType('firs') && vatGlassesActive">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -53,11 +53,10 @@ import type { Map, MapBrowserEvent } from 'ol';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 import { attachMoveEnd, collapsingWithOverlay } from '~/composables';
 
-import { initVatglasses } from '~/utils/data/vatglasses';
+import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
@@ -68,7 +67,6 @@ const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
-const store = useStore();
 
 const firs = computed(() => {
     const list = dataStore.vatspy.value!.data.firs;
@@ -83,6 +81,7 @@ const firs = computed(() => {
 const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
+const vatGlassesActive = isVatGlassesActive();
 
 let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
