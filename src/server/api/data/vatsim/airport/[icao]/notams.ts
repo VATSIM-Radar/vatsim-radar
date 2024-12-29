@@ -42,10 +42,11 @@ interface FAAResponse {
 }
 
 export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[] | undefined> => {
+    const config = useRuntimeConfig();
+    if (!config.FAA_NOTAMS_CLIENT_ID) return;
+
     const icao = validateAirportIcao(event);
     if (!icao) return;
-
-    const config = useRuntimeConfig();
 
     try {
         const notams: VatsimAirportDataNotam[] = [];
