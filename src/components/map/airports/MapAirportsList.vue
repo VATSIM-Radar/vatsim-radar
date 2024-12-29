@@ -253,6 +253,7 @@ watch(map, val => {
             properties: {
                 type: 'airport-layer',
             },
+            imageRatio: 2,
             minZoom: 12,
             style: function(feature) {
                 const type = feature.getProperties().type as NavigraphLayoutType;

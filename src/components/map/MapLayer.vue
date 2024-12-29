@@ -13,6 +13,10 @@ import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
+import { GeoJSON } from 'ol/format';
+import VectorSource from 'ol/source/Vector';
+import { Fill, Style } from 'ol/style';
+import VectorImageLayer from 'ol/layer/VectorImage';
 
 defineSlots<{ default: () => any }>();
 
@@ -33,13 +37,9 @@ type IVectorLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
     vector: true;
 };
 
-const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer> = {
+const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
     Satellite: {
-        attribution: {
-            title: 'ArcGIS',
-            url: 'https://arcgis.com',
-        },
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        url: `/layers/esri/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
     },
     OSM: {
         attribution: {
@@ -66,6 +66,12 @@ const layer = computed<Layer | IVectorLayer>(() => {
     let layer = store.localSettings.filters?.layers?.layer ?? 'carto';
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'carto';
+
+    if (layer === 'basic') {
+        return {
+            url: 'basic',
+        };
+    }
 
     if (layer === 'carto' || !(layer in externalLayers)) {
         const isLabels = store.localSettings.filters?.layers?.layerLabels ?? true;
@@ -120,13 +126,20 @@ let attributionLayer: TileLayer<XYZ> | null = null;
 useHead(() => ({
     htmlAttrs: {
         class: {
-            '--dark-matter-vector': tileLayer.value instanceof VectorTileLayer && store.theme !== 'light',
-            '--positron-vector': tileLayer.value instanceof VectorTileLayer && store.theme === 'light',
+            '--dark-matter-vector': tileLayer.value instanceof VectorTileLayer && store.getCurrentTheme !== 'light',
+            '--positron-vector': tileLayer.value instanceof VectorTileLayer && store.getCurrentTheme === 'light',
+            '--basic-layer': layerUrl.value.startsWith('basic'),
         },
     },
 }));
 
 const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
+
+const geoJson = new GeoJSON();
+
+let mapSource: VectorSource | undefined;
+let mapLayer: VectorImageLayer | undefined;
+let style: Style | undefined;
 
 async function initLayer() {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
@@ -134,6 +147,40 @@ async function initLayer() {
 
     if (attributionLayer) map.value?.removeLayer(attributionLayer);
     attributionLayer?.dispose();
+
+    if (mapLayer) map.value?.removeLayer(mapLayer);
+    mapLayer?.dispose();
+
+    if (layer.value.url === 'basic') {
+        const continents = (await import('@/assets/continents.json')).default;
+
+        if (mapSource) {
+            mapSource.clear();
+        }
+        else mapSource = new VectorSource();
+
+        style ??= new Style({
+            fill: new Fill({
+                color: getCurrentThemeHexColor('darkgray1000'),
+            }),
+        });
+
+        mapLayer = new VectorImageLayer({
+            source: mapSource,
+            style,
+            zIndex: 0,
+            imageRatio: 2,
+        });
+
+        mapSource.addFeatures(geoJson.readFeatures(continents, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857',
+        }));
+
+        map.value?.addLayer(mapLayer);
+
+        return;
+    }
 
     if (layer.value.vector) {
         tileLayer.value = new VectorTileLayer({
@@ -188,6 +235,7 @@ watch(transparencySettings, initLayer);
 
 onBeforeUnmount(() => {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
+    if (mapLayer) map.value?.removeLayer(mapLayer);
 });
 </script>
 
@@ -198,5 +246,9 @@ onBeforeUnmount(() => {
 
 .--positron-vector .app_content > .map {
     background: rgb(253, 253, 250);
+}
+
+.--basic-layer .app_content > .map {
+    background: $darkgray850;
 }
 </style>

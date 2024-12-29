@@ -216,6 +216,7 @@ watch(map, val => {
         vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
+            imageRatio: 2,
             properties: {
                 type: 'sectors',
             },

@@ -58,7 +58,7 @@
             </client-only>
         </div>
         <client-only v-if="ready">
-            <map-layer/>
+            <map-layer :key="(store.theme ?? 'default')"/>
             <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
@@ -435,8 +435,10 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 2;
-        projectionExtent[2] *= 2;
+        projectionExtent[0] *= 2.5;
+        projectionExtent[1] *= 1.4;
+        projectionExtent[2] *= 2.5;
+        projectionExtent[3] *= 1.4;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
         let zoom = store.localSettings.zoom ?? 3;
@@ -505,7 +507,7 @@ await setupDataFetch({
             view: new View({
                 center,
                 zoom,
-                minZoom: 3,
+                minZoom: 2,
                 maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),

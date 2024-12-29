@@ -258,6 +258,12 @@ const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
         text: 'CartoDB',
     },
     {
+        value: 'basic',
+        text: 'Basic (VatSpy-like)',
+        hint: 'Very basic continents layer. Recommended for use with Airports Layers (requires Navigraph Ultimate)',
+        hintLocation: 'right',
+    },
+    {
         value: 'Satellite',
     },
     {
