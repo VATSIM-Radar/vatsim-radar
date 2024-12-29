@@ -33,13 +33,9 @@ type IVectorLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
     vector: true;
 };
 
-const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer> = {
+const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
     Satellite: {
-        attribution: {
-            title: 'ArcGIS',
-            url: 'https://arcgis.com',
-        },
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        url: `https://ibasemaps-api.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
     },
     OSM: {
         attribution: {
