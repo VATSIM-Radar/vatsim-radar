@@ -3,7 +3,7 @@
 # [1.0.0-alpha.3]
 
 - Added basic VatSpy-like theme with no country borders etc. Very traffic effective
-- Sectors borders and Airport Layouts are now drown on x2 distance from your visible area
+- Sectors borders and Airport Layouts are now drawn on x2 distance from your visible area
 - You can now zoom higher
 
 # [1.0.0-alpha.2]
