@@ -3397,35 +3397,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/great-circle@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@turf/great-circle@npm:7.1.0"
+"@turf/great-circle@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/great-circle@npm:7.2.0"
   dependencies:
-    "@turf/helpers": "npm:^7.1.0"
-    "@turf/invariant": "npm:^7.1.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
     "@types/geojson": "npm:^7946.0.10"
-  checksum: 10c0/4f72b21395de81f73a575892b3e4f74824a3dead6a5b49d48c97d2463722b3f1d36302aeb42461de42985b28e51d64e2271062b2fa8c301d364cea29b3c33f67
+  checksum: 10c0/c24ae31a81485a9b523ddcab8ebdb7fe030142751b1a341063bc65996fa8560c294eab2187f127b1dc86bfee038ef8ebe97c24cc48ff53b773c50330fb28df77
   languageName: node
   linkType: hard
 
-"@turf/helpers@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@turf/helpers@npm:7.1.0"
+"@turf/helpers@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/helpers@npm:7.2.0"
   dependencies:
     "@types/geojson": "npm:^7946.0.10"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/0b07c01584d8bee977edec8752109b4f79ab5b149e55a7dbe051e412e150c0a96f2464c9647676a092b7ab4429271eee4a31400ea45e9b55095ae53ad22f43d6
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/4d6f57164cca00ec7a18e2d3c0200d0274e4ab2b6b3201c6a867b867d899f3f618a82ae242617d467efb04f32740cec150ae06a0e07ee39318397ebc34914687
   languageName: node
   linkType: hard
 
-"@turf/invariant@npm:^7.1.0":
-  version: 7.1.0
-  resolution: "@turf/invariant@npm:7.1.0"
+"@turf/invariant@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/invariant@npm:7.2.0"
   dependencies:
-    "@turf/helpers": "npm:^7.1.0"
+    "@turf/helpers": "npm:^7.2.0"
     "@types/geojson": "npm:^7946.0.10"
-    tslib: "npm:^2.6.2"
-  checksum: 10c0/63a163ee7babf539af64bd204808979ce45e0d0bf772b3f28cda9fa99ab9c54150ea90d3203ae25cdda1a78eb206faf89db5847dc58ebc0eae8df0dab55822b8
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/6968b766d5522488bb2b149a72f863e3f0d4bb0342b14f3992e3e920d9e32c252e1e07e84213732cb51609aef7a82833a8fe76b1c7d0db4cd384954cfedaa4e5
   languageName: node
   linkType: hard
 
@@ -13191,7 +13191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.6.3":
+"tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.6.3, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
@@ -13857,7 +13857,7 @@ __metadata:
     "@prisma/client": "npm:^6.1.0"
     "@stylistic/eslint-plugin": "npm:^2.12.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
-    "@turf/great-circle": "npm:^7.1.0"
+    "@turf/great-circle": "npm:^7.2.0"
     "@types/adm-zip": "npm:^0.5.7"
     "@types/geojson": "npm:^7946.0.15"
     "@types/jsonwebtoken": "npm:^9.0.7"
