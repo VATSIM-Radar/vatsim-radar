@@ -30,18 +30,15 @@
             }"
             :z-index="20"
         >
-            <common-popup-block
+            <common-controller-info
                 class="aircraft-hover"
+                :controllers="sectorsAtClick.map(x => x.atc)"
+                show-atis
             >
                 <template #title>
                     Positions
                 </template>
-
-                <common-controller-info
-                    :controllers="sectorsAtClick.map(x => x.atc)"
-                    show-atis
-                />
-            </common-popup-block>
+            </common-controller-info>
         </map-overlay>
     </template>
 </template>

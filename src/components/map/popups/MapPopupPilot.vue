@@ -255,7 +255,7 @@ const viewRoute = () => {
 };
 
 const atcSections = computed<InfoPopupSection[]>(() => {
-    const list = getAtcList.value as InfoPopupSection[];
+    const list = getAtcList.value?.slice() as InfoPopupSection[];
 
     if (depRunways.value) {
         list.push({
