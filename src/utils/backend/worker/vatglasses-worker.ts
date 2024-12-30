@@ -51,6 +51,7 @@ const redisPublisher = getRedis();
 initVatglasses('server', workerDataStore);
 await loadSectors();
 
+console.log('Worker has been set up');
 
 async function updateVatglassesActive() {
     await updateVatglassesStateServer();
