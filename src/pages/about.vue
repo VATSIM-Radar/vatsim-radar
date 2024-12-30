@@ -33,6 +33,14 @@
                     </li>
                     <li>
                         <a
+                            href="https://github.com/lennycolton/vatglasses-data"
+                            target="_blank"
+                        >
+                            VATGlasses Data Project
+                        </a>
+                    </li>
+                    <li>
+                        <a
                             href="https://navigraph.com/"
                             target="_blank"
                         >

@@ -69,6 +69,7 @@ import MapOverlay from '~/components/map/MapOverlay.vue';
 import { getAirportCountry } from '~/composables/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     fir: {
@@ -90,23 +91,34 @@ const hasScroll = useScrollExists(computed(() => {
 }));
 
 const mapStore = useMapStore();
+const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
+const vatGlassesActive = isVatGlassesActive();
+
 const store = useStore();
 
 const locals = computed(() => {
-    const filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
+    if (!dataStore.vatglassesActivePositions.value) return [];
 
-    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    let filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
+    filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    if (!vatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
+
+    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
 const globals = computed(() => {
-    const filtered = props.atc.filter(x => x.icao && x.controller);
+    let filtered = props.atc.filter(x => x.icao && x.controller);
+    filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    if (!vatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
 
-    return filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
+    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
 const controllers = computed(() => {
@@ -132,53 +144,58 @@ const geoJson = new GeoJSON();
 const init = () => {
     if (!vectorSource.value) return;
 
-    const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
-    const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
+    try {
+        const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+        const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
-    if (!localFeature) {
-        localFeature = geoJson.readFeature({
-            ...props.fir.feature,
-            id: undefined,
-            properties: {
-                ...(props.fir.feature.properties ?? {}),
+        if (!localFeature) {
+            localFeature = geoJson.readFeature({
+                ...props.fir.feature,
+                id: undefined,
+                properties: {
+                    ...(props.fir.feature.properties ?? {}),
+                    type: localFeatureType,
+                },
+            }) as Feature<any>;
+
+            vectorSource.value.addFeature(localFeature);
+        }
+        else if (localFeature && localFeature.getProperties().type !== localFeatureType) {
+            localFeature.setProperties({
                 type: localFeatureType,
-            },
-        }) as Feature<any>;
+            });
+        }
 
-        vectorSource.value.addFeature(localFeature);
-    }
-    else if (localFeature && localFeature.getProperties().type !== localFeatureType) {
-        localFeature.setProperties({
-            type: localFeatureType,
-        });
-    }
+        if (!rootFeature && globals.value.length && !locals.value.length) {
+            rootFeature = geoJson.readFeature({
+                ...props.fir.feature,
+                id: undefined,
+                properties: {
+                    ...(props.fir.feature.properties ?? {}),
+                    type: rootFeatureType,
+                },
+            }) as Feature<any>;
 
-    if (!rootFeature && globals.value.length && !locals.value.length) {
-        rootFeature = geoJson.readFeature({
-            ...props.fir.feature,
-            id: undefined,
-            properties: {
-                ...(props.fir.feature.properties ?? {}),
+            vectorSource.value.addFeature(rootFeature);
+        }
+        else if (rootFeature && rootFeature.getProperties().type !== rootFeatureType) {
+            rootFeature.setProperties({
                 type: rootFeatureType,
-            },
-        }) as Feature<any>;
-
-        vectorSource.value.addFeature(rootFeature);
+            });
+        }
+        else if (rootFeature && (!globals.value.length || locals.value.length)) {
+            vectorSource.value?.removeFeature(rootFeature);
+            rootFeature = undefined;
+        }
     }
-    else if (rootFeature && rootFeature.getProperties().type !== rootFeatureType) {
-        rootFeature.setProperties({
-            type: rootFeatureType,
-        });
-    }
-    else if (rootFeature && (!globals.value.length || locals.value.length)) {
-        vectorSource.value?.removeFeature(rootFeature);
-        rootFeature = undefined;
+    catch (e) {
+        console.error(e);
     }
 };
 
 onMounted(init);
 
-watch([() => props.atc, isHovered], init);
+watch([() => props.atc, isHovered, locals], init);
 
 onBeforeUnmount(() => {
     if (localFeature) {

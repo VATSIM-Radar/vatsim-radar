@@ -125,6 +125,18 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     highlightEmergency: val => {
         return typeof val === 'boolean';
     },
+    vatglasses: val => {
+        if (!isObject(val)) return false;
+
+        if ('active' in val && typeof val.active !== 'boolean') return false;
+        if ('autoEnable' in val && typeof val.autoEnable !== 'boolean') return false;
+        if ('autoLevel' in val && typeof val.autoLevel !== 'boolean') return false;
+        if ('combined' in val && typeof val.combined !== 'boolean') return false;
+
+        if (!validateRandomObjectKeys(val, ['active', 'combined', 'autoEnable', 'autoLevel'])) return false;
+
+        return true;
+    },
     groundTraffic: val => {
         if (!isObject(val)) return false;
 
@@ -239,6 +251,12 @@ export interface IUserMapSettings {
     };
     heatmapLayer: boolean;
     highlightEmergency: boolean;
+    vatglasses: {
+        active?: boolean;
+        autoEnable?: boolean;
+        autoLevel?: boolean;
+        combined?: boolean;
+    };
     groundTraffic: {
         hide?: 'always' | 'lowZoom' | 'never';
         excludeMyArrival?: boolean;

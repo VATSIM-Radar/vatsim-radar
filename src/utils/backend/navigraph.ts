@@ -15,6 +15,7 @@ import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
 import type { NavigraphGate, NavigraphLayout, NavigraphLayoutType, NavigraphRunway } from '~/types/data/navigraph';
 import { $fetch } from 'ofetch';
+import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 
 function base64URLEncode(str: Buffer) {
     return str
@@ -273,7 +274,7 @@ export async function getNavigraphGates({ user, icao, event }: {
 export async function getNavigraphLayout({
     icao,
     exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
-    include = [],
+    include = [...supportedNavigraphLayouts, 'parkingstandlocation'],
 }: {
     icao: string;
     exclude?: NavigraphLayoutType[];

@@ -1,5 +1,5 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import type { NavigraphGate } from '~/types/data/navigraph';
+import type { NavigraphGate, NavigraphLayoutType } from '~/types/data/navigraph';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 
@@ -115,3 +115,22 @@ export function getTraconSuffix(tracon: GeoJSONFeature): string | null {
 
     return null;
 }
+
+export const supportedNavigraphLayouts: NavigraphLayoutType[] = [
+    'parkingstandarea',
+    'apronelement',
+    'arrestinggearlocation',
+    'blastpad',
+    'constructionarea',
+    'finalapproachandtakeoffarea',
+    'runwaythreshold',
+    'runwaydisplacedarea',
+    'runwayelement',
+    'runwayintersection',
+    'runwaymarking',
+    'runwayshoulder',
+    'serviceroad',
+    'taxiwayshoulder',
+    'verticallinestructure',
+    'verticalpolygonalstructure',
+];

@@ -53,6 +53,7 @@ export type SearchFilter = keyof SearchResults;
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
+    vatglassesLevel: number;
 
     filters: {
         opened?: boolean;

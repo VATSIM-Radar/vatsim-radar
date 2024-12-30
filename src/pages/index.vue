@@ -329,6 +329,16 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
+useUpdateInterval(() => {
+    const hasOwnFlight = mapStore.overlays.some(x => x.key === store.user?.cid);
+
+    if (!hasOwnFlight || store.mapSettings.vatglasses?.autoLevel === false) return;
+
+    setUserLocalSettings({
+        vatglassesLevel: Math.round(dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid)!.altitude / 1000) * 10,
+    });
+});
+
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {

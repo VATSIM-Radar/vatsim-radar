@@ -13,6 +13,7 @@ import type { ColorsList } from '~/utils/backend/styles';
 import type { UserMapSettings } from '~/utils/backend/map-settings';
 import { isFetchError } from '../utils/shared';
 import { toRaw } from 'vue';
+import type { Pixel } from 'ol/pixel';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -283,3 +284,33 @@ export const useIsMobile = () => computed(() => useStore().isMobile);
 export const useIsPC = () => computed(() => useStore().isPC);
 export const useIsTablet = () => computed(() => useStore().isTablet);
 export const useIsMobileOrTablet = () => computed(() => useStore().isMobileOrTablet);
+
+export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, excludeClassNames = ['aircraft']) => {
+    map = toValue(map);
+    if (!map) return false;
+
+    let collapsingWithOverlay = false;
+
+    map.getOverlays().forEach(overlay => {
+        if (collapsingWithOverlay) return;
+
+        if ([...overlay.getElement()?.classList ?? []].some(x => excludeClassNames.some(y => x.includes(y)))) return;
+
+        const overlayElement = overlay.getElement();
+        if (overlayElement) {
+            const overlayRect = overlayElement.getBoundingClientRect();
+            const mapRect = map.getTargetElement().getBoundingClientRect();
+            const overlayPixel = [
+                overlayRect.left - mapRect.left,
+                overlayRect.top - mapRect.top,
+            ];
+
+            if (pixel[0] >= overlayPixel[0] && pixel[0] <= overlayPixel[0] + overlayRect.width &&
+                pixel[1] >= overlayPixel[1] && pixel[1] <= overlayPixel[1] + overlayRect.height) {
+                collapsingWithOverlay = true;
+            }
+        }
+    });
+
+    return collapsingWithOverlay;
+};

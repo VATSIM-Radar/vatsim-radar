@@ -17,3 +17,9 @@ export const MAX_MAP_PRESETS = 5;
 export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;
 }
+
+export function isRunwayEast(runway: string | number) {
+    if (typeof runway === 'string') runway = parseInt(runway, 10);
+
+    return runway > 16;
+}

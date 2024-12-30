@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0-alpha.4]
+
+- VATGlasses integration has been added - made by Felix and enabled by default for your flights
+
 # [1.0.0-alpha.3]
 
 - Added basic VatSpy-like theme with no country borders etc. Very traffic effective

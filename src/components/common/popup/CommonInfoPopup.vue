@@ -45,11 +45,16 @@
                 v-if="!collapsed"
                 class="info-popup_content"
             >
+                <slot name="prepend"/>
                 <common-tabs
                     v-if="tabs"
                     v-model="activeTab"
                     class="info-popup_content_tabs"
                     :tabs="tabs"
+                />
+                <slot
+                    v-if="activeTab"
+                    :name="`tab-${ activeTab }`"
                 />
                 <div
                     v-for="(section, index) in getSections"

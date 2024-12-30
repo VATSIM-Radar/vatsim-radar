@@ -18,6 +18,14 @@
                 </div>
             </div>
         </template>
+        <template
+            v-if="runways"
+            #runways
+        >
+            <map-airport-runway-selector
+                :airport="props.overlay.data.icao"
+            />
+        </template>
         <template #action-sticky>
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
@@ -256,6 +264,8 @@ import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import type { TooltipCloseMethod } from '~/components/common/basic/CommonTooltip.vue';
 import type { Map } from 'ol';
+import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
+import { getAirportRunways } from '~/utils/data/vatglasses-front';
 
 const props = defineProps({
     overlay: {
@@ -352,6 +362,14 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
+    if (runways.value) {
+        list.atc.sections.push({
+            title: 'Active Runways',
+            collapsible: true,
+            key: 'runways',
+        });
+    }
+
     if (atc.value.length) {
         list.atc.sections.push({
             title: 'Active Controllers',
@@ -396,6 +414,10 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
     finally {
         updateInProgress = false;
     }
+});
+
+const runways = computed(() => {
+    return getAirportRunways(props.overlay.data.icao);
 });
 
 onMounted(() => {
