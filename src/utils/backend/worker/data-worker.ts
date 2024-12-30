@@ -156,10 +156,10 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'MIA_123_CTR',
-            cid: 3,
-            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'ENKB_APP',
+            cid: 4,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
             logon_time: '',
@@ -168,7 +168,21 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3', 'Extending OCEAN', 'area'],
             visual_range: 0,
-        });*/
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'ENAL_APP',
+            cid: 3,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
 
         const length = radarStorage.vatsim.data!.controllers.length;
 

@@ -401,7 +401,7 @@ const getAirportsList = computed(() => {
 
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
-        let existingSector = airport.features.find(x => x.id === id);
+        let existingSector = airport.features.find(x => x.id === id) || airports.find(x => x.features.some(x => x.id === id))?.features.find(x => x.id === id);
         if (existingSector) {
             existingSector.controllers.push(controller);
         }
@@ -484,92 +484,98 @@ const getAirportsList = computed(() => {
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
 
-        let airport = airports.find(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
+        let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
 
-        if (!airport) {
-            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
         }
 
-        if (!airport) {
-            airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && prefixes.some(y => y.split('_')[0] === x.airport.icao));
         }
 
-        if (!airport) {
-            airport = airports.find(x => x.airport.iata && sector.properties!.id === x.airport.iata);
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && sector.properties!.id === x.airport.iata);
         }
 
-        if (!airport) {
-            airport = airports.find(x => sector.properties!.id === x.airport.icao);
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && sector.properties!.id === x.airport.icao);
         }
 
-        return airport;
+        return foundAirports;
     }
 
     const sectors: {
         sector: GeoFeature<MultiPolygon | Polygon, GeoJsonProperties>;
         prefixes: string[];
         suffix: string | null;
-        airport: typeof airports[0];
+        airports: typeof airports;
     }[] = [];
 
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
-        const airport = findSectorAirport(sector);
+        const airports = findSectorAirport(sector);
 
-        if (airport?.arrAtc.length) {
+        if (airports?.length) {
             sectors.push({
                 sector,
                 prefixes,
                 suffix,
-                airport,
+                airports,
             });
         }
     }
 
     // Strict check
-    for (const { airport, prefixes, suffix, sector } of sectors) {
-        for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
-            const splittedCallsign = controller.callsign.split('_');
+    for (const { airports, prefixes, suffix, sector } of sectors) {
+        for (const airport of airports) {
+            for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
+                const splittedCallsign = controller.callsign.split('_');
 
-            if (
-                (!suffix || controller.callsign.endsWith(suffix)) &&
-                (
-                    (tracon && prefixes.includes(tracon)) ||
-                    // Match AIRPORT_TYPE_NAME
-                    prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
-                    // Match AIRPORT_NAME
-                    (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
-                    // Match AIRPORT_TYPERANDOMSTRING_NAME
-                    (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
-                )
-            ) {
-                addToAirportSector(sector, airport, controller);
+                if (
+                    (!suffix || controller.callsign.endsWith(suffix)) &&
+                    (
+                        (tracon && prefixes.includes(tracon)) ||
+                        // Match AIRPORT_TYPE_NAME
+                        prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
+                        // Match AIRPORT_NAME
+                        (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
+                        // Match AIRPORT_TYPERANDOMSTRING_NAME
+                        (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
+                    )
+                ) {
+                    addToAirportSector(sector, airport, controller);
+                }
             }
         }
     }
 
     // Non-strict check
-    for (const { airport, prefixes, suffix, sector } of sectors) {
-        // Only non found
-        for (const controller of airport.arrAtc.filter(x => !airport.features.some(y => y.controllers.some(y => y.cid === x.cid)))) {
-            if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
-                addToAirportSector(sector, airport, controller);
+    for (const { airports, prefixes, suffix, sector } of sectors) {
+        for (const airport of airports) {
+            // Only non found
+            for (const controller of airport.arrAtc.filter(x => !airports.some(y => y.features.some(y => y.controllers.some(y => y.cid === x.cid))))) {
+                if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
+                    addToAirportSector(sector, airport, controller);
+                }
             }
         }
     }
 
     // For non found
-    for (const { airport, sector } of sectors) {
-        const id = JSON.stringify(sector.properties);
+    for (const { airports, sector } of sectors) {
+        for (const airport of airports) {
+            const id = JSON.stringify(sector.properties);
 
-        // Still nothing found
-        if (!airport.features.length) {
-            airport.features.push({
-                id,
-                traconFeature: sector,
-                controllers: airport.arrAtc,
-            });
+            // Still nothing found
+            if (!airport.features.length) {
+                airport.features.push({
+                    id,
+                    traconFeature: sector,
+                    controllers: airport.arrAtc,
+                });
+            }
         }
     }
 
