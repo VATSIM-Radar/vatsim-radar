@@ -51,6 +51,7 @@ const redisPublisher = getRedis();
 initVatglasses('server', workerDataStore);
 await loadSectors();
 
+let firstUpdate = true;
 console.log('Worker has been set up');
 
 async function updateVatglassesActive() {
@@ -77,7 +78,15 @@ async function updateVatglassesActive() {
                 version: workerDataStore.vatglasses?.version,
             }), err => {
                 clearTimeout(timeout);
-                if (err) return reject(err);
+                if (err) {
+                    console.error(err);
+                    return reject(err);
+                }
+
+                if (firstUpdate) {
+                    console.log('Worker data has been updated');
+                    firstUpdate = false;
+                }
                 resolve();
             });
         });
