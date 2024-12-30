@@ -139,11 +139,3 @@ spec:
             limits:
               cpu: 1000m
               memory: 1Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: vatglasses-next
-spec:
-  selector:
-    app: vatglasses-next
