@@ -91,5 +91,5 @@
   "resolutions": {
     "vite-plugin-checker": "^0.8.0"
   },
-  "packageManager": "yarn@4.5.3"
+  "packageManager": "yarn@4.6.0"
 }

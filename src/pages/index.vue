@@ -41,7 +41,10 @@
         <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
                 <map-aircraft-list/>
-                <map-sectors-list v-if="!store.config.hideSectors"/>
+                <map-sectors-list
+                    v-if="!store.config.hideSectors"
+                    :key="String(store.localSettings.filters?.layers?.layer)"
+                />
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-weather v-if="!store.config.hideHeader"/>
                 <a

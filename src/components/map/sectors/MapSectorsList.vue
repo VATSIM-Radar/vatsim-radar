@@ -53,6 +53,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
+import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 import { attachMoveEnd, collapsingWithOverlay } from '~/composables';
 
@@ -67,6 +68,7 @@ const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
+const store = useStore();
 
 const firs = computed(() => {
     const list = dataStore.vatspy.value!.data.firs;
@@ -152,6 +154,10 @@ watch(map, val => {
             }),
             zIndex: 2,
         });
+
+        if (store.localSettings.filters?.layers?.layer === 'basic') {
+            defaultStyle.getStroke()?.setColor(`rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
+        }
 
         const localStyle = new Style({
             fill: new Fill({
