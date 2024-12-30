@@ -28,7 +28,7 @@ export type MapAircraft = PartialRecord<Exclude<keyof MapAirport['aircraft'], 'p
 export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
 export type MapLayoutLayerCarto = 'carto';
 export type MapLayoutLayerCartoVariants = `${ MapLayoutLayerCarto }${ 'Vector' | 'Static' }`;
-export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | `${ MapLayoutLayerCartoVariants }Labels` | `${ MapLayoutLayerCartoVariants }NoLabels`;
+export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | 'basic' | `${ MapLayoutLayerCartoVariants }Labels` | `${ MapLayoutLayerCartoVariants }NoLabels`;
 export type MapLayoutLayer = MapLayoutLayerExternal | MapLayoutLayerCarto;
 export type MapLayoutLayerExternalOptions = MapLayoutLayerExternal | MapLayoutLayerCarto;
 export type MapLayoutLayerWithOptions = MapLayoutLayerExternalOptions;
@@ -53,6 +53,7 @@ export type SearchFilter = keyof SearchResults;
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
+    vatglassesLevel: number;
 
     filters: {
         opened?: boolean;

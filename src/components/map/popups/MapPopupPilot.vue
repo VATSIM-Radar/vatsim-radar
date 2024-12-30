@@ -60,6 +60,14 @@
             </div>
         </template>
         <template
+            v-if="vatGlassesActive"
+            #tab-atc
+        >
+            <common-notification cookie-name="vatglasses-atc-warning">
+                This data may not be reliable when VatGlasses integration is active. Refer to map instead.
+            </common-notification>
+        </template>
+        <template
             v-for="i in ['center', 'atis', 'app', 'ground', 'ctaf']"
             :key="i"
             #[`atc-${i}`]="{ section }"
@@ -89,6 +97,12 @@
                 :pilot
                 @viewRoute="viewRoute()"
             />
+        </template>
+        <template #depRunways>
+            <map-airport-runway-selector :airport="depAirport!.icao"/>
+        </template>
+        <template #arrRunways>
+            <map-airport-runway-selector :airport="arrAirport!.icao"/>
         </template>
         <template #flightplan>
             <map-popup-flight-plan
@@ -184,6 +198,10 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { getAirportRunways } from '~/utils/data/vatglasses-front';
+import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const props = defineProps({
     overlay: {
@@ -199,6 +217,7 @@ const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
+const vatGlassesActive = isVatGlassesActive();
 
 const pilot = computed(() => props.overlay.data.pilot);
 const airportInfo = computed(() => {
@@ -236,7 +255,33 @@ const viewRoute = () => {
 };
 
 const atcSections = computed<InfoPopupSection[]>(() => {
-    return getAtcList.value;
+    const list = getAtcList.value?.slice() as InfoPopupSection[];
+
+    if (depRunways.value) {
+        list.push({
+            key: 'depRunways',
+            title: `${ depAirport.value?.icao } Runways`,
+            collapsible: true,
+        });
+    }
+
+    if (arrRunways.value) {
+        list.push({
+            key: 'arrRunways',
+            title: `${ arrAirport.value?.icao } Runways`,
+            collapsible: true,
+        });
+    }
+
+    return list;
+});
+
+const depRunways = computed(() => {
+    return depAirport.value && getAirportRunways(depAirport.value.icao);
+});
+
+const arrRunways = computed(() => {
+    return arrAirport.value && getAirportRunways(arrAirport.value.icao);
 });
 
 const sections = computed<InfoPopupSection[]>(() => {
@@ -252,6 +297,22 @@ const sections = computed<InfoPopupSection[]>(() => {
         sections.push({
             key: 'flightplan',
             title: 'Flight Plan',
+            collapsible: true,
+        });
+    }
+
+    if (depRunways.value) {
+        sections.push({
+            key: 'depRunways',
+            title: `${ depAirport.value?.icao } Runways`,
+            collapsible: true,
+        });
+    }
+
+    if (arrRunways.value) {
+        sections.push({
+            key: 'arrRunways',
+            title: `${ arrAirport.value?.icao } Runways`,
             collapsible: true,
         });
     }
@@ -546,5 +607,6 @@ onBeforeUnmount(() => {
     :deep(.atc-popup), :deep(.atc-popup-container) {
         padding: 0 !important;
     }
+
 }
 </style>

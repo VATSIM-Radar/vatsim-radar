@@ -107,8 +107,8 @@ defineProps({
 });
 
 defineSlots<{
-    top(props: { item?: string | number | null | undefined; index?: number }): any;
-    bottom(props: { item?: string | number | null | undefined; index?: number }): any;
+    top?(props: { item?: string | number | null | undefined; index?: number }): any;
+    bottom?(props: { item?: string | number | null | undefined; index?: number }): any;
 }>();
 </script>
 

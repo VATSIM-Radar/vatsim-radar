@@ -4,12 +4,18 @@ import type { GetPublicKeyOrSecret } from 'jsonwebtoken';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import jwksClient from 'jwks-rsa';
-import { navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph-db';
+import {
+    checkNavigraphToken,
+    navigraphAccessKey,
+    navigraphCurrentDb,
+    navigraphOutdatedDb,
+} from '~/utils/backend/navigraph-db';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
-import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
+import type { NavigraphGate, NavigraphLayout, NavigraphLayoutType, NavigraphRunway } from '~/types/data/navigraph';
 import { $fetch } from 'ofetch';
+import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 
 function base64URLEncode(str: Buffer) {
     return str
@@ -100,7 +106,7 @@ export function getNavigraphGwtResult(token: string) {
             jsonwebtoken.verify(token, publicCertificate, tokenValidationOptions, (error, decodedAndVerifiedToken) => {
                 if (error) {
                     reject(createError({
-                        statusMessage: 'Token validation failed',
+                        data: 'Token validation failed',
                         status: 401,
                     }));
                 }
@@ -263,4 +269,27 @@ export async function getNavigraphGates({ user, icao, event }: {
     });
 
     return gates;
+}
+
+export async function getNavigraphLayout({
+    icao,
+    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
+    include = [...supportedNavigraphLayouts, 'parkingstandlocation'],
+}: {
+    icao: string;
+    exclude?: NavigraphLayoutType[];
+    include?: NavigraphLayoutType[];
+}) {
+    await checkNavigraphToken();
+    const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
+    url.searchParams.set('projection', 'EPSG:4326');
+    url.searchParams.set('format', 'geojson');
+    if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
+    else if (include.length) url.searchParams.set('include', include.join(','));
+
+    return $fetch<NavigraphLayout>(url.toString(), {
+        headers: {
+            Authorization: `Bearer ${ navigraphAccessKey.token }`,
+        },
+    });
 }

@@ -8,7 +8,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid CID',
+            data: 'Invalid CID',
         });
         return;
     }
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Pilot with this cid is not found or offline',
+            data: 'Pilot with this cid is not found or offline',
         });
         return;
     }

@@ -44,6 +44,24 @@ services:
             frontend:
                 condition: service_healthy
 
+    vatglasses-worker:
+        build:
+            context: .
+            dockerfile: .config/dev.Dockerfile
+        env_file:
+            - ./.env
+        container_name: vatsim-radar-vg-worker
+        command: /radar/.config/vatglasses-worker.sh
+        volumes:
+            - ".:/radar:rw"
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+            frontend:
+                condition: service_healthy
+
     db:
         image: mysql
         cap_add:

@@ -41,7 +41,10 @@
         <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
                 <map-aircraft-list/>
-                <map-sectors-list v-if="!store.config.hideSectors"/>
+                <map-sectors-list
+                    v-if="!store.config.hideSectors"
+                    :key="String(store.localSettings.filters?.layers?.layer)"
+                />
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-weather v-if="!store.config.hideHeader"/>
                 <a
@@ -58,7 +61,7 @@
             </client-only>
         </div>
         <client-only v-if="ready">
-            <map-layer/>
+            <map-layer :key="(store.theme ?? 'default')"/>
             <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
@@ -326,6 +329,16 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
+useUpdateInterval(() => {
+    const hasOwnFlight = mapStore.overlays.some(x => x.key === store.user?.cid);
+
+    if (!hasOwnFlight || store.mapSettings.vatglasses?.autoLevel === false) return;
+
+    setUserLocalSettings({
+        vatglassesLevel: Math.round(dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid)!.altitude / 1000) * 10,
+    });
+});
+
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
@@ -435,8 +448,10 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 2;
-        projectionExtent[2] *= 2;
+        projectionExtent[0] *= 2.5;
+        projectionExtent[1] *= 1.4;
+        projectionExtent[2] *= 2.5;
+        projectionExtent[3] *= 1.4;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
         let zoom = store.localSettings.zoom ?? 3;
@@ -505,7 +520,7 @@ await setupDataFetch({
             view: new View({
                 center,
                 zoom,
-                minZoom: 3,
+                minZoom: 2,
                 maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),

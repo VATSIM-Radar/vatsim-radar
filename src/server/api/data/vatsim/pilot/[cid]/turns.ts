@@ -5,12 +5,14 @@ import { radarStorage } from '~/utils/backend/storage';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
+    if (!process.env.INFLUX_URL) return;
+
     const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid CID',
+            data: 'Invalid CID',
         });
         return;
     }
@@ -20,7 +22,7 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Pilot with this cid was not found',
+            data: 'Pilot with this cid was not found',
         });
         return;
     }
@@ -34,6 +36,6 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
     handleH3Error({
         event,
         statusCode: 404,
-        statusMessage: `This pilot is not online or doesn't have flight plan`,
+        data: `This pilot is not online or doesn't have flight plan`,
     });
 });

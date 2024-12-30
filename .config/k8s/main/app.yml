@@ -22,12 +22,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-          volumeMounts:
-            - name: radar-data
-              mountPath: /radar/src/data
           resources:
             requests:
-              cpu: 300m
+              cpu: 600m
               memory: 300Mi
             limits:
               cpu: 950m
@@ -43,11 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-amd
-      volumes:
-        - name: radar-data
-          hostPath:
-            path: /opt/prod/data
+        doks.digitalocean.com/node-pool: premium
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -69,7 +62,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-amd
+        doks.digitalocean.com/node-pool: basic-2-2
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/production
@@ -77,12 +70,9 @@ spec:
           command: ["/radar/.config/worker-prod.sh"]
           ports:
             - containerPort: 8880
-          volumeMounts:
-            - name: radar-data
-              mountPath: /radar/src/data
           resources:
             requests:
-              cpu: 300m
+              cpu: 600m
               memory: 300Mi
             limits:
               cpu: 1000m
@@ -95,10 +85,6 @@ spec:
             successThreshold: 1
             failureThreshold: 10
             timeoutSeconds: 15
-      volumes:
-        - name: radar-data
-          hostPath:
-            path: /opt/prod/data
 ---
 apiVersion: v1
 kind: Service
@@ -137,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 270
+          averageUtilization: 140
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 120

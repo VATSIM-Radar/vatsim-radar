@@ -14,12 +14,14 @@ import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
-import { redis } from '~/utils/backend/redis';
+import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
 
 initInfluxDB();
 initKafka();
 initNavigraph().catch(console.error);
+
+const redisPublisher = getRedis();
 
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
@@ -155,9 +157,23 @@ defineCronJob('* * * * * *', async () => {
         });
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'MIA_123_CTR',
+            callsign: 'ENKB_APP',
+            cid: 4,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'ENAL_APP',
             cid: 3,
-            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
             logon_time: '',
@@ -417,7 +433,7 @@ defineCronJob('* * * * * *', async () => {
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
-            redis.publish('data', JSON.stringify(radarStorage.vatsim), err => {
+            redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
                 resolve();

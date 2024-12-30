@@ -74,7 +74,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default(): any; title(): any; actions(): any }>();
+defineSlots<{ default?(): any; title?(): any; actions?(): any }>();
 
 const model = defineModel({
     type: Boolean,

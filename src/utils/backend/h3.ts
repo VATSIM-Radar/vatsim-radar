@@ -7,7 +7,7 @@ export function handleH3Exception(event: H3Event, error: unknown) {
     return handleH3Error({ event, error });
 }
 
-export function handleH3Error({ error, event, statusCode = 500, statusMessage }: { error?: unknown; event: H3Event; statusCode?: number; statusMessage?: string }) {
+export function handleH3Error({ error, event, statusCode = 500, data }: { error?: unknown; event: H3Event; statusCode?: number; data?: string }) {
     if (error instanceof H3Error) return error;
 
     if (error) {
@@ -24,7 +24,7 @@ export function handleH3Error({ error, event, statusCode = 500, statusMessage }:
 
     return sendError(event, createError({
         statusCode,
-        statusMessage,
+        data,
     }));
 }
 
@@ -33,7 +33,7 @@ export function validateDataReady(event: H3Event) {
         handleH3Error({
             event,
             statusCode: 423,
-            statusMessage: 'Data is not ready yet',
+            data: 'Data is not ready yet',
         });
 
         return false;
@@ -53,7 +53,7 @@ export async function freezeH3Request(event: H3Event, userId: number) {
         return handleH3Error({
             event,
             statusCode: 419,
-            statusMessage: 'Another request is in progress. Please try again later.',
+            data: 'Another request is in progress. Please try again later.',
         });
     }
 

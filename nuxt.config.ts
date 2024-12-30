@@ -47,6 +47,7 @@ export default defineNuxtConfig({
         client: process.env.NODE_ENV === 'development',
         server: true,
     },
+    compatibilityDate: '2024-12-12',
     experimental: {
         appManifest: true,
         asyncContext: true,
@@ -138,14 +139,8 @@ export default defineNuxtConfig({
             '/discord': {
                 redirect: 'https://discord.gg/MtFKhMPePe',
             },
-            '/layers/carto/**': {
-                proxy: 'https://a.basemaps.cartocdn.com/**',
-            },
-            '/layers/jawg/**': {
-                proxy: 'https://tile.jawg.io/**',
-            },
-            '/layers/mapbox/**': {
-                proxy: `https://api.mapbox.com/styles/v1/daniluk4000/**`,
+            '/layers/esri/**': {
+                proxy: 'https://ibasemaps-api.arcgis.com/**',
             },
         },
     },

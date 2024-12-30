@@ -23,7 +23,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
+import { attachMoveEnd, collapsingWithOverlay, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
@@ -81,28 +81,7 @@ function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = fals
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
-    let collapsingWithOverlay = false;
-    map.value!.getOverlays().forEach(overlay => {
-        if (collapsingWithOverlay) return;
-        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
-
-        const overlayElement = overlay.getElement();
-        if (overlayElement) {
-            const overlayRect = overlayElement.getBoundingClientRect();
-            const mapRect = map.value!.getTargetElement().getBoundingClientRect();
-            const overlayPixel = [
-                overlayRect.left - mapRect.left,
-                overlayRect.top - mapRect.top,
-            ];
-
-            if (pixel[0] >= overlayPixel[0] && pixel[0] <= overlayPixel[0] + overlayRect.width &&
-                pixel[1] >= overlayPixel[1] && pixel[1] <= overlayPixel[1] + overlayRect.height) {
-                collapsingWithOverlay = true;
-            }
-        }
-    });
-
-    if (collapsingWithOverlay) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
+    if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
 
     return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
@@ -237,7 +216,7 @@ function setVisiblePilots() {
     }) ?? [];
 
     if (showTracks.value.length > tracksLimit) {
-        showTracks.value = showTracks.value.filter(x => (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
+        showTracks.value = showTracks.value.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
             const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
             const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
             const aDist = (aGoDist && aDepDist)
@@ -256,10 +235,10 @@ function setVisiblePilots() {
 
             return aDist - bDist;
         }).map((x, index) => {
-            if (index >= tracksLimit) x.show = 'short';
+            if (index >= tracksLimit && !mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid)) x.show = 'short';
 
             return x;
-        }).filter((x, index) => index < 50 || x.isShown);
+        }).filter((x, index) => index < 50 || x.isShown || mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid));
     }
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
@@ -487,7 +466,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: false,
         });
     }
 

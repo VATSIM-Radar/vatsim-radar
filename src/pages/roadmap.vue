@@ -309,7 +309,6 @@ const roadmap = reactive<Roadmap[]>([
             'Simbrief integration',
             'ATC/Booking notification for active flight',
             'ECFMP integration',
-            'Streamers integration',
             '3D map view',
             'Twitch/streamers integration',
             'Distance measuring tool',

@@ -1,5 +1,32 @@
 # Changelog
 
+# [1.0.0-alpha.4]
+
+- VATGlasses integration has been added - made by Felix and enabled by default for your flights
+
+# [1.0.0-alpha.3]
+
+- Added basic VatSpy-like theme with no country borders etc. Very traffic effective
+- Sectors borders and Airport Layouts are now drawn on x2 distance from your visible area
+- You can now zoom higher
+
+# [1.0.0-alpha.2]
+
+- Updated taxiways colors
+- You can now disable Navigraph Layers, as well as disable new gates system, taxiways, runway exits, gate guidance, deicing pads
+
+# [1.0.0-alpha.1.1]
+
+- Fixed some gates missing
+- Fixed too many taxiway labels appearing on map
+
+# [1.0.0-alpha.1]
+
+- Added Airport Layouts for Navigraph Ultimate members - those include taxiways, updated gates, and much more
+  - TODO: settings to disable airport layouts, disable taxiways, fallback to previous gates data, and more based on your feedback
+  - Early Adopters: please test performance, colors decisions, especially for light theme. I'm open to any suggestions - we can change any color you see
+  - Please note: I can NOT add background to taxiways/holding points, I can only move/recolor text, but nothing else, sorry
+
 # [0.5.1-1-final]
 
 - You can now once again hover over aircraft overlay in resized window

@@ -76,7 +76,7 @@ export async function vatsimGetUser(token: string) {
     if (result.oauth.token_valid !== 'true') {
         throw createError({
             statusCode: 401,
-            statusMessage: 'Token is not valid',
+            data: 'Token is not valid',
         });
     }
 
@@ -217,7 +217,7 @@ export function validateAirportIcao(event: H3Event, detailed?: boolean): string 
         handleH3Error({
             event,
             statusCode: 400,
-            statusMessage: 'Invalid ICAO',
+            data: 'Invalid ICAO',
         });
         return;
     }
@@ -227,7 +227,7 @@ export function validateAirportIcao(event: H3Event, detailed?: boolean): string 
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Airport not found',
+            data: 'Airport not found',
         });
         return;
     }

@@ -15,7 +15,7 @@
                     v-bind="inputAttrs"
                     v-model="model"
                     :placeholder
-                    type="text"
+                    :type="inputType"
                     @blur="focused = false"
                     @change="$emit('change', $event)"
                     @focus="focused = true"
@@ -35,6 +35,10 @@ defineProps({
         type: Object as PropType<Record<string, any>>,
         default: () => {},
     },
+    inputType: {
+        type: String,
+        default: 'text',
+    },
     placeholder: {
         type: String,
     },
@@ -49,7 +53,7 @@ defineEmits({
     },
 });
 
-defineSlots<{ icon: () => any }>();
+defineSlots<{ icon?: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
 const model = defineModel({ type: String, default: null });

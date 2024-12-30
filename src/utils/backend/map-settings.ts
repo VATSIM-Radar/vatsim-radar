@@ -16,6 +16,7 @@ const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode'
 const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
 const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
 const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
+const navigraphKeys: Array<keyof IUserMapSettings['navigraphLayers']> = ['disable', 'gatesFallback', 'hideTaxiways', 'hideGateGuidance', 'hideRunwayExit', 'hideDeicing'];
 
 const colors = Object.keys(colorsList);
 
@@ -124,6 +125,18 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     highlightEmergency: val => {
         return typeof val === 'boolean';
     },
+    vatglasses: val => {
+        if (!isObject(val)) return false;
+
+        if ('active' in val && typeof val.active !== 'boolean') return false;
+        if ('autoEnable' in val && typeof val.autoEnable !== 'boolean') return false;
+        if ('autoLevel' in val && typeof val.autoLevel !== 'boolean') return false;
+        if ('combined' in val && typeof val.combined !== 'boolean') return false;
+
+        if (!validateRandomObjectKeys(val, ['active', 'combined', 'autoEnable', 'autoLevel'])) return false;
+
+        return true;
+    },
     groundTraffic: val => {
         if (!isObject(val)) return false;
 
@@ -132,6 +145,15 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('excludeMyLocation' in val && typeof val.excludeMyLocation !== 'boolean') return false;
 
         if (!validateRandomObjectKeys(val, ['hide', 'excludeMyArrival', 'excludeMyLocation'])) return false;
+
+        return true;
+    },
+    navigraphLayers: val => {
+        if (!isObject(val)) return false;
+
+        if (!validateRandomObjectKeys(val, navigraphKeys)) return false;
+
+        if (!Object.values(val).every(x => typeof x === 'boolean')) return false;
 
         return true;
     },
@@ -229,11 +251,25 @@ export interface IUserMapSettings {
     };
     heatmapLayer: boolean;
     highlightEmergency: boolean;
+    vatglasses: {
+        active?: boolean;
+        autoEnable?: boolean;
+        autoLevel?: boolean;
+        combined?: boolean;
+    };
     groundTraffic: {
         hide?: 'always' | 'lowZoom' | 'never';
         excludeMyArrival?: boolean;
         excludeMyLocation?: boolean;
     };
+    navigraphLayers: Partial<{
+        disable: boolean;
+        gatesFallback?: boolean;
+        hideTaxiways?: boolean;
+        hideGateGuidance?: boolean;
+        hideRunwayExit?: boolean;
+        hideDeicing?: boolean;
+    }>;
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     tracks: {
@@ -284,14 +320,14 @@ export async function handleMapSettingsEvent(event: H3Event) {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only PUT, DELETE and GET are allowed when using id',
+                data: 'Only PUT, DELETE and GET are allowed when using id',
             });
         }
         else if (!id && event.method !== 'GET' && event.method !== 'POST') {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only POST is allowed when not using id',
+                data: 'Only POST is allowed when not using id',
             });
         }
 
@@ -311,7 +347,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'This preset was not found for your user ID',
+                    data: 'This preset was not found for your user ID',
                 });
             }
         }
@@ -322,7 +358,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'You must pass body to this route',
+                    data: 'You must pass body to this route',
                 });
             }
 
@@ -330,7 +366,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Name is required when creating settings',
+                    data: 'Name is required when creating settings',
                 });
             }
 
@@ -338,7 +374,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Max name length is 30',
+                    data: 'Max name length is 30',
                 });
             }
 
@@ -346,7 +382,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 return handleH3Error({
                     event,
                     statusCode: 400,
-                    statusMessage: 'Json is required when creating settings',
+                    data: 'Json is required when creating settings',
                 });
             }
 
@@ -365,7 +401,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                         return handleH3Error({
                             event,
                             statusCode: 400,
-                            statusMessage: `${ key } validation has failed`,
+                            data: `${ key } validation has failed`,
                         });
                     }
                 }
@@ -376,7 +412,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        statusMessage: 'Name validation failed: max 20 symbols are allowed',
+                        data: 'Name validation failed: max 20 symbols are allowed',
                     });
                 }
 
@@ -394,7 +430,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                         return handleH3Error({
                             event,
                             statusCode: 409,
-                            statusMessage: 'A preset with this name already exists',
+                            data: 'A preset with this name already exists',
                         });
                     }
                 }
@@ -429,7 +465,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        statusMessage: 'Only 3 settings presets are allowed',
+                        data: 'Only 3 settings presets are allowed',
                     });
                 }
 
@@ -470,7 +506,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Incorrect method received',
+                data: 'Incorrect method received',
             });
         }
     }

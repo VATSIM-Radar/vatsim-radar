@@ -127,7 +127,7 @@ import { fromCircle } from 'ol/geom/Polygon';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
-import type { NavigraphAirportData } from '~/types/data/navigraph';
+import type { NavigraphAirportData, NavigraphLayoutType } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
@@ -140,6 +140,8 @@ import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 
 const props = defineProps({
     airport: {
@@ -199,6 +201,8 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
+const layerSource = inject<ShallowRef<VectorSource | null>>('layer-source')!;
+const gatesSource = inject<ShallowRef<VectorSource | null>>('gates-source')!;
 const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
@@ -273,6 +277,7 @@ interface ArrFeature {
 
 const arrFeatures = shallowRef<ArrFeature[]>([]);
 let gatesFeatures: Feature[] = [];
+let layoutFeatures: Feature[] = [];
 let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
@@ -392,6 +397,7 @@ onMounted(async () => {
 
     const arrAtcLocal = shallowRef(new Set<number>());
     const gates = computed(() => props.navigraphData?.gates);
+    const layout = computed(() => props.navigraphData?.layout);
     const runways = computed(() => props.navigraphData?.runways);
 
     watch(localsLength, val => {
@@ -541,7 +547,9 @@ onMounted(async () => {
         }
     }
 
-    watch(dataStore.vatsim.updateTimestamp, () => initAndUpdateData(), {
+    const vatGlassesActive = isVatGlassesActive();
+    const vatglassesFallbacks = computed(() => dataStore.vatglassesActivePositions.value['fallback']);
+    watch([dataStore.vatsim.updateTimestamp, vatGlassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
         immediate: true,
     });
 
@@ -553,7 +561,7 @@ onMounted(async () => {
     watch(gates, val => {
         if (!val?.length) {
             gatesFeatures.forEach(feature => {
-                vectorSource.value?.removeFeature(feature);
+                gatesSource.value?.removeFeature(feature);
                 feature.dispose();
             });
             gatesFeatures = [];
@@ -562,7 +570,7 @@ onMounted(async () => {
 
         for (const gate of gatesFeatures) {
             if (!gates.value?.find(x => x.gate_identifier === gate.getProperties().identifier)) {
-                vectorSource.value?.removeFeature(gate);
+                gatesSource.value?.removeFeature(gate);
                 gate.dispose();
             }
         }
@@ -572,7 +580,7 @@ onMounted(async () => {
         for (const gate of gates.value ?? []) {
             const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
 
-            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, ${ opacitySetting ?? 0.8 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('warning400').join(',') }, ${ opacitySetting ?? 0.8 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
+            const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
 
             const existingFeature = gatesFeatures.find(x => x.getProperties().identifier === gate.gate_identifier);
             if (existingFeature) {
@@ -580,12 +588,20 @@ onMounted(async () => {
                 if (style.getText()?.getFill()?.getColor() !== color) {
                     existingFeature.setStyle(new Style({
                         text: new Text({
-                            font: '14px Montserrat',
+                            font: '12px Montserrat',
                             text: gate.name || gate.gate_identifier,
                             textAlign: 'center',
                             fill: new Fill({
                                 color,
                             }),
+                            backgroundFill: new Fill({
+                                color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.5)`,
+                            }),
+                            backgroundStroke: new Stroke({
+                                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                            }),
+                            rotation: toRadians(0),
+                            padding: [2, 0, 2, 2],
                         }),
                     }));
                 }
@@ -598,16 +614,73 @@ onMounted(async () => {
 
                 feature.setStyle(new Style({
                     text: new Text({
-                        font: '14px Montserrat',
+                        font: '12px Montserrat',
                         text: gate.name || gate.gate_identifier,
                         textAlign: 'center',
                         fill: new Fill({
                             color,
                         }),
+                        backgroundFill: new Fill({
+                            color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.8)`,
+                        }),
+                        backgroundStroke: new Stroke({
+                            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                        }),
+                        rotation: toRadians(0),
+                        padding: [2, 0, 2, 2],
                     }),
                 }));
                 gatesFeatures.push(feature);
-                vectorSource.value?.addFeature(feature);
+                gatesSource.value?.addFeature(feature);
+            }
+        }
+    }, {
+        immediate: true,
+    });
+
+    const supportedLayouts = computed(() => {
+        const supported = supportedNavigraphLayouts.slice(0);
+
+        const disabledTaxiways = store.mapSettings.navigraphLayers?.hideTaxiways;
+        const disabledGates = store.mapSettings.navigraphLayers?.hideGateGuidance;
+        const disabledRunways = store.mapSettings.navigraphLayers?.hideRunwayExit;
+        const disabledDeicing = store.mapSettings.navigraphLayers?.hideDeicing;
+
+        if (!disabledTaxiways) supported.push('taxiwayelement', 'taxiwayholdingposition', 'taxiwayguidanceline', 'taxiwayintersectionmarking');
+        if (!disabledGates) supported.push('standguidanceline');
+        if (!disabledRunways) supported.push('runwayexitline');
+        if (!disabledDeicing) supported.push('deicingarea');
+
+        return supported;
+    });
+
+    watch([layout, supportedLayouts], ([val]) => {
+        layoutFeatures.forEach(feature => {
+            layerSource.value?.removeFeature(feature);
+            feature.dispose();
+        });
+        layoutFeatures = [];
+
+        if (!val) {
+            return;
+        }
+
+        for (const [_key, value] of Object.entries(val)) {
+            const key = _key as NavigraphLayoutType;
+            if (!supportedLayouts.value.includes(key)) continue;
+
+            const features = geojson.readFeatures(value, {
+                dataProjection: 'EPSG:4326',
+                featureProjection: 'EPSG:3857',
+            });
+
+            for (const feature of features) {
+                feature.setProperties({
+                    ...feature.getProperties(),
+                    type: key,
+                });
+                layerSource.value?.addFeature(feature);
+                layoutFeatures.push(feature);
             }
         }
     }, {
@@ -671,11 +744,15 @@ onBeforeUnmount(() => {
     clearArrFeatures();
 
     gatesFeatures.forEach(feature => {
-        vectorSource.value?.removeFeature(feature);
+        gatesSource.value?.removeFeature(feature);
         feature.dispose();
     });
     runwaysFeatures.forEach(feature => {
         vectorSource.value?.removeFeature(feature);
+        feature.dispose();
+    });
+    layoutFeatures.forEach(feature => {
+        layerSource.value?.removeFeature(feature);
         feature.dispose();
     });
 });

@@ -55,9 +55,9 @@ defineProps({
 });
 
 defineSlots<{
-    default(): any;
-    bubble(): any;
-    append(): any;
+    default?(): any;
+    bubble?(): any;
+    append?(): any;
 }>();
 
 const collapsed = defineModel<boolean | null>('collapsed', {

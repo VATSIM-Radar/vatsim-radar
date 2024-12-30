@@ -11,9 +11,14 @@
             width="20"
         >
 
-        AIRAC {{
-            dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
-        }}
+        <template v-if="store.user?.hasFms">
+            AIRAC {{
+                dataStore.versions.value.navigraph.current.split('-')[0]
+            }}
+        </template>
+        <template v-else>
+            Connect Navigraph
+        </template>
     </div>
 </template>
 
