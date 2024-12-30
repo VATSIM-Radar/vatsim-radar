@@ -5,6 +5,8 @@ import { radarStorage } from '~/utils/backend/storage';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
 export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
+    if (!process.env.INFLUX_URL) return;
+
     const cid = getRouterParam(event, 'cid');
     if (!cid) {
         handleH3Error({
