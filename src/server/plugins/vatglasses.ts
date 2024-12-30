@@ -1,18 +1,11 @@
 import { getRedis } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
-import { CronJob } from 'cron';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
+import { defineCronJob } from '~/utils/backend';
 
 const redisSubscriber = getRedis();
 export default defineNitroPlugin(app => {
-    CronJob.from({
-        cronTime: '15 */2 * * *',
-        start: true,
-        runOnInit: true,
-        onTick: async () => {
-            await updateVatglassesData();
-        },
-    });
+    defineCronJob('15 */2 * * *', updateVatglassesData);
 
     redisSubscriber.subscribe('vatglassesActive');
     redisSubscriber.on('message', (_, message) => {
