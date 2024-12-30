@@ -255,7 +255,25 @@ const viewRoute = () => {
 };
 
 const atcSections = computed<InfoPopupSection[]>(() => {
-    return getAtcList.value;
+    const list = getAtcList.value as InfoPopupSection[];
+
+    if (depRunways.value) {
+        list.push({
+            key: 'depRunways',
+            title: `${ depAirport.value?.icao } Runways`,
+            collapsible: true,
+        });
+    }
+
+    if (arrRunways.value) {
+        list.push({
+            key: 'arrRunways',
+            title: `${ arrAirport.value?.icao } Runways`,
+            collapsible: true,
+        });
+    }
+
+    return list;
 });
 
 const depRunways = computed(() => {

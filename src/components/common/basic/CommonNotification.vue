@@ -50,6 +50,7 @@ const cookie = computed(() => props.cookieName
     gap: 8px;
     align-items: center;
 
+    max-width: 100%;
     padding: 4px 4px 4px 8px;
 
     font-size: 12px;
@@ -62,14 +63,14 @@ const cookie = computed(() => props.cookieName
     }
 
     &_text {
-        flex: 1 0 auto;
+        flex-grow: 1;
     }
 
     &_icon {
         cursor: pointer;
         align-self: flex-start;
-        width: 16px;
-        min-width: 16px;
+        width: 12px;
+        min-width: 12px;
 
         @include hover {
             transition: 0.3s;

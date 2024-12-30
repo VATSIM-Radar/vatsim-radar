@@ -4,7 +4,7 @@
             cookie-name="vatglasses-runways"
             type="info"
         >
-            In this block you can select active runways<br> for VatGlasses sectors
+            In this block you can select active runway config<br> for VatGlasses sectors
         </common-notification>
         <div
             v-if="runways?.potential.length"
