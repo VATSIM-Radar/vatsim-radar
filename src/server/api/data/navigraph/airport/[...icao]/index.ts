@@ -79,6 +79,17 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                     airport_identifier: feature.properties!.idarpt,
                 };
             }) ?? [],
+            ..._layout.standguidanceline?.features.filter(x => x.properties?.midpoint && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
+                const coords = fromServerLonLat((feature.properties!.midpoint as Point).coordinates);
+
+                return {
+                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
+                    gate_longitude: coords[0],
+                    gate_latitude: coords[1],
+                    name: feature.properties!.idstd || feature.properties!.termref,
+                    airport_identifier: feature.properties!.idarpt,
+                };
+            }) ?? [],
             ..._layout.parkingstandarea?.features.filter(x => x.properties?.centroid && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
                 const coords = fromServerLonLat((feature.properties!.centroid as Point).coordinates);
 
