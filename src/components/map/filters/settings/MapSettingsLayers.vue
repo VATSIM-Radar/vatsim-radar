@@ -64,7 +64,7 @@
                 Toggle Active
             </common-toggle>
             <common-toggle
-                :disabled="!store.mapSettings.vatglasses?.active"
+                :disabled="!vatglassesActive"
                 :model-value="store.mapSettings.vatglasses?.combined"
                 @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
             >
@@ -74,10 +74,21 @@
                     All sectors at once. Eats performance.
                 </template>
             </common-toggle>
+            <common-toggle
+                v-if="vatglassesActive"
+                :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoLevel: $event } })"
+            >
+                Auto-Set Level
+
+                <template #description>
+                    Based on your flight
+                </template>
+            </common-toggle>
         </div>
 
         <div
-            v-if="store.mapSettings.vatglasses?.active && !store.mapSettings.vatglasses?.combined"
+            v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (store.mapSettings.vatglasses?.autoLevel === false || !mapStore.overlays.some(x => x.key === store.user?.cid))"
             class="__grid-info-sections __grid-info-sections--large-title"
         >
             <div class="__grid-info-sections_title">
@@ -203,8 +214,11 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { backupMapSettings } from '~/composables/settings';
 import { resetUserMapSettings } from '~/composables';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { useMapStore } from '~/store/map';
 
 const store = useStore();
+const mapStore = useMapStore();
 
 const resetActive = ref(false);
 
@@ -218,6 +232,8 @@ const vatglassesLevel = computed({
         }
     },
 });
+
+const vatglassesActive = isVatGlassesActive();
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

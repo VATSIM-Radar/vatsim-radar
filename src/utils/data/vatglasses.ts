@@ -28,7 +28,6 @@ let facilities: {
 If we want to get the initial load of the combined sectors, we need sectorsCombined, airspaceKeys and the vatglasses Data version of the server on which base the sectors were combined, to make sure we have the same data version on the client side.
 */
 
-
 export interface VatglassesActiveData {
     vatglassesActiveRunways: VatglassesActiveRunways;
     vatglassesActivePositions: VatglassesActivePositions;
@@ -48,8 +47,12 @@ export interface VatglassesActivePositions {
     };
 }
 
+export interface VatglassesAirportRunways {
+    active: string; potential: string[];
+}
+
 export interface VatglassesActiveRunways {
-    [icao: string]: { active: string; potential: string[] };
+    [icao: string]: VatglassesAirportRunways;
 }
 
 export interface VatglassesActiveAirspaces {
@@ -562,6 +565,7 @@ export const isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
+    const mapStore = useNuxtApp().$pinia.state.value.map;
     dataStore ??= useDataStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
@@ -570,7 +574,7 @@ export const isVatGlassesActive = () => computed(() => {
 
     if (isAuto) {
         if (store.user) {
-            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
+            return mapStore.overlays.some((x: any) => x.key === store.user?.cid);
         }
     }
 
