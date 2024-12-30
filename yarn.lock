@@ -5371,13 +5371,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:^3.3.1":
-  version: 3.3.1
-  resolution: "cron@npm:3.3.1"
+"cron@npm:^3.3.2":
+  version: 3.3.2
+  resolution: "cron@npm:3.3.2"
   dependencies:
     "@types/luxon": "npm:~3.4.0"
     luxon: "npm:~3.5.0"
-  checksum: 10c0/30f4f44e5d1429f7364a135ba03ec9918ad9917c7a98ab4aca007a7438f0be96083e9eca29ef6dbceb3dc71454fcc20f090d55aa6c9e243242dad55f001c2b7f
+  checksum: 10c0/e97f685552ea16ce8c821523faf2014c74f031e4cef8560f8aa105e07f25b6457c0d5363d162d430b87d362dec02106f91442b8433a18c2df4caa3dc483c9875
   languageName: node
   linkType: hard
 
@@ -13867,7 +13867,7 @@ __metadata:
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.0.0"
-    cron: "npm:^3.3.1"
+    cron: "npm:^3.3.2"
     croner: "npm:^9.0.0"
     discord.js: "npm:^14.16.3"
     eslint: "npm:^9.17.0"
