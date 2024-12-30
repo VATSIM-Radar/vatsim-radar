@@ -141,6 +141,7 @@ import { toRadians } from 'ol/math';
 import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 
 const props = defineProps({
     airport: {
@@ -638,25 +639,7 @@ onMounted(async () => {
     });
 
     const supportedLayouts = computed(() => {
-        const supported: NavigraphLayoutType[] = [
-            'parkingstandarea',
-            'apronelement',
-            'arrestinggearlocation',
-            'blastpad',
-            'constructionarea',
-            'finalapproachandtakeoffarea',
-            'runwaythreshold',
-            'runwaydisplacedarea',
-            'runwayelement',
-            'runwayintersection',
-            'runwaymarking',
-            'runwayshoulder',
-            'frequencyarea',
-            'serviceroad',
-            'taxiwayshoulder',
-            'verticallinestructure',
-            'verticalpolygonalstructure',
-        ];
+        const supported = supportedNavigraphLayouts.slice(0);
 
         const disabledTaxiways = store.mapSettings.navigraphLayers?.hideTaxiways;
         const disabledGates = store.mapSettings.navigraphLayers?.hideGateGuidance;

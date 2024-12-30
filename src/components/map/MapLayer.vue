@@ -17,6 +17,7 @@ import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 defineSlots<{ default: () => any }>();
 
@@ -230,8 +231,9 @@ watch(map, val => {
     immediate: true,
 });
 
-watch([layerUrl, theme], initLayer);
-watch(transparencySettings, initLayer);
+const vatglassesEnabled = isVatGlassesActive();
+
+watch([layerUrl, theme, vatglassesEnabled, transparencySettings], initLayer);
 
 onBeforeUnmount(() => {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);

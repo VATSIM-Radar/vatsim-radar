@@ -88,7 +88,7 @@
         </div>
 
         <div
-            v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (store.mapSettings.vatglasses?.autoLevel === false || !mapStore.overlays.some(x => x.key === store.user?.cid))"
+            v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined"
             class="__grid-info-sections __grid-info-sections--large-title"
         >
             <div class="__grid-info-sections_title">
@@ -96,6 +96,7 @@
             </div>
             <div class="__section-group">
                 <input
+                    v-if="!disabledLevel"
                     v-model="vatglassesLevel"
                     max="430"
                     min="0"
@@ -109,6 +110,7 @@
                         max: 430,
                         min: 0,
                         step: 10,
+                        disabled: disabledLevel,
                     }"
                     input-type="number"
                 />
@@ -234,6 +236,7 @@ const vatglassesLevel = computed({
 });
 
 const vatglassesActive = isVatGlassesActive();
+const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && mapStore.overlays.some(x => x.key === store.user?.cid));
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

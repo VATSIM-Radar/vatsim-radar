@@ -332,7 +332,7 @@ useUpdateInterval(() => {
     if (!hasOwnFlight || store.mapSettings.vatglasses?.autoLevel === false) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid)!.altitude / 1000),
+        vatglassesLevel: Math.round(dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid)!.altitude / 1000) * 10,
     });
 });
 
