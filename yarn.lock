@@ -3397,7 +3397,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/difference@npm:^7.1.0":
+"@turf/difference@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/difference@npm:7.2.0"
   dependencies:
@@ -3421,7 +3421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/helpers@npm:^7.1.0, @turf/helpers@npm:^7.2.0":
+"@turf/helpers@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/helpers@npm:7.2.0"
   dependencies:
@@ -3431,7 +3431,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/intersect@npm:^7.1.0":
+"@turf/intersect@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/intersect@npm:7.2.0"
   dependencies:
@@ -3455,7 +3455,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/meta@npm:^7.1.0, @turf/meta@npm:^7.2.0":
+"@turf/meta@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/meta@npm:7.2.0"
   dependencies:
@@ -3465,7 +3465,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/truncate@npm:^7.1.0":
+"@turf/truncate@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/truncate@npm:7.2.0"
   dependencies:
@@ -3477,7 +3477,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/union@npm:^7.1.0":
+"@turf/union@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/union@npm:7.2.0"
   dependencies:
@@ -3627,7 +3627,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/merge-ranges@npm:^1":
+"@types/merge-ranges@npm:^1.0.2":
   version: 1.0.2
   resolution: "@types/merge-ranges@npm:1.0.2"
   checksum: 10c0/ae92d920fa5d6f808651674ac764ec561115883053a417017cbea2527fd4b7425f8dfe94017305e34fd0894c176ba3fb96575bf2e3bda35a2c748bc509a731f8
@@ -13932,17 +13932,17 @@ __metadata:
     "@prisma/client": "npm:^6.1.0"
     "@stylistic/eslint-plugin": "npm:^2.12.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
-    "@turf/difference": "npm:^7.1.0"
+    "@turf/difference": "npm:^7.2.0"
     "@turf/great-circle": "npm:^7.2.0"
-    "@turf/helpers": "npm:^7.1.0"
-    "@turf/intersect": "npm:^7.1.0"
-    "@turf/meta": "npm:^7.1.0"
-    "@turf/truncate": "npm:^7.1.0"
-    "@turf/union": "npm:^7.1.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/intersect": "npm:^7.2.0"
+    "@turf/meta": "npm:^7.2.0"
+    "@turf/truncate": "npm:^7.2.0"
+    "@turf/union": "npm:^7.2.0"
     "@types/adm-zip": "npm:^0.5.7"
     "@types/geojson": "npm:^7946.0.15"
     "@types/jsonwebtoken": "npm:^9.0.7"
-    "@types/merge-ranges": "npm:^1"
+    "@types/merge-ranges": "npm:^1.0.2"
     "@types/node": "npm:^22.10.2"
     "@types/ws": "npm:^8.5.13"
     "@vite-pwa/nuxt": "npm:^0.10.6"
