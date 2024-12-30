@@ -208,6 +208,7 @@ const controllers = computed<Controller[]>(() => {
     }
 
     & &_info {
+        padding: 0 !important;
         background: transparent;
 
         :deep(.info-block__content) {

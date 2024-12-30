@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0-beta.1]
+
+- Slight redesign of featured airports
+
 # [1.0.0-alpha.4]
 
 - VATGlasses integration has been added - made by Felix and enabled by default for your flights

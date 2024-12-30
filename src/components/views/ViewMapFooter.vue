@@ -24,7 +24,6 @@
                 <common-control-block
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
-                    max-height="400px"
                     width="480px"
                 >
                     <template #title>

@@ -169,7 +169,7 @@ useClickOutside({
 
         &_title {
             font-family: $openSansFont;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             line-height: 100%;
             color: $lightgray100;
