@@ -2,6 +2,15 @@
 
 # [1.0.0-beta.1]
 
+## Favorite Lists
+
+- Add pilots and controllers to lists - with Friends as predefined list
+- Monitor what are they doing - and identify them on maps
+- Add comments or custom names to each user in a list
+- Filter by them - coming soon!
+
+## Other changes
+
 - Slight redesign of featured airports
 - Tabs are now pinned in every overlay you open
 - Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
