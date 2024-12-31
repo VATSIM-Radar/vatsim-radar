@@ -386,12 +386,14 @@ watch([overlays, popupsHeight], () => {
         });
     }
 
-    localStorage.setItem('overlays', JSON.stringify(
-        overlays.value.map(x => ({
-            ...x,
-            data: undefined,
-        })),
-    ));
+    if (!store.config.airport) {
+        localStorage.setItem('overlays', JSON.stringify(
+            overlays.value.map(x => ({
+                ...x,
+                data: undefined,
+            })),
+        ));
+    }
 }, {
     deep: true,
 });

@@ -162,10 +162,19 @@ useClickOutside({
     }
 
     &_header {
+        position: sticky;
+        z-index: 10;
+        top: -16px;
+
         display: flex;
         gap: 16px;
         align-items: center;
         justify-content: space-between;
+
+        margin: -16px;
+        padding: 16px;
+
+        background: $darkgray1000;
 
         &_title {
             font-family: $openSansFont;

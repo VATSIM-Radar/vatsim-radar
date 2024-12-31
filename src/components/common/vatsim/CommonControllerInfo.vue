@@ -34,9 +34,13 @@
                     @click="[mapStore.addAtcOverlay(controller.callsign), emit('overlay')]"
                 >
                     <template #top="{ item, index }">
-                        <template v-if="index === 0 && showFacility">
-                            <div class="atc-popup__position">
+                        <template v-if="index === 0">
+                            <div
+                                class="atc-popup__position"
+                                :style="{ '--color': controllerColor(controller) }"
+                            >
                                 <div
+                                    v-if="showFacility"
                                     class="atc-popup__position_facility"
                                     :style="{ background: getControllerPositionColor(controller) }"
                                 >
@@ -49,7 +53,10 @@
                         </template>
                         <template v-else-if="index === 1">
                             <common-spoiler type="controller">
-                                <div class="atc-popup__controller">
+                                <div
+                                    class="atc-popup__controller"
+                                    :style="{ '--color': controllerColor(controller) }"
+                                >
                                     <div class="atc-popup__controller_name">
                                         {{ item }}
                                     </div>
@@ -125,6 +132,9 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import SaveIcon from '@/assets/icons/kit/save.svg?component';
+import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
+import { getUserList } from '~/composables/lists';
+import { getStringColorFromSettings } from '~/composables/colors';
 
 defineProps({
     controllers: {
@@ -163,6 +173,12 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
+
+const controllerColor = (controller: VatsimShortenedController) => {
+    const list = getUserList(controller.cid);
+
+    return (list && getStringColorFromSettings(list.color)) ?? undefined;
+};
 
 const isCopied = (key: string) => {
     return copiedFor.value === key && copyState.value;
@@ -213,6 +229,10 @@ const getATIS = (controller: VatsimShortenedController) => {
         gap: 8px;
         align-items: center;
 
+        &_name {
+            color: var(--color, currentColor);
+        }
+
         &_facility {
             width: 40px;
             padding: 2px 4px;
@@ -231,6 +251,10 @@ const getATIS = (controller: VatsimShortenedController) => {
 
         font-weight: 400;
         word-break: break-word;
+
+        &_name {
+            color: var(--color, currentColor);
+        }
     }
 
     &__frequency {

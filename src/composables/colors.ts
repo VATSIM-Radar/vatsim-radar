@@ -44,6 +44,16 @@ export function getColorFromSettings(setting: UserMapSettingsColor, raw?: boolea
     return `rgba(${ rgb.join(',') }, ${ setting.transparency ?? 1 })`;
 }
 
+export function getStringColorFromSettings(setting: string | null | undefined, raw?: boolean) {
+    if (!setting) return '#000';
+    const rgb = getCurrentThemeRgbColor(setting as any) ?? setting.split(',').map(x => +x) as [number, number, number];
+    if (rgb.length !== 3 || rgb.some(x => isNaN(x))) throw new Error(`Color ${ setting } contains invalid rgb`);
+
+    if (raw) return rgb.join(',');
+
+    return `rgb(${ rgb.join(',') })`;
+}
+
 export function getSelectedColorFromSettings(color: Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>, raw?: boolean) {
     const store = useStore();
     const themeKey = store.getCurrentTheme;

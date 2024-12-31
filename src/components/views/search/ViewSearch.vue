@@ -128,7 +128,7 @@
                                         <div
                                             v-if="'status' in flight && flight.status"
                                             class="search_window__flight_status"
-                                            :style="{ '--color': getAircraftStatusColor(getFlightStatus(flight)) }"
+                                            :style="{ '--color': getAircraftStatusColor(getFlightStatus(flight), flight.cid) }"
                                         />
                                     </div>
                                 </template>

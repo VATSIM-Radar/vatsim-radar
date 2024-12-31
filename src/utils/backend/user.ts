@@ -4,6 +4,9 @@ import type { H3Event } from 'h3';
 import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
+import type { UserTrackingList } from '@prisma/client';
+import { handleH3Error } from '~/utils/backend/h3';
+import type { UserList } from '~/utils/backend/lists';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -32,6 +35,7 @@ export interface FullUser {
     fullName: string;
     settings: UserSettings;
     discordId: string | null;
+    lists: UserList[];
 }
 
 export interface UserSettings {
@@ -43,7 +47,7 @@ export interface UserSettings {
     seenVersion?: string;
 }
 
-export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
+export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = true): Promise<FullUser | null> {
     const cookie = getCookie(event, 'access-token');
 
     const token = await prisma.userToken.findFirst({
@@ -69,6 +73,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                         },
                     },
                     discordId: true,
+                    lists: true,
                 },
             },
             accessTokenExpire: true,
@@ -81,10 +86,20 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
 
     if (token) {
         if (token.accessTokenExpire.getTime() < Date.now()) {
-            await getDBUserToken(event, token.user, token);
+            if (refresh) {
+                await getDBUserToken(event, token.user, token);
+            }
+            else {
+                handleH3Error({
+                    event,
+                    statusCode: 401,
+                });
+
+                return null;
+            }
         }
 
-        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now()) {
+        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now() && refresh) {
             try {
                 const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
                 const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
@@ -124,6 +139,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
             discordId: token.user.discordId,
+            lists: token.user.lists as unknown as UserList[],
         };
     }
     return null;

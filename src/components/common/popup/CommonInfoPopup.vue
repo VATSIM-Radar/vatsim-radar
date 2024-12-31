@@ -314,14 +314,12 @@ watch(getSections, sections => {
 
         &--collapse {
             &-enter-active, &-leave-active {
-                overflow: hidden;
                 max-height: 100%;
                 transition: 0.5s ease-in-out;
             }
 
             &-enter-from, &-leave-to {
                 max-height: 0;
-                margin-top: 0;
             }
         }
 
@@ -330,6 +328,7 @@ watch(getSections, sections => {
             z-index: 2;
             top: 56px;
 
+            margin-top: -16px;
             padding-bottom: 16px;
 
             background: $darkgray1000;
@@ -343,6 +342,7 @@ watch(getSections, sections => {
             z-index: 5;
             bottom: -16px;
 
+            margin-bottom: -16px;
             padding: 8px 0;
 
             background: $darkgray1000;

@@ -3,7 +3,10 @@
         v-if="data"
         class="support"
     >
-        <div class="support_hero">
+        <div
+            class="support_hero"
+            :class="{ 'support_hero--light': store.getCurrentTheme === 'light' }"
+        >
             <div class="support_hero_title">
                 Support <span>VATSIM Radar</span><br>
                 on <span>Patreon</span> or <span>Boosty</span>
@@ -50,7 +53,7 @@
                     target="_blank"
                     type="secondary-875"
                 >
-                    Поддержите нас на Boosty
+                    Support us on Boosty
                 </common-button>
             </div>
         </div>
@@ -127,10 +130,13 @@ import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { PatreonInfo } from '~/server/plugins/patreon';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import { useStore } from '~/store';
 
 useHead({
     title: 'Support VATSIM Radar',
 });
+
+const store = useStore();
 
 interface Feature {
     id: string;
@@ -205,10 +211,14 @@ const features: Feature[] = [
 
         padding: 48px;
 
-        color: $lightgray125Orig;
+        color: $lightgray125;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
         border-radius: 8px;
+
+        &--light {
+            background-image: url("@/assets/images/support-us-bg-light.png");
+        }
 
         @include mobile {
             gap: 16px;

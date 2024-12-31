@@ -3,6 +3,10 @@
 # [1.0.0-beta.1]
 
 - Slight redesign of featured airports
+- Tabs are now pinned in every overlay you open
+- Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
+- Supervisors online count will now show more precise data
+- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it? 
 
 # [1.0.0-alpha.4]
 

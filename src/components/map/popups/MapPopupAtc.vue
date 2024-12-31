@@ -33,33 +33,39 @@
         </template>
         <template #data>
             <div class="atc__sections">
-                <common-spoiler type="controller">
-                    <common-info-block
-                        :bottom-items="[
-                            shortRating,
-                            stats?.total ? `${ stats.total }h total time` : null,
-                            stats?.rating ? `${ stats.rating }h on ${ shortRating }` : null,
-                        ]"
-                        class="atc__sections_section atc__sections_section--self"
-                        :top-items="[atc.name, atc.cid]"
-                    >
-                        <template #bottom="{ item, index }">
-                            <common-bubble
-                                v-if="index === 0"
-                                class="atc__rating"
-                            >
-                                {{ item }}
-                            </common-bubble>
-                            <template v-else>
-                                {{ item }}
+                <div class="atc__info">
+                    <common-spoiler type="controller">
+                        <common-info-block
+                            :bottom-items="[
+                                shortRating,
+                                stats?.total ? `${ stats.total }h total time` : null,
+                                stats?.rating ? `${ stats.rating }h on ${ shortRating }` : null,
+                            ]"
+                            class="atc__sections_section atc__sections_section--self"
+                            :top-items="[atc.name, atc.cid]"
+                        >
+                            <template #bottom="{ item, index }">
+                                <common-bubble
+                                    v-if="index === 0"
+                                    class="atc__rating"
+                                >
+                                    {{ item }}
+                                </common-bubble>
+                                <template v-else>
+                                    {{ item }}
+                                </template>
                             </template>
-                        </template>
-                    </common-info-block>
+                        </common-info-block>
 
-                    <template #name>
-                        Show Controller Info
-                    </template>
-                </common-spoiler>
+                        <template #name>
+                            Show Controller Info
+                        </template>
+                    </common-spoiler>
+                    <common-favorite-list
+                        :cid="atc.cid"
+                        :name="atc.name"
+                    />
+                </div>
                 <div
                     v-if="airport"
                     class="atc__sections_section atc__airport"
@@ -173,6 +179,7 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import { getVATSIMMemberStats } from '~/composables/data';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 
 const props = defineProps({
     overlay: {
@@ -248,6 +255,16 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
                     margin-top: 4px;
                 }
             }
+        }
+    }
+
+    &__info {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+
+        >:first-child {
+            flex-grow: 1;
         }
     }
 

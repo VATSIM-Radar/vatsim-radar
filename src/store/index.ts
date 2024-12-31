@@ -10,6 +10,7 @@ import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
 import type { UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
+import type { UserListLive, UserListLiveUser } from '~/utils/backend/lists';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -85,6 +86,73 @@ export const useStore = defineStore('index', {
 
             return this.theme;
         },
+        lists(): UserListLive[] {
+            if (!this.user) return [];
+
+            const lists = this.user.lists.slice(0);
+            const listsUsers = new Set(lists.flatMap(x => x.users.map(x => x.cid)));
+            const foundUsers: Record<number, Pick<UserListLiveUser, 'type' | 'data'>> = {};
+
+            const dataStore = useDataStore();
+
+            if (!lists.some(x => x.type === 'FRIENDS')) {
+                lists.unshift({
+                    id: 0,
+                    name: 'Friends',
+                    color: 'success300',
+                    type: 'FRIENDS',
+                    users: [],
+                });
+            }
+
+            if (listsUsers.size) {
+                for (const pilot of dataStore.vatsim.data.pilots.value) {
+                    if (listsUsers.has(pilot.cid)) {
+                        foundUsers[pilot.cid] = {
+                            type: 'pilot',
+                            data: pilot,
+                        };
+                    }
+                }
+
+                for (const atc of dataStore.vatsim.data.locals.value) {
+                    if (listsUsers.has(atc.atc.cid)) {
+                        foundUsers[atc.atc.cid] = {
+                            type: 'atc',
+                            data: atc.atc,
+                        };
+                    }
+                }
+
+                for (const atc of dataStore.vatsim.data.firs.value) {
+                    if (listsUsers.has(atc.controller.cid)) {
+                        foundUsers[atc.controller.cid] = {
+                            type: 'atc',
+                            data: atc.controller,
+                        };
+                    }
+                }
+
+                for (const prefile of dataStore.vatsim.data.prefiles.value) {
+                    if (listsUsers.has(prefile.cid)) {
+                        foundUsers[prefile.cid] = {
+                            type: 'prefile',
+                            data: prefile,
+                        };
+                    }
+                }
+            }
+
+            return lists.map(list => Object.assign(list, {
+                users: list.users.map(user => ({
+                    ...user,
+                    ...foundUsers[user.cid] ?? {
+                        type: 'offline',
+                        data: undefined,
+                    },
+                } as UserListLiveUser)),
+            }));
+        },
     },
     actions: {
         async getVATSIMData(force = false, onFetch?: () => any) {
@@ -140,6 +208,9 @@ export const useStore = defineStore('index', {
             finally {
                 this.dataInProgress = false;
             }
+        },
+        async refreshUser() {
+            this.user = await $fetch<FullUser>('/api/user');
         },
     },
 });
