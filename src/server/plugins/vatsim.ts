@@ -1,6 +1,6 @@
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
-import { updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
+import { updateAirlines, updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
 
@@ -39,4 +39,5 @@ export default defineNitroPlugin(app => {
     defineCronJob('15 0 * * *', fetchDivisions);
     defineCronJob('* * * * * *', updateTransceivers);
     defineCronJob('15 * * * *', updateAustraliaData);
+    defineCronJob('15 0 * * *', updateAirlines);
 });

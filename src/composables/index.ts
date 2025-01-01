@@ -314,3 +314,12 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
 
     return collapsingWithOverlay;
 };
+
+const callsignRegex = /^(?<callsign>[A-Z]{0,3})[0-9]/;
+
+export function getAirlineFromCallsign(callsign: string) {
+    const icao = callsignRegex.exec(callsign)?.groups?.callsign as string ?? null;
+    if (!icao) return null;
+
+    return useDataStore().airlines.value[icao] ?? null;
+}

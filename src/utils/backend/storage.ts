@@ -94,6 +94,16 @@ export interface AustraliaSector {
     callsign: string;
 }
 
+export interface RadarDataAirline {
+    icao: string;
+    name: string;
+    callsign: string;
+    country: string;
+    virtual: boolean;
+}
+
+export type RadarDataAirlinesList = Record<string, RadarDataAirline>;
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -138,6 +148,7 @@ export interface RadarStorage {
     vatsim: VatsimStorage;
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
+    airlines: RadarDataAirlinesList;
 }
 
 export const radarStorage: RadarStorage = {
@@ -182,6 +193,7 @@ export const radarStorage: RadarStorage = {
     },
     navigraph: null,
     patreonInfo: null,
+    airlines: {},
 };
 
 export function getRadarStorage() {

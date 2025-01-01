@@ -7,9 +7,14 @@ import type {
     VatsimShortenedController,
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
-import type { SimAwareAPIData, VatglassesAPIData } from '~/utils/backend/storage';
+import type {
+    RadarDataAirlinesList,
+    SimAwareAPIData,
+    VatglassesAPIData,
+} from '~/utils/backend/storage';
 import { View } from 'ol';
 import { fromLonLat } from 'ol/proj';
+import type { IDBAirlinesData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
@@ -19,9 +24,9 @@ import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
+const airlines = shallowRef<RadarDataAirlinesList>({});
 const simaware = shallowRef<SimAwareAPIData>();
 const vatglasses = shallowRef<VatglassesAPIData>();
-
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -88,6 +93,7 @@ export interface UseDataStore {
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
+    airlines: ShallowRef<RadarDataAirlinesList>;
 }
 
 export function useDataStore(): UseDataStore {
@@ -101,6 +107,7 @@ export function useDataStore(): UseDataStore {
         vatglassesActiveRunways,
         stats,
         time,
+        airlines,
     };
 }
 
@@ -263,6 +270,19 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 }
 
                 dataStore.vatspy.value = vatspy;
+            }()),
+            (async function() {
+                let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
+                if (!airlines || Date.now() > airlines.expiresAt) {
+                    const data = await $fetch<RadarDataAirlinesList>('/api/data/airlines');
+                    airlines = {
+                        expiresAt: Date.now() + (1000 * 60 * 60 * 24 * 30),
+                        airlines: data,
+                    };
+                    await clientDB.put('data', airlines, 'airlines');
+                }
+
+                dataStore.airlines.value = airlines.airlines;
             }()),
             (async function() {
                 let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;

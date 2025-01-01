@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0-beta.2]
+
+- Added airline display into pilot popup
+
 # [1.0.0-beta.1]
 
 ## Favorite Lists

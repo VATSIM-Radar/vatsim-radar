@@ -36,6 +36,31 @@
                 :name="pilot.name"
             />
         </div>
+        <div
+            v-if="airline"
+            class="flight-info_self"
+        >
+            <div>Airline</div>
+            <common-info-block
+                :bottom-items="[airline.callsign, airline.virtual ? '1' : null]"
+                class="flight-info__card flight-info__card--airline"
+                :top-items="[airline.name, airline.country]"
+            >
+                <template #top="{ item }">
+                    <span :title="item as string">
+                        {{ item }}
+                    </span>
+                </template>
+                <template #bottom="{ item, index }">
+                    <common-bubble v-if="index === 1">
+                        Virtual Airline
+                    </common-bubble>
+                    <template v-else>
+                        {{ item }}
+                    </template>
+                </template>
+            </common-info-block>
+        </div>
         <common-info-block
             :key="dataStore.vatsim.updateTimestamp.value.toString()"
             class="flight-info__card"
@@ -184,6 +209,8 @@ import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
+import { getAirlineFromCallsign } from '~/composables';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 
 const props = defineProps({
     pilot: {
@@ -218,6 +245,8 @@ const depAirport = computed(() => {
 const arrAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.pilot.flight_plan?.arrival);
 });
+
+const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign));
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -280,6 +309,18 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         .flight-info__card {
             flex: 1 1 0;
             width: 0;
+
+            &--airline {
+                :deep(.info-block_top) {
+                    flex-wrap: nowrap;
+
+                    .info-block__content {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+            }
         }
     }
 
