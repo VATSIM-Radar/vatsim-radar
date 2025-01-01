@@ -118,6 +118,24 @@ export const useStore = defineStore('index', {
                     }
                 }
 
+                for (const prefile of dataStore.vatsim.data.prefiles.value) {
+                    if (listsUsers.has(prefile.cid)) {
+                        foundUsers[prefile.cid] = {
+                            type: 'prefile',
+                            data: prefile,
+                        };
+                    }
+                }
+
+                for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
+                    if (listsUsers.has(atc.cid)) {
+                        foundUsers[atc.cid] = {
+                            type: 'sup',
+                            data: atc,
+                        };
+                    }
+                }
+
                 for (const atc of dataStore.vatsim.data.locals.value) {
                     if (atc.atc.isATIS) continue;
                     if (listsUsers.has(atc.atc.cid)) {
@@ -134,24 +152,6 @@ export const useStore = defineStore('index', {
                         foundUsers[atc.controller.cid] = {
                             type: atc.controller.rating === 1 ? 'sup' : 'atc',
                             data: atc.controller,
-                        };
-                    }
-                }
-
-                for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
-                    if (listsUsers.has(atc.cid)) {
-                        foundUsers[atc.cid] = {
-                            type: 'sup',
-                            data: atc,
-                        };
-                    }
-                }
-
-                for (const prefile of dataStore.vatsim.data.prefiles.value) {
-                    if (listsUsers.has(prefile.cid)) {
-                        foundUsers[prefile.cid] = {
-                            type: 'prefile',
-                            data: prefile,
                         };
                     }
                 }
