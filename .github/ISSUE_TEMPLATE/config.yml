@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Airline issue
+    url: https://github.com/VATSIM-Radar/data/issues/new/choose
+    about: Some airline is showing incorrect info or not shown at all? Report this in our data project!
   - name: Discord
     url: https://vatsim-radar.com/discord
     about: Feel free to join our Discord to discuss stuff, including possible bugs and suggestions!

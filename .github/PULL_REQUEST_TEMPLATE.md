@@ -1,6 +1,6 @@
 ### 🔗 Your VATSIM ID
 
-<!-- If your PR has an issue, please specify it like Closes #123 -->
+<!-- Please specify your CID -->
 
 ### 🔗 Linked Issue
 
