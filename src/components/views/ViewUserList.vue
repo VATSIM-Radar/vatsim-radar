@@ -180,7 +180,6 @@ import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 
 const props = defineProps({
