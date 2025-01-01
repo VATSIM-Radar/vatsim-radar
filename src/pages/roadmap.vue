@@ -225,7 +225,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Open Source (code only)',
@@ -246,7 +246,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Favorite pilots/ATC',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Search',
@@ -283,9 +283,16 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Usage of VatGlasses data',
+                status: 'completed',
+            },
+            {
+                title: 'Bookmarks',
                 status: 'in-progress',
             },
-            'Bookmarks',
+            {
+                title: 'Name of aircraft operating company',
+                status: 'completed',
+            },
         ],
     },
     {
@@ -295,7 +302,6 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Detailed Stats',
                 description: 'Popular over time etc',
             },
-            'Name of aircraft operating company',
             'Images or aircraft type, airline + operator',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
