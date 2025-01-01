@@ -119,6 +119,22 @@
                 </common-toggle>
             </div>
         </template>
+        <template #tab-favorite>
+            <common-select
+                :items="[
+                    { text: 'Newest first (default)', value: 'newest' },
+                    { text: 'Oldest first', value: 'oldest' },
+                    { text: 'Name (ASC)', value: 'abcAsc' },
+                    { text: 'Name (DESC)', value: 'abcDesc' },
+                    { text: 'CID (ASC)', value: 'cidAsc' },
+                    { text: 'CID (DESC)', value: 'cidDesc' },
+                ]"
+                :model-value="store.user!.settings.favoriteSort ?? null"
+                placeholder="Sort"
+                width="100%"
+                @update:modelValue="saveSort"
+            />
+        </template>
         <template #new-list>
             <view-header-list
                 :list="newList"
@@ -193,6 +209,7 @@ import type { UserSettings } from '~/utils/backend/user';
 import ViewHeaderList from '~/components/views/header/ViewHeaderList.vue';
 import type { UserListLive } from '~/utils/backend/lists';
 import { MAX_USER_LISTS } from '~/utils/shared';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();
@@ -246,6 +263,18 @@ const newList = reactive<UserListLive>({
     users: [],
     showInMenu: false,
 });
+
+const saveSort = async (sort: any) => {
+    await $fetch('/api/user/settings', {
+        method: 'POST',
+        body: {
+            ...store.user!.settings,
+            favoriteSort: sort,
+        },
+    });
+
+    store.user!.settings.favoriteSort = sort as UserSettings['favoriteSort'];
+};
 
 async function addList() {
     await addUserList(newList);

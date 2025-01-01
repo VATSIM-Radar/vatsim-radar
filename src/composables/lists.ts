@@ -1,4 +1,4 @@
-import type { UserList } from '~/utils/backend/lists';
+import type { UserList, UserListLiveUser } from '~/utils/backend/lists';
 import type { UserTrackingListType } from '@prisma/client';
 import { useStore } from '~/store';
 
@@ -60,4 +60,43 @@ export async function deleteUserList(list: Partial<UserList> & { id: number }) {
 
 export function getUserList(cid: number): UserList | null {
     return useStore().user?.lists.find(x => x.users.some(x => x.cid === cid)) ?? null;
+}
+
+export function sortList(users: UserListLiveUser[]) {
+    const store = useStore();
+
+    const sort = store.user!.settings.favoriteSort ?? 'newest';
+
+    if (sort === 'oldest') {
+        return users.slice(0).reverse().sort((a, b) => {
+            const aOnline = a.type !== 'offline';
+            const bOnline = b.type !== 'offline';
+
+            if (bOnline && !aOnline) return 1;
+            if (!bOnline && aOnline) return -1;
+
+            return 0;
+        });
+    }
+
+    return users.slice(0).sort((a, b) => {
+        const aOnline = a.type !== 'offline';
+        const bOnline = b.type !== 'offline';
+
+        if (bOnline && !aOnline) return 1;
+        if (!bOnline && aOnline) return -1;
+
+        switch (sort) {
+            case 'abcAsc':
+                return a.name.localeCompare(b.name, undefined, { numeric: true });
+            case 'abcDesc':
+                return b.name.localeCompare(a.name, undefined, { numeric: true });
+            case 'cidAsc':
+                return a.cid - b.cid;
+            case 'cidDesc':
+                return b.cid - a.cid;
+        }
+
+        return 0;
+    });
 }

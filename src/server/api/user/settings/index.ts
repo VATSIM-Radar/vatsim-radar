@@ -3,6 +3,8 @@ import { findUserByCookie } from '~/utils/backend/user';
 import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 
+const sortOptions: UserSettings['favoriteSort'][] = ['newest', 'oldest', 'abcAsc', 'abcDesc', 'cidAsc', 'cidDesc'];
+
 const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
@@ -10,6 +12,7 @@ const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     toggleAircraftOverlays: val => typeof val === 'boolean',
     headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,
     seenVersion: val => (typeof val === 'string' && val.length <= 15) || val === null,
+    favoriteSort: val => (typeof val === 'string' && sortOptions.includes(val as any)) || val === null,
 };
 
 export default defineEventHandler(async event => {

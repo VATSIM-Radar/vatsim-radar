@@ -14,7 +14,7 @@
         </common-button>
 
         <div
-            v-for="user in getUsers"
+            v-for="user in sortedUsers"
             :key="user.cid"
             class="users_user"
             @click="activeUsers.has(user.cid) ? activeUsers.delete(user.cid) : activeUsers.add(user.cid)"
@@ -181,6 +181,7 @@ import { useMapStore } from '~/store/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import { sortList } from '~/composables/lists';
 
 const props = defineProps({
     list: {
@@ -196,6 +197,7 @@ const mapStore = useMapStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
+const sortedUsers = shallowRef<UserListLiveUser[]>([]);
 
 onBeforeUnmount(() => {
     if (deletedUsers.size) store.refreshUser();
@@ -204,6 +206,16 @@ onBeforeUnmount(() => {
 const getUsers = computed(() => {
     return props.list?.users ?? props.users ?? [];
 });
+
+onMounted(() => {
+    sortedUsers.value = sortList(getUsers.value);
+});
+
+if (!props.list) {
+    watch(getUsers, () => {
+        sortedUsers.value = sortList(getUsers.value);
+    });
+}
 </script>
 
 <style scoped lang="scss">

@@ -63,19 +63,6 @@
             Add via CID
         </common-button>
 
-        <common-select
-            :items="[
-                { text: 'Name (ASC)', value: 'abcAsc' },
-                { text: 'Name (DESC)', value: 'abcDesc' },
-                { text: 'CID (ASC)', value: 'cidAsc' },
-                { text: 'CID (DESC)', value: 'cidDesc' },
-            ]"
-            :model-value="null"
-            placeholder="Sort. Resets default sorting"
-            width="100%"
-            @update:modelValue="sortList($event as any)"
-        />
-
         <common-notification
             v-if="list.users.length"
             cookie-name="friends-click-tutorial"
@@ -115,7 +102,10 @@
             </common-button>
         </div>
 
-        <view-user-list :list/>
+        <view-user-list
+            :key="String(store.user?.settings.favoriteSort)"
+            :list
+        />
 
         <common-popup
             v-model="toDelete"
@@ -181,7 +171,6 @@ import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import ViewUserList from '~/components/views/ViewUserList.vue';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 const props = defineProps({
     list: {
@@ -223,24 +212,6 @@ function resetNewUser() {
         cid: 0,
     });
     userAddActive.value = false;
-}
-
-function sortList(sortMethod: 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc') {
-    switch (sortMethod) {
-        case 'abcAsc':
-            props.list.users.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
-            break;
-        case 'abcDesc':
-            props.list.users.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
-            break;
-        case 'cidAsc':
-            props.list.users.sort((a, b) => a.cid - b.cid);
-            break;
-        case 'cidDesc':
-            props.list.users.sort((a, b) => b.cid - a.cid);
-    }
-
-    editUserList({ id: props.list.id, users: props.list.users });
 }
 
 watch(() => props.list, val => {

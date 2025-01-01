@@ -44,6 +44,7 @@ export interface UserSettings {
     toggleAircraftOverlays?: boolean;
     headerName?: string;
     seenVersion?: string;
+    favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
 }
 
 export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = true): Promise<FullUser | null> {
