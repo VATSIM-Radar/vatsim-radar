@@ -43,6 +43,9 @@ export default defineNuxtConfig({
     devtools: {
         enabled: false,
     },
+    imports: {
+        dirs: ['composables/**'],
+    },
     sourcemap: {
         client: process.env.NODE_ENV === 'development',
         server: true,

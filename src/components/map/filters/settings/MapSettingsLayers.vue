@@ -180,15 +180,15 @@
 <script setup lang="ts">
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
-import type { IUserMapSettings } from '~/utils/backend/map-settings';
+import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { backupMapSettings } from '~/composables/settings';
-import { resetUserMapSettings } from '~/composables';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
 
 const store = useStore();
 

@@ -52,12 +52,23 @@ enum UserPresetType {
 }
 
 model UserPreset {
-  id     Int            @id @default(autoincrement())
+  id     Int              @id @default(autoincrement())
   type   UserPresetType
   name   String
   json   Json
   userId Int
-  user   User           @relation(onDelete: Cascade, fields: [userId], references: [id])
+  user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])
+  lists  UserPresetList[]
+}
+
+model UserPresetList {
+  presetId Int
+  preset   UserPreset @relation(onDelete: Cascade, fields: [presetId], references: [id])
+
+  listId Int
+  list   UserTrackingList @relation(onDelete: Cascade, fields: [listId], references: [id])
+
+  @@id([presetId, listId])
 }
 
 enum UserTrackingListType {
@@ -75,6 +86,7 @@ model UserTrackingList {
   users      Json
   userId     Int
   user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
+  presets    UserPresetList[]
 }
 
 enum AuthType {

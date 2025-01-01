@@ -8,9 +8,10 @@ import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
-import type { UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
+import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
-import type { UserListLive, UserListLiveUser } from '~/utils/backend/lists';
+import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
+import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -45,6 +46,8 @@ export const useStore = defineStore('index', {
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
         mapPresetsSaveFail: false as false | (() => Promise<any>),
+        filter: {} as UserFilter,
+        filterPresets: [] as UserFilterPreset[],
         config: {} as SiteConfig,
 
         showPilotStats: false,

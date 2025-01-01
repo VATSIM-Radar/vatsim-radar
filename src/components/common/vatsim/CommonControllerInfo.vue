@@ -131,7 +131,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import SaveIcon from '@/assets/icons/kit/save.svg?component';
-import { getUserList } from '~/composables/lists';
+import { getUserList } from '~/composables/fetchers/lists';
 import { getStringColorFromSettings } from '~/composables/colors';
 
 defineProps({

@@ -8,7 +8,7 @@ import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings } from '~/composables/colors';
-import { getUserList } from '~/composables/lists';
+import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 

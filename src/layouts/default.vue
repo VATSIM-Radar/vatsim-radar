@@ -52,7 +52,6 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/header/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
-import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
@@ -60,6 +59,7 @@ import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { UAParser } from 'ua-parser-js';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 
 defineSlots<{ default: () => any }>();
 
@@ -341,7 +341,7 @@ img {
 .__info-sections {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 
     &_title {
         padding-top: 8px;
@@ -384,11 +384,18 @@ img {
             grid-template-columns: 65% 30%;
         }
     }
+
+    &--vertical {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
 }
 
 .__section-group {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     width: 100%;
 
     &:not(&--even, &--even-mobile){

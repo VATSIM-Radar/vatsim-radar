@@ -62,7 +62,7 @@ import type { PropType } from 'vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import type { UserListLive } from '~/utils/backend/lists';
+import type { UserListLive } from '~/utils/backend/handlers/lists';
 
 const props = defineProps({
     cid: {
