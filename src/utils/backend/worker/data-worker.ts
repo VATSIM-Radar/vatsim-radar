@@ -76,17 +76,19 @@ defineCronJob('* * * * * *', updateTransceivers);
 defineCronJob('15 * * * *', updateSimAware);
 defineCronJob('15 * * * *', updateAustraliaData);
 
-const s3 = new S3({
-    endpoint: process.env.CF_R2_API,
-    accessKeyId: process.env.CF_R2_ACCESS_ID,
-    secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
-    signatureVersion: 'v4',
-});
+let s3: S3 | undefined;
 
 const dbRegex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
 
 defineCronJob('20 */2 * * *', async () => {
-    if (import.meta.dev) return;
+    if (import.meta.dev || !process.env.CF_R2_API) return;
+
+    s3 ??= new S3({
+        endpoint: process.env.CF_R2_API,
+        accessKeyId: process.env.CF_R2_ACCESS_ID,
+        secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
+        signatureVersion: 'v4',
+    });
 
     const {
         groups: {
