@@ -124,7 +124,7 @@
         >
             <div
                 class="aircraft-label"
-                :style="{ '--color': getAircraftStatusColor(getStatus) }"
+                :style="{ '--color': getAircraftStatusColor(getStatus, aircraft.cid) }"
                 @click="!isMobileOrTablet && mapStore.togglePilotOverlay(aircraft.cid.toString())"
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
@@ -281,6 +281,7 @@ const setStyle = async (iconFeature = feature, force = false) => {
         status: getStatus.value,
         style,
         force,
+        cid: props.aircraft.cid,
     });
 
     iconFeature.changed();
@@ -386,7 +387,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             );
         };
 
-        let color = getAircraftStatusColor(getStatus.value);
+        let color = getAircraftStatusColor(getStatus.value, props.aircraft.cid);
 
         if (store.mapSettings.colors?.turnsTransparency) {
             const rgb = hexToRgb(color);

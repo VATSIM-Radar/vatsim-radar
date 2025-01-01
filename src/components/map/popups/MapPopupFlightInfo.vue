@@ -30,6 +30,11 @@
                     <dashboard-icon/>
                 </template>
             </common-button>
+            <common-favorite-list
+                :cid="pilot.cid"
+                class="flight-info_self_favorite"
+                :name="pilot.name"
+            />
         </div>
         <common-info-block
             :key="dataStore.vatsim.updateTimestamp.value.toString()"
@@ -178,6 +183,7 @@ import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 
 const props = defineProps({
     pilot: {

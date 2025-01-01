@@ -108,6 +108,8 @@ useClickOutside({
     position: absolute;
     z-index: 5;
 
+    overflow: hidden;
+
     width: v-bind(width);
     max-width: v-bind(maxWidth);
     min-height: v-bind(minHeight);
@@ -162,14 +164,23 @@ useClickOutside({
     }
 
     &_header {
+        position: sticky;
+        z-index: 10;
+        top: -16px;
+
         display: flex;
         gap: 16px;
         align-items: center;
         justify-content: space-between;
 
+        margin: -16px;
+        padding: 16px;
+
+        background: $darkgray1000;
+
         &_title {
             font-family: $openSansFont;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             line-height: 100%;
             color: $lightgray100;

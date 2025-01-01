@@ -9,8 +9,9 @@
         </div>
 
         <close-icon
+            v-if="cookie"
             class="warning_icon"
-            @click="cookie !== undefined ? cookie.value = true : undefined"
+            @click="cookie.value = true"
         />
     </div>
 </template>

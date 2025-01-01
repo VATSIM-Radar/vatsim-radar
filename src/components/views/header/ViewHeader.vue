@@ -94,7 +94,7 @@
                 <view-header-theme-switcher/>
             </div>
             <div
-                v-else
+                v-else-if="route.path === '/'"
                 class="header__sections_section"
             >
                 <common-button
@@ -104,6 +104,21 @@
                 >
                     <template #icon>
                         <search-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    v-if="store.friends.length"
+                    class="header__friends"
+                    size="S"
+                    :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
+                    @click="store.menuFriendsOpen = !store.menuFriendsOpen"
+                >
+                    <template #icon>
+                        <star-filled-icon/>
+
+                        <common-bubble class="header__friends-bubble">
+                            {{ store.friends.length }}
+                        </common-bubble>
                     </template>
                 </common-button>
             </div>
@@ -216,6 +231,8 @@ import ViewHeaderPopups from '~/components/views/header/ViewHeaderPopups.vue';
 import { useHeaderMenu } from '~/composables/navigation';
 import ViewHeaderMobileMenu from '~/components/views/header/ViewHeaderMobileMenu.vue';
 import ViewHeaderThemeSwitcher from '~/components/views/header/ViewHeaderThemeSwitcher.vue';
+import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 
 const headerMenu = useHeaderMenu();
 
@@ -326,6 +343,10 @@ const mobileMenuOpened = ref(false);
             gap: 12px;
         }
 
+        @include mobileOnly {
+            gap: 8px;
+        }
+
         &_section {
             display: flex;
             gap: 16px;
@@ -333,6 +354,10 @@ const mobileMenuOpened = ref(false);
 
             @include tablet {
                 gap: 12px;
+            }
+
+            @include mobileOnly {
+                gap: 8px;
             }
 
             @include mobile {
@@ -347,6 +372,10 @@ const mobileMenuOpened = ref(false);
 
                 @include tablet {
                     padding-left: 12px;
+                }
+
+                @include mobileOnly {
+                    padding-left: 8px;
                 }
 
                 &::before {
@@ -474,6 +503,17 @@ const mobileMenuOpened = ref(false);
         &-leave-to {
             top: calc(100% - 10px);
             opacity: 0;
+        }
+    }
+
+    &__friends {
+        position: relative;
+
+        &-bubble {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            min-width: unset !important;
         }
     }
 }

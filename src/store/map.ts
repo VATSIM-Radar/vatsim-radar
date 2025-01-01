@@ -231,6 +231,8 @@ export const useMapStore = defineStore('map', {
                     sticky: false,
                 });
 
+                this.openingOverlay = false;
+
                 overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`);
                 overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`) ?? [];
                 return overlay;

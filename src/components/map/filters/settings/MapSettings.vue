@@ -9,6 +9,7 @@
 
         <common-tabs
             v-model="tab"
+            class="settings_tabs"
             mobile-vertical
             :tabs="{
                 layers: {
@@ -154,6 +155,17 @@ const createPreset = async () => {
             font-size: 14px;
             color: $error400;
         }
+    }
+
+    &_tabs {
+        position: sticky;
+        z-index: 10;
+        top: 48px - 16px;
+
+        margin-bottom: -16px;
+        padding-bottom: 16px;
+
+        background: $darkgray1000;
     }
 }
 </style>

@@ -87,35 +87,7 @@
             </common-toggle>
         </div>
 
-        <div
-            v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined"
-            class="__grid-info-sections __grid-info-sections--large-title"
-        >
-            <div class="__grid-info-sections_title">
-                VATGlasses Level
-            </div>
-            <div class="__section-group">
-                <input
-                    v-if="!disabledLevel"
-                    v-model="vatglassesLevel"
-                    max="430"
-                    min="0"
-                    step="10"
-                    type="range"
-                >
-                <common-input-text
-                    v-model="vatglassesLevel"
-                    class="vatglassesLevel-input"
-                    :input-attrs="{
-                        max: 430,
-                        min: 0,
-                        step: 10,
-                        disabled: disabledLevel,
-                    }"
-                    input-type="number"
-                />
-            </div>
-        </div>
+        <map-settings-vat-glasses-level/>
 
         <common-block-title>
             Airports Counters
@@ -213,30 +185,15 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { backupMapSettings } from '~/composables/settings';
 import { resetUserMapSettings } from '~/composables';
+import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { useMapStore } from '~/store/map';
 
 const store = useStore();
-const mapStore = useMapStore();
 
 const resetActive = ref(false);
-
-const vatglassesLevel = computed({
-    get() {
-        return store.localSettings.vatglassesLevel?.toString();
-    },
-    set(value) {
-        if (value !== undefined) {
-            setUserLocalSettings({ vatglassesLevel: Number(value) });
-        }
-    },
-});
-
 const vatglassesActive = isVatGlassesActive();
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && mapStore.overlays.some(x => x.key === store.user?.cid));
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

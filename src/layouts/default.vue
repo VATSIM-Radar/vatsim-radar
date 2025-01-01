@@ -191,10 +191,10 @@ function setWindowStore() {
     store.isTablet = window.innerWidth < 1366 && window.innerWidth >= 700;
     store.isPC = window.innerWidth >= 1366;
     store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
+    store.viewport.width = window.innerWidth;
 }
 
 const listener = () => {
-    store.viewport.width = window.innerWidth;
     setWindowStore();
 };
 

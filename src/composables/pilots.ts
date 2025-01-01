@@ -8,6 +8,9 @@ import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings } from '~/composables/colors';
+import { getUserList } from '~/composables/lists';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -24,9 +27,13 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
 }
 
-export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
+export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
+    const mapStore = useMapStore();
+
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    await nextTick();
 
     view?.animate({
         center: [pilot.longitude, pilot.latitude],
@@ -126,8 +133,14 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
-export const getAircraftStatusColor = (status: MapAircraftStatus) => {
+export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
     const store = useStore();
+
+    const list = cid && getUserList(cid);
+    if (list) {
+        return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
+    }
+
     let color = aircraftSvgColors()[status];
     let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
     if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
@@ -136,10 +149,10 @@ export const getAircraftStatusColor = (status: MapAircraftStatus) => {
     return color;
 };
 
-export function reColorSvg(svg: string, status: MapAircraftStatus) {
+export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number) {
     const store = useStore();
 
-    const color = getAircraftStatusColor(status);
+    const color = getAircraftStatusColor(status, cid);
 
     let iconContent = svg
         .replaceAll('\n', '')
@@ -183,25 +196,27 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
-export async function loadAircraftIcon({ feature, icon, status, style, rotation, force }: {
+export async function loadAircraftIcon({ feature, icon, status, style, rotation, force, cid }: {
     feature: Feature;
     icon: AircraftIcon;
     rotation: number;
     status: MapAircraftStatus;
     style: Style;
     force?: boolean;
+    cid: number;
 }) {
     const store = useStore();
 
     const image = style.getImage();
 
     const featureProperties = feature.getProperties() ?? {};
+    const list = getUserList(cid);
 
-    if (!force && image && featureProperties.imageStatus === status && featureProperties.icon === icon) {
+    if (!force && image && featureProperties.imageStatus === status && featureProperties.icon === icon && featureProperties.hadList === !!list) {
         image.setRotation(rotation);
     }
     else {
-        if (status === 'default' || status === 'ground') {
+        if ((status === 'default' || status === 'ground') && !list) {
             let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
 
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
@@ -220,7 +235,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         else {
             const svg = await fetchAircraftIcon(icon);
             style.setImage(new Icon({
-                src: svgToDataURI(reColorSvg(svg, status)),
+                src: svgToDataURI(reColorSvg(svg, status, cid)),
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
@@ -235,6 +250,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         ...featureProperties,
         imageStatus: status,
         icon,
+        hadList: !!list,
     });
 }
 

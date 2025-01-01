@@ -16,6 +16,11 @@ import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob } from '~/utils/backend';
+import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'path';
+import S3 from 'aws-sdk/clients/s3';
+import { prisma } from '~/utils/backend/prisma';
 
 initInfluxDB();
 initKafka();
@@ -70,6 +75,70 @@ defineCronJob('15 * * * *', updateVatSpy);
 defineCronJob('* * * * * *', updateTransceivers);
 defineCronJob('15 * * * *', updateSimAware);
 defineCronJob('15 * * * *', updateAustraliaData);
+
+const s3 = new S3({
+    endpoint: process.env.CF_R2_API,
+    accessKeyId: process.env.CF_R2_ACCESS_ID,
+    secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
+    signatureVersion: 'v4',
+});
+
+const dbRegex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
+
+defineCronJob('20 */2 * * *', async () => {
+    if (import.meta.dev) return;
+
+    const {
+        groups: {
+            user,
+            password,
+            host,
+            port,
+            db,
+        },
+    } = dbRegex.exec(process.env.DATABASE_URL!)! as { groups: Record<string, string> };
+
+    execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
+
+    const date = new Date();
+
+    s3.upload({
+        Bucket: 'backups',
+        Expires: new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)),
+        Body: readFileSync(join(process.cwd(), 'dump.sql')),
+        Key: `radar/${ date.getFullYear() }-${ date.getMonth() }-${ date.getDate() }-${ process.env.DOMAIN!.replace('https://', '').split(':')[0] }-${ date.getHours() }-${ date.getMinutes() }.sql`,
+        ContentType: 'application/sql',
+    }, (err, data) => {
+        if (err) console.error(err);
+        if (data) console.info('Backup completed', data.Location);
+    });
+});
+
+defineCronJob('*/15 * * * *', async () => {
+    await prisma.userToken.deleteMany({
+        where: {
+            refreshMaxDate: {
+                lte: new Date(),
+            },
+        },
+    });
+
+    await prisma.auth.deleteMany({
+        where: {
+            createdAt: {
+                lte: new Date(Date.now() - (1000 * 60 * 60)),
+            },
+        },
+    });
+
+    await prisma.userRequest.deleteMany({
+        where: {
+            createdAt: {
+                lte: new Date(Date.now() - (1000 * 60 * 60)),
+            },
+        },
+    });
+});
 
 let data: VatsimData | null = null;
 

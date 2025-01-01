@@ -37,7 +37,7 @@ export function updateVatsimDataStorage() {
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
-    data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
+    data.general.supsCount = data.controllers.filter(x => x.rating === 11).length;
     data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
     data.general.onlineWSUsers = wss.clients.size;
 
@@ -46,12 +46,12 @@ export function updateVatsimDataStorage() {
     const positions = useFacilitiesIds();
 
     data.controllers = data.controllers.filter(controller => {
-        if (controller.facility === positions.OBS) return;
+        if (controller.facility === positions.OBS && controller.rating === 11) return;
         let postfix = controller.callsign.split('_').slice(-1)[0];
         if (postfix === 'DEP') postfix = 'APP';
         if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
-        return controller.facility !== -1 && controller.facility !== positions.OBS;
+        return (controller.facility !== -1 && controller.facility !== positions.OBS) || controller.rating === 11;
     });
 }
 

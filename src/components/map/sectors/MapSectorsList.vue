@@ -32,8 +32,9 @@
         >
             <common-controller-info
                 class="aircraft-hover"
-                :controllers="sectorsAtClick.map(x => x.atc)"
+                :controllers="sectorsAtClick.map(x => x.atc).filter((x, xIndex) => !sectorsAtClick.some((y, yIndex) => xIndex > yIndex && x.cid === y.atc.cid))"
                 show-atis
+                @mouseleave="vatglassesPopupIsShown = false"
             >
                 <template #title>
                     Positions

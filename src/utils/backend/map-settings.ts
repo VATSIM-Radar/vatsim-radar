@@ -25,8 +25,15 @@ function validateTransparency(transparency: unknown) {
     return Number(transparency.toFixed(2));
 }
 
-function validateColor(color: unknown): boolean {
-    if (!isObject(color)) return false;
+export function validateColor(color: unknown, asString = false): boolean {
+    if (!isObject(color)) {
+        if (asString && typeof color === 'string') {
+            if (!hexColorRegex.test(color) && !colors.includes(color)) return false;
+            return true;
+        }
+
+        return false;
+    }
 
     if (typeof color.color !== 'string' || (!hexColorRegex.test(color.color) && !colors.includes(color.color))) return false;
 
@@ -89,7 +96,7 @@ function validateTheme(val: unknown): boolean {
     return true;
 }
 
-function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]): boolean {
+export function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]): boolean {
     for (const key in object) {
         if (!allowedKeys.includes(key)) return false;
     }
@@ -408,14 +415,6 @@ export async function handleMapSettingsEvent(event: H3Event) {
             }
 
             if (body.name) {
-                if (body.name.length > 20) {
-                    return handleH3Error({
-                        event,
-                        statusCode: 400,
-                        data: 'Name validation failed: max 20 symbols are allowed',
-                    });
-                }
-
                 const duplicatedPreset = presets.find(x => x.name.toLowerCase().trim() === body.name?.toLowerCase().trim());
 
                 if (duplicatedPreset) {

@@ -17,7 +17,16 @@
             Quiet, staffed airports with at least one controller available, excluding center.
         </small>
 
-        <div class="__section-group __section-group--even-mobile">
+        <div class="__info-sections featured-airports_list">
+            <common-airport-card
+                v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
+                :key="airport.airport.icao + index"
+                :airport="airport"
+                :position="index + 1"
+            />
+        </div>
+
+        <div class="featured-airports_footer">
             <common-toggle
                 :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
                 @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
@@ -33,15 +42,6 @@
                     Filter by current map area
                 </template>
             </common-toggle>
-        </div>
-
-        <div class="__info-sections">
-            <common-airport-card
-                v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
-                :key="airport.airport.icao + index"
-                :airport="airport"
-                :position="index + 1"
-            />
         </div>
     </div>
 </template>
@@ -77,6 +77,43 @@ const quietAirports = computed(() => {
 <style lang="scss" scoped>
 div.featured-airports {
     gap: 8px;
+
+    &_list {
+        overflow: auto;
+        max-height: 240px;
+    }
+
+    &_footer {
+        position: relative;
+
+        display: flex;
+        gap: 24px;
+        justify-content: space-between;
+
+        padding: 8px;
+
+        background: $darkgray950;
+        border-radius: 4px;
+
+        &::before {
+            content: '';
+
+            position: absolute;
+            left: calc(50% - 6px);
+
+            display: block;
+            align-self: center;
+
+            width: 1px;
+            height: 24px;
+
+            background: varToRgba('lightgray150', 0.15);
+        }
+
+        >* {
+            width: 100%;
+        }
+    }
 }
 </style>
 

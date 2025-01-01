@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `UserTrackingList` ADD COLUMN `type` ENUM('FRIENDS', 'ACHTUNGS', 'OTHER') NOT NULL DEFAULT 'OTHER';

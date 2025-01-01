@@ -30,6 +30,7 @@
                     />
                     <common-select
                         class="color-picker__transparency"
+                        :class="{ 'color-picker__hidden': colorOnly }"
                         :items="transparencyOptions"
                         max-dropdown-height="150px"
                         :model-value="model.transparency ?? 1"
@@ -40,7 +41,7 @@
                     />
                     <div
                         class="color-picker__preview"
-                        :class="{ 'color-picker__preview--hidden': transparencyOnly }"
+                        :class="{ 'color-picker__hidden': transparencyOnly }"
                         :style="{ '--color': model.color && getColorFromSettings(model as UserMapSettingsColor) }"
                     />
                 </div>
@@ -94,6 +95,10 @@ defineProps({
         default: null,
     },
     transparencyOnly: {
+        type: Boolean,
+        default: false,
+    },
+    colorOnly: {
         type: Boolean,
         default: false,
     },
@@ -171,10 +176,14 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         background: var(--color);
         border: 1px solid $lightgray200;
         border-radius: 8px;
+    }
 
-        &--hidden {
-            visibility: hidden;
-            opacity: 0;
+    &__hidden {
+        visibility: hidden;
+        opacity: 0;
+
+        @include mobileOnly {
+            display: none;
         }
     }
 
