@@ -56,15 +56,18 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
 let airportVectorLayer: VectorImageLayer<any>;
+let airportLabelVectorLayer: VectorImageLayer<any>;
 let gatesLayer: VectorLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
 const airportLayerSource = shallowRef<VectorSource | null>(null);
+const airportLabelLayerSource = shallowRef<VectorSource | null>(null);
 const gatesSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 provide('airports-source', airportsSource);
 provide('layer-source', airportLayerSource);
+provide('label-source', airportLabelLayerSource);
 provide('gates-source', gatesSource);
 
 let settingAirports = false;
@@ -239,13 +242,13 @@ watch(map, val => {
         val.addLayer(airportsLayer);
     }
 
+    const styles = airportLayoutStyles();
+
     if (!airportVectorLayer) {
         airportLayerSource.value = new VectorSource<any>({
             features: [],
             wrapX: false,
         });
-
-        const styles = airportLayoutStyles();
 
         airportVectorLayer = new VectorImageLayer<any>({
             source: airportLayerSource.value,
@@ -269,6 +272,34 @@ watch(map, val => {
         val.addLayer(airportVectorLayer);
     }
 
+    if (!airportLabelVectorLayer) {
+        airportLabelLayerSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: false,
+        });
+
+        airportLabelVectorLayer = new VectorImageLayer<any>({
+            source: airportLabelLayerSource.value,
+            zIndex: 5,
+            declutter: true,
+            properties: {
+                type: 'airport-layer',
+            },
+            imageRatio: 2,
+            minZoom: 15,
+            style: function(feature) {
+                const type = feature.getProperties().type as NavigraphLayoutType;
+                const style = styles[type];
+
+                if (typeof style === 'function') return style(feature);
+
+                return style;
+            },
+        });
+
+        val.addLayer(airportLabelVectorLayer);
+    }
+
     if (!gatesLayer) {
         gatesSource.value = new VectorSource<any>({
             features: [],
@@ -290,6 +321,7 @@ watch(map, val => {
 
                 return style;
             },
+            minZoom: 15,
             zIndex: 6,
         });
 
@@ -310,12 +342,13 @@ onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (airportsLayer) map.value?.removeLayer(airportsLayer);
     if (airportVectorLayer) map.value?.removeLayer(airportVectorLayer);
+    if (airportLabelVectorLayer) map.value?.removeLayer(airportLabelVectorLayer);
     map.value?.un('pointermove', handlePointerMove);
     map.value?.un('click', handleMapClick);
 });
 
 const getAirportsData = computed<NavigraphAirportData[]>(() => {
-    if (!airportsData.value || mapStore.zoom < 13) return [];
+    if (!airportsData.value || mapStore.zoom < 12) return [];
 
     return getAirportsList.value.map(airport => {
         const gateAirport = originalAirportsData.value.find(x => x.airport === airport.airport.icao);
@@ -661,7 +694,7 @@ async function setVisibleAirports() {
 
         visibleAirports.value = airportsList.value.filter(x => x.visible);
 
-        if ((map.value!.getView().getZoom() ?? 0) > 13) {
+        if ((map.value!.getView().getZoom() ?? 0) > 12) {
             const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
             if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {

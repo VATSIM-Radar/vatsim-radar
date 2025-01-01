@@ -202,6 +202,7 @@ const mapStore = useMapStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source')!;
 const layerSource = inject<ShallowRef<VectorSource | null>>('layer-source')!;
+const labelSource = inject<ShallowRef<VectorSource | null>>('label-source')!;
 const gatesSource = inject<ShallowRef<VectorSource | null>>('gates-source')!;
 const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
@@ -278,6 +279,7 @@ interface ArrFeature {
 const arrFeatures = shallowRef<ArrFeature[]>([]);
 let gatesFeatures: Feature[] = [];
 let layoutFeatures: Feature[] = [];
+let labelFeatures: Feature[] = [];
 let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
@@ -661,6 +663,12 @@ onMounted(async () => {
         });
         layoutFeatures = [];
 
+        labelFeatures.forEach(feature => {
+            labelSource.value?.removeFeature(feature);
+            feature.dispose();
+        });
+        labelFeatures = [];
+
         if (!val) {
             return;
         }
@@ -679,8 +687,15 @@ onMounted(async () => {
                     ...feature.getProperties(),
                     type: key,
                 });
-                layerSource.value?.addFeature(feature);
-                layoutFeatures.push(feature);
+
+                if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline') {
+                    labelSource.value?.addFeature(feature);
+                    labelFeatures.push(feature);
+                }
+                else {
+                    layerSource.value?.addFeature(feature);
+                    layoutFeatures.push(feature);
+                }
             }
         }
     }, {
@@ -753,6 +768,10 @@ onBeforeUnmount(() => {
     });
     layoutFeatures.forEach(feature => {
         layerSource.value?.removeFeature(feature);
+        feature.dispose();
+    });
+    labelFeatures.forEach(feature => {
+        labelSource.value?.removeFeature(feature);
         feature.dispose();
     });
 });
