@@ -94,7 +94,6 @@ import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
-import { getAirlineFromCallsign } from '~/composables';
 
 const props = defineProps({
     flightPlan: {
