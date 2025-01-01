@@ -61,6 +61,7 @@ export const useStore = defineStore('index', {
         deleteAccountPopup: false,
         deleteNavigraphPopup: false,
         settingsPopup: false,
+        settingsPopupTab: 'main' as 'main' | 'favorite',
         airacPopup: false,
         searchActive: false,
 
@@ -137,6 +138,15 @@ export const useStore = defineStore('index', {
                     }
                 }
 
+                for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
+                    if (listsUsers.has(atc.cid)) {
+                        foundUsers[atc.cid] = {
+                            type: 'sup',
+                            data: atc,
+                        };
+                    }
+                }
+
                 for (const prefile of dataStore.vatsim.data.prefiles.value) {
                     if (listsUsers.has(prefile.cid)) {
                         foundUsers[prefile.cid] = {
@@ -166,7 +176,10 @@ export const useStore = defineStore('index', {
             }));
         },
         friends(): UserListLiveUser[] {
-            return this.lists.filter(x => x.showInMenu).flatMap(x => x.users.filter(x => x.type !== 'offline'));
+            return this.lists.filter(x => x.showInMenu).flatMap(x => x.users.filter(x => x.type !== 'offline').map(user => ({
+                ...user,
+                listName: x.name,
+            })));
         },
     },
     actions: {

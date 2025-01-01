@@ -1,6 +1,7 @@
 <template>
     <common-info-popup
         v-model="model"
+        v-model:tab="store.settingsPopupTab"
         absolute
         class="settings"
         max-height="calc(100dvh - 56px - 92px - 20px)"

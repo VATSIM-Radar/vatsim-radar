@@ -22,6 +22,7 @@ export interface UserListUser {
     name: string;
     cid: number;
     comment?: string;
+    listName?: string;
 }
 
 export interface UserListLiveUserPilot extends UserListUser {

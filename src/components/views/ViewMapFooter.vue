@@ -58,7 +58,7 @@
                     width="480px"
                 >
                     <template #title>
-                        Friends
+                        Favorite users online
                     </template>
 
                     <view-user-list :users="store.friends"/>

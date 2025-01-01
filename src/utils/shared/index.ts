@@ -14,7 +14,7 @@ export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},(
 
 export const MAX_MAP_PRESETS = 5;
 export const MAX_USER_LISTS = 5;
-export const MAX_LISTS_PILOTS = 200;
+export const MAX_LISTS_PILOTS = 50;
 
 export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;

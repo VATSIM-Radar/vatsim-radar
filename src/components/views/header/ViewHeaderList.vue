@@ -55,6 +55,53 @@
             Save
         </common-button>
 
+        <common-button
+            size="S"
+            :type="userAddActive ? 'primary' : 'secondary'"
+            @click="userAddActive = !userAddActive"
+        >
+            Add via CID
+        </common-button>
+
+        <common-notification
+            v-if="list.users.length"
+            cookie-name="friends-click-tutorial"
+            type="info"
+        >
+            Want to modify favorite user?<br> Just click on user's card!
+        </common-notification>
+
+        <div
+            v-if="userAddActive"
+            class="__info-sections users_add"
+        >
+            <common-notification v-if="newUser.cid && store.lists.some(x => x.users.some(x => x.cid === newUser.cid))">
+                This user already exists in list {{ store.lists.find(x => x.users.some(x => x.cid === newUser.cid))?.name }}
+            </common-notification>
+            <div class="__section-group">
+                <common-input-text
+                    :model-value="!newUser.cid ? '' : newUser.cid.toString()"
+                    placeholder="CID"
+                    @update:modelValue="newUser.cid = (isNaN(parseInt($event, 10)) || parseInt($event, 10) < 1) ? 0 : +parseInt($event, 10)"
+                />
+                <common-input-text
+                    v-model="newUser.name"
+                    placeholder="Name"
+                />
+            </div>
+            <common-input-text
+                v-model="newUser.comment"
+                placeholder="Comment"
+            />
+            <common-button
+                :disabled="!newUser.cid || !newUser.name || store.lists.some(x => x.users.some(x => x.cid === newUser.cid))"
+                size="S"
+                @click="[editUserList({ id: list!.id, users: [newUser, ...list.users!]}), resetNewUser()]"
+            >
+                Add user to list
+            </common-button>
+        </div>
+
         <view-user-list :list/>
 
         <common-popup
@@ -111,7 +158,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserListLive } from '~/utils/backend/lists';
+import type { UserListLive, UserListUser } from '~/utils/backend/lists';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
@@ -146,6 +193,23 @@ const store = useStore();
 const duplicateName = computed(() => {
     return store.lists.some(x => x.id !== props.list.id && x.name.toLowerCase() === props.list.name.toLowerCase());
 });
+
+const userAddActive = ref(false);
+
+const newUser = reactive<UserListUser>({
+    name: '',
+    comment: '',
+    cid: 0,
+});
+
+function resetNewUser() {
+    Object.assign(newUser, {
+        name: '',
+        comment: '',
+        cid: 0,
+    });
+    userAddActive.value = false;
+}
 
 watch(() => props.list, val => {
     editUserList(val);

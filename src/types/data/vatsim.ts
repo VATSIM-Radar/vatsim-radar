@@ -7,6 +7,7 @@ export interface VatsimGeneral {
     update_timestamp: string;
     connected_clients: number;
     unique_users: number;
+    sups: VatsimController[];
     supsCount: number;
     admCount: number;
     onlineWSUsers: number;

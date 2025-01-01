@@ -8,7 +8,7 @@
             close-method="clickOutside"
             :location
             :open-method="addedList ? 'disabled' : 'click'"
-            width="300px"
+            :width="isMobile ? '60vw' : '300px'"
         >
             <template #activator>
                 <div
@@ -80,6 +80,7 @@ const props = defineProps({
 });
 
 const store = useStore();
+const isMobile = useIsMobile();
 const tooltipOpen = defineModel({ type: Boolean, default: false });
 
 const addedList = computed(() => store.user?.lists.find(x => x.users.some(x => x.cid === props.cid)));

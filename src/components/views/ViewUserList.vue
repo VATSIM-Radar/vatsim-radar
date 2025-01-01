@@ -4,6 +4,15 @@
         class="users"
         :class="{ 'users--no-list': !list }"
     >
+        <common-button
+            v-if="!list"
+            size="S"
+            type="secondary"
+            @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
+        >
+            Management
+        </common-button>
+
         <div
             v-for="user in getUsers"
             :key="user.cid"
@@ -95,6 +104,9 @@
                     class="users_user_actions"
                     @click.stop
                 >
+                    <span v-if="store.lists.length > 1 && user.listName">
+                        «{{ user.listName }}»
+                    </span>
                     <common-button
                         :href="`https://stats.vatsim.net/stats/${ user.cid }`"
                         icon-width="18px"
@@ -140,6 +152,16 @@
                     placeholder="Comment"
                     @change="editUserList({ id: list.id, users: list.users })"
                 />
+                <common-radio-group
+                    v-if="store.lists.length > 1"
+                    :items="store.lists.map(x => ({ value: x.id, text: x.name, key: x.id.toString() }))"
+                    :model-value="list.id"
+                    two-cols
+                    @update:modelValue="[
+                        editUserList({ id: list.id, users: list.users.filter(x => x.cid !== user.cid) }),
+                        editUserList({ id: $event as number, users: [user, ...store.lists.find(x => x.id === $event)!.users]}),
+                    ]"
+                />
             </div>
         </div>
     </div>
@@ -158,6 +180,8 @@ import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 
 const props = defineProps({
     list: {
@@ -271,6 +295,7 @@ const getUsers = computed(() => {
         &_actions {
             display: flex;
             gap: 16px;
+            align-items: center;
 
             .button {
                 width: auto !important;

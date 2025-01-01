@@ -388,7 +388,7 @@ img {
 
 .__section-group {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     width: 100%;
 
     &:not(&--even, &--even-mobile){
