@@ -77,7 +77,7 @@ function sendSelectedPilotToDashboard(cid: number | null = null) {
 }
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
-    if (!pixel) return [];
+    if (!pixel || isHideMapObject('pilots')) return [];
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 

@@ -181,6 +181,10 @@ const transparencyOptions = computed<SelectItem[]>(() => {
     &__hidden {
         visibility: hidden;
         opacity: 0;
+
+        @include mobileOnly {
+            display: none;
+        }
     }
 
     &_input {

@@ -18,7 +18,7 @@
             </common-info-block>
         </div>
         <div
-            v-if="metar.temperature"
+            v-if="typeof metar.temperature === 'number'"
             class="__grid-info-sections"
         >
             <div class="__grid-info-sections_title">

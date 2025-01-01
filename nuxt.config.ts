@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     },
     srcDir: 'src/',
     devtools: {
-        enabled: true,
+        enabled: false,
     },
     sourcemap: {
         client: process.env.NODE_ENV === 'development',

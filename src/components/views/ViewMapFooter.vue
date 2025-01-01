@@ -16,7 +16,7 @@
                 <common-button
                     size="S"
                     :type="store.featuredAirportsOpen ? 'primary' : 'secondary'"
-                    @click="store.featuredAirportsOpen = !store.featuredAirportsOpen"
+                    @click="[store.featuredAirportsOpen = !store.featuredAirportsOpen, store.menuFriendsOpen = false]"
                 >
                     Featured Airports
                 </common-button>
@@ -33,6 +33,38 @@
                     <map-featured-airports/>
                 </common-control-block>
             </div>
+
+            <div
+                v-if="store.friends.length"
+                class="map-footer_left_section __from-tablet"
+            >
+                <common-button
+                    size="S"
+                    :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
+                    @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
+                >
+                    <template #icon>
+                        <common-bubble>
+                            {{ store.friends.length }}
+                        </common-bubble>
+                    </template>
+
+                    Favorite
+                </common-button>
+
+                <common-control-block
+                    v-model="store.menuFriendsOpen"
+                    center-by="start"
+                    width="480px"
+                >
+                    <template #title>
+                        Friends
+                    </template>
+
+                    <view-user-list :users="store.friends"/>
+                </common-control-block>
+            </div>
+
             <div class="map-footer_left_section __desktop">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
@@ -82,12 +114,20 @@
                 v{{ store.version }}
             </div>
         </div>
-        <div
-            v-if="getCounts.lastUpdated"
-            class="map-footer_right"
-            :class="{ 'map-footer_right--outdated': outdated }"
-        >
-            Map last updated: {{ getCounts.lastUpdated }}
+        <div class="map-footer_right">
+            <map-settings-vat-glasses-level
+                v-if="store.viewport.width > (store.friends.length ? 1100 : 900)"
+                class="map-footer_right_vg"
+                hide-if-disabled
+            />
+
+            <div
+                v-if="getCounts.lastUpdated"
+                class="map-footer_right_date"
+                :class="{ 'map-footer_right_date--outdated': outdated }"
+            >
+                Map last updated: {{ getCounts.lastUpdated }}
+            </div>
         </div>
     </footer>
     <common-popup
@@ -170,6 +210,9 @@ import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vu
 import { useOnlineCounters } from '~/composables/navigation';
 import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
+import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import ViewUserList from '~/components/views/ViewUserList.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -262,18 +305,32 @@ onMounted(() => {
     }
 
     &_right {
-        padding: 8px 16px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
 
-        font-weight: 300;
+        &_vg {
+            width: 250px;
 
-        background: $darkgray950;
-        border-radius: 8px;
+            :deep(.input) {
+                height: 32px !important;
+            }
+        }
 
-        transition: 0.3s;
+        &_date {
+            padding: 8px 16px;
 
-        &--outdated {
-            color: $lightgray100Orig;
-            background: $error600;
+            font-weight: 300;
+
+            background: $darkgray950;
+            border-radius: 8px;
+
+            transition: 0.3s;
+
+            &--outdated {
+                color: $lightgray100Orig;
+                background: $error600;
+            }
         }
     }
 

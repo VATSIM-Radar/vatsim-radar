@@ -52,6 +52,7 @@ export const useStore = defineStore('index', {
 
         featuredAirportsOpen: false,
         featuredVisibleOnly: false,
+        menuFriendsOpen: false,
 
         updateRequired: false,
         isTabVisible: false,
@@ -101,6 +102,7 @@ export const useStore = defineStore('index', {
                     name: 'Friends',
                     color: 'success300',
                     type: 'FRIENDS',
+                    showInMenu: true,
                     users: [],
                 });
             }
@@ -116,6 +118,7 @@ export const useStore = defineStore('index', {
                 }
 
                 for (const atc of dataStore.vatsim.data.locals.value) {
+                    if (atc.atc.isATIS) continue;
                     if (listsUsers.has(atc.atc.cid)) {
                         foundUsers[atc.atc.cid] = {
                             type: 'atc',
@@ -125,9 +128,10 @@ export const useStore = defineStore('index', {
                 }
 
                 for (const atc of dataStore.vatsim.data.firs.value) {
+                    if (atc.controller.isATIS) continue;
                     if (listsUsers.has(atc.controller.cid)) {
                         foundUsers[atc.controller.cid] = {
-                            type: 'atc',
+                            type: atc.controller.rating === 1 ? 'sup' : 'atc',
                             data: atc.controller,
                         };
                     }
@@ -143,15 +147,26 @@ export const useStore = defineStore('index', {
                 }
             }
 
-            return lists.map(list => Object.assign(list, {
+            return lists.map(list => ({
+                ...list,
                 users: list.users.map(user => ({
                     ...user,
                     ...foundUsers[user.cid] ?? {
                         type: 'offline',
                         data: undefined,
                     },
-                } as UserListLiveUser)),
+                } as UserListLiveUser)).sort((a, b) => {
+                    const aOnline = a.type !== 'offline';
+                    const bOnline = b.type !== 'offline';
+
+                    if (bOnline && !aOnline) return 1;
+                    if (!bOnline && aOnline) return -1;
+                    return 0;
+                }),
             }));
+        },
+        friends(): UserListLiveUser[] {
+            return this.lists.filter(x => x.showInMenu).flatMap(x => x.users.filter(x => x.type !== 'offline'));
         },
     },
     actions: {

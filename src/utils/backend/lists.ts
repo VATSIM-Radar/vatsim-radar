@@ -14,6 +14,7 @@ export interface UserList {
     name: string;
     color: string;
     type: UserTrackingListType;
+    showInMenu: boolean;
     users: UserListUser[];
 }
 
@@ -38,12 +39,17 @@ export interface UserListLiveUserController extends UserListUser {
     data: VatsimShortenedController;
 }
 
+export interface UserListLiveUserSup extends UserListUser {
+    type: 'sup';
+    data: VatsimShortenedController;
+}
+
 export interface UserListLiveUserOffline extends UserListUser {
     type: 'offline';
     data?: undefined;
 }
 
-export type UserListLiveUser = UserListLiveUserPilot | UserListLiveUserPrefile | UserListLiveUserController | UserListLiveUserOffline;
+export type UserListLiveUser = UserListLiveUserPilot | UserListLiveUserPrefile | UserListLiveUserController | UserListLiveUserOffline | UserListLiveUserSup;
 
 export type UserListLive = Omit<UserList, 'users'> & { users: UserListLiveUser[] };
 
@@ -130,6 +136,22 @@ export async function handleListsEvent(event: H3Event) {
                 });
             }
 
+            if (typeof body.showInMenu !== 'boolean' && !list) {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    data: 'showInMenu is required when creating list',
+                });
+            }
+
+            if ('showInMenu' in body && typeof body.showInMenu !== 'boolean') {
+                return handleH3Error({
+                    event,
+                    statusCode: 400,
+                    data: 'showInMenu must be of type boolean',
+                });
+            }
+
             if (!body.color && !list) {
                 if (type !== UserTrackingListType.FRIENDS) {
                     return handleH3Error({
@@ -209,6 +231,8 @@ export async function handleListsEvent(event: H3Event) {
 
                     user.cid = parseInt(user.cid.toString(), 10);
                 }
+
+                body.users = body.users.filter((user: any, index) => !(body.users as any[]).some((y: any, yIndex) => yIndex > index && y.cid === user.cid));
             }
 
             if (body.name) {
@@ -252,6 +276,7 @@ export async function handleListsEvent(event: H3Event) {
                         users: (body.users ?? list.users ?? undefined),
                         color: body.color ?? list.color,
                         type,
+                        showInMenu: body.showInMenu ?? list.showInMenu,
                     },
                 });
             }
@@ -277,6 +302,7 @@ export async function handleListsEvent(event: H3Event) {
                         color: body.color!,
                         type,
                         userId: user.id,
+                        showInMenu: body.showInMenu,
                     },
                 });
             }

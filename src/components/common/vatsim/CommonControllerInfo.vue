@@ -37,7 +37,7 @@
                         <template v-if="index === 0">
                             <div
                                 class="atc-popup__position"
-                                :style="{ '--color': controllerColor(controller) }"
+                                :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                             >
                                 <div
                                     v-if="showFacility"
@@ -55,7 +55,7 @@
                             <common-spoiler type="controller">
                                 <div
                                     class="atc-popup__controller"
-                                    :style="{ '--color': controllerColor(controller) }"
+                                    :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                                 >
                                     <div class="atc-popup__controller_name">
                                         {{ item }}
@@ -124,7 +124,6 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import { getControllerPositionColor } from '~/composables/atc';
 import { useMapStore } from '~/store/map';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
@@ -132,7 +131,6 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import SaveIcon from '@/assets/icons/kit/save.svg?component';
-import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 import { getUserList } from '~/composables/lists';
 import { getStringColorFromSettings } from '~/composables/colors';
 

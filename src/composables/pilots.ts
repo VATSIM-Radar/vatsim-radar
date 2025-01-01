@@ -9,6 +9,8 @@ import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings } from '~/composables/colors';
 import { getUserList } from '~/composables/lists';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -25,9 +27,13 @@ export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
 }
 
-export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
+export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
+    const mapStore = useMapStore();
+
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    await nextTick();
 
     view?.animate({
         center: [pilot.longitude, pilot.latitude],

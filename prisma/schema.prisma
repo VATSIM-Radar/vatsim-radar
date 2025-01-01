@@ -67,13 +67,14 @@ enum UserTrackingListType {
 }
 
 model UserTrackingList {
-  id     Int                  @id @default(autoincrement())
-  name   String
-  color  String
-  type   UserTrackingListType @default(OTHER)
-  users  Json
-  userId Int
-  user   User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
+  id         Int                  @id @default(autoincrement())
+  name       String
+  color      String
+  type       UserTrackingListType @default(OTHER)
+  showInMenu Boolean              @default(false)
+  users      Json
+  userId     Int
+  user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
 enum AuthType {

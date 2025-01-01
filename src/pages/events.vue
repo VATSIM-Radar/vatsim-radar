@@ -3,7 +3,7 @@
         <template #title>VATSIM Events (Beta)</template>
 
         <client-only>
-            Timezone is set for {{ timezone.format(new Date()).slice(12, 100) }}.
+            Timezone is set for {{ timezone.format(new Date()).slice(4, 100) }}.
 
             <template
                 v-for="(events, day) in groupedEventData"
@@ -40,7 +40,7 @@ const datetime = new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
 });
 
 const timezone = new Intl.DateTimeFormat(['de-DE'], {
-    dateStyle: undefined,
+    day: '2-digit',
     timeZoneName: 'shortOffset',
 });
 

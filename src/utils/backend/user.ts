@@ -4,7 +4,6 @@ import type { H3Event } from 'h3';
 import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
-import type { UserTrackingList } from '@prisma/client';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { UserList } from '~/utils/backend/lists';
 

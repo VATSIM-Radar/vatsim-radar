@@ -3,6 +3,7 @@
         v-model="model"
         absolute
         class="settings"
+        max-height="calc(100dvh - 56px - 92px - 20px)"
         :tabs="{
             main: {
                 title: 'Settings',
@@ -214,6 +215,7 @@ const listsSections = computed<InfoPopupSection[]>(() => {
             key: 'new-list',
             collapsible: true,
             collapsedDefault: true,
+            collapsedDefaultOnce: true,
         });
     }
 
@@ -223,7 +225,6 @@ const listsSections = computed<InfoPopupSection[]>(() => {
 useClickOutside({
     element: () => document.querySelector('.info-popup'),
     callback: e => {
-        console.log(e);
         model.value = false;
     },
 });
@@ -242,6 +243,7 @@ const newList = reactive<UserListLive>({
     type: 'OTHER',
     color: 'info500',
     users: [],
+    showInMenu: false,
 });
 
 async function addList() {

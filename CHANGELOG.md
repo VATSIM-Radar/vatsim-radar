@@ -15,7 +15,14 @@
 - Tabs are now pinned in every overlay you open
 - Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
 - Supervisors online count will now show more precise data
-- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it? 
+- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it?
+- Removed search button from non-homepage on mobile version. I mean, why was it here anyway?
+- Fixed error when you couldn't switch fast between airports - nothing happened when you clicked on map
+
+## VATGlasses fixes
+- Added VATGlasses level in footer for PC and tablet
+- Excluded duplicate positions from VatGlasses sector
+- VATGlasses positions popup will now close on moving mouse out of it 
 
 # [1.0.0-alpha.4]
 

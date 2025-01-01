@@ -332,6 +332,14 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
+    if (runways.value) {
+        list.info.sections.push({
+            title: 'Active Runways',
+            collapsible: true,
+            key: 'runways',
+        });
+    }
+
     if (data.value?.metar) {
         list.info.sections.push({
             title: 'METAR',
@@ -359,14 +367,6 @@ const tabs = computed<InfoPopupContent>(() => {
             collapsedDefault: true,
             collapsedDefaultOnce: true,
             key: 'notams',
-        });
-    }
-
-    if (runways.value) {
-        list.atc.sections.push({
-            title: 'Active Runways',
-            collapsible: true,
-            key: 'runways',
         });
     }
 

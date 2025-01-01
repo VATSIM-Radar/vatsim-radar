@@ -8,13 +8,14 @@ type AddUserListFriends = Omit<UserList, 'id' | 'color'> & { type: typeof UserTr
 function getListWithExcludedUsers<T extends Partial<UserList>>(list: T): T {
     if (!list.users) return list;
 
-    return Object.assign(list, {
+    return {
+        ...list,
         users: list.users.map(user => ({
             cid: user.cid,
             name: user.name,
             comment: user.comment,
         })),
-    });
+    };
 }
 
 export async function addUserList(list: AddUserListOther | AddUserListFriends) {
@@ -29,7 +30,7 @@ export async function addUserList(list: AddUserListOther | AddUserListFriends) {
     return result;
 }
 
-export async function editUserList(list: Partial<UserList> & { id: number }) {
+export async function editUserList(list: Partial<UserList> & { id: number }, update = true) {
     if (list.id === 0) return addUserList(list as UserList);
 
     const store = useStore();
@@ -38,7 +39,10 @@ export async function editUserList(list: Partial<UserList> & { id: number }) {
         method: 'PUT',
         body: getListWithExcludedUsers(list),
     });
-    await store.refreshUser();
+
+    if (update) {
+        await store.refreshUser();
+    }
 
     return result;
 }
