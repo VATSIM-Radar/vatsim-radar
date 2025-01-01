@@ -197,6 +197,10 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 
+onBeforeUnmount(() => {
+    if (deletedUsers.size) store.refreshUser();
+});
+
 const getUsers = computed(() => {
     return props.list?.users ?? props.users ?? [];
 });
