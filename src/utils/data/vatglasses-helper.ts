@@ -151,6 +151,8 @@ const isPointOnSegment = (p1: number[], p2: number[], p: number[], tolerance: nu
  */
 function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): TurfFeature<TurfPolygon>[] {
     const modifiedPolygons: TurfFeature<TurfPolygon>[] = [];
+    const intersectionPointsMap: { [key: string]: TurfFeature<Point>[] } = {};
+
 
     for (let i = 0; i < polygons.length; i++) {
         if (insertfailed) break;
@@ -164,8 +166,26 @@ function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): 
             const polygon2 = polygons[j];
             const line2 = polygonToLineString(polygon2);
 
-            // Find intersection points between the current polygon and all other polygons
-            intersectionPoints = intersectionPoints.concat(findIntersectionPoints(line1, line2));
+            // Check if intersection points are already in the map
+            let points: TurfFeature<Point>[];
+
+
+            const mapKey1 = `${ i }-${ j }`;
+            const mapKey2 = `${ j }-${ i }`;
+            if (intersectionPointsMap[mapKey1]) {
+                points = intersectionPointsMap[mapKey1];
+            }
+            else if (intersectionPointsMap[mapKey2]) {
+                points = intersectionPointsMap[mapKey2];
+            }
+            else {
+                // Find intersection points between the current polygon and all other polygons
+                points = findIntersectionPoints(line1, line2);
+                intersectionPointsMap[mapKey1] = points;
+                intersectionPointsMap[mapKey2] = points;
+            }
+
+            intersectionPoints = intersectionPoints.concat(points);
         }
 
         // Ensure intersection points are unique
