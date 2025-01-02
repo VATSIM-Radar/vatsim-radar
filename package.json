@@ -28,6 +28,8 @@
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",
     "@turf/intersect": "^7.2.0",
+    "@turf/kinks": "^7.2.0",
+    "@turf/line-intersect": "^7.2.0",
     "@turf/meta": "^7.2.0",
     "@turf/truncate": "^7.2.0",
     "@turf/union": "^7.2.0",
