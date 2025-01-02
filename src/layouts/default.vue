@@ -185,6 +185,11 @@ async function getDeviceType(uaParser = parser) {
     return parsedType;
 }
 
+async function getEngine(uaParser = parser) {
+    if (!uaParser) return;
+    return (await uaParser.getEngine().withFeatureCheck()).name;
+}
+
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
     store.isMobileOrTablet = window.innerWidth < 1366;
@@ -207,6 +212,7 @@ onNuxtReady(async () => {
     setWindowStore();
     windowInterval = setInterval(setWindowStore, 500);
     store.device = await getDeviceType() ?? 'desktop';
+    store.engine = await getEngine();
 });
 
 onBeforeUnmount(() => {
@@ -237,6 +243,7 @@ await useAsyncData('default-init', async () => {
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
         store.device = await getDeviceType() ?? 'desktop';
+        store.engine = await getEngine();
     }
 
     return true;

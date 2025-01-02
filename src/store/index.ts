@@ -12,6 +12,7 @@ import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/ma
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
+import type { IEngine } from 'ua-parser-js';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -78,8 +79,12 @@ export const useStore = defineStore('index', {
         isPC: false,
         scrollbarWidth: 0,
         device: 'desktop' as 'desktop' | 'mobile' | 'tablet',
+        engine: '' as IEngine['name'],
     }),
     getters: {
+        datalistNotSupported(): boolean {
+            return this.engine === 'Gecko';
+        },
         isTouch(): boolean {
             return this.device !== 'desktop';
         },

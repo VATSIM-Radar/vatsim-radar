@@ -30,6 +30,7 @@
                     <template #col1>
                         <map-filter-box
                             :model-value="store.filter.users?.pilots?.value ?? []"
+                            placeholder="SBI"
                             show-chip-value
                             :suggestions="pilotSuggestions"
                             @update:modelValue="setUserFilters({ users: { pilots: { value: $event as string[] } } })"
@@ -52,6 +53,7 @@
                     <template #col2>
                         <map-filter-box
                             :model-value="store.filter.users?.atc?.value ?? []"
+                            placeholder="ULLI"
                             @update:modelValue="setUserFilters({ users: { atc: { value: $event as string[] } } })"
                         >
                             ATC Callsigns
@@ -76,6 +78,7 @@
                         <map-filter-box
                             is-number
                             :model-value="store.filter.users?.cids ?? []"
+                            placeholder="800000"
                             @update:modelValue="setUserFilters({ users: { cids: $event as number[] } })"
                         >
                             CIDs
@@ -102,6 +105,92 @@
                     @update:modelValue="setUserFilters({ users: { strategy: $event as any } })"
                 />
             </template>
+            <common-block-title
+                v-model:collapsed="collapsedStates.airports"
+                remove-margin
+            >
+                Airports
+            </common-block-title>
+            <template v-if="!collapsedStates.airports">
+                <map-filter-columns>
+                    <template #col1>
+                        <map-filter-box
+                            :model-value="store.filter.airports?.departure ?? []"
+                            placeholder="ULLI"
+                            show-chip-value
+                            strict
+                            :suggestions="airportsSuggestions"
+                            @update:modelValue="setUserFilters({ airports: { departure: $event as string[] } })"
+                        >
+                            Departure airports
+                        </map-filter-box>
+                    </template>
+                    <template #col2>
+                        <map-filter-box
+                            :model-value="store.filter.airports?.arrival ?? []"
+                            placeholder="UUDD"
+                            show-chip-value
+                            strict
+                            :suggestions="airportsSuggestions"
+                            @update:modelValue="setUserFilters({ airports: { arrival: $event as string[] } })"
+                        >
+                            Arrival airports
+                        </map-filter-box>
+                    </template>
+                </map-filter-columns>
+                <map-filter-box
+                    :model-value="store.filter.airports?.routes ?? []"
+                    placeholder="ULLI-UUDD"
+                    @update:modelValue="setRoutes($event as string[])"
+                >
+                    Routes
+                </map-filter-box>
+                <common-notification
+                    cookie-name="filters-routes-format"
+                    type="info"
+                >
+                    Format: ICAO-ICAO
+                </common-notification>
+                <common-toggle v-model="routesBothDirection">
+                    Both directions
+                </common-toggle>
+            </template>
+            <common-block-title
+                v-model:collapsed="collapsedStates.atc"
+                remove-margin
+            >
+                ATC
+            </common-block-title>
+            <template v-if="!collapsedStates.atc">
+                <map-filter-columns>
+                    <template #col1>
+                        <map-filter-box
+                            always-show-text
+                            input-type="text"
+                            is-number
+                            :model-value="store.filter.atc?.ratings ?? []"
+                            strict
+                            :suggestions="atcRatings"
+                            @update:modelValue="setUserFilters({ atc: { ratings: $event as number[] } })"
+                        >
+                            Rating
+                        </map-filter-box>
+                    </template>
+                    <template #col2>
+                        <map-filter-box
+                            always-show-text
+                            input-type="text"
+                            is-number
+                            :model-value="store.filter.atc?.facilities ?? []"
+                            strict
+                            :suggestions="atcPositions"
+                            @update:modelValue="setUserFilters({ atc: { facilities: $event as number[] } })"
+                        >
+                            Position
+                        </map-filter-box>
+                    </template>
+                </map-filter-columns>
+            </template>
         </template>
     </div>
 </template>
@@ -117,9 +206,14 @@ import type { RadarDataAirline } from '~/utils/backend/storage';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 const tab = ref('filter');
+const routesBothDirection = ref(true);
+
+const atcPositions: SelectItem[] = Object.entries(useFacilitiesIds()).filter(([key]) => key !== 'OBS').map(([text, value]) => ({ value, text }));
+const atcRatings: SelectItem[] = Object.entries(useRatingsIds()).map(([text, value]) => ({ value, text }));
 
 const collapsedStates = reactive({
     users: false,
@@ -150,6 +244,40 @@ const pilotSuggestions = computed<SelectItem[]>(() => {
         text: x[1].airline.name,
     }));
 });
+
+const airportsSuggestions = computed<SelectItem[]>(() => {
+    return dataStore.vatspy.value!.data.airports.filter(x => !x.isPseudo).map(x => ({
+        value: x.icao,
+        text: x.name,
+    }));
+});
+
+let previousRoutesLength = -1;
+
+const setRoutes = (routes: string[]) => {
+    if (previousRoutesLength === -1) previousRoutesLength = store.filter.airports?.routes?.length ?? 0;
+
+    if (previousRoutesLength > routes.length) {
+        previousRoutesLength = routes.length;
+        setUserFilters({ airports: { routes: routes } });
+        return;
+    }
+
+    const addedRoute = routes[routes.length - 1];
+
+    const splitted = addedRoute.split('-');
+    if (splitted.length !== 2 || !splitted.every(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x as any])) {
+        setUserFilters({ airports: { routes: routes.slice(0, routes.length - 2) } });
+    }
+    else if (routesBothDirection.value) {
+        setUserFilters({ airports: { routes: [...routes, splitted.reverse().join('-')] } });
+    }
+    else {
+        setUserFilters({ airports: { routes: routes } });
+    }
+
+    previousRoutesLength = store.filter.airports!.routes!.length;
+};
 </script>
 
 <style scoped lang="scss">

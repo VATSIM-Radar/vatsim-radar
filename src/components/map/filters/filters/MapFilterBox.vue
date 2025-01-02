@@ -31,17 +31,18 @@
                     <input
                         v-model="receivedValue"
                         :list="id"
-                        :type="isNumber ? 'number' : 'text'"
+                        :placeholder
+                        :type="inputType ?? (isNumber ? 'number' : 'text')"
                         @change="updateModel(($event.target as HTMLInputElement).value)"
+                        @input="receivedValue = receivedValue.toUpperCase()"
                     >
                     <datalist :id>
                         <option
-                            v-for="suggestion in suggestions.filter(x => !model.includes(x.value as any))"
+                            v-for="suggestion in getSuggestions"
                             :key="String(suggestion.value)"
+                            :label="(store.datalistNotSupported && !alwaysShowText) ? undefined : suggestion.text"
                             :value="suggestion.value"
-                        >
-                            {{ suggestion.text }}
-                        </option>
+                        />
                     </datalist>
                 </div>
             </div>
@@ -53,6 +54,7 @@
 import type { PropType } from 'vue';
 import type { SelectItem } from '~/types/components/select';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
+import { useStore } from '~/store';
 
 const props = defineProps({
     suggestions: {
@@ -67,7 +69,18 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    inputType: {
+        type: String,
+    },
     strict: {
+        type: Boolean,
+        default: false,
+    },
+    placeholder: {
+        type: String,
+        default: '',
+    },
+    alwaysShowText: {
         type: Boolean,
         default: false,
     },
@@ -77,11 +90,29 @@ defineSlots<{
     default?(): any;
 }>();
 
+const store = useStore();
 const id = useId();
 
 const receivedValue = ref('');
 
 const model = defineModel({ type: Array as PropType<Array<string | number>>, required: true });
+
+const getSuggestions = computed(() => {
+    const byValue = props.suggestions.filter(x => !model.value.includes(x.value as any) && (
+        !x.text ||
+        typeof x.value !== 'string' ||
+        x.value.toLowerCase().includes(receivedValue.value.toLowerCase())
+    )).slice(0, 50);
+
+    if (!byValue.length && (!store.datalistNotSupported || props.alwaysShowText)) {
+        return props.suggestions.filter(x => !model.value.includes(x.value as any) && (
+            !x.text ||
+            x.text?.toLowerCase().includes(receivedValue.value.toLowerCase())
+        )).slice(0, 50);
+    }
+
+    return byValue;
+});
 
 const updateModel = (value: string) => {
     receivedValue.value = '';
@@ -93,7 +124,7 @@ const updateModel = (value: string) => {
             return;
         }
 
-        if (!isNaN(number) && number > 0 && number < 999999999999999 && !model.value.some(x => x === number)) {
+        if (!isNaN(number) && number > -2 && number < 999999999999999 && !model.value.some(x => x === number)) {
             model.value = [
                 ...model.value,
                 number,
