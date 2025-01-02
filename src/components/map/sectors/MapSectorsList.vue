@@ -30,16 +30,45 @@
             }"
             :z-index="20"
         >
-            <common-controller-info
-                class="aircraft-hover"
-                :controllers="sectorsAtClick.map(x => x.atc).filter((x, xIndex) => !sectorsAtClick.some((y, yIndex) => xIndex > yIndex && x.cid === y.atc.cid))"
-                show-atis
-                @mouseleave="vatglassesPopupIsShown = false"
+
+            <common-popup-block
+                class="atc-popup"
             >
                 <template #title>
                     Positions
                 </template>
-            </common-controller-info>
+                <div
+                    v-for="(sector, index) in sectorsAtClick"
+                    :key="index"
+                >
+                    <div
+                        class="atc-popup_list"
+                        @mouseleave="vatglassesPopupIsShown = false"
+                    >
+                        <template v-if="vatGlassesCombinedActive">
+                            <template v-if="index === 0 || sector.max !== sectorsAtClick[index - 1].min">
+                                <span class="atc-popup_level">FL{{ sector.max.toString().padStart(3, '0') }}</span>
+                            </template>
+
+                            <common-single-controller-info
+                                :controller="sector.atc"
+                            />
+                            <template v-if="sector.min === 0">
+                                <span class="atc-popup_level">GND</span>
+                            </template>
+                            <template v-else>
+                                <span class="atc-popup_level">FL{{ sector.min.toString().padStart(3, '0') }}</span>
+                            </template>
+                        </template>
+                        <template v-else>
+                            <common-single-controller-info
+                                :controller="sector.atc"
+                                show-atis
+                            />
+                        </template>
+                    </div>
+                </div>
+            </common-popup-block>
         </map-overlay>
     </template>
 </template>
@@ -59,7 +88,7 @@ import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 
 import type { Pixel } from 'ol/pixel';
-import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
 
 let vectorLayer: VectorImageLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -82,6 +111,7 @@ const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
 const vatGlassesActive = isVatGlassesActive();
+const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
 let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
@@ -109,7 +139,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
         sectors.push(properties);
     });
 
-    sectorsAtClick.value = sectors.filter(x => x.atc);
+    sectorsAtClick.value = sectors.filter(x => x.atc).sort((a, b) => b.min - a.min);
 
     getCoordinates.value = e.coordinate;
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
@@ -258,3 +288,14 @@ onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
 });
 </script>
+
+<style scoped lang="scss">
+.atc-popup {
+    &_list {
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+</style>
