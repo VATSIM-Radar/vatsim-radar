@@ -117,6 +117,8 @@ defineCronJob('20 */2 * * *', async () => {
 });
 
 defineCronJob('*/15 * * * *', async () => {
+    if (!process.env.DATABASE_URL) return;
+
     await prisma.userToken.deleteMany({
         where: {
             refreshMaxDate: {
