@@ -293,29 +293,19 @@
                         </map-filter-box>
                     </template>
                     <template #col2>
-                        <common-input-text
-                            height="36px"
-                            :input-attrs="{ max: 100000 }"
-                            input-type="number"
-                            :model-value="store.filter.flights?.altitude?.value?.toString() ?? ''"
-                            placeholder="10000"
-                            @update:modelValue="!$event ? setUserFilters({ flights: { altitude: { value: false } } }) : !isNaN(+$event) && +$event > 0 && +$event < 100000 && setUserFilters({ flights: { altitude: { value: +$event } } })"
+                        <map-filter-box
+                            :model-value="store.filter.flights?.altitude ?? []"
+                            @update:modelValue="($event as string[]).every(x => parseFilterAltitude(x).length) && setUserFilters({ flights: { altitude: $event as string[] } })"
                         >
                             Altitude
-                        </common-input-text>
-                        <common-toggle
-                            :model-value="store.filter.flights?.altitude?.strategy === 'below'"
-                            @update:modelValue="setUserFilters({ flights: { altitude: { strategy: $event ? 'below' : 'above' } } })"
-                        >
-                            <template v-if="store.filter.flights?.altitude?.strategy !== 'below'">
-                                <common-bubble>Above</common-bubble> / Below
-                            </template>
-                            <template v-else>
-                                Above / <common-bubble>Below</common-bubble>
-                            </template>
-                        </common-toggle>
+                        </map-filter-box>
                     </template>
                 </map-filter-columns>
+                <common-notification
+                    type="info"
+                >
+                    Altitude allowed values examples: +FL100, -FL100, +10000, -10000, +FL100/-FL100, -10000/+10000
+                </common-notification>
                 <common-toggle
                     :model-value="!!store.filter.flights?.excludeNoFlightPlan"
                     @update:modelValue="setUserFilters({ flights: { excludeNoFlightPlan: $event } } )"
@@ -375,6 +365,7 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { parseFilterAltitude } from '~/utils/shared';
 
 const store = useStore();
 const tab = ref('filter');

@@ -30,10 +30,7 @@ export interface IUserFilter {
         excludeNoFlightPlan: boolean;
         squawks: string[];
         ratings: number[];
-        altitude: {
-            strategy?: 'below' | 'above';
-            value?: number | false;
-        };
+        altitude: string[];
     }>;
     others: 'hide' | Partial<{
         othersOpacity?: number;
