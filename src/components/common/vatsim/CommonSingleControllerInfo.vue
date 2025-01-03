@@ -1,6 +1,5 @@
 <template>
     <common-info-block
-        :key="controller.cid"
         class="atc-popup_atc"
         is-button
         :top-items="[
