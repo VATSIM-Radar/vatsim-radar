@@ -229,6 +229,12 @@ export interface RadarStorage {
         dynamicData: VatglassesDynamicAPIData;
         activeData: string | null;
     };
+    aeronavPositions:
+    {
+        fir: string; // the start of the login callsign
+        ml: string; // middle latter of the login callsign
+        freq: string; // frequency
+    }[];
     vatsimStatic: {
         divisions: VatsimDivision[];
         subDivisions: VatsimSubDivision[];
@@ -263,6 +269,7 @@ export const radarStorage: RadarStorage = {
         },
         activeData: null,
     },
+    aeronavPositions: [],
     vatsimStatic: {
         divisions: [],
         subDivisions: [],
