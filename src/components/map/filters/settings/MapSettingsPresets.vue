@@ -230,20 +230,21 @@
 <script setup lang="ts">
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import type { UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
+import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import { useStore } from '~/store';
 import type { _AsyncData } from '#app/composables/asyncData';
 import { MAX_MAP_PRESETS } from '~/utils/shared';
 import { saveMapSettings, useFileDownload } from '~/composables/settings';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
-import SaveIcon from '@/assets/icons/kit/save.svg?component';
+import SaveIcon from 'assets/icons/kit/save.svg?component';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
-import ExportIcon from '@/assets/icons/kit/load.svg?component';
-import LoadIcon from '@/assets/icons/kit/load-on-pc.svg?component';
-import EditIcon from '@/assets/icons/kit/edit.svg?component';
+import ExportIcon from 'assets/icons/kit/load.svg?component';
+import LoadIcon from 'assets/icons/kit/load-on-pc.svg?component';
+import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import { sendUserMapSettings } from '~/composables';
+
+import { sendUserMapSettings } from '~/composables/fetchers/map-settings';
 
 const props = defineProps({
     refreshPresets: {

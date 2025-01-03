@@ -1,4 +1,4 @@
-import type { UserList, UserListLiveUser } from '~/utils/backend/lists';
+import type { UserList, UserListLiveUser } from '~/utils/backend/handlers/lists';
 import type { UserTrackingListType } from '@prisma/client';
 import { useStore } from '~/store';
 

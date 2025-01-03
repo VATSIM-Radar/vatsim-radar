@@ -1,4 +1,4 @@
-import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/map-settings';
+import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/handlers/map-settings';
 import { getCurrentThemeRgbColor } from '~/composables/index';
 import { useStore } from '~/store';
 

@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.0-rc.1]
+
+- VG runways will not show for airport you already departed from in pilot popup
+
 # [1.0.0-beta.2]
 
 - Added airline display into pilot popup

@@ -136,11 +136,14 @@
                         center-by="start"
                         class="filters_sections_section_content"
                         location="right"
+                        max-height="55vh"
+                        min-height="400px"
                         :model-value="selectedFilter === 'filters'"
+                        :width="isMobile ? 'calc(100dvw - 100px)' : '450px'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
-                            Filters & Traffic
+                            Filters, Traffic, Bookmarks
                         </template>
 
                         <map-filters-traffic/>
@@ -231,7 +234,7 @@ import MapFilterTransparency from '~/components/map/filters/MapFilterTransparenc
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
-import type { UserMapSettings } from '~/utils/backend/map-settings';
+import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import { isFetchError, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';

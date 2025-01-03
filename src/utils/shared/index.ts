@@ -25,3 +25,44 @@ export function isRunwayEast(runway: string | number) {
 
     return runway > 16;
 }
+
+export interface FilterAltitudeConfig {
+    strategy: 'below' | 'above';
+    altitude: number;
+}
+
+export function parseFilterAltitude(altitude: string): FilterAltitudeConfig[] {
+    const altitudes = altitude.split('/').slice(0, 2);
+
+    if (!altitudes.length) return [];
+
+    const config: FilterAltitudeConfig[] = [];
+
+    for (let altitude of altitudes) {
+        let strategy: FilterAltitudeConfig['strategy'];
+
+        if (altitude.startsWith('+')) strategy = 'above';
+        else if (altitude.startsWith('-')) strategy = 'below';
+        else return [];
+
+        altitude = altitude.slice(1, altitude.length);
+
+        if (altitude.startsWith('FL')) altitude = `${ altitude.replace('FL', '') }00`;
+        const number = Number(altitude);
+        if (isNaN(number)) return [];
+        if (number < 1 || number > 99999) return [];
+
+        config.push({
+            strategy,
+            altitude: number,
+        });
+    }
+
+    if (config.length === 2) {
+        if (config[0].strategy === config[1].strategy) return [];
+        if (config[0].strategy === 'below' && config[0].altitude < config[1].altitude) return [];
+        if (config[0].strategy === 'above' && config[1].altitude < config[0].altitude) return [];
+    }
+
+    return config;
+}

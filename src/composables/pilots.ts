@@ -8,7 +8,7 @@ import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings } from '~/composables/colors';
-import { getUserList } from '~/composables/lists';
+import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 
@@ -19,6 +19,20 @@ export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): s
     if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
+}
+
+export function usePilotRatings() {
+    const dataStore = useDataStore();
+
+    return {
+        NEW: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'NEW')?.id ?? -1,
+        PPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'PPL')?.id ?? -1,
+        IR: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'IR')?.id ?? -1,
+        CMEL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'CMEL')?.id ?? -1,
+        ATPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'ATPL')?.id ?? -1,
+        FI: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FI')?.id ?? -1,
+        FE: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FE')?.id ?? -1,
+    };
 }
 
 export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0] | null {

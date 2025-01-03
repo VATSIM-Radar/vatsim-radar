@@ -1,3 +1,3 @@
-import { handleMapSettingsEvent } from '~/utils/backend/map-settings';
+import { handleMapSettingsEvent } from '~/utils/backend/handlers/map-settings';
 
 export default defineEventHandler(handleMapSettingsEvent);

@@ -207,7 +207,7 @@ import { useStore } from '~/store';
 import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
 import ViewHeaderList from '~/components/views/header/ViewHeaderList.vue';
-import type { UserListLive } from '~/utils/backend/lists';
+import type { UserListLive } from '~/utils/backend/handlers/lists';
 import { MAX_USER_LISTS } from '~/utils/shared';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
