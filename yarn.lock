@@ -3455,6 +3455,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/kinks@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/kinks@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/487cfba3aa015a4195742c261ecc622c5c3dd29cb0aa08b1959f051c23b24a0d1b52f2c38f4ce5c70061de21a60d19c940a472fad9b5c2484ecd0eb82fbf7654
+  languageName: node
+  linkType: hard
+
+"@turf/line-intersect@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/line-intersect@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    sweepline-intersections: "npm:^1.5.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/d2ed0159ce84e179f999ed461c5481f063c813bedfdfb4af45e46432503b0acd240128be5c6c2d324e05edc4981fd806a41ee0282567c5d0c80c223497e40cb4
+  languageName: node
+  linkType: hard
+
 "@turf/meta@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/meta@npm:7.2.0"
@@ -13072,6 +13095,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"sweepline-intersections@npm:^1.5.0":
+  version: 1.5.0
+  resolution: "sweepline-intersections@npm:1.5.0"
+  dependencies:
+    tinyqueue: "npm:^2.0.0"
+  checksum: 10c0/587a597c75b787e61054ef88b98463af47f60855265b7829fa8acc5ebe68fb4bc3d148a80e9f72c69c16a0241bfed38d3fbbe93a735ea5a2276c00116adc5283
+  languageName: node
+  linkType: hard
+
 "sync-child-process@npm:^1.0.2":
   version: 1.0.2
   resolution: "sync-child-process@npm:1.0.2"
@@ -13252,6 +13284,13 @@ __metadata:
     fdir: "npm:^6.4.2"
     picomatch: "npm:^4.0.2"
   checksum: 10c0/ce946135d39b8c0e394e488ad59f4092e8c4ecd675ef1bcd4585c47de1b325e61ec6adfbfbe20c3c2bfa6fd674c5b06de2a2e65c433f752ae170aff11793e5ef
+  languageName: node
+  linkType: hard
+
+"tinyqueue@npm:^2.0.0":
+  version: 2.0.3
+  resolution: "tinyqueue@npm:2.0.3"
+  checksum: 10c0/d7b590088f015a94a17132fa209c2f2a80c45158259af5474901fdf5932e95ea13ff6f034bcc725a6d5f66d3e5b888b048c310229beb25ad5bebb4f0a635abf2
   languageName: node
   linkType: hard
 
@@ -13980,6 +14019,8 @@ __metadata:
     "@turf/great-circle": "npm:^7.2.0"
     "@turf/helpers": "npm:^7.2.0"
     "@turf/intersect": "npm:^7.2.0"
+    "@turf/kinks": "npm:^7.2.0"
+    "@turf/line-intersect": "npm:^7.2.0"
     "@turf/meta": "npm:^7.2.0"
     "@turf/truncate": "npm:^7.2.0"
     "@turf/union": "npm:^7.2.0"
