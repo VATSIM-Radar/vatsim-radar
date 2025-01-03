@@ -582,7 +582,7 @@ export const isVatGlassesActive = () => computed(() => {
 });
 
 let vatglassesUpdateInProgress = false;
-export async function updateVatglassesStateLocal() {
+export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
     if (!isVatGlassesActive().value) return;
 
@@ -590,7 +590,7 @@ export async function updateVatglassesStateLocal() {
 
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
-    if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined) {
+    if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !forceNoCombine) {
         await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
     }
     dataStore.vatglassesActivePositions.value = newVatglassesActivePositions;
@@ -683,7 +683,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
         worker = new combinedWorker();
 
-        updateVatglassesStateLocal();
+        await updateVatglassesStateLocal(true);
 
         const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
 
