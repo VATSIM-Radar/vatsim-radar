@@ -297,5 +297,10 @@ onBeforeUnmount(() => {
         flex-direction: column;
         gap: 8px;
     }
+
+    &_level {
+        font-size: 14px;
+        font-weight: 600;
+    }
 }
 </style>
