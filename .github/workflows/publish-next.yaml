@@ -89,6 +89,10 @@ jobs:
         run: kubectl apply -f .config/k8s/next/db.yml
       - name: Validate DB
         run: kubectl rollout status deployment db-next
+      - name: Deploy Influx
+        run: kubectl apply -f .config/k8s/influx.yml
+      - name: Validate Influx
+        run: kubectl rollout status deployment influx
 
   deploy-ingress:
     runs-on: ubuntu-latest

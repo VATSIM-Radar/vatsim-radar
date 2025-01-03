@@ -23,6 +23,8 @@ services:
                 condition: service_healthy
             redis:
                 condition: service_started
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     worker:
         build:
@@ -43,6 +45,8 @@ services:
                 condition: service_started
             frontend:
                 condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     db:
         image: mysql
