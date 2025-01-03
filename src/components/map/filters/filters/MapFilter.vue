@@ -360,8 +360,6 @@ import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
