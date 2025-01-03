@@ -13,11 +13,20 @@
 </template>
 
 <script setup lang="ts">
+import type { PropType } from 'vue';
+
+defineProps({
+    alignItems: {
+        type: String as PropType<'flex-start' | 'center' | 'space-between' | 'space-evenly' | 'flex-end'>,
+        default: 'flex-end',
+    },
+});
+
 defineSlots<{ col1?: () => any; col2?: () => any }>();
 </script>
 
 <style lang="scss" scoped>
 .__section-group {
-    align-items: flex-end;
+    align-items: v-bind(alignItems);
 }
 </style>

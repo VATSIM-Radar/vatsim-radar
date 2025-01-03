@@ -32,7 +32,7 @@
                             :model-value="store.filter.users?.pilots?.value ?? []"
                             placeholder="SBI"
                             show-chip-value
-                            :suggestions="pilotSuggestions"
+                            :suggestions="pilotSuggestions.airline"
                             @update:modelValue="setUserFilters({ users: { pilots: { value: $event as string[] } } })"
                         >
                             Pilots Callsigns
@@ -138,6 +138,34 @@
                         </map-filter-box>
                     </template>
                 </map-filter-columns>
+                <common-select
+                    v-if="getEvents.length"
+                    :items="getEvents"
+                    :model-value="null"
+                    placeholder="Set airports from event"
+                    show-placeholder
+                    @update:modelValue="setEventAirports($event as number)"
+                />
+                <map-filter-columns>
+                    <template #col1>
+                        <map-filter-box
+                            :model-value="store.filter.airports?.departurePrefix ?? []"
+                            placeholder="UL"
+                            @update:modelValue="setUserFilters({ airports: { departurePrefix: ($event as string[]).filter(x => x.length <= 4) } })"
+                        >
+                            Departure airports prefixes
+                        </map-filter-box>
+                    </template>
+                    <template #col2>
+                        <map-filter-box
+                            :model-value="store.filter.airports?.arrivalPrefix ?? []"
+                            placeholder="UU"
+                            @update:modelValue="setUserFilters({ airports: { arrivalPrefix: ($event as string[]).filter(x => x.length <= 4) } })"
+                        >
+                            Arrival airports prefixes
+                        </map-filter-box>
+                    </template>
+                </map-filter-columns>
                 <map-filter-box
                     :model-value="store.filter.airports?.routes ?? []"
                     placeholder="ULLI-UUDD"
@@ -154,6 +182,14 @@
                 <common-toggle v-model="routesBothDirection">
                     Both directions
                 </common-toggle>
+                <common-select
+                    v-if="getRouteEvents.length"
+                    :items="getRouteEvents"
+                    :model-value="null"
+                    placeholder="Set routes from event"
+                    show-placeholder
+                    @update:modelValue="setEventRoutes($event as number)"
+                />
             </template>
             <common-block-title
                 v-model:collapsed="collapsedStates.atc"
@@ -191,6 +227,132 @@
                     </template>
                 </map-filter-columns>
             </template>
+            <common-block-title
+                v-model:collapsed="collapsedStates.flights"
+                remove-margin
+            >
+                Flights
+            </common-block-title>
+            <template v-if="!collapsedStates.flights">
+                <map-filter-columns>
+                    <template #col1>
+                        <common-select
+                            :items="[{ value: 'departing', text: 'Departing' }, { value: 'all', text: 'All' }, { value: 'airborne', text: 'Airborne' }, { value: 'arrived', text: 'Arrived' }]"
+                            :model-value="store.filter.flights?.status ?? 'all'"
+                            placeholder="Status"
+                            @update:modelValue="setUserFilters({ flights: { status: $event as any } })"
+                        >
+                            <template #label>
+                                Status
+                            </template>
+                        </common-select>
+                    </template>
+                    <template #col2>
+                        <common-select
+                            :items="[{ value: 'all', text: 'All' }, { value: 'domestic', text: 'Domestic' }, { value: 'international', text: 'International' }]"
+                            :model-value="store.filter.flights?.type ?? 'all'"
+                            @update:modelValue="setUserFilters({ flights: { type: $event as any } })"
+                        >
+                            <template #label>
+                                Type
+                            </template>
+                        </common-select>
+                    </template>
+                </map-filter-columns>
+                <map-filter-columns>
+                    <template #col1>
+                        <map-filter-box
+                            :model-value="store.filter.flights?.aircraft ?? []"
+                            :suggestions="pilotSuggestions.aircraft"
+                            @update:modelValue="setUserFilters({ flights: { aircraft: $event as string[] } })"
+                        >
+                            Aircraft type
+                        </map-filter-box>
+                    </template>
+                    <template #col2>
+                        <map-filter-box
+                            :model-value="store.filter.flights?.squawks ?? []"
+                            @update:modelValue="setUserFilters({ flights: { squawks: ($event as string[]).filter(x => x.length === 4) } })"
+                        >
+                            Squawks
+                        </map-filter-box>
+                    </template>
+                </map-filter-columns>
+                <map-filter-columns align-items="flex-start">
+                    <template #col1>
+                        <map-filter-box
+                            always-show-text
+                            input-type="text"
+                            is-number
+                            :model-value="store.filter.flights?.ratings ?? []"
+                            strict
+                            :suggestions="pilotRatings"
+                            @update:modelValue="setUserFilters({ flights: { ratings: $event as number[] } })"
+                        >
+                            Rating
+                        </map-filter-box>
+                    </template>
+                    <template #col2>
+                        <common-input-text
+                            height="36px"
+                            :input-attrs="{ max: 100000 }"
+                            input-type="number"
+                            :model-value="store.filter.flights?.altitude?.value?.toString() ?? ''"
+                            placeholder="10000"
+                            @update:modelValue="!$event ? setUserFilters({ flights: { altitude: { value: false } } }) : !isNaN(+$event) && +$event > 0 && +$event < 100000 && setUserFilters({ flights: { altitude: { value: +$event } } })"
+                        >
+                            Altitude
+                        </common-input-text>
+                        <common-toggle
+                            :model-value="store.filter.flights?.altitude?.strategy === 'below'"
+                            @update:modelValue="setUserFilters({ flights: { altitude: { strategy: $event ? 'below' : 'above' } } })"
+                        >
+                            <template v-if="store.filter.flights?.altitude?.strategy !== 'below'">
+                                <common-bubble>Above</common-bubble> / Below
+                            </template>
+                            <template v-else>
+                                Above / <common-bubble>Below</common-bubble>
+                            </template>
+                        </common-toggle>
+                    </template>
+                </map-filter-columns>
+                <common-toggle
+                    :model-value="!!store.filter.flights?.excludeNoFlightPlan"
+                    @update:modelValue="setUserFilters({ flights: { excludeNoFlightPlan: $event } } )"
+                >
+                    Exclude flights with no flight plan
+                </common-toggle>
+            </template>
+            <common-block-title remove-margin>Filter options</common-block-title>
+            <common-toggle
+                :model-value="typeof store.filter.others !== 'object'"
+                @update:modelValue="setUserFilters({ others: $event ? 'hide' : {} } )"
+            >
+                Hide other aircraft
+            </common-toggle>
+            <template v-if="typeof store.filter.others === 'object'">
+                <common-color
+                    :model-value="{ transparency: store.filter.others.othersOpacity ?? 1 }"
+                    transparency-only
+                    @update:modelValue="setUserFilters({ others: { othersOpacity: $event.transparency } })"
+                >
+                    Non-filtered transparency
+                </common-color>
+                <common-color v-model="store.filter.others.ourColor">
+                    Filtered color
+                </common-color>
+            </template>
+            <common-toggle
+                :model-value="!!store.filter.invert"
+                @update:modelValue="setUserFilters({ invert: $event } )"
+            >
+                Invert filtration
+            </common-toggle>
+            <div class="filter__actions">
+                <common-button @click="applyFilter">
+                    Apply
+                </common-button>
+            </div>
         </template>
     </div>
 </template>
@@ -207,6 +369,12 @@ import CommonNotification from '~/components/common/basic/CommonNotification.vue
 import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import type { VatsimEventData } from '~/server/api/data/vatsim/events';
+import CommonColor from '~/components/common/basic/CommonColor.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const store = useStore();
 const tab = ref('filter');
@@ -214,6 +382,7 @@ const routesBothDirection = ref(true);
 
 const atcPositions: SelectItem[] = Object.entries(useFacilitiesIds()).filter(([key]) => key !== 'OBS').map(([text, value]) => ({ value, text }));
 const atcRatings: SelectItem[] = Object.entries(useRatingsIds()).map(([text, value]) => ({ value, text }));
+const pilotRatings: SelectItem[] = Object.entries(usePilotRatings()).map(([text, value]) => ({ value, text }));
 
 const collapsedStates = reactive({
     users: false,
@@ -224,25 +393,94 @@ const collapsedStates = reactive({
 
 const dataStore = useDataStore();
 
-const pilotSuggestions = computed<SelectItem[]>(() => {
+const { data: events } = await useLazyAsyncData('events', async () => {
+    return $fetch<VatsimEventData>('/api/data/vatsim/events');
+});
+
+const getEvents = computed<SelectItem[]>(() => {
+    return events.value?.events.filter(x => x.airports.length).map(x => ({
+        text: x.name,
+        value: x.id,
+    })) ?? [];
+});
+
+const getRouteEvents = computed<SelectItem[]>(() => {
+    return events.value?.events.filter(x => x.routes.length).map(x => ({
+        text: x.name,
+        value: x.id,
+    })) ?? [];
+});
+
+const setEventAirports = (id: number) => {
+    const event = events.value!.events.find(x => x.id === id)!;
+    setUserFilters({
+        airports: {
+            departure: Array.from(new Set([
+                ...store.filter.airports?.departure ?? [],
+                ...event.airports.map(x => x.icao),
+            ])),
+            arrival: Array.from(new Set([
+                ...store.filter.airports?.arrival ?? [],
+                ...event.airports.map(x => x.icao),
+            ])),
+        },
+    });
+};
+
+const setEventRoutes = (id: number) => {
+    const event = events.value!.events.find(x => x.id === id)!;
+    setUserFilters({
+        airports: {
+            routes: Array.from(new Set([
+                ...store.filter.airports?.routes ?? [],
+                ...event.routes.map(x => `${ x.departure }-${ x.arrival }`),
+            ])),
+        },
+    });
+};
+
+const applyFilter = () => {
+    store.activeFilter = structuredClone(store.filter);
+};
+
+const pilotSuggestions = computed<{ airline: SelectItem[]; aircraft: SelectItem[] }>(() => {
     const airlines: Record<string, { airline: RadarDataAirline; count: number }> = {};
+    const aircraft: Record<string, { aircraft: string; count: number }> = {};
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
         const airline = getAirlineFromCallsign(pilot.callsign);
-        if (!airline) continue;
-        if (airlines[airline.icao]) airlines[airline.icao].count++;
-        else {
-            airlines[airline.icao] = {
-                airline,
-                count: 1,
-            };
+        const aircraftShort = pilot.aircraft_short?.split('/')[0];
+
+        if (airline) {
+            if (airlines[airline.icao]) airlines[airline.icao].count++;
+            else {
+                airlines[airline.icao] = {
+                    airline,
+                    count: 1,
+                };
+            }
+        }
+
+        if (aircraftShort) {
+            if (aircraft[aircraftShort]) aircraft[aircraftShort].count++;
+            else {
+                aircraft[aircraftShort] = {
+                    aircraft: aircraftShort,
+                    count: 1,
+                };
+            }
         }
     }
 
-    return Object.entries(airlines).sort((a, b) => b[1].count - a[1].count).map(x => ({
-        value: x[1].airline.icao,
-        text: x[1].airline.name,
-    }));
+    return {
+        aircraft: Object.entries(aircraft).sort((a, b) => b[1].count - a[1].count).map(x => ({
+            value: x[1].aircraft,
+        })),
+        airline: Object.entries(airlines).sort((a, b) => b[1].count - a[1].count).map(x => ({
+            value: x[1].airline.icao,
+            text: x[1].airline.name,
+        })),
+    };
 });
 
 const airportsSuggestions = computed<SelectItem[]>(() => {
@@ -279,9 +517,3 @@ const setRoutes = (routes: string[]) => {
     previousRoutesLength = store.filter.airports!.routes!.length;
 };
 </script>
-
-<style scoped lang="scss">
-.filter {
-
-}
-</style>

@@ -15,7 +15,7 @@ export function setUserFilters(settings?: UserFilter) {
     localStorage.setItem('filters', JSON.stringify(filters));
 }
 
-export async function resetUserMapSettings() {
+export async function resetUserFilters() {
     const store = useStore();
     store.filter = {};
     localStorage.removeItem('filters');

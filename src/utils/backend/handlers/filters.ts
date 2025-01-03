@@ -1,4 +1,3 @@
-import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { UserPreset } from '@prisma/client';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 
@@ -16,6 +15,8 @@ export interface IUserFilter {
     airports: Partial<{
         departure: string[];
         arrival: string[];
+        departurePrefix: string[];
+        arrivalPrefix: string[];
         routes: string[];
     }>;
     atc: Partial<{
@@ -23,21 +24,22 @@ export interface IUserFilter {
         facilities: number[];
     }>;
     flights: Partial<{
-        status: 'departing' | 'airborne' | 'arrived';
+        status: 'all' | 'departing' | 'airborne' | 'arrived';
         aircraft: string[];
         type: 'all' | 'domestic' | 'international';
         excludeNoFlightPlan: boolean;
         squawks: string[];
+        ratings: number[];
         altitude: {
             strategy?: 'below' | 'above';
-            value?: string;
+            value?: number | false;
         };
     }>;
-    eventId: number;
     others: 'hide' | Partial<{
         othersOpacity?: number;
         ourColor?: UserMapSettingsColor;
     }>;
+    invert: boolean;
 }
 
 export type UserFilter = Partial<IUserFilter>;

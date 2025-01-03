@@ -115,7 +115,7 @@
                             <common-info-block
                                 v-for="flight in searchResults.flights.slice(0, searchLimit)"
                                 :key="flight.cid"
-                                :bottom-items="[flight.aircraft_short, flight.departure]"
+                                :bottom-items="[flight.aircraft_short?.split('/')[0], flight.departure]"
                                 is-button
                                 :top-items="[flight.callsign]"
                                 @click="['status' in flight ? mapStore.addPilotOverlay(flight.cid.toString(), true) : mapStore.addPrefileOverlay(flight.cid.toString()), opened = false]"

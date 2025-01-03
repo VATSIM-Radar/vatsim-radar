@@ -257,7 +257,7 @@ const viewRoute = () => {
 const atcSections = computed<InfoPopupSection[]>(() => {
     const list = getAtcList.value?.slice() as InfoPopupSection[];
 
-    if (depRunways.value) {
+    if (depRunways.value && props.overlay.data.pilot.status?.startsWith('dep')) {
         list.push({
             key: 'depRunways',
             title: `${ depAirport.value?.icao } Runways`,

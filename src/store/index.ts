@@ -48,6 +48,7 @@ export const useStore = defineStore('index', {
         mapPresets: [] as UserMapPreset[],
         mapPresetsSaveFail: false as false | (() => Promise<any>),
         filter: {} as UserFilter,
+        activeFilter: {} as UserFilter,
         filterPresets: [] as UserFilterPreset[],
         config: {} as SiteConfig,
 
