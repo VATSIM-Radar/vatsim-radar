@@ -26,7 +26,7 @@ spec:
         app: influx
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2-2
+        doks.digitalocean.com/node-pool: influx
       containers:
         - name: influx
           image: registry.nyan404.ru/telegraf-influxdb:latest
