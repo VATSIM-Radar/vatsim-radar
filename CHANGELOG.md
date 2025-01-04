@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.0.0-beta.4]
+
+(QA release)
+
+- Fixed an issue when friend not appeared if adding via cid until page reload
+- Fixed visibility issues for overlay title header
+- Fixed an issue when VATGlasses depended on whether you have overlay opened or not
+
 # [1.0.0-beta.3]
 
 - Fixed VG combined sector mode

@@ -565,7 +565,6 @@ export const isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
-    const mapStore = useNuxtApp().$pinia.state.value.map;
     dataStore ??= useDataStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
@@ -574,7 +573,7 @@ export const isVatGlassesActive = () => computed(() => {
 
     if (isAuto) {
         if (store.user) {
-            return mapStore.overlays.some((x: any) => x.key === store.user?.cid);
+            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
         }
     }
 
