@@ -103,12 +103,13 @@ import MapSettingsVisibility from '~/components/map/filters/settings/MapSettings
 import MapSettingsLayers from '~/components/map/filters/settings/MapSettingsLayers.vue';
 import MapSettingsColors from '~/components/map/filters/settings/MapSettingsColors.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import type { IUserMapSettings, UserMapPreset, UserMapSettings } from '~/utils/backend/map-settings';
+import type { IUserMapSettings, UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import MapSettingsPresets from '~/components/map/filters/settings/MapSettingsPresets.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { useStore } from '~/store';
 import { saveMapSettings } from '~/composables/settings';
-import { sendUserMapSettings } from '~/composables';
+
+import { sendUserMapSettings } from '~/composables/fetchers/map-settings';
 
 const importedPreset = defineModel('importedPreset', {
     type: [Object, Boolean] as PropType<UserMapSettings | false | null>,

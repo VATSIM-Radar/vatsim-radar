@@ -87,7 +87,7 @@ import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
-import { setUserLocalSettings, useIframeHeader } from '~/composables';
+import { useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
@@ -98,6 +98,7 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {

@@ -289,7 +289,7 @@ import { useStore } from '~/store';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import type { SelectItem } from '~/types/components/select';
-import type { IUserMapSettings } from '~/utils/backend/map-settings';
+import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
 
 const store = useStore();
 

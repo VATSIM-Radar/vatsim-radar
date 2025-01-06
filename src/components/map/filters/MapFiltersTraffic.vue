@@ -1,43 +1,59 @@
 <template>
     <div class="traffic __info-sections __info-sections--gap-16">
-        <common-block-title remove-margin>
-            Share
-        </common-block-title>
-
-        <common-button
-            size="S"
-            @click="copyUrl"
-        >
-            <template v-if="copyState">
-                Copied!
-            </template>
-            <template v-else>
-                Copy current location
-            </template>
-        </common-button>
-
-        <common-toggle v-model="includeOverlays">
-            Include overlays
-        </common-toggle>
-
-        <common-input-text
-            v-model="customUrl"
-            placeholder="Paste copied URL"
+        <common-tabs
+            v-model="tab"
+            mobile-vertical
+            :tabs="{
+                filters: {
+                    title: 'Filters',
+                },
+                bookmarks: {
+                    title: 'Bookmarks',
+                },
+                traffic: {
+                    title: 'Traffic',
+                },
+            }"
         />
 
-        <common-block-title remove-margin>
-            Traffic
-        </common-block-title>
+        <map-filter v-if="tab === 'filters'"/>
+        <template v-else-if="tab === 'bookmarks'">
+            <common-block-title remove-margin>
+                Share
+            </common-block-title>
 
-        <common-toggle
-            :model-value="!!store.localSettings.traffic?.disableFastUpdate"
-            @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
-        >
-            Disable fast update
-            <template #description>
-                Sets update to once per 15 seconds. Expected delay from 15 to 30 seconds, but it will consume much less traffic
-            </template>
-        </common-toggle>
+            <common-button
+                size="S"
+                @click="copyUrl"
+            >
+                <template v-if="copyState">
+                    Copied!
+                </template>
+                <template v-else>
+                    Copy current location
+                </template>
+            </common-button>
+
+            <common-toggle v-model="includeOverlays">
+                Include overlays
+            </common-toggle>
+
+            <common-input-text
+                v-model="customUrl"
+                placeholder="Paste copied URL"
+            />
+        </template>
+        <template v-else-if="tab === 'traffic'">
+            <common-toggle
+                :model-value="!!store.localSettings.traffic?.disableFastUpdate"
+                @update:modelValue="setUserLocalSettings({ traffic: { disableFastUpdate: $event } })"
+            >
+                Disable fast update
+                <template #description>
+                    Sets update to once per 15 seconds. Expected delay from 15 to 30 seconds, but it will consume much less traffic
+                </template>
+            </common-toggle>
+        </template>
     </div>
 </template>
 
@@ -48,6 +64,8 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { useMapStore } from '~/store/map';
+import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import MapFilter from '~/components/map/filters/filters/MapFilter.vue';
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -55,6 +73,8 @@ const { copy, copyState } = useCopyText();
 
 const includeOverlays = ref(false);
 const customUrl = ref('');
+
+const tab = ref('filters');
 
 const copyUrl = () => {
     let text = location.href;

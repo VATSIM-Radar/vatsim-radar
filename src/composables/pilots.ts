@@ -7,8 +7,8 @@ import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
-import { getColorFromSettings } from '~/composables/colors';
-import { getUserList } from '~/composables/lists';
+import { getColorFromSettings, hexToRgb } from '~/composables/colors';
+import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 
@@ -19,6 +19,20 @@ export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): s
     if (pilot.military_rating) ratings.push(dataStore.vatsim.data.military_ratings.value.find(x => x.id === pilot.pilot_rating)?.[short ? 'short_name' : 'long_name'] ?? pilot.military_rating.toString());
 
     return ratings;
+}
+
+export function usePilotRatings() {
+    const dataStore = useDataStore();
+
+    return {
+        NEW: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'NEW')?.id ?? -1,
+        PPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'PPL')?.id ?? -1,
+        IR: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'IR')?.id ?? -1,
+        CMEL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'CMEL')?.id ?? -1,
+        ATPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'ATPL')?.id ?? -1,
+        FI: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FI')?.id ?? -1,
+        FE: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FE')?.id ?? -1,
+    };
 }
 
 export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0] | null {
@@ -133,6 +147,17 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
+const getFilteredAircraftSettings = (cid: number) => {
+    const store = useStore();
+    const dataStore = useDataStore();
+
+    if (hasActivePilotFilter() && typeof store.activeFilter.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
+        const pilot = dataStore.vatsim.data.keyedPilots.value?.[cid];
+        if (pilot?.filteredColor) return pilot.filteredColor;
+        else return pilot?.filteredOpacity;
+    }
+};
+
 export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
     const store = useStore();
 
@@ -141,10 +166,22 @@ export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) 
         return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
     }
 
+    let filteredColor: ReturnType<typeof getFilteredAircraftSettings> | undefined;
+
+    if (cid && status === 'default') {
+        filteredColor = getFilteredAircraftSettings(cid);
+
+        if (typeof filteredColor === 'object') return getColorFromSettings(filteredColor);
+    }
+
     let color = aircraftSvgColors()[status];
     let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
     if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
     if (settingColor) color = getColorFromSettings(settingColor);
+
+    if (typeof filteredColor === 'number') {
+        return `rgba(${ hexToRgb(color) }, ${ filteredColor })`;
+    }
 
     return color;
 };
@@ -212,7 +249,24 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     const featureProperties = feature.getProperties() ?? {};
     const list = getUserList(cid);
 
-    if (!force && image && featureProperties.imageStatus === status && featureProperties.icon === icon && featureProperties.hadList === !!list) {
+    const filter = getFilteredAircraftSettings(cid);
+    let filterColor: string | undefined;
+    let filterOpacity: number | undefined;
+
+    if (filter) {
+        if (typeof filter === 'number') filterOpacity = filter;
+        else {
+            filterColor = getColorFromSettings(filter);
+        }
+    }
+
+    if (!force &&
+        image &&
+        featureProperties.imageStatus === status &&
+        featureProperties.icon === icon &&
+        featureProperties.hadList === !!list &&
+        featureProperties.filterColor === filterColor &&
+        featureProperties.filterOpacity === filterOpacity) {
         image.setRotation(rotation);
     }
     else {
@@ -222,14 +276,14 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
 
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
+                src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
-                color: (color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined,
-                opacity: store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1),
+                color: filterColor ? hexToRgb(filterColor) : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
+                opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
             }));
         }
         else {
@@ -251,6 +305,8 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         imageStatus: status,
         icon,
         hadList: !!list,
+        filterColor,
+        filterOpacity,
     });
 }
 

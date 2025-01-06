@@ -52,7 +52,6 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/header/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
-import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
@@ -60,6 +59,7 @@ import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { UAParser } from 'ua-parser-js';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 
 defineSlots<{ default: () => any }>();
 
@@ -185,6 +185,11 @@ async function getDeviceType(uaParser = parser) {
     return parsedType;
 }
 
+async function getEngine(uaParser = parser) {
+    if (!uaParser) return;
+    return (await uaParser.getEngine().withFeatureCheck()).name;
+}
+
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
     store.isMobileOrTablet = window.innerWidth < 1366;
@@ -207,6 +212,7 @@ onNuxtReady(async () => {
     setWindowStore();
     windowInterval = setInterval(setWindowStore, 500);
     store.device = await getDeviceType() ?? 'desktop';
+    store.engine = await getEngine();
 });
 
 onBeforeUnmount(() => {
@@ -237,6 +243,7 @@ await useAsyncData('default-init', async () => {
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
         store.device = await getDeviceType() ?? 'desktop';
+        store.engine = await getEngine();
     }
 
     return true;
@@ -341,7 +348,7 @@ img {
 .__info-sections {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 
     &_title {
         padding-top: 8px;
@@ -384,17 +391,46 @@ img {
             grid-template-columns: 65% 30%;
         }
     }
+
+    &--vertical {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
 }
 
 .__section-group {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     width: 100%;
 
-    &:not(&--even, &--even-mobile){
-        > * {
-            flex: 1 1 0;
-            width: 0;
+    >*{
+        flex: 1 1 0;
+        width: 0;
+    }
+
+    &--even {
+        >* {
+            flex: unset;
+            width: unset;
+        }
+    }
+
+    @include mobileOnly {
+        &--even-mobile, &--disable-mobile {
+            >* {
+                flex: unset;
+                width: unset;
+            }
+        }
+
+        &--disable-mobile {
+            flex-direction: column;
+
+            >* {
+                width: 100%;
+            }
         }
     }
 

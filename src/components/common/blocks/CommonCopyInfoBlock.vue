@@ -23,6 +23,7 @@
                 </template>
             </common-button>
             <common-button
+                v-if="!autoExpand"
                 class="copy-info_left_expand"
                 type="link"
                 @click="expanded = !expanded"
@@ -59,21 +60,26 @@ import type { PropType } from 'vue';
 import { useCopyText } from '~/composables';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 
-defineProps({
+const props = defineProps({
     text: {
         type: String as PropType<string | null>,
         default: null,
+    },
+    autoExpand: {
+        type: Boolean,
+        default: false,
     },
 });
 
 defineSlots<{ default?(): any; prepend?(): any; append?(): any; actions?(): any }>();
 
 const copy = useCopyText();
-const expanded = ref(false);
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const expanded = ref(props.autoExpand);
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const initialHeight = ref(0);
 
-watch(expanded, val => {
+watch([expanded, textarea], ([val]) => {
     if (!textarea.value) return;
 
     if (val) {
@@ -88,13 +94,12 @@ watch(expanded, val => {
 
 <style scoped lang="scss">
 .copy-info {
-    display: grid;
-    grid-template-columns: 20% 75%;
-    justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     &_left {
         display: flex;
-        flex-direction: column;
         gap: 8px;
 
         &_title {

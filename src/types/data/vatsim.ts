@@ -1,6 +1,7 @@
 import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import type { MapAirport } from '~/types/map';
 import type { AircraftIcon } from '~/utils/icons';
+import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 
 export interface VatsimGeneral {
     version: number;
@@ -141,7 +142,10 @@ export type VatsimShortenedData = {
     pilots: Array<
         Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> &
         Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>> &
-        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>>
+        Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>> & {
+            filteredColor?: UserMapSettingsColor;
+            filteredOpacity?: number;
+        }
     >;
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
@@ -174,6 +178,7 @@ export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> &
     locals: VatSpyDataLocalATC[];
     firs: VatSpyDataFeature[];
     airports: MapAirport[];
+    keyedPilots?: Record<number, VatsimShortenedData['pilots'][0]>;
 };
 
 export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>;

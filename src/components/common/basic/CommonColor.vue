@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import type { UserMapSettingsColor } from '~/utils/backend/map-settings';
+import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';

@@ -5,7 +5,7 @@ import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 import { handleH3Error } from '~/utils/backend/h3';
-import type { UserList } from '~/utils/backend/lists';
+import type { UserList } from '~/utils/backend/handlers/lists';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');

@@ -175,13 +175,13 @@ import { showPilotOnMap } from '~/composables/pilots';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
-import type { UserListLive, UserListLiveUser } from '~/utils/backend/lists';
+import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import { sortList } from '~/composables/lists';
+import { sortList } from '~/composables/fetchers/lists';
 
 const props = defineProps({
     list: {

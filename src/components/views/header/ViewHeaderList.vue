@@ -161,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserListLive, UserListUser } from '~/utils/backend/lists';
+import type { UserListLive, UserListUser } from '~/utils/backend/handlers/lists';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';

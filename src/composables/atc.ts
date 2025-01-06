@@ -21,6 +21,22 @@ export const useFacilitiesIds = () => {
     };
 };
 
+export const useRatingsIds = () => {
+    const dataStore = useDataStore();
+
+    return {
+        S1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S1')?.id ?? -1,
+        S2: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S2')?.id ?? -1,
+        S3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S3')?.id ?? -1,
+        C1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'C1')?.id ?? -1,
+        C3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'C3')?.id ?? -1,
+        I1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'I1')?.id ?? -1,
+        I3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'I3')?.id ?? -1,
+        SUP: dataStore.vatsim.data.ratings.value.find(x => x.short === 'SUP')?.id ?? -1,
+        ADM: dataStore.vatsim.data.ratings.value.find(x => x.short === 'ADM')?.id ?? -1,
+    };
+};
+
 export function getControllerPositionColor(controller: VatsimShortenedController) {
     const ids = useFacilitiesIds();
 
