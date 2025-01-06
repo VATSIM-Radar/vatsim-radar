@@ -8,6 +8,7 @@
             <common-input-text
                 v-model="search"
                 class="search_input"
+                height="40px"
                 placeholder="Search"
                 @update:focused="$event && ([opened = true, filtersEnabled = false])"
             >
@@ -412,7 +413,6 @@ watch(() => mapStore.overlays.length, () => {
     @include pc {
         & &_input {
             width: 280px;
-            height: 40px;
         }
 
         &--opened .search_input {

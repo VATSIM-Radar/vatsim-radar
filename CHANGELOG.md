@@ -1,8 +1,12 @@
 # Changelog
 
-# [1.0.0-rc.1]
+# [1.0.0-beta.5]
 
 - VG runways will not show for airport you already departed from in pilot popup
+- Increased width of copy block for easier read
+- METARs and NOTAMs are now auto-expanded
+- Added filters functionality
+  - Manage tab is INOP
 
 # [1.0.0-beta.2]
 

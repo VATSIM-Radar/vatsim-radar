@@ -19,6 +19,20 @@
             >
                 Press enter in search field to add your value to list
             </common-notification>
+            <common-notification
+                v-if="hasActiveFilter"
+                type="info"
+            >
+                You have an active filter
+
+                <common-button
+                    link-color="error500"
+                    type="link"
+                    @click="resetUserActiveFilter"
+                >
+                    Reset
+                </common-button>
+            </common-notification>
             <common-block-title
                 v-model:collapsed="collapsedStates.users"
                 remove-margin
@@ -33,7 +47,7 @@
                             placeholder="SBI"
                             show-chip-value
                             :suggestions="pilotSuggestions.airline"
-                            @update:modelValue="setUserFilters({ users: { pilots: { value: $event as string[] } } })"
+                            @update:modelValue="setUserFilter({ users: { pilots: { value: $event as string[] } } })"
                         >
                             Pilots Callsigns
                         </map-filter-box>
@@ -46,7 +60,7 @@
                                 :items="[{ value: 'prefix', text: 'Start with' }, { value: 'include', text: 'Include' }]"
                                 :model-value="store.filter.users?.pilots?.type ?? 'prefix'"
                                 two-cols
-                                @update:modelValue="setUserFilters({ users: { pilots: { type: $event as any } } })"
+                                @update:modelValue="setUserFilter({ users: { pilots: { type: $event as any } } })"
                             />
                         </div>
                     </template>
@@ -54,7 +68,7 @@
                         <map-filter-box
                             :model-value="store.filter.users?.atc?.value ?? []"
                             placeholder="ULLI"
-                            @update:modelValue="setUserFilters({ users: { atc: { value: $event as string[] } } })"
+                            @update:modelValue="setUserFilter({ users: { atc: { value: $event as string[] } } })"
                         >
                             ATC Callsigns
                         </map-filter-box>
@@ -67,7 +81,7 @@
                                 :items="[{ value: 'prefix', text: 'Start with' }, { value: 'include', text: 'Include' }]"
                                 :model-value="store.filter.users?.atc?.type ?? 'prefix'"
                                 two-cols
-                                @update:modelValue="setUserFilters({ users: { atc: { type: $event as any } } })"
+                                @update:modelValue="setUserFilter({ users: { atc: { type: $event as any } } })"
                             />
                         </div>
                     </template>
@@ -79,7 +93,7 @@
                             is-number
                             :model-value="store.filter.users?.cids ?? []"
                             placeholder="800000"
-                            @update:modelValue="setUserFilters({ users: { cids: $event as number[] } })"
+                            @update:modelValue="setUserFilter({ users: { cids: $event as number[] } })"
                         >
                             CIDs
                         </map-filter-box>
@@ -93,7 +107,7 @@
                             :model-value="store.filter.users?.lists ?? []"
                             strict
                             :suggestions="store.lists.map(x => ({ value: x.id, text: x.name }))"
-                            @update:modelValue="setUserFilters({ users: { lists: $event as number[] } })"
+                            @update:modelValue="setUserFilter({ users: { lists: $event as number[] } })"
                         >
                             Favorite Lists
                         </map-filter-box>
@@ -102,7 +116,7 @@
                 <common-radio-group
                     :items="[{ value: 'and', text: 'Match callsigns AND cids/lists' }, { value: 'or', text: 'Match callsigns OR cids/lists' }]"
                     :model-value="store.filter.users?.strategy ?? 'or'"
-                    @update:modelValue="setUserFilters({ users: { strategy: $event as any } })"
+                    @update:modelValue="setUserFilter({ users: { strategy: $event as any } })"
                 />
             </template>
             <common-block-title
@@ -120,7 +134,7 @@
                             show-chip-value
                             strict
                             :suggestions="airportsSuggestions"
-                            @update:modelValue="setUserFilters({ airports: { departure: $event as string[] } })"
+                            @update:modelValue="setUserFilter({ airports: { departure: $event as string[] } })"
                         >
                             Departure airports
                         </map-filter-box>
@@ -132,7 +146,7 @@
                             show-chip-value
                             strict
                             :suggestions="airportsSuggestions"
-                            @update:modelValue="setUserFilters({ airports: { arrival: $event as string[] } })"
+                            @update:modelValue="setUserFilter({ airports: { arrival: $event as string[] } })"
                         >
                             Arrival airports
                         </map-filter-box>
@@ -151,7 +165,7 @@
                         <map-filter-box
                             :model-value="store.filter.airports?.departurePrefix ?? []"
                             placeholder="UL"
-                            @update:modelValue="setUserFilters({ airports: { departurePrefix: ($event as string[]).filter(x => x.length <= 4) } })"
+                            @update:modelValue="setUserFilter({ airports: { departurePrefix: ($event as string[]).filter(x => x.length <= 4) } })"
                         >
                             Departure airports prefixes
                         </map-filter-box>
@@ -160,7 +174,7 @@
                         <map-filter-box
                             :model-value="store.filter.airports?.arrivalPrefix ?? []"
                             placeholder="UU"
-                            @update:modelValue="setUserFilters({ airports: { arrivalPrefix: ($event as string[]).filter(x => x.length <= 4) } })"
+                            @update:modelValue="setUserFilter({ airports: { arrivalPrefix: ($event as string[]).filter(x => x.length <= 4) } })"
                         >
                             Arrival airports prefixes
                         </map-filter-box>
@@ -207,7 +221,7 @@
                             :model-value="store.filter.atc?.ratings ?? []"
                             strict
                             :suggestions="atcRatings"
-                            @update:modelValue="setUserFilters({ atc: { ratings: $event as number[] } })"
+                            @update:modelValue="setUserFilter({ atc: { ratings: $event as number[] } })"
                         >
                             Rating
                         </map-filter-box>
@@ -220,7 +234,7 @@
                             :model-value="store.filter.atc?.facilities ?? []"
                             strict
                             :suggestions="atcPositions"
-                            @update:modelValue="setUserFilters({ atc: { facilities: $event as number[] } })"
+                            @update:modelValue="setUserFilter({ atc: { facilities: $event as number[] } })"
                         >
                             Position
                         </map-filter-box>
@@ -240,7 +254,7 @@
                             :items="[{ value: 'departing', text: 'Departing' }, { value: 'all', text: 'All' }, { value: 'airborne', text: 'Airborne' }, { value: 'arrived', text: 'Arrived' }]"
                             :model-value="store.filter.flights?.status ?? 'all'"
                             placeholder="Status"
-                            @update:modelValue="setUserFilters({ flights: { status: $event as any } })"
+                            @update:modelValue="setUserFilter({ flights: { status: $event as any } })"
                         >
                             <template #label>
                                 Status
@@ -251,7 +265,7 @@
                         <common-select
                             :items="[{ value: 'all', text: 'All' }, { value: 'domestic', text: 'Domestic' }, { value: 'international', text: 'International' }]"
                             :model-value="store.filter.flights?.type ?? 'all'"
-                            @update:modelValue="setUserFilters({ flights: { type: $event as any } })"
+                            @update:modelValue="setUserFilter({ flights: { type: $event as any } })"
                         >
                             <template #label>
                                 Type
@@ -264,7 +278,7 @@
                         <map-filter-box
                             :model-value="store.filter.flights?.aircraft ?? []"
                             :suggestions="pilotSuggestions.aircraft"
-                            @update:modelValue="setUserFilters({ flights: { aircraft: $event as string[] } })"
+                            @update:modelValue="setUserFilter({ flights: { aircraft: $event as string[] } })"
                         >
                             Aircraft type
                         </map-filter-box>
@@ -272,7 +286,7 @@
                     <template #col2>
                         <map-filter-box
                             :model-value="store.filter.flights?.squawks ?? []"
-                            @update:modelValue="setUserFilters({ flights: { squawks: ($event as string[]).filter(x => x.length === 4) } })"
+                            @update:modelValue="setUserFilter({ flights: { squawks: ($event as string[]).filter(x => x.length === 4) } })"
                         >
                             Squawks
                         </map-filter-box>
@@ -287,7 +301,7 @@
                             :model-value="store.filter.flights?.ratings ?? []"
                             strict
                             :suggestions="pilotRatings"
-                            @update:modelValue="setUserFilters({ flights: { ratings: $event as number[] } })"
+                            @update:modelValue="setUserFilter({ flights: { ratings: $event as number[] } })"
                         >
                             Rating
                         </map-filter-box>
@@ -295,7 +309,7 @@
                     <template #col2>
                         <map-filter-box
                             :model-value="store.filter.flights?.altitude ?? []"
-                            @update:modelValue="($event as string[]).every(x => parseFilterAltitude(x).length) && setUserFilters({ flights: { altitude: $event as string[] } })"
+                            @update:modelValue="($event as string[]).every(x => parseFilterAltitude(x).length) && setUserFilter({ flights: { altitude: $event as string[] } })"
                         >
                             Altitude
                         </map-filter-box>
@@ -308,7 +322,7 @@
                 </common-notification>
                 <common-toggle
                     :model-value="!!store.filter.flights?.excludeNoFlightPlan"
-                    @update:modelValue="setUserFilters({ flights: { excludeNoFlightPlan: $event } } )"
+                    @update:modelValue="setUserFilter({ flights: { excludeNoFlightPlan: $event } } )"
                 >
                     Exclude flights with no flight plan
                 </common-toggle>
@@ -316,7 +330,7 @@
             <common-block-title remove-margin>Filter options</common-block-title>
             <common-toggle
                 :model-value="typeof store.filter.others !== 'object'"
-                @update:modelValue="setUserFilters({ others: $event ? 'hide' : {} } )"
+                @update:modelValue="setUserFilter({ others: $event ? 'hide' : {} } )"
             >
                 Hide other aircraft
             </common-toggle>
@@ -324,26 +338,68 @@
                 <common-color
                     :model-value="{ transparency: store.filter.others.othersOpacity ?? 1 }"
                     transparency-only
-                    @update:modelValue="setUserFilters({ others: { othersOpacity: $event.transparency } })"
+                    @update:modelValue="setUserFilter({ others: { othersOpacity: $event.transparency } })"
                 >
                     Non-filtered transparency
                 </common-color>
-                <common-color v-model="store.filter.others.ourColor">
+                <common-color
+                    v-model="store.filter.others.ourColor"
+                    :default-color="store.filter.others.ourColor"
+                >
                     Filtered color
                 </common-color>
             </template>
             <common-toggle
                 :model-value="!!store.filter.invert"
-                @update:modelValue="setUserFilters({ invert: $event } )"
+                @update:modelValue="setUserFilter({ invert: $event } )"
             >
                 Invert filtration
             </common-toggle>
-            <div class="filter__actions">
-                <common-button @click="applyFilter">
+            <common-button-group class="filter__actions">
+                <common-button
+                    :disabled="Object.keys(store.filter).length === 0"
+                    type="secondary"
+                    @click="filterReset = true"
+                >
+                    Reset
+                </common-button>
+                <common-button
+                    :disabled="areFiltersEqual"
+                    type="primary"
+                    @click="applyFilter"
+                >
                     Apply
                 </common-button>
-            </div>
+            </common-button-group>
         </template>
+        <common-popup v-model="filterReset">
+            <template #title>
+                Filters Reset
+            </template>
+
+            You are about to reset your filter to defaults. This action is permanent.
+
+            <template #actions>
+                <common-button
+                    type="secondary-flat"
+                    @click="[resetUserFilter(), filterReset = false]"
+                >
+                    Confirm reset
+                </common-button>
+                <common-button
+                    type="secondary-875"
+                    @click="backupUserFilter()"
+                >
+                    Backup data
+                </common-button>
+                <common-button
+                    type="primary"
+                    @click="filterReset = false"
+                >
+                    Cancel that
+                </common-button>
+            </template>
+        </common-popup>
     </div>
 </template>
 
@@ -352,7 +408,7 @@ import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import MapFilterBox from '~/components/map/filters/filters/MapFilterBox.vue';
 import { useStore } from '~/store';
-import { setUserFilters } from '~/composables/fetchers/filters';
+import { backupUserFilter, setUserFilter } from '~/composables/fetchers/filters';
 import type { SelectItem } from '~/types/components/select';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
@@ -364,6 +420,9 @@ import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { parseFilterAltitude } from '~/utils/shared';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
+import { backupMapSettings } from '~/composables/settings';
 
 const store = useStore();
 const tab = ref('filter');
@@ -380,29 +439,49 @@ const collapsedStates = reactive({
     flights: false,
 });
 
+const filterReset = ref(false);
 const dataStore = useDataStore();
 
 const { data: events } = await useLazyAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
+const getClosestEvents = computed(() => {
+    const date = dataStore.time.value;
+
+    return events.value?.events.filter(x => {
+        const startDate = new Date(x.start_time);
+        const endDate = new Date(x.end_time);
+
+        return endDate.getTime() + (1000 * 60 * 60) > date && startDate.getTime() - (1000 * 60 * 60) < date;
+    });
+});
+
 const getEvents = computed<SelectItem[]>(() => {
-    return events.value?.events.filter(x => x.airports.length).map(x => ({
+    return getClosestEvents.value?.filter(x => x.airports.length).map(x => ({
         text: x.name,
         value: x.id,
     })) ?? [];
 });
 
 const getRouteEvents = computed<SelectItem[]>(() => {
-    return events.value?.events.filter(x => x.routes.length).map(x => ({
+    return getClosestEvents.value?.filter(x => x.routes.length).map(x => ({
         text: x.name,
         value: x.id,
     })) ?? [];
 });
 
+const areFiltersEqual = computed(() => {
+    return JSON.stringify(store.filter) === JSON.stringify(store.activeFilter);
+});
+
+const hasActiveFilter = computed(() => {
+    return hasActivePilotFilter();
+});
+
 const setEventAirports = (id: number) => {
     const event = events.value!.events.find(x => x.id === id)!;
-    setUserFilters({
+    setUserFilter({
         airports: {
             departure: Array.from(new Set([
                 ...store.filter.airports?.departure ?? [],
@@ -418,7 +497,7 @@ const setEventAirports = (id: number) => {
 
 const setEventRoutes = (id: number) => {
     const event = events.value!.events.find(x => x.id === id)!;
-    setUserFilters({
+    setUserFilter({
         airports: {
             routes: Array.from(new Set([
                 ...store.filter.airports?.routes ?? [],
@@ -429,7 +508,8 @@ const setEventRoutes = (id: number) => {
 };
 
 const applyFilter = () => {
-    store.activeFilter = structuredClone(store.filter);
+    setUserActiveFilter(structuredClone(toRaw(store.filter)));
+    store.getVATSIMData(true);
 };
 
 const pilotSuggestions = computed<{ airline: SelectItem[]; aircraft: SelectItem[] }>(() => {
@@ -486,7 +566,7 @@ const setRoutes = (routes: string[]) => {
 
     if (previousRoutesLength > routes.length) {
         previousRoutesLength = routes.length;
-        setUserFilters({ airports: { routes: routes } });
+        setUserFilter({ airports: { routes: routes } });
         return;
     }
 
@@ -494,15 +574,30 @@ const setRoutes = (routes: string[]) => {
 
     const splitted = addedRoute.split('-');
     if (splitted.length !== 2 || !splitted.every(x => dataStore.vatspy.value?.data.keyAirports.realIcao[x as any])) {
-        setUserFilters({ airports: { routes: routes.slice(0, routes.length - 2) } });
+        setUserFilter({ airports: { routes: routes.slice(0, routes.length - 2) } });
     }
     else if (routesBothDirection.value) {
-        setUserFilters({ airports: { routes: [...routes, splitted.reverse().join('-')] } });
+        setUserFilter({ airports: { routes: [...routes, splitted.reverse().join('-')] } });
     }
     else {
-        setUserFilters({ airports: { routes: routes } });
+        setUserFilter({ airports: { routes: routes } });
     }
 
     previousRoutesLength = store.filter.airports!.routes!.length;
 };
 </script>
+
+<style lang="scss" scoped>
+.filter {
+    &__actions {
+        position: sticky;
+        z-index: 5;
+        bottom: -16px;
+
+        margin: 0 -16px -16px;
+        padding: 16px;
+
+        background: $darkgray1000;
+    }
+}
+</style>

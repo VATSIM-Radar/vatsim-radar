@@ -405,10 +405,32 @@ img {
     gap: 8px;
     width: 100%;
 
-    &:not(&--even, &--even-mobile){
-        > * {
-            flex: 1 1 0;
-            width: 0;
+    >*{
+        flex: 1 1 0;
+        width: 0;
+    }
+
+    &--even {
+        >* {
+            flex: unset;
+            width: unset;
+        }
+    }
+
+    @include mobileOnly {
+        &--even-mobile, &--disable-mobile {
+            >* {
+                flex: unset;
+                width: unset;
+            }
+        }
+
+        &--disable-mobile {
+            flex-direction: column;
+
+            >* {
+                width: 100%;
+            }
         }
     }
 

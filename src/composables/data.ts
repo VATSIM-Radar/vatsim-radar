@@ -21,6 +21,7 @@ import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
+import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -37,13 +38,29 @@ const stats = shallowRef<{
 }[]>([]);
 
 export type VatsimData = {
-    [K in keyof VatsimLiveData]: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
+    [K in keyof Required<VatsimLiveData>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
 };
 
 const data: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
+    keyedPilots: shallowRef([]),
+    airports: shallowRef([]),
+    prefiles: shallowRef([]),
+    locals: shallowRef([]),
+    firs: shallowRef([]),
+    facilities: shallowRef([]),
+    military_ratings: shallowRef([]),
+    pilot_ratings: shallowRef([]),
+    ratings: shallowRef([]),
+};
+
+const rawData: VatsimData = {
+    // eslint-disable-next-line vue/require-typed-ref
+    general: ref(null),
+    pilots: shallowRef([]),
+    keyedPilots: shallowRef([]),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
     locals: shallowRef([]),
@@ -56,6 +73,7 @@ const data: VatsimData = {
 
 const vatsim = {
     data,
+    rawData,
     parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
@@ -112,16 +130,40 @@ export function useDataStore(): UseDataStore {
 }
 
 export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
+    const filteredControllers = filterVatsimControllers(vatsimData.locals, vatsimData.firs);
+
     for (const key in vatsimData) {
+        // @ts-expect-error Dynamic assignment
+        rawData[key].value = vatsimData[key];
+    }
+
+    for (const key in vatsimData) {
+        if (key === 'pilots' || key === 'prefiles') vatsimData[key] = filterVatsimPilots<any>(vatsimData[key]);
+
+        if (key === 'locals') vatsimData.locals = filteredControllers.locals;
+        if (key === 'firs') vatsimData.firs = filteredControllers.firs;
+
+        if (key === 'airports' && hasActivePilotFilter()) {
+            const filteredPilots = vatsimData.pilots.map(x => x.cid);
+            vatsimData.airports = vatsimData.airports.filter(x => {
+                return vatsimData.locals.some(y => y.airport.icao === x.icao || (x.iata && y.airport.iata === x.iata)) || Object.values(x.aircraft).some(x => x.some(x => filteredPilots.includes(x)));
+            });
+        }
+
         // @ts-expect-error Dynamic assignment
         data[key].value = vatsimData[key];
     }
+
+    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid, pilot]));
 }
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     time.value = data.serverTime;
     vatsim.updateTime.value = data.timestampNum;
     vatsim.localUpdateTime.value = Date.now();
+
+    if (hasActivePilotFilter()) data.pilots = data.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
+
     vatsim.mandatoryData.value = {
         pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
             const coords = fromLonLat([lon, lat]);

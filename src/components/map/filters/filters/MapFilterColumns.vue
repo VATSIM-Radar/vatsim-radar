@@ -1,5 +1,5 @@
 <template>
-    <div class="__section-group">
+    <div class="__section-group __section-group--disable-mobile">
         <div class="__info-sections">
             <slot name="col1"/>
         </div>

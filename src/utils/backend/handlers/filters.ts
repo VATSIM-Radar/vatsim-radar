@@ -1,6 +1,11 @@
 import type { UserPreset } from '@prisma/client';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 
+export interface IUserFilterOthers {
+    othersOpacity?: number;
+    ourColor?: UserMapSettingsColor;
+}
+
 export interface IUserFilter {
     users: Partial<{
         pilots: {
@@ -32,10 +37,7 @@ export interface IUserFilter {
         ratings: number[];
         altitude: string[];
     }>;
-    others: 'hide' | Partial<{
-        othersOpacity?: number;
-        ourColor?: UserMapSettingsColor;
-    }>;
+    others: 'hide' | IUserFilterOthers;
     invert: boolean;
 }
 

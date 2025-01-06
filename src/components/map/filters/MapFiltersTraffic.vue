@@ -2,6 +2,7 @@
     <div class="traffic __info-sections __info-sections--gap-16">
         <common-tabs
             v-model="tab"
+            mobile-vertical
             :tabs="{
                 filters: {
                     title: 'Filters',
