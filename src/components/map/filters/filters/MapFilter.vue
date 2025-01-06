@@ -421,8 +421,6 @@ import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { parseFilterAltitude } from '~/utils/shared';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
-import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
-import { backupMapSettings } from '~/composables/settings';
 
 const store = useStore();
 const tab = ref('filter');
