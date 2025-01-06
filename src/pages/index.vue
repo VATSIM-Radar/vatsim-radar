@@ -331,12 +331,13 @@ function updateMapCursor() {
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
 useUpdateInterval(() => {
-    const hasOwnFlight = mapStore.overlays.some(x => x.key === store.user?.cid);
+    if (store.mapSettings.vatglasses?.autoLevel === false) return;
 
-    if (!hasOwnFlight || store.mapSettings.vatglasses?.autoLevel === false) return;
+    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid)!.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
     });
 });
 

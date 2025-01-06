@@ -565,7 +565,6 @@ export const isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
-    const mapStore = useNuxtApp().$pinia.state.value.map;
     dataStore ??= useDataStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
@@ -574,7 +573,7 @@ export const isVatGlassesActive = () => computed(() => {
 
     if (isAuto) {
         if (store.user) {
-            return mapStore.overlays.some((x: any) => x.key === store.user?.cid);
+            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
         }
     }
 
@@ -582,7 +581,7 @@ export const isVatGlassesActive = () => computed(() => {
 });
 
 let vatglassesUpdateInProgress = false;
-export async function updateVatglassesStateLocal() {
+export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
     if (!isVatGlassesActive().value) return;
 
@@ -590,7 +589,7 @@ export async function updateVatglassesStateLocal() {
 
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
-    if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined) {
+    if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !forceNoCombine) {
         await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
     }
     dataStore.vatglassesActivePositions.value = newVatglassesActivePositions;
@@ -683,7 +682,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
         worker = new combinedWorker();
 
-        updateVatglassesStateLocal();
+        await updateVatglassesStateLocal(true);
 
         const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
 

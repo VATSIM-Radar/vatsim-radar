@@ -80,20 +80,28 @@ function convertToDecimalDegrees(coordinate: string): number {
 }
 
 function convertCoords(combinedData: VatglassesData): VatglassesData {
-    // Loop through all keys in the data object and convert coordinates
-    Object.keys(combinedData).forEach(key => {
-        const countryGroup = combinedData[key];
-        countryGroup.airspace.forEach(airspace => {
-            airspace.sectors.forEach(sector => {
-                // @ts-expect-error: only temporary code
-                sector.points = sector.points.map(point => {
-                    const [lat, lon] = point;
-                    return fromServerLonLat([convertToDecimalDegrees(lon), convertToDecimalDegrees(lat)]);
+    const combinedDataMap = new Map(Object.entries(combinedData));
+
+    // Loop through all entries in the Map and convert coordinates
+    combinedDataMap.forEach((countryGroup, key) => {
+        try {
+            countryGroup.airspace.forEach(airspace => {
+                airspace.sectors.forEach(sector => {
+                    // @ts-expect-error: only temporary code
+                    sector.points = sector.points.map(point => {
+                        const [lat, lon] = point;
+                        return fromServerLonLat([convertToDecimalDegrees(lon), convertToDecimalDegrees(lat)]);
+                    });
                 });
             });
-        });
+        }
+        catch {
+            // we catch the errors because we don't want to crash the server if there's an error in the vatglasses data
+            combinedDataMap.delete(key);
+        }
     });
-    return combinedData;
+
+    return Object.fromEntries(combinedDataMap);
 }
 
 export async function updateVatglassesData() {

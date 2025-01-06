@@ -211,6 +211,12 @@ onMounted(() => {
     sortedUsers.value = sortList(getUsers.value);
 });
 
+watch(() => props.list?.users ?? props.users, () => {
+    sortedUsers.value = sortList(getUsers.value);
+}, {
+    deep: true,
+});
+
 if (!props.list) {
     watch(getUsers, () => {
         sortedUsers.value = sortList(getUsers.value);
