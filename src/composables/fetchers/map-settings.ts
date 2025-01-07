@@ -44,23 +44,3 @@ export async function fetchUserMapSettings() {
     store.mapSettings = settings;
     localStorage.setItem('map-settings', JSON.stringify(settings));
 }
-
-export async function sendUserMapSettings(name: string, json: UserMapSettings, retryMethod: () => Promise<any>) {
-    const store = useStore();
-    try {
-        return await $fetch<UserMapSettings>(`/api/user/settings/map${ store.mapPresetsSaveFail ? '?force=1' : '' }`, {
-            method: 'POST',
-            body: {
-                name,
-                json: toRaw(json),
-            },
-        });
-    }
-    catch (e) {
-        if (isFetchError(e) && e.statusCode === 409) {
-            store.mapPresetsSaveFail = retryMethod;
-        }
-
-        throw e;
-    }
-}

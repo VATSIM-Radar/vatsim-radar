@@ -23,7 +23,7 @@
                 v-if="hasActiveFilter"
                 type="info"
             >
-                You have an active filter
+                You have applied filter
 
                 <common-button
                     link-color="error500"
@@ -103,6 +103,7 @@
                         #col2
                     >
                         <map-filter-box
+                            always-show-text
                             is-number
                             :model-value="store.filter.users?.lists ?? []"
                             strict
@@ -419,8 +420,11 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { VatsimEventData } from '~/server/api/data/vatsim/events';
 import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import { parseFilterAltitude } from '~/utils/shared';
+import { MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import { saveMapSettings } from '~/composables/settings';
+import MapFiltersPresets from '~/components/map/filters/MapFiltersPresets.vue';
+import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 
 const store = useStore();
 const tab = ref('filter');
@@ -442,6 +446,12 @@ const dataStore = useDataStore();
 
 const { data: events } = await useLazyAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
+});
+
+const { refresh } = await useLazyAsyncData(async () => {
+    store.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
+
+    return true;
 });
 
 const getClosestEvents = computed(() => {

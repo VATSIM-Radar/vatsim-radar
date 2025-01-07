@@ -20,7 +20,7 @@ const navigraphKeys: Array<keyof IUserMapSettings['navigraphLayers']> = ['disabl
 
 const colors = Object.keys(colorsList);
 
-function validateTransparency(transparency: unknown) {
+export function validateTransparency(transparency: unknown) {
     if (typeof transparency !== 'number' || transparency > 1 || transparency < 0) return false;
     return Number(transparency.toFixed(2));
 }

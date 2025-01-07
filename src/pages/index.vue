@@ -74,6 +74,66 @@
 
             You have successfully verified in VATSIM Radar Discord.
         </common-popup>
+        <common-popup :model-value="store.presetImport.preset === false">
+            <template #title>Preset Import</template>
+            Preset import failed. That could be because preset name length is more than 30 symbols, invalid JSON, or an error in yours or ours network.
+            <template #actions>
+                <common-button @click="store.presetImport.preset = null">
+                    Thanks, I guess?
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.preset && typeof store.presetImport.preset === 'object'"
+            width="600px"
+        >
+            <template #title>Preset Import</template>
+
+            Warning: preset import will overwrite your current preset.<br><br>
+
+            <common-input-text
+                v-model="store.presetImport.name"
+                placeholder="Enter a name for new preset"
+            />
+
+            <template #actions>
+                <common-button
+                    type="secondary-875"
+                    @click="store.presetImport.preset = null"
+                >
+                    Cancel import
+                </common-button>
+                <common-button
+                    :disabled="!store.presetImport.name"
+                    @click="store.presetImport.save!()"
+                >
+                    Import preset
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.error"
+            @update:modelValue="$event === false && (store.presetImport.error = $event)"
+        >
+            <template #title>
+                A preset with this name already exists
+            </template>
+
+            You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
+
+            <template #actions>
+                <common-button
+                    hover-color="error700"
+                    primary-color="error500"
+                    @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
+                >
+                    Overwrite my old preset
+                </common-button>
+                <common-button @click="store.presetImport.error = false">
+                    I'll rename it
+                </common-button>
+            </template>
+        </common-popup>
     </div>
 </template>
 
@@ -99,6 +159,8 @@ import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {

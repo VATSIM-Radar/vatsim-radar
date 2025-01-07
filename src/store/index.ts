@@ -13,6 +13,8 @@ import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
+import { isFetchError } from '~/utils/shared';
+import js from '@eslint/js';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -46,11 +48,17 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
-        mapPresetsSaveFail: false as false | (() => Promise<any>),
         filter: {} as UserFilter,
         activeFilter: {} as UserFilter,
         filterPresets: [] as UserFilterPreset[],
         config: {} as SiteConfig,
+
+        presetImport: {
+            preset: null as UserMapSettings | false | null,
+            name: '',
+            save: null as (() => any) | null,
+            error: false as false | (() => Promise<any>),
+        },
 
         showPilotStats: false,
         dataInProgress: false,
@@ -248,6 +256,51 @@ export const useStore = defineStore('index', {
         },
         async refreshUser() {
             this.user = await $fetch<FullUser>('/api/user');
+        },
+        async initPresetImport({ save, file, prefix }: {
+            save: () => any;
+            prefix: string;
+            file: string;
+        }) {
+            const json = JSON.parse(file);
+
+            const saveResult = () => {
+                this.presetImport = {
+                    preset: null,
+                    name: '',
+                    save,
+                    error: false,
+                };
+
+                if ('id' in json) {
+                    this.presetImport.name = json.name;
+                    this.presetImport.preset = json.json;
+                }
+                else {
+                    this.presetImport.preset = json;
+                }
+            };
+
+            try {
+                const validation = await $fetch<{ status: 'ok' }>(`/api/user/${ prefix }/validate`, {
+                    method: 'POST',
+                    body: 'id' in json
+                        ? json
+                        : {
+                            json,
+                        },
+                });
+
+                if (validation.status === 'ok') saveResult();
+            }
+            catch (e) {
+                if (!isFetchError(e) || e.statusCode !== 409) {
+                    throw e;
+                }
+                else {
+                    saveResult();
+                }
+            }
         },
     },
 });

@@ -2,6 +2,9 @@ import { useStore } from '~/store';
 import type { UserFilter } from '~/utils/backend/handlers/filters';
 import { customDefu } from '~/composables';
 import { useFileDownload } from '~/composables/settings';
+import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import { toRaw } from 'vue';
+import { isFetchError } from '~/utils/shared';
 
 export function setUserFilter(settings?: UserFilter) {
     const store = useStore();

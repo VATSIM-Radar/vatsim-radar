@@ -205,6 +205,7 @@
                         <map-settings
                             v-model:imported-preset="importedPreset"
                             v-model:imported-preset-name="importedPresetName"
+                            :refresh="refreshMapPresets"
                         />
                     </common-control-block>
                 </div>
@@ -234,11 +235,12 @@ import MapFilterTransparency from '~/components/map/filters/MapFilterTransparenc
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
-import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import { isFetchError, MAX_MAP_PRESETS } from '~/utils/shared';
+import type { IUserMapSettings, UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import { MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
-
+import { saveMapSettings } from '~/composables/settings';
+import { sendUserPreset } from '~/composables/fetchers';
 
 const store = useStore();
 
@@ -284,6 +286,18 @@ const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
 
+const { refresh: refreshMapPresets } = await useLazyAsyncData(async () => {
+    store.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
+
+    return true;
+});
+
+const createPreset = async () => {
+    await saveMapSettings(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserMapSettings, 'settings/map', createPreset));
+    store.presetImport.preset = null;
+    refreshMapPresets();
+};
+
 const importPreset = async () => {
     const file = filtersImport.value?.files?.[0];
     if (!file) return;
@@ -293,42 +307,12 @@ const importPreset = async () => {
             const reader = new FileReader();
 
             reader.addEventListener('load', async () => {
-                const result = JSON.parse(reader.result as string);
-
-                function saveResult() {
-                    if ('id' in result) {
-                        importedPresetName.value = result.name;
-                        importedPreset.value = result.json;
-                    }
-                    else {
-                        importedPresetName.value = '';
-                        importedPreset.value = result;
-                    }
-                }
-
-                try {
-                    const validation = await $fetch<{ status: 'ok' }>('/api/user/settings/map/validate', {
-                        method: 'POST',
-                        body: 'id' in result
-                            ? result
-                            : {
-                                json: result,
-                            },
-                    });
-
-                    if (validation.status === 'ok') saveResult();
-
-                    resolve();
-                }
-                catch (e) {
-                    if (!isFetchError(e) || e.statusCode !== 409) {
-                        reject(e);
-                    }
-                    else {
-                        saveResult();
-                        resolve();
-                    }
-                }
+                store.initPresetImport({
+                    file: reader.result as string,
+                    prefix: 'settings/map',
+                    save: createPreset,
+                });
+                resolve();
             });
 
             reader.addEventListener('error', e => {
