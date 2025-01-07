@@ -585,7 +585,7 @@ export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
     if (!isVatGlassesActive().value) return;
 
-    console.time('updateVatglassesStateLocal');
+    // console.time('updateVatglassesStateLocal');
 
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
@@ -597,7 +597,7 @@ export async function updateVatglassesStateLocal(forceNoCombine = false) {
     vatglassesUpdateInProgress = false;
 
 
-    console.timeEnd('updateVatglassesStateLocal');
+    // console.timeEnd('updateVatglassesStateLocal');
 }
 
 export async function updateVatglassesStateServer() {
