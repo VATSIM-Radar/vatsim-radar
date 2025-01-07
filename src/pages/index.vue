@@ -332,6 +332,7 @@ watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false) return;
+    if (!store.user?.cid) return;
 
     const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
     if (!user) return;

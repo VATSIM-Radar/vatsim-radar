@@ -620,6 +620,7 @@ export async function updateVatglassesStateServer() {
 // This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
 let combineDataInitialized = false;
 async function initVatglassesCombined() {
+    vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
@@ -659,6 +660,7 @@ async function initVatglassesCombined() {
                 await activeRunwayChanged(icao, false);
             }
         }
+        vatglassesUpdateInProgress = false;
         // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
         updateVatglassesStateLocal();
     }
@@ -694,8 +696,9 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
             let vatglassesCombinedWatcher: ReturnType<typeof watch> | null = null;
 
             if (!combineDataInitialized) {
-                vatglassesCombinedWatcher = watch([vatglassesCombined], () => {
-                    initVatglassesCombined();
+                vatglassesCombinedWatcher = watch([vatglassesCombined], async () => {
+                    await updateVatglassesStateLocal(true);
+                    await initVatglassesCombined();
                     if (combineDataInitialized && vatglassesCombinedWatcher) {
                         vatglassesCombinedWatcher();
                         vatglassesCombinedWatcher = null;
