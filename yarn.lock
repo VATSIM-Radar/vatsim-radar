@@ -9212,12 +9212,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^15.0.5":
-  version: 15.0.5
-  resolution: "marked@npm:15.0.5"
+"marked@npm:^15.0.6":
+  version: 15.0.6
+  resolution: "marked@npm:15.0.6"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/c05fadadc8203acdb17d96075ee25a221bf92b1e5feeacc3e454be668f0a162866c9e031f31cc791693c256edc658e24b54f985a6dc127bbd03e6784a1dad7fc
+  checksum: 10c0/8f30972ac5fdf879353484bdd7717409c241d15031a58bbc483070dedb58e4b314c41c0b59b78e536658907c02ee149eaf4b9be221f198df97beae703f529d40
   languageName: node
   linkType: hard
 
@@ -14041,7 +14041,7 @@ __metadata:
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
     kafkajs: "npm:^2.2.4"
-    marked: "npm:^15.0.5"
+    marked: "npm:^15.0.6"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.0"
     nuxt: "npm:^3.15.1"
