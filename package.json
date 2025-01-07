@@ -46,7 +46,7 @@
     "kafkajs": "^2.2.4",
     "marked": "^15.0.6",
     "merge-ranges": "^1.0.2",
-    "metar-taf-parser": "^9.1.0",
+    "metar-taf-parser": "^9.1.1",
     "nuxt": "^3.15.1",
     "ol": "^10.3.1",
     "ol-mapbox-style": "^12.4.0",
