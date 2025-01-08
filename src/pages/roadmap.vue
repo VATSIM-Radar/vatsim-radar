@@ -141,6 +141,7 @@ const roadmap = reactive<Roadmap[]>([
     },
     {
         title: 'Stage 2',
+        completed: true,
         items: [
             {
                 title: 'Arrivals rate',
@@ -225,7 +226,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Filters (filter by aircraft/dep/arr/airport)',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Open Source (code only)',
@@ -265,16 +266,22 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Pilot/airport mouse right click menu',
             },
             'Proper Github local setup',
-            'Oceanic Tracks integration',
-            'Waypoints on map (including aircraft submitted route)',
+            {
+                title: 'Oceanic Tracks integration',
+                status: 'todo',
+            },
+            {
+                title: 'Waypoints on map (including aircraft submitted route)',
+                status: 'todo',
+            },
             {
                 title: 'Events/ATC Bookings',
                 description: 'More complex integration than current events',
             },
-            'Smart positioning for aircraft info popup',
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
+                status: 'todo',
             },
             'Hoppie integration',
             {
@@ -287,7 +294,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Bookmarks',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Name of aircraft operating company',
@@ -319,6 +326,7 @@ const roadmap = reactive<Roadmap[]>([
             'Twitch/streamers integration',
             'Distance measuring tool',
             'Aircraft collision prediction',
+            'Smart positioning for aircraft info popup',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
@@ -331,7 +339,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 48;
+const percents = 52;
 
 interface RoadmapGroup {
     status: ItemStatus;
@@ -439,12 +447,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
                 background: $lightgray100;
             }
 
-            &--status-completed::before {
-                background: $success500;
-            }
-
             &--status-in-progress::before {
                 background: $primary500
+            }
+
+            &--status-completed::before {
+                background: $success500;
             }
         }
 
@@ -493,12 +501,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             text-align: center;
         }
 
-        &--status-completed .roadmap__col_title {
-            color: $success500;
-        }
-
         &--status-in-progress .roadmap__col_title {
             color: $primary500
+        }
+
+        &--status-completed .roadmap__col_title {
+            color: $success500;
         }
     }
 
