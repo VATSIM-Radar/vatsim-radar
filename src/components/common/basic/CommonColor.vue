@@ -172,10 +172,10 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         width: 32px;
         min-width: 32px;
         height: 32px;
-
-        background: var(--color);
         border: 1px solid $lightgray200;
         border-radius: 8px;
+
+        background: var(--color);
     }
 
     &__hidden {
@@ -199,9 +199,9 @@ const transparencyOptions = computed<SelectItem[]>(() => {
             width: 42px;
             min-width: 42px;
             height: 42px;
-
             border: 0;
             border-radius: 4px;
+
             outline: 0;
             box-shadow: none;
         }
@@ -224,10 +224,10 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
             width: calc(9cqw - 4px * 9 / 10);
             height: calc(9cqw - 4px * 9 / 10);
-
-            background: var(--color);
             border: 1px solid $darkgray800;
             border-radius: 4px;
+
+            background: var(--color);
 
             transition: 0.3s;
 

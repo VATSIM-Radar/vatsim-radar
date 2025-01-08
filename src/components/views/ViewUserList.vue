@@ -5,7 +5,7 @@
         :class="{ 'users--no-list': !list }"
     >
         <common-button
-            v-if="!list"
+            v-if="!list && isMobile"
             size="S"
             type="secondary"
             @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
@@ -198,6 +198,7 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 const sortedUsers = shallowRef<UserListLiveUser[]>([]);
+const isMobile = useIsMobile();
 
 onBeforeUnmount(() => {
     if (deletedUsers.size) store.refreshUser();
@@ -233,9 +234,9 @@ if (!props.list) {
 
     max-height: 240px;
     padding: 8px;
+    border-radius: 8px;
 
     background: $darkgray950;
-    border-radius: 8px;
 
     &_user {
         &-container {
@@ -247,9 +248,9 @@ if (!props.list) {
             justify-content: space-between;
 
             padding: 8px;
+            border-radius: 4px;
 
             background: $darkgray900;
-            border-radius: 4px;
 
             @include mobileOnly {
                 flex-wrap: wrap;
@@ -263,9 +264,9 @@ if (!props.list) {
             width: 8px;
             min-width: 8px;
             height: 8px;
+            border-radius: 100%;
 
             background: $darkgray850;
-            border-radius: 100%;
 
             &--online {
                 background: $success500;
@@ -331,9 +332,9 @@ if (!props.list) {
 
             margin-top: -2px;
             padding: 16px;
+            border-radius: 0 0 4px 4px;
 
             background: $darkgray875;
-            border-radius: 0 0 4px 4px;
         }
     }
 

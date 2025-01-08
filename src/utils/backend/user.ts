@@ -26,6 +26,29 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
     return null;
 }
 
+export async function findUserWithListsByCookie(event: H3Event) {
+    const cookie = getCookie(event, 'access-token');
+
+    const token = await prisma.userToken.findFirst({
+        select: {
+            user: {
+                include: {
+                    lists: true,
+                },
+            },
+        },
+        where: {
+            accessToken: cookie ?? '',
+            accessTokenExpire: {
+                gte: new Date(),
+            },
+        },
+    });
+
+    if (token) return token.user;
+    return null;
+}
+
 export interface FullUser {
     id: number;
     hasFms: boolean | null;

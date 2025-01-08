@@ -42,11 +42,11 @@ const theme = useCookie<ThemesList>('theme', {
     grid-template-columns: repeat(2, 45px);
 
     height: 32px;
+    border-radius: 8px;
 
     color: $lightgray150;
 
     background: $darkgray900;
-    border-radius: 8px;
 
     &::before {
         content: '';
@@ -57,9 +57,9 @@ const theme = useCookie<ThemesList>('theme', {
 
         width: 45px;
         height: 100%;
+        border-radius: 8px;
 
         background: $primary500;
-        border-radius: 8px;
 
         transition: 0.5s ease-in-out;
     }

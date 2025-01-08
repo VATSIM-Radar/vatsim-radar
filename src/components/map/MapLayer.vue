@@ -110,9 +110,9 @@ const transparencySettings = computed(() => JSON.stringify(store.localSettings.f
 const opacity = computed(() => {
     switch (store.localSettings.filters?.layers?.layer) {
         case 'OSM':
-            return store.localSettings.filters.layers.transparencySettings?.osm ?? 0.5;
+            return store.localSettings.filters.layers.transparencySettings?.osm || 0.5;
         case 'Satellite':
-            return store.localSettings.filters.layers.transparencySettings?.satellite ?? 0.3;
+            return store.localSettings.filters.layers.transparencySettings?.satellite || 0.3;
         default:
             return 1;
     }

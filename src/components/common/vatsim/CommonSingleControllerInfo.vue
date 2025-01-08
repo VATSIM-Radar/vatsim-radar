@@ -207,11 +207,10 @@ const getATIS = (controller: VatsimShortenedController) => {
         &_facility {
             width: 40px;
             padding: 2px 4px;
+            border-radius: 4px;
 
             color: $lightgray0Orig;
             text-align: center;
-
-            border-radius: 4px;
         }
     }
 
@@ -237,8 +236,8 @@ const getATIS = (controller: VatsimShortenedController) => {
 
     &__time {
         padding: 2px 4px;
-        background: $darkgray950;
         border-radius: 4px;
+        background: $darkgray950;
     }
 
     &_list {

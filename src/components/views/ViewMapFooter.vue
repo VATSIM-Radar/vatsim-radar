@@ -24,7 +24,7 @@
                 <common-control-block
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
-                    width="480px"
+                    width="360px"
                 >
                     <template #title>
                         Featured Airports
@@ -58,7 +58,17 @@
                     width="480px"
                 >
                     <template #title>
-                        Favorite users online
+                        <div class="map-footer__favorite">
+                            <span>Favorite users online</span>
+
+                            <common-button
+                                size="S"
+                                type="secondary"
+                                @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
+                            >
+                                Management
+                            </common-button>
+                        </div>
                     </template>
 
                     <view-user-list :users="store.friends"/>
@@ -144,7 +154,7 @@
                 Better data for gates and runways
             </li>
             <li>
-                Airport Layouts (Navigraph Ultimate only)
+                Airport Layouts (Navigraph Unlimited only)
             </li>
             <li>
                 Airways/waypoints AIRAC upgrade (coming soon)
@@ -267,7 +277,6 @@ onMounted(() => {
                     align-self: center;
 
                     height: 24px;
-
                     border-right: 1px solid varToRgba('lightgray150', 0.1);
                 }
             }
@@ -277,8 +286,8 @@ onMounted(() => {
     &__connections {
         display: flex;
         padding: 8px 12px;
-        background: $darkgray950;
         border-radius: 8px;
+        background: $darkgray950;
 
         span {
             font-weight: 600;
@@ -319,11 +328,11 @@ onMounted(() => {
 
         &_date {
             padding: 8px 16px;
+            border-radius: 8px;
 
             font-weight: 300;
 
             background: $darkgray950;
-            border-radius: 8px;
 
             transition: 0.3s;
 
@@ -338,6 +347,12 @@ onMounted(() => {
         color: $lightgray150;
         text-decoration-skip-ink: none;
         opacity: 0.5;
+    }
+
+    &__favorite {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 }
 </style>

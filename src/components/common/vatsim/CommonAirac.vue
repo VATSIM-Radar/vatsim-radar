@@ -39,12 +39,12 @@ const store = useStore();
     align-self: stretch;
 
     padding: 8px 12px;
+    border-radius: 8px;
 
     font-size: 12px;
     font-weight: 600;
 
     background: $darkgray950;
-    border-radius: 8px;
 
     &--current {
         cursor: default;

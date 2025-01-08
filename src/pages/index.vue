@@ -74,6 +74,66 @@
 
             You have successfully verified in VATSIM Radar Discord.
         </common-popup>
+        <common-popup :model-value="store.presetImport.preset === false">
+            <template #title>Preset Import</template>
+            Preset import failed. That could be because preset name length is more than 30 symbols, invalid JSON, or an error in yours or ours network.
+            <template #actions>
+                <common-button @click="store.presetImport.preset = null">
+                    Thanks, I guess?
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.preset && typeof store.presetImport.preset === 'object'"
+            width="600px"
+        >
+            <template #title>Preset Import</template>
+
+            Warning: preset import will overwrite your current preset.<br><br>
+
+            <common-input-text
+                v-model="store.presetImport.name"
+                placeholder="Enter a name for new preset"
+            />
+
+            <template #actions>
+                <common-button
+                    type="secondary-875"
+                    @click="store.presetImport.preset = null"
+                >
+                    Cancel import
+                </common-button>
+                <common-button
+                    :disabled="!store.presetImport.name"
+                    @click="store.presetImport.save!()"
+                >
+                    Import preset
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.error"
+            @update:modelValue="$event === false && (store.presetImport.error = $event)"
+        >
+            <template #title>
+                A preset with this name already exists
+            </template>
+
+            You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
+
+            <template #actions>
+                <common-button
+                    hover-color="error700"
+                    primary-color="error500"
+                    @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
+                >
+                    Overwrite my old preset
+                </common-button>
+                <common-button @click="store.presetImport.error = false">
+                    I'll rename it
+                </common-button>
+            </template>
+        </common-popup>
     </div>
 </template>
 
@@ -99,6 +159,9 @@ import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -116,6 +179,7 @@ const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
+const filterId = ref(route.query.filter && +route.query.filter);
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
 const config = useRuntimeConfig();
@@ -130,26 +194,41 @@ provide('map', map);
 emit('map', map);
 
 let initialSpawn = false;
+let initialOwnCheck = false;
 
 useIframeHeader();
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow || store.config.hideAllExternal) return;
+    if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
+        initialOwnCheck = true;
+        return;
+    }
     let overlay = mapStore.overlays.find(x => x.key === store.user?.cid);
-    if (overlay) return;
+    if (overlay) {
+        initialOwnCheck = true;
+        return;
+    }
 
     const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
-    if (!aircraft) return;
+    if (!aircraft) {
+        initialOwnCheck = true;
+        return;
+    }
+
+    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport);
 
     if (isPilotOnGround(aircraft)) {
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
     else if (!initialSpawn) {
         initialSpawn = true;
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
 
-    if (overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
+    initialSpawn = true;
+    initialOwnCheck = true;
+
+    if (shouldTrack && overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }
@@ -267,6 +346,23 @@ const restoreOverlays = async () => {
             showPilotOnMap(overlay.data.pilot, map.value, getRouteZoom() ?? undefined);
         }
     }
+    else if (typeof route.query.controller === 'string' || typeof route.query.atc === 'string') {
+        const callsign = (route.query.controller ?? route.query.atc) as string;
+        const controller = findAtcByCallsign(callsign);
+        if (controller) {
+            let overlay = mapStore.overlays.find(x => x.key === callsign);
+
+            if (!overlay) {
+                overlay = await mapStore.addAtcOverlay(callsign);
+            }
+
+            showAtcOnMap(controller, map.value);
+
+            if (overlay && overlay.type === 'atc' && controller) {
+                overlay.sticky = true;
+            }
+        }
+    }
     else if (route.query.airport) {
         let overlay = mapStore.overlays.find(x => x.key === route.query.airport as string);
 
@@ -331,8 +427,7 @@ function updateMapCursor() {
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
 useUpdateInterval(() => {
-    if (store.mapSettings.vatglasses?.autoLevel === false) return;
-    if (!store.user?.cid) return;
+    if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
     const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
     if (!user) return;
@@ -418,9 +513,11 @@ async function handleMoveEnd() {
         zoom: view.getZoom()?.toFixed(2),
     };
 
-    router.replace({
-        query,
-    });
+    if (initialOwnCheck) {
+        router.replace({
+            query,
+        });
+    }
 
     const targetOrigin = config.public.DOMAIN;
     window.parent.postMessage({
@@ -603,6 +700,14 @@ await setupDataFetch({
             handleMoveEnd();
         });
 
+        if (filterId.value) {
+            const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
+            if (filter) {
+                setUserActiveFilter(filter.json);
+                store.getVATSIMData(true);
+            }
+        }
+
         success = true;
     },
 });
@@ -627,7 +732,6 @@ await setupDataFetch({
     flex-direction: column;
 
     width: 100%;
-
     border-radius: 16px;
 
     &_container {

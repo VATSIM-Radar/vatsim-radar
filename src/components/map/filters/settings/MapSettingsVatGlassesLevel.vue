@@ -18,6 +18,7 @@
             <common-input-text
                 v-model="vatglassesLevel"
                 class="vatglassesLevel-input"
+                height="32px"
                 :input-attrs="{
                     max: 430,
                     min: 0,

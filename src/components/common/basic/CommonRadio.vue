@@ -29,7 +29,7 @@
                 </div>
             </template>
             <slot name="hint">
-                {{ hint }}
+                <span v-html="hint"/>
             </slot>
         </common-tooltip>
     </label>
@@ -90,9 +90,9 @@ const model = defineModel({
         width: 16px;
         min-width: 16px;
         height: 16px;
+        border: 1px solid $lightgray150;
 
         background: transparent;
-        border: 1px solid $lightgray150;
 
         &::before {
             content: '';
@@ -121,8 +121,8 @@ const model = defineModel({
 
     &--checked .radio {
         &_icon {
-            background: $lightgray50Orig;
             border-color: $primary500;
+            background: $lightgray50Orig;
 
             &::before {
                 background: $primary500;

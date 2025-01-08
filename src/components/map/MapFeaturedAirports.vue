@@ -91,9 +91,9 @@ div.featured-airports {
         justify-content: space-between;
 
         padding: 8px;
+        border-radius: 4px;
 
         background: $darkgray950;
-        border-radius: 4px;
 
         &::before {
             content: '';

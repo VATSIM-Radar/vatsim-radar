@@ -323,8 +323,8 @@ const hoveredAircraft = computed(() => {
             &::before {
                 width: 12px;
                 height: 5px;
-                background: currentColor;
                 border-radius: 10px;
+                background: currentColor;
             }
         }
 

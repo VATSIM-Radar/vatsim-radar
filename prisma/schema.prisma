@@ -62,13 +62,13 @@ model UserPreset {
 }
 
 model UserPresetList {
+  id Int @id @default(autoincrement())
+
   presetId Int
   preset   UserPreset @relation(onDelete: Cascade, fields: [presetId], references: [id])
 
   listId Int
   list   UserTrackingList @relation(onDelete: Cascade, fields: [listId], references: [id])
-
-  @@id([presetId, listId])
 }
 
 enum UserTrackingListType {

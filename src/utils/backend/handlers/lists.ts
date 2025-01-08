@@ -5,9 +5,9 @@ import type { UserTrackingList } from '@prisma/client';
 import { prisma } from '~/utils/backend/prisma';
 import { UserTrackingListType } from '@prisma/client';
 import { isObject, MAX_LISTS_PILOTS, MAX_USER_LISTS } from '~/utils/shared';
-import { validateColor, validateRandomObjectKeys } from '~/utils/backend/handlers/map-settings';
 import { colorsList } from '~/utils/backend/styles';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import { validateColor, validateRandomObjectKeys } from '~/utils/backend/handlers/index';
 
 export interface UserList {
     id: number;

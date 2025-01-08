@@ -150,6 +150,9 @@ const updateModel = (value: string) => {
     input {
         width: 100%;
         padding: 8px 12px;
+        border: none;
+        border: 2px solid transparent;
+        border-radius: 8px;
 
         font-family: $defaultFont;
         font-size: 13px;
@@ -158,9 +161,6 @@ const updateModel = (value: string) => {
 
         appearance: none;
         background: $darkgray900;
-        border: none;
-        border: 2px solid transparent;
-        border-radius: 8px;
         outline: none;
         box-shadow: none;
 
@@ -200,11 +200,11 @@ const updateModel = (value: string) => {
             align-items: center;
 
             padding: 4px 8px;
+            border-radius: 4px;
 
             font-size: 12px;
 
             background: $darkgray875;
-            border-radius: 4px;
 
             &_delete {
                 cursor: pointer;
