@@ -107,7 +107,7 @@
                     </template>
                 </common-button>
                 <common-button
-                    v-if="store.friends.length"
+                    v-if="store.friends.length || store.bookmarks.length"
                     class="header__friends"
                     size="S"
                     :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
@@ -116,7 +116,10 @@
                     <template #icon>
                         <star-filled-icon/>
 
-                        <common-bubble class="header__friends-bubble">
+                        <common-bubble
+                            class="header__friends-bubble"
+                            :type="!store.friends.length ? 'secondary' : 'primary'"
+                        >
                             {{ store.friends.length }}
                         </common-bubble>
                     </template>

@@ -1,6 +1,9 @@
 <template>
     <div class="__section-group __section-group--disable-mobile">
-        <div class="__info-sections">
+        <div
+            v-if="$slots.col1"
+            class="__info-sections"
+        >
             <slot name="col1"/>
         </div>
         <div

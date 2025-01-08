@@ -7,9 +7,10 @@ import { UserPresetType } from '@prisma/client';
 import { isObject, MAX_BOOKMARKS } from '~/utils/shared';
 import { radarStorage } from '~/utils/backend/storage';
 import { validateRandomObjectKeys } from '~/utils/backend/handlers/index';
+import type { Coordinate } from 'ol/coordinate';
 
 export interface IUserBookmark {
-    coords?: [number, number];
+    coords?: Coordinate;
     zoom?: number;
     icao?: string;
     binding?: {
@@ -88,7 +89,7 @@ export async function handleBookmarksEvent(event: H3Event) {
             });
         }
 
-        if (!user) {
+        if (event.method === 'GET' && id) {
             const preset = await prisma.userPreset.findFirst({
                 where: {
                     id: +id!,
@@ -108,6 +109,13 @@ export async function handleBookmarksEvent(event: H3Event) {
                 id: preset.id,
                 json: preset.json,
             };
+        }
+
+        if (!user) {
+            return handleH3Error({
+                event,
+                statusCode: 401,
+            });
         }
 
         const bookmarks = await prisma.userPreset.findMany({

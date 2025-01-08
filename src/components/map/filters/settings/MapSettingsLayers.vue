@@ -259,7 +259,7 @@ const horizontalSelectOptions = Object.entries(horizontalOptions).map(([key, val
     value: key,
 } satisfies SelectItem));
 
-const scaleOptions = computed<SelectItem[]>(() => {
+const scaleOptions = (() => {
     const options: SelectItem[] = [];
 
     for (let i = 0.5; i <= 1.51; i += 0.05) {
@@ -270,9 +270,9 @@ const scaleOptions = computed<SelectItem[]>(() => {
     }
 
     return options;
-});
+})();
 
-const zoomOptions = computed<SelectItem[]>(() => {
+const zoomOptions = (() => {
     const options: SelectItem[] = [];
 
     for (let i = 17; i >= 12; i -= 0.5) {
@@ -282,5 +282,5 @@ const zoomOptions = computed<SelectItem[]>(() => {
     }
 
     return options;
-});
+})();
 </script>
