@@ -5,14 +5,14 @@ import type {
     NavigraphAirportData,
     NavigraphGate,
     NavigraphLayout,
-    NavigraphLayoutType,
     NavigraphRunway,
 } from '~/types/data/navigraph';
 import type { FeatureCollection, Point } from 'geojson';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
+import type { AmdbLayerName, AmdbResponseStructure } from '@navigraph/amdb';
 import type { PartialRecord } from '~/types';
 
-const allowedProperties: PartialRecord<NavigraphLayoutType, string[]> = {
+const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
     taxiwayguidanceline: ['color', 'style', 'idlin'],
     taxiwayholdingposition: ['idlin', 'catstop'],
@@ -20,6 +20,8 @@ const allowedProperties: PartialRecord<NavigraphLayoutType, string[]> = {
     finalapproachandtakeoffarea: ['idrwy'],
     verticalpolygonalstructure: ['plysttyp', 'ident'],
     deicingarea: ['ident'],
+} satisfies {
+    [K in AmdbLayerName]?: (keyof AmdbResponseStructure[K]['features'][number]['properties'])[]
 };
 
 export default defineEventHandler(async (event): Promise<NavigraphAirportData | undefined> => {
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     const isLayout = query.layout !== '0' && !!user?.hasFms && user.hasCharts;
     const dataFromLayout = isLayout && query.originalData !== '1';
 
-    let layout: NavigraphLayout | null | undefined = null;
+    let layout: Partial<AmdbResponseStructure> | null | undefined = null;
 
     let gates: NavigraphGate[] | undefined;
     let runways: NavigraphRunway[] | undefined;
@@ -108,7 +110,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         delete layout.parkingstandlocation;
 
         Object.entries(_layout).forEach(([key, value]) => {
-            const property = allowedProperties[key as NavigraphLayoutType];
+            const property = allowedProperties[key as AmdbLayerName];
             if (!property?.length) value.features.forEach(feature => feature.properties = {});
             else {
                 value.features.forEach(feature => {

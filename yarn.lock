@@ -2286,6 +2286,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@navigraph/amdb@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@navigraph/amdb@npm:1.1.0"
+  dependencies:
+    "@navigraph/app": "npm:1.4.0"
+    "@navigraph/auth": "npm:2.6.0"
+  checksum: 10c0/27d0e869020df565d995e9ecf626b64130dc59df1d1194d025a8a2b7fd3f2dfc70e576827147e8a5895c63fba4fc0a1f060fbf888c3d9d358e6b6e11d7b5a3e6
+  languageName: node
+  linkType: hard
+
+"@navigraph/app@npm:1.4.0":
+  version: 1.4.0
+  resolution: "@navigraph/app@npm:1.4.0"
+  checksum: 10c0/7730d487fef8d972098d7efd0eadf04dc9a4f5111a7b70600e5c6227abd47c4b8e3dee5b1cbf2ab4c7beaa860b3804eb536a03c1f8eac44024c72571f7bce54e
+  languageName: node
+  linkType: hard
+
+"@navigraph/auth@npm:2.6.0":
+  version: 2.6.0
+  resolution: "@navigraph/auth@npm:2.6.0"
+  dependencies:
+    "@navigraph/app": "npm:1.4.0"
+  checksum: 10c0/3ce1665f84d2ae9285a305c324d3225a3ef7eba43d8ad2526c9009f7d37334bfeefd4988619607b4e05c76f19b9b955690c3f404f0d55cb8d4af75ed39a8cbdb
+  languageName: node
+  linkType: hard
+
 "@netlify/functions@npm:^2.8.2":
   version: 2.8.2
   resolution: "@netlify/functions@npm:2.8.2"
@@ -14006,6 +14032,7 @@ __metadata:
   dependencies:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
+    "@navigraph/amdb": "npm:^1.1.0"
     "@nuxt/devtools": "npm:^1.7.0"
     "@nuxt/eslint": "npm:^0.7.4"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
