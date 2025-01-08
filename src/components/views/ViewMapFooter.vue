@@ -24,7 +24,7 @@
                 <common-control-block
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
-                    width="360px"
+                    width="480px"
                 >
                     <template #title>
                         Featured Airports
@@ -55,6 +55,7 @@
                 <common-control-block
                     v-model="store.menuFriendsOpen"
                     center-by="start"
+                    max-height="360px"
                     width="480px"
                 >
                     <template #title>
