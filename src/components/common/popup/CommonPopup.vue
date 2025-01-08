@@ -200,9 +200,9 @@ onBeforeUnmount(() => {
         max-width: 700px;
         max-height: 80vh;
         padding: 8px;
+        border-radius: 8px;
 
         background: $darkgray1000;
-        border-radius: 8px;
 
         @include mobileOnly {
             max-width: 95%;

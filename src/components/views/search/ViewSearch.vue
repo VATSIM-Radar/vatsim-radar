@@ -474,14 +474,14 @@ onMounted(() => {
 
             height:14px;
             padding: 0 4px;
+            border: 1px solid $darkgray950;
+            border-radius: 4px;
 
             font-size: 12px;
             font-weight: 600;
             line-height: 100%;
 
             background: $primary500;
-            border: 1px solid $darkgray950;
-            border-radius: 4px;
         }
     }
 
@@ -502,10 +502,10 @@ onMounted(() => {
         min-height: 320px;
         max-height: 50vh;
         padding: 16px;
-
-        background: $darkgray1000;
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
+
+        background: $darkgray1000;
 
         @include mobile {
             position: relative;
@@ -513,7 +513,6 @@ onMounted(() => {
 
             min-height: unset;
             max-height: unset;
-
             border-radius: 8px;
         }
 
@@ -557,8 +556,8 @@ onMounted(() => {
             &_status {
                 width: 8px;
                 height: 8px;
-                background: var(--color);
                 border-radius: 100%;
+                background: var(--color);
             }
         }
     }

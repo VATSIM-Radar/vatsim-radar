@@ -202,7 +202,6 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import { mapStores } from 'pinia';
 
 const props = defineProps({
     overlay: {
@@ -523,9 +522,9 @@ onBeforeUnmount(() => {
 
             width: 8px;
             height: 8px;
+            border-radius: 100%;
 
             background: var(--status-color);
-            border-radius: 100%;
 
             &:not(&--offline) {
                 @keyframes status {
@@ -554,9 +553,9 @@ onBeforeUnmount(() => {
 
                     width: 12px;
                     height: 12px;
+                    border-radius: 100%;
 
                     background: var(--status-color);
-                    border-radius: 100%;
 
                     animation: status 1.4s alternate-reverse infinite;
                 }
@@ -580,9 +579,9 @@ onBeforeUnmount(() => {
 
                 width: var(--percent);
                 height: 56px;
+                border-radius: 8px 0 0 8px;
 
                 background: $darkgray900;
-                border-radius: 8px 0 0 8px;
             }
         }
     }

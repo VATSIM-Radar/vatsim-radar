@@ -762,9 +762,9 @@ await setupDataFetch({
             overflow: auto;
 
             padding: 16px;
+            border-radius: 8px;
 
             background: $darkgray900;
-            border-radius: 8px;
 
             &:not(:only-child) {
                 height: calc(var(--dashboard-height) / 2 - 8px);

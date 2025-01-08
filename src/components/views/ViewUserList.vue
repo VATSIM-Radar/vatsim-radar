@@ -234,9 +234,9 @@ if (!props.list) {
 
     max-height: 240px;
     padding: 8px;
+    border-radius: 8px;
 
     background: $darkgray950;
-    border-radius: 8px;
 
     &_user {
         &-container {
@@ -248,9 +248,9 @@ if (!props.list) {
             justify-content: space-between;
 
             padding: 8px;
+            border-radius: 4px;
 
             background: $darkgray900;
-            border-radius: 4px;
 
             @include mobileOnly {
                 flex-wrap: wrap;
@@ -264,9 +264,9 @@ if (!props.list) {
             width: 8px;
             min-width: 8px;
             height: 8px;
+            border-radius: 100%;
 
             background: $darkgray850;
-            border-radius: 100%;
 
             &--online {
                 background: $success500;
@@ -332,9 +332,9 @@ if (!props.list) {
 
             margin-top: -2px;
             padding: 16px;
+            border-radius: 0 0 4px 4px;
 
             background: $darkgray875;
-            border-radius: 0 0 4px 4px;
         }
     }
 

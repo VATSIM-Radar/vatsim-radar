@@ -277,12 +277,12 @@ const mobileMenuOpened = ref(false);
 
         margin: 0 24px;
         padding: 8px 16px;
+        border-radius: 0 0 8px 8px;
 
         font-size: 12px;
         color: $lightgray150Orig;
 
         background: $error500;
-        border-radius: 0 0 8px 8px;
 
         &--notam {
             background: $primary600;
@@ -386,7 +386,6 @@ const mobileMenuOpened = ref(false);
                     left: 0;
 
                     height: 24px;
-
                     border-left: 1px solid varToRgba('lightgray150', 0.2);
                 }
             }
@@ -410,9 +409,9 @@ const mobileMenuOpened = ref(false);
 
                 &--has-children {
                     &:hover {
-                        background: $darkgray875 !important;
                         border-bottom-right-radius: 0 !important;
                         border-bottom-left-radius: 0 !important;
+                        background: $darkgray875 !important;
 
                         .header__buttons_btn_children_menu {
                             visibility: visible;
@@ -445,12 +444,12 @@ const mobileMenuOpened = ref(false);
 
                     width: 100%;
                     padding: 8px;
+                    border-bottom-right-radius: 8px;
+                    border-bottom-left-radius: 8px;
 
                     visibility: hidden;
                     opacity: 0;
                     background: $darkgray1000;
-                    border-bottom-right-radius: 8px;
-                    border-bottom-left-radius: 8px;
 
                     transition: 0.3s;
                 }
@@ -469,9 +468,9 @@ const mobileMenuOpened = ref(false);
         &_item {
             width: 12px;
             height: 2px;
+            border-radius: 4px;
 
             background: $lightgray100;
-            border-radius: 4px;
 
             transition: 0.3s;
         }

@@ -120,13 +120,13 @@ defineSlots<{
     justify-content: v-bind(alignItems);
 
     padding: 8px;
+    border-radius: 4px;
 
     font-size: 12px;
     font-weight: 400;
     text-align: var(--text-align);
 
     background: $darkgray950;
-    border-radius: 4px;
 
     transition: 0.3s;
 

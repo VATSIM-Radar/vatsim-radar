@@ -336,9 +336,9 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: $darkgray800;
         border: 3px solid var(--bg-color, $darkgray1000);
         border-radius: 10px;
+        background: $darkgray800;
     }
 
     &::-webkit-scrollbar-track {
@@ -353,9 +353,9 @@ img {
 
     &_title {
         padding-top: 8px;
+        border-top: 1px solid varToRgba('lightgray150', 0.15);
         font-size: 13px;
         font-weight: 600;
-        border-top: 1px solid varToRgba('lightgray150', 0.15);
     }
 
     &--gap-16 {

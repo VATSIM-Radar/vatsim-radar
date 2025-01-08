@@ -215,12 +215,12 @@ watch(getSections, sections => {
     max-width: calc(100dvw - 48px);
     max-height: var(--max-height);
     padding: 0 16px 16px;
+    border-radius: 8px;
 
     color: $lightgray150;
     text-align: left;
 
     background: $darkgray1000;
-    border-radius: 8px;
 
     @include mobileOnly {
         width: 100%;
@@ -292,8 +292,8 @@ watch(getSections, sections => {
                 &--collapse .info-popup_header_actions_action--collapse_line {
                     width: 16px;
                     height: 2px;
-                    background: currentColor;
                     border-radius: 8px;
+                    background: currentColor;
                 }
             }
         }
@@ -380,8 +380,8 @@ watch(getSections, sections => {
             &_title {
                 margin-left: 8px;
                 padding: 0 4px;
-                font-size: 12px;
                 border-radius: 4px;
+                font-size: 12px;
             }
         }
     }

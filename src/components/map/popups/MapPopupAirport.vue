@@ -479,9 +479,9 @@ onMounted(() => {
                 right: 0;
 
                 padding: 4px;
+                border-radius: 4px;
 
                 background: $darkgray1000;
-                border-radius: 4px;
             }
         }
 
@@ -518,9 +518,9 @@ onMounted(() => {
 
         &_title {
             padding-top: 8px;
+            border-top: 1px solid varToRgba('lightgray150', 0.15);
             font-size: 13px;
             font-weight: 600;
-            border-top: 1px solid varToRgba('lightgray150', 0.15);
         }
     }
 

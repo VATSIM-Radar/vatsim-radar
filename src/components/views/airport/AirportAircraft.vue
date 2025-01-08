@@ -375,9 +375,9 @@ defineExpose({
 
             width: 40px;
             height: 40px;
+            border-radius: 8px;
 
             background: $darkgray900;
-            border-radius: 8px;
 
             transition: 0.3s;
 
@@ -400,9 +400,9 @@ defineExpose({
         gap: 8px;
 
         padding: 8px;
+        border-radius: 8px;
 
         background: $darkgray950;
-        border-radius: 8px;
 
         &__filter {
             cursor: pointer;
@@ -436,8 +436,8 @@ defineExpose({
     }
 
     &__pilot {
-        background: $darkgray900;
         border: 2px solid transparent;
+        background: $darkgray900;
         transition: 0.3s;
 
         &_header {

@@ -53,11 +53,10 @@ const cookie = computed(() => props.cookieName
 
     max-width: 100%;
     padding: 4px 4px 4px 8px;
+    border-left: 2px solid $error500;
 
     font-size: 12px;
     font-weight: 600;
-
-    border-left: 2px solid $error500;
 
     &--type-info {
         border-color: $primary500;

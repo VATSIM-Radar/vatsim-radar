@@ -380,9 +380,9 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         height: 56px;
         margin-bottom: 48px;
+        border-radius: 8px;
 
         background: $darkgray900;
-        border-radius: 8px;
 
         &::before {
             content: '';
@@ -434,9 +434,9 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
                 width: 8px;
                 height: 8px;
+                border-radius: 100%;
 
                 background: $lightgray100;
-                border-radius: 100%;
             }
 
             &--status-completed::before {
@@ -480,8 +480,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
         @include mobile {
             padding: 16px 0;
-            background: $darkgray900;
             border-radius: 16px;
+            background: $darkgray900;
         }
 
         &_title {
@@ -504,8 +504,8 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
     &__item {
         padding: 16px;
-        background: $darkgray900;
         border-radius: 16px;
+        background: $darkgray900;
 
         &_description {
             margin-bottom: 16px;
@@ -549,12 +549,12 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
 
                         margin-left: 8px;
                         padding: 0 8px;
+                        border-radius: 2px;
 
                         font-size: 11px;
                         font-weight: 600;
 
                         background: $darkgray850;
-                        border-radius: 2px;
                     }
                 }
 
@@ -573,11 +573,11 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         gap: 8px;
 
         padding: 8px;
+        border-radius: 8px;
 
         font-size: 13px;
 
         background: $darkgray875;
-        border-radius: 8px;
 
         &_title {
             font-weight: 600;

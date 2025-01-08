@@ -732,7 +732,6 @@ await setupDataFetch({
     flex-direction: column;
 
     width: 100%;
-
     border-radius: 16px;
 
     &_container {

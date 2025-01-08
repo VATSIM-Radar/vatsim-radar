@@ -277,7 +277,6 @@ onMounted(() => {
                     align-self: center;
 
                     height: 24px;
-
                     border-right: 1px solid varToRgba('lightgray150', 0.1);
                 }
             }
@@ -287,8 +286,8 @@ onMounted(() => {
     &__connections {
         display: flex;
         padding: 8px 12px;
-        background: $darkgray950;
         border-radius: 8px;
+        background: $darkgray950;
 
         span {
             font-weight: 600;
@@ -329,11 +328,11 @@ onMounted(() => {
 
         &_date {
             padding: 8px 16px;
+            border-radius: 8px;
 
             font-weight: 300;
 
             background: $darkgray950;
-            border-radius: 8px;
 
             transition: 0.3s;
 

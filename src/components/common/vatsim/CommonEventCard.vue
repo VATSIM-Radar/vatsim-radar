@@ -186,11 +186,11 @@ const organisers = computed(() => {
 
     min-height: 52px;
     padding: 8px;
+    border-radius: 4px;
 
     font-size: 14px;
 
     background: $darkgray900;
-    border-radius: 4px;
 
     transition: 0.3s;
 
@@ -228,8 +228,8 @@ const organisers = computed(() => {
 
         &_route {
             padding: 8px;
-            background: $darkgray800;
             border-radius: 8px;
+            background: $darkgray800;
 
             &_airports {
                 display: flex;
@@ -239,8 +239,8 @@ const organisers = computed(() => {
 
                 span:not(:nth-child(2)) {
                     padding: 4px;
-                    background: $darkgray900;
                     border-radius: 4px;
+                    background: $darkgray900;
                 }
 
                 span {
@@ -269,13 +269,13 @@ const organisers = computed(() => {
 .event-details {
     margin: 0 20px;
     padding: 8px;
+    border: 2px solid $darkgray800;
+    border-top: 0;
+    border-radius: 4px;
 
     font-size: 14px;
 
     background: $darkgray900;
-    border: 2px solid $darkgray800;
-    border-top: 0;
-    border-radius: 4px;
 
     @include mobileOnly {
         margin: 0;

@@ -78,9 +78,9 @@ const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilo
 
             width: 2px;
             height: 2px;
+            border-radius: 100%;
 
             background: currentColor;
-            border-radius: 100%;
         }
 
         svg {

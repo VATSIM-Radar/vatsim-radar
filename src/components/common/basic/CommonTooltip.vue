@@ -134,9 +134,9 @@ useClickOutside({
 
         &_content {
             padding: 4px;
+            border-radius: 8px;
             color: $darkgray850;
             background: currentColor;
-            border-radius: 8px;
 
             &_icon {
                 position: absolute;

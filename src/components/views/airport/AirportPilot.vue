@@ -128,9 +128,9 @@ onMounted(() => {
     gap: 24px;
 
     padding: 16px;
+    border-radius: 8px;
 
     background: $darkgray1000;
-    border-radius: 8px;
 
     &_header {
         display: flex;

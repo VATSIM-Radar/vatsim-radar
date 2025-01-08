@@ -257,9 +257,9 @@ const close = () => {
 
         &_image {
             height: 200px;
-            background: no-repeat top / cover;
             border: 2px solid $darkgray800;
             border-radius: 8px;
+            background: no-repeat top / cover;
         }
 
         &_text {
@@ -286,9 +286,9 @@ const close = () => {
 
                     width: 8px;
                     height: 8px;
+                    border-radius: 100%;
 
                     background: $darkgray800;
-                    border-radius: 100%;
 
                     transition: 0.3s;
 
