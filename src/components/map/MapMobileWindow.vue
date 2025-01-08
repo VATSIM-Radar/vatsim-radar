@@ -30,7 +30,7 @@
                     Favorite
                 </template>
                 <template #content>
-                    <view-user-list :users="store.friends"/>
+                    <view-favorite/>
                 </template>
             </common-info-popup>
             <map-popup
@@ -105,7 +105,7 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
-import ViewUserList from '~/components/views/ViewUserList.vue';
+import ViewFavorite from '~/components/views/ViewFavorite.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

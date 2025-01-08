@@ -8,11 +8,13 @@
             class="__info-sections"
         >
             <div
-                v-if="!currentPreset && Object.keys(selectedPreset).length"
+                v-if="noConfirm || (!currentPreset && Object.keys(selectedPreset).length)"
                 class="presets__create __info-sections"
             >
                 <common-block-title remove-margin>
-                    Save Current Settings
+                    <slot name="title">
+                        Save Current Settings
+                    </slot>
                 </common-block-title>
 
                 <div class="presets__row presets__row--no-wrap">
@@ -22,7 +24,7 @@
                     />
                     <div class="presets__row_divider"/>
                     <common-button
-                        :disabled="presets.length >= maxPresets || !newPresetName"
+                        :disabled="presets.length >= maxPresets || !newPresetName || presets.some(x => x.name.toLowerCase() === newPresetName.toLowerCase())"
                         size="S"
                         type="secondary"
                         @click="createPreset"
@@ -32,6 +34,11 @@
                         </template>
                     </common-button>
                 </div>
+
+                <slot
+                    name="data"
+                    :preset="selectedPreset"
+                />
             </div>
 
             <small
@@ -58,7 +65,7 @@
                             <common-toggle
                                 :model-value="currentPreset === preset.id"
                                 @click.stop
-                                @update:modelValue="$event ? [states.load = true, activePreset = preset] : emit('reset')"
+                                @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
                             />
                         </template>
                     </common-block-title>
@@ -78,6 +85,7 @@
                                 />
                                 <div class="presets__row_divider"/>
                                 <common-tooltip
+                                    v-if="!disableActions"
                                     location="bottom"
                                     open-method="mouseOver"
                                 >
@@ -116,6 +124,7 @@
                                     Share
                                 </common-tooltip>
                                 <common-tooltip
+                                    v-if="!disableActions"
                                     location="left"
                                     open-method="mouseOver"
                                 >
@@ -136,6 +145,12 @@
                                 </common-tooltip>
                             </div>
                         </div>
+
+                        <slot
+                            :id="preset.id"
+                            name="data"
+                            :preset="preset.json"
+                        />
 
                         <div class="presets__delete">
                             <common-button
@@ -274,6 +289,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    disableActions: {
+        type: Boolean,
+        default: false,
+    },
+    noConfirm: {
+        type: Boolean,
+        default: false,
+    },
 });
 const emit = defineEmits({
     create(name: string, data: UserCustomPreset['json']) {
@@ -286,6 +309,9 @@ const emit = defineEmits({
         return true;
     },
 });
+
+defineSlots<{ title: () => any; data: (settings: { preset: UserCustomPreset['json']; id?: number }) => any }>();
+
 const config = useRuntimeConfig();
 export type UserCustomPreset = Omit<UserPreset, 'json'> & { [key: string]: any };
 

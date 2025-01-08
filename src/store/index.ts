@@ -14,6 +14,7 @@ import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/li
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
+import type { UserBookmark, UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -51,6 +52,7 @@ export const useStore = defineStore('index', {
         filter: {} as UserFilter,
         activeFilter: {} as UserFilter,
         filterPresets: [] as UserFilterPreset[],
+        bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
 
         presetImport: {
@@ -308,6 +310,9 @@ export const useStore = defineStore('index', {
         },
         async fetchFiltersPresets() {
             this.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
+        },
+        async fetchBookmarks() {
+            this.bookmarks = await $fetch<UserFilterPreset[]>('/api/user/bookmarks');
         },
     },
 });

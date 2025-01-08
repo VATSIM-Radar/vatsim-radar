@@ -162,6 +162,8 @@ import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
+import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import { showBookmark } from '~/composables/fetchers';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -180,6 +182,7 @@ const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
 const filterId = ref(route.query.filter && +route.query.filter);
+const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
 const config = useRuntimeConfig();
@@ -215,7 +218,7 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport);
+    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport && !route.query.bookmark);
 
     if (isPilotOnGround(aircraft)) {
         overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
@@ -441,6 +444,16 @@ const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+});
+
+useLazyAsyncData('bookmarks', async () => {
+    if (store.user) {
+        await store.fetchBookmarks();
+    }
+
+    return true;
+}, {
+    server: false,
 });
 
 useHead(() => ({
@@ -708,8 +721,43 @@ await setupDataFetch({
             }
         }
 
+        if (bookmarkId.value) {
+            const bookmark = await $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId.value }`).catch(() => {});
+            if (bookmark) {
+                showBookmark(bookmark.json, map.value);
+            }
+        }
+
         success = true;
     },
+});
+
+onMounted(() => {
+    function handleKeys(event: KeyboardEvent) {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) return;
+
+        const bookmark = store.bookmarks.find(x => {
+            const binding = x.json.binding;
+            if (!binding?.keys) return false;
+
+            return binding.code === event.code && binding.keys?.ctrl === event.ctrlKey && binding.keys.alt === event.altKey && binding.keys.meta === event.metaKey && binding.keys.shift === event.shiftKey;
+        });
+
+        if (!bookmark) return;
+
+        event.preventDefault();
+        showBookmark(bookmark.json, map.value);
+    }
+
+    document.addEventListener('keydown', handleKeys, {
+        capture: true,
+    });
+
+    onBeforeUnmount(() => {
+        document.removeEventListener('keydown', handleKeys, {
+            capture: true,
+        });
+    });
 });
 </script>
 

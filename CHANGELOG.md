@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.0.0-rc.1]
+
+- Added Bookmarks functionality
+- Added update popup
+
 # [1.0.0-beta.6]
 
 - You can now save, export and share filters presets

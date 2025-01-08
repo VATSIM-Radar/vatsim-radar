@@ -35,7 +35,7 @@
             </div>
 
             <div
-                v-if="store.friends.length"
+                v-if="store.friends.length || store.bookmarks.length"
                 class="map-footer_left_section __from-tablet"
             >
                 <common-button
@@ -60,19 +60,19 @@
                 >
                     <template #title>
                         <div class="map-footer__favorite">
-                            <span>Favorite users online</span>
+                            <span>Favorite</span>
 
                             <common-button
                                 size="S"
                                 type="secondary"
                                 @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
                             >
-                                Management
+                                Manage friends
                             </common-button>
                         </div>
                     </template>
 
-                    <view-user-list :users="store.friends"/>
+                    <view-favorite/>
                 </common-control-block>
             </div>
 
@@ -223,7 +223,7 @@ import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
-import ViewUserList from '~/components/views/ViewUserList.vue';
+import ViewFavorite from '~/components/views/ViewFavorite.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

@@ -32,7 +32,8 @@
             <div
                 v-if="shownFeature.image"
                 class="update_feature_image"
-                :style="{ backgroundImage: `url(${ shownFeature.image })` }"
+                :class="{ 'update_feature_image--has-ratio': shownFeature.imageRatio }"
+                :style="{ backgroundImage: `url(${ shownFeature.image })`, aspectRatio: shownFeature.imageRatio }"
             />
             <div class="update_feature_text">
                 <div
@@ -90,6 +91,8 @@ interface UpdateFeature {
     image?: any;
     description?: string;
     list?: string[];
+
+    imageRatio?: string;
 }
 
 interface Update {
@@ -106,62 +109,69 @@ const title = useTemplateRef('title');
 
 const update: Update = {
     type: 'major',
-    name: '0.5.0',
-    height: '500px',
+    name: '1.0.0',
+    height: '430px',
     features: [
         {
             title: 'Welcome to newest VATSIM Radar update!',
-            image: images['../../assets/update/aircraft.png'],
-            description: `Introducing 0.5.0, our largest update ever.<br><br>
-                It's packed with a bunch of features. To get a video version, please visit our <a href="https://www.youtube.com/live/FaYfNPyBjkI" target="_blank">Showcase stream</a>.`,
+            image: images['../../assets/update/presentation.png'],
+            imageRatio: '1920 / 1080',
+            description: `This update marks an important milestone for VATSIM Radar. Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. Well, we do now.`,
             list: [
-                'Map Settings with never seen before customization',
-                'Basic Events page',
-                'Search',
-                'Mobile version',
-                'Desktop/Mobile PWA clients',
+                'Airports Layouts: taximap for Navigraph Ultimate members',
+                'Filters: VATSpy and FL24-inspired filters with an ability to share them with anyone',
+                'Bookmarks: Bookmark any location or airport - and assign a key to quickly open it',
+                'Friends: track users and view what are they doing, from flying to SUPing',
+                'VATGlasses: a long-awaited integration developed by community member Felix',
             ],
         },
         {
-            title: 'Map Settings',
-            image: images['../../assets/update/settings.png'],
-            description: 'Enjoy Map Settings - customize a bunch of stuff:',
+            title: 'Airports Layouts',
+            image: images['../../assets/update/layouts.png'],
+            description: 'VATSIM Radar expands it’s partnership with Navigraph, and now all Navigraph Unlimited subscribers can view Airports Layouts!',
             list: [
-                'Enable Traffic Heatmap, emergency aircraft highlight',
-                'Modify airport counters',
-                'Hide almost anything on map - including personal info, ground traffic and "random" airports',
-                'Customize how tracks are shown - including their color',
-                'Speaking of - customize color and transparency of almost anything on map',
-                'Save all of this as presets - and share those presets with friends!',
+                'View airport map in many large airports with holding points, intersections, taxiways, and more',
+                'Enjoy updated gates data for those airports - a great improvement especially for USA airports!',
+                'Fallback to old system and disabled layers if needed in Map Settings',
             ],
         },
         {
-            title: 'Search',
-            image: images['../../assets/update/search.png'],
+            title: 'Filters',
+            description: 'VATSpy and FlightRadar24-inspired filters with all the settings you may need. At least, we hope so...',
+            image: images['../../assets/update/filters.png'],
             list: [
-                'Search for flights, atc, airports',
-                'Search by CIDs, callsigns, and other things',
-                'Customize how many search results are displayed',
-                'Open overlays by clicking on anything you found',
+                'Filters pilots and ATC by callsigns, rating, and a friend list',
+                'Filter departure/arrival airports for flights - or import them directly from ongoing events!',
+                'Save your filters if you are logged in',
+                'Share you filters with friends - even if they are not authorized!',
             ],
         },
         {
-            title: 'Clients + Mobile version',
-            image: images['../../assets/update/client.jpg'],
+            title: 'VATGlasses',
+            image: images['../../assets/update/vatglasses.png'],
             list: [
-                'Added mobile/tablet optimization',
-                'Added "Install App" into "about" dropdown menu',
-                'Added official PWA support',
+                'Detailed sectors with vertical splits - very useful for Europe flights',
+                'Developed by Felix',
+                'Auto-enabled if you are logged in and in active flight',
+                'Level is controllable in a footer',
             ],
         },
         {
-            title: 'Events page',
-            image: images['../../assets/update/events.jpg'],
+            title: 'Friends',
+            image: images['../../assets/update/friends.png'],
             list: [
-                'Enjoy basic events page',
-                'Prefile recommended routes on VATSIM/SimBrief',
-                'View events airports on map',
-                'More to come',
+                'Track your friends and view what are they doing',
+                'Make friends lists with different names and colors',
+                'Focus on your friend in one click',
+            ],
+        },
+        {
+            title: 'Bookmarks',
+            image: images['../../assets/update/bookmarks.png'],
+            list: [
+                'Bookmark airport or your current location',
+                'Quickly access bookmarks via footer/header shortcut or keyboard binding',
+                'Share any bookmark with anyone',
             ],
         },
         {
@@ -169,18 +179,24 @@ const update: Update = {
             description: 'Come visit our Discord for full changelog: https://vatsim-radar.com/discord',
             image: images['../../assets/update/quality.png'],
             list: [
-                'New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60 (+ imporved model matching)',
-                'Improved Approach TRACON label rendering (by Felix)',
-                'Reduced data consumption',
-                'Copy button for controllers frequencies',
-                'Your current position on map/controller dashboard is now remembered in GET parameters for you to save last position/settings',
-                'Added "Share" window into filters dropdown - usable for PWAs, and also you can copy link which includes overlay from here',
+                'New aircraft icons from DotWallop: will add later',
+                'New VATSpy-like layer',
+                'Search can now be opened using CTRL+F',
+                'Airline display into pilot popup',
                 'Many other changes, fixes and improvements',
             ],
         },
     ],
-    active: false,
+    active: true,
 };
+
+if (!store.user?.hasCharts) {
+    update.features[1].list!.push('<a class="navigraph" href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe" target="_blank">Subscription Options</a>');
+}
+
+if (!store.user?.hasFms && store.user) {
+    update.features[1].list!.push('<a class="navigraph" href="http://localhost:8080/api/auth/navigraph/redirect" target="_blank"> Connect Navigraph</a>');
+}
 
 const shownFeatureIndex = ref(0);
 const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
@@ -241,7 +257,11 @@ const close = () => {
 
         width: 100vw;
         max-width: 650px;
-        height: var(--height);
+        min-height: var(--height);
+
+        :deep(.navigraph) {
+            color: #d54a46;
+        }
 
         @include mobileOnly {
             width: 80dvw;
@@ -260,6 +280,10 @@ const close = () => {
             border: 2px solid $darkgray800;
             border-radius: 8px;
             background: no-repeat top / cover;
+
+            &--has-ratio {
+                height: auto;
+            }
         }
 
         &_text {
@@ -328,5 +352,7 @@ const close = () => {
             }
         }
     }
+
+
 }
 </style>
