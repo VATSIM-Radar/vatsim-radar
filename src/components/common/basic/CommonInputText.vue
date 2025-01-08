@@ -51,7 +51,6 @@ defineProps({
     placeholder: {
         type: String,
     },
-    readonly: {},
 });
 
 defineEmits({

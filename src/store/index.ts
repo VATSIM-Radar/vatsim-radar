@@ -14,7 +14,7 @@ import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/li
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
-import type { UserBookmark, UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 
 export interface SiteConfig {
     hideSectors?: boolean;
