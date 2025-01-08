@@ -69,3 +69,11 @@ export function parseFilterAltitude(altitude: string): FilterAltitudeConfig[] {
 
     return config;
 }
+
+export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
+    if (typeof val !== 'number' || Number.isNaN(val)) return false;
+
+    const split = val.toString().split('.')[1];
+    if (!split || split.length <= allowedAfterDot) return true;
+    return false;
+}

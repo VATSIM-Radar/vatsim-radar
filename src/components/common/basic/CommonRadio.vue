@@ -29,7 +29,7 @@
                 </div>
             </template>
             <slot name="hint">
-                {{ hint }}
+                <span v-html="hint"/>
             </slot>
         </common-tooltip>
     </label>

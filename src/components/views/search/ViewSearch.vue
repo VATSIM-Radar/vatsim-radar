@@ -6,6 +6,7 @@
     >
         <div class="search_container">
             <common-input-text
+                ref="input"
                 v-model="search"
                 class="search_input"
                 height="40px"
@@ -372,6 +373,24 @@ useClickOutside({
 
 watch(() => mapStore.overlays.length, () => {
     store.searchActive = false;
+});
+
+const input = useTemplateRef('input');
+
+onMounted(() => {
+    async function handleClick(event: KeyboardEvent) {
+        if (event.ctrlKey && event.code === 'KeyF') {
+            event.preventDefault();
+            store.searchActive = true;
+            await nextTick();
+
+            input.value?.$el.querySelector('input')?.focus();
+        }
+    }
+
+    document.addEventListener('keydown', handleClick);
+
+    onBeforeUnmount(() => document.removeEventListener('keydown', handleClick));
 });
 </script>
 

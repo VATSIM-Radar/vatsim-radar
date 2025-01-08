@@ -1,7 +1,5 @@
 import { useStore } from '~/store';
 import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import { toRaw } from 'vue';
-import { isFetchError } from '~/utils/shared';
 import type { UserLocalSettings } from '~/types/map';
 import { customDefu } from '~/composables';
 

@@ -108,8 +108,6 @@ useClickOutside({
     position: absolute;
     z-index: 5;
 
-    overflow: hidden;
-
     width: v-bind(width);
     max-width: v-bind(maxWidth);
     min-height: v-bind(minHeight);

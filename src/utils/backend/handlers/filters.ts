@@ -5,9 +5,9 @@ import { findUserWithListsByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 import { UserPresetType } from '@prisma/client';
-import { isObject, MAX_FILTER_ARRAY_VALUE, MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
-import { validateColor, validateRandomObjectKeys, validateTransparency } from '~/utils/backend/handlers/map-settings';
+import { isNumber, isObject, MAX_FILTER_ARRAY_VALUE, MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
 import { radarStorage } from '~/utils/backend/storage';
+import { validateColor, validateRandomObjectKeys, validateTransparency } from '~/utils/backend/handlers/index';
 
 export interface IUserFilterOthers {
     othersOpacity?: number;
@@ -61,8 +61,8 @@ const allowedTypes: IUserFilter['flights']['type'][] = ['all', 'domestic', 'inte
 function validateCallsignFilter(val: unknown): boolean {
     if (!isObject(val)) return false;
     if (!validateRandomObjectKeys(val, ['type', 'value'])) return false;
-    if ('type' in val && (typeof val !== 'string' || !['prefix', 'include'].includes(val))) return false;
-    if ('value' in val && (!Array.isArray(val) || val.length > MAX_FILTER_ARRAY_VALUE || val.some(x => typeof x !== 'string' || x.length > 30))) return false;
+    if ('type' in val && (typeof val.type !== 'string' || !['prefix', 'include'].includes(val.type))) return false;
+    if ('value' in val && (!Array.isArray(val.value) || val.value.length > MAX_FILTER_ARRAY_VALUE || val.value.some(x => typeof x !== 'string' || x.length > 30))) return false;
 
     return true;
 }
@@ -85,7 +85,7 @@ const initValidators = (lists: UserTrackingList[] = []): Record<keyof IUserFilte
             if ('cids' in val &&
                 (
                     !Array.isArray(val.cids) ||
-                    !val.cids.every(x => typeof x === 'number' && x > 0 && x < 999999999999999) ||
+                    !val.cids.every(x => isNumber(x) && x > 0 && x < 999999999999999) ||
                     val.cids.length > MAX_FILTER_ARRAY_VALUE
                 )
             ) return false;
@@ -115,8 +115,8 @@ const initValidators = (lists: UserTrackingList[] = []): Record<keyof IUserFilte
             if (!isObject(val)) return false;
             if (!validateRandomObjectKeys(val, ['ratings', 'facilities'])) return false;
 
-            if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => typeof x === 'number' && x < 1000 && x > 0))) return false;
-            if ('facilities' in val && (!Array.isArray(val.facilities) || val.facilities.length > MAX_FILTER_ARRAY_VALUE || !val.facilities.every(x => typeof x === 'number' && x < 1000 && x > 0))) return false;
+            if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
+            if ('facilities' in val && (!Array.isArray(val.facilities) || val.facilities.length > MAX_FILTER_ARRAY_VALUE || !val.facilities.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
 
             return true;
         },
@@ -128,7 +128,7 @@ const initValidators = (lists: UserTrackingList[] = []): Record<keyof IUserFilte
             if ('aircraft' in val && (!Array.isArray(val.aircraft) || val.aircraft.length > MAX_FILTER_ARRAY_VALUE || !val.aircraft.every(x => typeof x === 'string' && x.length > 0 && x.length < 50))) return false;
             if ('type' in val && val.type !== allowedTypes) return false;
             if ('squawks' in val && (!Array.isArray(val.squawks) || val.squawks.length > MAX_FILTER_ARRAY_VALUE || !val.squawks.every(x => typeof x === 'string' && x.length === 4))) return false;
-            if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => typeof x === 'number' && x < 1000 && x > 0))) return false;
+            if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
             if ('altitude' in val && (!Array.isArray(val.altitude) || val.altitude.length > MAX_FILTER_ARRAY_VALUE || !val.altitude.every(x => typeof x === 'string' && parseFilterAltitude(x).length > 0))) return false;
             if ('excludeNoFlightPlan' in val && typeof val.excludeNoFlightPlan !== 'boolean') return false;
 
@@ -190,7 +190,7 @@ export async function handleFiltersEvent(event: H3Event) {
             });
         }
 
-        if (!user) {
+        if (id && event.method === 'GET') {
             const preset = await prisma.userPreset.findFirst({
                 where: {
                     id: +id!,
@@ -210,6 +210,13 @@ export async function handleFiltersEvent(event: H3Event) {
                 id: preset.id,
                 json: preset.json,
             };
+        }
+
+        if (!user) {
+            return handleH3Error({
+                event,
+                statusCode: 401,
+            });
         }
 
         const filters = (await prisma.userPreset.findMany({
@@ -338,7 +345,7 @@ export async function handleFiltersEvent(event: H3Event) {
                     },
                 });
 
-                const lists = (body.json as UserFilter).users?.lists;
+                const lists = (body.json as UserFilter)?.users?.lists;
 
                 if (lists && filter) {
                     const toDelete: number[] = [];
@@ -401,7 +408,7 @@ export async function handleFiltersEvent(event: H3Event) {
                     },
                 });
 
-                const lists = (body.json as UserFilter).users?.lists;
+                const lists = (body.json as UserFilter)?.users?.lists;
                 if (lists?.length) {
                     await prisma.userPresetList.createMany({
                         data: lists.map(x => ({

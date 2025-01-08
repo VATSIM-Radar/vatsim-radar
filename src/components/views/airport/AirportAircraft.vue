@@ -106,12 +106,11 @@
                         <div class="aircraft__pilot_header_title">
                             {{ pilot.callsign }}
 
-                            <div
+                            <common-stats-block
                                 v-if="stats.find(x => x.cid === pilot.cid)"
                                 class="aircraft__pilot_header_title_stats"
-                            >
-                                {{ stats.find(x => x.cid === pilot.cid)!.stats }}h
-                            </div>
+                                :hours="stats.find(x => x.cid === pilot.cid)!.stats"
+                            />
 
                             <common-bubble
                                 v-if="'frequencies' in pilot && pilot.frequencies.length >= 1"
@@ -164,6 +163,7 @@ import AirportAircraftFilter from '~/components/views/airport/AirportAircraftFil
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys } from '~/types/map';
 import type { PropType } from 'vue';
+import CommonStatsBlock from '~/components/common/vatsim/CommonStatsBlock.vue';
 
 const props = defineProps({
     filterRelativeToAircraft: {

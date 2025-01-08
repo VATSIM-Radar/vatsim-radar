@@ -5,7 +5,7 @@
         :class="{ 'users--no-list': !list }"
     >
         <common-button
-            v-if="!list"
+            v-if="!list && isMobile"
             size="S"
             type="secondary"
             @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
@@ -198,6 +198,7 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const activeUsers = reactive(new Set<number>());
 const deletedUsers = reactive(new Set<number>());
 const sortedUsers = shallowRef<UserListLiveUser[]>([]);
+const isMobile = useIsMobile();
 
 onBeforeUnmount(() => {
     if (deletedUsers.size) store.refreshUser();

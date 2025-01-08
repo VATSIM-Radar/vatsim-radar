@@ -161,6 +161,7 @@ import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -178,6 +179,7 @@ const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
+const filterId = ref(route.query.filter && +route.query.filter);
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
 const config = useRuntimeConfig();
@@ -192,26 +194,41 @@ provide('map', map);
 emit('map', map);
 
 let initialSpawn = false;
+let initialOwnCheck = false;
 
 useIframeHeader();
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow || store.config.hideAllExternal) return;
+    if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
+        initialOwnCheck = true;
+        return;
+    }
     let overlay = mapStore.overlays.find(x => x.key === store.user?.cid);
-    if (overlay) return;
+    if (overlay) {
+        initialOwnCheck = true;
+        return;
+    }
 
     const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
-    if (!aircraft) return;
+    if (!aircraft) {
+        initialOwnCheck = true;
+        return;
+    }
+
+    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport);
 
     if (isPilotOnGround(aircraft)) {
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
     else if (!initialSpawn) {
         initialSpawn = true;
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
 
-    if (overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
+    initialSpawn = true;
+    initialOwnCheck = true;
+
+    if (shouldTrack && overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }
@@ -329,6 +346,23 @@ const restoreOverlays = async () => {
             showPilotOnMap(overlay.data.pilot, map.value, getRouteZoom() ?? undefined);
         }
     }
+    else if (typeof route.query.controller === 'string' || typeof route.query.atc === 'string') {
+        const callsign = (route.query.controller ?? route.query.atc) as string;
+        const controller = findAtcByCallsign(callsign);
+        if (controller) {
+            let overlay = mapStore.overlays.find(x => x.key === callsign);
+
+            if (!overlay) {
+                overlay = await mapStore.addAtcOverlay(callsign);
+            }
+
+            showAtcOnMap(controller, map.value);
+
+            if (overlay && overlay.type === 'atc' && controller) {
+                overlay.sticky = true;
+            }
+        }
+    }
     else if (route.query.airport) {
         let overlay = mapStore.overlays.find(x => x.key === route.query.airport as string);
 
@@ -393,7 +427,7 @@ function updateMapCursor() {
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
 useUpdateInterval(() => {
-    if (store.mapSettings.vatglasses?.autoLevel === false) return;
+    if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
     const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
     if (!user) return;
@@ -479,9 +513,11 @@ async function handleMoveEnd() {
         zoom: view.getZoom()?.toFixed(2),
     };
 
-    router.replace({
-        query,
-    });
+    if (initialOwnCheck) {
+        router.replace({
+            query,
+        });
+    }
 
     const targetOrigin = config.public.DOMAIN;
     window.parent.postMessage({
@@ -663,6 +699,14 @@ await setupDataFetch({
             moving = false;
             handleMoveEnd();
         });
+
+        if (filterId.value) {
+            const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
+            if (filter) {
+                setUserActiveFilter(filter.json);
+                store.getVATSIMData(true);
+            }
+        }
 
         success = true;
     },

@@ -19,7 +19,7 @@
                 disabled: !atcSections.length,
             },
         }"
-        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
+        @update:modelValue="!$event ? [store.user && pilot.cid === +store.user.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
@@ -202,6 +202,7 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import { mapStores } from 'pinia';
 
 const props = defineProps({
     overlay: {

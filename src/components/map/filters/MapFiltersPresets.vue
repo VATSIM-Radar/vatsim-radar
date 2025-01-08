@@ -11,7 +11,7 @@
                 v-if="!currentPreset && Object.keys(selectedPreset).length"
                 class="presets__create __info-sections"
             >
-                <common-block-title>
+                <common-block-title remove-margin>
                     Save Current Settings
                 </common-block-title>
 
@@ -49,6 +49,7 @@
                     <common-block-title
                         class="presets__list-title"
                         :collapsed="activePreset?.id !== preset.id"
+                        remove-margin
                         @update:collapsed="!$event ? activePreset = preset : activePreset = null"
                     >
                         {{ preset.name }}
@@ -93,6 +94,26 @@
                                     </template>
 
                                     Export
+                                </common-tooltip>
+                                <common-tooltip
+                                    v-if="shareUrl"
+                                    location="bottom"
+                                    open-method="mouseOver"
+                                >
+                                    <template #activator>
+                                        <common-button
+                                            size="S"
+                                            type="secondary"
+                                            @click="share.copy(shareUrl)"
+                                        >
+                                            <template #icon>
+                                                <check-icon v-if="share.copyState.value"/>
+                                                <share-icon v-else/>
+                                            </template>
+                                        </common-button>
+                                    </template>
+
+                                    Share
                                 </common-tooltip>
                                 <common-tooltip
                                     location="left"
@@ -214,15 +235,15 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useFileDownload } from '~/composables/settings';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
-import type { SelectItem } from '~/types/components/select';
 import ExportIcon from 'assets/icons/kit/load.svg?component';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import type { UserPreset } from '@prisma/client';
 import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-
-export type UserCustomPreset = Omit<UserPreset, 'json'> & { [key: string]: any };
+import equal from 'deep-equal';
 
 const props = defineProps({
     presets: {
@@ -249,8 +270,11 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    hasShare: {
+        type: Boolean,
+        default: false,
+    },
 });
-
 const emit = defineEmits({
     create(name: string, data: UserCustomPreset['json']) {
         return true;
@@ -262,6 +286,16 @@ const emit = defineEmits({
         return true;
     },
 });
+const config = useRuntimeConfig();
+export type UserCustomPreset = Omit<UserPreset, 'json'> & { [key: string]: any };
+
+const shareUrl = computed(() => {
+    if (!props.hasShare || !activePreset.value) return;
+
+    return `${ config.public.DOMAIN }?${ props.type }=${ activePreset.value.id }`;
+});
+
+const share = useCopyText();
 
 const store = useStore();
 
@@ -270,7 +304,7 @@ const activePreset = shallowRef<UserCustomPreset | null>(null);
 const isMobile = useIsMobile();
 
 const currentPreset = computed(() => {
-    return props.presets.find(x => JSON.stringify(x.json) === JSON.stringify(props.selectedPreset))?.id ?? null;
+    return props.presets.find(x => equal(x.json, props.selectedPreset))?.id ?? null;
 });
 
 watch(currentPreset, () => {
@@ -292,7 +326,6 @@ const isCurrentPreset = (preset: UserCustomPreset) => {
 
 const createPreset = async () => {
     emit('create', newPresetName.value, props.selectedPreset);
-    props.refresh();
 };
 
 const exportPreset = (preset: UserCustomPreset) => {

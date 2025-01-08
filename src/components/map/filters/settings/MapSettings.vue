@@ -1,7 +1,7 @@
 <template>
     <div class="settings __info-sections">
         <div
-            v-if="store.mapPresets && !store.mapPresets?.length"
+            v-if="store.mapPresetsFetched && !store.mapPresets?.length"
             class="settings_edit_warning"
         >
             Settings are <strong>not</strong> automatically saved to database.
@@ -57,20 +57,19 @@ import { MAX_MAP_PRESETS } from '~/utils/shared';
 import MapFiltersPresets from '~/components/map/filters/MapFiltersPresets.vue';
 import { sendUserPreset } from '~/composables/fetchers';
 
-defineProps({
-    refresh: {
-        type: Function,
-        required: true,
-    },
-});
-
 const store = useStore();
 
 const tab = ref('layers');
 
 const createMapPreset = async (name: string, json: UserMapSettings) => {
     await saveMapSettings(await sendUserPreset(name, json, 'settings/map', () => createMapPreset(name, json)));
+    await refresh();
 };
+
+const { refresh } = useLazyAsyncData('map-presets', async () => {
+    await store.fetchMapPresets();
+    return true;
+});
 </script>
 
 <style scoped lang="scss">

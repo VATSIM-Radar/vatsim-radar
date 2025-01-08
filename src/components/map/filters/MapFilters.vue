@@ -16,6 +16,7 @@
             <div
                 v-if="isOpened"
                 class="filters_sections"
+                :class="{ 'filters_sections--has-pilot': store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid] }"
             >
                 <div
                     class="filters_sections_section"
@@ -146,6 +147,35 @@
                             Filters, Traffic, Bookmarks
                         </template>
 
+                        <template
+                            v-if="store.filterPresets.length < MAX_FILTERS"
+                            #closeActions
+                        >
+                            <common-tooltip
+                                location="left"
+                                open-method="mouseOver"
+                                width="110px"
+                            >
+                                <template #activator>
+                                    <div class="filters__import">
+                                        <import-icon
+                                            width="18"
+                                            @click="filtersImport?.click()"
+                                        />
+                                        <input
+                                            v-show="false"
+                                            ref="filtersImport"
+                                            accept="application/json"
+                                            type="file"
+                                            @input="[filtersImportMode = 'filters', importPreset()]"
+                                        >
+                                    </div>
+                                </template>
+
+                                Import Filter
+                            </common-tooltip>
+                        </template>
+
                         <map-filters-traffic/>
                     </common-control-block>
                 </div>
@@ -193,7 +223,7 @@
                                             ref="filtersImport"
                                             accept="application/json"
                                             type="file"
-                                            @input="importPreset"
+                                            @input="[filtersImportMode = 'settings', importPreset()]"
                                         >
                                     </div>
                                 </template>
@@ -205,9 +235,20 @@
                         <map-settings
                             v-model:imported-preset="importedPreset"
                             v-model:imported-preset-name="importedPresetName"
-                            :refresh="refreshMapPresets"
                         />
                     </common-control-block>
+                </div>
+                <div
+                    v-if="store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid]"
+                    class="filters_sections_section filters_sections_section--location"
+                    :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
+                    @click="handleUserTrack"
+                >
+                    <common-button :type="myOverlay?.data.tracked ? 'primary' : 'secondary'">
+                        <template #icon>
+                            <location-icon/>
+                        </template>
+                    </common-button>
                 </div>
             </div>
         </transition>
@@ -235,14 +276,22 @@ import MapFilterTransparency from '~/components/map/filters/MapFilterTransparenc
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
-import type { IUserMapSettings, UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import { MAX_MAP_PRESETS } from '~/utils/shared';
+import type { IUserMapSettings, UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 import { saveMapSettings } from '~/composables/settings';
 import { sendUserPreset } from '~/composables/fetchers';
+import { setUserFilter } from '~/composables/fetchers/filters';
+import type { IUserFilter } from '~/utils/backend/handlers/filters';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
+import { klona } from 'klona/json';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
 
 const store = useStore();
+const dataStore = useDataStore();
+const mapStore = useMapStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);
 const selectedFilter = ref<string | null>(null);
@@ -251,6 +300,7 @@ const selectFilter = (filter: string) => {
     selectedFilter.value = selectedFilter.value === filter ? null : filter;
 };
 
+const filtersImportMode = ref(null as null | 'settings' | 'filters');
 const filtersImport = useTemplateRef('filtersImport');
 
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
@@ -265,7 +315,7 @@ const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
         value: 'basic',
         text: 'Basic (VatSpy-like)',
-        hint: 'Very basic continents layer. Recommended for use with Airports Layers (requires Navigraph Ultimate)',
+        hint: 'Very basic continents layer. Recommended for use with Airports Layers (requires Navigraph Unlimited)',
         hintLocation: 'right',
     },
     {
@@ -286,16 +336,33 @@ const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
 
-const { refresh: refreshMapPresets } = await useLazyAsyncData(async () => {
-    store.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
+const createPreset = async () => {
+    if (filtersImportMode.value === 'settings') {
+        await saveMapSettings(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserMapSettings, 'settings/map', createPreset));
+    }
+    else {
+        setUserFilter(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserFilter, 'filters', createPreset));
+        setUserActiveFilter(klona(store.filter));
+    }
+    store.presetImport.preset = null;
 
-    return true;
+    if (filtersImportMode.value === 'settings') {
+        store.fetchMapPresets();
+    }
+    else {
+        store.fetchFiltersPresets();
+        store.getVATSIMData(true);
+    }
+};
+
+const myOverlay = computed(() => {
+    return mapStore.overlays.find(x => x.type === 'pilot' && x.key === store.user?.cid) as StoreOverlayPilot | undefined;
 });
 
-const createPreset = async () => {
-    await saveMapSettings(await sendUserPreset(store.presetImport.name!, store.presetImport.preset as IUserMapSettings, 'settings/map', createPreset));
-    store.presetImport.preset = null;
-    refreshMapPresets();
+const handleUserTrack = () => {
+    const overlay = myOverlay.value;
+    if (!overlay) mapStore.addPilotOverlay(store.user!.cid, true);
+    else overlay.data.tracked = !overlay.data.tracked;
 };
 
 const importPreset = async () => {
@@ -309,7 +376,7 @@ const importPreset = async () => {
             reader.addEventListener('load', async () => {
                 store.initPresetImport({
                     file: reader.result as string,
-                    prefix: 'settings/map',
+                    prefix: filtersImportMode.value === 'settings' ? 'settings/map' : 'filters',
                     save: createPreset,
                 });
                 resolve();
@@ -413,6 +480,19 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
         &_section {
             position: relative;
             display: flex;
+
+            &--location {
+                margin-top: 8px;
+
+                svg {
+                    transform-origin: center;
+                    transition: 0.3s;
+                }
+            }
+
+            &--tracked svg {
+                transform: rotate(-45deg) translate(-2px, 2px);
+            }
         }
     }
 

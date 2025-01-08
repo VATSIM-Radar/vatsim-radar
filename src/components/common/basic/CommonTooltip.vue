@@ -126,7 +126,7 @@ useClickOutside({
 
     &_container {
         position: absolute;
-        z-index: 7;
+        z-index: 8;
 
         width: v-bind(width);
         max-width: v-bind(maxWidth);

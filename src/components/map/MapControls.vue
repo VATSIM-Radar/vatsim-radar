@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="view"
+        v-if="view && !isMobile"
         class="controls"
     >
         <common-button
@@ -74,6 +74,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
+const isMobile = useIsMobile();
 
 const setZoom = (increase: boolean) => {
     if (!view.value || view.value.getAnimating()) return;

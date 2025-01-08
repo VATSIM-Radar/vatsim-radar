@@ -14,7 +14,6 @@ import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/li
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
-import js from '@eslint/js';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -48,6 +47,7 @@ export const useStore = defineStore('index', {
         localSettings: {} as UserLocalSettings,
         mapSettings: {} as UserMapSettings,
         mapPresets: [] as UserMapPreset[],
+        mapPresetsFetched: false,
         filter: {} as UserFilter,
         activeFilter: {} as UserFilter,
         filterPresets: [] as UserFilterPreset[],
@@ -301,6 +301,13 @@ export const useStore = defineStore('index', {
                     saveResult();
                 }
             }
+        },
+        async fetchMapPresets() {
+            this.mapPresets = await $fetch<UserMapPreset[]>('/api/user/settings/map');
+            this.mapPresetsFetched = true;
+        },
+        async fetchFiltersPresets() {
+            this.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
         },
     },
 });

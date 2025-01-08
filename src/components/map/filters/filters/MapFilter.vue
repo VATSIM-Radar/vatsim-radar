@@ -373,6 +373,19 @@
                 </common-button>
             </common-button-group>
         </template>
+        <map-filters-presets
+            v-else
+            endpoint-suffix="filters"
+            has-share
+            :max-presets="MAX_FILTERS"
+            :presets="store.filterPresets"
+            :refresh
+            :selected-preset="store.filter"
+            type="filter"
+            @create="createFilterPreset"
+            @reset="resetUserFilter"
+            @save="setUserFilter"
+        />
         <common-popup v-model="filterReset">
             <template #title>
                 Filters Reset
@@ -409,6 +422,7 @@ import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import MapFilterBox from '~/components/map/filters/filters/MapFilterBox.vue';
 import { useStore } from '~/store';
+import { klona } from 'klona/json';
 import { backupUserFilter, setUserFilter } from '~/composables/fetchers/filters';
 import type { SelectItem } from '~/types/components/select';
 import type { RadarDataAirline } from '~/utils/backend/storage';
@@ -422,9 +436,10 @@ import CommonColor from '~/components/common/basic/CommonColor.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
-import { saveMapSettings } from '~/composables/settings';
 import MapFiltersPresets from '~/components/map/filters/MapFiltersPresets.vue';
-import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
+import type { UserFilter } from '~/utils/backend/handlers/filters';
+import { sendUserPreset } from '~/composables/fetchers';
+import equal from 'deep-equal';
 
 const store = useStore();
 const tab = ref('filter');
@@ -448,8 +463,8 @@ const { data: events } = await useLazyAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
-const { refresh } = await useLazyAsyncData(async () => {
-    store.filterPresets = await $fetch<UserFilterPreset[]>('/api/user/filters');
+const { refresh } = await useLazyAsyncData('filters-presets', async () => {
+    await store.fetchFiltersPresets();
 
     return true;
 });
@@ -480,7 +495,7 @@ const getRouteEvents = computed<SelectItem[]>(() => {
 });
 
 const areFiltersEqual = computed(() => {
-    return JSON.stringify(store.filter) === JSON.stringify(store.activeFilter);
+    return equal(store.filter, store.activeFilter);
 });
 
 const hasActiveFilter = computed(() => {
@@ -516,7 +531,7 @@ const setEventRoutes = (id: number) => {
 };
 
 const applyFilter = () => {
-    setUserActiveFilter(structuredClone(toRaw(store.filter)));
+    setUserActiveFilter(klona(store.filter));
     store.getVATSIMData(true);
 };
 
@@ -592,6 +607,11 @@ const setRoutes = (routes: string[]) => {
     }
 
     previousRoutesLength = store.filter.airports!.routes!.length;
+};
+
+const createFilterPreset = async (name: string, json: UserFilter) => {
+    setUserFilter(await sendUserPreset(name, json, 'filters', () => createFilterPreset(name, json)));
+    await refresh();
 };
 </script>
 

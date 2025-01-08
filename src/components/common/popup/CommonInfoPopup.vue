@@ -232,7 +232,7 @@ watch(getSections, sections => {
 
     &_header {
         position: sticky;
-        z-index: 5;
+        z-index: 7;
         top: 0;
 
         display: flex;
@@ -325,7 +325,7 @@ watch(getSections, sections => {
 
         &_tabs {
             position: sticky;
-            z-index: 4;
+            z-index: 6;
             top: 56px;
 
             margin-top: -16px;

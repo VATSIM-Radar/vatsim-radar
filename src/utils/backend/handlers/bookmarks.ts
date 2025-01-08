@@ -5,8 +5,8 @@ import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } 
 import { prisma } from '~/utils/backend/prisma';
 import { UserPresetType } from '@prisma/client';
 import { isObject, MAX_BOOKMARKS } from '~/utils/shared';
-import { validateRandomObjectKeys } from '~/utils/backend/handlers/map-settings';
 import { radarStorage } from '~/utils/backend/storage';
+import { validateRandomObjectKeys } from '~/utils/backend/handlers/index';
 
 export interface IUserBookmark {
     coords?: [number, number];
