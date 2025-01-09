@@ -112,7 +112,7 @@
             <common-button
                 :disabled="!newUser.cid || !newUser.name || store.lists.some(x => x.users.some(x => x.cid === newUser.cid))"
                 size="S"
-                @click="[editUserList({ id: list!.id, users: [newUser, ...list.users!]}), resetNewUser()]"
+                @click="[editUserList({ id: list!.id, name: list.name, users: [newUser, ...list.users!]}), resetNewUser()]"
             >
                 Add user to list
             </common-button>
