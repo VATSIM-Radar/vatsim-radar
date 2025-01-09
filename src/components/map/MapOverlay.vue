@@ -154,8 +154,7 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
     }
 
     if (!oldPopupVal && popupVal && oldOverlayId !== popupId) {
-        if (mapStore.openOverlayId && mapStore.openOverlayId && mapStore.openOverlayId !== popupId) return;
-
+        // if (mapStore.openOverlayId && mapStore.openOverlayId && mapStore.openOverlayId !== popupId) return;
         mapStore.openOverlayId = popupId;
     }
     else if (popup.value && mapStore.openOverlayId !== popupId) {
