@@ -1,97 +1,94 @@
 # Changelog
 
-# [1.0.0-rc.1]
+# [1.0.0-final]
 
-- Added Bookmarks functionality
-- Added update popup
+This update marks an important milestone for VATSIM Radar. 
 
-# [1.0.0-beta.6]
+Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. 
 
-- You can now save, export and share filters presets
-- Fixed BECMG active time display
-- You can now change airport default zoom level
-- CTRL+F will now open VATSIM Radar's search box
-- You can now share a link to atc via ?controller route param
-- Pilots stats in aircraft list will now be colored depending on their hours
-- Your aircraft will no longer be auto-tracked if you loaded website with query params
-- Fixed inability to re-select default opacity for OSM/Satellite layers
-- Removed map control buttons from mobile version
-- Added active flight tracking button
+Well, we do now.
 
-# [1.0.0-beta.5]
+## Highlights
 
-- VG runways will not show for airport you already departed from in pilot popup
-- Increased width of copy block for easier read
-- METARs and NOTAMs are now auto-expanded
-- Added filters functionality
-  - Manage tab is INOP
+- VATGlasses integration: developed by community member Felix
+- Airports Layouts: taxiway maps for Navigraph Unlimited subscribers
+- Friends: favorite your friends and create different lists for them
+- Filters: configure what's displayed on the map to your liking
+- Bookmarks: bookmark favorite locations or airports
+- Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as bug fixes
 
-# [1.0.0-beta.4]
+### VATGlasses
 
-(QA release)
+VATGlasses is a tool familiar to many, especially flying in complex European airspace. From now on, VATSIM Radar has integration with their data!
 
-- Fixed an issue when friend not appeared if adding via cid until page reload
-- Fixed visibility issues for overlay title header
-- Fixed an issue when VATGlasses depended on whether you have overlay opened or not
+It is enabled by default, if you are logged in and have active flight. As always, you can control it from map settings.
 
-# [1.0.0-beta.3]
+You can also select active airports if there are some directly from pilot popup or airport info tab.
 
-- Fixed VG combined sector mode
+Thanks to Felix for developing this integration.
 
-# [1.0.0-beta.2]
+### Airports Layouts
+
+Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports. 
+
+Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility. 
+
+And for those of you who didn’t buy Navigraph Unlimited yet - here are the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
+
+### Filters
+
+Meet filters - inspired by VATSpy and FlightRadar 24 fitlers, they allow you to filter things out of map.
+
+Filter by many things - callsigns, friend lists, dep/arr airports, routes (you can also set those from active events!), ratings, positions, and more.
+
+You can also save your filters, and share them - even for those who are not logged in.
+
+### Friends
+
+An amazing feature that allows you to favorite your friends - and track them on map.
+
+You can even make a different lists with different colors for easier tracking!
+
+### Bookmarks
+
+That one is simple: bookmark any location on a map to your list. You can also "favorite" an airport coordinate!
+
+Bookmarks are also shareable with anyone. By the way, you can add a key binding for any bookmark!
+
+## Features and Improvements
+
+### New Features
 
 - Added airline display into pilot popup
+- Added active flight tracking button
+- You can now share a link to atc via ?controller route param
+- You can now change airport default zoom level
+- New icons from DotWallop: A139-189, AN2, AS32-50, ATP, B06, B190, C310, DV20, E145, F2TH, F900, FAxx, IL76, L410, LJ35, PC6T, SF34, SF50, SU95, TEX2, TOR, YK40
 
-# [1.0.0-beta.1]
-
-## Favorite Lists
-
-- Add pilots and controllers to lists - with Friends as predefined list
-- Monitor what are they doing - and identify them on maps
-- Add comments or custom names to each user in a list
-- Filter by them - coming soon!
-
-## Other changes
-
-- Slight redesign of featured airports
-- Tabs are now pinned in every overlay you open
-- Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
-- Supervisors online count will now show more precise data
-- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it?
-- Removed search button from non-homepage on mobile version. I mean, why was it here anyway?
-- Fixed error when you couldn't switch fast between airports - nothing happened when you clicked on map
-
-## VATGlasses fixes
-- Added VATGlasses level in footer for PC and tablet
-- Excluded duplicate positions from VatGlasses sector
-- VATGlasses positions popup will now close on moving mouse out of it 
-
-# [1.0.0-alpha.4]
-
-- VATGlasses integration has been added - made by Felix and enabled by default for your flights
-
-# [1.0.0-alpha.3]
+### UI/UX Improvements
 
 - Added basic VatSpy-like theme with no country borders etc. Very traffic effective
 - Sectors borders and Airport Layouts are now drawn on x2 distance from your visible area
 - You can now zoom higher
+- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it?
+- Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
+- Tabs are now pinned in every overlay you open
+- Slight redesign of featured airports
+- METARs and NOTAMs are now auto-expanded
+- Increased width of copy block for easier read
+- Removed map control buttons from mobile version
+- Your aircraft will no longer be auto-tracked if you loaded website with query params
+- Pilots stats in aircraft list will now be colored depending on their hours
+- CTRL+F will now open VATSIM Radar's search box
 
-# [1.0.0-alpha.2]
+### Bug Fixes
 
-- Updated taxiways colors
-- You can now disable Navigraph Layers, as well as disable new gates system, taxiways, runway exits, gate guidance, deicing pads
-
-# [1.0.0-alpha.1.1]
-
-- Fixed some gates missing
-- Fixed too many taxiway labels appearing on map
-
-# [1.0.0-alpha.1]
-
-- Added Airport Layouts for Navigraph Unlimited members - those include taxiways, updated gates, and much more
-  - TODO: settings to disable airport layouts, disable taxiways, fallback to previous gates data, and more based on your feedback
-  - Early Adopters: please test performance, colors decisions, especially for light theme. I'm open to any suggestions - we can change any color you see
-  - Please note: I can NOT add background to taxiways/holding points, I can only move/recolor text, but nothing else, sorry
+- Fixed search window sometimes lagging and taking whole screen height
+- Fixed error when you couldn't switch fast between airports - nothing happened when you clicked on map
+- Removed search button from non-homepage on mobile version. I mean, why was it here anyway?
+- Supervisors online count will now show more precise data
+- Fixed inability to re-select default opacity for OSM/Satellite layers
+- Fixed BECMG active time display
 
 # [0.5.1-1-final]
 
@@ -105,7 +102,7 @@
 
 - Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue may have to reinstall the app
 - Once again fixed USA TRACONs, such as Houston approach, SCT_APP, CHI_X_APP, PCT_APP. I'm really sorry this kept happening each major update folks
-- New icons from DotWallop: ATR4x, ATR7x, FA10, GL5T, GL7T, GLF5-6, DIMO
+- New aircraft icons from DotWallop
 - Added model matching for C310 (as C172 for now)
 
 ## Features and Improvements
@@ -131,6 +128,7 @@
 # [0.5.0.1-final]
 
 A small hotfix with an issue when you could not save your map preset, if:
+
 - You had once changed visibility of atc labels or airports without changing visibility of aircraft
 - You pressed exclude my location without excluding arrival for airports hide
 - You had the same local preset as the one you import
@@ -187,7 +185,7 @@ Change colors or transparency for almost anything you see on map
 
 ### Events page
 
-Made by Thorsten. 
+Made by Thorsten.
 
 - Basic, beta implementation
 - View valuable info and beautiful banner
