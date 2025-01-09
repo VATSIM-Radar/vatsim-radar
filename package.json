@@ -31,7 +31,6 @@
     "@turf/kinks": "^7.2.0",
     "@turf/line-intersect": "^7.2.0",
     "@turf/meta": "^7.2.0",
-    "@turf/nearest-point-on-line": "^7.2.0",
     "@turf/truncate": "^7.2.0",
     "@turf/union": "^7.2.0",
     "@vite-pwa/nuxt": "^0.10.6",
@@ -66,7 +65,6 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@navigraph/amdb": "^1.1.0",
     "@nuxt/devtools": "^1.7.0",
     "@nuxt/eslint": "^0.7.5",
     "@nuxtjs/stylelint-module": "^5.2.0",
