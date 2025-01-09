@@ -119,7 +119,7 @@ const update: Update = {
             description: `This update marks an important milestone for VATSIM Radar. Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. Well, we do now.`,
             list: [
                 'Airports Layouts: taximap for Navigraph Ultimate members',
-                'Filters: VATSpy and FL24-inspired filters with an ability to share them with anyone',
+                'Filters: VATSpy and FR24-inspired filters with an ability to share them with anyone',
                 'Bookmarks: Bookmark any location or airport - and assign a key to quickly open it',
                 'Friends: track users and view what are they doing, from flying to SUPing',
                 'VATGlasses: a long-awaited integration developed by community member Felix',
