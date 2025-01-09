@@ -68,7 +68,7 @@
   "devDependencies": {
     "@navigraph/amdb": "^1.1.0",
     "@nuxt/devtools": "^1.7.0",
-    "@nuxt/eslint": "^0.7.4",
+    "@nuxt/eslint": "^0.7.5",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^2.12.1",
     "@stylistic/stylelint-plugin": "^3.1.1",
@@ -90,7 +90,7 @@
     "stylelint-config-recommended-vue": "^1.5.0",
     "stylelint-config-standard": "^36.0.1",
     "tsx": "4.16.2",
-    "typescript": "5.7.2",
+    "typescript": "5.7.3",
     "vite-plugin-eslint2": "^5.0.3",
     "vue-tsc": "2.2.0"
   },
