@@ -13,9 +13,10 @@ import {
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
-import type { NavigraphGate, NavigraphLayout, NavigraphLayoutType, NavigraphRunway } from '~/types/data/navigraph';
+import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
 import { $fetch } from 'ofetch';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
+import type { AmdbLayerName, AmdbResponseStructure } from '@navigraph/amdb';
 
 function base64URLEncode(str: Buffer) {
     return str
@@ -273,12 +274,12 @@ export async function getNavigraphGates({ user, icao, event }: {
 
 export async function getNavigraphLayout({
     icao,
-    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
-    include = [...supportedNavigraphLayouts, 'parkingstandlocation'],
+    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'parkingstandlocation', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
+    include = supportedNavigraphLayouts, // Note that when exclude is provided, the include property will do nothing
 }: {
     icao: string;
-    exclude?: NavigraphLayoutType[];
-    include?: NavigraphLayoutType[];
+    exclude?: AmdbLayerName[];
+    include?: AmdbLayerName[];
 }) {
     await checkNavigraphToken();
     const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
@@ -287,7 +288,7 @@ export async function getNavigraphLayout({
     if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
     else if (include.length) url.searchParams.set('include', include.join(','));
 
-    return $fetch<NavigraphLayout>(url.toString(), {
+    return $fetch<Partial<AmdbResponseStructure>>(url.toString(), {
         headers: {
             Authorization: `Bearer ${ navigraphAccessKey.token }`,
         },

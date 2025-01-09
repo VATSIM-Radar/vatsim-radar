@@ -32,7 +32,6 @@ import type {
     NavigraphAirportData,
     NavigraphGate,
     NavigraphLayout,
-    NavigraphLayoutType,
     NavigraphRunway,
 } from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
@@ -52,6 +51,7 @@ import type { FeatureLike } from 'ol/Feature';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { airportLayoutStyles } from '~/composables/airport-layout';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -260,7 +260,7 @@ watch(map, val => {
             imageRatio: 2,
             minZoom: 12,
             style: function(feature) {
-                const type = feature.getProperties().type as NavigraphLayoutType;
+                const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
                 if (typeof style === 'function') return style(feature);
@@ -288,7 +288,7 @@ watch(map, val => {
             imageRatio: 2,
             minZoom: 15,
             style: function(feature) {
-                const type = feature.getProperties().type as NavigraphLayoutType;
+                const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
                 if (typeof style === 'function') return style(feature);
@@ -314,7 +314,7 @@ watch(map, val => {
                 type: 'airport-layer',
             },
             style: function(feature) {
-                const type = feature.getProperties().type as NavigraphLayoutType;
+                const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
                 if (typeof style === 'function') return style(feature);
