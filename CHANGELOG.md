@@ -1,5 +1,23 @@
 # Changelog
 
+# [1.0.0-rc.1]
+
+- Added Bookmarks functionality
+- Added update popup
+
+# [1.0.0-beta.6]
+
+- You can now save, export and share filters presets
+- Fixed BECMG active time display
+- You can now change airport default zoom level
+- CTRL+F will now open VATSIM Radar's search box
+- You can now share a link to atc via ?controller route param
+- Pilots stats in aircraft list will now be colored depending on their hours
+- Your aircraft will no longer be auto-tracked if you loaded website with query params
+- Fixed inability to re-select default opacity for OSM/Satellite layers
+- Removed map control buttons from mobile version
+- Added active flight tracking button
+
 # [1.0.0-beta.5]
 
 - VG runways will not show for airport you already departed from in pilot popup
@@ -70,7 +88,7 @@
 
 # [1.0.0-alpha.1]
 
-- Added Airport Layouts for Navigraph Ultimate members - those include taxiways, updated gates, and much more
+- Added Airport Layouts for Navigraph Unlimited members - those include taxiways, updated gates, and much more
   - TODO: settings to disable airport layouts, disable taxiways, fallback to previous gates data, and more based on your feedback
   - Early Adopters: please test performance, colors decisions, especially for light theme. I'm open to any suggestions - we can change any color you see
   - Please note: I can NOT add background to taxiways/holding points, I can only move/recolor text, but nothing else, sorry

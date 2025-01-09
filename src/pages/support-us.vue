@@ -210,11 +210,11 @@ const features: Feature[] = [
         align-items: flex-start;
 
         padding: 48px;
+        border-radius: 8px;
 
         color: $lightgray125;
 
         background: url("@/assets/images/support-us-bg.png") center / cover;
-        border-radius: 8px;
 
         &--light {
             background-image: url("@/assets/images/support-us-bg-light.png");
@@ -376,12 +376,12 @@ const features: Feature[] = [
 
         &_item {
             padding: 16px;
+            border-radius: 8px;
 
             font-size: 15px;
             font-weight: 600;
 
             background: $darkgray900;
-            border-radius: 8px;
 
             @include mobileOnly {
                 font-size: 13px;
@@ -414,7 +414,6 @@ const features: Feature[] = [
 
                 margin-bottom: 16px;
                 padding-bottom: 16px;
-
                 border-bottom: 1px solid $darkgray850;
 
                 & .bubble {

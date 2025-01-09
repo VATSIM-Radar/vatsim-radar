@@ -19,7 +19,7 @@
                 disabled: !atcSections.length,
             },
         }"
-        @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
+        @update:modelValue="!$event ? [store.user && pilot.cid === +store.user.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
@@ -522,9 +522,9 @@ onBeforeUnmount(() => {
 
             width: 8px;
             height: 8px;
+            border-radius: 100%;
 
             background: var(--status-color);
-            border-radius: 100%;
 
             &:not(&--offline) {
                 @keyframes status {
@@ -553,9 +553,9 @@ onBeforeUnmount(() => {
 
                     width: 12px;
                     height: 12px;
+                    border-radius: 100%;
 
                     background: var(--status-color);
-                    border-radius: 100%;
 
                     animation: status 1.4s alternate-reverse infinite;
                 }
@@ -579,9 +579,9 @@ onBeforeUnmount(() => {
 
                 width: var(--percent);
                 height: 56px;
+                border-radius: 8px 0 0 8px;
 
                 background: $darkgray900;
-                border-radius: 8px 0 0 8px;
             }
         }
     }

@@ -37,8 +37,8 @@ defineProps({
 
     &_info {
         padding: 2px 4px;
-        background: $darkgray950;
         border-radius: 4px;
+        background: $darkgray950;
     }
 }
 </style>

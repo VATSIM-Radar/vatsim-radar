@@ -11,22 +11,30 @@
         <common-block-title>
             General
         </common-block-title>
-        <common-toggle
-            :model-value="!!store.mapSettings.heatmapLayer"
-            @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
-        >
-            Traffic Heatmap
-        </common-toggle>
-        <common-toggle
-            :model-value="!!store.mapSettings.highlightEmergency"
-            @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
-        >
-            Highlight Emergency Aircraft
-
-            <template #description>
-                Aircraft squawking 7700 and 7600
+        <map-filter-columns>
+            <template #col1>
+                <common-toggle
+                    :model-value="!!store.mapSettings.highlightEmergency"
+                    @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
+                >
+                    Highlight Emergencies
+                </common-toggle>
             </template>
-        </common-toggle>
+            <template #col2>
+                <common-toggle
+                    :model-value="!!store.mapSettings.heatmapLayer"
+                    @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
+                >
+                    Traffic Heatmap
+                </common-toggle>
+            </template>
+        </map-filter-columns>
+        <common-notification
+            cookie-name="settings-emergency"
+            type="info"
+        >
+            Emergencies are aircraft squawking 7700 and 7600
+        </common-notification>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Aircraft scale
@@ -38,6 +46,18 @@
                 placeholder="Choose Scale"
                 width="100%"
                 @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
+            />
+        </div>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Airport default zoom level
+            </div>
+            <common-select
+                :items="zoomOptions"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.defaultAirportZoomLevel ?? 14"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
             />
         </div>
 
@@ -189,6 +209,8 @@ import { backupMapSettings } from '~/composables/settings';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
+import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
 
@@ -237,7 +259,7 @@ const horizontalSelectOptions = Object.entries(horizontalOptions).map(([key, val
     value: key,
 } satisfies SelectItem));
 
-const scaleOptions = computed<SelectItem[]>(() => {
+const scaleOptions = (() => {
     const options: SelectItem[] = [];
 
     for (let i = 0.5; i <= 1.51; i += 0.05) {
@@ -248,5 +270,17 @@ const scaleOptions = computed<SelectItem[]>(() => {
     }
 
     return options;
-});
+})();
+
+const zoomOptions = (() => {
+    const options: SelectItem[] = [];
+
+    for (let i = 17; i >= 12; i -= 0.5) {
+        options.unshift({
+            value: i,
+        });
+    }
+
+    return options;
+})();
 </script>

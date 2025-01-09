@@ -53,8 +53,6 @@ const checked = defineModel({ type: Boolean, required: true });
 
         width: 16px;
         height: 16px;
-
-
         border: 1px solid $lightgray100;
         border-radius: 4px;
 
@@ -69,8 +67,8 @@ const checked = defineModel({ type: Boolean, required: true });
 
     &--checked .checkbox {
         &_icon {
-            background: $primary500;
             border-color: $primary500;
+            background: $primary500;
 
             svg {
                 transform: scale(1);

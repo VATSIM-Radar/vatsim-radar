@@ -1,6 +1,6 @@
 import type { FetchError } from 'ofetch';
 
-export function isArray(val: unknown) {
+export function isArray(val: unknown): val is unknown[] {
     return Array.isArray(val);
 }
 
@@ -15,6 +15,9 @@ export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},(
 export const MAX_MAP_PRESETS = 5;
 export const MAX_USER_LISTS = 5;
 export const MAX_LISTS_PILOTS = 50;
+export const MAX_FILTERS = 5;
+export const MAX_BOOKMARKS = 20;
+export const MAX_FILTER_ARRAY_VALUE = 30;
 
 export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;
@@ -65,4 +68,12 @@ export function parseFilterAltitude(altitude: string): FilterAltitudeConfig[] {
     }
 
     return config;
+}
+
+export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
+    if (typeof val !== 'number' || Number.isNaN(val)) return false;
+
+    const split = val.toString().split('.')[1];
+    if (!split || split.length <= allowedAfterDot) return true;
+    return false;
 }

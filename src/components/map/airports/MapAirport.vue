@@ -786,12 +786,12 @@ onBeforeUnmount(() => {
     flex-direction: column;
 
     padding: 3px;
+    border-radius: 4px;
 
     font-size: 10px;
     text-align: center;
 
     background: varToRgba('darkgray800', 0.5);
-    border-radius: 4px;
 
     &_title, &_facilities {
         user-select: none;
@@ -867,8 +867,8 @@ onBeforeUnmount(() => {
     &_self {
         width: 4px;
         height: 4px;
-        background: var(--color);
         border-radius: 2px;
+        background: var(--color);
     }
 }
 </style>

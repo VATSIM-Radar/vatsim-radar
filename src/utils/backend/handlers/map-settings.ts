@@ -2,12 +2,16 @@ import type { H3Event } from 'h3';
 import { findUserByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
-import { colorsList } from '~/utils/backend/styles';
-import { hexColorRegex, isObject, MAX_MAP_PRESETS } from '~/utils/shared';
+import { isObject, isNumber, MAX_MAP_PRESETS } from '~/utils/shared';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
-import { UserPresetType } from '@prisma/client';
 import type { UserPreset } from '@prisma/client';
+import { UserPresetType } from '@prisma/client';
+import {
+    validateColor,
+    validateRandomObjectKeys,
+    validateTransparency,
+} from '~/utils/backend/handlers/index';
 
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
@@ -17,34 +21,6 @@ const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCo
 const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
 const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
 const navigraphKeys: Array<keyof IUserMapSettings['navigraphLayers']> = ['disable', 'gatesFallback', 'hideTaxiways', 'hideGateGuidance', 'hideRunwayExit', 'hideDeicing'];
-
-const colors = Object.keys(colorsList);
-
-function validateTransparency(transparency: unknown) {
-    if (typeof transparency !== 'number' || transparency > 1 || transparency < 0) return false;
-    return Number(transparency.toFixed(2));
-}
-
-export function validateColor(color: unknown, asString = false): boolean {
-    if (!isObject(color)) {
-        if (asString && typeof color === 'string') {
-            if (!hexColorRegex.test(color) && !colors.includes(color)) return false;
-            return true;
-        }
-
-        return false;
-    }
-
-    if (typeof color.color !== 'string' || (!hexColorRegex.test(color.color) && !colors.includes(color.color))) return false;
-
-    if ('transparency' in color) {
-        const transparency = validateTransparency(color.transparency);
-        if (transparency !== false) color.transparency = transparency;
-        else return false;
-    }
-
-    return true;
-}
 
 const statuses = Object.keys({
     default: true,
@@ -91,14 +67,6 @@ function validateTheme(val: unknown): boolean {
 
             if (!validateColor(value)) return false;
         }
-    }
-
-    return true;
-}
-
-export function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]): boolean {
-    for (const key in object) {
-        if (!allowedKeys.includes(key)) return false;
     }
 
     return true;
@@ -165,7 +133,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     aircraftScale: val => {
-        return typeof val === 'number' && val > 0 && val < 5;
+        return isNumber(val, 1) && val > 0 && val < 5;
     },
     airportsMode: val => {
         return typeof val === 'string' && airportsModeKeys.includes(val as any);
@@ -215,6 +183,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    defaultAirportZoomLevel: val => {
+        return isNumber(val) && val > 0 && val < 50;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -256,6 +227,7 @@ export interface IUserMapSettings {
         pilotsInfo?: boolean;
         atcInfo?: boolean;
     };
+    defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;
     vatglasses: {

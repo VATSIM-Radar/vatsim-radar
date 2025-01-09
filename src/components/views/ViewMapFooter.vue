@@ -35,7 +35,7 @@
             </div>
 
             <div
-                v-if="store.friends.length"
+                v-if="store.friends.length || store.bookmarks.length"
                 class="map-footer_left_section __from-tablet"
             >
                 <common-button
@@ -55,13 +55,24 @@
                 <common-control-block
                     v-model="store.menuFriendsOpen"
                     center-by="start"
+                    max-height="360px"
                     width="480px"
                 >
                     <template #title>
-                        Favorite users online
+                        <div class="map-footer__favorite">
+                            <span>Favorite</span>
+
+                            <common-button
+                                size="S"
+                                type="secondary"
+                                @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
+                            >
+                                Manage friends
+                            </common-button>
+                        </div>
                     </template>
 
-                    <view-user-list :users="store.friends"/>
+                    <view-favorite/>
                 </common-control-block>
             </div>
 
@@ -144,7 +155,7 @@
                 Better data for gates and runways
             </li>
             <li>
-                Airport Layouts (Navigraph Ultimate only)
+                Airport Layouts (Navigraph Unlimited only)
             </li>
             <li>
                 Airways/waypoints AIRAC upgrade (coming soon)
@@ -212,7 +223,7 @@ import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
-import ViewUserList from '~/components/views/ViewUserList.vue';
+import ViewFavorite from '~/components/views/ViewFavorite.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -267,7 +278,6 @@ onMounted(() => {
                     align-self: center;
 
                     height: 24px;
-
                     border-right: 1px solid varToRgba('lightgray150', 0.1);
                 }
             }
@@ -277,8 +287,8 @@ onMounted(() => {
     &__connections {
         display: flex;
         padding: 8px 12px;
-        background: $darkgray950;
         border-radius: 8px;
+        background: $darkgray950;
 
         span {
             font-weight: 600;
@@ -319,11 +329,11 @@ onMounted(() => {
 
         &_date {
             padding: 8px 16px;
+            border-radius: 8px;
 
             font-weight: 300;
 
             background: $darkgray950;
-            border-radius: 8px;
 
             transition: 0.3s;
 
@@ -338,6 +348,12 @@ onMounted(() => {
         color: $lightgray150;
         text-decoration-skip-ink: none;
         opacity: 0.5;
+    }
+
+    &__favorite {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 }
 </style>

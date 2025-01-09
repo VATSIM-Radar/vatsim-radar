@@ -118,14 +118,14 @@ watch([expanded, textarea], ([val]) => {
         scrollbar-gutter: stable;
 
         padding: 8px;
+        border: none;
+        border-radius: 4px;
 
         font-size: 11px;
         color: $lightgray150;
 
         appearance: none;
         background: $darkgray875;
-        border: none;
-        border-radius: 4px;
         outline: none;
         box-shadow: none;
     }

@@ -33,6 +33,7 @@ defineSlots<{ default: () => any }>();
 
     min-width: 24px;
     padding: 2px 4px;
+    border-radius: 4px;
 
     font-family: $defaultFont;
     font-size: 11px;
@@ -42,7 +43,6 @@ defineSlots<{ default: () => any }>();
     text-align: center;
 
     background: $primary500;
-    border-radius: 4px;
 
     &--size-M {
         padding: 4px 8px;
@@ -55,9 +55,9 @@ defineSlots<{ default: () => any }>();
 
     &--type-primary-flat {
         padding: 0;
+        border-radius: 0;
         color: $primary500;
         background: transparent;
-        border-radius: 0;
     }
 }
 </style>
