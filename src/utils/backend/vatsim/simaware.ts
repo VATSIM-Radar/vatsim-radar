@@ -5,7 +5,7 @@ import { $fetch } from 'ofetch';
 import type { MultiPolygon, Polygon, Position } from 'geojson';
 
 const revisions: Record<string, number> = {
-    'v1.1.25': 2,
+    'Release v1.1.32': 1,
 };
 
 export async function updateSimAware() {

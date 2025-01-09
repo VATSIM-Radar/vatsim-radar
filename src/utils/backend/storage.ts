@@ -203,7 +203,7 @@ export function getRadarStorage() {
 export function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
-    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data;
+    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data && !!getRadarStorage().simaware.version;
 }
 
 export function getDataVersions(): VatDataVersions {
