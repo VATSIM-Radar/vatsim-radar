@@ -195,7 +195,7 @@ if (!store.user?.hasCharts) {
 }
 
 if (!store.user?.hasFms && store.user) {
-    update.features[1].list!.push('<a class="navigraph" href="http://localhost:8080/api/auth/navigraph/redirect" target="_blank"> Connect Navigraph</a>');
+    update.features[1].list!.push('<a class="navigraph" href="/api/auth/navigraph/redirect" target="_blank"> Connect Navigraph</a>');
 }
 
 const shownFeatureIndex = ref(0);
