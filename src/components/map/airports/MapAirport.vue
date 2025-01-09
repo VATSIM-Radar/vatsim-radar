@@ -127,7 +127,7 @@ import { fromCircle } from 'ol/geom/Polygon';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
-import type { NavigraphAirportData, NavigraphLayoutType } from '~/types/data/navigraph';
+import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { useMapStore } from '~/store/map';
 import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
@@ -142,6 +142,7 @@ import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 const props = defineProps({
     airport: {
@@ -674,7 +675,7 @@ onMounted(async () => {
         }
 
         for (const [_key, value] of Object.entries(val)) {
-            const key = _key as NavigraphLayoutType;
+            const key = _key as AmdbLayerName;
             if (!supportedLayouts.value.includes(key)) continue;
 
             const features = geojson.readFeatures(value, {

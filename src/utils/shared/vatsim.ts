@@ -1,7 +1,8 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import type { NavigraphGate, NavigraphLayoutType } from '~/types/data/navigraph';
+import type { NavigraphGate } from '~/types/data/navigraph';
 import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot): Coordinate {
     let lonAdjustment = 0;
@@ -116,7 +117,7 @@ export function getTraconSuffix(tracon: GeoJSONFeature): string | null {
     return null;
 }
 
-export const supportedNavigraphLayouts: NavigraphLayoutType[] = [
+export const supportedNavigraphLayouts: AmdbLayerName[] = [
     'parkingstandarea',
     'apronelement',
     'arrestinggearlocation',
