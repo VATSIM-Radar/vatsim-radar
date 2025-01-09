@@ -25,10 +25,10 @@ spec:
           resources:
             requests:
               cpu: 600m
-              memory: 300Mi
+              memory: 600Mi
             limits:
               cpu: 950m
-              memory: 950Mi
+              memory: 2Gi
           readinessProbe:
             tcpSocket:
               port: 3000
@@ -40,7 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium
+        doks.digitalocean.com/node-pool: premium-2
 ---
 apiVersion: apps/v1
 kind: Deployment
