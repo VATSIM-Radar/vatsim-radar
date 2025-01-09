@@ -86,10 +86,10 @@ const model = defineModel({ type: String, default: null });
         width: 100%;
         height: v-bind(height);
         padding: 0 16px;
-
-        background: $darkgray900;
         border: 2px solid transparent;
         border-radius: 8px;
+
+        background: $darkgray900;
 
         transition: 0.3s;
 
@@ -113,6 +113,7 @@ const model = defineModel({ type: String, default: null });
         input {
             width: 100%;
             padding: 12px 0;
+            border: none;
 
             font-family: $defaultFont;
             font-size: 13px;
@@ -121,7 +122,6 @@ const model = defineModel({ type: String, default: null });
 
             appearance: none;
             background: none;
-            border: none;
             outline: none;
             box-shadow: none;
 

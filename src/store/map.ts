@@ -71,6 +71,7 @@ export const useMapStore = defineStore('map', {
         mapCursorPointerTrigger: false as false | number,
         overlays: [] as StoreOverlay[],
         openingOverlay: false,
+        closedOwnOverlay: false,
 
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],

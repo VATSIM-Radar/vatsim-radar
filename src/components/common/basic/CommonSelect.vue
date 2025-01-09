@@ -198,12 +198,12 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         width: 100%;
         height: 40px;
         padding: 0 16px;
+        border: 2px solid $darkgray950;
+        border-radius: 8px;
 
         font-weight: 600;
 
         background: $darkgray900;
-        border: 2px solid $darkgray950;
-        border-radius: 8px;
 
         transition: 0.3s ease-in-out;
     }
@@ -230,11 +230,11 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         width: 100%;
         max-height: v-bind(maxDropdownHeight);
         padding: 8px;
-
-        background: $darkgray900;
         border: 2px solid $darkgray950;
         border-top-color: $darkgray900 !important;
         border-radius: 0 0 8px 8px;
+
+        background: $darkgray900;
 
         &--appear {
             &-enter-active,

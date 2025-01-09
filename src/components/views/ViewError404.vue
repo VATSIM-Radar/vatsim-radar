@@ -95,13 +95,12 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
         z-index: 1;
 
         padding: 4px 104px;
+        border: 1px solid $warning500;
+        border-radius: 1px;
 
         font-size: 24px;
         text-transform: uppercase;
         white-space: nowrap;
-
-        border: 1px solid $warning500;
-        border-radius: 1px;
         @include mobileOnly {
             width: 100%;
             margin-bottom: 10vh;

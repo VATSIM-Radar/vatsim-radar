@@ -235,6 +235,8 @@ onBeforeUnmount(() => {
         z-index: 10;
 
         padding: 4px;
+        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
+        border-radius: 4px;
 
         font-size: 11px;
         font-weight: 700;
@@ -242,8 +244,6 @@ onBeforeUnmount(() => {
         text-align: center;
 
         background: var(--bg, $darkgray850);
-        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
-        border-radius: 4px;
 
         &_sub {
             color: rgba(var(--text-raw, var(--lightgray150)), 0.5);
@@ -251,9 +251,9 @@ onBeforeUnmount(() => {
     }
 
     &--hovered .sector-atc_name {
+        border-color: varToRgba('lightgray150', 0.1);
         color: $lightgray100Orig;
         background: $primary500;
-        border-color: varToRgba('lightgray150', 0.1);
 
         &_sub {
             color: $lightgray200Orig;

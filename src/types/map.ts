@@ -54,6 +54,7 @@ interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
     vatglassesLevel: number;
+    featuredDefaultBookmarks: boolean;
 
     filters: {
         opened?: boolean;

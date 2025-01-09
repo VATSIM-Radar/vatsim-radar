@@ -149,6 +149,8 @@ const getAttrs = computed(() => {
     width: var(--button-width);
     min-height: 40px;
     padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
 
     font-family: $defaultFont;
     font-size: 13px;
@@ -159,8 +161,6 @@ const getAttrs = computed(() => {
 
     appearance: none;
     background: var(--primary-color);
-    border: none;
-    border-radius: 8px;
     outline: none;
     box-shadow: none;
 
@@ -262,6 +262,7 @@ const getAttrs = computed(() => {
         height: auto;
         min-height: auto;
         padding: 0;
+        border-radius: 0;
 
         font-size: 10px;
         color: var(--link-color);
@@ -269,7 +270,6 @@ const getAttrs = computed(() => {
         text-decoration: underline;
 
         background: transparent !important;
-        border-radius: 0;
 
         @include hover {
             &:hover {

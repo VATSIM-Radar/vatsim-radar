@@ -188,7 +188,7 @@
                 </div>
                 <div class="settings__description">
                     Users with linked Navigraph and Unlimited/Data subscription receive latest AIRAC for
-                    gates and runways. Navigraph Ultimate members also get Airport Layouts feature.
+                    gates and runways. Navigraph Unlimited members also get Airport Layouts feature.
                 </div>
             </div>
         </template>

@@ -5,6 +5,7 @@ import type { ShallowRef } from 'vue';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useStore } from '~/store';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -114,6 +115,7 @@ export function findAtcAirport(atc: VatsimShortenedController) {
 
 export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
+    const store = useStore();
     const mapStore = useMapStore();
     const view = map?.getView();
     if (!airport) return;
@@ -123,7 +125,7 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
 
     view?.animate({
         center: [airport.lon, airport.lat],
-        zoom: zoom ?? 14,
+        zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
     });
 }
 

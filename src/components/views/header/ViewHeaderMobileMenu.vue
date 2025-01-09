@@ -145,9 +145,9 @@ const counters = computed(() => ([
     width: calc(100% - 14px);
     height: calc(100% - 56px);
     padding: 16px;
+    border-radius: 16px 16px 0 0;
 
     background: $darkgray950;
-    border-radius: 16px 16px 0 0;
 
     &__flex-start {
         align-self: flex-start;
@@ -182,9 +182,9 @@ const counters = computed(() => ([
             justify-content: space-between;
 
             padding: 8px;
+            border-radius: 8px;
 
             background: $darkgray900;
-            border-radius: 8px;
 
             @include tablet {
                 padding: 12px;

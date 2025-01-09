@@ -70,9 +70,9 @@ const getUrl = computed(() => {
         width: 100%;
         height: 70dvh;
         margin-top: 16px;
+        border: none;
 
         appearance: none;
-        border: none;
     }
 }
 </style>

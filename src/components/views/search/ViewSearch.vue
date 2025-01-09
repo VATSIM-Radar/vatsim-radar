@@ -6,6 +6,7 @@
     >
         <div class="search_container">
             <common-input-text
+                ref="input"
                 v-model="search"
                 class="search_input"
                 height="40px"
@@ -373,6 +374,24 @@ useClickOutside({
 watch(() => mapStore.overlays.length, () => {
     store.searchActive = false;
 });
+
+const input = useTemplateRef('input');
+
+onMounted(() => {
+    async function handleClick(event: KeyboardEvent) {
+        if (event.ctrlKey && event.code === 'KeyF') {
+            event.preventDefault();
+            store.searchActive = true;
+            await nextTick();
+
+            input.value?.$el.querySelector('input')?.focus();
+        }
+    }
+
+    document.addEventListener('keydown', handleClick);
+
+    onBeforeUnmount(() => document.removeEventListener('keydown', handleClick));
+});
 </script>
 
 <style scoped lang="scss">
@@ -455,14 +474,14 @@ watch(() => mapStore.overlays.length, () => {
 
             height:14px;
             padding: 0 4px;
+            border: 1px solid $darkgray950;
+            border-radius: 4px;
 
             font-size: 12px;
             font-weight: 600;
             line-height: 100%;
 
             background: $primary500;
-            border: 1px solid $darkgray950;
-            border-radius: 4px;
         }
     }
 
@@ -483,10 +502,10 @@ watch(() => mapStore.overlays.length, () => {
         min-height: 320px;
         max-height: 50vh;
         padding: 16px;
-
-        background: $darkgray1000;
         border-bottom-right-radius: 8px;
         border-bottom-left-radius: 8px;
+
+        background: $darkgray1000;
 
         @include mobile {
             position: relative;
@@ -494,7 +513,6 @@ watch(() => mapStore.overlays.length, () => {
 
             min-height: unset;
             max-height: unset;
-
             border-radius: 8px;
         }
 
@@ -538,8 +556,8 @@ watch(() => mapStore.overlays.length, () => {
             &_status {
                 width: 8px;
                 height: 8px;
-                background: var(--color);
                 border-radius: 100%;
+                background: var(--color);
             }
         }
     }

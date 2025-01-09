@@ -194,9 +194,9 @@ const selcal = computed<string | null>(() => {
 
                     width: 100%;
                     height: 2px;
+                    border-radius: 4px;
 
                     background: $darkgray850;
-                    border-radius: 4px;
                 }
 
                 &::after {

@@ -168,6 +168,24 @@
         >
             <airport-notams/>
         </template>
+        <template #bookmark>
+            <div class="__info-sections">
+                <common-input-text v-model="bookmarkName">
+                    Name
+                </common-input-text>
+                <common-bookmark-data
+                    :airport="airport.icao"
+                    :bookmark
+                />
+                <common-button
+                    :disabled="!bookmarkName || store.bookmarks.some(x => x.name.toLowerCase() === bookmarkName.toLowerCase())"
+                    size="S"
+                    @click="createBookmark"
+                >
+                    Save
+                </common-button>
+            </div>
+        </template>
         <template
             v-if="vatInfo"
             #airport
@@ -238,7 +256,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
-import { showAirportOnMap, useDataStore } from '#imports';
+import { sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
@@ -266,6 +284,9 @@ import type { TooltipCloseMethod } from '~/components/common/basic/CommonTooltip
 import type { Map } from 'ol';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
+import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
+import CommonBookmarkData from '~/components/common/vatsim/CommonBookmarkData.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 const props = defineProps({
     overlay: {
@@ -300,6 +321,13 @@ const showOnMap = () => {
 
 const aircraftCount = computed(() => Object.values(vatAirport.value?.aircraft ?? {}).reduce((acc, items) => acc + items.length, 0));
 
+const bookmarkName = ref('');
+const bookmark = ref<UserBookmark>({ zoom: 14 });
+const createBookmark = async () => {
+    await sendUserPreset(bookmarkName.value, bookmark.value, 'bookmarks', createBookmark);
+    await store.fetchBookmarks();
+};
+
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
         aircraft: {
@@ -317,6 +345,16 @@ const tabs = computed<InfoPopupContent>(() => {
             sections: [],
         },
     };
+
+    if (!store.bookmarks.some(x => x.json.icao === airport.value!.icao) && store.user) {
+        list.info.sections.push({
+            key: 'bookmark',
+            title: 'Bookmark',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+        });
+    }
 
     if (vatInfo.value) {
         list.info.sections.push({
@@ -479,9 +517,9 @@ onMounted(() => {
                 right: 0;
 
                 padding: 4px;
+                border-radius: 4px;
 
                 background: $darkgray1000;
-                border-radius: 4px;
             }
         }
 
@@ -518,9 +556,9 @@ onMounted(() => {
 
         &_title {
             padding-top: 8px;
+            border-top: 1px solid varToRgba('lightgray150', 0.15);
             font-size: 13px;
             font-weight: 600;
-            border-top: 1px solid varToRgba('lightgray150', 0.15);
         }
     }
 

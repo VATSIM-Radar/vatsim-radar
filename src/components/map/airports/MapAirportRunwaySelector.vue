@@ -87,10 +87,10 @@ const getRunways = computed<Runway[]>(() => {
 
         min-width: 64px;
         padding: 4px 8px;
-
-        background: var(--background);
         border: 1px solid transparent;
         border-radius: 8px;
+
+        background: var(--background);
 
         transition: 0.3s;
 
