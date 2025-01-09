@@ -320,7 +320,7 @@ onMounted(() => {
         align-items: center;
 
         &_vg {
-            width: 250px;
+            width: 280px;
 
             :deep(.input) {
                 height: 32px !important;

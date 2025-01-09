@@ -10,6 +10,8 @@
             <input
                 v-if="!disabledLevel && store.isPC"
                 v-model="vatglassesLevel"
+                class="range"
+                :class="{ 'range--wide': hideIfDisabled }"
                 max="430"
                 min="0"
                 step="10"
@@ -60,3 +62,9 @@ const vatglassesLevel = computed({
 const vatglassesActive = isVatGlassesActive();
 const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && mapStore.overlays.some(x => x.key === store.user?.cid));
 </script>
+
+<style lang="scss" scoped>
+.range--wide {
+    width: 80px;
+}
+</style>
