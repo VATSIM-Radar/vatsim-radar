@@ -10,12 +10,12 @@ Well, we do now.
 
 ## Highlights
 
-- VATGlasses integration: developed by community member Felix
-- Airports Layouts: taxiway maps for Navigraph Unlimited subscribers
-- Friends: favorite your friends and create different lists for them
-- Filters: configure what's displayed on the map to your liking
-- Bookmarks: bookmark favorite locations or airports
-- Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as bug fixes
+- 👓 VATGlasses integration: developed by community member Felix
+- 🛣️ Airports Layouts: taxiway maps for Navigraph Unlimited subscribers
+- ⭐ Friends: favorite your friends and create different lists for them
+- 🗺️ Filters: configure what's displayed on the map to your liking
+- 📌 Bookmarks: bookmark favorite locations or airports
+- 🛠️ Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as bug fixes
 
 ### VATGlasses
 
