@@ -22,7 +22,6 @@
   "dependencies": {
     "@influxdata/influxdb-client": "^1.35.0",
     "@influxdata/influxdb-client-apis": "^1.35.0",
-    "@navigraph/amdb": "^1.1.0",
     "@pinia/nuxt": "^0.9.0",
     "@prisma/client": "^6.2.1",
     "@turf/difference": "^7.2.0",
@@ -67,6 +66,7 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@navigraph/amdb": "^1.1.0",
     "@nuxt/devtools": "^1.7.0",
     "@nuxt/eslint": "^0.7.4",
     "@nuxtjs/stylelint-module": "^5.2.0",

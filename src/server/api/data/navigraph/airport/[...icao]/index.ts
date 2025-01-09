@@ -11,7 +11,7 @@ import type { AmdbLayerName, AmdbResponseStructure } from '@navigraph/amdb';
 import type { PartialRecord } from '~/types';
 import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
-import nearestPointOnLine from '@turf/nearest-point-on-line'
+import nearestPointOnLine from '@turf/nearest-point-on-line';
 import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
@@ -70,30 +70,30 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     }
 
     else {
-        gates = layout.parkingstandarea.features.flatMap((area) => {
-            const { centroid } = (area.properties as unknown as { centroid: Point })
+        gates = layout.parkingstandarea.features.flatMap(area => {
+            const { centroid } = (area.properties as unknown as { centroid: Point });
 
-            const subGates = area.properties.idstd?.split('_')
+            const subGates = area.properties.idstd?.split('_');
 
-            if(!subGates) {
+            if (!subGates) {
                 // TODO: Handle parkingstandareas with a null idstd
 
-                return []
+                return [];
             }
-            
-            // Generate stands for subgates which have associated standguidancelines
-            const guidanceLineGates = subGates.flatMap((ident) => {
-                const applicableStandLines = layout.standguidanceline!.features.filter((line) => line.properties.termref === area.properties.termref && line.properties.idstd?.split('_').includes(ident))
 
-                if(applicableStandLines.length === 0) {
-                    return []
+            // Generate stands for subgates which have associated standguidancelines
+            const guidanceLineGates = subGates.flatMap(ident => {
+                const applicableStandLines = layout.standguidanceline!.features.filter(line => line.properties.termref === area.properties.termref && line.properties.idstd?.split('_').includes(ident));
+
+                if (applicableStandLines.length === 0) {
+                    return [];
                 }
 
-                const geometry = multiLineString(applicableStandLines.map((line) => line.geometry.coordinates))
+                const geometry = multiLineString(applicableStandLines.map(line => line.geometry.coordinates));
 
-                const nearestPoint = nearestPointOnLine(geometry, centroid)
+                const nearestPoint = nearestPointOnLine(geometry, centroid);
 
-                const coords = fromServerLonLat(nearestPoint.geometry.coordinates)
+                const coords = fromServerLonLat(nearestPoint.geometry.coordinates);
 
                 return [{
                     gate_identifier: `${ ident }:${ area.properties.termref }`,
@@ -101,24 +101,24 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                     gate_latitude: coords[1],
                     name: ident,
                     airport_identifier: area.properties.idarpt,
-                }]
-            })
+                }];
+            });
 
-            const remainingGates = subGates.filter((ident) => !guidanceLineGates.find((item) => item.name === ident))
+            const remainingGates = subGates.filter(ident => !guidanceLineGates.find(item => item.name === ident));
 
-            const coords = fromServerLonLat(centroid.coordinates)
+            const coords = fromServerLonLat(centroid.coordinates);
 
             // For all subGates which have no associated standguidancelines, place a gate at the centroid of the parkingstandarea
-            const centroidGates = remainingGates.map((ident) => ({                                                            
+            const centroidGates = remainingGates.map(ident => ({
                 gate_identifier: `${ ident }:${ area.properties.termref }`,
                 gate_longitude: coords[0],
                 gate_latitude: coords[1],
                 name: ident,
                 airport_identifier: area.properties.idarpt,
-            }))
+            }));
 
-            return [...guidanceLineGates, ...centroidGates]
-        })
+            return [...guidanceLineGates, ...centroidGates];
+        });
 
         const _layout = layout as NavigraphLayout;
 
