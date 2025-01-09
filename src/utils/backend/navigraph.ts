@@ -274,8 +274,8 @@ export async function getNavigraphGates({ user, icao, event }: {
 
 export async function getNavigraphLayout({
     icao,
-    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
-    include = [...supportedNavigraphLayouts, 'parkingstandlocation'],
+    exclude = ['asrnedge', 'asrnnode', 'aerodromereferencepoint', 'parkingstandlocation', 'hotspot', 'paintedcenterline', 'verticalpointstructure', 'water'],
+    include = supportedNavigraphLayouts, // Note that when exclude is provided, the include property will do nothing
 }: {
     icao: string;
     exclude?: AmdbLayerName[];

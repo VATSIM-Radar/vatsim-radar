@@ -7,10 +7,12 @@ import type {
     NavigraphLayout,
     NavigraphRunway,
 } from '~/types/data/navigraph';
-import type { FeatureCollection, Point } from 'geojson';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 import type { AmdbLayerName, AmdbResponseStructure } from '@navigraph/amdb';
 import type { PartialRecord } from '~/types';
+import { multiLineString } from '@turf/helpers';
+import type { Point } from 'geojson';
+import nearestPointOnLine from '@turf/nearest-point-on-line'
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
@@ -51,7 +53,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         layout = await getNavigraphLayout({ icao }).catch(() => undefined);
     }
 
-    if (!dataFromLayout || !isLayout || !layout || !('parkingstandlocation' in layout) || !(layout.parkingstandlocation as FeatureCollection).features.length) {
+    if (!dataFromLayout || !isLayout || !layout || !layout.standguidanceline?.features.length || !layout.parkingstandarea?.features.length) {
         gates = await getNavigraphGates({
             user,
             event,
@@ -66,48 +68,59 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
         if (!gates || !runways) return;
     }
+
     else {
+        gates = layout.parkingstandarea.features.flatMap((area) => {
+            const { centroid } = (area.properties as unknown as { centroid: Point })
+
+            const subGates = area.properties.idstd?.split('_')
+
+            if(!subGates) {
+                // TODO: Handle parkingstandareas with a null idstd
+
+                return []
+            }
+            
+            // Generate stands for subgates which have associated standguidancelines
+            const guidanceLineGates = subGates.flatMap((ident) => {
+                const applicableStandLines = layout.standguidanceline!.features.filter((line) => line.properties.termref === area.properties.termref && line.properties.idstd?.split('_').includes(ident))
+
+                if(applicableStandLines.length === 0) {
+                    return []
+                }
+
+                const geometry = multiLineString(applicableStandLines.map((line) => line.geometry.coordinates))
+
+                const nearestPoint = nearestPointOnLine(geometry, centroid)
+
+                const coords = fromServerLonLat(nearestPoint.geometry.coordinates)
+
+                return [{
+                    gate_identifier: `${ ident }:${ area.properties.termref }`,
+                    gate_longitude: coords[0],
+                    gate_latitude: coords[1],
+                    name: ident,
+                    airport_identifier: area.properties.idarpt,
+                }]
+            })
+
+            const remainingGates = subGates.filter((ident) => !guidanceLineGates.find((item) => item.name === ident))
+
+            const coords = fromServerLonLat(centroid.coordinates)
+
+            // For all subGates which have no associated standguidancelines, place a gate at the centroid of the parkingstandarea
+            const centroidGates = remainingGates.map((ident) => ({                                                            
+                gate_identifier: `${ ident }:${ area.properties.termref }`,
+                gate_longitude: coords[0],
+                gate_latitude: coords[1],
+                name: ident,
+                airport_identifier: area.properties.idarpt,
+            }))
+
+            return [...guidanceLineGates, ...centroidGates]
+        })
+
         const _layout = layout as NavigraphLayout;
-
-        gates = [
-            ..._layout.parkingstandlocation?.features.map(feature => {
-                const coords = fromServerLonLat((feature.geometry as Point).coordinates);
-
-                return {
-                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
-                    gate_longitude: coords[0],
-                    gate_latitude: coords[1],
-                    name: feature.properties!.idstd || feature.properties!.termref,
-                    airport_identifier: feature.properties!.idarpt,
-                };
-            }) ?? [],
-            ..._layout.standguidanceline?.features.filter(x => x.properties?.midpoint && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
-                const coords = fromServerLonLat((feature.properties!.midpoint as Point).coordinates);
-
-                return {
-                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
-                    gate_longitude: coords[0],
-                    gate_latitude: coords[1],
-                    name: feature.properties!.idstd || feature.properties!.termref,
-                    airport_identifier: feature.properties!.idarpt,
-                };
-            }) ?? [],
-            ..._layout.parkingstandarea?.features.filter(x => x.properties?.centroid && x.properties.idstd && !x.properties.idstd.includes('_')).map(feature => {
-                const coords = fromServerLonLat((feature.properties!.centroid as Point).coordinates);
-
-                return {
-                    gate_identifier: `${ feature.properties!.idstd }:${ feature.properties!.termref }`,
-                    gate_longitude: coords[0],
-                    gate_latitude: coords[1],
-                    name: feature.properties!.idstd || feature.properties!.termref,
-                    airport_identifier: feature.properties!.idarpt,
-                };
-            }) ?? [],
-        ];
-
-        gates = gates.filter((x, index) => x.name && !(gates as NavigraphGate[]).some((y, yIndex) => y.gate_identifier === x.gate_identifier && index > yIndex));
-
-        delete layout.parkingstandlocation;
 
         Object.entries(_layout).forEach(([key, value]) => {
             const property = allowedProperties[key as AmdbLayerName];
@@ -130,7 +143,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     return {
         airport: icao,
         runways: runways ?? [],
-        gates: gates as NavigraphGate[],
-        layout: layout as NavigraphLayout,
+        gates,
+        layout: layout ?? undefined,
     };
 });
