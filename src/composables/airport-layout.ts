@@ -1,14 +1,14 @@
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { PartialRecord } from '~/types';
-import type { NavigraphLayoutType } from '~/types/data/navigraph';
 import type { FeatureLike } from 'ol/Feature';
 import { toRadians } from 'ol/math';
 import { useStore } from '~/store';
 import type { Options as StyleOptions } from 'ol/style/Style';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 const taxiwayNameRegex = new RegExp('^((Main TWY)|Main|Route) ', 'i');
 
-export const airportLayoutStyles = (): PartialRecord<NavigraphLayoutType, Style | Style[] | ((feature: FeatureLike) => Style | Style[] | undefined)> => {
+export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Style[] | ((feature: FeatureLike) => Style | Style[] | undefined)> => {
     const theme = useStore().getCurrentTheme;
 
     const themeStyles = {
