@@ -228,7 +228,7 @@ const listsSections = computed<InfoPopupSection[]>(() => {
     })) satisfies InfoPopupSection[] as InfoPopupSection[];
 
     if (sections.length < MAX_USER_LISTS) {
-        sections.unshift({
+        sections.push({
             title: 'New List',
             key: 'new-list',
             collapsible: true,

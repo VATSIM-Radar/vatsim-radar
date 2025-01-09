@@ -186,7 +186,7 @@ onMounted(() => {
 
         event.preventDefault();
         props.bookmark.binding = {
-            code: event.code,
+            code: event.code.replace('Numpad', ''),
             keys: {
                 meta: event.metaKey,
                 alt: event.altKey,

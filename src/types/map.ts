@@ -55,6 +55,7 @@ interface IUserLocalSettings {
     zoom: number;
     vatglassesLevel: number;
     featuredDefaultBookmarks: boolean;
+    skipBookmarkAnimation: boolean;
 
     filters: {
         opened?: boolean;

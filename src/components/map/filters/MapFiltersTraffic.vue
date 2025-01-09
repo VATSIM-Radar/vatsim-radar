@@ -31,6 +31,12 @@
             />
 
             <template v-if="bookmarksTab === 'bookmarks'">
+                <common-toggle
+                    :model-value="!!store.localSettings.skipBookmarkAnimation"
+                    @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
+                >
+                    Disable animation
+                </common-toggle>
                 <map-filters-presets
                     :key="String(bookmarkSaveTick)"
                     disable-actions

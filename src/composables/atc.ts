@@ -113,7 +113,7 @@ export function findAtcAirport(atc: VatsimShortenedController) {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
 }
 
-export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
+export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number, animate = true) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const store = useStore();
     const mapStore = useMapStore();
@@ -123,10 +123,18 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
     await nextTick();
 
-    view?.animate({
-        center: [airport.lon, airport.lat],
-        zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
-    });
+    zoom = zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14;
+
+    if (animate) {
+        view?.animate({
+            center: [airport.lon, airport.lat],
+            zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
+        });
+    }
+    else {
+        view?.setCenter([airport.lon, airport.lat]);
+        view?.setZoom(zoom);
+    }
 }
 
 export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {

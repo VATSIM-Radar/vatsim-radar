@@ -3,65 +3,81 @@
         class="list __info-sections"
         :class="{ 'list--empty': !list.users.length && last }"
     >
-        <common-input-text
-            :model-value="list.name"
-            @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
-            @update:modelValue="list.name = $event"
+        <common-block-title
+            v-if="list.id !== -1"
+            class="list_settings-title"
+            :collapsed="activeListSettings !== list.id"
+            remove-margin
+            @update:collapsed="activeListSettings = !$event ? list.id : 0"
         >
-            Name
-        </common-input-text>
-        <common-button-group v-if="list.id !== -1 && (list.type !== 'FRIENDS' || list.users.length)">
-            <common-button
-                :disabled="list.type === 'FRIENDS'"
-                @click="toDelete = true"
+            Settings
+        </common-block-title>
+
+        <div
+            v-if="list.id === -1 || activeListSettings === list.id"
+            class="__info-sections"
+            :class="{ 'list_settings': list.id !== -1 }"
+        >
+            <common-input-text
+                :model-value="list.name"
+                @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
+                @update:modelValue="list.name = $event"
             >
-                Delete
-            </common-button>
-            <common-button
-                :disabled="!list.users.length"
-                @click="toClear = true"
+                Name
+            </common-input-text>
+            <common-button-group v-if="list.id !== -1 && (list.type !== 'FRIENDS' || list.users.length)">
+                <common-button
+                    :disabled="list.type === 'FRIENDS'"
+                    @click="toDelete = true"
+                >
+                    Delete
+                </common-button>
+                <common-button
+                    :disabled="!list.users.length"
+                    @click="toClear = true"
+                >
+                    Clear
+                </common-button>
+            </common-button-group>
+
+            <common-notification v-if="duplicateName">
+                A list with this name already exists
+            </common-notification>
+
+            <common-color
+                color-only
+                :model-value="{ color: list.color }"
+                @update:modelValue="list.id === -1 ? list.color = $event.color as string : editUserList({ id: list.id, color: $event.color })"
             >
-                Clear
+                Color
+            </common-color>
+
+            <common-toggle
+                :model-value="list.showInMenu"
+                @update:modelValue="list.id === -1 ? list.showInMenu = $event : editUserList({ id: list.id, showInMenu: $event })"
+            >
+                Show in menu
+                <template #description>
+                    Shows online users from this list in menu
+                </template>
+            </common-toggle>
+
+            <common-button
+                v-if="list.id === -1"
+                :disabled="!list.name || duplicateName"
+                @click="emit('add')"
+            >
+                Save
             </common-button>
-        </common-button-group>
 
-        <common-notification v-if="duplicateName">
-            A list with this name already exists
-        </common-notification>
-
-        <common-color
-            color-only
-            :model-value="{ color: list.color }"
-            @update:modelValue="list.id === -1 ? list.color = $event.color as string : editUserList({ id: list.id, color: $event.color })"
-        >
-            Color
-        </common-color>
-
-        <common-toggle
-            :model-value="list.showInMenu"
-            @update:modelValue="list.id === -1 ? list.showInMenu = $event : editUserList({ id: list.id, showInMenu: $event })"
-        >
-            Show in menu
-            <template #description>
-                Shows online users from this list in menu
-            </template>
-        </common-toggle>
-
-        <common-button
-            v-if="list.id === -1"
-            :disabled="!list.name || duplicateName"
-            @click="emit('add')"
-        >
-            Save
-        </common-button>
-
-        <common-button
-            size="S"
-            :type="userAddActive ? 'primary' : 'secondary'"
-            @click="userAddActive = !userAddActive"
-        >
-            Add via CID
-        </common-button>
+            <common-button
+                size="S"
+                :type="userAddActive ? 'primary' : 'secondary'"
+                @click="userAddActive = !userAddActive"
+            >
+                Add via CID
+            </common-button>
+        </div>
 
         <common-notification
             v-if="list.users.length"
@@ -171,6 +187,7 @@ import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import ViewUserList from '~/components/views/ViewUserList.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 const props = defineProps({
     list: {
@@ -192,6 +209,7 @@ const emit = defineEmits({
 const toDelete = ref(false);
 const toClear = ref(false);
 const store = useStore();
+const activeListSettings = ref(0);
 
 const duplicateName = computed(() => {
     return store.lists.some(x => x.id !== props.list.id && x.name.toLowerCase() === props.list.name.toLowerCase());
@@ -225,5 +243,12 @@ watch(() => props.list, val => {
         padding-bottom: 220px;
     }
 
+    &_settings-title {
+        margin-left: 12px;
+    }
+
+    &_settings {
+        padding-left: 12px;
+    }
 }
 </style>
