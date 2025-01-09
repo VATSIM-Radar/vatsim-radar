@@ -1,13 +1,24 @@
 <template>
     <common-info-popup
         v-model="model"
+        v-model:tab="store.settingsPopupTab"
         absolute
         class="settings"
-        :sections="[
-            { title: 'VATSIM Account', key: 'account' },
-            { title: 'Navigraph Account', key: 'navigraph' },
-            { title: 'Preferences', key: 'follow' },
-        ]"
+        max-height="calc(100dvh - 56px - 92px - 20px)"
+        :tabs="{
+            main: {
+                title: 'Settings',
+                sections: [
+                    { title: 'VATSIM Account', key: 'account' },
+                    { title: 'Navigraph Account', key: 'navigraph' },
+                    { title: 'Preferences', key: 'follow' },
+                ],
+            },
+            favorite: {
+                title: 'Favorite Lists',
+                sections: listsSections,
+            },
+        }"
     >
         <template #title>
             Settings
@@ -108,6 +119,38 @@
                 </common-toggle>
             </div>
         </template>
+        <template #tab-favorite>
+            <common-select
+                :items="[
+                    { text: 'Newest first (default)', value: 'newest' },
+                    { text: 'Oldest first', value: 'oldest' },
+                    { text: 'Name (ASC)', value: 'abcAsc' },
+                    { text: 'Name (DESC)', value: 'abcDesc' },
+                    { text: 'CID (ASC)', value: 'cidAsc' },
+                    { text: 'CID (DESC)', value: 'cidDesc' },
+                ]"
+                :model-value="store.user!.settings.favoriteSort ?? null"
+                placeholder="Sort"
+                width="100%"
+                @update:modelValue="saveSort"
+            />
+        </template>
+        <template #new-list>
+            <view-header-list
+                :list="newList"
+                @add="addList"
+            />
+        </template>
+        <template
+            v-for="(list, index) in store.lists"
+            :key="list.id"
+            #[list.id]
+        >
+            <view-header-list
+                :last="index === store.lists.length - 1"
+                :list
+            />
+        </template>
         <template #navigraph>
             <div class="settings__block settings__block--long-gap">
                 <common-button
@@ -144,9 +187,8 @@
                     </common-button>
                 </div>
                 <div class="settings__description">
-                    Users with linked Navigraph and Unlimited/Data subscription will receive latest AIRAC for
-                    gates, waypoints and all
-                    other Navigraph-related stuff
+                    Users with linked Navigraph and Unlimited/Data subscription receive latest AIRAC for
+                    gates and runways. Navigraph Unlimited members also get Airport Layouts feature.
                 </div>
             </div>
         </template>
@@ -155,6 +197,7 @@
 
 <script setup lang="ts">
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
@@ -163,6 +206,10 @@ import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { useStore } from '~/store';
 import { defu } from 'defu';
 import type { UserSettings } from '~/utils/backend/user';
+import ViewHeaderList from '~/components/views/header/ViewHeaderList.vue';
+import type { UserListLive } from '~/utils/backend/handlers/lists';
+import { MAX_USER_LISTS } from '~/utils/shared';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();
@@ -172,6 +219,34 @@ const settings = reactive(defu<UserSettings, [UserSettings]>(store.user?.setting
     autoZoom: false,
 }));
 
+const listsSections = computed<InfoPopupSection[]>(() => {
+    const sections = store.lists.map(x => ({
+        title: x.name,
+        key: x.id.toString(),
+        list: x,
+        collapsible: true,
+    })) satisfies InfoPopupSection[] as InfoPopupSection[];
+
+    if (sections.length < MAX_USER_LISTS) {
+        sections.push({
+            title: 'New List',
+            key: 'new-list',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+        });
+    }
+
+    return sections;
+});
+
+useClickOutside({
+    element: () => document.querySelector('.info-popup'),
+    callback: e => {
+        model.value = false;
+    },
+});
+
 watch(settings, () => {
     $fetch('/api/user/settings', {
         method: 'POST',
@@ -179,6 +254,39 @@ watch(settings, () => {
     });
     store.user!.settings = settings;
 });
+
+const newList = reactive<UserListLive>({
+    id: -1,
+    name: '',
+    type: 'OTHER',
+    color: 'info500',
+    users: [],
+    showInMenu: false,
+});
+
+const saveSort = async (sort: any) => {
+    await $fetch('/api/user/settings', {
+        method: 'POST',
+        body: {
+            ...store.user!.settings,
+            favoriteSort: sort,
+        },
+    });
+
+    store.user!.settings.favoriteSort = sort as UserSettings['favoriteSort'];
+};
+
+async function addList() {
+    await addUserList(newList);
+
+    Object.assign(newList, {
+        id: -1,
+        name: '',
+        type: 'OTHER',
+        color: 'info500',
+        users: [],
+    });
+}
 </script>
 
 <style scoped lang="scss">

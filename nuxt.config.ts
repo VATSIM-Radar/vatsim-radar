@@ -43,10 +43,14 @@ export default defineNuxtConfig({
     devtools: {
         enabled: false,
     },
+    imports: {
+        dirs: ['composables/**'],
+    },
     sourcemap: {
         client: process.env.NODE_ENV === 'development',
         server: true,
     },
+    compatibilityDate: '2024-12-12',
     experimental: {
         appManifest: true,
         asyncContext: true,

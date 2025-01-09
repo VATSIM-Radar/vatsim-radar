@@ -1,7 +1,7 @@
 <template>
     <transition name="mobile-window--item-appear">
         <div
-            v-if="store.featuredAirportsOpen || (overlay && !overlay.collapsed)"
+            v-if="store.featuredAirportsOpen || store.menuFriendsOpen || (overlay && !overlay.collapsed)"
             class="mobile-window"
             :style="{ '--collapsed-height': `${ overlaysHeight }px` }"
         >
@@ -17,6 +17,20 @@
                 </template>
                 <template #content>
                     <map-featured-airports/>
+                </template>
+            </common-info-popup>
+            <common-info-popup
+                v-if="store.menuFriendsOpen"
+                max-height="unset"
+                model-value
+                :sections="[{ key: 'content' }]"
+                @update:modelValue="store.menuFriendsOpen = false"
+            >
+                <template #title>
+                    Favorite
+                </template>
+                <template #content>
+                    <view-favorite/>
                 </template>
             </common-info-popup>
             <map-popup
@@ -91,6 +105,7 @@ import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
+import ViewFavorite from '~/components/views/ViewFavorite.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

@@ -45,11 +45,16 @@
                 v-if="!collapsed"
                 class="info-popup_content"
             >
+                <slot name="prepend"/>
                 <common-tabs
                     v-if="tabs"
                     v-model="activeTab"
                     class="info-popup_content_tabs"
                     :tabs="tabs"
+                />
+                <slot
+                    v-if="activeTab"
+                    :name="`tab-${ activeTab }`"
                 />
                 <div
                     v-for="(section, index) in getSections"
@@ -210,12 +215,12 @@ watch(getSections, sections => {
     max-width: calc(100dvw - 48px);
     max-height: var(--max-height);
     padding: 0 16px 16px;
+    border-radius: 8px;
 
     color: $lightgray150;
     text-align: left;
 
     background: $darkgray1000;
-    border-radius: 8px;
 
     @include mobileOnly {
         width: 100%;
@@ -227,7 +232,7 @@ watch(getSections, sections => {
 
     &_header {
         position: sticky;
-        z-index: 1;
+        z-index: 7;
         top: 0;
 
         display: flex;
@@ -287,8 +292,8 @@ watch(getSections, sections => {
                 &--collapse .info-popup_header_actions_action--collapse_line {
                     width: 16px;
                     height: 2px;
-                    background: currentColor;
                     border-radius: 8px;
+                    background: currentColor;
                 }
             }
         }
@@ -309,17 +314,27 @@ watch(getSections, sections => {
 
         &--collapse {
             &-enter-active, &-leave-active {
-                overflow: hidden;
                 max-height: 100%;
                 transition: 0.5s ease-in-out;
             }
 
             &-enter-from, &-leave-to {
                 max-height: 0;
-                margin-top: 0;
             }
         }
+
+        &_tabs {
+            position: sticky;
+            z-index: 6;
+            top: 56px;
+
+            margin-top: -16px;
+            padding-bottom: 16px;
+
+            background: $darkgray1000;
+        }
     }
+
 
     &__section {
         &--actions {
@@ -327,6 +342,7 @@ watch(getSections, sections => {
             z-index: 5;
             bottom: -16px;
 
+            margin-bottom: -16px;
             padding: 8px 0;
 
             background: $darkgray1000;
@@ -364,8 +380,8 @@ watch(getSections, sections => {
             &_title {
                 margin-left: 8px;
                 padding: 0 4px;
-                font-size: 12px;
                 border-radius: 4px;
+                font-size: 12px;
             }
         }
     }

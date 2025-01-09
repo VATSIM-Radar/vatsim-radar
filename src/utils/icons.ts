@@ -1,6 +1,36 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'yk40'
+    | 'tor'
+    | 'tex2'
+    | 'su95'
+    | 'sf50'
+    | 'sf34'
+    | 'r22'
+    | 'pc6t'
+    | 'lj35'
+    | 'l410'
+    | 'il76'
+    | 'f900'
+    | 'fa8x'
+    | 'fa7x'
+    | 'fa6x'
+    | 'fa50'
+    | 'f2th'
+    | 'e145'
+    | 'dv20'
+    | 'c310'
+    | 'b190'
+    | 'b06'
+    | 'atp'
+    | 'as50'
+    | 'as32'
+    | 'an2'
+    | 'a189'
+    | 'a169'
+    | 'a149'
+    | 'a139'
     | 'at7x'
     | 'at4x'
     | 'dimo'
@@ -164,6 +194,126 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    yk40: {
+        icon: 'yk40',
+        width: getAircraftSizeByCoef(0.42),
+    },
+    tor: {
+        icon: 'tor',
+        width: getAircraftSizeByCoef(0.11),
+    },
+    tex2: {
+        icon: 'tex2',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    su95: {
+        icon: 'su95',
+        width: getAircraftSizeByCoef(0.46),
+    },
+    sf50: {
+        icon: 'sf50',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    sf34: {
+        icon: 'sf34',
+        width: getAircraftSizeByCoef(0.36),
+    },
+    sr22: {
+        icon: 'sr22',
+        width: getAircraftSizeByCoef(0.05),
+    },
+    pc6t: {
+        icon: 'pc6t',
+        width: getAircraftSizeByCoef(0.26),
+    },
+    lj35: {
+        icon: 'lj35',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    l410: {
+        icon: 'l410',
+        width: getAircraftSizeByCoef(0.33),
+    },
+    il76: {
+        icon: 'il76',
+        width: getAircraftSizeByCoef(0.84),
+    },
+    f900: {
+        icon: 'f900',
+        width: getAircraftSizeByCoef(0.32),
+    },
+    fa8x: {
+        icon: 'fa8x',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    fa7x: {
+        icon: 'fa7x',
+        width: getAircraftSizeByCoef(0.44),
+    },
+    fa6x: {
+        icon: 'fa6x',
+        width: getAircraftSizeByCoef(0.43),
+    },
+    fa50: {
+        icon: 'fa50',
+        width: getAircraftSizeByCoef(0.31),
+    },
+    f2th: {
+        icon: 'f2th',
+        width: getAircraftSizeByCoef(0.36),
+    },
+    e145: {
+        icon: 'e145',
+        width: getAircraftSizeByCoef(0.33),
+    },
+    dv20: {
+        icon: 'dv20',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    c310: {
+        icon: 'c310',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    b190: {
+        icon: 'b190',
+        width: getAircraftSizeByCoef(0.29),
+    },
+    b06: {
+        icon: 'b06',
+        width: getAircraftSizeByCoef(0.08),
+    },
+    atp: {
+        icon: 'atp',
+        width: getAircraftSizeByCoef(0.51),
+    },
+    as50: {
+        icon: 'as50',
+        width: getAircraftSizeByCoef(0.14),
+    },
+    as32: {
+        icon: 'as32',
+        width: getAircraftSizeByCoef(0.27),
+    },
+    an2: {
+        icon: 'an2',
+        width: getAircraftSizeByCoef(0.30),
+    },
+    a189: {
+        icon: 'a189',
+        width: getAircraftSizeByCoef(0.24),
+    },
+    a169: {
+        icon: 'a169',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    a149: {
+        icon: 'a149',
+        width: getAircraftSizeByCoef(0.24),
+    },
+    a139: {
+        icon: 'a139',
+        width: getAircraftSizeByCoef(0.23),
+    },
     at7x: {
         icon: 'at7x',
         width: getAircraftSizeByCoef(0.45),
@@ -208,8 +358,8 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'glex',
         width: getAircraftSizeByCoef(0.48),
     },
-    sr22: {
-        icon: 'sr22',
+    r22: {
+        icon: 'r22',
         width: getAircraftSizeByCoef(0.19),
     },
     u2: {
@@ -818,6 +968,23 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'ECHO':
         case 'GLST':
             return aircraftIcons.tbm7;
+        case 'AW139':
+        case 'VH139':
+        case 'MH139':
+        case 'UH139':
+        case 'HH139':
+            return aircraftIcons.a139;
+        case 'AW149':
+            return aircraftIcons.a149;
+        case 'H169':
+        case 'AW169':
+            return aircraftIcons.a169;
+        case 'H189':
+        case 'AW189':
+            return aircraftIcons.a189;
+        case 'H225':
+        case 'EC225':
+            return aircraftIcons.as32;
         case 'H135':
         case 'H145':
         case 'EC20':
@@ -825,11 +992,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'EC30':
         case 'EC35':
         case 'EC55':
-        case 'A139':
-        case 'A149':
-        case 'A169':
-        case 'A189':
             return aircraftIcons.ec45;
+        case 'DA20':
+            return aircraftIcons.dv20;
         case 'AW101':
             return aircraftIcons.eh10;
         case 'C700':
@@ -842,9 +1007,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'ALH':
         case 'ALO2':
         case 'ALO3':
-        case 'AS32':
         case 'AS3B':
-        case 'B06':
         case 'B06T':
         case 'B105':
         case 'B212':
@@ -885,7 +1048,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'H60':
         case 'H64':
         case 'HUCO':
-        case 'AS50':
         case 'K226':
         case 'K126':
         case 'KA25':
@@ -914,7 +1076,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'PSW4':
         case 'PHIL':
         case 'PUMA':
-        case 'R22':
         case 'R4':
         case 'R44':
         case 'RMOU':
@@ -973,8 +1134,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.sr22;
         case 'B60T':
             return aircraftIcons.be60;
-        case 'C310':
-            return aircraftIcons.c172;
         case 'GL6T':
             return aircraftIcons.gl5t;
         case 'AT42':
@@ -1092,6 +1251,36 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'GLF5':
         case 'GLF6':
         case 'DIMO':
+        case 'A139':
+        case 'A149':
+        case 'A169':
+        case 'A189':
+        case 'AN2':
+        case 'AS32':
+        case 'AS50':
+        case 'ATP':
+        case 'B06':
+        case 'B190':
+        case 'C310':
+        case 'DV20':
+        case 'E145':
+        case 'F2TH':
+        case 'FA50':
+        case 'FA6X':
+        case 'FA7X':
+        case 'FA8X':
+        case 'F900':
+        case 'IL76':
+        case 'L410':
+        case 'LJ35':
+        case 'PC6T':
+        case 'R22':
+        case 'SF34':
+        case 'SF50':
+        case 'SU95':
+        case 'TEX2':
+        case 'TOR':
+        case 'YK40':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

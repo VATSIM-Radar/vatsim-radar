@@ -39,8 +39,8 @@ export default defineComponent({
 .button-group {
     overflow: hidden;
     display: flex;
-    background: $darkgray950;
     border-radius: 8px;
+    background: $darkgray950;
 
     @include mobileOnly {
         flex-wrap: wrap;
@@ -78,7 +78,6 @@ export default defineComponent({
                     align-self: center;
 
                     height: 24px;
-
                     border-right: 1px solid varToRgba('lightgray150', 0.2);
                 }
             }

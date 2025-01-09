@@ -10,6 +10,12 @@
         @click="opened = !opened"
     >
         <div
+            v-if="$slots.label"
+            class="select_label"
+        >
+            <slot name="label"/>
+        </div>
+        <div
             class="select_container"
         >
             <div class="select__text">
@@ -93,7 +99,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default: (settings: { item: SelectItem }) => any }>();
+defineSlots<{ default: (settings: { item: SelectItem }) => any; label?: () => any }>();
 const model = defineModel<SelectItemValueType | SelectItemValueType[]>({ required: true });
 const opened = defineModel('opened', {
     type: Boolean,
@@ -149,7 +155,8 @@ function updateModel(value: SelectItemValueType, add: boolean) {
     z-index: 5;
 
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
     justify-content: center;
 
     width: v-bind(width);
@@ -165,6 +172,12 @@ function updateModel(value: SelectItemValueType, add: boolean) {
     &--disabled {
         pointer-events: none;
         opacity: 0.5;
+    }
+
+    &_label {
+        margin-bottom: 8px;
+        font-size: 13px;
+        font-weight: 600;
     }
 
     &_container, &__item {
@@ -185,12 +198,12 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         width: 100%;
         height: 40px;
         padding: 0 16px;
+        border: 2px solid $darkgray950;
+        border-radius: 8px;
 
         font-weight: 600;
 
         background: $darkgray900;
-        border: 2px solid $darkgray950;
-        border-radius: 8px;
 
         transition: 0.3s ease-in-out;
     }
@@ -217,11 +230,11 @@ function updateModel(value: SelectItemValueType, add: boolean) {
         width: 100%;
         max-height: v-bind(maxDropdownHeight);
         padding: 8px;
-
-        background: $darkgray900;
         border: 2px solid $darkgray950;
         border-top-color: $darkgray900 !important;
         border-radius: 0 0 8px 8px;
+
+        background: $darkgray900;
 
         &--appear {
             &-enter-active,

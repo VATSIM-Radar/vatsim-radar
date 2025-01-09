@@ -15,15 +15,17 @@ enum DiscordStrategy {
 }
 
 model User {
-  id              Int              @id @default(autoincrement())
-  navigraph       NavigraphUser?
-  vatsim          VatsimUser?
-  discordId       String?
-  discordStrategy DiscordStrategy?
-  tokens          UserToken[]
-  settings        Json?            @default("{}")
-  presets         UserPreset[]
-  requests        UserRequest[]
+  id                   Int                @id @default(autoincrement())
+  navigraph            NavigraphUser?
+  vatsim               VatsimUser?
+  discordId            String?
+  discordStrategy      DiscordStrategy?
+  showFriendsInProfile Boolean            @default(false)
+  tokens               UserToken[]
+  settings             Json?              @default("{}")
+  presets              UserPreset[]
+  requests             UserRequest[]
+  lists                UserTrackingList[]
 }
 
 model UserToken {
@@ -44,15 +46,47 @@ model UserRequest {
 
 enum UserPresetType {
   MAP_SETTINGS
+  FILTER
+  BOOKMARK
+  DASHBOARD_BOOKMARK
 }
 
 model UserPreset {
-  id     Int            @id @default(autoincrement())
+  id     Int              @id @default(autoincrement())
   type   UserPresetType
   name   String
   json   Json
   userId Int
-  user   User           @relation(onDelete: Cascade, fields: [userId], references: [id])
+  user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])
+  lists  UserPresetList[]
+}
+
+model UserPresetList {
+  id Int @id @default(autoincrement())
+
+  presetId Int
+  preset   UserPreset @relation(onDelete: Cascade, fields: [presetId], references: [id])
+
+  listId Int
+  list   UserTrackingList @relation(onDelete: Cascade, fields: [listId], references: [id])
+}
+
+enum UserTrackingListType {
+  FRIENDS
+  ACHTUNGS
+  OTHER
+}
+
+model UserTrackingList {
+  id         Int                  @id @default(autoincrement())
+  name       String
+  color      String
+  type       UserTrackingListType @default(OTHER)
+  showInMenu Boolean              @default(false)
+  users      Json
+  userId     Int
+  user       User                 @relation(onDelete: Cascade, fields: [userId], references: [id])
+  presets    UserPresetList[]
 }
 
 enum AuthType {

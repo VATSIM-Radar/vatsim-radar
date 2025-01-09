@@ -16,7 +16,7 @@
                 <common-button
                     size="S"
                     :type="store.featuredAirportsOpen ? 'primary' : 'secondary'"
-                    @click="store.featuredAirportsOpen = !store.featuredAirportsOpen"
+                    @click="[store.featuredAirportsOpen = !store.featuredAirportsOpen, store.menuFriendsOpen = false]"
                 >
                     Featured Airports
                 </common-button>
@@ -24,7 +24,6 @@
                 <common-control-block
                     v-model="store.featuredAirportsOpen"
                     center-by="start"
-                    max-height="400px"
                     width="480px"
                 >
                     <template #title>
@@ -34,6 +33,49 @@
                     <map-featured-airports/>
                 </common-control-block>
             </div>
+
+            <div
+                v-if="store.friends.length || store.bookmarks.length"
+                class="map-footer_left_section __from-tablet"
+            >
+                <common-button
+                    size="S"
+                    :type="store.menuFriendsOpen ? 'primary' : 'secondary'"
+                    @click="[store.menuFriendsOpen = !store.menuFriendsOpen, store.featuredAirportsOpen = false]"
+                >
+                    <template #icon>
+                        <common-bubble>
+                            {{ store.friends.length }}
+                        </common-bubble>
+                    </template>
+
+                    Favorite
+                </common-button>
+
+                <common-control-block
+                    v-model="store.menuFriendsOpen"
+                    center-by="start"
+                    max-height="360px"
+                    width="480px"
+                >
+                    <template #title>
+                        <div class="map-footer__favorite">
+                            <span>Favorite</span>
+
+                            <common-button
+                                size="S"
+                                type="secondary"
+                                @click="[store.settingsPopup = true, store.settingsPopupTab = 'favorite']"
+                            >
+                                Manage friends
+                            </common-button>
+                        </div>
+                    </template>
+
+                    <view-favorite/>
+                </common-control-block>
+            </div>
+
             <div class="map-footer_left_section __desktop">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
@@ -83,19 +125,42 @@
                 v{{ store.version }}
             </div>
         </div>
-        <div
-            v-if="getCounts.lastUpdated"
-            class="map-footer_right"
-            :class="{ 'map-footer_right--outdated': outdated }"
-        >
-            Map last updated: {{ getCounts.lastUpdated }}
+        <div class="map-footer_right">
+            <map-settings-vat-glasses-level
+                v-if="store.viewport.width > (store.friends.length ? 1100 : 900)"
+                class="map-footer_right_vg"
+                hide-if-disabled
+            />
+
+            <div
+                v-if="getCounts.lastUpdated"
+                class="map-footer_right_date"
+                :class="{ 'map-footer_right_date--outdated': outdated }"
+            >
+                Map last updated: {{ getCounts.lastUpdated }}
+            </div>
         </div>
     </footer>
-    <common-popup v-model="store.airacPopup">
+    <common-popup
+        v-model="store.airacPopup"
+        width="600px"
+    >
         <template #title>
-            AIRAC upgrade
+            Connect Navigraph
         </template>
-        You can upgrade your AIRAC to access latest data for gates, runways and more in the future, by purchasing and linking a Navigraph subscription.
+        Connect Navigraph for:
+
+        <ul>
+            <li>
+                Better data for gates and runways
+            </li>
+            <li>
+                Airport Layouts (Navigraph Unlimited only)
+            </li>
+            <li>
+                Airways/waypoints AIRAC upgrade (coming soon)
+            </li>
+        </ul>
         <template #actions>
             <common-button
                 v-if="!store.user || store.user?.hasFms === null"
@@ -123,7 +188,7 @@
                 v-if="store.user?.hasFms === null"
                 href="/api/auth/navigraph/redirect"
             >
-                Link Navigraph
+                Connect Navigraph
             </common-button>
             <common-button
                 v-else-if="store.user?.hasFms === false"
@@ -143,7 +208,7 @@
                 v-else
                 href="/api/auth/vatsim/redirect"
             >
-                Login
+                Connect
             </common-button>
         </template>
     </common-popup>
@@ -156,6 +221,9 @@ import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vu
 import { useOnlineCounters } from '~/composables/navigation';
 import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
+import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import ViewFavorite from '~/components/views/ViewFavorite.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -210,7 +278,6 @@ onMounted(() => {
                     align-self: center;
 
                     height: 24px;
-
                     border-right: 1px solid varToRgba('lightgray150', 0.1);
                 }
             }
@@ -220,8 +287,8 @@ onMounted(() => {
     &__connections {
         display: flex;
         padding: 8px 12px;
-        background: $darkgray950;
         border-radius: 8px;
+        background: $darkgray950;
 
         span {
             font-weight: 600;
@@ -248,18 +315,32 @@ onMounted(() => {
     }
 
     &_right {
-        padding: 8px 16px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
 
-        font-weight: 300;
+        &_vg {
+            width: 280px;
 
-        background: $darkgray950;
-        border-radius: 8px;
+            :deep(.input) {
+                height: 32px !important;
+            }
+        }
 
-        transition: 0.3s;
+        &_date {
+            padding: 8px 16px;
+            border-radius: 8px;
 
-        &--outdated {
-            color: $lightgray100Orig;
-            background: $error600;
+            font-weight: 300;
+
+            background: $darkgray950;
+
+            transition: 0.3s;
+
+            &--outdated {
+                color: $lightgray100Orig;
+                background: $error600;
+            }
         }
     }
 
@@ -267,6 +348,12 @@ onMounted(() => {
         color: $lightgray150;
         text-decoration-skip-ink: none;
         opacity: 0.5;
+    }
+
+    &__favorite {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 }
 </style>

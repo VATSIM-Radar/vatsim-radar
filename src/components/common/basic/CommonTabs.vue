@@ -69,9 +69,9 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
 
         height: 40px;
         padding: 0 24px;
+        border-bottom: 2px solid $primary700;
 
         background: $darkgray1000;
-        border-bottom: 2px solid $primary700;
 
         @include mobile {
             gap: 4px;
@@ -100,6 +100,9 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         height: 32px;
         margin-bottom: -2px;
         padding-bottom: 10px;
+        border: solid transparent;
+        border-width: 2px 2px 0;
+        border-radius: 8px 8px 0 0;
 
         font-family: $defaultFont;
         font-size: 14px;
@@ -107,10 +110,6 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
         line-height: 100%;
         color: $lightgray125;
         text-align: center;
-
-        border: solid transparent;
-        border-width: 2px 2px 0;
-        border-radius: 8px 8px 0 0;
 
         transition: 0.3s;
 
@@ -149,11 +148,10 @@ if (!model.value) model.value = Object.keys(props.tabs)[0];
             cursor: default;
 
             height: 40px;
-
-            color: $primary500;
-
             border-color: $primary700;
             border-bottom-color: $darkgray1000;
+
+            color: $primary500;
 
             &::after {
                 width: 100%;

@@ -1,7 +1,11 @@
 import type { DBSchema, IDBPDatabase } from 'idb';
 import { openDB } from 'idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
-import type { SimAwareAPIData } from '~/utils/backend/storage';
+import type {
+    RadarDataAirlinesList,
+    SimAwareAPIData,
+    VatglassesAPIData,
+} from '~/utils/backend/storage';
 
 interface VatSpyData {
     key: 'vatspy';
@@ -13,8 +17,21 @@ interface SimAwareData {
     value: SimAwareAPIData;
 }
 
+interface VatglassesData {
+    key: 'vatglasses';
+    value: VatglassesAPIData;
+}
+
+export interface IDBAirlinesData {
+    key: 'airlines';
+    value: {
+        expiresAt: number;
+        airlines: RadarDataAirlinesList;
+    };
+}
+
 interface ClientDB extends DBSchema {
-    data: VatSpyData | SimAwareData;
+    data: VatSpyData | SimAwareData | VatglassesData | IDBAirlinesData;
 }
 
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;

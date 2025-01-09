@@ -5,6 +5,7 @@ import type { ShallowRef } from 'vue';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useStore } from '~/store';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -18,6 +19,22 @@ export const useFacilitiesIds = () => {
         TWR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'TWR')?.id ?? -1,
         APP: dataStore.vatsim.data.facilities.value.find(x => x.short === 'APP')?.id ?? -1,
         CTR: dataStore.vatsim.data.facilities.value.find(x => x.short === 'CTR')?.id ?? -1,
+    };
+};
+
+export const useRatingsIds = () => {
+    const dataStore = useDataStore();
+
+    return {
+        S1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S1')?.id ?? -1,
+        S2: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S2')?.id ?? -1,
+        S3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'S3')?.id ?? -1,
+        C1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'C1')?.id ?? -1,
+        C3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'C3')?.id ?? -1,
+        I1: dataStore.vatsim.data.ratings.value.find(x => x.short === 'I1')?.id ?? -1,
+        I3: dataStore.vatsim.data.ratings.value.find(x => x.short === 'I3')?.id ?? -1,
+        SUP: dataStore.vatsim.data.ratings.value.find(x => x.short === 'SUP')?.id ?? -1,
+        ADM: dataStore.vatsim.data.ratings.value.find(x => x.short === 'ADM')?.id ?? -1,
     };
 };
 
@@ -96,8 +113,9 @@ export function findAtcAirport(atc: VatsimShortenedController) {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
 }
 
-export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number) {
+export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number, animate = true) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
+    const store = useStore();
     const mapStore = useMapStore();
     const view = map?.getView();
     if (!airport) return;
@@ -105,10 +123,18 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
     await nextTick();
 
-    view?.animate({
-        center: [airport.lon, airport.lat],
-        zoom: zoom ?? 14,
-    });
+    zoom = zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14;
+
+    if (animate) {
+        view?.animate({
+            center: [airport.lon, airport.lat],
+            zoom: zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14,
+        });
+    }
+    else {
+        view?.setCenter([airport.lon, airport.lat]);
+        view?.setZoom(zoom);
+    }
 }
 
 export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {

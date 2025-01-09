@@ -16,7 +16,10 @@
             :key="index"
             class="notams_notam"
         >
-            <common-copy-info-block :text="notam.text">
+            <common-copy-info-block
+                auto-expand
+                :text="notam.text"
+            >
                 {{ notam.number }}
                 <template #prepend>
                     <common-info-block :bottom-items="[notam.classification, getNotamType(notam.type)]">

@@ -71,6 +71,7 @@ export const useMapStore = defineStore('map', {
         mapCursorPointerTrigger: false as false | number,
         overlays: [] as StoreOverlay[],
         openingOverlay: false,
+        closedOwnOverlay: false,
 
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],
@@ -230,6 +231,8 @@ export const useMapStore = defineStore('map', {
                     type: 'airport',
                     sticky: false,
                 });
+
+                this.openingOverlay = false;
 
                 overlay.data.airport = await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ airport }`);
                 overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport }/notams`) ?? [];

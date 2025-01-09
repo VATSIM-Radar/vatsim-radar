@@ -7,7 +7,10 @@ import { Style, Icon, Stroke } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
-import { getColorFromSettings } from '~/composables/colors';
+import { getColorFromSettings, hexToRgb } from '~/composables/colors';
+import { getUserList } from '~/composables/fetchers/lists';
+import { useMapStore } from '~/store/map';
+import type { StoreOverlayPilot } from '~/store/map';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -18,15 +21,33 @@ export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): s
     return ratings;
 }
 
+export function usePilotRatings() {
+    const dataStore = useDataStore();
+
+    return {
+        NEW: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'NEW')?.id ?? -1,
+        PPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'PPL')?.id ?? -1,
+        IR: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'IR')?.id ?? -1,
+        CMEL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'CMEL')?.id ?? -1,
+        ATPL: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'ATPL')?.id ?? -1,
+        FI: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FI')?.id ?? -1,
+        FE: dataStore.vatsim.data.pilot_ratings.value.find(x => x.short_name === 'FE')?.id ?? -1,
+    };
+}
+
 export function getAirportByIcao(icao?: string | null): VatSpyData['airports'][0] | null {
     if (!icao) return null;
 
     return useDataStore().vatspy.value!.data.airports.find(x => x.icao === icao) ?? null;
 }
 
-export function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
+export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
     const view = map?.getView();
+    const mapStore = useMapStore();
+
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    await nextTick();
 
     view?.animate({
         center: [pilot.longitude, pilot.latitude],
@@ -126,20 +147,49 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
-export const getAircraftStatusColor = (status: MapAircraftStatus) => {
+const getFilteredAircraftSettings = (cid: number) => {
     const store = useStore();
+    const dataStore = useDataStore();
+
+    if (hasActivePilotFilter() && typeof store.activeFilter.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
+        const pilot = dataStore.vatsim.data.keyedPilots.value?.[cid];
+        if (pilot?.filteredColor) return pilot.filteredColor;
+        else return pilot?.filteredOpacity;
+    }
+};
+
+export const getAircraftStatusColor = (status: MapAircraftStatus, cid?: number) => {
+    const store = useStore();
+
+    const list = cid && getUserList(cid);
+    if (list) {
+        return getCurrentThemeHexColor(list.color as any) || `rgb(${ list.color })`;
+    }
+
+    let filteredColor: ReturnType<typeof getFilteredAircraftSettings> | undefined;
+
+    if (cid && status === 'default') {
+        filteredColor = getFilteredAircraftSettings(cid);
+
+        if (typeof filteredColor === 'object') return getColorFromSettings(filteredColor);
+    }
+
     let color = aircraftSvgColors()[status];
     let settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'default' ? 'main' : status];
     if (status === 'ground' && !settingColor) settingColor = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
     if (settingColor) color = getColorFromSettings(settingColor);
 
+    if (typeof filteredColor === 'number') {
+        return `rgba(${ hexToRgb(color) }, ${ filteredColor })`;
+    }
+
     return color;
 };
 
-export function reColorSvg(svg: string, status: MapAircraftStatus) {
+export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number) {
     const store = useStore();
 
-    const color = getAircraftStatusColor(status);
+    const color = getAircraftStatusColor(status, cid);
 
     let iconContent = svg
         .replaceAll('\n', '')
@@ -183,44 +233,63 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
-export async function loadAircraftIcon({ feature, icon, status, style, rotation, force }: {
+export async function loadAircraftIcon({ feature, icon, status, style, rotation, force, cid }: {
     feature: Feature;
     icon: AircraftIcon;
     rotation: number;
     status: MapAircraftStatus;
     style: Style;
     force?: boolean;
+    cid: number;
 }) {
     const store = useStore();
 
     const image = style.getImage();
 
     const featureProperties = feature.getProperties() ?? {};
+    const list = getUserList(cid);
 
-    if (!force && image && featureProperties.imageStatus === status && featureProperties.icon === icon) {
+    const filter = getFilteredAircraftSettings(cid);
+    let filterColor: string | undefined;
+    let filterOpacity: number | undefined;
+
+    if (filter) {
+        if (typeof filter === 'number') filterOpacity = filter;
+        else {
+            filterColor = getColorFromSettings(filter);
+        }
+    }
+
+    if (!force &&
+        image &&
+        featureProperties.imageStatus === status &&
+        featureProperties.icon === icon &&
+        featureProperties.hadList === !!list &&
+        featureProperties.filterColor === filterColor &&
+        featureProperties.filterOpacity === filterOpacity) {
         image.setRotation(rotation);
     }
     else {
-        if (status === 'default' || status === 'ground') {
+        if ((status === 'default' || status === 'ground') && !list) {
             let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
 
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
 
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ (color && color.color !== 'primary500') ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
+                src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
-                color: (color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined,
-                opacity: store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1),
+                color: filterColor ? hexToRgb(filterColor) : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
+                opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
             }));
         }
         else {
             const svg = await fetchAircraftIcon(icon);
             style.setImage(new Icon({
-                src: svgToDataURI(reColorSvg(svg, status)),
+                src: svgToDataURI(reColorSvg(svg, status, cid)),
                 width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
                 rotation,
                 rotateWithView: true,
@@ -235,6 +304,9 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         ...featureProperties,
         imageStatus: status,
         icon,
+        hadList: !!list,
+        filterColor,
+        filterOpacity,
     });
 }
 

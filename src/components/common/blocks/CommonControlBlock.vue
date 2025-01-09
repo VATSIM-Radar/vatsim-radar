@@ -82,7 +82,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default(): any; title(): any; closeActions(): any }>();
+defineSlots<{ default?(): any; title?(): any; closeActions?(): any }>();
 
 const block = ref<HTMLDivElement | null>(null);
 
@@ -112,12 +112,12 @@ useClickOutside({
     max-width: v-bind(maxWidth);
     min-height: v-bind(minHeight);
     padding: 16px;
+    border: 1px solid varToRgba('lightgray150', 0.15);
+    border-radius: 8px;
 
     color: $lightgray150;
 
     background: $darkgray1000;
-    border: 1px solid varToRgba('lightgray150', 0.15);
-    border-radius: 8px;
 
     &--center-by-start {
         --transform: calc(0% + v-bind(centerByOffset));
@@ -162,14 +162,23 @@ useClickOutside({
     }
 
     &_header {
+        position: sticky;
+        z-index: 10;
+        top: -16px;
+
         display: flex;
         gap: 16px;
         align-items: center;
         justify-content: space-between;
 
+        margin: -16px;
+        padding: 16px;
+
+        background: $darkgray1000;
+
         &_title {
             font-family: $openSansFont;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 700;
             line-height: 100%;
             color: $lightgray100;

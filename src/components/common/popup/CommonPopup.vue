@@ -74,7 +74,7 @@ const props = defineProps({
     },
 });
 
-defineSlots<{ default(): any; title(): any; actions(): any }>();
+defineSlots<{ default?(): any; title?(): any; actions?(): any }>();
 
 const model = defineModel({
     type: Boolean,
@@ -200,9 +200,13 @@ onBeforeUnmount(() => {
         max-width: 700px;
         max-height: 80vh;
         padding: 8px;
+        border-radius: 8px;
 
         background: $darkgray1000;
-        border-radius: 8px;
+
+        @include mobileOnly {
+            max-width: 95%;
+        }
     }
 
     &__close {
@@ -237,9 +241,15 @@ onBeforeUnmount(() => {
         display: flex;
         gap: 8px;
 
-        :deep(>*) {
-            flex: 1 1 0;
-            width: 0;
+        @include mobileOnly {
+            flex-direction: column;
+        }
+
+        @include fromTablet {
+            :deep(>*) {
+                flex: 1 1 0;
+                width: 0;
+            }
         }
 
         &:not(:first-child) {

@@ -52,7 +52,6 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/views/header/ViewHeader.vue';
 import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
-import { setUserLocalSettings } from '~/composables';
 import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
@@ -60,6 +59,7 @@ import type { ThemesList } from '~/utils/backend/styles';
 import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { UAParser } from 'ua-parser-js';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 
 defineSlots<{ default: () => any }>();
 
@@ -185,16 +185,21 @@ async function getDeviceType(uaParser = parser) {
     return parsedType;
 }
 
+async function getEngine(uaParser = parser) {
+    if (!uaParser) return;
+    return (await uaParser.getEngine().withFeatureCheck()).name;
+}
+
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
     store.isMobileOrTablet = window.innerWidth < 1366;
     store.isTablet = window.innerWidth < 1366 && window.innerWidth >= 700;
     store.isPC = window.innerWidth >= 1366;
     store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
+    store.viewport.width = window.innerWidth;
 }
 
 const listener = () => {
-    store.viewport.width = window.innerWidth;
     setWindowStore();
 };
 
@@ -207,6 +212,7 @@ onNuxtReady(async () => {
     setWindowStore();
     windowInterval = setInterval(setWindowStore, 500);
     store.device = await getDeviceType() ?? 'desktop';
+    store.engine = await getEngine();
 });
 
 onBeforeUnmount(() => {
@@ -237,6 +243,7 @@ await useAsyncData('default-init', async () => {
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
         store.device = await getDeviceType() ?? 'desktop';
+        store.engine = await getEngine();
     }
 
     return true;
@@ -283,6 +290,7 @@ html, body {
 
     font-family: $defaultFont;
     color: $lightgray150;
+    text-size-adjust: 100%;
 
     color-scheme: dark;
     background: $darkgray1000;
@@ -328,9 +336,9 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        background: $darkgray800;
         border: 3px solid var(--bg-color, $darkgray1000);
         border-radius: 10px;
+        background: $darkgray800;
     }
 
     &::-webkit-scrollbar-track {
@@ -341,13 +349,13 @@ img {
 .__info-sections {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 
     &_title {
         padding-top: 8px;
+        border-top: 1px solid varToRgba('lightgray150', 0.15);
         font-size: 13px;
         font-weight: 600;
-        border-top: 1px solid varToRgba('lightgray150', 0.15);
     }
 
     &--gap-16 {
@@ -384,6 +392,13 @@ img {
             grid-template-columns: 65% 30%;
         }
     }
+
+    &--vertical {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
 }
 
 .__section-group {
@@ -391,10 +406,32 @@ img {
     gap: 8px;
     width: 100%;
 
-    &:not(&--even, &--even-mobile){
-        > * {
-            flex: 1 1 0;
-            width: 0;
+    >*{
+        flex: 1 1 0;
+        width: 0;
+    }
+
+    &--even {
+        >* {
+            flex: unset;
+            width: unset;
+        }
+    }
+
+    @include mobileOnly {
+        &--even-mobile, &--disable-mobile {
+            >* {
+                flex: unset;
+                width: unset;
+            }
+        }
+
+        &--disable-mobile {
+            flex-direction: column;
+
+            >* {
+                width: 100%;
+            }
         }
     }
 

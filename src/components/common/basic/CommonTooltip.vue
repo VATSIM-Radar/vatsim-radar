@@ -126,7 +126,7 @@ useClickOutside({
 
     &_container {
         position: absolute;
-        z-index: 7;
+        z-index: 8;
 
         width: v-bind(width);
         max-width: v-bind(maxWidth);
@@ -134,9 +134,9 @@ useClickOutside({
 
         &_content {
             padding: 4px;
+            border-radius: 8px;
             color: $darkgray850;
             background: currentColor;
-            border-radius: 8px;
 
             &_icon {
                 position: absolute;

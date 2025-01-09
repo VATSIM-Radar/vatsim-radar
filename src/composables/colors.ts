@@ -1,4 +1,4 @@
-import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/map-settings';
+import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/handlers/map-settings';
 import { getCurrentThemeRgbColor } from '~/composables/index';
 import { useStore } from '~/store';
 
@@ -42,6 +42,16 @@ export function getColorFromSettings(setting: UserMapSettingsColor, raw?: boolea
     if (raw) return rgb.join(',');
 
     return `rgba(${ rgb.join(',') }, ${ setting.transparency ?? 1 })`;
+}
+
+export function getStringColorFromSettings(setting: string | null | undefined, raw?: boolean) {
+    if (!setting) return '#000';
+    const rgb = getCurrentThemeRgbColor(setting as any) ?? setting.split(',').map(x => +x) as [number, number, number];
+    if (rgb.length !== 3 || rgb.some(x => isNaN(x))) throw new Error(`Color ${ setting } contains invalid rgb`);
+
+    if (raw) return rgb.join(',');
+
+    return `rgb(${ rgb.join(',') })`;
 }
 
 export function getSelectedColorFromSettings(color: Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>, raw?: boolean) {

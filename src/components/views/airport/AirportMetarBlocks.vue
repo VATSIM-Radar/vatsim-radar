@@ -17,9 +17,17 @@
             <template #bottom>
                 {{
                     `0${ metar.start.getUTCHours() }`.slice(-2)
-                }}:{{ `0${ metar.start.getUTCMinutes() }`.slice(-2) }}Z to {{
-                    `0${ metar.end.getUTCHours() }`.slice(-2)
-                }}:{{ `0${ metar.end.getUTCMinutes() }`.slice(-2) }}Z
+                }}:{{ `0${ metar.start.getUTCMinutes() }`.slice(-2) }}Z to
+                <template v-if="metar.type !== 'BECMG'">
+                    {{
+                        `0${ metar.end.getUTCHours() }`.slice(-2)
+                    }}:{{ `0${ metar.end.getUTCMinutes() }`.slice(-2) }}Z
+                </template>
+                <template v-else>
+                    {{
+                        `0${ metar.by.getUTCHours() }`.slice(-2)
+                    }}:{{ `0${ metar.by.getUTCMinutes() }`.slice(-2) }}Z
+                </template>
             </template>
         </common-info-block>
         <common-info-block

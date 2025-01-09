@@ -23,7 +23,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { fromLonLat, toLonLat } from 'ol/proj';
-import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
+import { attachMoveEnd, collapsingWithOverlay, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
@@ -77,32 +77,11 @@ function sendSelectedPilotToDashboard(cid: number | null = null) {
 }
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
-    if (!pixel) return [];
+    if (!pixel || isHideMapObject('pilots')) return [];
 
     if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
 
-    let collapsingWithOverlay = false;
-    map.value!.getOverlays().forEach(overlay => {
-        if (collapsingWithOverlay) return;
-        if ([...overlay.getElement()?.classList ?? []].some(x => x.includes('aircraft'))) return;
-
-        const overlayElement = overlay.getElement();
-        if (overlayElement) {
-            const overlayRect = overlayElement.getBoundingClientRect();
-            const mapRect = map.value!.getTargetElement().getBoundingClientRect();
-            const overlayPixel = [
-                overlayRect.left - mapRect.left,
-                overlayRect.top - mapRect.top,
-            ];
-
-            if (pixel[0] >= overlayPixel[0] && pixel[0] <= overlayPixel[0] + overlayRect.width &&
-                pixel[1] >= overlayPixel[1] && pixel[1] <= overlayPixel[1] + overlayRect.height) {
-                collapsingWithOverlay = true;
-            }
-        }
-    });
-
-    if (collapsingWithOverlay) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
+    if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
 
     return visiblePilots.value.filter(x => {
         const pilotPixel = aircraftCoordsToPixel(x);
@@ -487,7 +466,6 @@ watch(map, val => {
                 type: 'aircraft-line',
             },
             zIndex: 6,
-            declutter: false,
         });
     }
 

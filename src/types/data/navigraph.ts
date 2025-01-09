@@ -1,4 +1,7 @@
 import type { Pixel } from 'ol/pixel';
+import type { PartialRecord } from '~/types';
+import type { FeatureCollection } from 'geojson';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 export interface NavigraphGate {
     gate_identifier: string;
@@ -26,4 +29,7 @@ export interface NavigraphAirportData {
     airport: string;
     gates: NavigraphGate[];
     runways: NavigraphRunway[];
+    layout?: NavigraphLayout;
 }
+
+export type NavigraphLayout = PartialRecord<AmdbLayerName, FeatureCollection>;

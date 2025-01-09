@@ -11,22 +11,30 @@
         <common-block-title>
             General
         </common-block-title>
-        <common-toggle
-            :model-value="!!store.mapSettings.heatmapLayer"
-            @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
-        >
-            Traffic Heatmap
-        </common-toggle>
-        <common-toggle
-            :model-value="!!store.mapSettings.highlightEmergency"
-            @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
-        >
-            Highlight Emergency Aircraft
-
-            <template #description>
-                Aircraft squawking 7700 and 7600
+        <map-filter-columns>
+            <template #col1>
+                <common-toggle
+                    :model-value="!!store.mapSettings.highlightEmergency"
+                    @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
+                >
+                    Highlight Emergencies
+                </common-toggle>
             </template>
-        </common-toggle>
+            <template #col2>
+                <common-toggle
+                    :model-value="!!store.mapSettings.heatmapLayer"
+                    @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
+                >
+                    Traffic Heatmap
+                </common-toggle>
+            </template>
+        </map-filter-columns>
+        <common-notification
+            cookie-name="settings-emergency"
+            type="info"
+        >
+            Emergencies are aircraft squawking 7700 and 7600
+        </common-notification>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Aircraft scale
@@ -40,6 +48,67 @@
                 @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
             />
         </div>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Airport default zoom level
+            </div>
+            <common-select
+                :items="zoomOptions"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.defaultAirportZoomLevel ?? 14"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
+            />
+        </div>
+
+        <common-block-title>
+            VATGlasses (BETA)
+        </common-block-title>
+
+        <div class="__section-group __section-group--even">
+            <common-toggle
+                v-if="store.user"
+                :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+            >
+                Auto-enable
+
+                <template #description>
+                    Enables when you have active flight
+                </template>
+            </common-toggle>
+            <common-toggle
+                :model-value="!!store.mapSettings.vatglasses?.active"
+                @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            >
+                Toggle Active
+            </common-toggle>
+            <common-toggle
+                :disabled="!vatglassesActive"
+                :model-value="store.mapSettings.vatglasses?.combined"
+                @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
+            >
+                Combined Mode
+
+                <template #description>
+                    All sectors at once. Eats performance.
+                </template>
+            </common-toggle>
+            <common-toggle
+                v-if="vatglassesActive"
+                :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoLevel: $event } })"
+            >
+                Auto-Set Level
+
+                <template #description>
+                    Based on your flight
+                </template>
+            </common-toggle>
+        </div>
+
+        <map-settings-vat-glasses-level/>
+
         <common-block-title>
             Airports Counters
         </common-block-title>
@@ -131,17 +200,22 @@
 <script setup lang="ts">
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
-import type { IUserMapSettings } from '~/utils/backend/map-settings';
+import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { backupMapSettings } from '~/composables/settings';
-import { resetUserMapSettings } from '~/composables';
+import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
+import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
 
 const resetActive = ref(false);
+const vatglassesActive = isVatGlassesActive();
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
@@ -185,7 +259,7 @@ const horizontalSelectOptions = Object.entries(horizontalOptions).map(([key, val
     value: key,
 } satisfies SelectItem));
 
-const scaleOptions = computed<SelectItem[]>(() => {
+const scaleOptions = (() => {
     const options: SelectItem[] = [];
 
     for (let i = 0.5; i <= 1.51; i += 0.05) {
@@ -196,5 +270,17 @@ const scaleOptions = computed<SelectItem[]>(() => {
     }
 
     return options;
-});
+})();
+
+const zoomOptions = (() => {
+    const options: SelectItem[] = [];
+
+    for (let i = 17; i >= 12; i -= 0.5) {
+        options.unshift({
+            value: i,
+        });
+    }
+
+    return options;
+})();
 </script>

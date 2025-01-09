@@ -1,5 +1,6 @@
 import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
+import type { RadarDataAirline } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
 import type {
@@ -37,7 +38,8 @@ export function updateVatsimDataStorage() {
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
-    data.general.supsCount = data.controllers.filter(x => x.rating === 11 && x.frequency === '199.998').length;
+    data.general.supsCount = data.controllers.filter(x => x.rating === 11).length;
+    data.general.sups = data.controllers.filter(x => x.rating === 11);
     data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
     data.general.onlineWSUsers = wss.clients.size;
 
@@ -284,4 +286,15 @@ export async function updateTransceivers() {
     finally {
         transceiversInProgress = false;
     }
+}
+
+export async function updateAirlines() {
+    radarStorage.airlines = Object.fromEntries((await $fetch<RadarDataAirline[]>(!import.meta.dev ? 'http://data:3000/airlines' : 'https://data.vatsim-radar.com/airlines', {
+        retry: 3,
+    })).map(val => {
+        val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+        val.country = val.country.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+
+        return [val.icao, val];
+    }));
 }

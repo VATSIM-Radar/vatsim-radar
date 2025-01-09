@@ -41,7 +41,10 @@
         <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
             <client-only v-if="ready">
                 <map-aircraft-list/>
-                <map-sectors-list v-if="!store.config.hideSectors"/>
+                <map-sectors-list
+                    v-if="!store.config.hideSectors"
+                    :key="String(store.localSettings.filters?.layers?.layer)"
+                />
                 <map-airports-list v-if="!store.config.hideAirports"/>
                 <map-weather v-if="!store.config.hideHeader"/>
                 <a
@@ -58,7 +61,7 @@
             </client-only>
         </div>
         <client-only v-if="ready">
-            <map-layer/>
+            <map-layer :key="(store.theme ?? 'default')"/>
             <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
@@ -70,6 +73,66 @@
             </template>
 
             You have successfully verified in VATSIM Radar Discord.
+        </common-popup>
+        <common-popup :model-value="store.presetImport.preset === false">
+            <template #title>Preset Import</template>
+            Preset import failed. That could be because preset name length is more than 30 symbols, invalid JSON, or an error in yours or ours network.
+            <template #actions>
+                <common-button @click="store.presetImport.preset = null">
+                    Thanks, I guess?
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.preset && typeof store.presetImport.preset === 'object'"
+            width="600px"
+        >
+            <template #title>Preset Import</template>
+
+            Warning: preset import will overwrite your current preset.<br><br>
+
+            <common-input-text
+                v-model="store.presetImport.name"
+                placeholder="Enter a name for new preset"
+            />
+
+            <template #actions>
+                <common-button
+                    type="secondary-875"
+                    @click="store.presetImport.preset = null"
+                >
+                    Cancel import
+                </common-button>
+                <common-button
+                    :disabled="!store.presetImport.name"
+                    @click="store.presetImport.save!()"
+                >
+                    Import preset
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            :model-value="!!store.presetImport.error"
+            @update:modelValue="$event === false && (store.presetImport.error = $event)"
+        >
+            <template #title>
+                A preset with this name already exists
+            </template>
+
+            You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
+
+            <template #actions>
+                <common-button
+                    hover-color="error700"
+                    primary-color="error500"
+                    @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
+                >
+                    Overwrite my old preset
+                </common-button>
+                <common-button @click="store.presetImport.error = false">
+                    I'll rename it
+                </common-button>
+            </template>
         </common-popup>
     </div>
 </template>
@@ -84,7 +147,7 @@ import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
-import { setUserLocalSettings, useIframeHeader } from '~/composables';
+import { useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { showPilotOnMap } from '~/composables/pilots';
@@ -95,6 +158,12 @@ import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
+import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import { showBookmark } from '~/composables/fetchers';
 
 const emit = defineEmits({
     map(map: Ref<Map | null>) {
@@ -112,6 +181,8 @@ const dataStore = useDataStore();
 const router = useRouter();
 const route = useRoute();
 const isDiscord = ref(route.query.discord === '1');
+const filterId = ref(route.query.filter && +route.query.filter);
+const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const isMobileOrTablet = useIsMobileOrTablet();
 const config = useRuntimeConfig();
@@ -126,26 +197,41 @@ provide('map', map);
 emit('map', map);
 
 let initialSpawn = false;
+let initialOwnCheck = false;
 
 useIframeHeader();
 
 async function checkAndAddOwnAircraft() {
-    if (!store.user?.settings.autoFollow || store.config.hideAllExternal) return;
+    if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
+        initialOwnCheck = true;
+        return;
+    }
     let overlay = mapStore.overlays.find(x => x.key === store.user?.cid);
-    if (overlay) return;
+    if (overlay) {
+        initialOwnCheck = true;
+        return;
+    }
 
     const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
-    if (!aircraft) return;
+    if (!aircraft) {
+        initialOwnCheck = true;
+        return;
+    }
+
+    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport && !route.query.bookmark);
 
     if (isPilotOnGround(aircraft)) {
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
     else if (!initialSpawn) {
         initialSpawn = true;
-        overlay = await mapStore.addPilotOverlay(store.user.cid, true);
+        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
     }
 
-    if (overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
+    initialSpawn = true;
+    initialOwnCheck = true;
+
+    if (shouldTrack && overlay && overlay.type === 'pilot' && store.user.settings.autoZoom && !dataStore.vatsim.data.airports.value.some(x => x.aircraft.groundArr?.includes(aircraft.cid))) {
         showPilotOnMap(overlay.data.pilot, map.value);
     }
 }
@@ -263,6 +349,23 @@ const restoreOverlays = async () => {
             showPilotOnMap(overlay.data.pilot, map.value, getRouteZoom() ?? undefined);
         }
     }
+    else if (typeof route.query.controller === 'string' || typeof route.query.atc === 'string') {
+        const callsign = (route.query.controller ?? route.query.atc) as string;
+        const controller = findAtcByCallsign(callsign);
+        if (controller) {
+            let overlay = mapStore.overlays.find(x => x.key === callsign);
+
+            if (!overlay) {
+                overlay = await mapStore.addAtcOverlay(callsign);
+            }
+
+            showAtcOnMap(controller, map.value);
+
+            if (overlay && overlay.type === 'atc' && controller) {
+                overlay.sticky = true;
+            }
+        }
+    }
     else if (route.query.airport) {
         let overlay = mapStore.overlays.find(x => x.key === route.query.airport as string);
 
@@ -326,10 +429,31 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
+useUpdateInterval(() => {
+    if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
+
+    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    if (!user) return;
+
+    setUserLocalSettings({
+        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+    });
+});
+
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
+});
+
+useLazyAsyncData('bookmarks', async () => {
+    if (store.user) {
+        await store.fetchBookmarks();
+    }
+
+    return true;
+}, {
+    server: false,
 });
 
 useHead(() => ({
@@ -373,12 +497,14 @@ watch([overlays, popupsHeight], () => {
         });
     }
 
-    localStorage.setItem('overlays', JSON.stringify(
-        overlays.value.map(x => ({
-            ...x,
-            data: undefined,
-        })),
-    ));
+    if (!store.config.airport) {
+        localStorage.setItem('overlays', JSON.stringify(
+            overlays.value.map(x => ({
+                ...x,
+                data: undefined,
+            })),
+        ));
+    }
 }, {
     deep: true,
 });
@@ -400,9 +526,11 @@ async function handleMoveEnd() {
         zoom: view.getZoom()?.toFixed(2),
     };
 
-    router.replace({
-        query,
-    });
+    if (initialOwnCheck) {
+        router.replace({
+            query,
+        });
+    }
 
     const targetOrigin = config.public.DOMAIN;
     window.parent.postMessage({
@@ -435,8 +563,10 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 2;
-        projectionExtent[2] *= 2;
+        projectionExtent[0] *= 2.5;
+        projectionExtent[1] *= 1.4;
+        projectionExtent[2] *= 2.5;
+        projectionExtent[3] *= 1.4;
 
         let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
         let zoom = store.localSettings.zoom ?? 3;
@@ -505,7 +635,7 @@ await setupDataFetch({
             view: new View({
                 center,
                 zoom,
-                minZoom: 3,
+                minZoom: 2,
                 maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
@@ -583,8 +713,51 @@ await setupDataFetch({
             handleMoveEnd();
         });
 
+        if (filterId.value) {
+            const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
+            if (filter) {
+                setUserActiveFilter(filter.json);
+                store.getVATSIMData(true);
+            }
+        }
+
+        if (bookmarkId.value) {
+            const bookmark = await $fetch<UserBookmarkPreset>(`/api/user/bookmarks/${ bookmarkId.value }`).catch(() => {});
+            if (bookmark) {
+                showBookmark(bookmark.json, map.value);
+            }
+        }
+
         success = true;
     },
+});
+
+onMounted(() => {
+    function handleKeys(event: KeyboardEvent) {
+        if (!event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) return;
+
+        const bookmark = store.bookmarks.find(x => {
+            const binding = x.json.binding;
+            if (!binding?.keys) return false;
+
+            return binding.code === event.code && binding.keys?.ctrl === event.ctrlKey && binding.keys.alt === event.altKey && binding.keys.meta === event.metaKey && binding.keys.shift === event.shiftKey;
+        });
+
+        if (!bookmark) return;
+
+        event.preventDefault();
+        showBookmark(bookmark.json, map.value);
+    }
+
+    document.addEventListener('keydown', handleKeys, {
+        capture: true,
+    });
+
+    onBeforeUnmount(() => {
+        document.removeEventListener('keydown', handleKeys, {
+            capture: true,
+        });
+    });
 });
 </script>
 
@@ -607,7 +780,6 @@ await setupDataFetch({
     flex-direction: column;
 
     width: 100%;
-
     border-radius: 16px;
 
     &_container {

@@ -37,7 +37,7 @@ export function closeNavigraphDB(type: 'current' | 'outdated') {
     }
 }
 
-const accessKey = {
+export const navigraphAccessKey = {
     token: '',
     expires: null as null | number,
 };
@@ -66,12 +66,12 @@ async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: str
     admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, true, undefined, filename);
 }
 
-export async function initNavigraph() {
-    if (!accessKey.token || !accessKey.expires || accessKey.expires < Date.now()) {
+export async function checkNavigraphToken() {
+    if (!navigraphAccessKey.token || !navigraphAccessKey.expires || navigraphAccessKey.expires < Date.now()) {
         const form = new URLSearchParams();
         form.set('client_id', process.env.NAVIGRAPH_SERVER_ID!);
         form.set('client_secret', process.env.NAVIGRAPH_SERVER_SECRET!);
-        form.set('scope', 'fmsdata');
+        form.set('scope', 'fmsdata amdb');
         form.set('grant_type', 'client_credentials');
 
         const { access_token, expires_in } = await $fetch<{ access_token: string; expires_in: number; token_type: 'Bearer' }>('https://identity.api.navigraph.com/connect/token', {
@@ -83,13 +83,17 @@ export async function initNavigraph() {
             timeout: 1000 * 60,
         });
 
-        accessKey.token = access_token;
-        accessKey.expires = Date.now() + (expires_in * 1000);
+        navigraphAccessKey.token = access_token;
+        navigraphAccessKey.expires = Date.now() + (expires_in * 1000);
     }
+}
+
+export async function initNavigraph() {
+    await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
         headers: {
-            Authorization: `Bearer ${ accessKey.token }`,
+            Authorization: `Bearer ${ navigraphAccessKey.token }`,
         },
         timeout: 1000 * 60,
         retry: 3,
@@ -97,7 +101,7 @@ export async function initNavigraph() {
 
     const [outdated] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=outdated', {
         headers: {
-            Authorization: `Bearer ${ accessKey.token }`,
+            Authorization: `Bearer ${ navigraphAccessKey.token }`,
         },
         timeout: 1000 * 60,
         retry: 3,

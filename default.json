@@ -17,10 +17,6 @@
   "osvVulnerabilityAlerts": true,
   "packageRules": [
     {
-      "matchPackageNames": "typescript",
-      "allowedVersions": "<5.7"
-    },
-    {
       "matchPackageNames": [
         "tsx"
       ],
@@ -98,8 +94,7 @@
   "separateMultipleMajor": true,
   "updateInternalDeps": true,
   "baseBranches": [
-    "next",
-    "/^release\\/.*/"
+    "next"
   ],
   "extends": [
     ":automergeDisabled",

@@ -11,9 +11,14 @@
             width="20"
         >
 
-        AIRAC {{
-            dataStore.versions.value.navigraph[store.user?.hasFms ? 'current' : 'outdated'].split('-')[0]
-        }}
+        <template v-if="store.user?.hasFms">
+            AIRAC {{
+                dataStore.versions.value.navigraph.current.split('-')[0]
+            }}
+        </template>
+        <template v-else>
+            Connect Navigraph
+        </template>
     </div>
 </template>
 
@@ -34,12 +39,12 @@ const store = useStore();
     align-self: stretch;
 
     padding: 8px 12px;
+    border-radius: 8px;
 
     font-size: 12px;
     font-weight: 600;
 
     background: $darkgray950;
-    border-radius: 8px;
 
     &--current {
         cursor: default;

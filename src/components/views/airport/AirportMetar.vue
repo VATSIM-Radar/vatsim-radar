@@ -3,7 +3,10 @@
         v-if="metar"
         class="__info-sections"
     >
-        <common-copy-info-block :text="data.airport?.metar"/>
+        <common-copy-info-block
+            auto-expand
+            :text="data.airport?.metar"
+        />
         <div
             v-if="metar.hour"
             class="__grid-info-sections"
@@ -18,7 +21,7 @@
             </common-info-block>
         </div>
         <div
-            v-if="metar.temperature"
+            v-if="typeof metar.temperature === 'number'"
             class="__grid-info-sections"
         >
             <div class="__grid-info-sections_title">

@@ -133,3 +133,49 @@ spec:
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vatglasses
+spec:
+  progressDeadlineSeconds: 360
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vatglasses
+  template:
+    metadata:
+      labels:
+        app: vatglasses
+    spec:
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        doks.digitalocean.com/node-pool: basic-2
+      containers:
+        - name: worker
+          image: ghcr.io/vatsim-radar/vatsim-radar/production
+          imagePullPolicy: Always
+          command: ["/radar/.config/vatglasses-worker-prod.sh"]
+          ports:
+            - containerPort: 8880
+          resources:
+            requests:
+              cpu: 600m
+              memory: 300Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vatglasses
+spec:
+  ports:
+    - port: 8880
+  selector:
+    app: vatglasses

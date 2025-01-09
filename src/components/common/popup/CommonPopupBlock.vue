@@ -29,8 +29,8 @@
 <style scoped lang="scss">
 .popup-block {
     padding: 8px;
-    background: $darkgray1000;
     border-radius: 8px;
+    background: $darkgray1000;
 
     &_title {
         display: flex;
@@ -39,7 +39,6 @@
         align-items: center;
 
         padding-bottom: 8px;
-
         border-bottom: 1px solid varToRgba('lightgray150', 0.2);
 
         &_text {
@@ -53,9 +52,9 @@
 
         &_sub {
             padding-left: 16px;
+            border-left: 1px solid varToRgba('lightgray150', 0.2);
             font-size: 13px;
             color: $lightgray150;
-            border-left: 1px solid varToRgba('lightgray150', 0.2);
         }
 
         .__spacer {

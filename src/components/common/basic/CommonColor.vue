@@ -30,6 +30,7 @@
                     />
                     <common-select
                         class="color-picker__transparency"
+                        :class="{ 'color-picker__hidden': colorOnly }"
                         :items="transparencyOptions"
                         max-dropdown-height="150px"
                         :model-value="model.transparency ?? 1"
@@ -40,7 +41,7 @@
                     />
                     <div
                         class="color-picker__preview"
-                        :class="{ 'color-picker__preview--hidden': transparencyOnly }"
+                        :class="{ 'color-picker__hidden': transparencyOnly }"
                         :style="{ '--color': model.color && getColorFromSettings(model as UserMapSettingsColor) }"
                     />
                 </div>
@@ -80,7 +81,7 @@
 
 <script setup lang="ts">
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import type { UserMapSettingsColor } from '~/utils/backend/map-settings';
+import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
@@ -94,6 +95,10 @@ defineProps({
         default: null,
     },
     transparencyOnly: {
+        type: Boolean,
+        default: false,
+    },
+    colorOnly: {
         type: Boolean,
         default: false,
     },
@@ -167,14 +172,18 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         width: 32px;
         min-width: 32px;
         height: 32px;
-
-        background: var(--color);
         border: 1px solid $lightgray200;
         border-radius: 8px;
 
-        &--hidden {
-            visibility: hidden;
-            opacity: 0;
+        background: var(--color);
+    }
+
+    &__hidden {
+        visibility: hidden;
+        opacity: 0;
+
+        @include mobileOnly {
+            display: none;
         }
     }
 
@@ -190,9 +199,9 @@ const transparencyOptions = computed<SelectItem[]>(() => {
             width: 42px;
             min-width: 42px;
             height: 42px;
-
             border: 0;
             border-radius: 4px;
+
             outline: 0;
             box-shadow: none;
         }
@@ -215,10 +224,10 @@ const transparencyOptions = computed<SelectItem[]>(() => {
 
             width: calc(9cqw - 4px * 9 / 10);
             height: calc(9cqw - 4px * 9 / 10);
-
-            background: var(--color);
             border: 1px solid $darkgray800;
             border-radius: 4px;
+
+            background: var(--color);
 
             transition: 0.3s;
 

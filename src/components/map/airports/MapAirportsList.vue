@@ -28,7 +28,12 @@ import { attachMoveEnd, isPointInExtent, useIsMobileOrTablet } from '~/composabl
 import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
 import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
-import type { NavigraphAirportData, NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
+import type {
+    NavigraphAirportData,
+    NavigraphGate,
+    NavigraphLayout,
+    NavigraphRunway,
+} from '~/types/data/navigraph';
 import { Point } from 'ol/geom';
 import { Fill, Style, Text } from 'ol/style';
 import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
@@ -43,15 +48,29 @@ import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
 import type { FeatureLike } from 'ol/Feature';
+import VectorImageLayer from 'ol/layer/VectorImage';
+import { airportLayoutStyles } from '~/composables/airport-layout';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { AmdbLayerName } from '@navigraph/amdb';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
+let airportVectorLayer: VectorImageLayer<any>;
+let airportLabelVectorLayer: VectorImageLayer<any>;
+let gatesLayer: VectorLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
+const airportLayerSource = shallowRef<VectorSource | null>(null);
+const airportLabelLayerSource = shallowRef<VectorSource | null>(null);
+const gatesSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 provide('airports-source', airportsSource);
+provide('layer-source', airportLayerSource);
+provide('label-source', airportLabelLayerSource);
+provide('gates-source', gatesSource);
 
+let settingAirports = false;
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -65,8 +84,8 @@ const visibleAirports = shallowRef<{
     vatspyAirport: VatSpyData['airports'][0];
     vatsimAirport: MapAirportType;
 }[]>([]);
-const airportsData = shallowRef<{ airport: string; gates: NavigraphGate[]; runways: NavigraphRunway[] }[]>([]);
-const originalAirportsData = shallowRef<{ airport: string; gates: NavigraphGate[]; runways: NavigraphRunway[] }[]>([]);
+const airportsData = shallowRef<{ airport: string; gates: NavigraphGate[]; runways: NavigraphRunway[]; layout?: NavigraphLayout }[]>([]);
+const originalAirportsData = shallowRef<{ airport: string; gates: NavigraphGate[]; runways: NavigraphRunway[]; layout?: NavigraphLayout }[]>([]);
 const isManualHover = ref(false);
 
 const hoveredAirportName = ref<string | null>(null);
@@ -179,6 +198,13 @@ function handleMapClick(e: MapBrowserEvent<any>) {
     if (isMobileOrTablet.value) handlePointerMove(e);
 }
 
+watch(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback), () => {
+    originalAirportsData.value = [];
+    airportsData.value = [];
+
+    setVisibleAirports();
+});
+
 watch(map, val => {
     if (!val || vectorLayer) return;
 
@@ -216,6 +242,92 @@ watch(map, val => {
         val.addLayer(airportsLayer);
     }
 
+    const styles = airportLayoutStyles();
+
+    if (!airportVectorLayer) {
+        airportLayerSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: false,
+        });
+
+        airportVectorLayer = new VectorImageLayer<any>({
+            source: airportLayerSource.value,
+            zIndex: 5,
+            declutter: true,
+            properties: {
+                type: 'airport-layer',
+            },
+            imageRatio: 2,
+            minZoom: 12,
+            style: function(feature) {
+                const type = feature.getProperties().type as AmdbLayerName;
+                const style = styles[type];
+
+                if (typeof style === 'function') return style(feature);
+
+                return style;
+            },
+        });
+
+        val.addLayer(airportVectorLayer);
+    }
+
+    if (!airportLabelVectorLayer) {
+        airportLabelLayerSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: false,
+        });
+
+        airportLabelVectorLayer = new VectorImageLayer<any>({
+            source: airportLabelLayerSource.value,
+            zIndex: 5,
+            declutter: true,
+            properties: {
+                type: 'airport-layer',
+            },
+            imageRatio: 2,
+            minZoom: 15,
+            style: function(feature) {
+                const type = feature.getProperties().type as AmdbLayerName;
+                const style = styles[type];
+
+                if (typeof style === 'function') return style(feature);
+
+                return style;
+            },
+        });
+
+        val.addLayer(airportLabelVectorLayer);
+    }
+
+    if (!gatesLayer) {
+        gatesSource.value = new VectorSource<any>({
+            features: [],
+            wrapX: false,
+        });
+
+        const styles = airportLayoutStyles();
+
+        gatesLayer = new VectorLayer<any>({
+            source: gatesSource.value,
+            properties: {
+                type: 'airport-layer',
+            },
+            style: function(feature) {
+                const type = feature.getProperties().type as AmdbLayerName;
+                const style = styles[type];
+
+                if (typeof style === 'function') return style(feature);
+
+                return style;
+            },
+            minZoom: 15,
+            zIndex: 6,
+        });
+
+        val.addLayer(gatesLayer);
+    }
+
     attachMoveEnd(setVisibleAirports);
     useUpdateInterval(setVisibleAirports);
     watch(() => String(isHideMapObject('gates')) + isHideMapObject('runways'), setVisibleAirports);
@@ -229,12 +341,14 @@ onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (airportsLayer) map.value?.removeLayer(airportsLayer);
+    if (airportVectorLayer) map.value?.removeLayer(airportVectorLayer);
+    if (airportLabelVectorLayer) map.value?.removeLayer(airportLabelVectorLayer);
     map.value?.un('pointermove', handlePointerMove);
     map.value?.un('click', handleMapClick);
 });
 
 const getAirportsData = computed<NavigraphAirportData[]>(() => {
-    if (!airportsData.value || mapStore.zoom < 13) return [];
+    if (!airportsData.value || mapStore.zoom < 12) return [];
 
     return getAirportsList.value.map(airport => {
         const gateAirport = originalAirportsData.value.find(x => x.airport === airport.airport.icao);
@@ -276,6 +390,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
             airport: gateAirport.airport,
             gates: gates.filter(x => filteredGates.some(y => y.gate_identifier === x.gate_identifier)),
             runways: isHideMapObject('runways') ? [] : gateAirport.runways,
+            layout: gateAirport.layout,
         };
     }).filter(x => !!x) as typeof airportsData['value'];
 });
@@ -298,6 +413,8 @@ export interface AirportsList {
     isSimAware: boolean;
 }
 
+const vatGlassesActive = isVatGlassesActive();
+
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
     const airports = ((store.featuredAirportsOpen && !store.featuredVisibleOnly) ? airportsList : visibleAirports).value.map(({
@@ -317,7 +434,7 @@ const getAirportsList = computed(() => {
 
     function addToAirportSector(sector: GeoJSONFeature, airport: typeof airports[0], controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
-        let existingSector = airport.features.find(x => x.id === id);
+        let existingSector = airport.features.find(x => x.id === id) || airports.find(x => x.features.some(x => x.id === id))?.features.find(x => x.id === id);
         if (existingSector) {
             existingSector.controllers.push(controller);
         }
@@ -384,6 +501,10 @@ const getAirportsList = computed(() => {
         if (!airport) continue;
 
         if (isArr) {
+            if (vatGlassesActive.value && dataStore.vatglassesActivePositions.value['fallback']) {
+                const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+                if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+            }
             airport.arrAtc.push(atc.atc);
             airport.arrAtcInfo.push(atc);
             continue;
@@ -396,92 +517,98 @@ const getAirportsList = computed(() => {
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
 
-        let airport = airports.find(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
+        let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
 
-        if (!airport) {
-            airport = airports.find(x => x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
         }
 
-        if (!airport) {
-            airport = airports.find(x => prefixes.some(y => y.split('_')[0] === x.airport.icao));
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && prefixes.some(y => y.split('_')[0] === x.airport.icao));
         }
 
-        if (!airport) {
-            airport = airports.find(x => x.airport.iata && sector.properties!.id === x.airport.iata);
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && sector.properties!.id === x.airport.iata);
         }
 
-        if (!airport) {
-            airport = airports.find(x => sector.properties!.id === x.airport.icao);
+        if (!foundAirports.length) {
+            foundAirports = airports.filter(x => x.arrAtc.length && sector.properties!.id === x.airport.icao);
         }
 
-        return airport;
+        return foundAirports;
     }
 
     const sectors: {
         sector: GeoFeature<MultiPolygon | Polygon, GeoJsonProperties>;
         prefixes: string[];
         suffix: string | null;
-        airport: typeof airports[0];
+        airports: typeof airports;
     }[] = [];
 
     for (const sector of dataStore.simaware.value?.data.features ?? []) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
-        const airport = findSectorAirport(sector);
+        const airports = findSectorAirport(sector);
 
-        if (airport?.arrAtc.length) {
+        if (airports?.length) {
             sectors.push({
                 sector,
                 prefixes,
                 suffix,
-                airport,
+                airports,
             });
         }
     }
 
     // Strict check
-    for (const { airport, prefixes, suffix, sector } of sectors) {
-        for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
-            const splittedCallsign = controller.callsign.split('_');
+    for (const { airports, prefixes, suffix, sector } of sectors) {
+        for (const airport of airports) {
+            for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
+                const splittedCallsign = controller.callsign.split('_');
 
-            if (
-                (!suffix || controller.callsign.endsWith(suffix)) &&
-                (
-                    (tracon && prefixes.includes(tracon)) ||
-                    // Match AIRPORT_TYPE_NAME
-                    prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
-                    // Match AIRPORT_NAME
-                    (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
-                    // Match AIRPORT_TYPERANDOMSTRING_NAME
-                    (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
-                )
-            ) {
-                addToAirportSector(sector, airport, controller);
+                if (
+                    (!suffix || controller.callsign.endsWith(suffix)) &&
+                    (
+                        (tracon && prefixes.includes(tracon)) ||
+                        // Match AIRPORT_TYPE_NAME
+                        prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
+                        // Match AIRPORT_NAME
+                        (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
+                        // Match AIRPORT_TYPERANDOMSTRING_NAME
+                        (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
+                    )
+                ) {
+                    addToAirportSector(sector, airport, controller);
+                }
             }
         }
     }
 
     // Non-strict check
-    for (const { airport, prefixes, suffix, sector } of sectors) {
-        // Only non found
-        for (const controller of airport.arrAtc.filter(x => !airport.features.some(y => y.controllers.some(y => y.cid === x.cid)))) {
-            if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
-                addToAirportSector(sector, airport, controller);
+    for (const { airports, prefixes, suffix, sector } of sectors) {
+        for (const airport of airports) {
+            // Only non found
+            for (const controller of airport.arrAtc.filter(x => !airports.some(y => y.features.some(y => y.controllers.some(y => y.cid === x.cid))))) {
+                if (prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
+                    addToAirportSector(sector, airport, controller);
+                }
             }
         }
     }
 
     // For non found
-    for (const { airport, sector } of sectors) {
-        const id = JSON.stringify(sector.properties);
+    for (const { airports, sector } of sectors) {
+        for (const airport of airports) {
+            const id = JSON.stringify(sector.properties);
 
-        // Still nothing found
-        if (!airport.features.length) {
-            airport.features.push({
-                id,
-                traconFeature: sector,
-                controllers: airport.arrAtc,
-            });
+            // Still nothing found
+            if (!airport.features.length) {
+                airport.features.push({
+                    id,
+                    traconFeature: sector,
+                    controllers: airport.arrAtc,
+                });
+            }
         }
     }
 
@@ -519,74 +646,88 @@ const vatAirportsList = computed(() => {
 });
 
 async function setVisibleAirports() {
-    const extent = mapStore.extent.slice();
-    extent[0] -= 200000;
-    extent[1] -= 200000;
-    extent[2] += 200000;
-    extent[3] += 200000;
+    if (settingAirports) return;
+    settingAirports = true;
 
-    // @ts-expect-error Dynamic return value
-    airportsList.value = vatAirportsList.value.map(x => {
-        const vatAirport = dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
-        let airport = x.isSimAware ? vatAirport || x : vatAirport;
-        if (!x.isSimAware && airport?.icao !== x.icao) {
-            // @ts-expect-error We're ok with this airport type
-            airport = {
-                ...airport,
-                icao: x.icao,
-                isIata: true,
-            };
-        }
-        if (!airport) return null;
+    try {
+        const extent = mapStore.extent.slice();
+        extent[0] -= 100000;
+        extent[1] -= 100000;
+        extent[2] += 100000;
+        extent[3] += 100000;
 
-        if (x.isSimAware) {
-            const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao)));
-            if (!simawareFeature) return null;
+        // @ts-expect-error Dynamic return value
+        airportsList.value = vatAirportsList.value.map(x => {
+            const vatAirport = dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
+            let airport = x.isSimAware ? vatAirport || x : vatAirport;
+            if (!x.isSimAware && airport?.icao !== x.icao) {
+                // @ts-expect-error We're ok with this airport type
+                airport = {
+                    ...airport,
+                    icao: x.icao,
+                    isIata: true,
+                };
+            }
+            if (!airport) return null;
 
-            const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
+            if (x.isSimAware) {
+                const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao)));
+                if (!simawareFeature) return null;
+
+                const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
+
+                return {
+                    vatspyAirport: airport,
+                    vatsimAirport: x,
+                    visible: intersects(extent, feature.getGeometry()!.getExtent()),
+                };
+            }
+
+            const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];
 
             return {
                 vatspyAirport: airport,
                 vatsimAirport: x,
-                visible: intersects(extent, feature.getGeometry()!.getExtent()),
+                visible: isPointInExtent(coordinates, extent),
             };
+        }).filter(x => !!x) ?? [];
+
+        visibleAirports.value = airportsList.value.filter(x => x.visible);
+
+        if ((map.value!.getView().getZoom() ?? 0) > 12) {
+            const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
+
+            if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
+                originalAirportsData.value = [
+                    ...originalAirportsData.value,
+                    ...(await Promise.all(
+                        navigraphAirports.filter(x => !originalAirportsData
+                            .value
+                            .some(y => y.airport === x.vatsimAirport.icao))
+                            .map(x => $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ x.vatsimAirport.icao }?v=${ store.version }&layout=${ (store.user?.hasCharts && store.user?.hasFms && !store.mapSettings.navigraphLayers?.disable) ? '1' : '0' }&originalData=${ store.mapSettings.navigraphLayers?.gatesFallback ? '1' : '0' }`)),
+                    )).flatMap(x => x ?? []),
+                ];
+            }
+
+            airportsData.value = originalAirportsData.value.map(data => {
+                const gatesWithPixel = isHideMapObject('gates')
+                    ? []
+                    : data.gates.map(x => ({
+                        ...x,
+                        pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
+                    }));
+
+                return {
+                    airport: data.airport,
+                    gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel?.[0] - x.pixel?.[0]) < 15 && Math.abs(y.pixel?.[1] - x.pixel?.[1]) < 15))),
+                    runways: data.runways,
+                    layout: data.layout,
+                };
+            }).filter(x => visibleAirports.value.find(y => y.vatsimAirport.icao === x.airport));
         }
-
-        const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];
-
-        return {
-            vatspyAirport: airport,
-            vatsimAirport: x,
-            visible: isPointInExtent(coordinates, extent),
-        };
-    }).filter(x => !!x) ?? [];
-
-    visibleAirports.value = airportsList.value.filter(x => x.visible);
-
-    if ((map.value!.getView().getZoom() ?? 0) > 13) {
-        const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
-
-        if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
-            originalAirportsData.value = [
-                ...originalAirportsData.value,
-                ...(await Promise.all(navigraphAirports.filter(x => !originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao)).map(x => $fetch(`/api/data/navigraph/airport/${ x.vatsimAirport.icao }`)))).flatMap(x => x ?? []),
-            ];
-        }
-
-        airportsData.value = originalAirportsData.value.map(data => {
-            const gatesWithPixel = isHideMapObject('gates')
-                ? []
-                : data.gates.map(x => ({
-                    ...x,
-                    pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
-                }));
-
-            return {
-                airport: data.airport,
-                gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel?.[0] - x.pixel?.[0]) < 15 && Math.abs(y.pixel?.[1] - x.pixel?.[1]) < 15))),
-                runways: data.runways,
-            };
-        }).filter(x => visibleAirports.value.find(y => y.vatsimAirport.icao === x.airport));
+    }
+    finally {
+        settingAirports = false;
     }
 }
 </script>

@@ -169,9 +169,9 @@ const controllers = computed<Controller[]>(() => {
 
     min-height: 52px;
     padding: 8px;
+    border-radius: 4px;
 
     background: $darkgray900;
-    border-radius: 4px;
 
     transition: 0.3s;
 
@@ -194,12 +194,11 @@ const controllers = computed<Controller[]>(() => {
         height: 100%;
         min-height: 36px;
         max-height: 40px;
+        border-radius: 4px;
 
         font-size: 14px;
         font-weight: 600;
         line-height: 100%;
-
-        border-radius: 4px;
     }
 
     &_icao {
@@ -208,6 +207,7 @@ const controllers = computed<Controller[]>(() => {
     }
 
     & &_info {
+        padding: 0 !important;
         background: transparent;
 
         :deep(.info-block__content) {

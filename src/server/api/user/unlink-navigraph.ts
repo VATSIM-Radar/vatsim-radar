@@ -17,7 +17,7 @@ export default defineEventHandler(async event => {
             return handleH3Error({
                 event,
                 statusCode: 400,
-                statusMessage: 'Only POST methods are allowed for this route',
+                data: 'Only POST methods are allowed for this route',
             });
         }
 

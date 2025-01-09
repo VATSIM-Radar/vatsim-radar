@@ -15,7 +15,10 @@
                     ({{ tafMetar.type }})
                 </template>
             </div>
-            <common-copy-info-block :text="tafMetar.raw"/>
+            <common-copy-info-block
+                auto-expand
+                :text="tafMetar.raw"
+            />
             <airport-metar-blocks :metar="tafMetar"/>
         </div>
     </div>

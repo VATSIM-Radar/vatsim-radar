@@ -4,6 +4,8 @@ import type { H3Event } from 'h3';
 import { getDBUserToken } from '~/utils/db/user';
 import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
+import { handleH3Error } from '~/utils/backend/h3';
+import type { UserList } from '~/utils/backend/handlers/lists';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -11,6 +13,29 @@ export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser |
     const token = await prisma.userToken.findFirst({
         select: {
             user: true,
+        },
+        where: {
+            accessToken: cookie ?? '',
+            accessTokenExpire: {
+                gte: new Date(),
+            },
+        },
+    });
+
+    if (token) return token.user;
+    return null;
+}
+
+export async function findUserWithListsByCookie(event: H3Event) {
+    const cookie = getCookie(event, 'access-token');
+
+    const token = await prisma.userToken.findFirst({
+        select: {
+            user: {
+                include: {
+                    lists: true,
+                },
+            },
         },
         where: {
             accessToken: cookie ?? '',
@@ -32,6 +57,7 @@ export interface FullUser {
     fullName: string;
     settings: UserSettings;
     discordId: string | null;
+    lists: UserList[];
 }
 
 export interface UserSettings {
@@ -41,9 +67,10 @@ export interface UserSettings {
     toggleAircraftOverlays?: boolean;
     headerName?: string;
     seenVersion?: string;
+    favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
 }
 
-export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<FullUser | null> {
+export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = true): Promise<FullUser | null> {
     const cookie = getCookie(event, 'access-token');
 
     const token = await prisma.userToken.findFirst({
@@ -69,6 +96,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
                         },
                     },
                     discordId: true,
+                    lists: true,
                 },
             },
             accessTokenExpire: true,
@@ -81,10 +109,20 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
 
     if (token) {
         if (token.accessTokenExpire.getTime() < Date.now()) {
-            await getDBUserToken(event, token.user, token);
+            if (refresh) {
+                await getDBUserToken(event, token.user, token);
+            }
+            else {
+                handleH3Error({
+                    event,
+                    statusCode: 401,
+                });
+
+                return null;
+            }
         }
 
-        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now()) {
+        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now() && refresh) {
             try {
                 const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
                 const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
@@ -124,6 +162,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event): Promise<Fu
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
             discordId: token.user.discordId,
+            lists: token.user.lists as unknown as UserList[],
         };
     }
     return null;

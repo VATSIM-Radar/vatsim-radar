@@ -4,15 +4,12 @@ import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
-import type { UserLocalSettings } from '~/types/map';
 import { useMapStore } from '~/store/map';
-import { setHeader, getRequestHeader } from 'h3';
+import { getRequestHeader, setHeader } from 'h3';
 import type { Style } from 'ol/style';
-import { createDefu } from 'defu';
 import type { ColorsList } from '~/utils/backend/styles';
-import type { UserMapSettings } from '~/utils/backend/map-settings';
-import { isFetchError } from '../utils/shared';
-import { toRaw } from 'vue';
+import type { Pixel } from 'ol/pixel';
+import { createDefu } from 'defu';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -120,79 +117,6 @@ export function attachPointerMove(callback: (event: any) => unknown) {
     });
 }
 
-const customDefu = createDefu((obj, key, value) => {
-    if (Array.isArray(obj[key]) && Array.isArray(value)) {
-        obj[key] = value;
-        return true;
-    }
-
-    if (value === null) {
-        // @ts-expect-error Dunno why it says that
-        obj[key] = null;
-        return true;
-    }
-});
-
-export function setUserLocalSettings(settings?: UserLocalSettings) {
-    const store = useStore();
-
-    const settingsText = localStorage.getItem('local-settings') ?? '{}';
-    if (!settings && JSON.stringify(store.localSettings) === settingsText) return;
-
-    let localSettings = JSON.parse(settingsText) as UserLocalSettings;
-    localSettings = customDefu(settings || {}, localSettings);
-    if (settings?.location) localSettings.location = settings.location;
-
-    store.localSettings = localSettings;
-    localStorage.setItem('local-settings', JSON.stringify(localSettings));
-}
-
-export function setUserMapSettings(settings?: UserMapSettings) {
-    const store = useStore();
-
-    const settingsText = localStorage.getItem('map-settings') ?? '{}';
-    if (!settings && JSON.stringify(store.mapSettings) === settingsText) return;
-
-    let mapSettings = JSON.parse(settingsText) as UserMapSettings;
-    mapSettings = customDefu(settings || {}, mapSettings);
-
-    store.mapSettings = mapSettings;
-    localStorage.setItem('map-settings', JSON.stringify(mapSettings));
-}
-
-export async function resetUserMapSettings() {
-    const store = useStore();
-    store.mapSettings = {};
-    localStorage.removeItem('map-settings');
-}
-
-export async function fetchUserMapSettings() {
-    const store = useStore();
-    const settings = await $fetch<UserMapSettings>('/api/user/settings/map');
-    store.mapSettings = settings;
-    localStorage.setItem('map-settings', JSON.stringify(settings));
-}
-
-export async function sendUserMapSettings(name: string, json: UserMapSettings, retryMethod: () => Promise<any>) {
-    const store = useStore();
-    try {
-        return await $fetch<UserMapSettings>(`/api/user/settings/map${ store.mapPresetsSaveFail ? '?force=1' : '' }`, {
-            method: 'POST',
-            body: {
-                name,
-                json: toRaw(json),
-            },
-        });
-    }
-    catch (e) {
-        if (isFetchError(e) && e.statusCode === 409) {
-            store.mapPresetsSaveFail = retryMethod;
-        }
-
-        throw e;
-    }
-}
-
 export function useCopyText() {
     const copied = ref(false);
 
@@ -283,3 +207,55 @@ export const useIsMobile = () => computed(() => useStore().isMobile);
 export const useIsPC = () => computed(() => useStore().isPC);
 export const useIsTablet = () => computed(() => useStore().isTablet);
 export const useIsMobileOrTablet = () => computed(() => useStore().isMobileOrTablet);
+
+export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, excludeClassNames = ['aircraft']) => {
+    map = toValue(map);
+    if (!map) return false;
+
+    let collapsingWithOverlay = false;
+
+    map.getOverlays().forEach(overlay => {
+        if (collapsingWithOverlay) return;
+
+        if ([...overlay.getElement()?.classList ?? []].some(x => excludeClassNames.some(y => x.includes(y)))) return;
+
+        const overlayElement = overlay.getElement();
+        if (overlayElement) {
+            const overlayRect = overlayElement.getBoundingClientRect();
+            const mapRect = map.getTargetElement().getBoundingClientRect();
+            const overlayPixel = [
+                overlayRect.left - mapRect.left,
+                overlayRect.top - mapRect.top,
+            ];
+
+            if (pixel[0] >= overlayPixel[0] && pixel[0] <= overlayPixel[0] + overlayRect.width &&
+                pixel[1] >= overlayPixel[1] && pixel[1] <= overlayPixel[1] + overlayRect.height) {
+                collapsingWithOverlay = true;
+            }
+        }
+    });
+
+    return collapsingWithOverlay;
+};
+
+const callsignRegex = /^(?<callsign>[A-Z]{0,3})[0-9]/;
+
+export function getAirlineFromCallsign(callsign: string) {
+    const icao = callsignRegex.exec(callsign)?.groups?.callsign as string ?? null;
+    if (!icao) return null;
+
+    return useDataStore().airlines.value[icao] ?? null;
+}
+
+export const customDefu = createDefu((obj, key, value) => {
+    if (Array.isArray(obj[key]) && Array.isArray(value)) {
+        obj[key] = value;
+        return true;
+    }
+
+    if (value === null) {
+        // @ts-expect-error Dunno why it says that
+        obj[key] = null;
+        return true;
+    }
+});

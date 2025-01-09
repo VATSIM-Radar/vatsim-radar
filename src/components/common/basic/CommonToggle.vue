@@ -30,7 +30,7 @@ defineProps({
     },
 });
 
-defineSlots<{ default: () => any; description: () => any }>();
+defineSlots<{ default?: () => any; description?: () => any }>();
 
 const model = defineModel({
     type: Boolean,
@@ -79,9 +79,9 @@ const model = defineModel({
         width: 32px;
         min-width: 32px;
         height: 8px;
+        border-radius: 8px;
 
         background: $darkgray850;
-        border-radius: 8px;
 
         &::before {
             content: '';
@@ -93,9 +93,9 @@ const model = defineModel({
 
             width: 16px;
             height: 16px;
+            border-radius: 100%;
 
             background: $lightgray150;
-            border-radius: 100%;
 
             transition: 0.3s ease-in-out;
         }

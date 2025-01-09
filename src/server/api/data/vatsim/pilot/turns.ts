@@ -16,7 +16,7 @@ export default defineEventHandler(async (event): Promise<TurnsBulkReturn[] | nul
         handleH3Error({
             event,
             statusCode: 404,
-            statusMessage: 'Pilots with those cids were not found',
+            data: 'Pilots with those cids were not found',
         });
         return;
     }
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event): Promise<TurnsBulkReturn[] | nul
     handleH3Error({
         event,
         statusCode: 418,
-        statusMessage: 'This API is disabled',
+        data: 'This API is disabled',
     });
     return;
 

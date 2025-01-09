@@ -62,7 +62,7 @@ const options = computed<SelectItem[]>(() => {
     }
 
     _options.unshift({
-        value: 'default',
+        value: '',
         text: 'Default',
     });
 
