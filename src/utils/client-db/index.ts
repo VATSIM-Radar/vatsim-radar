@@ -25,7 +25,7 @@ interface VatglassesData {
 export interface IDBAirlinesData {
     key: 'airlines';
     value: {
-        expiresAt: number;
+        expirationDate: number;
         airlines: RadarDataAirlinesList;
     };
 }
