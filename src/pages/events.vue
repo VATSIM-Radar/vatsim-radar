@@ -48,6 +48,7 @@ const groupedEventData = computed(() => {
     const events: Record<number, VatsimEvent[]> = {};
 
     data.value?.events.forEach(event => {
+        if (new Date(event.end_time) < new Date('2025-01-10T20:00:01Z')) return;
         const date = new Date(event.start_time);
         const key = parseInt(date.getFullYear().toString() + `0${ date.getMonth() }`.slice(-2) + `0${ date.getDate() }`.slice(-2));
 
