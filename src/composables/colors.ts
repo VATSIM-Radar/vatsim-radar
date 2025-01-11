@@ -16,7 +16,7 @@ export function hexToRgb(hex: string): string {
     if (!hex.startsWith('#')) return hex;
 
     // Remove the hash at the start if it's there
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(shortHexToLong(hex));
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(shortHexToLong(hex.slice(0, 6)));
     if (!result) throw new Error(`Failed to convert color ${ hex } from hex to rgb`);
 
     // Return the RGB color
