@@ -257,6 +257,7 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string) {
         callsign: vaCallsign?.callsign ?? airline.callsign,
         name: vaCallsign?.name ?? airline.name,
         website,
+        virtual: vaCallsign ? true : airline.virtual,
     };
 }
 
