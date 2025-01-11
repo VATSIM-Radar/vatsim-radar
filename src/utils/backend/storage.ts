@@ -101,6 +101,7 @@ export interface RadarDataAirline {
     country: string;
     virtual: boolean;
     website?: string | null;
+    virtualParsed?: boolean;
 }
 
 export type RadarDataAirlinesList = Record<string, RadarDataAirline>;
