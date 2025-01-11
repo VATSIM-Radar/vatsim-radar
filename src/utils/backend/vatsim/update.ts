@@ -293,7 +293,7 @@ export async function updateAirlines() {
         retry: 3,
     })).map(val => {
         val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
-        val.country = val.country.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+        val.country = val.country!.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
 
         return [val.icao, val];
     }));
