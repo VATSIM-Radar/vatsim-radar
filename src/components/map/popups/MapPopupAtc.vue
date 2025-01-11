@@ -92,8 +92,9 @@
             <div class="atc__sections">
                 <common-copy-info-block
                     v-if="atc.text_atis"
+                    auto-expand
                     class="atc__sections_section"
-                    :text="parseEncoding(atc.text_atis.join(' '), atc.callsign)"
+                    :text="getATIS(atc)?.join('\n')"
                 >
                     ATIS
                 </common-copy-info-block>
@@ -180,7 +181,6 @@ import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
-import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';
 import { findAtcAirport, showAtcOnMap } from '~/composables/atc';
 import CommonButton from '~/components/common/basic/CommonButton.vue';

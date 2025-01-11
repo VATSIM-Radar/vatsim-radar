@@ -100,6 +100,7 @@ export interface RadarDataAirline {
     callsign: string;
     country: string;
     virtual: boolean;
+    website?: string | null;
 }
 
 export type RadarDataAirlinesList = Record<string, RadarDataAirline>;

@@ -43,7 +43,7 @@
         >
             <div>Airline</div>
             <common-info-block
-                :bottom-items="[airline.callsign, airline.virtual ? '1' : null]"
+                :bottom-items="[airline.icao, airline.callsign, airline.virtual ? '1' : null]"
                 class="flight-info__card flight-info__card--airline"
                 :top-items="[airline.name, airline.country]"
             >
@@ -53,7 +53,12 @@
                     </span>
                 </template>
                 <template #bottom="{ item, index }">
-                    <common-bubble v-if="index === 1">
+                    <common-bubble
+                        :is="airline.website ? 'a' : 'div'"
+                        v-if="index === 2"
+                        :href="airline.website"
+                        target="_blank"
+                    >
                         Virtual Airline
                     </common-bubble>
                     <template v-else>
@@ -249,7 +254,7 @@ const arrAirport = computed(() => {
     return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.pilot.flight_plan?.arrival);
 });
 
-const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign));
+const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks));
 
 const datetime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
