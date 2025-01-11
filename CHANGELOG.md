@@ -1,6 +1,10 @@
 # Changelog
 
-# [1.0.0-final]
+# [1.0.0-1]
+
+Initial changelog
+
+# [1.0.0]
 
 This update marks an important milestone for VATSIM Radar. 
 

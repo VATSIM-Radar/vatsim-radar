@@ -315,10 +315,10 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
             }()),
             (async function() {
                 let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
-                if (!airlines || Date.now() > airlines.expiresAt) {
+                if (!airlines || !airlines.expirationDate || Date.now() > airlines.expirationDate) {
                     const data = await $fetch<RadarDataAirlinesList>('/api/data/airlines');
                     airlines = {
-                        expiresAt: Date.now() + (1000 * 60 * 60 * 24 * 30),
+                        expirationDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
                         airlines: data,
                     };
                     await clientDB.put('data', airlines, 'airlines');

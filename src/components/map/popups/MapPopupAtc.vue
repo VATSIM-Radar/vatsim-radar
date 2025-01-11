@@ -62,6 +62,7 @@
                         </template>
                     </common-spoiler>
                     <common-favorite-list
+                        v-if="store.user"
                         :cid="atc.cid"
                         :name="atc.name"
                     />
@@ -192,6 +193,7 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import { useStore } from '~/store';
 
 const props = defineProps({
     overlay: {
@@ -202,6 +204,7 @@ const props = defineProps({
 
 const facilities = useFacilitiesIds();
 
+const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 const map = inject<ShallowRef<Map | null>>('map')!;

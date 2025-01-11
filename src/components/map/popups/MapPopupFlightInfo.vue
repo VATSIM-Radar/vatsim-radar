@@ -31,6 +31,7 @@
                 </template>
             </common-button>
             <common-favorite-list
+                v-if="store.user"
                 :cid="pilot.cid"
                 class="flight-info_self_favorite"
                 :name="pilot.name"
@@ -211,6 +212,7 @@ import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 import { getAirlineFromCallsign } from '~/composables';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import { useStore } from '~/store';
 
 const props = defineProps({
     pilot: {
@@ -229,6 +231,7 @@ const props = defineProps({
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();
+const store = useStore();
 
 const getLogonTime = computed(() => {
     return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
