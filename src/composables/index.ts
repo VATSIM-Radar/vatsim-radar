@@ -10,6 +10,7 @@ import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
+import { getVACallsign, getVAWebsite } from '~/utils/shared';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -240,11 +241,23 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
 
 const callsignRegex = /^(?<callsign>[A-Z]{0,3})[0-9]/;
 
-export function getAirlineFromCallsign(callsign: string) {
+export function getAirlineFromCallsign(callsign: string, remarks?: string) {
     const icao = callsignRegex.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    return useDataStore().airlines.value[icao] ?? null;
+    const airline = useDataStore().airlines.value[icao];
+
+    if (!airline || !remarks) return airline ?? null;
+
+    const vaCallsign = getVACallsign(remarks);
+    const website = getVAWebsite(remarks);
+
+    return {
+        ...airline,
+        callsign: vaCallsign?.callsign ?? airline.callsign,
+        name: vaCallsign?.name ?? airline.name,
+        website,
+    };
 }
 
 export const customDefu = createDefu((obj, key, value) => {

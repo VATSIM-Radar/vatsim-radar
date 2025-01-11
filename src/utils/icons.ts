@@ -360,7 +360,7 @@ export const aircraftIcons: AircraftIcons = {
     },
     r22: {
         icon: 'r22',
-        width: getAircraftSizeByCoef(0.19),
+        width: getAircraftSizeByCoef(0.19, true),
     },
     u2: {
         icon: 'u2',

@@ -1,6 +1,7 @@
 <template>
     <common-info-block
-        class="atc-popup_atc"
+        class="atc"
+        :class="{ 'atc--small': small }"
         is-button
         :top-items="[
             controller.callsign,
@@ -13,17 +14,17 @@
         <template #top="{ item, index }">
             <template v-if="index === 0">
                 <div
-                    class="atc-popup__position"
+                    class="atc__position"
                     :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                 >
                     <div
                         v-if="showFacility"
-                        class="atc-popup__position_facility"
+                        class="atc__position_facility"
                         :style="{ background: getControllerPositionColor(controller) }"
                     >
                         {{ controller.isATIS ? 'ATIS' : controller.facility === -2 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                     </div>
-                    <div class="atc-popup__position_name">
+                    <div class="atc__position_name">
                         {{ item }}
                     </div>
                 </div>
@@ -31,13 +32,13 @@
             <template v-else-if="index === 1">
                 <common-spoiler type="controller">
                     <div
-                        class="atc-popup__controller"
+                        class="atc__controller"
                         :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                     >
-                        <div class="atc-popup__controller_name">
+                        <div class="atc__controller_name">
                             {{ item }}
                         </div>
-                        <common-blue-bubble class="atc-popup__controller_rating">
+                        <common-blue-bubble class="atc__controller_rating">
                             {{
                                 dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
                             }}
@@ -51,7 +52,7 @@
             </template>
             <template v-else-if="index === 2">
                 <div
-                    class="atc-popup__frequency"
+                    class="atc__frequency"
                     @click.stop="[copy(item as string), copiedFor = controller.callsign]"
                 >
                     <template v-if="!isCopied(controller.callsign)">
@@ -65,7 +66,7 @@
                 </div>
             </template>
             <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length)">
-                <div class="atc-popup__time">
+                <div class="atc__time">
                     {{ getATCTime(controller) }}
                 </div>
             </template>
@@ -77,13 +78,13 @@
             v-if="showAtis && controller.text_atis?.length"
             #bottom
         >
-            <ul class="atc-popup_atc__atis">
+            <ul class="atc__atis">
                 <li
                     v-for="atis in getATIS(controller)"
                     :key="atis"
-                    class="atc-popup_atc__atis_line"
+                    class="atc__atis_line"
                 >
-                    {{ parseEncoding(atis, controller.callsign) }}<br>
+                    {{ atis }}<br>
                 </li>
             </ul>
             <common-atc-time-online
@@ -154,45 +155,34 @@ const controllerColor = (controller: VatsimShortenedController) => {
 const isCopied = (key: string) => {
     return copiedFor.value === key && copyState.value;
 };
-
-const getATIS = (controller: VatsimShortenedController) => {
-    if (!controller.isATIS) return controller.text_atis;
-    if (controller.text_atis && controller.text_atis.filter(x => x.replaceAll(' ', '').length > 20).length > controller.text_atis.length - 2) return [controller.text_atis.join(' ')];
-    return controller.text_atis;
-};
 </script>
 
 <style scoped lang="scss">
-.atc-popup {
+.atc {
     display: flex;
     flex-direction: column;
     gap: 4px;
 
-    &-container {
-        cursor: initial;
-
-        z-index: 20;
-
-        width: max-content;
-        max-width: 450px;
-        padding: 5px 0;
-
-        &--small {
-            max-width: min(450px, 100%);
-        }
-
-        &--absolute {
-            position: absolute;
-        }
+    &--small {
+        max-width: min(450px, 100%);
 
         @include mobileOnly {
             max-width: 80vw;
         }
     }
 
-    &_title {
-        margin-bottom: 10px;
-        font-weight: 600;
+    @at-root .atc-popup-container:not(.atc-popup-container--small) & {
+        :deep(.info-block__separator:nth-child(2)) {
+            flex: 1 0 auto;
+
+            svg {
+                display: none;
+            }
+        }
+
+        :deep(.info-block_top) {
+            flex-wrap: nowrap;
+        }
     }
 
     &__position {
@@ -240,45 +230,20 @@ const getATIS = (controller: VatsimShortenedController) => {
         background: $darkgray950;
     }
 
-    &_list {
-        overflow: auto;
+
+    &__atis {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 5px;
 
-        max-height: v-bind(maxHeight);
-    }
+        margin: 0;
+        padding-left: 16px;
 
-    &_atc {
-        @at-root .atc-popup-container:not(.atc-popup-container--small) & {
-            :deep(.info-block__separator:nth-child(2)) {
-                flex: 1 0 auto;
+        word-break: break-word;
 
-                svg {
-                    display: none;
-                }
-            }
-
-            :deep(.info-block_top) {
-                flex-wrap: nowrap;
-            }
-        }
-
-
-        &__atis {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-
-            margin: 0;
-            padding-left: 16px;
-
-            word-break: break-word;
-
-            &_line:only-child {
-                margin-left: -16px;
-                list-style: none;
-            }
+        &_line:only-child {
+            margin-left: -16px;
+            list-style: none;
         }
     }
 }

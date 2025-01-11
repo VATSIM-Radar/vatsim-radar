@@ -92,8 +92,9 @@
             <div class="atc__sections">
                 <common-copy-info-block
                     v-if="atc.text_atis"
+                    auto-expand
                     class="atc__sections_section"
-                    :text="parseEncoding(atc.text_atis.join(' '), atc.callsign)"
+                    :text="getATIS(atc)?.join('\n')"
                 >
                     ATIS
                 </common-copy-info-block>

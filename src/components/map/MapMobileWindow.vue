@@ -20,7 +20,7 @@
                 </template>
             </common-info-popup>
             <common-info-popup
-                v-if="store.menuFriendsOpen"
+                v-else-if="store.menuFriendsOpen"
                 max-height="unset"
                 model-value
                 :sections="[{ key: 'content' }]"

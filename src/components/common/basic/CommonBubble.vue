@@ -1,5 +1,6 @@
 <template>
-    <div
+    <component
+        :is
         class="bubble"
         :class="[
             `bubble--size-${ size }`,
@@ -7,7 +8,7 @@
         ]"
     >
         <slot/>
-    </div>
+    </component>
 </template>
 
 <script setup lang="ts">
@@ -21,6 +22,10 @@ defineProps({
     type: {
         type: String as PropType<'primary' | 'secondary' | 'primary-flat'>,
         default: 'primary',
+    },
+    is: {
+        type: String,
+        default: 'div',
     },
 });
 
@@ -41,6 +46,7 @@ defineSlots<{ default: () => any }>();
     line-height: 100%;
     color: $lightgray150Orig;
     text-align: center;
+    text-decoration: none;
 
     background: $primary500;
 

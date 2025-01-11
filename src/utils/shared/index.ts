@@ -77,3 +77,35 @@ export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
     if (!split || split.length <= allowedAfterDot) return true;
     return false;
 }
+
+export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
+    const exec = /CS\/(?<callsign>[A-Z ]+)((\/(?<name>[A-Z ]+)(?= [ A-Z]+\/[A-Z]))|((?= [A-Z]+\/[A-Z])?))/.exec(remarks);
+    if (exec?.groups?.callsign) {
+        return {
+            callsign: exec.groups.callsign?.replace('VATSIMVA', '').trim(),
+            name: exec.groups.name?.trim() ?? null,
+        };
+    }
+
+    return null;
+}
+
+export function getVAWebsite(remarks: string) {
+    const website = /WEB\/(?<website>.+?)(?= )/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
+
+    if (!website) return website;
+
+    try {
+        if (website.startsWith('http')) {
+            new URL(website);
+            return website;
+        }
+
+        new URL(`https://${ website }`);
+        return `https://${ website }`;
+    }
+    catch {
+        console.warn(`Failed to parse VA url from ${ remarks } (result: ${ website })`);
+        return null;
+    }
+}

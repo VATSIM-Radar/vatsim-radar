@@ -6,6 +6,7 @@ import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useStore } from '~/store';
+import { parseEncoding } from '~/utils/data';
 
 export const useFacilitiesIds = () => {
     const dataStore = useDataStore();
@@ -143,4 +144,12 @@ export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
     if (!airport) return;
 
     return showAirportOnMap(airport, map);
+}
+
+export function getATIS(controller: VatsimShortenedController) {
+    const atis = controller.text_atis?.map(x => parseEncoding(x, controller.callsign)) ?? null;
+
+    if (!controller.isATIS) return atis;
+    if (atis && atis.filter(x => x.replaceAll(' ', '').length > 20).length > atis.length - 2) return [atis.join(' ')];
+    return atis;
 }

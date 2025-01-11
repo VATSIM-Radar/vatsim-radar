@@ -64,6 +64,7 @@
                             <common-single-controller-info
                                 :controller="sector.atc"
                                 show-atis
+                                small
                             />
                         </template>
                     </div>
@@ -291,6 +292,12 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .atc-popup {
+    max-width: min(450px, 100%);
+
+    @include mobileOnly {
+        max-width: 80vw;
+    }
+
     &_list {
         overflow: auto;
         display: flex;

@@ -2,7 +2,11 @@
 
 # [1.0.0-1]
 
-Initial changelog
+- Added Virtual Airlines remarks parsing (CS/Callsign/Name, CS/Callsign, WEB/website)
+- Fixed an error when event showed as active even if it has ended by @MicahBCode
+- Fixed VATGlasses combined worker failing in certain cases by @FX5F
+- Fixed VATGlasses positions popup width
+- Fixed featured airports open in mobile version together with airport overlay
 
 # [1.0.0]
 
