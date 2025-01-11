@@ -99,7 +99,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import { parseEncoding } from '~/utils/data';
 import { useMapStore } from '~/store/map';
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';

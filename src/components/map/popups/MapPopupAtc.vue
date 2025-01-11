@@ -181,7 +181,6 @@ import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.vue';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
-import { parseEncoding } from '~/utils/data';
 import type { Map } from 'ol';
 import { findAtcAirport, showAtcOnMap } from '~/composables/atc';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
