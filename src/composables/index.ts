@@ -11,6 +11,7 @@ import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
 import { getVACallsign, getVAWebsite } from '~/utils/shared';
+import type { RadarDataAirline } from '~/utils/backend/storage';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -239,25 +240,26 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
     return collapsingWithOverlay;
 };
 
-const callsignRegex = /^(?<callsign>[A-Z]{0,3})[0-9]/;
-
-export function getAirlineFromCallsign(callsign: string, remarks?: string) {
-    const icao = callsignRegex.exec(callsign)?.groups?.callsign as string ?? null;
+export function getAirlineFromCallsign(callsign: string, remarks?: string): RadarDataAirline | null {
+    const icao = /^(?<callsign>[A-Z]{0,3})[0-9]/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = useDataStore().airlines.value[icao];
+    const airline = useDataStore().airlines.value[icao] as RadarDataAirline | undefined;
 
-    if (!airline || !remarks) return airline ?? null;
+    if (!airline && !remarks) return airline ?? null;
 
-    const vaCallsign = getVACallsign(remarks);
-    const website = getVAWebsite(remarks);
+    const vaCallsign = remarks ? getVACallsign(remarks) : null;
+    const website = remarks ? getVAWebsite(remarks) : null;
+
+    if (!vaCallsign && !airline) return null;
 
     return {
         ...airline,
-        callsign: vaCallsign?.callsign ?? airline.callsign,
-        name: vaCallsign?.name ?? airline.name,
+        icao: airline?.icao ?? icao,
+        callsign: vaCallsign?.callsign ?? airline!.callsign,
+        name: vaCallsign?.name ?? airline!.name,
         website,
-        virtual: vaCallsign ? true : airline.virtual,
+        virtual: vaCallsign ? true : airline!.virtual,
         virtualParsed: !!vaCallsign,
     };
 }
