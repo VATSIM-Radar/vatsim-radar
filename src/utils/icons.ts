@@ -1146,6 +1146,10 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'AT75':
         case 'AT76':
             return aircraftIcons.at7x;
+        case 'PITA':
+        case 'G109':
+        case 'S12S':
+            return aircraftIcons.dimo;
         case 'B731':
         case 'B732':
         case 'B733':
