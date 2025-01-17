@@ -53,9 +53,14 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
         if (entry.entryName.endsWith('.json')) {
             let fileName = entry.entryName.split('/').pop(); // Get the filename
             if (fileName) {
-                fileName = fileName.replace('.json', ''); // Remove the .json extension
-                const fileData = JSON.parse(entry.getData().toString('utf-8'));
-                combinedData[fileName] = fileData; // Use the filename as the key
+                try {
+                    fileName = fileName.replace('.json', ''); // Remove the .json extension
+                    const fileData = JSON.parse(entry.getData().toString('utf-8'));
+                    combinedData[fileName] = fileData; // Use the filename as the key
+                }
+                catch (e) {
+                    console.warn(`Error parsing ${ fileName }`, e);
+                }
             }
         }
     });
