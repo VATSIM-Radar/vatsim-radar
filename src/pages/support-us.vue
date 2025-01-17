@@ -110,6 +110,9 @@
                                 Beta versions access (from 3$/100₽)
                             </li>
                             <li>
+                                Satellite Layer (from 3$/100₽ on Beta website)
+                            </li>
+                            <li>
                                 Name on this page (from 5$, Patreon only)
                             </li>
                             <li>
