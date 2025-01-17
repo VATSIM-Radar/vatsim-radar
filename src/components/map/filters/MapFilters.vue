@@ -432,12 +432,12 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
     &__warning {
         padding: 10px;
+        border-radius: 8px;
 
         font-size: 11px;
         color: $lightgray150;
 
         background: $darkgray850;
-        border-radius: 8px;
     }
 
     &_toggle {
@@ -510,6 +510,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
         margin-bottom: 8px;
         padding: 8px 4px;
+        border-radius: 4px;
 
         font-family: $openSansFont;
         font-size: 14px;
@@ -519,7 +520,6 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
         text-decoration: none;
 
         background: #48484a;
-        border-radius: 4px;
 
         &_image {
             max-width: 40%;
