@@ -106,7 +106,7 @@ export type AircraftIcon =
     | 'a343'
     | 'a359'
     | 'a35k'
-    | 'a380'
+    | 'a388'
     | 'b703'
     | 'b712'
     | 'b720'
@@ -790,8 +790,8 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'a35k',
         width: getAircraftSizeByCoef(1.08),
     },
-    a380: {
-        icon: 'a380',
+    a388: {
+        icon: 'a388',
         width: getAircraftSizeByCoef(1.33),
     },
     dc6: {
@@ -920,8 +920,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A35K':
             return aircraftIcons.a35k;
         case 'A388':
-        case 'A380':
-            return aircraftIcons.a380;
+            return aircraftIcons.a388;
         case 'DC6':
             return aircraftIcons.dc6;
         case 'MD11':
