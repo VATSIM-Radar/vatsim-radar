@@ -46,5 +46,7 @@ module.exports = {
         'at-rule-empty-line-before': null,
         'scss/no-global-function-names': null,
         'no-duplicate-selectors': null,
+        'declaration-property-value-no-unknown': null,
+        'at-rule-descriptor-value-no-unknown': null,
     },
 };
