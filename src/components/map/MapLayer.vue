@@ -18,6 +18,7 @@ import VectorSource from 'ol/source/Vector';
 import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { isProductionMode } from '~/utils/shared';
 
 defineSlots<{ default: () => any }>();
 
@@ -68,6 +69,17 @@ const layer = computed<Layer | IVectorLayer>(() => {
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'carto';
 
+    if (layer === 'Satellite' && isProductionMode()) {
+        layer = 'carto';
+        setUserLocalSettings({
+            filters: {
+                layers: {
+                    layer: 'carto',
+                },
+            },
+        });
+    }
+
     if (layer === 'basic') {
         return {
             url: 'basic',
@@ -84,8 +96,8 @@ const layer = computed<Layer | IVectorLayer>(() => {
                     title: 'CartoDB',
                     url: 'https://cartodb.com/attribution',
                 },
-                url: `https://a.basemaps.cartocdn.com/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
-                lightThemeUrl: `https://a.basemaps.cartocdn.com/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
+                url: `/layers/carto/basemaps/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
+                lightThemeUrl: `/layers/carto/basemaps/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
             };
         }
         else {
@@ -94,8 +106,8 @@ const layer = computed<Layer | IVectorLayer>(() => {
                     title: 'CartoDB',
                     url: 'https://cartodb.com/attribution',
                 },
-                url: `https://basemaps.cartocdn.com/gl/dark-matter${ isLabels ? '' : '-nolabels' }-gl-style/style.json`,
-                lightThemeUrl: `https://basemaps.cartocdn.com/gl/positron${ isLabels ? '' : '-nolabels' }-gl-style/style.json`,
+                url: `/api/data/carto/dark-matter${ isLabels ? '' : '-nolabels' }-gl-style`,
+                lightThemeUrl: `/api/data/carto/positron${ isLabels ? '' : '-nolabels' }-gl-style`,
                 vector: true,
             };
         }

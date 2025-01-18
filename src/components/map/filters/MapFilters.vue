@@ -277,7 +277,7 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { IUserMapSettings, UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
+import { isProductionMode, MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 import { saveMapSettings } from '~/composables/settings';
@@ -307,7 +307,7 @@ const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
 const isMobile = useIsMobile();
 
-const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
+let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
         value: 'carto',
         text: 'CartoDB',
@@ -327,6 +327,8 @@ const mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
         hintLocation: 'left',
     },
 ];
+
+if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'Satellite');
 
 const radarIsCarto = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
     store.localSettings.filters?.layers?.layer?.startsWith('carto') ||
