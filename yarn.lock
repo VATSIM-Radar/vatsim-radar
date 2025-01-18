@@ -3400,7 +3400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:^2.12.1":
+"@stylistic/eslint-plugin@npm:^2.12.1, @stylistic/eslint-plugin@npm:^2.13.0":
   version: 2.13.0
   resolution: "@stylistic/eslint-plugin@npm:2.13.0"
   dependencies:
@@ -3759,7 +3759,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.10.5":
+"@types/node@npm:*, @types/node@npm:^22.10.7":
   version: 22.10.7
   resolution: "@types/node@npm:22.10.7"
   dependencies:
@@ -10837,7 +10837,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-html@npm:^1.7.0":
+"postcss-html@npm:^1.8.0":
   version: 1.8.0
   resolution: "postcss-html@npm:1.8.0"
   dependencies:
@@ -12087,7 +12087,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.83.1":
+"sass-embedded@npm:^1.83.4":
   version: 1.83.4
   resolution: "sass-embedded@npm:1.83.4"
   dependencies:
@@ -13191,7 +13191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^16.12.0, stylelint@npm:^16.8.2":
+"stylelint@npm:^16.13.2, stylelint@npm:^16.8.2":
   version: 16.13.2
   resolution: "stylelint@npm:16.13.2"
   dependencies:
@@ -14233,7 +14233,7 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.9.0"
     "@prisma/client": "npm:^6.2.1"
-    "@stylistic/eslint-plugin": "npm:^2.12.1"
+    "@stylistic/eslint-plugin": "npm:^2.13.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.1"
     "@turf/difference": "npm:^7.2.0"
     "@turf/great-circle": "npm:^7.2.0"
@@ -14250,7 +14250,7 @@ __metadata:
     "@types/geojson": "npm:^7946.0.15"
     "@types/jsonwebtoken": "npm:^9.0.7"
     "@types/merge-ranges": "npm:^1.0.2"
-    "@types/node": "npm:^22.10.5"
+    "@types/node": "npm:^22.10.7"
     "@types/ws": "npm:^8.5.13"
     "@vite-pwa/nuxt": "npm:^0.10.6"
     adm-zip: "npm:^0.5.16"
@@ -14274,13 +14274,13 @@ __metadata:
     ol: "npm:^10.3.1"
     ol-mapbox-style: "npm:^12.4.0"
     pinia: "npm:^2.3.0"
-    postcss: "npm:^8.4.49"
-    postcss-html: "npm:^1.7.0"
+    postcss: "npm:^8.5.1"
+    postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.2.1"
-    sass-embedded: "npm:^1.83.1"
+    sass-embedded: "npm:^1.83.4"
     sharp: "npm:^0.33.5"
     sqlite3: "npm:^5.1.7"
-    stylelint: "npm:^16.12.0"
+    stylelint: "npm:^16.13.2"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^14.1.0"
     stylelint-config-recommended-vue: "npm:^1.5.0"
