@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.1-alpha.1]
+
+- New icons from DotWallop (PC24, G109, PITE/PITA, S12)
+
 # [1.0.0-1-final]
 
 - Added Virtual Airlines remarks parsing (CS/Callsign/Name, CS/Callsign, WEB/website)
