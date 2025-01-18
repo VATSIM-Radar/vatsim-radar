@@ -222,7 +222,7 @@ const controllers = computed<Controller[]>(() => {
                 -webkit-line-clamp: 2;
 
                 text-align: center;
-                word-break: break-word;
+                overflow-wrap: anywhere;
                 white-space: unset;
             }
         }
