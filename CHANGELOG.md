@@ -2,7 +2,7 @@
 
 # [1.0.1-rc.1]
 
-- VA callsign parse will now also accept `-`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`)
+- VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`, `CS=JERSEY=VFLYBE`)
 - Removed country from airlines display
 - FL999 for combined sector will now display as UNL
 - Airport overlay will now also open on counters click (PC only)
