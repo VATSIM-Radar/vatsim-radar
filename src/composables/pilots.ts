@@ -194,9 +194,17 @@ export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number)
     let iconContent = svg
         .replaceAll('\n', '')
         .replaceAll('white', color)
-        .replaceAll('#F8F8FA', color);
+        .replaceAll('#F8F8FA', color)
+        .replaceAll('#FFFFFF', color)
+        .replaceAll('#FFF', color);
 
-    if (store.theme === 'light') iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
+    if (store.theme === 'light') {
+        iconContent = iconContent
+            .replaceAll('black', 'white')
+            .replaceAll('#000000', 'white')
+            .replaceAll('#000', 'white')
+            .replaceAll('#231F20', 'white');
+    }
 
     return iconContent;
 }
