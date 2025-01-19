@@ -22,9 +22,17 @@ export default defineNuxtModule(async (_, nuxt) => {
         for (let i = 0; i < 2; i++) {
             let iconContent = iconContents
                 .replaceAll('white', colorsList.primary500)
-                .replaceAll('#F8F8FA', colorsList.primary500);
+                .replaceAll('#F8F8FA', colorsList.primary500)
+                .replaceAll('#FFFFFF', colorsList.primary500)
+                .replaceAll('#FFF', colorsList.primary500);
             const iconKey = i === 1 ? '-light' : '';
-            if (i === 1) iconContent = iconContent.replaceAll('black', 'white').replaceAll('#231F20', 'white');
+            if (i === 1) {
+                iconContent = iconContent
+                    .replaceAll('black', 'white')
+                    .replaceAll('#231F20', 'white')
+                    .replaceAll('#000000', 'white')
+                    .replaceAll('#000', 'white');
+            }
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
