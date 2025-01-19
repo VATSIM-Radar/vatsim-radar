@@ -45,7 +45,7 @@
             <common-info-block
                 :bottom-items="[airline.icao, airline.callsign, airline.virtual ? '1' : null]"
                 class="flight-info__card flight-info__card--airline"
-                :top-items="[airline.name, airline.virtualParsed ? undefined : airline.country]"
+                :top-items="[airline.name]"
             >
                 <template #top="{ item }">
                     <span :title="item as string">
