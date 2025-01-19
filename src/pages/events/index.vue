@@ -4,6 +4,7 @@
 
         <client-only>
             <common-toggle
+                v-if="offset"
                 :model-value="!!store.localSettings.eventsLocalTimezone"
                 @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
             >
@@ -42,6 +43,7 @@ const { data } = await useAsyncData('events', async () => {
 const store = useStore();
 
 const timeZone = store.localSettings.eventsLocalTimezone ? 'UTC' : undefined;
+const offset = new Date().getTimezoneOffset();
 
 const datetime = new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
     localeMatcher: 'best fit',
