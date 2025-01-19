@@ -8,6 +8,11 @@
 
         Project does not aim to replace VatGlasses or Volanta for example, or create it's own database of custom data (except for gates maybe).<br><br>
 
+        Contact Email: <a
+            class="__link"
+            href="mailto:dan@vatsim-radar.com"
+        >dan@vatsim-radar.com</a><br><br>
+
         Project would also be impossible without community libraries and data collections:
 
         <ul>

@@ -56,6 +56,7 @@ interface IUserLocalSettings {
     vatglassesLevel: number;
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
+    eventsLocalTimezone: boolean;
 
     filters: {
         opened?: boolean;

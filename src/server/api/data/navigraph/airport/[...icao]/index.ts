@@ -42,23 +42,25 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
     const query = getQuery(event);
     const isLayout = query.layout !== '0' && !!user?.hasFms && user.hasCharts;
-    const dataFromLayout = isLayout && query.originalData !== '1';
+    const dataFromLayout = !!user?.hasFms && user.hasCharts && query.originalData !== '1';
 
     let layout: Partial<AmdbResponseStructure> | null | undefined = null;
 
     let gates: NavigraphGate[] | undefined;
     let runways: NavigraphRunway[] | undefined;
 
-    if (isLayout) {
+    if (isLayout || dataFromLayout) {
         layout = await getNavigraphLayout({ icao }).catch(() => undefined);
     }
 
     if (!dataFromLayout || !isLayout || !layout || !layout.standguidanceline?.features.length || !layout.parkingstandarea?.features.length) {
-        gates = await getNavigraphGates({
-            user,
-            event,
-            icao,
-        });
+        if (!dataFromLayout) {
+            gates = await getNavigraphGates({
+                user,
+                event,
+                icao,
+            });
+        }
 
         runways = await getNavigraphRunways({
             user,
@@ -66,10 +68,10 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             icao,
         });
 
-        if (!gates || !runways) return;
+        if ((!gates && !dataFromLayout) || !runways) return;
     }
 
-    else {
+    if (layout && layout.standguidanceline?.features.length && layout.parkingstandarea?.features.length) {
         gates = layout.parkingstandarea.features.flatMap(area => {
             const { centroid } = (area.properties as unknown as { centroid: Point });
 
@@ -143,7 +145,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     return {
         airport: icao,
         runways: runways ?? [],
-        gates,
-        layout: layout ?? undefined,
+        gates: gates ?? [],
+        layout: isLayout ? layout ?? undefined : undefined,
     };
 });

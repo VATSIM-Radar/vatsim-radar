@@ -1,5 +1,15 @@
 # Changelog
 
+# [1.0.1-rc.2]
+
+- Disabled v1 update popup
+- Renamed Navigraph Layers to Navigraph Airports Layouts
+- Layouts option will now always show in visibility to highlight that you can have it if you link Navigraph
+- Fixed error when disabling Airports Layouts also made gates data worse
+- Added contact email to privacy policy and about page
+- Added weekday to events page
+- You can now switch timezones in events page
+
 # [1.0.1-rc.1]
 
 - VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`, `CS=JERSEY=VFLYBE`)
