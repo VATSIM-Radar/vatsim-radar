@@ -110,6 +110,7 @@ function updateVatglassesPositionsAndAirspaces() {
         }
 
         // TODO: sort firs by the same as EuroScope sorts the positions before assigning logged in stations to a position
+        // let first = 0; // used for debug
         const firs = dataStore?.vatsim?.data?.firs.value ?? workerDataStore?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
             // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
@@ -121,6 +122,25 @@ function updateVatglassesPositionsAndAirspaces() {
                 atc = fir.atc;
             }
             if (!atc) continue;
+
+            // // used for debug
+            // if (first === 0) {
+            //     atc.frequency = '135.050';
+            //     atc.callsign = 'AFRE_FSS';
+            //     atc.cid = 1025793;
+            //     first++;
+            // }
+            // else if (first === 1) {
+            //     break;
+            //     if (calls > 3) break;
+            //     atc.frequency = '129.100';
+            //     atc.callsign = 'EDMM_ALB_CTR';
+            //     atc.cid = 1025794;
+            // // first++;
+            // }
+            // else {
+            //     break;
+            // }
 
             let foundMatchingVatglassesController = false;
             let doublePositionMatch = false;
@@ -165,10 +185,10 @@ function updateVatglassesPositionsAndAirspaces() {
     // Fill the vatglassesActiveAirspaces object with the active airspaces
     vatglassesActiveAirspaces = {};
     for (const countryGroupId in vatglassesData) {
-        if (!vatglassesActiveController[countryGroupId]) continue;// countryGroup has no active positions
         const countryGroup = vatglassesData[countryGroupId];
 
-        const activeGroupVatglassesPosition = Object.keys(vatglassesActiveController[countryGroupId]);
+        let activeGroupVatglassesPosition: string[] = [];
+        if (vatglassesActiveController[countryGroupId]) activeGroupVatglassesPosition = Object.keys(vatglassesActiveController[countryGroupId]);
         for (const [airspaceIndex, airspace] of countryGroup.airspace.entries()) {
             const vatglassesPositionId = airspace.owner.find((element: string) => {
                 if (element.includes('/')) { // Covers this cases: Positions from other data files can be referenced in the format country/position, where position is defined in country.json
