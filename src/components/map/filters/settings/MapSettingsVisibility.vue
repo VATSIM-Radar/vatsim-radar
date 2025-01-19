@@ -202,63 +202,6 @@
                 </common-toggle>
             </div>
 
-            <template v-if="store.user?.hasCharts && store.user.hasFms">
-                <common-block-title>
-                    Navigraph Layers
-                </common-block-title>
-
-                <div class="__section-group __section-group--even">
-                    <common-toggle
-                        :model-value="!store.mapSettings.navigraphLayers?.disable"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { disable: !$event } })"
-                    >
-                        Enabled
-                    </common-toggle>
-
-                    <common-toggle
-                        :disabled="!!store.mapSettings.navigraphLayers?.disable"
-                        :model-value="!store.mapSettings.navigraphLayers?.gatesFallback"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { gatesFallback: !$event } })"
-                    >
-                        New gates system
-                    </common-toggle>
-                </div>
-
-                <div class="__section-group __section-group--even">
-                    <common-toggle
-                        :disabled="!!store.mapSettings.navigraphLayers?.disable"
-                        :model-value="!store.mapSettings.navigraphLayers?.hideTaxiways"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { hideTaxiways: !$event } })"
-                    >
-                        Taxiways
-                    </common-toggle>
-
-                    <common-toggle
-                        :disabled="!!store.mapSettings.navigraphLayers?.disable"
-                        :model-value="!store.mapSettings.navigraphLayers?.hideRunwayExit"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { hideRunwayExit: !$event } })"
-                    >
-                        Runway Exits
-                    </common-toggle>
-
-                    <common-toggle
-                        :disabled="!!store.mapSettings.navigraphLayers?.disable"
-                        :model-value="!store.mapSettings.navigraphLayers?.hideGateGuidance"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { hideGateGuidance: !$event } })"
-                    >
-                        Gate Guidance
-                    </common-toggle>
-
-                    <common-toggle
-                        :disabled="!!store.mapSettings.navigraphLayers?.disable"
-                        :model-value="!store.mapSettings.navigraphLayers?.hideDeicing"
-                        @update:modelValue="setUserMapSettings({ navigraphLayers: { hideDeicing: !$event } })"
-                    >
-                        Deicing Pads
-                    </common-toggle>
-                </div>
-            </template>
-
             <common-block-title>
                 Personal Info
             </common-block-title>
@@ -278,6 +221,87 @@
                     Controllers
                 </common-toggle>
             </div>
+
+            <common-block-title>
+                Navigraph Airports Layouts
+            </common-block-title>
+
+            <common-notification
+                v-if="!store.user?.hasCharts"
+                cookie-name="navigraph-connect-warning"
+            >
+                Airports Layouts are available to Navigraph Unlimited subscribers only.<br>
+
+                <template v-if="store.user">
+                    <a
+                        class="__link"
+                        href="/api/auth/navigraph/redirect"
+                    >Link your account</a> or view
+                </template>
+                <template v-else>
+                    View
+                </template>
+                <a
+                    class="__link"
+                    href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe"
+                    target="_blank"
+                >subscription options</a>.
+            </common-notification>
+
+            <div class="__section-group __section-group--even">
+                <common-toggle
+                    :disabled="!store.user?.hasCharts"
+                    :model-value="!store.user?.hasCharts ? false : !store.mapSettings.navigraphLayers?.disable"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { disable: !$event } })"
+                >
+                    Enabled
+                </common-toggle>
+
+                <common-toggle
+                    :disabled="!store.user?.hasCharts"
+                    :model-value="!store.user?.hasCharts ? false : !store.mapSettings.navigraphLayers?.gatesFallback"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { gatesFallback: !$event } })"
+                >
+                    New gates system
+                </common-toggle>
+            </div>
+
+            <div
+                v-if="store.user?.hasCharts"
+                class="__section-group __section-group--even"
+            >
+                <common-toggle
+                    :disabled="!!store.mapSettings.navigraphLayers?.disable"
+                    :model-value="!store.mapSettings.navigraphLayers?.hideTaxiways"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { hideTaxiways: !$event } })"
+                >
+                    Taxiways
+                </common-toggle>
+
+                <common-toggle
+                    :disabled="!!store.mapSettings.navigraphLayers?.disable"
+                    :model-value="!store.mapSettings.navigraphLayers?.hideRunwayExit"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { hideRunwayExit: !$event } })"
+                >
+                    Runway Exits
+                </common-toggle>
+
+                <common-toggle
+                    :disabled="!!store.mapSettings.navigraphLayers?.disable"
+                    :model-value="!store.mapSettings.navigraphLayers?.hideGateGuidance"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { hideGateGuidance: !$event } })"
+                >
+                    Gate Guidance
+                </common-toggle>
+
+                <common-toggle
+                    :disabled="!!store.mapSettings.navigraphLayers?.disable"
+                    :model-value="!store.mapSettings.navigraphLayers?.hideDeicing"
+                    @update:modelValue="setUserMapSettings({ navigraphLayers: { hideDeicing: !$event } })"
+                >
+                    Deicing Pads
+                </common-toggle>
+            </div>
         </template>
     </div>
 </template>
@@ -290,6 +314,7 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import type { SelectItem } from '~/types/components/select';
 import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
 

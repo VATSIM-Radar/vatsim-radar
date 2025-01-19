@@ -41,6 +41,7 @@
 import type { VatsimEvent } from '~/types/data/vatsim';
 import CommonEventDetails from '~/components/common/vatsim/CommonEventDetails.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { useStore } from '~/store';
 
 const props = defineProps({
     event: {
@@ -50,10 +51,13 @@ const props = defineProps({
 });
 
 const details = ref(false);
+const store = useStore();
+const timeZone = store.localSettings.eventsLocalTimezone ? 'UTC' : undefined;
 
 const formatter = new Intl.DateTimeFormat(['en-DE'], {
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
 });
 
 const formatterWithDate = new Intl.DateTimeFormat(['de-DE'], {
@@ -61,13 +65,16 @@ const formatterWithDate = new Intl.DateTimeFormat(['de-DE'], {
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone,
 });
 
 const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => {
     const date = new Date(props.event.end_time);
 
-    if (date.getDate() !== new Date(props.event.start_time).getDate()) return formatterWithDate.format(date);
+    const method = store.localSettings.eventsLocalTimezone ? 'getUTCDate' : 'getDate';
+
+    if (date[method]() !== new Date(props.event.start_time)[method]()) return formatterWithDate.format(date);
 
     return formatter.format(date);
 });

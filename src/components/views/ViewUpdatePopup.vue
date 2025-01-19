@@ -187,7 +187,7 @@ const update: Update = {
             ],
         },
     ],
-    active: true,
+    active: false,
 };
 
 if (!store.user?.hasCharts) {
