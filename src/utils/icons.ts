@@ -1,6 +1,10 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'pc24'
+    | 's12'
+    | 'pite'
+    | 'g109'
     | 'yk40'
     | 'tor'
     | 'tex2'
@@ -106,7 +110,7 @@ export type AircraftIcon =
     | 'a343'
     | 'a359'
     | 'a35k'
-    | 'a380'
+    | 'a388'
     | 'b703'
     | 'b712'
     | 'b720'
@@ -194,6 +198,22 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    pc24: {
+        icon: 'pc24',
+        width: getAircraftSizeByCoef(0.30),
+    },
+    s12: {
+        icon: 's12',
+        width: getAircraftSizeByCoef(0.42),
+    },
+    pite: {
+        icon: 'pite',
+        width: getAircraftSizeByCoef(0.25),
+    },
+    g109: {
+        icon: 'g109',
+        width: getAircraftSizeByCoef(0.29),
+    },
     yk40: {
         icon: 'yk40',
         width: getAircraftSizeByCoef(0.42),
@@ -790,8 +810,8 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'a35k',
         width: getAircraftSizeByCoef(1.08),
     },
-    a380: {
-        icon: 'a380',
+    a388: {
+        icon: 'a388',
         width: getAircraftSizeByCoef(1.33),
     },
     dc6: {
@@ -890,6 +910,8 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'PITA':
+            return aircraftIcons.pite;
         case 'A306':
         case 'A30B':
         case 'A30F':
@@ -920,8 +942,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A35K':
             return aircraftIcons.a35k;
         case 'A388':
-        case 'A380':
-            return aircraftIcons.a380;
+            return aircraftIcons.a388;
         case 'DC6':
             return aircraftIcons.dc6;
         case 'MD11':
@@ -1281,6 +1302,10 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'TEX2':
         case 'TOR':
         case 'YK40':
+        case 'G109':
+        case 'PITE':
+        case 'S12':
+        case 'PC24':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
