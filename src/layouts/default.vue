@@ -199,10 +199,6 @@ function setWindowStore() {
     store.viewport.width = window.innerWidth;
 }
 
-if (route.query.vg === '1') {
-
-}
-
 const listener = () => {
     setWindowStore();
 };
