@@ -17,6 +17,7 @@
                 :key
                 class="airport-counts_item"
                 :class="[`airport-counts_item--${ key }`, { 'airport-counts_item--hidden': !item?.length }]"
+                @click="!store.isTouch && mapStore.addAirportOverlay(airport.icao)"
                 @mouseover="$nextTick(() => aircraftHoveredType = key as any)"
             >
                 {{ item?.length ?? 0 }}

@@ -10,16 +10,16 @@ export function handleH3Exception(event: H3Event, error: unknown) {
 export function handleH3Error({ error, event, statusCode = 500, data }: { error?: unknown; event: H3Event; statusCode?: number; data?: string }) {
     if (error instanceof H3Error) return error;
 
-    if (error) {
-        console.error(error);
-    }
-
     try {
         // @ts-expect-error Error checking
         if (error && 'statusCode' in error) statusCode = error.statusCode;
     }
     finally {
         //
+    }
+
+    if (statusCode !== 404 && error) {
+        console.error(error);
     }
 
     return sendError(event, createError({

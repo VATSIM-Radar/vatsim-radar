@@ -200,7 +200,6 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'atc',
                     sticky: false,
-                    maxHeight: 400,
                 });
             }
             finally {

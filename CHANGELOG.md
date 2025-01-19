@@ -1,5 +1,16 @@
 # Changelog
 
+# [1.0.1-rc.1]
+
+- VA callsign parse will now also accept `-`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`)
+- Removed country from airlines display
+- FL999 for combined sector will now display as UNL
+- Airport overlay will now also open on counters click (PC only)
+- You can now force enable or disable VATGlasses by ?vg=1 (or vg=0) get parameter
+- Since we don't collapse ATIS anymore, ATC popup will open with max width, just like any other popup
+- Added event separate page. Share events direct link if you like ;)
+- Improved events page opening speed
+
 # [1.0.1-alpha.1]
 
 - New icons from DotWallop (PC24, G109, PITE/PITA, S12)
