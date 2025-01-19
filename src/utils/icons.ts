@@ -1,6 +1,23 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'vulc'
+    | 'vamp'
+    | 'v22'
+    | 'tris'
+    | 'tl20'
+    | 'sr71'
+    | 'spit'
+    | 'rfal'
+    | 'l101'
+    | 'e75s'
+    | 'dc86'
+    | 'cp10'
+    | 'bn2p'
+    | 'b407'
+    | 'e55p'
+    | 'e50p'
+    | 'c525'
     | 'pc24'
     | 's12'
     | 'pite'
@@ -198,6 +215,74 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    vulc: {
+        icon: 'vulc',
+        width: getAircraftSizeByCoef(0.51),
+    },
+    vamp: {
+        icon: 'vamp',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    v22: {
+        icon: 'v22',
+        width: getAircraftSizeByCoef(0.43),
+    },
+    tris: {
+        icon: 'tris',
+        width: getAircraftSizeByCoef(0.25),
+    },
+    tl20: {
+        icon: 'tl20',
+        width: getAircraftSizeByCoef(0.15),
+    },
+    sr71: {
+        icon: 'sr71',
+        width: getAircraftSizeByCoef(0.28),
+    },
+    spit: {
+        icon: 'spit',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    rfal: {
+        icon: 'rfal',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    l101: {
+        icon: 'l101',
+        width: getAircraftSizeByCoef(0.79),
+    },
+    e75s: {
+        icon: 'e75s',
+        width: getAircraftSizeByCoef(0.43),
+    },
+    dc86: {
+        icon: 'dc86',
+        width: getAircraftSizeByCoef(0.72),
+    },
+    cp10: {
+        icon: 'cp10',
+        width: getAircraftSizeByCoef(0.13),
+    },
+    bn2p: {
+        icon: 'bn2p',
+        width: getAircraftSizeByCoef(0.25),
+    },
+    b407: {
+        icon: 'b407',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    e55p: {
+        icon: 'e55p',
+        width: getAircraftSizeByCoef(0.27),
+    },
+    e50p: {
+        icon: 'e50p',
+        width: getAircraftSizeByCoef(0.21),
+    },
+    c525: {
+        icon: 'c525',
+        width: getAircraftSizeByCoef(0.24),
+    },
     pc24: {
         icon: 'pc24',
         width: getAircraftSizeByCoef(0.30),
@@ -910,6 +995,14 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'TRI':
+            return aircraftIcons.tris
+        case 'E750':
+        case 'E755':
+        case 'E75L':
+            return aircraftIcons.e75s;
+        case 'BCS3':
+            return aircraftIcons.bcs1;
         case 'PITA':
             return aircraftIcons.pite;
         case 'A306':
@@ -1035,7 +1128,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B214':
         case 'B230':
         case 'B222':
-        case 'B407':
         case 'B412':
         case 'B427':
         case 'B429':
@@ -1306,6 +1398,23 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'PITE':
         case 'S12':
         case 'PC24':
+        case 'C525':
+        case 'B407':
+        case 'BN2P':
+        case 'CP10':
+        case 'DC86':
+        case 'E50P':
+        case 'E55P':
+        case 'E75S':
+        case 'L101':
+        case 'RFAL':
+        case 'SPIT':
+        case 'SR71':
+        case 'TL20':
+        case 'TRIS':
+        case 'V22':
+        case 'VAMP':
+        case 'VULC':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
