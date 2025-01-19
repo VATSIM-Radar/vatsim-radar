@@ -83,7 +83,7 @@ export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
 }
 
 export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
-    const exec = /(CS\/|CALLSIGN(\/| ))(?<callsign>[A-Z ]+)(((\/(?<name>[A-Z ]+)(?= ([ A-Z]+)?\/[A-Z]))|((?= [A-Z]+\/[A-Z]))|(?=$))|((?= ([ A-Z]+)?\/[A-Z]))|((?= [A-Z]+\/[A-Z]))|(?=$))/.exec(remarks);
+    const exec = /(CS[\/-]|CALLSIGN([\/-]| ))(?<callsign>[A-Z ]+)((([\/-](?<name>[A-Z ]+)(?= ([ A-Z]+)?[\/-][A-Z]))|((?= [A-Z]+[\/-][A-Z]))|(?=$))|((?= ([ A-Z]+)?[\/-][A-Z]))|((?= [A-Z]+[\/-][A-Z]))|(?=$))/.exec(remarks);
     if (exec?.groups?.callsign) {
         return {
             callsign: exec.groups.callsign?.replace('VATSIMVA', '').trim(),
@@ -95,7 +95,7 @@ export function getVACallsign(remarks: string): { callsign: string; name: string
 }
 
 export function getVAWebsite(remarks: string) {
-    const website = /WEB\/(?<website>.+?)(?= )/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
+    const website = /WEB[\/-](?<website>.+?)(?= )/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
 
     if (!website) return website;
 
