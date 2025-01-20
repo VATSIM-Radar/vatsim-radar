@@ -289,15 +289,15 @@ export const aircraftIcons: AircraftIcons = {
     },
     s12: {
         icon: 's12',
-        width: getAircraftSizeByCoef(0.42),
+        width: getAircraftSizeByCoef(0.8),
     },
     pite: {
         icon: 'pite',
-        width: getAircraftSizeByCoef(0.25),
+        width: getAircraftSizeByCoef(0.8),
     },
     g109: {
         icon: 'g109',
-        width: getAircraftSizeByCoef(0.29),
+        width: getAircraftSizeByCoef(0.8),
     },
     yk40: {
         icon: 'yk40',
@@ -996,7 +996,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
 
     switch (faa) {
         case 'TRI':
-            return aircraftIcons.tris
+            return aircraftIcons.tris;
         case 'E750':
         case 'E755':
         case 'E75L':
