@@ -19,7 +19,7 @@ export type AircraftIcon =
     | 'e50p'
     | 'c525'
     | 'pc24'
-    | 's12'
+    | 's12s'
     | 'pite'
     | 'g109'
     | 'yk40'
@@ -287,8 +287,8 @@ export const aircraftIcons: AircraftIcons = {
         icon: 'pc24',
         width: getAircraftSizeByCoef(0.30),
     },
-    s12: {
-        icon: 's12',
+    s12s: {
+        icon: 's12s',
         width: getAircraftSizeByCoef(0.42),
     },
     pite: {
@@ -1396,7 +1396,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'YK40':
         case 'G109':
         case 'PITE':
-        case 'S12':
+        case 'S12S':
         case 'PC24':
         case 'C525':
         case 'B407':
