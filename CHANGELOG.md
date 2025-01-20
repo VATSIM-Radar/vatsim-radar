@@ -4,6 +4,7 @@
 
 - New icons from DotWallop (B407, BN2P, C525, CP10, DC86, E50P, E55P, E75S/L, L101, RFAL, SPIT, SR71, TL20, TRIS, V22, VAMP, VULC)
 - Corrected model matching (BAe 146/Avro RJ series, BCS3)
+- Fixed FSS errors in VATGlasses mode by Felix
 
 # [1.0.1-rc.2]
 
