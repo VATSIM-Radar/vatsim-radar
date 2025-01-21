@@ -72,7 +72,7 @@ jobs:
       - name: Sleep for a minute
         run: sleep 60s
         shell: bash
-      - name: Rollback replicaes
+      - name: Rollback replicas
         run: "kubectl patch hpa app-prod-hpa -p '{\"spec\":{\"minReplicas\": 1}}'"
 
   deploy-db-redis:
