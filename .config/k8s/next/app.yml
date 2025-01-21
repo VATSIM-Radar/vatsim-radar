@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: app-next
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   selector:
     matchLabels:
@@ -57,7 +57,7 @@ kind: Deployment
 metadata:
   name: worker-next
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate
@@ -111,7 +111,7 @@ kind: Deployment
 metadata:
   name: vatglasses-next
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate

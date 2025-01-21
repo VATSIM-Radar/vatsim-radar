@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: app-prod
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   selector:
     matchLabels:
@@ -40,14 +40,14 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-2
+        doks.digitalocean.com/node-pool: premium
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: worker-prod
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate
@@ -139,7 +139,7 @@ kind: Deployment
 metadata:
   name: vatglasses
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate
