@@ -73,8 +73,13 @@ const timezone = new Intl.DateTimeFormat(['de-DE'], {
 const groupedEventData = computed(() => {
     const events: Record<number, VatsimEvent[]> = {};
 
+    let currentDate = new Date();
+    currentDate = store.localSettings.eventsLocalTimezone
+        ? new Date(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate())
+        : new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
     data.value?.events.forEach(event => {
-        if (new Date(event.end_time) < new Date()) return;
+        if (new Date(event.end_time) < currentDate) return;
         const date = new Date(event.start_time);
         const key = store.localSettings.eventsLocalTimezone
             ? parseInt(date.getUTCFullYear().toString() + `0${ date.getUTCMonth() }`.slice(-2) + `0${ date.getUTCDate() }`.slice(-2))
