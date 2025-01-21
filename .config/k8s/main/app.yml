@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 270
+          averageUtilization: 280
     - type: Resource
       resource:
         name: memory
