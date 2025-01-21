@@ -24,7 +24,7 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 600m
+              cpu: 300m
               memory: 600Mi
             limits:
               cpu: 950m
@@ -40,7 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium
+        doks.digitalocean.com/node-pool: premium-prod
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -115,7 +115,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: app-prod
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 12
   metrics:
     - type: Resource
@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 140
+          averageUtilization: 250
     - type: Resource
       resource:
         name: memory
