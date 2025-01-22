@@ -209,7 +209,7 @@ const isCopied = (key: string) => {
         align-items: center;
 
         font-weight: 400;
-        word-break: break-word;
+        overflow-wrap: anywhere;
 
         &_name {
             color: var(--color, currentColor);
@@ -238,7 +238,7 @@ const isCopied = (key: string) => {
         margin: 0;
         padding-left: 16px;
 
-        word-break: break-word;
+        overflow-wrap: anywhere;
 
         &_line:only-child {
             margin-left: -16px;

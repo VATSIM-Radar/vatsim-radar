@@ -178,6 +178,10 @@ const props = defineProps({
         type: String as PropType<MapAircraftKeys | null>,
         default: null,
     },
+    mode: {
+        type: String as PropType<'departed' | 'ground' | 'arriving'>,
+        default: 'ground',
+    },
     navOffset: {
         type: String,
         default: '0',
@@ -206,7 +210,8 @@ const datetime = new Intl.DateTimeFormat('en-GB', {
 
 export type AircraftGroundMode = 'depArr' | 'dep' | 'arr' | 'prefiles';
 
-const aircraftMode = ref<'departed' | 'ground' | 'arriving'>('ground');
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const aircraftMode = ref<'departed' | 'ground' | 'arriving'>(props.mode);
 const aircraftGroundMode = ref<AircraftGroundMode>('depArr');
 const aircraftGroundFilterOpened = ref(false);
 

@@ -47,7 +47,7 @@
                     >
                         <template v-if="vatGlassesCombinedActive">
                             <template v-if="index === 0 || sector.max !== sectorsAtClick[index - 1].min">
-                                <span class="atc-popup_level">FL{{ sector.max.toString().padStart(3, '0') }}</span>
+                                <span class="atc-popup_level">{{ getPositionLevel(sector.max) }}</span>
                             </template>
 
                             <common-single-controller-info
@@ -57,7 +57,7 @@
                                 <span class="atc-popup_level">GND</span>
                             </template>
                             <template v-else>
-                                <span class="atc-popup_level">FL{{ sector.min.toString().padStart(3, '0') }}</span>
+                                <span class="atc-popup_level">{{ getPositionLevel(sector.min) }}</span>
                             </template>
                         </template>
                         <template v-else>
@@ -113,6 +113,12 @@ const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
 const vatGlassesActive = isVatGlassesActive();
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+
+function getPositionLevel(_level: number) {
+    const level = _level.toString().padStart(3, '0');
+    if (level === '999') return 'UNL';
+    return `FL${ level }`;
+}
 
 let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {

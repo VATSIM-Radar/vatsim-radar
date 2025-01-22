@@ -45,6 +45,7 @@ export interface StoreOverlayAirport extends StoreOverlayDefault {
         airport?: VatsimAirportData;
         notams?: VatsimAirportDataNotam[];
         showTracks?: boolean;
+        aircraftTab?: 'departed' | 'ground' | 'arriving';
     };
 }
 
@@ -200,14 +201,15 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'atc',
                     sticky: false,
-                    maxHeight: 400,
                 });
             }
             finally {
                 this.openingOverlay = false;
             }
         },
-        async addAirportOverlay(airport: string) {
+        async addAirportOverlay(airport: string, { aircraftTab }: {
+            aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
+        } = {}) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
@@ -227,6 +229,7 @@ export const useMapStore = defineStore('map', {
                     data: {
                         icao: airport,
                         showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
+                        aircraftTab,
                     },
                     type: 'airport',
                     sticky: false,

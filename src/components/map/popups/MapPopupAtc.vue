@@ -257,10 +257,6 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
 
 <style scoped lang="scss">
 .atc {
-    @include fromTablet {
-        height: 100%;
-    }
-
     &__sections {
         display: flex;
         flex-direction: column;

@@ -215,7 +215,10 @@
                     Show aircraft tracks
                 </common-toggle>
             </div>
-            <airport-aircraft nav-offset="56px"/>
+            <airport-aircraft
+                :mode="props.overlay.data.aircraftTab"
+                nav-offset="56px"
+            />
         </template>
         <template #actions>
             <common-button-group>

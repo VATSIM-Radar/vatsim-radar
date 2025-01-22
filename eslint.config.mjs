@@ -44,6 +44,7 @@ export default withNuxt([
                 'error',
             ],
             'no-new': 'off',
+            'no-useless-escape': 'off',
             'stylistic/comma-dangle': [
                 'error',
                 'always-multiline',

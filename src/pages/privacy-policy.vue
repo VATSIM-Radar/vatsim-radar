@@ -8,6 +8,11 @@
             About Page
         </nuxt-link> to know more about service goals and used libraries & data.
 
+        Contact Email: <a
+            class="__link"
+            href="mailto:dan@vatsim-radar.com"
+        >dan@vatsim-radar.com</a><br><br>
+
         <ol>
             <li>
                 General terms

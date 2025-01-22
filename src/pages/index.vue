@@ -733,6 +733,14 @@ await setupDataFetch({
 });
 
 onMounted(() => {
+    if (route.query.vg === '1' || route.query.vg === '0') {
+        setUserMapSettings({
+            vatglasses: {
+                active: route.query.vg === '1',
+            },
+        });
+    }
+
     function handleKeys(event: KeyboardEvent) {
         if (!event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) return;
 
