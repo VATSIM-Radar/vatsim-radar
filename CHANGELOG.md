@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.0.1-final]
+# [1.0.1]
 
 Welcome a small VATSIM Radar quality of life update.
 
