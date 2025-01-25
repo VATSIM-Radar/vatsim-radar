@@ -256,8 +256,8 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string): Rada
     return {
         ...airline,
         icao: airline?.icao ?? icao,
-        callsign: vaCallsign?.callsign ?? airline!.callsign,
-        name: vaCallsign?.name ?? airline!.name,
+        callsign: (vaCallsign && vaCallsign?.callsign) ?? airline!.callsign,
+        name: (vaCallsign && vaCallsign?.name) ?? airline!.name,
         website,
         virtual: vaCallsign ? true : airline!.virtual,
         virtualParsed: !!vaCallsign,
