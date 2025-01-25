@@ -75,7 +75,9 @@
             <div class="pilot__content __info-sections">
                 <!-- @vue-ignore -->
                 <common-controller-info
+                    class="pilot__controller"
                     :controllers="section.controllers"
+                    max-height="auto"
                     show-atis
                     :show-facility="section.type === 'ground'"
                     small
@@ -588,6 +590,11 @@ onBeforeUnmount(() => {
 
     &__content {
         position: relative;
+    }
+
+    &__controller {
+        position: relative;
+        z-index: 5;
     }
 
     &__track {

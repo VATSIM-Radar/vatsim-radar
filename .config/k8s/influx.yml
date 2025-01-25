@@ -13,7 +13,7 @@ kind: Deployment
 metadata:
   name: influx
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   strategy:
     type: Recreate
   replicas: 1

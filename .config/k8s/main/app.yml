@@ -4,7 +4,7 @@ kind: Deployment
 metadata:
   name: app-prod
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   selector:
     matchLabels:
@@ -24,7 +24,7 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 600m
+              cpu: 300m
               memory: 600Mi
             limits:
               cpu: 950m
@@ -40,14 +40,14 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: premium-2
+        doks.digitalocean.com/node-pool: premium-prod
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: worker-prod
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate
@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 140
+          averageUtilization: 280
     - type: Resource
       resource:
         name: memory
@@ -139,7 +139,7 @@ kind: Deployment
 metadata:
   name: vatglasses
 spec:
-  progressDeadlineSeconds: 360
+  progressDeadlineSeconds: 600
   replicas: 1
   strategy:
     type: Recreate

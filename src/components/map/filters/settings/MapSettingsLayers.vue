@@ -62,7 +62,7 @@
         </div>
 
         <common-block-title>
-            VATGlasses (BETA)
+            VATGlasses
         </common-block-title>
 
         <div class="__section-group __section-group--even">

@@ -1,29 +1,35 @@
 # Changelog
 
-# [1.0.1-rc.2]
+# [1.0.1-final]
 
+Welcome a small VATSIM Radar quality of life update.
+
+## Highlights
+
+- Layouts option will now always show in visibility to highlight that you can have it if you link Navigraph
+- You can now switch timezones in events page
+- New icons from DotWallop (PC24, G109, PITE/PITA, S12, B407, BN2P, C525, CP10, DC86, E50P, E55P, E75S/L, L101, RFAL, SPIT, SR71, TL20, TRIS, V22, VAMP, VULC)
+- VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`, `CS=JERSEY=VFLYBE`)
+- Added event separate page. Share events direct link if you like ;)
+
+## Features and Improvements
+
+- Corrected model matching (BAe 146/Avro RJ series, BCS3)
 - Disabled v1 update popup
 - Renamed Navigraph Layers to Navigraph Airports Layouts
-- Layouts option will now always show in visibility to highlight that you can have it if you link Navigraph
-- Fixed error when disabling Airports Layouts also made gates data worse
 - Added contact email to privacy policy and about page
 - Added weekday to events page
-- You can now switch timezones in events page
-
-# [1.0.1-rc.1]
-
-- VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`, `CS=JERSEY=VFLYBE`)
 - Removed country from airlines display
 - FL999 for combined sector will now display as UNL
 - Airport overlay will now also open on counters click (PC only)
-- You can now force enable or disable VATGlasses by ?vg=1 (or vg=0) get parameter
+- You can now force enable or disable VATGlasses by ?vg=1 (or vg=0) get parameter - or turn on by /vg alias
 - Since we don't collapse ATIS anymore, ATC popup will open with max width, just like any other popup
-- Added event separate page. Share events direct link if you like ;)
 - Improved events page opening speed
 
-# [1.0.1-alpha.1]
+## Bug Fixes
 
-- New icons from DotWallop (PC24, G109, PITE/PITA, S12)
+- Fixed FSS errors in VATGlasses mode by Felix
+- Fixed error when disabling Airports Layouts also made gates data worse
 
 # [1.0.0-1-final]
 

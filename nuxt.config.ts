@@ -148,6 +148,9 @@ export default defineNuxtConfig({
             '/discord': {
                 redirect: 'https://discord.gg/MtFKhMPePe',
             },
+            '/vg': {
+                redirect: `${ process.env.DOMAIN }/?vg=1`,
+            },
             '/layers/esri/**': {
                 proxy: 'https://ibasemaps-api.arcgis.com/**',
             },
