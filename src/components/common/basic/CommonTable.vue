@@ -86,7 +86,7 @@ const items = computed(() => {
             const bData = b[sort.key];
 
             if (!header || (typeof header.sort !== 'function' && (
-                (typeof aData !== 'string' && typeof aData !== 'number') || (typeof bData !== 'string' && typeof bData !== 'number'))
+                (typeof aData !== 'string' && typeof aData !== 'number' && typeof aData !== 'boolean') || (typeof bData !== 'string' && typeof bData !== 'number' && typeof bData !== 'boolean'))
             )) continue;
 
             if (typeof header.sort === 'function') {
@@ -103,6 +103,12 @@ const items = computed(() => {
 
             if (typeof aData === 'number' && typeof bData === 'number') {
                 const result = sort.algo === 'asc' ? aData - bData : bData - aData;
+                if (result === 0) continue;
+                return result;
+            }
+
+            if (typeof aData === 'boolean' && typeof bData === 'boolean') {
+                const result = sort.algo === 'asc' ? Number(aData) - Number(bData) : Number(bData) - Number(aData);
                 if (result === 0) continue;
                 return result;
             }
