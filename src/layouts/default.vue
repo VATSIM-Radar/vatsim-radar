@@ -473,6 +473,10 @@ img {
     text-decoration: underline;
 }
 
+.no-overflow {
+    overflow: hidden;
+}
+
 @include fromTablet {
     .__mobile {
         display: none !important;

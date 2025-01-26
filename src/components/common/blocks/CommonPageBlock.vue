@@ -1,14 +1,38 @@
 <template>
     <div class="page-block">
-        <div
-            v-if="$slots.title"
-            class="page-block_title"
-        >
-            <slot name="title"/>
-        </div>
-        <slot/>
+        <common-container v-if="container">
+            <div
+                v-if="$slots.title"
+                class="page-block_title"
+            >
+                <slot name="title"/>
+            </div>
+            <slot/>
+        </common-container>
+        <template v-else>
+            <div
+                v-if="$slots.title"
+                class="page-block_title"
+            >
+                <slot name="title"/>
+            </div>
+            <slot/>
+        </template>
     </div>
 </template>
+
+<script lang="ts" setup>
+import CommonContainer from '~/components/common/basic/CommonContainer.vue';
+
+defineProps({
+    container: {
+        type: Boolean,
+        default: false,
+    },
+});
+
+defineSlots<{ default?: () => any; title?: () => any }>();
+</script>
 
 <style scoped lang="scss">
 .page-block {

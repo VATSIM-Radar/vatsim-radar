@@ -7,7 +7,7 @@ import { useStore } from '~/store';
 
 export interface HeaderItem {
     text: string;
-    active: boolean;
+    active?: boolean;
     action?: () => any;
     path?: string;
     disabled?: boolean;
@@ -23,7 +23,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const store = useStore();
     const isMobile = useIsMobile();
 
-    return [
+    const menu: HeaderItem[] = [
         {
             text: 'Map',
             path: '/',
@@ -36,8 +36,25 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
         },
         {
             text: 'Stats',
-            disabled: true,
             icon: DataIcon,
+            children: [
+                {
+                    text: 'Airlines',
+                    path: '/stats/airlines',
+                },
+                {
+                    text: 'Airports',
+                    path: '/stats/airports',
+                },
+                {
+                    text: 'Pilots',
+                    path: '/stats/pilots',
+                },
+                {
+                    text: 'ATC',
+                    path: '/stats/atc',
+                },
+            ],
         },
         {
             text: 'Featured Airports',
@@ -77,7 +94,9 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
             ].filter(x => !x.hide),
         },
-    ].filter(x => !x.hide).map(x => {
+    ];
+
+    return menu.filter(x => !x.hide).map(x => {
         return {
             ...x,
             active: x.active ?? (x.path === route.path || !!x.children?.some(x => x.path === route.path)),

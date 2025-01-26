@@ -1,49 +1,68 @@
 <template>
     <div class="table">
-        <table>
-            <thead>
-                <tr>
-                    <th
-                        v-for="header in headers"
-                        :key="header.key"
-                        v-bind="header.headAttributes"
-                        @click="doSort(header)"
-                    >
+        <div class="table_header">
+            <div class="table__row">
+                <div
+                    v-for="header in headers"
+                    :key="header.key"
+                    class="table__data"
+                    v-bind="header.headAttributes"
+                    @click="doSort(header)"
+                >
+                    <div class="table_header__data">
                         <slot
                             :header="header"
-                            :name="`header${ header.key }`"
+                            :name="`header-${ header.key }`"
                         >
                             {{ header.name }}
                         </slot>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="item in items"
-                    :key="String(item[itemKey])"
-                >
-                    <th
-                        v-for="header in headers"
-                        :key="`${ String(item[itemKey]) }-${ header.key }`"
-                        v-bind="header.dataAttributes ?? header.headAttributes"
+                    </div>
+                    <div
+                        v-if="header.sort"
+                        class="table_header__sort"
+                        :class="{
+                            'table_header__sort--active': sorting.some(x => x.key === header.key),
+                            'table_header__sort--desc': sorting.some(x => x.key === header.key && x.algo === 'desc'),
+                        }"
                     >
-                        <slot
-                            :data="item[header.key]"
-                            :header="header"
-                            :name="`data${ header.key }`"
-                        >
-                            {{ item[header.key] }}
-                        </slot>
-                    </th>
-                </tr>
-            </tbody>
-        </table>
+                        <sort-icon/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table_data">
+            <div
+                v-for="(item, index) in items"
+                :key="String(item[itemKey])"
+                class="table__row"
+                :class="{ 'table__row--clickable': clickable }"
+                @click="$emit('click', item)"
+            >
+                <div
+                    v-for="header in headers"
+                    :key="`${ String(item[itemKey]) }-${ header.key }`"
+                    class="table__data"
+                    :class="[`table__data--type-${ header.key }`]"
+                    v-bind="header.dataAttributes ?? header.headAttributes"
+                >
+                    <slot
+                        :data="item[header.key]"
+                        :header="header"
+                        :index="index"
+                        :item="item"
+                        :name="`data-${ header.key }`"
+                    >
+                        {{ item[header.key] }}
+                    </slot>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import SortIcon from '@/assets/icons/kit/sort.svg?component';
 
 export interface TableHeader<T = unknown> {
     key: string;
@@ -51,6 +70,7 @@ export interface TableHeader<T = unknown> {
     sort?: boolean | ((a: T, b: T, algo: 'asc' | 'desc') => number);
     headAttributes?: Record<string, any>;
     dataAttributes?: Record<string, any>;
+    width?: number | string;
 }
 
 const props = defineProps({
@@ -66,13 +86,30 @@ const props = defineProps({
         type: String,
         required: true,
     },
+    clickable: {
+        type: Boolean,
+        default: false,
+    },
 });
 
+defineEmits({
+    click(item: any) {
+        return true;
+    },
+});
 defineSlots<HeaderSlot & DataSlot>();
 type HeaderSlot = Record<`header${ string }`, (props: { header: TableHeader }) => any>;
-type DataSlot = Record<`data${ string }`, (props: { header: TableHeader; data: any }) => any>;
+type DataSlot = Record<`data${ string }`, (props: { header: TableHeader; data: any; item: any; index: number }) => any>;
 
-const sorting = ref<{ key: string; algo: 'asc' | 'desc' }[]>([]);
+export interface TableSort {
+    key: string; algo: 'asc' | 'desc';
+}
+
+const sorting = defineModel<TableSort[]>('sort', { default: () => [] });
+
+const templateColumns = computed(() => {
+    return props.headers.map(x => typeof x.width === 'number' ? `${ x.width }px` : x.width || '1fr').join(' ');
+});
 
 const items = computed(() => {
     if (!sorting.value.length) return props.data;
@@ -121,15 +158,112 @@ const items = computed(() => {
 function doSort(header: TableHeader) {
     const existingSort = sorting.value.find(x => x.key === header.key);
     if (existingSort) {
-        if (existingSort.algo === 'asc') sorting.value = sorting.value.filter(x => x.key !== header.key);
-        else existingSort.algo = 'asc';
+        if (existingSort.algo === 'desc') sorting.value = sorting.value.filter(x => x.key !== header.key);
+        else existingSort.algo = 'desc';
     }
-    else sorting.value.push({ key: header.key, algo: 'desc' });
+    else sorting.value.push({ key: header.key, algo: 'asc' });
 }
 </script>
 
 <style scoped lang="scss">
 .table {
+    padding: 16px;
+    border-radius: 16px;
+    color: $lightgray100;
+    background: $darkgray900;
 
+    &__row {
+        display: grid;
+        grid-auto-columns: auto;
+        grid-template-columns: v-bind(templateColumns);
+        gap: 16px;
+        align-items: center;
+
+        padding: 16px;
+    }
+
+    &_header {
+        user-select: none;
+
+        position: sticky;
+        top: 56px;
+
+        margin-bottom: 16px;
+        border-bottom: 1px solid $darkgray850;
+
+        font-size: 14px;
+        line-height: 100%;
+
+        background: $darkgray900;
+
+        .table {
+            &__data {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+        }
+
+        &__sort {
+            cursor: pointer;
+
+            transform: scale(1, -1);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 18px;
+            min-width: 18px;
+
+            transition: 0.3s;
+
+            @include hover {
+                &:hover {
+                    color: $primary300;
+                }
+            }
+
+            &--active {
+                color: $primary400;
+            }
+
+            &--desc {
+                transform: scale(1, 1);
+            }
+
+            svg {
+                width: 16px;
+            }
+        }
+    }
+
+    &_data {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        font-size: 13px;
+        line-height: 100%;
+
+        .table {
+            &__row {
+                border-radius: 8px;
+                background: $darkgray850;
+
+                &--clickable {
+                    cursor: pointer;
+
+                    @include hover {
+                        transition: 0.3s;
+
+                        &:hover {
+                            background: $darkgray800;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 </style>
