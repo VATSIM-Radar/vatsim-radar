@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.0.2-alpha.01]
+# [1.0.1-1-final]
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)
 
