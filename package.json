@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.0.1-final",
+  "version": "1.0.2-alpha.01",
   "private": true,
   "type": "module",
   "scripts": {
