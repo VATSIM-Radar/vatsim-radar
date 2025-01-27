@@ -1,6 +1,12 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'pa44'
+    | 'pa34'
+    | 'evot'
+    | 'rv10'
+    | 'c402'
+    | 'be9l'
     | 'vulc'
     | 'vamp'
     | 'v22'
@@ -215,6 +221,30 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    pa44: {
+        icon: 'pa44',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    pa34: {
+        icon: 'pa34',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    evot: {
+        icon: 'evot',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    rv10: {
+        icon: 'rv10',
+        width: getAircraftSizeByCoef(0.16),
+    },
+    c402: {
+        icon: 'c402',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    be9l: {
+        icon: 'be9l',
+        width: getAircraftSizeByCoef(0.26),
+    },
     vulc: {
         icon: 'vulc',
         width: getAircraftSizeByCoef(0.51),
@@ -995,6 +1025,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'P8':
+            return aircraftIcons.b738;
+        case 'BE9T':
+            return aircraftIcons.be9l;
+        case 'S22T':
+            return aircraftIcons.sr22;
+        case 'C401':
+            return aircraftIcons.c402;
+        case 'EVOP':
+            return aircraftIcons.evot;
         case 'TRI':
             return aircraftIcons.tris;
         case 'E750':
@@ -1415,6 +1455,12 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'V22':
         case 'VAMP':
         case 'VULC':
+        case 'BE9L':
+        case 'C402':
+        case 'RV10':
+        case 'EVOT':
+        case 'PA34':
+        case 'PA44':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
