@@ -3,6 +3,7 @@
 # [1.0.1-1-final]
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)
+- Improved VATGlasses stability for incorrect HEX colors
 
 # [1.0.1-final]
 
