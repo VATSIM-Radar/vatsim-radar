@@ -1,6 +1,6 @@
 import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
-import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { RadarDataAirline, RadarDataAirlineAll, RadarDataAirlinesList } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
 import type {
@@ -105,7 +105,7 @@ export async function updateVatsimExtendedPilots() {
         polygon,
     })).filter(x => x.controllers.length);
 
-    radarStorage.vatsim.extendedPilots = [];
+    let update_pilots: VatsimExtendedPilot[] = [];
 
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
@@ -244,11 +244,66 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
+        //Diversion Detection
+        switch (extendedPilot.status) {
+            case 'departed':
+            case 'climbing':
+            case 'cruising':
+            case 'enroute':
+            case 'descending':
+            case 'arriving':
+                const old_pilot = radarStorage.vatsim.extendedPilots.find(x => x.cid === extendedPilot.cid);
+
+                if (!extendedPilot.flight_plan?.arrival) break;
+
+                const { arrival } = extendedPilot.flight_plan;
+
+                if (!old_pilot?.flight_plan)
+                    break;
+
+                if (old_pilot.flight_plan.diverted) {
+                    if (!extendedPilot.flight_plan)
+                        extendedPilot.flight_plan = {};
+
+                    if (old_pilot.flight_plan.diverted_arrival !== arrival) {
+                        if (old_pilot.flight_plan.diverted_origin === arrival || arrival === "ZZZZ") {
+                            extendedPilot.flight_plan.diverted = false;
+                            break;
+                        } else {
+                            extendedPilot.flight_plan.diverted_arrival = arrival;
+                        }
+                    } else {
+                        extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
+                    }
+
+                    extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.diverted_origin;
+                    extendedPilot.flight_plan.diverted = true;
+                } else {
+                    if (arrival === "ZZZZ" || old_pilot.flight_plan.arrival === "ZZZZ") break;
+
+                    if (old_pilot?.flight_plan?.arrival && arrival) {
+                        if (old_pilot.flight_plan.arrival !== arrival) {
+                            extendedPilot.flight_plan.diverted = true;
+                            extendedPilot.flight_plan.diverted_arrival = arrival;
+                            extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.arrival;
+                        }
+                    }
+                }
+                break;
+        }
+
         origPilot.status = extendedPilot.status;
         origPilot.toGoDist = extendedPilot.toGoDist;
         origPilot.depDist = extendedPilot.depDist;
-        radarStorage.vatsim.extendedPilots.push(extendedPilot);
+        origPilot.arrival = extendedPilot.flight_plan?.arrival;
+        origPilot.diverted = extendedPilot.flight_plan?.diverted;
+        origPilot.diverted_arrival = extendedPilot.flight_plan?.diverted_arrival;
+        origPilot.diverted_origin = extendedPilot.flight_plan?.diverted_origin;
+
+        update_pilots.push(extendedPilot);
     }
+
+    radarStorage.vatsim.extendedPilots = update_pilots;
 }
 
 const xmlParser = new XMLParser({
@@ -288,12 +343,28 @@ export async function updateTransceivers() {
     }
 }
 
-export async function updateAirlines() {
-    radarStorage.airlines = Object.fromEntries((await $fetch<RadarDataAirline[]>(!import.meta.dev ? 'http://data:3000/airlines' : 'https://data.vatsim-radar.com/airlines', {
-        retry: 3,
-    })).map(val => {
+function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
+    return Object.fromEntries(airlines.map(val => {
         val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
 
         return [val.icao, val];
     }));
+}
+
+export async function updateAirlines() {
+    const data = await $fetch<RadarDataAirlineAll>(!import.meta.dev ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
+        retry: 3,
+    });
+
+    const airlines = mapAirlines(data.airlines);
+    const virtual = mapAirlines(data.virtual);
+
+    radarStorage.airlines = {
+        airlines,
+        virtual,
+        all: {
+            ...virtual,
+            ...airlines,
+        },
+    };
 }

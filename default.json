@@ -24,12 +24,6 @@
     },
     {
       "matchPackageNames": [
-        "nuxt"
-      ],
-      "allowedVersions": ">3.15.3"
-    },
-    {
-      "matchPackageNames": [
         "node",
         "arm64v8/node"
       ],

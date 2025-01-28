@@ -45,6 +45,13 @@ export default defineNuxtConfig({
                 'ol',
             ],
     },
+    $development: {
+        vite: {
+            ssr: {
+                noExternal: ['chardet'],
+            },
+        },
+    },
     srcDir: 'src/',
     devtools: {
         enabled: false,
@@ -158,8 +165,8 @@ export default defineNuxtConfig({
                 proxy: {
                     to: 'https://a.basemaps.cartocdn.com/**',
                     headers: {
-                        Referer: 'https://do.vatsim-radar.com/',
-                        Origin: 'https://do.vatsim-radar.com',
+                        Referer: 'https://do-next.vatsim-radar.com/',
+                        Origin: 'https://do-next.vatsim-radar.com',
                     },
                 },
             },
@@ -167,8 +174,8 @@ export default defineNuxtConfig({
                 proxy: {
                     to: 'https://tiles.basemaps.cartocdn.com/**',
                     headers: {
-                        Referer: 'https://do.vatsim-radar.com/',
-                        Origin: 'https://do.vatsim-radar.com',
+                        Referer: 'https://do-next.vatsim-radar.com/',
+                        Origin: 'https://do-next.vatsim-radar.com',
                     },
                 },
             },
@@ -176,8 +183,8 @@ export default defineNuxtConfig({
                 proxy: {
                     to: 'https://tiles-a.basemaps.cartocdn.com/**',
                     headers: {
-                        Referer: 'https://do.vatsim-radar.com/',
-                        Origin: 'https://do.vatsim-radar.com',
+                        Referer: 'https://do-next.vatsim-radar.com/',
+                        Origin: 'https://do-next.vatsim-radar.com',
                     },
                 },
             },

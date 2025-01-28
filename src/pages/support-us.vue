@@ -107,16 +107,16 @@
                                 Support our development
                             </li>
                             <li>
-                                Beta versions access (from 3$/100₽)
+                                Beta versions access
                             </li>
                             <li>
-                                Satellite Layer (from 3$/100₽ on Beta website)
+                                Esri Satellite Layer
                             </li>
                             <li>
-                                Name on this page (from 5$, Patreon only)
+                                Name on this page (Patreon only)
                             </li>
                             <li>
-                                Telegram Chat (from 250₽, Boosty only)
+                                Telegram Chat (Boosty only)
                             </li>
                             <li>
                                 More in future...

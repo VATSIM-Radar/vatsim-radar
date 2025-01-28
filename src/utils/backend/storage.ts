@@ -9,7 +9,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
-import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/server/plugins/patreon';
 
@@ -103,7 +103,40 @@ export interface RadarDataAirline {
     virtualParsed?: boolean;
 }
 
+export type RadarDataAirlineAll = {
+    airlines: RadarDataAirline[];
+    virtual: RadarDataAirline[];
+};
+
 export type RadarDataAirlinesList = Record<string, RadarDataAirline>;
+export type RadarDataAirlinesAllList = {
+    airlines: RadarDataAirlinesList;
+    virtual: RadarDataAirlinesList;
+    all: RadarDataAirlinesList;
+};
+
+export interface SigmetCombined {
+    id?: string | null;
+    region?: string | null;
+    regionName?: string | null;
+    type?: string | null;
+    dataType: 'sigmet' | 'airsigmet' | 'airmet' | 'gairmet';
+    alphaChar?: string | null;
+    hazard?: string | null;
+    qualifier?: string | number | null;
+    timeFrom?: string | null;
+    timeTo?: string | null;
+    base?: number | string | null;
+    top?: number | string | null;
+    dir?: string | null;
+    spd?: number | null;
+    change?: string | null;
+    raw?: string | null;
+}
+
+export type Sigmet = Feature<Geometry, SigmetCombined>;
+
+export type Sigmets<T = Sigmet['properties']> = FeatureCollection<Geometry, T> & { validUntil?: number };
 
 export interface VatsimStorage {
     data: VatsimData | null;
@@ -149,7 +182,7 @@ export interface RadarStorage {
     vatsim: VatsimStorage;
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
-    airlines: RadarDataAirlinesList;
+    airlines: RadarDataAirlinesAllList;
 }
 
 export const radarStorage: RadarStorage = {
@@ -194,7 +227,11 @@ export const radarStorage: RadarStorage = {
     },
     navigraph: null,
     patreonInfo: null,
-    airlines: {},
+    airlines: {
+        airlines: {},
+        virtual: {},
+        all: {},
+    },
 };
 
 export function getRadarStorage() {

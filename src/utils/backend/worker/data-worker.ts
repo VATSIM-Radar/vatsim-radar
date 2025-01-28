@@ -230,7 +230,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'ENKB_APP',
+            callsign: 'LEMD_EN_APP',
             cid: 4,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
@@ -434,7 +434,6 @@ defineCronJob('* * * * * *', async () => {
                 qnh_i_hg: true,
                 flight_plan: true,
                 last_updated: true,
-                logon_time: true,
             },
             controllers: {
                 server: true,

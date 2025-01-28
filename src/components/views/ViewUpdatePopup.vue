@@ -109,94 +109,24 @@ const title = useTemplateRef('title');
 
 const update: Update = {
     type: 'major',
-    name: '1.0.0',
-    height: '430px',
+    name: '1.0.2',
+    height: 'auto',
     features: [
         {
-            title: 'Welcome to newest VATSIM Radar update!',
-            image: images['../../assets/update/presentation.png'],
-            imageRatio: '1920 / 1080',
-            description: `This update marks an important milestone for VATSIM Radar. Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. Well, we do now.`,
-            list: [
-                'Airports Layouts: taximap for Navigraph Ultimate members',
-                'Filters: VATSpy and FR24-inspired filters with an ability to share them with anyone',
-                'Bookmarks: Bookmark any location or airport - and assign a key to quickly open it',
-                'Friends: track users and view what are they doing, from flying to SUPing',
-                'VATGlasses: a long-awaited integration developed by community member Felix',
-            ],
-        },
-        {
-            title: 'Airports Layouts',
-            image: images['../../assets/update/layouts.png'],
-            description: 'VATSIM Radar expands it’s partnership with Navigraph, and now all Navigraph Unlimited subscribers can view Airports Layouts!',
-            list: [
-                'View airport map in many large airports with holding points, intersections, taxiways, and more',
-                'Enjoy updated gates data for those airports - a great improvement especially for USA airports!',
-                'Fallback to old system and disabled layers if needed in Map Settings',
-            ],
-        },
-        {
-            title: 'Filters',
-            description: 'VATSpy and FlightRadar24-inspired filters with all the settings you may need. At least, we hope so...',
-            image: images['../../assets/update/filters.png'],
-            list: [
-                'Filters pilots and ATC by callsigns, rating, and a friend list',
-                'Filter departure/arrival airports for flights - or import them directly from ongoing events!',
-                'Save your filters if you are logged in',
-                'Share you filters with friends - even if they are not authorized!',
-            ],
-        },
-        {
-            title: 'VATGlasses',
-            image: images['../../assets/update/vatglasses.png'],
-            list: [
-                'Detailed sectors with vertical splits - very useful for Europe flights',
-                'Developed by Felix',
-                'Auto-enabled if you are logged in and in active flight',
-                'Level is controllable in a footer',
-            ],
-        },
-        {
-            title: 'Friends',
-            image: images['../../assets/update/friends.png'],
-            list: [
-                'Track your friends and view what are they doing',
-                'Make friends lists with different names and colors',
-                'Focus on your friend in one click',
-            ],
-        },
-        {
-            title: 'Bookmarks',
-            image: images['../../assets/update/bookmarks.png'],
-            list: [
-                'Bookmark airport or your current location',
-                'Quickly access bookmarks via footer/header shortcut or keyboard binding',
-                'Share any bookmark with anyone',
-            ],
-        },
-        {
             title: 'Quality of Life',
-            description: 'Come visit our Discord for full changelog: https://vatsim-radar.com/discord',
+            description: 'Welcome to newest VATSIM Radar update! This is a small one, but we wanted to highlight some things.<br><br>Also, make sure to visit our Discord for full changelog: <a href="https://vatsim-radar.com/discord" target="_blank" class="__link">https://vatsim-radar.com/discord</a>',
             image: images['../../assets/update/quality.png'],
             list: [
-                'New aircraft icons from DotWallop: will add later',
-                'New VATSpy-like layer',
-                'Search can now be opened using CTRL+F',
-                'Airline display into pilot popup',
-                'Many other changes, fixes and improvements',
+                'New map layer instead of CartoDB, available in Light and Detailed variants. This layer renders <strong>on your device</strong>, so if you experience performance issues after this update - switch to Basic layer instead',
+                'Satellite layer is back - but has quality data for USA only. Better Satellite is available for Patreon subscribers since we have to pay money for it. If you know a better free unlimited satellite layer - let us know',
+                'Updated VA CS parsing logic - VA will now require to be present in GNG fictional airlines list (or in VATSIM Radar Data repository)',
+                'METARs will now be fetched from VATSIM API',
+                'Small bug fixes',
             ],
         },
     ],
-    active: false,
+    active: true,
 };
-
-if (!store.user?.hasCharts) {
-    update.features[1].list!.push('<a class="navigraph" href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe" target="_blank">Subscription Options</a>');
-}
-
-if (!store.user?.hasFms && store.user) {
-    update.features[1].list!.push('<a class="navigraph" href="/api/auth/navigraph/redirect" target="_blank"> Connect Navigraph</a>');
-}
 
 const shownFeatureIndex = ref(0);
 const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
