@@ -45,6 +45,13 @@ export default defineNuxtConfig({
                 'ol',
             ],
     },
+    $development: {
+        vite: {
+            ssr: {
+                noExternal: ['chardet'],
+            },
+        },
+    },
     srcDir: 'src/',
     devtools: {
         enabled: false,
