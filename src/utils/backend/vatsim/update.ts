@@ -260,7 +260,14 @@ export async function updateVatsimExtendedPilots() {
                         extendedPilot.flight_plan = {};
 
                     extendedPilot.flight_plan.diverted = true;
-                    extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
+
+                    if (extendedPilot.flight_plan.arrival != old_pilot.flight_plan.diverted_arrival){
+                        extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
+                    } else {
+                        extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
+                    }
+                    
+                    extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
                 } else {
                     if (old_pilot?.flight_plan?.arrival && extendedPilot.flight_plan?.arrival){
                         if (old_pilot.flight_plan.arrival != extendedPilot.flight_plan.arrival){
@@ -276,6 +283,7 @@ export async function updateVatsimExtendedPilots() {
         origPilot.status = extendedPilot.status;
         origPilot.toGoDist = extendedPilot.toGoDist;
         origPilot.depDist = extendedPilot.depDist;
+        origPilot.arrival = extendedPilot.flight_plan?.arrival;
         origPilot.diverted = extendedPilot.flight_plan?.diverted;
         origPilot.diverted_arrival = extendedPilot.flight_plan?.diverted_arrival;
         update_pilots.push(extendedPilot);

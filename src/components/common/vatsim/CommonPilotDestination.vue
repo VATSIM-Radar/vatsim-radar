@@ -28,7 +28,7 @@
         </div>
         <common-info-block
             v-if="pilot.diverted"
-            :bottom-items="[divAirport?.name]"
+            :bottom-items="['Diverting to ' + divAirport?.name]"
             class="diverted"
             :is-button="!!divAirport"
             text-align="center"
@@ -61,11 +61,6 @@ const airports = computed(() => dataStore.vatspy.value?.data.airports.filter(x =
 const depAirport = computed(() => airports.value.find(x => x.icao === props.pilot.departure));
 const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.arrival));
 const divAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_arrival));
-    
-
-if(props.pilot.cid == 1521211) {
-    console.log(props.pilot);
-}
 </script>
 
 <style scoped lang="scss">
