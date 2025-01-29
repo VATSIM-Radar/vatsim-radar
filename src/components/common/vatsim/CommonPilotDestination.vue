@@ -1,5 +1,6 @@
 <template>
-    <div v-if="pilot.departure && pilot.arrival" class="destination_wrap">
+    <div v-if="pilot.departure && pilot.arrival" 
+    class="destination_wrap">
         <div
             class="destination"
         >
@@ -14,26 +15,37 @@
             <div class="destination_aircraft-icon">
                 <aircraft-icon/>
             </div>
-            <div v-if="pilot.diverted" class="diverted_icon">
+            <div v-if="pilot.diverted" 
+            class="diverted_icon">
                 <path-icon/>
             </div>
             <common-info-block
+                v-if="!pilot.diverted"
                 :bottom-items="[arrAirport?.name]"
-                :class="pilot.diverted ? 'destination_diverted': 'destination_card'"
+                class='destination_card'
                 :is-button="!!arrAirport"
                 text-align="center"
                 :top-items="[arrAirport?.icao]"
                 @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
             />
+            <common-info-block
+                v-if="pilot.diverted"
+                :bottom-items="[divOrgAirport?.name]"
+                class='destination_diverted'
+                :is-button="!!divOrgAirport"
+                text-align="center"
+                :top-items="[divOrgAirport?.icao]"
+                @click="mapStore.addAirportOverlay(divOrgAirport?.icao ?? '')"
+            />
         </div>
         <common-info-block
             v-if="pilot.diverted"
-            :bottom-items="['Diverted to ' + divAirport?.name]"
+            :bottom-items="['Diverted to ' + divArrAirport?.name]"
             class="diverted"
-            :is-button="!!divAirport"
+            :is-button="!!divArrAirport"
             text-align="center"
-            :top-items="[divAirport?.icao]"
-            @click="mapStore.addAirportOverlay(divAirport?.icao ?? '')"
+            :top-items="[divArrAirport?.icao]"
+            @click="mapStore.addAirportOverlay(divArrAirport?.icao ?? '')"
         />
     </div>
 </template>
@@ -44,7 +56,6 @@ import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import AircraftIcon from '@/assets/icons/kit/aircraft.svg?component';
 import PathIcon from '@/assets/icons/kit/path.svg?component';
 import { useMapStore } from '~/store/map';
-import type { VatSpyData } from '~/types/data/vatspy'
 
 const props = defineProps({
     pilot: {
@@ -56,11 +67,14 @@ const props = defineProps({
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-const airports = computed(() => dataStore.vatspy.value?.data.airports.filter(x => x.icao === props.pilot.departure || x.icao === props.pilot.arrival || x.icao === props.pilot.diverted_arrival) ?? []);
+const airports = computed(() => dataStore.vatspy.value?.data.airports.filter(x => x.icao === props.pilot.departure || x.icao === props.pilot.arrival || x.icao === props.pilot.diverted_arrival || x.icao === props.pilot.diverted_origin) ?? []);
 
 const depAirport = computed(() => airports.value.find(x => x.icao === props.pilot.departure));
 const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.arrival));
-const divAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_arrival));
+const divArrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_arrival));
+const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_origin));
+
+console.log(props.pilot);
 </script>
 
 <style scoped lang="scss">
@@ -110,17 +124,17 @@ const divAirport = computed(() => airports.value.find(x => x.icao === props.pilo
 
     &_wrap {
         display: flex;
-        justify-content: center;
-        gap: 4px;
         flex-direction: column;
+        gap: 4px;
+        justify-content: center;
     }
 }
 
 .diverted {
-    background: $divertedBackground;
-    padding: 4px;
     display: flex;
     justify-content: center;
+    padding: 4px;
+    background: $divertedBackground;
 
     &_icon {
         position: absolute;

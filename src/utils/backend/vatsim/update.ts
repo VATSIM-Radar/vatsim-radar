@@ -253,27 +253,37 @@ export async function updateVatsimExtendedPilots() {
             case 'descending':
             case 'arriving':
                 const old_pilot = radarStorage.vatsim.extendedPilots.find(x => x.cid == extendedPilot.cid);
-                if (!old_pilot)
+                if (!old_pilot || !old_pilot?.flight_plan)
                     break;
 
-                if (old_pilot.flight_plan?.diverted) {
+                if (old_pilot.flight_plan.diverted) {
                     if (!extendedPilot.flight_plan)
                         extendedPilot.flight_plan = {};
 
                     if (extendedPilot.flight_plan.arrival != old_pilot.flight_plan.diverted_arrival) {
-                        extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
+                        if (extendedPilot.flight_plan.arrival == old_pilot.flight_plan.arrival) {
+                            extendedPilot.flight_plan.diverted = false;
+                            break;
+                        } else {
+                            extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
+                        }
                     } else {
                         extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
                     }
 
-                    extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
+                    extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.diverted_origin;
                     extendedPilot.flight_plan.diverted = true;
                 } else {
+                    if (!extendedPilot.flight_plan?.arrival) break;
+
+                    const { arrival, flight_rules } = extendedPilot.flight_plan;
+                    if (arrival === "zzzz" || arrival.length < 3 || flight_rules === "V") break;
+
                     if (old_pilot?.flight_plan?.arrival && extendedPilot.flight_plan?.arrival) {
                         if (old_pilot.flight_plan.arrival != extendedPilot.flight_plan.arrival) {
                             extendedPilot.flight_plan.diverted = true;
                             extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
-                            extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
+                            extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.arrival;
                         }
                     }
                 }
@@ -286,6 +296,8 @@ export async function updateVatsimExtendedPilots() {
         origPilot.arrival = extendedPilot.flight_plan?.arrival;
         origPilot.diverted = extendedPilot.flight_plan?.diverted;
         origPilot.diverted_arrival = extendedPilot.flight_plan?.diverted_arrival;
+        origPilot.diverted_origin = extendedPilot.flight_plan?.diverted_origin;
+
         update_pilots.push(extendedPilot);
     }
 
