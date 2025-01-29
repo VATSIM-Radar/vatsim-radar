@@ -105,7 +105,7 @@ export async function updateVatsimExtendedPilots() {
         polygon,
     })).filter(x => x.controllers.length);
 
-    let update_pilots:VatsimExtendedPilot[] = [];
+    let update_pilots: VatsimExtendedPilot[] = [];
 
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
@@ -243,8 +243,9 @@ export async function updateVatsimExtendedPilots() {
         if (!extendedPilot.status) {
             extendedPilot.status = 'enroute';
         }
-       
-        switch (extendedPilot.status){
+
+        //Diversion Detection
+        switch (extendedPilot.status) {
             case 'departed':
             case 'climbing':
             case 'cruising':
@@ -252,32 +253,31 @@ export async function updateVatsimExtendedPilots() {
             case 'descending':
             case 'arriving':
                 const old_pilot = radarStorage.vatsim.extendedPilots.find(x => x.cid == extendedPilot.cid);
-                if(!old_pilot)
+                if (!old_pilot)
                     break;
 
-                if(old_pilot.flight_plan?.diverted){
+                if (old_pilot.flight_plan?.diverted) {
                     if (!extendedPilot.flight_plan)
                         extendedPilot.flight_plan = {};
 
-                    extendedPilot.flight_plan.diverted = true;
-
-                    if (extendedPilot.flight_plan.arrival != old_pilot.flight_plan.diverted_arrival){
+                    if (extendedPilot.flight_plan.arrival != old_pilot.flight_plan.diverted_arrival) {
                         extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
                     } else {
                         extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
                     }
-                    
+
                     extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
+                    extendedPilot.flight_plan.diverted = true;
                 } else {
-                    if (old_pilot?.flight_plan?.arrival && extendedPilot.flight_plan?.arrival){
-                        if (old_pilot.flight_plan.arrival != extendedPilot.flight_plan.arrival){
+                    if (old_pilot?.flight_plan?.arrival && extendedPilot.flight_plan?.arrival) {
+                        if (old_pilot.flight_plan.arrival != extendedPilot.flight_plan.arrival) {
                             extendedPilot.flight_plan.diverted = true;
-                            extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
                             extendedPilot.flight_plan.diverted_arrival = extendedPilot.flight_plan.arrival;
+                            extendedPilot.flight_plan.arrival = old_pilot.flight_plan.arrival;
                         }
                     }
                 }
-            break;
+                break;
         }
 
         origPilot.status = extendedPilot.status;
@@ -333,7 +333,7 @@ export async function updateAirlines() {
     radarStorage.airlines = Object.fromEntries((await $fetch<RadarDataAirline[]>(!import.meta.dev ? 'http://data:3000/airlines' : 'https://data.vatsim-radar.com/airlines', {
         retry: 3,
     })).map(val => {
-        val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+        val.name = val.name.split(' ').map(x => `${x[0]}${x.toLowerCase().slice(1, x.length)}`).join(' ');
 
         return [val.icao, val];
     }));

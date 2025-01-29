@@ -28,7 +28,7 @@
         </div>
         <common-info-block
             v-if="pilot.diverted"
-            :bottom-items="['Diverting to ' + divAirport?.name]"
+            :bottom-items="['Diverted to ' + divAirport?.name]"
             class="diverted"
             :is-button="!!divAirport"
             text-align="center"
