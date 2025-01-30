@@ -73,8 +73,6 @@ const depAirport = computed(() => airports.value.find(x => x.icao === props.pilo
 const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.arrival));
 const divArrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_arrival));
 const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_origin));
-
-console.log(props.pilot);
 </script>
 
 <style scoped lang="scss">
