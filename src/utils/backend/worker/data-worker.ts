@@ -179,9 +179,6 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 
         radarStorage.vatsim.data!.pilots.forEach(pilot => {
-            if (pilot.flight_plan) {
-                pilot.flight_plan.remarks = 'PBN/D2 DOF/250127 REG/N700NB EET/KZTL0039 KZDC0047 PER/B RMK/TCAS SIMBRIEF CALLSIGN TBM ZERO ZERO NOVEMBER BRAVO /V/';
-            }
             const newerData = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === pilot.callsign);
             if (!newerData || updateTimestamp > newerData.date) return;
 
