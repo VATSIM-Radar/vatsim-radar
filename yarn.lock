@@ -8169,7 +8169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"idb@npm:^8.0.1":
+"idb@npm:^8.0.2":
   version: 8.0.2
   resolution: "idb@npm:8.0.2"
   checksum: 10c0/ffb0f0c82d36a250801e023eee11a2740b44c58d3506d480a2d9082d0ca8a16c44f4f8201712236ca22488a0c6ae6e93b9b061a291fd238dbe70c1ee16e18e96
@@ -14506,7 +14506,7 @@ __metadata:
     discord.js: "npm:^14.17.3"
     eslint: "npm:^9.19.0"
     fast-xml-parser: "npm:^4.5.1"
-    idb: "npm:^8.0.1"
+    idb: "npm:^8.0.2"
     ioredis: "npm:^5.4.2"
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.1.0"
