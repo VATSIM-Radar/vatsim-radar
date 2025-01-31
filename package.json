@@ -69,7 +69,7 @@
   "devDependencies": {
     "@navigraph/amdb": "^1.1.0",
     "@nuxt/devtools": "^2.0.0-beta.4",
-    "@nuxt/eslint": "^0.7.6",
+    "@nuxt/eslint": "^1.0.0",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^3.0.1",
     "@stylistic/stylelint-plugin": "^3.1.1",

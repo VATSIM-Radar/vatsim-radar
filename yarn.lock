@@ -1762,7 +1762,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/compat@npm:^1.1.1":
+"@eslint/compat@npm:^1.2.5":
   version: 1.2.5
   resolution: "@eslint/compat@npm:1.2.5"
   peerDependencies:
@@ -2641,18 +2641,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/eslint-config@npm:0.7.6":
-  version: 0.7.6
-  resolution: "@nuxt/eslint-config@npm:0.7.6"
+"@nuxt/eslint-config@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@nuxt/eslint-config@npm:1.0.0"
   dependencies:
     "@antfu/install-pkg": "npm:^1.0.0"
     "@clack/prompts": "npm:^0.9.1"
     "@eslint/js": "npm:^9.19.0"
-    "@nuxt/eslint-plugin": "npm:0.7.6"
+    "@nuxt/eslint-plugin": "npm:1.0.0"
     "@stylistic/eslint-plugin": "npm:^3.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^8.22.0"
     "@typescript-eslint/parser": "npm:^8.22.0"
-    eslint-config-flat-gitignore: "npm:0.2.0"
+    eslint-config-flat-gitignore: "npm:^2.0.0"
     eslint-flat-config-utils: "npm:^2.0.0"
     eslint-merge-processors: "npm:^1.0.0"
     eslint-plugin-import-x: "npm:^4.6.1"
@@ -2666,35 +2666,35 @@ __metadata:
     pathe: "npm:^2.0.2"
     vue-eslint-parser: "npm:^9.4.3"
   peerDependencies:
-    eslint: ^8.57.0 || ^9.0.0
+    eslint: ^9.0.0
     eslint-plugin-format: "*"
   peerDependenciesMeta:
     eslint-plugin-format:
       optional: true
-  checksum: 10c0/e0c3f7b8b33f4b37ae621835e118644efb466173b5aaae4667ade747c7e13cb30b083421e118cc3654dc0fe4be59bbf38cec15ff82f5e9902001d006296343c5
+  checksum: 10c0/1be082eb09299ac59e78d40b69310dd7f85f495b441e715e722d5a5ecfca40b7420b40d7f2bc133108b07c9f93eeba52f4282f1df0fb2cf323a6b05e0f15b52a
   languageName: node
   linkType: hard
 
-"@nuxt/eslint-plugin@npm:0.7.6":
-  version: 0.7.6
-  resolution: "@nuxt/eslint-plugin@npm:0.7.6"
+"@nuxt/eslint-plugin@npm:1.0.0":
+  version: 1.0.0
+  resolution: "@nuxt/eslint-plugin@npm:1.0.0"
   dependencies:
     "@typescript-eslint/types": "npm:^8.22.0"
     "@typescript-eslint/utils": "npm:^8.22.0"
   peerDependencies:
-    eslint: ^8.57.0 || ^9.0.0
-  checksum: 10c0/7043d47c885cd6223d04eebfbc80f739e913e2cd6bef56eda85f6f1e7eeaf7e52cf7a359091dd178078030c32403e7d9ce4f7d0123b4ea7b1fca2741cb1db802
+    eslint: ^9.0.0
+  checksum: 10c0/51a0465d13858e17b045317ce752337e1c24168148189f4a00845ea2273f6e68e39be885c3afec3b17e2b2af8f8d0340fbe353cc4af830181cc02445fb597880
   languageName: node
   linkType: hard
 
-"@nuxt/eslint@npm:^0.7.6":
-  version: 0.7.6
-  resolution: "@nuxt/eslint@npm:0.7.6"
+"@nuxt/eslint@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@nuxt/eslint@npm:1.0.0"
   dependencies:
     "@eslint/config-inspector": "npm:^1.0.0"
     "@nuxt/devtools-kit": "npm:^1.7.0"
-    "@nuxt/eslint-config": "npm:0.7.6"
-    "@nuxt/eslint-plugin": "npm:0.7.6"
+    "@nuxt/eslint-config": "npm:1.0.0"
+    "@nuxt/eslint-plugin": "npm:1.0.0"
     "@nuxt/kit": "npm:^3.15.4"
     chokidar: "npm:^4.0.3"
     eslint-flat-config-utils: "npm:^2.0.0"
@@ -2705,15 +2705,15 @@ __metadata:
     pathe: "npm:^2.0.2"
     unimport: "npm:^4.0.0"
   peerDependencies:
-    eslint: ^8.57.0 || ^9.0.0
+    eslint: ^9.0.0
     eslint-webpack-plugin: ^4.1.0
-    vite-plugin-eslint2: ^4.4.0 || ^5.0.0
+    vite-plugin-eslint2: ^5.0.0
   peerDependenciesMeta:
     eslint-webpack-plugin:
       optional: true
     vite-plugin-eslint2:
       optional: true
-  checksum: 10c0/a31f0f3c0c885ae0d8c45f78b6cc50f539d044e6c6285376b32d59cceaee5565cb43c2930e3704130df9011b5f1325c0bf7066f0101c6a134df3d9195b56a8f4
+  checksum: 10c0/961595ba87d9a075722b30047061032af49d9ef29449993adc16e0a343e6b5b17e5f8c66e9a447926fc8f20754a8848a936f93297607dea390a435f7ce8a891f
   languageName: node
   linkType: hard
 
@@ -6770,13 +6770,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-flat-gitignore@npm:0.2.0":
-  version: 0.2.0
-  resolution: "eslint-config-flat-gitignore@npm:0.2.0"
+"eslint-config-flat-gitignore@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "eslint-config-flat-gitignore@npm:2.0.0"
   dependencies:
-    "@eslint/compat": "npm:^1.1.1"
-    find-up-simple: "npm:^1.0.0"
-  checksum: 10c0/956937bc2ba5884fb5eabaa9738731004a38e117f9a71d7aabbeaac7e013e5de0f81d2f0c3b28804d0a66ff193c7919d64a096415205baef2b10fba00e919cdf
+    "@eslint/compat": "npm:^1.2.5"
+  peerDependencies:
+    eslint: ^9.5.0
+  checksum: 10c0/7b9db7ee8870ca65300267ad45c2a3627abf1abc80151801af1d89a651418d9dc0c1b6dd6269b956fab51f05d2dabe0ef491141bea5d1f3127e1210417536858
   languageName: node
   linkType: hard
 
@@ -7347,13 +7348,6 @@ __metadata:
   dependencies:
     to-regex-range: "npm:^5.0.1"
   checksum: 10c0/b75b691bbe065472f38824f694c2f7449d7f5004aa950426a2c28f0306c60db9b880c0b0e4ed819997ffb882d1da02cfcfc819bddc94d71627f5269682edf018
-  languageName: node
-  linkType: hard
-
-"find-up-simple@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "find-up-simple@npm:1.0.0"
-  checksum: 10c0/de1ad5e55c8c162f5600fe3297bb55a3da5cd9cb8c6755e463ec1d52c4c15a84e312a68397fb5962d13263b3dbd4ea294668c465ccacc41291d7cc97588769f9
   languageName: node
   linkType: hard
 
@@ -14480,7 +14474,7 @@ __metadata:
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
     "@nuxt/devtools": "npm:^2.0.0-beta.4"
-    "@nuxt/eslint": "npm:^0.7.6"
+    "@nuxt/eslint": "npm:^1.0.0"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.9.0"
     "@prisma/client": "npm:^6.3.0"
