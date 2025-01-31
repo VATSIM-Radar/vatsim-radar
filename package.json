@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.0.1-1-final",
+  "version": "1.0.1-2-final",
   "private": true,
   "type": "module",
   "scripts": {
@@ -55,6 +55,7 @@
     "ol-mapbox-style": "^12.4.0",
     "pinia": "^2.3.1",
     "prisma": "^6.3.0",
+    "protomaps-themes-base": "^4.4.0",
     "sharp": "^0.33.5",
     "sqlite3": "^5.1.7",
     "svgo": "^3.3.2",

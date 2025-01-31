@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.0.1-2-final]
+
+- New map layers, replacing CartoDB
+- Fixed an error when pilot info panel was sometimes not displayed
+- Excluded TCAS SIMBRIEF from detecting as virtual airline callsign
+
 # [1.0.1-1-final]
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)

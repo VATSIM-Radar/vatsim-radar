@@ -8,6 +8,7 @@ import type { MapLayoutLayerExternal } from '~/types/map';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
+import type { TileJSON } from 'ol/source';
 import { XYZ } from 'ol/source';
 import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
@@ -19,6 +20,7 @@ import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { isProductionMode } from '~/utils/shared';
+import protoWithLabels, { noLabels as protoNoLabels } from 'protomaps-themes-base';
 
 defineSlots<{ default: () => any }>();
 
@@ -33,10 +35,18 @@ interface Layer {
     url: string;
     lightThemeUrl?: string;
     vector?: false;
+    pm?: false;
 }
 
 type IVectorLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
     vector: true;
+    pm?: false;
+};
+
+type IPMLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
+    pm: true;
+    vector?: false;
+    theme: 'black' | 'dark' | 'grayscale' | 'light' | 'white';
 };
 
 const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
@@ -64,17 +74,17 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
     lightNL = 'clxpykjoh00nj01pcgmrudq8q',
 }*/
 
-const layer = computed<Layer | IVectorLayer>(() => {
-    let layer = store.localSettings.filters?.layers?.layer ?? 'carto';
+const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
+    let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
 
-    if (layer === 'OSM' && store.theme !== 'light') layer = 'carto';
+    if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
 
     if (layer === 'Satellite' && isProductionMode()) {
-        layer = 'carto';
+        layer = 'protoData';
         setUserLocalSettings({
             filters: {
                 layers: {
-                    layer: 'carto',
+                    layer: 'protoData',
                 },
             },
         });
@@ -86,36 +96,36 @@ const layer = computed<Layer | IVectorLayer>(() => {
         };
     }
 
-    if (layer === 'carto' || !(layer in externalLayers)) {
-        const isLabels = store.localSettings.filters?.layers?.layerLabels ?? true;
-        const isVector = store.localSettings.filters?.layers?.layerVector ?? false;
+    if (!(layer in externalLayers)) {
+        const isGeneral = layer === 'protoGeneral';
+        const isGrayscale = store.getCurrentTheme === 'default' ? false : store.localSettings.filters?.layers?.layer === 'protoDataGray';
 
-        if (!isVector) {
-            return {
-                attribution: {
-                    title: 'CartoDB',
-                    url: 'https://cartodb.com/attribution',
-                },
-                url: `/layers/carto/basemaps/${ isLabels ? 'dark_all' : 'dark_nolabels' }/{z}/{x}/{y}.png`,
-                lightThemeUrl: `/layers/carto/basemaps/${ isLabels ? 'light_all' : 'light_nolabels' }/{z}/{x}/{y}.png`,
-            };
+        let theme: IPMLayer['theme'];
+
+        if (isGeneral) {
+            theme = store.getCurrentTheme === 'default' ? 'dark' : 'light';
+        }
+        else if (isGrayscale) {
+            theme = 'grayscale';
         }
         else {
-            return {
-                attribution: {
-                    title: 'CartoDB',
-                    url: 'https://cartodb.com/attribution',
-                },
-                url: `/api/data/carto/dark-matter${ isLabels ? '' : '-nolabels' }-gl-style`,
-                lightThemeUrl: `/api/data/carto/positron${ isLabels ? '' : '-nolabels' }-gl-style`,
-                vector: true,
-            };
+            theme = store.getCurrentTheme === 'default' ? 'black' : 'white';
         }
+
+        return {
+            attribution: {
+                title: 'Protomaps',
+                url: 'https://github.com/protomaps/basemaps',
+            },
+            url: '/tiles.json',
+            pm: true,
+            theme,
+        };
     }
 
     return externalLayers[layer as MapLayoutLayerExternal]!;
 });
-const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl);
+const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl + ('theme' in layer.value ? layer.value.theme : ''));
 
 const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
 
@@ -133,7 +143,7 @@ const opacity = computed(() => {
 const theme = computed(() => store.theme);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
-const tileLayer = shallowRef<TileLayer<XYZ> | VectorTileLayer | null>();
+const tileLayer = shallowRef<TileLayer<XYZ | TileJSON> | VectorTileLayer | null>();
 let attributionLayer: TileLayer<XYZ> | null = null;
 
 useHead(() => ({
@@ -153,6 +163,8 @@ const geoJson = new GeoJSON();
 let mapSource: VectorSource | undefined;
 let mapLayer: VectorImageLayer | undefined;
 let style: Style | undefined;
+
+const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
 async function initLayer() {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
@@ -207,7 +219,9 @@ async function initLayer() {
         const json = await $fetch<Record<string, any>>(store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url);
         json.id = url;
 
-        json.layers = json.layers.filter((layer: Record<string, any>) => allowedLayers.test(layer.id));
+        if (json.layers) {
+            json.layers = json.layers.filter((layer: Record<string, any>) => allowedLayers.test(layer.id));
+        }
 
         await applyStyle(tileLayer.value, json);
 
@@ -218,6 +232,41 @@ async function initLayer() {
             }),
         });
         map.value?.addLayer(attributionLayer);
+
+        return;
+    }
+
+    if (layer.value.pm) {
+        const glStyle = {
+            version: 8,
+            glyphs: 'https://cdn.protomaps.com/fonts/pbf/{fontstack}/{range}.pbf',
+            sources: {
+                protomaps: {
+                    type: 'vector',
+                    url: layer.value.url,
+                },
+            },
+            layers: (isLabels.value ? protoWithLabels : protoNoLabels)('protomaps', layer.value.theme, 'en'),
+        };
+
+        tileLayer.value = new VectorTileLayer({
+            declutter: false,
+            updateWhileAnimating: false,
+            updateWhileInteracting: false,
+            renderMode: 'hybrid',
+        });
+
+        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => layer.id !== 'roads_labels_minor' && layer.id !== 'roads_labels_major' && layer.id !== 'water_waterway_label');
+
+        await applyStyle(tileLayer.value, glStyle);
+
+        attributionLayer = new TileLayer({
+            source: new XYZ({
+                attributions: buildAttributions(layer.value.attribution?.title || false, layer.value.attribution?.url ?? ''),
+            }),
+        });
+        map.value?.addLayer(attributionLayer);
+        map.value?.addLayer(tileLayer.value);
 
         return;
     }
@@ -245,7 +294,7 @@ watch(map, val => {
 
 const vatglassesEnabled = isVatGlassesActive();
 
-watch([layerUrl, theme, vatglassesEnabled, transparencySettings], initLayer);
+watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], initLayer);
 
 onBeforeUnmount(() => {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);
