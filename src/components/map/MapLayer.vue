@@ -51,6 +51,13 @@ type IPMLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
 
 const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
     Satellite: {
+        url: `https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
+        attribution: {
+            title: 'USGS',
+            url: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits',
+        },
+    },
+    SatelliteEsri: {
         url: `/layers/esri/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
     },
     OSM: {
@@ -79,7 +86,7 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
 
-    if (layer === 'Satellite' && isProductionMode()) {
+    if (layer === 'SatelliteEsri' && isProductionMode()) {
         layer = 'protoData';
         setUserLocalSettings({
             filters: {
@@ -134,6 +141,7 @@ const opacity = computed(() => {
         case 'OSM':
             return store.localSettings.filters.layers.transparencySettings?.osm || 0.5;
         case 'Satellite':
+        case 'SatelliteEsri':
             return store.localSettings.filters.layers.transparencySettings?.satellite || 0.3;
         default:
             return 1;

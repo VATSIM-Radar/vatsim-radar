@@ -91,7 +91,7 @@
                             setting="osm"
                         />
                         <map-filter-transparency
-                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite'"
+                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite' || store.localSettings.filters?.layers?.layer === 'SatelliteEsri'"
                             setting="satellite"
                         />
                         <common-radio-group
@@ -345,13 +345,17 @@ let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
         value: 'Satellite',
     },
     {
+        value: 'SatelliteEsri',
+        text: 'Satellite (Esri)',
+    },
+    {
         value: 'OSM',
         hint: 'Will only show for light theme',
         hintLocation: 'left',
     },
 ];
 
-if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'Satellite');
+if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'SatelliteEsri');
 
 const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
     store.localSettings.filters?.layers?.layer?.startsWith('proto') ||
