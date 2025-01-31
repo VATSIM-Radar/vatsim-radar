@@ -343,6 +343,9 @@ let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     },
     {
         value: 'Satellite',
+        text: 'Satellite (USA only)',
+        hint: 'Lacks quality data outside US. Will be noticeable when zooming',
+        hintLocation: 'right',
     },
     {
         value: 'SatelliteEsri',
@@ -359,6 +362,7 @@ if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'Satellite
 
 const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
     store.localSettings.filters?.layers?.layer?.startsWith('proto') ||
+    store.localSettings.filters?.layers?.layer === 'Satellite' ||
     (store.localSettings.filters?.layers?.layer === 'OSM' && store.theme !== 'light'));
 
 const changeLayer = (layer: MapLayoutLayer) => {

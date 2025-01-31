@@ -51,7 +51,7 @@ type IPMLayer = Pick<Layer, 'attribution' | 'url' | 'lightThemeUrl'> & {
 
 const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer> = {
     Satellite: {
-        url: `https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}?token=AAPTxy8BH1VEsoebNVZXo8HurDMQfxZXP-jwqkEIQ3jLIZoTUg5nKRlVTBwkT6rjROYxXw0nv2RYA5yv6hZBods45S-mobzoAHIy4R8ZP_kadIqOrU5bJTyqic63SPSS8-EeC1qFvTOFBd2sQtynCOUMdk4YWCR7Jj7C85_hfBAYvFj9lI1jEmCNzQJqyoitGPjNwW-efZ318KR2nhYadO4TEDqT9D53FlaDZffQjSMeKD8.AT1_chWUHHAZ`,
+        url: `https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}`,
         attribution: {
             title: 'USGS',
             url: 'https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits',
@@ -80,6 +80,8 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
     lightL = 'clxpypp7d00mz01qwe0gefqi7',
     lightNL = 'clxpykjoh00nj01pcgmrudq8q',
 }*/
+
+const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
 const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
     let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
@@ -130,7 +132,16 @@ const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
         };
     }
 
-    return externalLayers[layer as MapLayoutLayerExternal]!;
+    const external = externalLayers[layer as MapLayoutLayerExternal]!;
+
+    if (layer === 'Satellite' && isLabels.value) {
+        return {
+            ...external,
+            url: external.url.replace('USGSImageryOnly', 'USGSImageryTopo'),
+        };
+    }
+
+    return external;
 });
 const layerUrl = computed(() => layer.value.url + layer.value.lightThemeUrl + ('theme' in layer.value ? layer.value.theme : ''));
 
@@ -171,8 +182,6 @@ const geoJson = new GeoJSON();
 let mapSource: VectorSource | undefined;
 let mapLayer: VectorImageLayer | undefined;
 let style: Style | undefined;
-
-const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
 async function initLayer() {
     if (tileLayer.value) map.value?.removeLayer(tileLayer.value);

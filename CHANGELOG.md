@@ -2,11 +2,11 @@
 
 # [1.0.1-2-final]
 
-- New map layers, replacing CartoDB
+- New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead
 - Fixed an error when pilot info panel was sometimes not displayed
 - Excluded TCAS SIMBRIEF from detecting as virtual airline callsign
-- Migrated METAR API on VATSIM API
-- Satellite layer comeback. Old Satellite layer was renamed and is still available for paid users
+- Migrated METAR API to be fetched from VATSIM API
+- Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
 - Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc) or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
