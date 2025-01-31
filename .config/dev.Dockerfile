@@ -1,4 +1,4 @@
-FROM node:22
+FROM oven/bun:1.2.0
 WORKDIR /radar
 
 RUN apt-get update
