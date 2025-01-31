@@ -2,7 +2,7 @@ import type { DBSchema, IDBPDatabase } from 'idb';
 import { openDB } from 'idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
-    RadarDataAirlinesList,
+    RadarDataAirlinesAllList,
     SimAwareAPIData,
     VatglassesAPIData,
 } from '~/utils/backend/storage';
@@ -25,8 +25,8 @@ interface VatglassesData {
 export interface IDBAirlinesData {
     key: 'airlines';
     value: {
-        expirationDate: number;
-        airlines: RadarDataAirlinesList;
+        expireDate: number;
+        airlines: RadarDataAirlinesAllList;
     };
 }
 

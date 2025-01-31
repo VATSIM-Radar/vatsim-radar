@@ -103,7 +103,17 @@ export interface RadarDataAirline {
     virtualParsed?: boolean;
 }
 
+export type RadarDataAirlineAll = {
+    airlines: RadarDataAirline[];
+    virtual: RadarDataAirline[];
+};
+
 export type RadarDataAirlinesList = Record<string, RadarDataAirline>;
+export type RadarDataAirlinesAllList = {
+    airlines: RadarDataAirlinesList;
+    virtual: RadarDataAirlinesList;
+    all: RadarDataAirlinesList;
+};
 
 export interface VatsimStorage {
     data: VatsimData | null;
@@ -149,7 +159,7 @@ export interface RadarStorage {
     vatsim: VatsimStorage;
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
-    airlines: RadarDataAirlinesList;
+    airlines: RadarDataAirlinesAllList;
 }
 
 export const radarStorage: RadarStorage = {
@@ -194,7 +204,11 @@ export const radarStorage: RadarStorage = {
     },
     navigraph: null,
     patreonInfo: null,
-    airlines: {},
+    airlines: {
+        airlines: {},
+        virtual: {},
+        all: {},
+    },
 };
 
 export function getRadarStorage() {

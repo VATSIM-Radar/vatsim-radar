@@ -7,6 +7,7 @@
 - Excluded TCAS SIMBRIEF from detecting as virtual airline callsign
 - Migrated METAR API on VATSIM API
 - Satellite layer comeback. Old Satellite layer was renamed and is still available for paid users
+- Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc) or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
