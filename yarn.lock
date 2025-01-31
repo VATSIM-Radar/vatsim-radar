@@ -8170,9 +8170,9 @@ __metadata:
   linkType: hard
 
 "idb@npm:^8.0.1":
-  version: 8.0.1
-  resolution: "idb@npm:8.0.1"
-  checksum: 10c0/01489040a91ebb0be18c0d77a92f336fcb965049014b14cce493c5f6cefdc7e3b4a95aa6a6f1024981eecb52f3745e370ac29c6e5dcb3b9e9e29e925e1120fb4
+  version: 8.0.2
+  resolution: "idb@npm:8.0.2"
+  checksum: 10c0/ffb0f0c82d36a250801e023eee11a2740b44c58d3506d480a2d9082d0ca8a16c44f4f8201712236ca22488a0c6ae6e93b9b061a291fd238dbe70c1ee16e18e96
   languageName: node
   linkType: hard
 
@@ -10961,14 +10961,14 @@ __metadata:
   linkType: hard
 
 "postcss-calc@npm:^10.0.2":
-  version: 10.1.0
-  resolution: "postcss-calc@npm:10.1.0"
+  version: 10.1.1
+  resolution: "postcss-calc@npm:10.1.1"
   dependencies:
     postcss-selector-parser: "npm:^7.0.0"
     postcss-value-parser: "npm:^4.2.0"
   peerDependencies:
     postcss: ^8.4.38
-  checksum: 10c0/63f8f77f2b5f2987f0ae6b731a1034fabbb777fbec3f778662351b6c9ae006d431daca1e3e2c315acfa3aa94b3e4c1b71c4e76c6b9a8d5321398814e84446415
+  checksum: 10c0/616d3b7b15a524fa86ff1b2be7d9f2369c7794fd44c946f117380e519b064e9ac8d1414ea29de0238b130f2b2a5eb2fb59758cc5478af40b04a012992fb1075b
   languageName: node
   linkType: hard
 
@@ -14961,9 +14961,9 @@ __metadata:
   linkType: hard
 
 "web-worker@npm:^1.2.0":
-  version: 1.3.0
-  resolution: "web-worker@npm:1.3.0"
-  checksum: 10c0/bca341b421f07c2d33aa205d463e6a2d3d376fb0628a01052dc343fd88a1d688df58d1c7fe36f631d0d860bbd3060f5014cca67d6f8781634b6c2fae25d1fc70
+  version: 1.4.0
+  resolution: "web-worker@npm:1.4.0"
+  checksum: 10c0/1f281fa169289c61a6bf274950424f2cfe94342b56f722e541d20f407ed4ef2ca85150b1e3ca7c1109291c027bdedc391f86e8b0cbafb091dd991a72443c3c1b
   languageName: node
   linkType: hard
 
