@@ -62,6 +62,7 @@
         </div>
         <client-only v-if="ready">
             <map-layer :key="(store.theme ?? 'default')"/>
+            <map-sigmets v-if="!store.config.hideHeader"/>
             <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup

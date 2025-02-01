@@ -42,6 +42,19 @@ export default defineNitroPlugin(app => {
     defineCronJob('15 * * * *', updateAustraliaData);
     defineCronJob('15 0 * * *', updateAirlines);
     defineCronJob('15 * * * *', async () => {
-        radarStorage.sigmets = await $fetch<Sigmets>('https://aviationweather.gov/api/data/isigmet?format=geojson');
+        const isigmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/isigmet?format=geojson');
+        const airsigmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/airsigmet?format=geojson');
+        const airsigmet2 = $fetch<Sigmets>('https://aviationweather.gov/api/json/AirmetJSON');
+        const gairmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/gairmet?format=geojson');
+
+        radarStorage.sigmets = {
+            type: 'FeatureCollection',
+            features: [
+                ...(await isigmet).features,
+                ...(await airsigmet).features,
+                ...(await airsigmet2).features,
+                ...(await gairmet).features,
+            ],
+        };
     });
 });

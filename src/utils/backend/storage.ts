@@ -115,7 +115,7 @@ export type RadarDataAirlinesAllList = {
     all: RadarDataAirlinesList;
 };
 
-export type Sigmet = Feature<Geometry, {
+export interface SigmetInt {
     icaoId: string;
     firId: string;
     firName: string;
@@ -124,13 +124,45 @@ export type Sigmet = Feature<Geometry, {
     qualifier: string;
     validTimeFrom: string;
     validTimeTo: string;
-    rawSigmet: string;
+    rawSigmet?: string;
     base?: number;
     top?: number;
     dir?: string;
     spd?: number;
     chng?: string;
-}>;
+}
+
+export interface SigmetUSA {
+    icaoId: string;
+    airSigmetType: string;
+    alphaChar: string;
+    hazard: string | null;
+    validTimeFrom: string;
+    validTimeTo: string;
+    severity: number;
+    rawAirSigmet: string;
+}
+
+export interface Gairmet {
+    product: string;
+    hazard: string | null;
+    issueTime: string;
+    validTime: string;
+    receiptTime: string;
+    forecast: number;
+    severity: string;
+    top: string;
+    base: string;
+}
+
+export interface SigmetCombined {
+    from: string;
+    to: string;
+    base: number | null;
+    top: number | null;
+}
+
+export type Sigmet = Feature<Geometry, SigmetInt | SigmetUSA | Gairmet>;
 
 export type Sigmets = FeatureCollection<Geometry, Sigmet['properties']>;
 
