@@ -8,7 +8,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
-    RadarDataAirlinesList,
+    RadarDataAirlinesAllList,
     SimAwareAPIData,
     VatglassesAPIData,
 } from '~/utils/backend/storage';
@@ -25,7 +25,11 @@ import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } fro
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
-const airlines = shallowRef<RadarDataAirlinesList>({});
+const airlines = shallowRef<RadarDataAirlinesAllList>({
+    airlines: {},
+    virtual: {},
+    all: {},
+});
 const simaware = shallowRef<SimAwareAPIData>();
 const vatglasses = shallowRef<VatglassesAPIData>();
 
@@ -111,7 +115,7 @@ export interface UseDataStore {
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
-    airlines: ShallowRef<RadarDataAirlinesList>;
+    airlines: ShallowRef<RadarDataAirlinesAllList>;
 }
 
 export function useDataStore(): UseDataStore {
@@ -315,10 +319,10 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
             }()),
             (async function() {
                 let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
-                if (!airlines || !airlines.expirationDate || Date.now() > airlines.expirationDate) {
-                    const data = await $fetch<RadarDataAirlinesList>('/api/data/airlines');
+                if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
+                    const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
                     airlines = {
-                        expirationDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
+                        expireDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
                         airlines: data,
                     };
                     await clientDB.put('data', airlines, 'airlines');

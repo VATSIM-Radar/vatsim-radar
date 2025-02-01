@@ -471,6 +471,14 @@ img {
 .__link {
     color: $primary500;
     text-decoration: underline;
+
+    @include hover {
+        transition: 0.3s;
+
+        &:hover {
+            color: $primary400;
+        }
+    }
 }
 
 @include fromTablet {

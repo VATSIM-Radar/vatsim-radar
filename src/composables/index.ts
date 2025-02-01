@@ -244,12 +244,12 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string): Rada
     const icao = /^(?<callsign>[A-Z]{0,3})[0-9]/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = useDataStore().airlines.value[icao] as RadarDataAirline | undefined;
+    const airline = useDataStore().airlines.value.all[icao] as RadarDataAirline | undefined;
 
     if (!airline && !remarks) return airline ?? null;
 
-    const vaCallsign = remarks ? getVACallsign(remarks) : null;
-    const website = remarks ? getVAWebsite(remarks) : null;
+    const vaCallsign = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVACallsign(remarks) : null;
+    const website = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVAWebsite(remarks) : null;
 
     if (!vaCallsign && !airline) return null;
 
