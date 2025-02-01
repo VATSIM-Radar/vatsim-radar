@@ -226,7 +226,7 @@ async function initLayer() {
 
     if (layer.value.vector) {
         tileLayer.value = new VectorTileLayer({
-            declutter: false,
+            declutter: true,
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
@@ -267,7 +267,7 @@ async function initLayer() {
         };
 
         tileLayer.value = new VectorTileLayer({
-            declutter: false,
+            declutter: true,
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',

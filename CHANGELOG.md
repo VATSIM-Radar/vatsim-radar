@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.0.2-final]
+# [1.0.2]
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead
 - Fixed an error when pilot info panel was sometimes not displayed
