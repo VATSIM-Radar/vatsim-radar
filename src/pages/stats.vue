@@ -5,7 +5,17 @@
 </template>
 
 <script setup lang="ts">
-await setupDataFetch();
+onMounted(() => {
+    setupDataFetch();
+});
+
+const route = useRoute();
+
+if (route.path === '/stats') {
+    navigateTo({
+        path: '/stats/airlines',
+    });
+}
 </script>
 
 <style scoped lang="scss">

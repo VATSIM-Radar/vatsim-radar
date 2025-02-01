@@ -4,6 +4,8 @@
             Airlines
         </template>
 
+        <view-stats-tabs/>
+
         <!-- TODO stats -->
         <common-table
             v-model:sort="sort"
@@ -58,6 +60,7 @@ import type { TableSort } from '~/components/common/basic/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 
 const dataStore = useDataStore();
 
