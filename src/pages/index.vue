@@ -549,6 +549,25 @@ async function handleMoveEnd() {
 }
 
 await setupDataFetch({
+    onMount() {
+        if (typeof route.query.airline === 'string') {
+            setUserActiveFilter({
+                users: {
+                    pilots: {
+                        type: 'prefix',
+                        value: [route.query.airline],
+                    },
+                },
+            }, false);
+        }
+        else if (typeof route.query.route === 'string' && route.query.route.split('-').length === 2) {
+            setUserActiveFilter({
+                airports: {
+                    routes: [route.query.route],
+                },
+            }, false);
+        }
+    },
     async onFetch() {
         await checkAndAddOwnAircraft();
     },

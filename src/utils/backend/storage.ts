@@ -9,7 +9,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
-import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/server/plugins/patreon';
 
@@ -115,6 +115,25 @@ export type RadarDataAirlinesAllList = {
     all: RadarDataAirlinesList;
 };
 
+export type Sigmet = Feature<Geometry, {
+    icaoId: string;
+    firId: string;
+    firName: string;
+    seriesId: string;
+    hazard: string | null;
+    qualifier: string;
+    validTimeFrom: string;
+    validTimeTo: string;
+    rawSigmet: string;
+    base?: number;
+    top?: number;
+    dir?: string;
+    spd?: number;
+    chng?: string;
+}>;
+
+export type Sigmets = FeatureCollection<Geometry, Sigmet['properties']>;
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -160,6 +179,7 @@ export interface RadarStorage {
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
+    sigmets: Sigmets;
 }
 
 export const radarStorage: RadarStorage = {
@@ -208,6 +228,10 @@ export const radarStorage: RadarStorage = {
         airlines: {},
         virtual: {},
         all: {},
+    },
+    sigmets: {
+        type: 'FeatureCollection',
+        features: [],
     },
 };
 
