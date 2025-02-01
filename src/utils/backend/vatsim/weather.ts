@@ -24,7 +24,7 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
                 $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
             ]);
 
-            data.metar = metar.split('\n')[1];
+            data.metar = metar;
             const splitTaf = taf.split('\n');
             data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
 
@@ -42,7 +42,9 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
                 });
             }
         }
-        catch {
+        catch (e) {
+            console.error(e);
+
             if (cachedMetar?.metar) {
                 data.metar = cachedMetar.metar;
             }
