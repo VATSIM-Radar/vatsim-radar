@@ -38,45 +38,65 @@
                         <template #title>
                             Map layer
                         </template>
-                        <common-block-title>
-                            Carto Settings
-                        </common-block-title>
 
-                        <common-toggle
-                            :disabled="!radarIsCarto"
-                            :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
-                        >
-                            Show labels
-                        </common-toggle>
-                        <br>
-                        <common-toggle
-                            :disabled="!radarIsCarto"
-                            :model-value="store.localSettings.filters?.layers?.layerVector ?? false"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { layerVector: $event } } })"
-                        >
-                            Vector mode
-                            <template #description>
-                                Better looking, less traffic, worse performance
+                        <template v-if="radarIsDefault">
+                            <common-block-title>
+                                Settings
+                            </common-block-title>
+
+                            <common-toggle
+                                :disabled="!radarIsDefault"
+                                :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
+                                @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
+                            >
+                                Show labels
+                            </common-toggle>
+                            <!--
+                            <template v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')">
+                                <common-toggle
+                                    v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')"
+                                    :disabled="store.getCurrentTheme === 'default'"
+                                    :model-value="store.localSettings.filters?.layers?.layer === 'protoDataGray'"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { layer: !$event ? 'protoData' : 'protoDataGray' } } })"
+                                >
+                                    Grayscale
+
+                                    <template
+                                        v-if="store.getCurrentTheme === 'default'"
+                                        #description
+                                    >
+                                        Light theme only
+                                    </template>
+                                </common-toggle>
                             </template>
-                        </common-toggle>
+-->
 
-                        <br>
+                            <br>
+                        </template>
+
                         <common-block-title>
                             Layers
                         </common-block-title>
+
+                        <common-notification
+                            cookie-name="layers-tutorial"
+                            type="info"
+                        >
+                            Light and Detailed have worse performance than other layers
+                        </common-notification>
+                        <br>
 
                         <map-filter-transparency
                             v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
                             setting="osm"
                         />
                         <map-filter-transparency
-                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite'"
+                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite' || store.localSettings.filters?.layers?.layer === 'SatelliteEsri'"
                             setting="satellite"
                         />
                         <common-radio-group
                             :items="mapLayers"
-                            :model-value="store.localSettings.filters?.layers?.layer ?? 'carto'"
+                            :model-value="store.localSettings.filters?.layers?.layer ?? 'protoData'"
                             @update:modelValue="changeLayer($event as MapLayoutLayer)"
                         />
                     </common-control-block>
@@ -288,6 +308,7 @@ import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -309,17 +330,26 @@ const isMobile = useIsMobile();
 
 let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
-        value: 'carto',
-        text: 'CartoDB',
+        value: 'protoData',
+        text: 'Light',
+    },
+    {
+        value: 'protoGeneral',
+        text: 'Detailed',
     },
     {
         value: 'basic',
-        text: 'Basic (VatSpy-like)',
-        hint: 'Very basic continents layer. Recommended for use with Airports Layers (requires Navigraph Unlimited)',
-        hintLocation: 'right',
+        text: 'Basic',
     },
     {
         value: 'Satellite',
+        text: 'Satellite (USA only)',
+        hint: 'Lacks quality data outside US. Will be noticeable when zooming',
+        hintLocation: 'right',
+    },
+    {
+        value: 'SatelliteEsri',
+        text: 'Satellite (Esri)',
     },
     {
         value: 'OSM',
@@ -328,10 +358,11 @@ let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     },
 ];
 
-if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'Satellite');
+if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'SatelliteEsri');
 
-const radarIsCarto = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
-    store.localSettings.filters?.layers?.layer?.startsWith('carto') ||
+const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
+    store.localSettings.filters?.layers?.layer?.startsWith('proto') ||
+    store.localSettings.filters?.layers?.layer === 'Satellite' ||
     (store.localSettings.filters?.layers?.layer === 'OSM' && store.theme !== 'light'));
 
 const changeLayer = (layer: MapLayoutLayer) => {

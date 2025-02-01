@@ -20,7 +20,7 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
     else {
         try {
             const [metar, taf] = await Promise.all([
-                $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }),
+                $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text' }),
                 $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
             ]);
 

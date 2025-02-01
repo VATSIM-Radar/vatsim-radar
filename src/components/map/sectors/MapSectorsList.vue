@@ -239,14 +239,21 @@ watch(map, val => {
         });
 
         const vatglassesStyle = (color: string, altMax: number = 1): Style => {
-            // console.log('color',color)
-            return new Style({
+            let rgba: string;
 
+            try {
+                rgba = hexToRgb(color);
+            }
+            catch {
+                rgba = firColorRaw || getCurrentThemeRgbColor('success500').join(',');
+            }
+
+            return new Style({
                 fill: new Fill({
-                    color: `rgb(${ hexToRgb(color) }, 0.2)`,
+                    color: `rgba(${ rgba }, 0.2)`,
                 }),
                 stroke: new Stroke({
-                    color: `rgb(${ hexToRgb(color) }, 0.6)`,
+                    color: `rgba(${ rgba }, 0.6)`,
                     width: 1,
                 }),
                 zIndex: altMax,

@@ -1,6 +1,6 @@
 import { fromServerLonLat, getTransceiverData } from '~/utils/backend/vatsim/index';
 import { useFacilitiesIds } from '~/utils/data/vatsim';
-import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { RadarDataAirline, RadarDataAirlineAll, RadarDataAirlinesList } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
 import type {
@@ -288,12 +288,28 @@ export async function updateTransceivers() {
     }
 }
 
-export async function updateAirlines() {
-    radarStorage.airlines = Object.fromEntries((await $fetch<RadarDataAirline[]>(!import.meta.dev ? 'http://data:3000/airlines' : 'https://data.vatsim-radar.com/airlines', {
-        retry: 3,
-    })).map(val => {
+function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
+    return Object.fromEntries(airlines.map(val => {
         val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
 
         return [val.icao, val];
     }));
+}
+
+export async function updateAirlines() {
+    const data = await $fetch<RadarDataAirlineAll>(!import.meta.dev ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
+        retry: 3,
+    });
+
+    const airlines = mapAirlines(data.airlines);
+    const virtual = mapAirlines(data.virtual);
+
+    radarStorage.airlines = {
+        airlines,
+        virtual,
+        all: {
+            ...virtual,
+            ...airlines,
+        },
+    };
 }
