@@ -10,6 +10,12 @@
 <script setup lang="ts">
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 
+const props = defineProps({
+    pageTitle: {
+        type: String,
+    },
+});
+
 const route = useRoute();
 
 const statsTab = computed(() => {
@@ -17,7 +23,10 @@ const statsTab = computed(() => {
 });
 
 useHead(() => ({
-    title: `${ statsTab.value[0].toUpperCase() }${ statsTab.value.slice(1, statsTab.value.length) }`,
+    title: props.pageTitle || `${ statsTab.value[0].toUpperCase() }${ statsTab.value.slice(1, statsTab.value.length) }`,
+    titleTemplate(title) {
+        return `${ title } | VATSIM Radar Stats`;
+    },
 }));
 </script>
 

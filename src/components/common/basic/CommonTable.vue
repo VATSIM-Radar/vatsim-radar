@@ -1,59 +1,61 @@
 <template>
-    <div class="table">
-        <div class="table_header">
-            <div class="table__row">
-                <div
-                    v-for="header in headers"
-                    :key="header.key"
-                    class="table__data"
-                    v-bind="header.headAttributes"
-                    @click="doSort(header)"
-                >
-                    <div class="table_header__data">
-                        <slot
-                            :header="header"
-                            :name="`header-${ header.key }`"
-                        >
-                            {{ header.name }}
-                        </slot>
-                    </div>
+    <div class="table-wrapper">
+        <div class="table">
+            <div class="table_header">
+                <div class="table__row">
                     <div
-                        v-if="header.sort"
-                        class="table_header__sort"
-                        :class="{
-                            'table_header__sort--active': sorting.some(x => x.key === header.key),
-                            'table_header__sort--desc': sorting.some(x => x.key === header.key && x.algo === 'desc'),
-                        }"
+                        v-for="header in headers"
+                        :key="header.key"
+                        class="table__data"
+                        v-bind="header.headAttributes"
+                        @click="doSort(header)"
                     >
-                        <sort-icon/>
+                        <div class="table_header__data">
+                            <slot
+                                :header="header"
+                                :name="`header-${ header.key }`"
+                            >
+                                {{ header.name }}
+                            </slot>
+                        </div>
+                        <div
+                            v-if="header.sort"
+                            class="table_header__sort"
+                            :class="{
+                                'table_header__sort--active': sorting.some(x => x.key === header.key),
+                                'table_header__sort--desc': sorting.some(x => x.key === header.key && x.algo === 'desc'),
+                            }"
+                        >
+                            <sort-icon/>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="table_data">
-            <div
-                v-for="(item, index) in items"
-                :key="String(item[itemKey])"
-                class="table__row"
-                :class="{ 'table__row--clickable': clickable }"
-                @click="$emit('click', item)"
-            >
+            <div class="table_data">
                 <div
-                    v-for="header in headers"
-                    :key="`${ String(item[itemKey]) }-${ header.key }`"
-                    class="table__data"
-                    :class="[`table__data--type-${ header.key }`]"
-                    v-bind="header.dataAttributes ?? header.headAttributes"
+                    v-for="(item, index) in items"
+                    :key="String(item[itemKey])"
+                    class="table__row"
+                    :class="{ 'table__row--clickable': clickable }"
+                    @click="$emit('click', item)"
                 >
-                    <slot
-                        :data="item[header.key]"
-                        :header="header"
-                        :index="index"
-                        :item="item"
-                        :name="`data-${ header.key }`"
+                    <div
+                        v-for="header in headers"
+                        :key="`${ String(item[itemKey]) }-${ header.key }`"
+                        class="table__data"
+                        :class="[`table__data--type-${ header.key }`]"
+                        v-bind="header.dataAttributes ?? header.headAttributes"
                     >
-                        {{ item[header.key] }}
-                    </slot>
+                        <slot
+                            :data="item[header.key]"
+                            :header="header"
+                            :index="index"
+                            :item="item"
+                            :name="`data-${ header.key }`"
+                        >
+                            {{ item[header.key] }}
+                        </slot>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,6 +92,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    mobileWidth: {
+        type: String,
+        default: '1000px',
+    },
 });
 
 defineEmits({
@@ -105,7 +111,7 @@ export interface TableSort {
     key: string; algo: 'asc' | 'desc';
 }
 
-const sorting = defineModel<TableSort[]>('sort', { default: () => [] });
+const sorting = defineModel<TableSort[]>('sort', { default: () => reactive([]) });
 
 const templateColumns = computed(() => {
     return props.headers.map(x => typeof x.width === 'number' ? `${ x.width }px` : x.width || '1fr').join(' ');
@@ -158,7 +164,7 @@ const items = computed(() => {
 function doSort(header: TableHeader) {
     const existingSort = sorting.value.find(x => x.key === header.key);
     if (existingSort) {
-        if (existingSort.algo === 'desc') sorting.value = sorting.value.filter(x => x.key !== header.key);
+        if (existingSort.algo === 'desc') sorting.value = reactive(toRaw(sorting.value.filter(x => x.key !== header.key)));
         else existingSort.algo = 'desc';
     }
     else sorting.value.push({ key: header.key, algo: 'asc' });
@@ -262,6 +268,22 @@ function doSort(header: TableHeader) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@media all and (max-width: 1000px) {
+    .table-wrapper {
+        overflow: auto;
+        max-width: 100%;
+        border-radius: 16px;
+
+        .table {
+            width: v-bind(mobileWidth);
+
+            &_header {
+                top: 0;
             }
         }
     }

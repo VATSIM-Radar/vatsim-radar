@@ -8,7 +8,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
-    RadarDataAirlinesAllList,
+    RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
     VatglassesAPIData,
 } from '~/utils/backend/storage';
@@ -31,6 +31,7 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
     all: {},
 });
 const simaware = shallowRef<SimAwareAPIData>();
+const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
@@ -115,6 +116,7 @@ export interface UseDataStore {
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
+    sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
 }
 
@@ -129,6 +131,7 @@ export function useDataStore(): UseDataStore {
         vatglassesActiveRunways,
         stats,
         time,
+        sigmets,
         airlines,
     };
 }
@@ -196,7 +199,8 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 }
 
-export async function setupDataFetch({ onFetch, onSuccessCallback }: {
+export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
+    onMount?: () => any;
     onFetch?: () => any;
     onSuccessCallback?: () => any;
 } = {}) {
@@ -252,6 +256,7 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     }
 
     onMounted(async () => {
+        onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
         let watcher: WatchStopHandle | undefined;

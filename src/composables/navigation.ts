@@ -47,6 +47,10 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     path: '/stats/airports',
                 },
                 {
+                    text: 'Routes',
+                    path: '/stats/routes',
+                },
+                {
                     text: 'Pilots',
                     path: '/stats/pilots',
                 },

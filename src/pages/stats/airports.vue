@@ -7,6 +7,8 @@
             Airports
         </template>
 
+        <view-stats-tabs/>
+
         <common-table
             v-model:sort="sort"
             clickable
@@ -34,16 +36,14 @@
                 </div>
             </template>
             <template #data-actions="{ item }">
-                <!-- TODO -->
-                <common-button
-                    class="stats__action"
-                    size="S"
+                <a
+                    class="__link"
+                    :href="`/?airport=${ item.icao }`"
                     target="_blank"
-                    :to="`/?airport=${ item.icao }`"
-                    type="secondary"
+                    @click.stop
                 >
                     View on map
-                </common-button>
+                </a>
             </template>
         </common-table>
 
@@ -65,13 +65,13 @@
 import CommonTable from '~/components/common/basic/CommonTable.vue';
 import type { TableSort } from '~/components/common/basic/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { MapAirport } from '~/types/map';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import { provideAirport } from '~/composables/airport';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
+import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

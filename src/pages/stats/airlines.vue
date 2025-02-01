@@ -39,16 +39,14 @@
                 </div>
             </template>
             <template #data-actions="{ item }">
-                <!-- TODO -->
-                <common-button
-                    class="stats__action"
-                    size="S"
+                <a
+                    class="__link"
+                    :href="`/?airline=${ item.icao }`"
                     target="_blank"
-                    :to="`/?airline=${ item.icao }`"
-                    type="secondary"
+                    @click.stop
                 >
-                    Filter by
-                </common-button>
+                    Filter By
+                </a>
             </template>
         </common-table>
     </common-page-block>
@@ -59,7 +57,6 @@ import CommonTable from '~/components/common/basic/CommonTable.vue';
 import type { TableSort } from '~/components/common/basic/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { RadarDataAirline } from '~/utils/backend/storage';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 
 const dataStore = useDataStore();

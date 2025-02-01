@@ -5,9 +5,7 @@
 </template>
 
 <script setup lang="ts">
-onMounted(() => {
-    setupDataFetch();
-});
+setupDataFetch();
 
 const route = useRoute();
 

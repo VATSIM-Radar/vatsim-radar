@@ -62,6 +62,7 @@
         </div>
         <client-only v-if="ready">
             <map-layer :key="(store.theme ?? 'default')"/>
+            <map-sigmets/>
             <map-filters v-if="!store.config.hideHeader"/>
         </client-only>
         <common-popup
@@ -549,6 +550,25 @@ async function handleMoveEnd() {
 }
 
 await setupDataFetch({
+    onMount() {
+        if (typeof route.query.airline === 'string') {
+            setUserActiveFilter({
+                users: {
+                    pilots: {
+                        type: 'prefix',
+                        value: [route.query.airline],
+                    },
+                },
+            }, false);
+        }
+        else if (typeof route.query.route === 'string' && route.query.route.split('-').length === 2) {
+            setUserActiveFilter({
+                airports: {
+                    routes: [route.query.route],
+                },
+            }, false);
+        }
+    },
     async onFetch() {
         await checkAndAddOwnAircraft();
     },

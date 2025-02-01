@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.0-alpha.1]
+
+- Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC
+
 # [1.0.2-final]
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead

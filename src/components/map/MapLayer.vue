@@ -225,7 +225,7 @@ async function initLayer() {
     }
 
     if (layer.value.vector) {
-        tileLayer.value = new VectorTileLayer({
+        tileLayer.value = new WebGLVectorLayer({
             declutter: false,
             updateWhileAnimating: false,
             updateWhileInteracting: false,
