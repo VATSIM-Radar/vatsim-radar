@@ -115,24 +115,28 @@ export type RadarDataAirlinesAllList = {
     all: RadarDataAirlinesList;
 };
 
-export type Sigmet = Feature<Geometry, {
-    icaoId: string;
-    firId: string;
-    firName: string;
-    seriesId: string;
-    hazard: string | null;
-    qualifier: string;
-    validTimeFrom: string;
-    validTimeTo: string;
-    rawSigmet: string;
-    base?: number;
-    top?: number;
-    dir?: string;
-    spd?: number;
-    chng?: string;
-}>;
+export interface SigmetCombined {
+    id?: string | null;
+    region?: string | null;
+    regionName?: string | null;
+    type?: string | null;
+    dataType: 'sigmet' | 'airsigmet' | 'airmet' | 'gairmet';
+    alphaChar?: string | null;
+    hazard?: string | null;
+    qualifier?: string | number | null;
+    timeFrom?: string | null;
+    timeTo?: string | null;
+    base?: number | string | null;
+    top?: number | string | null;
+    dir?: string | null;
+    spd?: number | null;
+    change?: string | null;
+    raw?: string | null;
+}
 
-export type Sigmets = FeatureCollection<Geometry, Sigmet['properties']>;
+export type Sigmet = Feature<Geometry, SigmetCombined>;
+
+export type Sigmets<T = Sigmet['properties']> = FeatureCollection<Geometry, T> & { validUntil?: number };
 
 export interface VatsimStorage {
     data: VatsimData | null;
@@ -179,7 +183,6 @@ export interface RadarStorage {
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
-    sigmets: Sigmets;
 }
 
 export const radarStorage: RadarStorage = {
@@ -228,10 +231,6 @@ export const radarStorage: RadarStorage = {
         airlines: {},
         virtual: {},
         all: {},
-    },
-    sigmets: {
-        type: 'FeatureCollection',
-        features: [],
     },
 };
 

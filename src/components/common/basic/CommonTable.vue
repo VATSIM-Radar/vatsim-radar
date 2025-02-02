@@ -96,6 +96,10 @@ const props = defineProps({
         type: String,
         default: '1000px',
     },
+    multipleSort: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineEmits({
@@ -167,7 +171,10 @@ function doSort(header: TableHeader) {
         if (existingSort.algo === 'desc') sorting.value = reactive(toRaw(sorting.value.filter(x => x.key !== header.key)));
         else existingSort.algo = 'desc';
     }
-    else sorting.value.push({ key: header.key, algo: 'asc' });
+    else {
+        if (!props.multipleSort) sorting.value = reactive([{ key: header.key, algo: 'asc' }]);
+        else sorting.value.push({ key: header.key, algo: 'asc' });
+    }
 }
 </script>
 
@@ -223,12 +230,6 @@ function doSort(header: TableHeader) {
             min-width: 18px;
 
             transition: 0.3s;
-
-            @include hover {
-                &:hover {
-                    color: $primary300;
-                }
-            }
 
             &--active {
                 color: $primary400;

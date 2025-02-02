@@ -49,8 +49,8 @@
                 </template>
             </common-copy-info-block>
         </div>
-        <div class="notams_info">
-            <div class="notams_info_image">
+        <div class="__partner-info notams__info">
+            <div class="__partner-info_image">
                 <img
                     alt="FAA"
                     src="~/assets/images/FAA-logo.svg"
@@ -150,19 +150,8 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     flex-direction: column;
     gap: 8px;
 
-    &_info {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        justify-content: center;
-
+    &__info {
         margin-top: 16px;
-
-        font-size: 14px;
-
-        img {
-            width: 56px;
-        }
     }
 
     &__date, &__calendar {

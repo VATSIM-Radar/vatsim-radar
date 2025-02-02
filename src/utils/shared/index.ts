@@ -116,3 +116,7 @@ export function getVAWebsite(remarks: string) {
         return null;
     }
 }
+
+export function addLeadingZero(str: string | number) {
+    return `0${ str }`.slice(-2);
+}

@@ -1,5 +1,15 @@
 # Changelog
 
+# [1.1.0-alpha.2]
+
+- SIGMETs layer and page have been added
+- (QA) Updates on Stats
+  - Airports tab is put before airlines
+  - Added Aircraft stats
+  - Fixed airports names in routes stats
+  - Added time online to pilots
+  - Removed multiple sort from all tables, excluding airlines and pilots
+
 # [1.1.0-alpha.1]
 
 - Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC

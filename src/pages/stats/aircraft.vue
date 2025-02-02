@@ -1,21 +1,18 @@
 <template>
     <common-page-block container>
         <template #title>
-            Airlines
+            Aircraft
         </template>
 
         <view-stats-tabs/>
 
         <common-table
             v-model:sort="sort"
-            :data="pilotSuggestions.airlines"
+            :data="pilotSuggestions"
             :headers="[
                 { key: 'place', name: 'Place', width: 40 },
-                { key: 'icao', name: 'ICAO', width: 60, sort: true },
-                { key: 'count', name: 'Pilots', width: 60,  sort: true },
-                { key: 'callsign', name: 'Callsign', sort: true },
-                { key: 'name', name: 'Name', sort: true },
-                { key: 'virtual', name: 'Virtual', width: 70, sort: true },
+                { key: 'aircraft', name: 'Aircraft', width: 100, sort: true },
+                { key: 'count', name: 'Pilots', sort: true },
                 { key: 'actions', name: 'Actions', width: 80 },
             ]"
             item-key="cid"
@@ -30,18 +27,10 @@
                     {{ index + 1 }}
                 </div>
             </template>
-            <template #data-virtual="{ data }">
-                <div
-                    class="stats__virtual"
-                    :class="{ 'stats__virtual--active': data }"
-                >
-                    {{ data ? 'Yes' : 'No' }}
-                </div>
-            </template>
             <template #data-actions="{ item }">
                 <a
                     class="__link"
-                    :href="`/?airline=${ item.icao }`"
+                    :href="`/?aircraft=${ item.aircraft }`"
                     target="_blank"
                     @click.stop
                 >
@@ -56,34 +45,31 @@
 import CommonTable from '~/components/common/basic/CommonTable.vue';
 import type { TableSort } from '~/components/common/basic/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import type { RadarDataAirline } from '~/utils/backend/storage';
 import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 
 const dataStore = useDataStore();
 
-type Airline = RadarDataAirline & { count: number };
+type Aircraft = { aircraft: string; count: number };
 
 const sort = ref<TableSort[]>([]);
 
-const pilotSuggestions = computed<{ airlines: Airline[] }>(() => {
-    const airlines: Record<string, Airline> = {};
+const pilotSuggestions = computed<Aircraft[]>(() => {
+    const list: Record<string, Aircraft> = {};
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        const airline = getAirlineFromCallsign(pilot.callsign);
+        const aircraft = pilot.aircraft_short?.split('/')[0];
 
-        if (airline) {
-            if (airlines[airline.icao]) airlines[airline.icao].count++;
+        if (aircraft) {
+            if (list[aircraft]) list[aircraft].count++;
             else {
-                airlines[airline.icao] = {
-                    ...airline,
+                list[aircraft] = {
+                    aircraft,
                     count: 1,
                 };
             }
         }
     }
 
-    return {
-        airlines: Object.values(airlines).sort((a, b) => b.count - a.count),
-    };
+    return Object.values(list).sort((a, b) => b.count - a.count);
 });
 </script>

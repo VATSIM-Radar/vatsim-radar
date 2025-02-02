@@ -64,6 +64,10 @@ interface IUserLocalSettings {
             layer?: MapLayoutLayerWithOptions;
             layerLabels?: boolean;
             layerVector?: boolean;
+            sigmets?: {
+                enabled?: boolean;
+                activeDate?: string;
+            };
             transparencySettings?: UserLayersTransparencySettings;
         };
         notamsSortBy?: NotamsSortBy;
