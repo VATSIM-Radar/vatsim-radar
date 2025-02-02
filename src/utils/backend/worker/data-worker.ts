@@ -434,7 +434,6 @@ defineCronJob('* * * * * *', async () => {
                 qnh_i_hg: true,
                 flight_plan: true,
                 last_updated: true,
-                logon_time: true,
             },
             controllers: {
                 server: true,

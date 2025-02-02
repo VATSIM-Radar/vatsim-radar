@@ -26,8 +26,17 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const menu: HeaderItem[] = [
         {
             text: 'Map',
-            path: '/',
             icon: MapIcon,
+            children: [
+                {
+                    text: 'Map',
+                    path: '/',
+                },
+                {
+                    text: 'SIGMETs',
+                    path: '/sigmets',
+                },
+            ],
         },
         {
             text: 'Events',
@@ -39,12 +48,16 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             icon: DataIcon,
             children: [
                 {
+                    text: 'Airports',
+                    path: '/stats/airports',
+                },
+                {
                     text: 'Airlines',
                     path: '/stats/airlines',
                 },
                 {
-                    text: 'Airports',
-                    path: '/stats/airports',
+                    text: 'Aircraft',
+                    path: '/stats/aircraft',
                 },
                 {
                     text: 'Routes',

@@ -17,15 +17,25 @@
                 { key: 'aircraft_short', name: 'Aircraft', width: 90, sort: true },
                 { key: 'departure', name: 'Departure', width: 90, sort: true },
                 { key: 'arrival', name: 'Arrival', width: 80, sort: true },
+                { key: 'logon_time', name: 'Time Online', width: 120, sort: (a: any, b: any, method) => {
+                    const aData = new Date(a.logon_time).getTime()
+                    const bData = new Date(b.logon_time).getTime()
+
+                    return (method === 'desc' ? aData - bData : bData - aData)
+                } },
                 { key: 'actions', name: 'Actions', width: 120 },
             ]"
             item-key="cid"
+            multiple-sort
             @click="mapStore.addPilotOverlay($event.cid)"
         >
             <template #data-status="{ data }">
                 <span :style="{ color: radarColors[`${ getPilotStatus(data).color }Hex`] }">
                     {{ getPilotStatus(data).title }}
                 </span>
+            </template>
+            <template #data-logon_time="{ item }">
+                {{getATCTime(item)}}h
             </template>
             <template #data-aircraft_short="{ data }">
                 {{data && data.split('/')[0]}}
@@ -79,6 +89,7 @@ import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { getPilotStatus } from '~/composables/pilots';
+import { getATCTime } from '~/composables/atc';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

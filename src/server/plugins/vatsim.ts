@@ -1,5 +1,4 @@
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
-import type { Sigmets } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { updateAirlines, updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { getRedis } from '~/utils/backend/redis';
@@ -41,20 +40,4 @@ export default defineNitroPlugin(app => {
     defineCronJob('* * * * * *', updateTransceivers);
     defineCronJob('15 * * * *', updateAustraliaData);
     defineCronJob('15 0 * * *', updateAirlines);
-    defineCronJob('15 * * * *', async () => {
-        const isigmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/isigmet?format=geojson');
-        const airsigmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/airsigmet?format=geojson');
-        const airsigmet2 = $fetch<Sigmets>('https://aviationweather.gov/api/json/AirmetJSON');
-        const gairmet = $fetch<Sigmets>('https://aviationweather.gov/api/data/gairmet?format=geojson');
-
-        radarStorage.sigmets = {
-            type: 'FeatureCollection',
-            features: [
-                ...(await isigmet).features,
-                ...(await airsigmet).features,
-                ...(await airsigmet2).features,
-                ...(await gairmet).features,
-            ],
-        };
-    });
 });

@@ -22,7 +22,7 @@ export function getRedisSync(key: string) {
 }
 
 export function setRedisSync(key: string, data: string, expiration: number) {
-    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expiration, (err, result) => {
+    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PXAT', expiration, (err, result) => {
         if (err) return reject(err);
         resolve();
     }));

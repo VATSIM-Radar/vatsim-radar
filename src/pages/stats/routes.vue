@@ -28,10 +28,10 @@
                 </div>
             </template>
             <template #data-from="{ data }">
-                {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.icao[data]?.name ?? 'Unknown' }})
+                {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[data]?.name ?? 'Unknown' }})
             </template>
             <template #data-to="{ data }">
-                {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.icao[data]?.name ?? 'Unknown' }})
+                {{ data }} ({{ dataStore.vatspy.value?.data.keyAirports.realIcao[data]?.name ?? 'Unknown' }})
             </template>
             <template #data-actions="{ item }">
                 <a
