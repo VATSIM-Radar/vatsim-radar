@@ -148,19 +148,7 @@ const types = ref(new Set<string | null | undefined>());
 const jsonFeatures = computed(() => {
     if (!data.value) return [];
 
-    const date = dataStore.time.value;
-
-    const filteredData: Sigmets = {
-        ...data.value!,
-        features: data.value?.features.filter(x => {
-            if (x.properties.timeFrom && new Date(x.properties.timeFrom).getTime() > date) return false;
-            if (x.properties.timeTo && new Date(x.properties.timeTo).getTime() < date) return false;
-
-            return true;
-        }) ?? [],
-    };
-
-    return geojson.readFeatures(filteredData, {
+    return geojson.readFeatures(data.value, {
         dataProjection: 'EPSG:4326',
         featureProjection: 'EPSG:3857',
     });
@@ -196,7 +184,6 @@ const styles = {
 function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    console.log(features, Feature);
     if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType)) return;
 
     const sigmets = features.filter(x => x.getProperties()?.dataType);
