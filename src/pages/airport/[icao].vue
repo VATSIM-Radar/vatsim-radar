@@ -775,6 +775,11 @@ await setupDataFetch({
                 max-height: var(--dashboard-height);
             }
 
+            @include mobileOnly {
+                height: auto !important;
+                max-height: 50dvh !important;
+            }
+
             :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
                 background: $darkgray875 !important;
             }

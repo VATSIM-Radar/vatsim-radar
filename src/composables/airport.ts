@@ -10,7 +10,7 @@ import type {
 /**
  * @note data must be reactive object or a computed
  */
-export function provideAirport(data: MaybeRef<StoreOverlayAirport['data']>) {
+export function provideAirport(data: MaybeRef<StoreOverlayAirport['data'] | undefined>) {
     provide('airport', data);
 }
 

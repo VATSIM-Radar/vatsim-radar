@@ -471,6 +471,18 @@ img {
 .__link {
     color: $primary500;
     text-decoration: underline;
+
+    @include hover {
+        transition: 0.3s;
+
+        &:hover {
+            color: $primary400;
+        }
+    }
+}
+
+.no-overflow {
+    overflow: hidden;
 }
 
 @include fromTablet {
@@ -498,6 +510,21 @@ img {
 @include pc {
     .__tablet {
         display: none !important;
+    }
+}
+
+.__partner-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+
+    img {
+        width: 56px;
+        min-width: 56px;
+        max-width: 56px;
     }
 }
 </style>

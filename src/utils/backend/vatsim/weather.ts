@@ -1,48 +1,55 @@
 const caches: {
     icao: string;
-    metar?: string;
-    taf?: string;
+    metar: string;
+    taf: string | null;
     date: number;
 }[] = [];
 
 export async function getAirportWeather(icao: string): Promise<{ metar: string | null; taf: string | null } | null> {
     const cachedMetar = caches.find(x => x.icao === icao);
 
-    const data = {
-        metar: '',
-        taf: '',
+    const data: { metar: string | null; taf: string | null } = {
+        metar: null,
+        taf: null,
     };
 
-    if (cachedMetar?.metar && cachedMetar.taf && cachedMetar.date > Date.now() - (1000 * 60 * 5)) {
+    if (cachedMetar?.metar && cachedMetar.date > Date.now() - (1000 * 60 * 5)) {
         data.metar = cachedMetar.metar;
-        data.taf = cachedMetar.taf;
+        data.taf = cachedMetar.taf ?? null;
     }
     else {
         try {
-            const [metar, taf] = await Promise.all([
-                $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }),
-                $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }),
+            const [metar, noaaMetar, taf] = await Promise.all([
+                $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text' }).catch(console.error),
+                $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
+                $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
             ]);
 
-            data.metar = metar.split('\n')[1];
-            const splitTaf = taf.split('\n');
-            data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
-
-            if (cachedMetar) {
-                cachedMetar.date = Date.now();
-                cachedMetar.metar = data.metar;
-                cachedMetar.taf = data.taf;
+            data.metar = metar ?? noaaMetar ?? null;
+            const splitTaf = taf?.split('\n');
+            if (splitTaf) {
+                data.taf = splitTaf.slice(1, splitTaf.length).join('\n');
             }
-            else {
-                caches.push({
-                    icao,
-                    metar: data.metar,
-                    taf: data.taf,
-                    date: Date.now(),
-                });
+
+            if (data.metar) {
+                if (cachedMetar) {
+                    cachedMetar.date = Date.now();
+                    cachedMetar.metar = data.metar;
+                    cachedMetar.taf = data.taf ?? null;
+                }
+                else {
+                    caches.push({
+                        icao,
+                        metar: data.metar,
+                        taf: data.taf,
+                        date: Date.now(),
+                    });
+                }
             }
         }
-        catch {
+        catch (e) {
+            console.error(e);
+
             if (cachedMetar?.metar) {
                 data.metar = cachedMetar.metar;
             }

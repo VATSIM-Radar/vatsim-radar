@@ -10,8 +10,9 @@ import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
-import { getVACallsign, getVAWebsite } from '~/utils/shared';
+import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { SelectItem } from '~/types/components/select';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -244,12 +245,12 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string): Rada
     const icao = /^(?<callsign>[A-Z]{0,3})[0-9]/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
-    const airline = useDataStore().airlines.value[icao] as RadarDataAirline | undefined;
+    const airline = useDataStore().airlines.value.all[icao] as RadarDataAirline | undefined;
 
     if (!airline && !remarks) return airline ?? null;
 
-    const vaCallsign = remarks ? getVACallsign(remarks) : null;
-    const website = remarks ? getVAWebsite(remarks) : null;
+    const vaCallsign = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVACallsign(remarks) : null;
+    const website = (remarks && useDataStore().airlines.value.virtual[icao]) ? getVAWebsite(remarks) : null;
 
     if (!vaCallsign && !airline) return null;
 
@@ -276,3 +277,45 @@ export const customDefu = createDefu((obj, key, value) => {
         return true;
     }
 });
+
+export const sigmetDates = () => computed<SelectItem[]>(() => {
+    const dates: SelectItem[] = [
+        {
+            value: 'current',
+            text: 'Current',
+        },
+    ];
+
+    const date = new Date(useDataStore().time.value);
+    const hour = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    if (minutes < 30) {
+        dates.push({
+            value: `${ date.getUTCFullYear() }-${ addLeadingZero(date.getUTCMonth() + 1) }-${ addLeadingZero(date.getUTCDate()) }T${ addLeadingZero(hour + 1) }:00:00.000Z`,
+            text: `${ hour + 1 }Z`,
+        });
+    }
+
+    for (let i = 2; i < 7; i++) {
+        dates.push({
+            value: `${ date.getUTCFullYear() }-${ addLeadingZero(date.getUTCMonth() + 1) }-${ addLeadingZero(date.getUTCDate()) }T${ addLeadingZero(hour + i) }:00:00.000Z`,
+            text: `${ hour + i }Z`,
+        });
+    }
+
+    return dates;
+});
+
+export const startDataStoreTimeUpdate = () => {
+    if (!getCurrentInstance()) throw new Error('Only can use startDataStoreTimeUpdate in setup');
+
+    const dataStore = useDataStore();
+
+    onMounted(() => {
+        const interval = setInterval(() => {
+            dataStore.time.value = Date.now();
+        }, 5000);
+
+        onBeforeUnmount(() => clearInterval(interval));
+    });
+};
