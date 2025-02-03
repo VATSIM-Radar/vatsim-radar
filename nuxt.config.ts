@@ -161,33 +161,6 @@ export default defineNuxtConfig({
             '/layers/esri/**': {
                 proxy: 'https://ibasemaps-api.arcgis.com/**',
             },
-            '/layers/carto/basemaps/**': {
-                proxy: {
-                    to: 'https://a.basemaps.cartocdn.com/**',
-                    headers: {
-                        Referer: 'https://do-next.vatsim-radar.com/',
-                        Origin: 'https://do-next.vatsim-radar.com',
-                    },
-                },
-            },
-            '/layers/carto/tiles/**': {
-                proxy: {
-                    to: 'https://tiles.basemaps.cartocdn.com/**',
-                    headers: {
-                        Referer: 'https://do-next.vatsim-radar.com/',
-                        Origin: 'https://do-next.vatsim-radar.com',
-                    },
-                },
-            },
-            '/layers/carto/vector/**': {
-                proxy: {
-                    to: 'https://tiles-a.basemaps.cartocdn.com/**',
-                    headers: {
-                        Referer: 'https://do-next.vatsim-radar.com/',
-                        Origin: 'https://do-next.vatsim-radar.com',
-                    },
-                },
-            },
         },
     },
     devServer: {
