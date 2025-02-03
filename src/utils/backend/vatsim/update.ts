@@ -266,11 +266,12 @@ export async function updateVatsimExtendedPilots() {
                             extendedPilot.flight_plan.diverted = true;
                         }
                     } else {
-                        Object.assign(extendedPilot.flight_plan, {
+                        extendedPilot.flight_plan = {
+                            ...extendedPilot.flight_plan,
                             diverted_arrival: oldFlightPlan.diverted_arrival,
                             diverted_origin: oldFlightPlan.diverted_origin,
                             diverted: true
-                        });
+                        };
                     }
                 } else if (arrival !== "ZZZZ" && oldFlightPlan.arrival !== "ZZZZ" &&
                     oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival) {
