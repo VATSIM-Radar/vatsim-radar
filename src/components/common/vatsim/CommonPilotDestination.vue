@@ -1,9 +1,7 @@
 <template>
-    <div v-if="pilot.departure && pilot.arrival" 
+    <div v-if="pilot.departure && pilot.arrival"
     class="destination_wrap">
-        <div
-            class="destination"
-        >
+        <div class="destination">
             <common-info-block
                 :bottom-items="[depAirport?.name]"
                 class="destination_card"

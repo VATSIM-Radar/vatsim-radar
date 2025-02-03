@@ -244,52 +244,44 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
-        //Diversion Detection
-        switch (extendedPilot.status) {
-            case 'departed':
-            case 'climbing':
-            case 'cruising':
-            case 'enroute':
-            case 'descending':
-            case 'arriving':
-                const old_pilot = radarStorage.vatsim.extendedPilots.find(x => x.cid === extendedPilot.cid);
+        // Diversion Detection
+        if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
+            extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
+            extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
 
-                if (!extendedPilot.flight_plan?.arrival) break;
+            const oldPilot = radarStorage.vatsim.extendedPilots.find(x => x.cid === extendedPilot.cid);
+            const arrival = extendedPilot.flight_plan?.arrival;
+            const oldFlightPlan = oldPilot?.flight_plan;
 
-                const { arrival } = extendedPilot.flight_plan;
+            if (arrival && oldFlightPlan) {
+                if (oldFlightPlan.diverted) {
+                    extendedPilot.flight_plan ??= {};
 
-                if (!old_pilot?.flight_plan)
-                    break;
-
-                if (old_pilot.flight_plan.diverted) {
-                    if (!extendedPilot.flight_plan)
-                        extendedPilot.flight_plan = {};
-
-                    if (old_pilot.flight_plan.diverted_arrival !== arrival) {
-                        if (old_pilot.flight_plan.diverted_origin === arrival || arrival === "ZZZZ") {
+                    if (oldFlightPlan.diverted_arrival !== arrival) {
+                        if (oldFlightPlan.diverted_origin === arrival || arrival === "ZZZZ") {
                             extendedPilot.flight_plan.diverted = false;
-                            break;
                         } else {
                             extendedPilot.flight_plan.diverted_arrival = arrival;
+                            extendedPilot.flight_plan.diverted_origin = oldFlightPlan.diverted_origin;
+                            extendedPilot.flight_plan.diverted = true;
                         }
                     } else {
-                        extendedPilot.flight_plan.diverted_arrival = old_pilot.flight_plan.diverted_arrival;
+                        Object.assign(extendedPilot.flight_plan, {
+                            diverted_arrival: oldFlightPlan.diverted_arrival,
+                            diverted_origin: oldFlightPlan.diverted_origin,
+                            diverted: true
+                        });
                     }
-
-                    extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.diverted_origin;
-                    extendedPilot.flight_plan.diverted = true;
-                } else {
-                    if (arrival === "ZZZZ" || old_pilot.flight_plan.arrival === "ZZZZ") break;
-
-                    if (old_pilot?.flight_plan?.arrival && arrival) {
-                        if (old_pilot.flight_plan.arrival !== arrival) {
-                            extendedPilot.flight_plan.diverted = true;
-                            extendedPilot.flight_plan.diverted_arrival = arrival;
-                            extendedPilot.flight_plan.diverted_origin = old_pilot.flight_plan.arrival;
-                        }
-                    }
+                } else if (arrival !== "ZZZZ" && oldFlightPlan.arrival !== "ZZZZ" &&
+                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival) {
+                    extendedPilot.flight_plan = {
+                        ...extendedPilot.flight_plan,
+                        diverted: true,
+                        diverted_arrival: arrival,
+                        diverted_origin: oldFlightPlan.arrival
+                    };
                 }
-                break;
+            }
         }
 
         origPilot.status = extendedPilot.status;
@@ -345,7 +337,7 @@ export async function updateTransceivers() {
 
 function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
     return Object.fromEntries(airlines.map(val => {
-        val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+        val.name = val.name.split(' ').map(x => `${x[0]}${x.toLowerCase().slice(1, x.length)}`).join(' ');
 
         return [val.icao, val];
     }));
