@@ -249,7 +249,7 @@
                     </template>
                 </common-button>
                 <common-button
-                    :href="`https://where2fly.today/?icao=${ airport.icao }&utm_source=vatsim-radar&utm_medium=airport-popup`"
+                    :href="`https://where2fly.today/?icao=${ airport.icao }&utm_source=vatsimradar&utm_medium=airport-popup`"
                     target="_blank"
                 >
                     <template #icon>
