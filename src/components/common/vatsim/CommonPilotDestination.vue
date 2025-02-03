@@ -15,7 +15,7 @@
             </div>
             <div v-if="pilot.diverted" 
             class="diverted_icon">
-                <path-icon/>
+                <diverted-icon/>
             </div>
             <common-info-block
                 v-if="!pilot.diverted"
@@ -52,7 +52,7 @@
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import AircraftIcon from '@/assets/icons/kit/aircraft.svg?component';
-import PathIcon from '@/assets/icons/kit/path.svg?component';
+import DivertedIcon from '@/assets/icons/kit/diverted.svg?component';
 import { useMapStore } from '~/store/map';
 
 const props = defineProps({
