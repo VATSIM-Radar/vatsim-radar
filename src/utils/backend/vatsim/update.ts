@@ -274,7 +274,7 @@ export async function updateVatsimExtendedPilots() {
                         };
                     }
                 } else if (arrival !== "ZZZZ" && oldFlightPlan.arrival !== "ZZZZ" &&
-                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival) {
+                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival && extendedPilot.flight_plan?.flight_rules !== "V") {
                     extendedPilot.flight_plan = {
                         ...extendedPilot.flight_plan,
                         diverted: true,

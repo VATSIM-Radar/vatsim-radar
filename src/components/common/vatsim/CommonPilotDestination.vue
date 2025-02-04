@@ -135,7 +135,7 @@ const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.p
     &_icon {
         position: absolute;
         z-index: 1;
-        bottom: -12px;
+        bottom: -13px;
 
         display: flex;
         flex: none;
@@ -146,7 +146,9 @@ const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.p
         padding: 0 4px;
 
         svg {
-            width: 24px;
+            width: 30px;
+            fill: currentColor;
+            rotate: 90deg;
         }
     }
 }
