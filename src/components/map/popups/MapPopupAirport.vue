@@ -255,12 +255,7 @@
                     <template #icon>
                         <aircraft-unknown-dest-icon/>
                     </template>
-                    <template v-if="copy.copyState.value">
-                        Copied!
-                    </template>
-                    <template v-else>
-                        Where2Fly
-                    </template>
+                    Where2Fly
                 </common-button>
             </common-button-group>
         </template>
