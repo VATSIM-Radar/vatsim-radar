@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.0.3]
+
+- New icons from DotWallop (P180, BA11, DH88, F28, J328)
+- Added model matching (B3XM)
+
 # [1.0.2]
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead
