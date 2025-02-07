@@ -1,3 +1,5 @@
+import { getVATSIMIdentHeaders } from '~/utils/backend';
+
 const caches: {
     icao: string;
     metar: string;
@@ -20,7 +22,7 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
     else {
         try {
             const [metar, noaaMetar, taf] = await Promise.all([
-                $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text' }).catch(console.error),
+                $fetch<string>(`https://metar.vatsim.net/${ icao }`, { responseType: 'text', headers: getVATSIMIdentHeaders() }).catch(console.error),
                 $fetch<string>(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
                 $fetch<string>(`https://tgftp.nws.noaa.gov/data/forecasts/taf/stations/${ icao }.TXT`, { responseType: 'text' }).catch(() => {}),
             ]);
