@@ -147,8 +147,8 @@ const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.p
 
         svg {
             width: 30px;
-            fill: currentColor;
             rotate: 90deg;
+            fill: currentColor;
         }
     }
 }
