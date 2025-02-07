@@ -5,6 +5,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { fromServerLonLat } from '~/utils/backend/vatsim/index';
+import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 const revisions: Record<string, number> = {
     'v2410.1': 2,
@@ -60,6 +61,7 @@ export async function updateVatSpy() {
     const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/', {
         timeout: 1000 * 60,
         retry: 3,
+        headers: getVATSIMIdentHeaders(),
     });
     if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
     if (radarStorage.vatspy.version === data.current_commit_hash) return;

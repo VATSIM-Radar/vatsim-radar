@@ -9,6 +9,7 @@ import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { VatSpyData } from '~/types/data/vatspy';
+import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -157,7 +158,7 @@ export interface VatsimAirportInfo {
 export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportInfo | null> {
     const airportData = await $fetch<{
         data: VatsimAirportInfo & { stations: { ctaf: boolean; frequency: string }[] };
-    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`).catch(() => {});
+    }>(`https://my.vatsim.net/api/v2/aip/airports/${ icao }`, { headers: getVATSIMIdentHeaders() }).catch(() => {});
 
     if (!airportData?.data.icao) return null;
 
