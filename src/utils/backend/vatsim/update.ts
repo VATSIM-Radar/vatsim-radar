@@ -22,6 +22,7 @@ import type { NavigraphGate } from '~/types/data/navigraph';
 import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
+import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -326,6 +327,7 @@ export async function updateTransceivers() {
         transceiversInProgress = true;
         radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
             timeout: 1000 * 30,
+            headers: getVATSIMIdentHeaders(),
         });
     }
     catch (e) {

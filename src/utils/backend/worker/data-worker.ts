@@ -15,7 +15,7 @@ import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
-import { defineCronJob } from '~/utils/backend';
+import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
@@ -156,6 +156,7 @@ defineCronJob('* * * * * *', async () => {
             parseResponse(responseText) {
                 return JSON.parse(responseText);
             },
+            headers: getVATSIMIdentHeaders(),
             timeout: 1000 * 30,
         });
     }
