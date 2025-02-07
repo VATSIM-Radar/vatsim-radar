@@ -24,3 +24,13 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
 
     return cron;
 }
+
+export function getVATSIMIdentHeaders(): Record<string, string> {
+    const token = process.env.VATSIM_IDENT_TOKEN;
+
+    if (!token) return {};
+
+    return {
+        'X-VATSIM': token,
+    };
+}
