@@ -38,7 +38,6 @@
 
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
-import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Sigmet, Sigmets } from '~/utils/backend/storage';
 import { GeoJSON } from 'ol/format';
