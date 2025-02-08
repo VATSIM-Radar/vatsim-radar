@@ -26,10 +26,10 @@ spec:
         app: influx
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx
+        doks.digitalocean.com/node-pool: influx-4
       containers:
         - name: influx
-          image: registry.nyan404.ru/telegraf-influxdb:latest
+          image: reg.nyan404.ru/telegraf-influxdb:latest
           imagePullPolicy: Always
           resources:
             requests:
