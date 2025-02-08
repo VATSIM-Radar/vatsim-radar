@@ -31,6 +31,6 @@ export function getVATSIMIdentHeaders(): Record<string, string> {
     if (!token) return {};
 
     return {
-        'X-VATSIM': token,
+        'x-identifier': token,
     };
 }
