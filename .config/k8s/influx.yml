@@ -15,7 +15,7 @@ metadata:
 spec:
   progressDeadlineSeconds: 600
   strategy:
-    type: RollingUpdate
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
