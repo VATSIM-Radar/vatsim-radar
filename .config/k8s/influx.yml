@@ -27,6 +27,8 @@ spec:
     spec:
       nodeSelector:
         doks.digitalocean.com/node-pool: influx-4
+      imagePullSecrets:
+        - name: nyan404
       containers:
         - name: influx
           image: reg.nyan404.ru/telegraf-influxdb:latest
