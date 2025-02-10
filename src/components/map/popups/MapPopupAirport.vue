@@ -248,6 +248,15 @@
                         Link
                     </template>
                 </common-button>
+                <common-button
+                    :href="`https://where2fly.today/?icao=${ airport.icao }&utm_source=vatsimradar&utm_medium=airport-popup`"
+                    target="_blank"
+                >
+                    <template #icon>
+                        <aircraft-unknown-dest-icon/>
+                    </template>
+                    Where2Fly
+                </common-button>
             </common-button-group>
         </template>
     </common-info-popup>
@@ -281,6 +290,7 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import DataIcon from '@/assets/icons/kit/data.svg?component';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
+import AircraftUnknownDestIcon from '@/assets/icons/kit/aircraft-unknown-dest.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import type { TooltipCloseMethod } from '~/components/common/basic/CommonTooltip.vue';
