@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.1.0-alpha.3]
+
+- New icons from DotWallop (P180, BA11, DH88, F28, J328)
+- Added model matching (B3XM)
+
 # [1.1.0-alpha.2]
 
 - SIGMETs layer and page have been added
