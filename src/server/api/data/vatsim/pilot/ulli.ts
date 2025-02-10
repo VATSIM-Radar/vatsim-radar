@@ -1,34 +1,37 @@
-import { getFlightRows, getInfluxFlightsForCid } from '~/utils/backend/influx/queries';
+import { getFlightRows } from '~/utils/backend/influx/queries';
+import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import { getGeojsonForData } from '~/utils/backend/influx/converters';
-import { fromServerLonLat, toServerLonLat } from '~/utils/backend/vatsim';
-import type { GeoJSON } from 'geojson';
 
 export default defineEventHandler(async event => {
     const fluxQuery =
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
-  |> range(start: ${ Math.round(new Date(2024, 10, 5, 10).getTime() / 1000) }, stop: ${ Math.round(new Date(2024, 10, 5, 23).getTime() / 1000) })
+  |> range(start: ${ Math.round(new Date(2025, 1, 9, 14).getTime() / 1000) }, stop: ${ Math.round(new Date(2025, 1, 9, 17).getTime() / 1000) })
   |> filter(fn: (r) => r["_measurement"] == "data")`;
 
     const rows = await getFlightRows(fluxQuery);
 
-    const cids = rows.filter(x => x.fpl_arrival === 'ULLI' || x.fpl_departure === 'ULLI');
+    console.log(rows.length);
 
-    const tracks = await Promise.all(cids.map(async flight => {
+    const cids = rows.filter(x => x.fpl_departure === 'UUDD' || x.fpl_departure === 'UUEE' || x.fpl_departure === 'UUWW');
+
+    const tracks: InfluxGeojson[] = [];
+
+    for (const cid of cids) {
         const fluxQuery =
             `from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
-  |> range(start: ${ Math.round(new Date(2024, 10, 5, 10).getTime() / 1000) }, stop: ${ Math.round(new Date(2024, 10, 5, 23).getTime() / 1000) })
+  |> range(start: ${ Math.round(new Date(2025, 1, 9, 14).getTime() / 1000) }, stop: ${ Math.round(new Date(2025, 1, 9, 20).getTime() / 1000) })
   |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ flight.cid }")`;
+  |> filter(fn: (r) => r["cid"] == "${ cid.cid }")`;
 
         const rows = await getFlightRows(fluxQuery);
 
-        return getGeojsonForData(rows, '');
-    }));
+        tracks.push(getGeojsonForData(rows, ''));
+    }
 
     setResponseHeader(event, 'Content-Disposition', 'attachment; filename=ulli.json');
 
     return {
         type: 'FeatureCollection',
-        features: tracks,
+        features: tracks.flatMap(x => x.features.features),
     };
 });

@@ -1,11 +1,12 @@
 import type { InfluxFlight } from '~/utils/backend/influx/queries';
 import { getInfluxOnlineFlightTurns } from '~/utils/backend/influx/queries';
-import type { Feature, FeatureCollection, Point } from 'geojson';
+import type { Feature, FeatureCollection, LineString } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { join } from 'path';
 import { getFlightRowGroup } from '~/utils/shared/flight';
+import { toServerLonLat } from '~/utils/backend/vatsim';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -20,69 +21,33 @@ export interface VatsimPilotConnection {
 
 export type InfluxGeojson = {
     flightPlanTime: string;
-    features: FeatureCollection<Point>[];
+    features: FeatureCollection<LineString>;
 };
 
 export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {
-    function getRowColor(row: InfluxFlight) {
-        return getFlightRowGroup(row.altitude);
-    }
-
-    const geoRows: Feature<Point>[] = [];
+    const geoRows: Record<number, Feature<LineString>> = [];
 
     for (const row of rows.filter(x => x.latitude && x.longitude)) {
-        geoRows.push({
+        geoRows[row.cid] ??= {
             type: 'Feature',
-            properties: {
-                type: 'turn',
-                standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
-                timestamp: row._time,
-                color: getRowColor(row),
-            },
+            properties: {},
             geometry: {
-                type: 'Point',
-                coordinates: [
-                    row.longitude!,
-                    row.latitude!,
-                ],
+                type: 'LineString',
+                coordinates: [],
             },
-        });
-    }
-
-    const rowsGroups: FeatureCollection<Point>[] = [];
-
-    for (const row of geoRows) {
-        const lastGroup = rowsGroups[rowsGroups.length - 1];
-        if (lastGroup && lastGroup.features[0].properties!.color === row.properties!.color) {
-            lastGroup.features.push(row);
-        }
-        else {
-            rowsGroups.push({
-                type: 'FeatureCollection',
-                features: [row],
-            });
-        }
-    }
-
-    let hadStanding = false;
-
-    for (const group of rowsGroups) {
-        for (let i = 0; i < group.features.length; i++) {
-            const feature = group.features[i];
-            if (!hadStanding && feature.properties!.standing) {
-                hadStanding = true;
-            }
-            else delete feature.properties!.standing;
-
-            if (i === 0 || i === group.features.length - 1) continue;
-            delete feature.properties!.color;
-            delete feature.properties!.timestamp;
-        }
+        };
+        geoRows[row.cid].geometry.coordinates.push(toServerLonLat([
+            row.longitude!,
+            row.latitude!,
+        ]));
     }
 
     return {
         flightPlanTime: flightPlanStart,
-        features: rowsGroups,
+        features: {
+            type: 'FeatureCollection',
+            features: Object.values(geoRows),
+        },
     };
 }
 
