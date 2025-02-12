@@ -2991,14 +2991,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.9.0":
-  version: 0.9.0
-  resolution: "@pinia/nuxt@npm:0.9.0"
+"@pinia/nuxt@npm:^0.10.1":
+  version: 0.10.1
+  resolution: "@pinia/nuxt@npm:0.10.1"
   dependencies:
     "@nuxt/kit": "npm:^3.9.0"
   peerDependencies:
-    pinia: ^2.3.0
-  checksum: 10c0/04e6a3889455c54c7c419e28e335f41bd17a9a7542c57e5ea360c689a9f2a38f4b0493a5a8e5199dae7b2f78e44307d3155bc694c063dba258f323ed81d63890
+    pinia: ^3.0.1
+  checksum: 10c0/e93654bbf58141ff0218ad99293c920ca193f901310ec34425a2ce8fb02e129f868ebbd417064a5629ef972fb084da41de29ca2fbbd589b3a94a74a885badcba
   languageName: node
   linkType: hard
 
@@ -14485,7 +14485,7 @@ __metadata:
     "@nuxt/devtools": "npm:^2.0.0"
     "@nuxt/eslint": "npm:^1.0.1"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
-    "@pinia/nuxt": "npm:^0.9.0"
+    "@pinia/nuxt": "npm:^0.10.1"
     "@prisma/client": "npm:^6.3.1"
     "@stylistic/eslint-plugin": "npm:^3.0.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.2"
