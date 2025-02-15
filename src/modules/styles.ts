@@ -34,7 +34,7 @@ export default defineNuxtModule((_, nuxt) => {
             const rgbString = rgb.join(', ');
 
             if (i === 0) {
-                variables[color] = `rgb(var(--${ color }, ${ rgbString }))`;
+                variables[color] = `rgba(var(--${ color }, ${ rgbString }))`;
                 variables[`${ color }Rgb`] = rgb;
                 variables[`${ color }Hex`] = value;
 
@@ -43,7 +43,7 @@ export default defineNuxtModule((_, nuxt) => {
                     if (!themes[theme][color] && colors[color]) {
                         const rgb = colorToRgb(colors[color]!);
                         const rgbString = rgb.join(', ');
-                        themes[theme][color] = `rgb(var(--${ color }, ${ rgbString }))`;
+                        themes[theme][color] = `rgba(var(--${ color }, ${ rgbString }))`;
                         themes[theme][`${ color }Rgb`] = rgb;
                         themes[theme][`${ color }Hex`] = colors[color]!;
                     }

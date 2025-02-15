@@ -175,7 +175,7 @@ export async function getNavigraphGates({ user, icao, event }: {
 
     try {
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+            const timeout = setTimeout(() => reject(new Error('Navigraph Failed by timeout')), 15000);
 
             (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
                 `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_gate WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,

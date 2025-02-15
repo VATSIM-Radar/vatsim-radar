@@ -4,6 +4,9 @@
 
 - New icons from DotWallop (P180, BA11, DH88, F28, J328)
 - Added model matching (B3XM)
+- Fixed ZSE VATGlasses display (we can now ignore some incomplete VG files. If you need this - write to us)
+- Fixed sectors sometimes not rendering on mobile devices
+- Improved rendering performance for mobile devices
 
 # [1.0.2]
 

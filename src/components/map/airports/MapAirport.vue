@@ -598,10 +598,10 @@ onMounted(async () => {
                                 color,
                             }),
                             backgroundFill: new Fill({
-                                color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.5)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.5)`,
                             }),
                             backgroundStroke: new Stroke({
-                                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
                             }),
                             rotation: toRadians(0),
                             padding: [2, 0, 2, 2],
@@ -624,10 +624,10 @@ onMounted(async () => {
                             color,
                         }),
                         backgroundFill: new Fill({
-                            color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.8)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.8)`,
                         }),
                         backgroundStroke: new Stroke({
-                            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
                         }),
                         rotation: toRadians(0),
                         padding: [2, 0, 2, 2],
