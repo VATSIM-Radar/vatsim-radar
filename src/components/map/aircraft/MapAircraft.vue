@@ -239,14 +239,7 @@ const pilot = computed(() => dataStore.vatsim.data.pilots.value.find(x => props.
 
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
-    if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
     if (props.isHovered) return 'hover';
-
-    if (store.mapSettings.highlightEmergency) {
-        if (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500') {
-            return 'landed';
-        }
-    }
 
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
     if (store.config.airport) {
@@ -254,6 +247,14 @@ const getStatus = computed<MapAircraftStatus>(() => {
         if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
         if (vatAirport?.aircraft.groundArr?.includes(props.aircraft.cid)) return 'landed';
         if (vatAirport?.aircraft.arrivals?.includes(props.aircraft.cid)) return 'arriving';
+    }
+
+    if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
+
+    if (store.mapSettings.highlightEmergency) {
+        if (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500') {
+            return 'landed';
+        }
     }
 
     return isOnGround.value ? 'ground' : 'default';
