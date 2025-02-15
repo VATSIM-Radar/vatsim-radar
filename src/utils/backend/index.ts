@@ -25,10 +25,24 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
     return cron;
 }
 
+let firstLog = false;
+
 export function getVATSIMIdentHeaders(): Record<string, string> {
     const token = process.env.VATSIM_IDENT_TOKEN;
 
-    if (!token) return {};
+    if (!token) {
+        if (!firstLog) {
+            firstLog = true;
+            console.log('VATSIM_IDENT_TOKEN is missing');
+        }
+
+        return {};
+    }
+
+    if (!firstLog) {
+        firstLog = true;
+        console.log('VATSIM_IDENT_TOKEN is present');
+    }
 
     return {
         'x-identifier': token,
