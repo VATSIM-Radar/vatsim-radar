@@ -1,11 +1,9 @@
 import { radarStorage } from '~/utils/backend/storage';
 import type { SimAwareData } from '~/utils/backend/storage';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 import { $fetch } from 'ofetch';
-import type { MultiPolygon, Polygon, Position } from 'geojson';
 
 const revisions: Record<string, number> = {
-    'Release v1.1.32': 1,
+    'Release v1.1.34': 1,
 };
 
 export async function updateSimAware() {
@@ -34,13 +32,7 @@ export async function updateSimAware() {
             x = x.features[0];
         }
 
-        return {
-            ...x,
-            geometry: {
-                ...x.geometry,
-                coordinates: x.geometry.coordinates.map(x => x.map(x => Array.isArray(x[0]) ? x.map(x => fromServerLonLat(x as Position)) : fromServerLonLat(x as Position))),
-            } as MultiPolygon | Polygon,
-        };
+        return x;
     }).sort((a, b) => {
         if (a.properties!.suffix && !b.properties!.suffix) return -1;
         if (!a.properties!.suffix && b.properties!.suffix) return 1;

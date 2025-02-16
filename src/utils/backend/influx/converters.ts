@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { join } from 'path';
 import { getFlightRowGroup } from '~/utils/shared/flight';
+import { toLonLat } from 'ol/proj';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -41,10 +42,15 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
             },
             geometry: {
                 type: 'Point',
-                coordinates: [
-                    row.longitude!,
-                    row.latitude!,
-                ],
+                coordinates: row.longitude!.toString().split('.')[0].length > 5
+                    ? toLonLat([
+                        row.longitude!,
+                        row.latitude!,
+                    ])
+                    : [
+                        row.longitude!,
+                        row.latitude!,
+                    ],
             },
         });
     }
@@ -144,8 +150,6 @@ export function getPlanInfluxDataForPilots() {
             fpl_altitude: pilot.flight_plan?.altitude,
         };
 
-        const someMissing = false;
-
         if (previousPilot && !!previousPilot.flight_plan?.route === !!obj.fpl_route && previousPilot.callsign === obj.callsign && previousPilot.flight_plan?.arrival === obj.fpl_arrival && previousPilot.flight_plan?.departure === obj.fpl_departure) return;
 
         const entries = Object.entries(obj)
@@ -153,7 +157,7 @@ export function getPlanInfluxDataForPilots() {
             .map(([key, value]) => `${ key }=${ outputInfluxValue(value!, key === 'latitude' || key === 'longitude') }`)
             .join(',');
 
-        if (!entries || someMissing) return;
+        if (!entries) return;
 
         return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
     }).filter(x => !!x) as string[];

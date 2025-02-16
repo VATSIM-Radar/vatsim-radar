@@ -32,14 +32,14 @@ spec:
       containers:
         - name: influx
           image: reg.nyan404.ru/telegraf-influxdb:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           resources:
             requests:
               cpu: 300m
               memory: 600Mi
             limits:
-              cpu: 2000m
-              memory: 2Gi
+              cpu: 4000m
+              memory: 8Gi
           env:
             - name: TELEGRAF_INPUT_URLS
               value: "https://next.vatsim-radar.com/api/data/vatsim/turns-data"

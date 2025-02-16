@@ -12,7 +12,6 @@ import type { PartialRecord } from '~/types';
 import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
@@ -95,7 +94,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
                 const nearestPoint = nearestPointOnLine(geometry, centroid);
 
-                const coords = fromServerLonLat(nearestPoint.geometry.coordinates);
+                const coords = nearestPoint.geometry.coordinates;
 
                 return [{
                     gate_identifier: `${ ident }:${ area.properties.termref }`,
@@ -108,7 +107,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
             const remainingGates = subGates.filter(ident => !guidanceLineGates.find(item => item.name === ident));
 
-            const coords = fromServerLonLat(centroid.coordinates);
+            const coords = centroid.coordinates;
 
             // For all subGates which have no associated standguidancelines, place a gate at the centroid of the parkingstandarea
             const centroidGates = remainingGates.map(ident => ({

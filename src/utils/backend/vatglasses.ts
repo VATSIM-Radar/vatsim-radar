@@ -6,7 +6,6 @@ import { existsSync } from 'node:fs';
 import { getRedis } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
@@ -99,7 +98,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
                     // @ts-expect-error: only temporary code
                     sector.points = sector.points.map(point => {
                         const [lat, lon] = point;
-                        return fromServerLonLat([convertToDecimalDegrees(lon), convertToDecimalDegrees(lat)]);
+                        return [convertToDecimalDegrees(lon), convertToDecimalDegrees(lat)];
                     });
                 });
             });
