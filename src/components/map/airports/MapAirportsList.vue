@@ -257,7 +257,7 @@ watch(map, val => {
             properties: {
                 type: 'airport-layer',
             },
-            imageRatio: 2,
+            imageRatio: store.isTouch ? 1 : 2,
             minZoom: 12,
             style: function(feature) {
                 const type = feature.getProperties().type as AmdbLayerName;
@@ -285,7 +285,7 @@ watch(map, val => {
             properties: {
                 type: 'airport-layer',
             },
-            imageRatio: 2,
+            imageRatio: store.isTouch ? 1 : 2,
             minZoom: 15,
             style: function(feature) {
                 const type = feature.getProperties().type as AmdbLayerName;

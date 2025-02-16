@@ -213,6 +213,9 @@ export default defineNuxtConfig({
                 ],
             },
         },
+        server: {
+            allowedHosts: ['localhost', 'frontend', 'nuxt', 'bs-local'],
+        },
         css: {
             preprocessorMaxWorkers: true,
             preprocessorOptions: {

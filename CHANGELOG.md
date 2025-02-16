@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.0-alpha.3]
+
+- Added Where2Fly integration into airports popup
+
 # [1.1.0-alpha.2]
 
 - SIGMETs layer and page have been added
@@ -14,7 +18,15 @@
 
 - Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC
 
-# [1.0.2-final]
+# [1.0.3]
+
+- New icons from DotWallop (P180, BA11, DH88, F28, J328)
+- Added model matching (B3XM)
+- Fixed ZSE VATGlasses display (we can now ignore some incomplete VG files. If you need this - write to us)
+- Fixed sectors sometimes not rendering on mobile devices
+- Improved rendering performance for mobile devices
+
+# [1.0.2]
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead
 - Fixed an error when pilot info panel was sometimes not displayed

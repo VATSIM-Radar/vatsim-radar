@@ -15,8 +15,10 @@ const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
 const redisPublisher = getRedis();
 let currentSHA: string | null = null;
 
-async function fetchLatestCommitSHA(): Promise<string> {
+async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
     const commits = await $fetch<{ sha: string }[]>(GITHUB_API_URL);
+
+    if (postfix) return `${ commits[0].sha }-${ postfix }`;
     return commits[0].sha;
 }
 
@@ -49,8 +51,10 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
     const combinedData: VatglassesData = {};
     const zipEntries = zip.getEntries();
 
+    const ignoredFiles = ['zse', 'ulll'];
+
     zipEntries.forEach(entry => {
-        if (entry.entryName.endsWith('.json')) {
+        if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
             let fileName = entry.entryName.split('/').pop(); // Get the filename
             if (fileName) {
                 try {
@@ -111,7 +115,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
 
 export async function updateVatglassesData() {
     try {
-        const latestSHA = await fetchLatestCommitSHA();
+        const latestSHA = await fetchLatestCommitSHA('3');
         if (!currentSHA) currentSHA = getStoredSHA();
 
         if (latestSHA !== currentSHA) {
@@ -127,7 +131,7 @@ export async function updateVatglassesData() {
             radarStorage.vatglasses.data = jsonData;
 
             await new Promise<void>((resolve, reject) => {
-                const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+                const timeout = setTimeout(() => reject('Failed by timeout'), 15000);
                 redisPublisher.publish('vatglassesData', 'updated', err => {
                     clearTimeout(timeout);
                     if (err) return reject(err);
