@@ -183,6 +183,7 @@ export interface RadarStorage {
     navigraph: typeof cycles | null;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
+    extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
 }
 
 export const radarStorage: RadarStorage = {
@@ -232,6 +233,7 @@ export const radarStorage: RadarStorage = {
         virtual: {},
         all: {},
     },
+    extendedPilotsMap: {},
 };
 
 export function getRadarStorage() {

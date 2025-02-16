@@ -2,6 +2,8 @@ import type { PartialRecord } from '~/types';
 
 export const colorsList = {
     mapSectorBorder: '#2d2d30',
+    divertedBackground: '#de5656',
+    divertedTextColor: '#97979d',
 
     lightgray0: '#F7F7FA',
     lightgray50: '#F2F2F7',

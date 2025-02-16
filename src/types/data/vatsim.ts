@@ -72,6 +72,9 @@ export type VatsimPilotFlightPlan = Partial<{
     revision_id: number;
     assigned_transponder: string;
     locked?: boolean;
+    diverted?: boolean;
+    diverted_arrival?: string;
+    diverted_origin?: string;
 }>;
 
 export interface VatsimController {
@@ -141,7 +144,7 @@ export type VatsimShortenedData = {
     general: VatsimGeneral;
     pilots: Array<
         Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated'> &
-        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>> &
+        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'diverted' | 'diverted_arrival' | 'diverted_origin'>> &
         Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>> & {
             filteredColor?: UserMapSettingsColor;
             filteredOpacity?: number;

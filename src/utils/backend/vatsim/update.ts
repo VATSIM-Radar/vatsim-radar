@@ -106,6 +106,7 @@ export async function updateVatsimExtendedPilots() {
     })).filter(x => x.controllers.length);
 
     radarStorage.vatsim.extendedPilots = [];
+    const updatePilots: { [key: string]: VatsimExtendedPilot } = {};
 
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
@@ -244,11 +245,62 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
+        // Diversion Detection
+        if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
+            extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
+            extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
+            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+            const arrival = extendedPilot.flight_plan?.arrival;
+            const oldFlightPlan = oldPilot?.flight_plan;
+
+            if (arrival && oldFlightPlan) {
+                if (oldFlightPlan.diverted) {
+                    extendedPilot.flight_plan ??= {};
+
+                    if (oldFlightPlan.diverted_arrival !== arrival) {
+                        if (oldFlightPlan.diverted_origin === arrival || arrival === 'ZZZZ') {
+                            extendedPilot.flight_plan.diverted = false;
+                        }
+                        else {
+                            extendedPilot.flight_plan.diverted_arrival = arrival;
+                            extendedPilot.flight_plan.diverted_origin = oldFlightPlan.diverted_origin;
+                            extendedPilot.flight_plan.diverted = true;
+                        }
+                    }
+                    else {
+                        extendedPilot.flight_plan = {
+                            ...extendedPilot.flight_plan,
+                            diverted_arrival: oldFlightPlan.diverted_arrival,
+                            diverted_origin: oldFlightPlan.diverted_origin,
+                            diverted: true,
+                        };
+                    }
+                }
+                else if (arrival !== 'ZZZZ' && oldFlightPlan.arrival !== 'ZZZZ' &&
+                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival && extendedPilot.flight_plan?.flight_rules !== 'V') {
+                    extendedPilot.flight_plan = {
+                        ...extendedPilot.flight_plan,
+                        diverted: true,
+                        diverted_arrival: arrival,
+                        diverted_origin: oldFlightPlan.arrival,
+                    };
+                }
+            }
+        }
+
         origPilot.status = extendedPilot.status;
         origPilot.toGoDist = extendedPilot.toGoDist;
         origPilot.depDist = extendedPilot.depDist;
+        origPilot.arrival = extendedPilot.flight_plan?.arrival;
+        origPilot.diverted = extendedPilot.flight_plan?.diverted;
+        origPilot.diverted_arrival = extendedPilot.flight_plan?.diverted_arrival;
+        origPilot.diverted_origin = extendedPilot.flight_plan?.diverted_origin;
+
+        updatePilots[extendedPilot.cid] = extendedPilot;
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
+
+    radarStorage.extendedPilotsMap = updatePilots;
 }
 
 const xmlParser = new XMLParser({

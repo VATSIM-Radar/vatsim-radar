@@ -164,6 +164,50 @@ defineCronJob('* * * * * *', async () => {
         console.error(e);
     }
 
+    /* data?.pilots.push({
+        cid: 10000,
+            name: "Dummy",
+            callsign: "DELTA",
+            server: "Nah ah",
+            pilot_rating: 1,
+            military_rating: 0,
+            latitude: 48.137154,
+            longitude: 11.576124,
+            altitude: 10000,
+            groundspeed: 100,
+            transponder: "7700",
+            heading: 360,
+            qnh_i_hg: 100,
+            qnh_mb: 100,
+            flight_plan: {
+                flight_rules: 'I',
+                aircraft: "C170",
+                aircraft_faa: "",
+                aircraft_short: "",
+                departure: "EDDM",
+                cruise_tas: "",
+                altitude: "10000",
+                arrival: "EDDH",
+                alternate: "EDDK",
+                deptime: "",
+                enroute_time: "",
+                fuel_time: "",
+                remarks: "DUMMY",
+                route: "",
+                revision_id: 1,
+                assigned_transponder: "7700",
+                locked: false,
+                diverted: true,
+                diverted_arrival: "EDDV",
+                diverted_origin: "EDDH",
+            },
+            logon_time: "",
+            last_updated: "",
+            frequencies: ["122.800"],
+            sim: "MSFS",
+            icon: "c17"
+    });*/
+
     dataInProgress = false;
     dataLatestFinished = Date.now();
 });
