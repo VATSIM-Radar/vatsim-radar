@@ -83,17 +83,25 @@
             >
                 Toggle Active
             </common-toggle>
-            <common-toggle
-                :disabled="!vatglassesActive"
-                :model-value="store.mapSettings.vatglasses?.combined"
-                @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
-            >
-                Combined Mode
+            <div class="flex-container">
+                <common-toggle
+                    :disabled="!vatglassesActive"
+                    :model-value="store.mapSettings.vatglasses?.combined"
+                    @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
+                >
+                    Combined Mode
 
-                <template #description>
-                    All sectors at once. Eats performance.
-                </template>
-            </common-toggle>
+                    <template #description>
+                        All sectors at once. Eats performance.
+                    </template>
+                </common-toggle>
+                <div
+                    v-if="dataStore.vatglassesCombiningInProgress.value"
+                    class="loading-spinner"
+                >
+                    <div class="spinner"/>
+                </div>
+            </div>
             <common-toggle
                 v-if="vatglassesActive"
                 :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
@@ -213,6 +221,7 @@ import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
+const dataStore = useDataStore();
 
 const resetActive = ref(false);
 const vatglassesActive = isVatGlassesActive();
@@ -284,3 +293,35 @@ const zoomOptions = (() => {
     return options;
 })();
 </script>
+
+<style scoped lang="scss">
+.flex-container {
+    display: flex;
+    align-items: center;
+}
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 5px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    // border: 4px solid rgba(0, 0, 0, 0.1);
+    border: 4px solid $darkgray850;
+    // border-left-color: #000;
+    border-left-color: $lightgray200;
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>
