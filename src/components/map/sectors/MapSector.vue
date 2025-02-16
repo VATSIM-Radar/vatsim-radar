@@ -139,7 +139,10 @@ const getATCFullName = computed(() => {
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 
-const geoJson = new GeoJSON();
+const geoJson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 const init = () => {
     if (!vectorSource.value) return;

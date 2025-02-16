@@ -1,7 +1,6 @@
 import type { SiteConfig } from '~/store';
 import { useStore } from '~/store';
 import type { MapAircraftMode } from '~/types/map';
-import { fromLonLat } from 'ol/proj';
 
 const saPreset: SiteConfig = {
     hideAirports: false,
@@ -20,8 +19,8 @@ const idPreset: SiteConfig = {
     hideFooter: true,
     hideAllExternal: true,
     area: [
-        fromLonLat([5.9999611, 91.9999972].reverse()),
-        fromLonLat([-9.8339778, 141.0003861].reverse()),
+        [5.9999611, 91.9999972].reverse(),
+        [-9.8339778, 141.0003861].reverse(),
     ],
     showCornerLogo: true,
 };
@@ -31,7 +30,7 @@ const carPreset: SiteConfig = {
     hideHeader: true,
     hideFooter: true,
     hideAllExternal: true,
-    center: fromLonLat([18.924940, -71.652160].reverse()),
+    center: [18.924940, -71.652160].reverse(),
     zoom: 5,
     onlyAirportsAircraft: true,
     showCornerLogo: false,
@@ -42,7 +41,7 @@ const colPreset: SiteConfig = {
     hideHeader: true,
     hideFooter: true,
     hideAllExternal: true,
-    area: [fromLonLat([6.651113079688614, -92.23834051546821].reverse()), fromLonLat([-4.768948971763558, -57.005187602811105].reverse())],
+    area: [[6.651113079688614, -92.23834051546821].reverse(), [-4.768948971763558, -57.005187602811105].reverse()],
     onlyAirportsAircraft: true,
     showCornerLogo: true,
 };
@@ -82,7 +81,7 @@ const myulllSmallPreset: SiteConfig = {
     hideFooter: true,
     hideAllExternal: true,
     hideOverlays: true,
-    center: fromLonLat([59.61687, 30.96264].reverse()),
+    center: [59.61687, 30.96264].reverse(),
     zoom: 7.45,
     onlyAirportsAircraft: true,
     showCornerLogo: false,
@@ -93,7 +92,7 @@ const myulllLargePreset: SiteConfig = {
     hideHeader: true,
     hideFooter: true,
     hideOverlays: true,
-    center: fromLonLat([62.99630, 44.72724].reverse()),
+    center: [62.99630, 44.72724].reverse(),
     zoom: 5.21,
     showCornerLogo: false,
 };

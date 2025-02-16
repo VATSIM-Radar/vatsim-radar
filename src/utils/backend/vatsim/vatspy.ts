@@ -4,11 +4,10 @@ import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 const revisions: Record<string, number> = {
-    'v2410.1': 2,
+    'v2410.1': 3,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -136,7 +135,7 @@ export async function updateVatSpy() {
                 delete duplicateIata.iata;
             }
 
-            const lonlat = fromServerLonLat([+value.lon!, +value.lat!]);
+            const lonlat = [+value.lon!, +value.lat!];
 
             return {
                 ...value as Required<typeof value>,
@@ -184,7 +183,7 @@ export async function updateVatSpy() {
                     return x;
                 })))) as any;
 
-                const coordinate = fromServerLonLat([+boundary.properties!.label_lon, +boundary.properties!.label_lat]);
+                const coordinate = [+boundary.properties!.label_lon, +boundary.properties!.label_lat];
 
                 result.firs.push({
                     ...value as Required<typeof value>,
@@ -221,7 +220,7 @@ export function getFirsPolygons() {
             return {
                 icao: fir.icao,
                 featureId: fir.feature.id as string,
-                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x))))),
+                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates),
             };
         });
         firsVersion = radarStorage.vatspy.version;
