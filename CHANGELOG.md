@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.0-alpha.5]
+
+- Diverting flight state by MindCollaps
+
 # [1.1.0-alpha.4]
 
 - Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
