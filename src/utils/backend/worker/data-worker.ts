@@ -164,8 +164,7 @@ defineCronJob('* * * * * *', async () => {
         console.error(e);
     }
 
-    /*
-    radarStorage.vatsim.data.pilots.push({
+   /*data?.pilots.push({
         cid: 10000,
             name: "Dummy",
             callsign: "DELTA",
@@ -199,8 +198,8 @@ defineCronJob('* * * * * *', async () => {
                 assigned_transponder: "7700",
                 locked: false,
                 diverted: true,
-                diverted_arrival: "EDDH",
-                diverted_origin: "EDDV",
+                diverted_arrival: "EDDV",
+                diverted_origin: "EDDH",
             },
             logon_time: "",
             last_updated: "",

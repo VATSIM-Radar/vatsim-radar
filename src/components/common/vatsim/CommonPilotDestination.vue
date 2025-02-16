@@ -1,6 +1,8 @@
 <template>
-    <div v-if="pilot.departure && pilot.arrival"
-    class="destination_wrap">
+    <div
+        v-if="pilot.departure && pilot.arrival"
+        class="destination_wrap"
+    >
         <div class="destination">
             <common-info-block
                 :bottom-items="[depAirport?.name]"
@@ -10,11 +12,15 @@
                 :top-items="[depAirport?.icao]"
                 @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
             />
-            <div class="destination_aircraft-icon">
+            <div
+                class="destination_aircraft-icon"
+            >
                 <aircraft-icon/>
             </div>
-            <div v-if="pilot.diverted" 
-            class="diverted_icon">
+            <div
+                v-if="pilot.diverted"
+                class="diverted_icon"
+            >
                 <diverted-icon/>
             </div>
             <common-info-block
@@ -146,8 +152,8 @@ const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.p
         padding: 0 4px;
 
         svg {
-            width: 30px;
             rotate: 90deg;
+            width: 30px;
             fill: currentColor;
         }
     }
