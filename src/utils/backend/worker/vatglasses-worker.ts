@@ -73,7 +73,7 @@ async function updateVatglassesActive() {
 
     if (workerDataStore.vatglasses) {
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject('Failed by timeout'), 5000);
+            const timeout = setTimeout(() => reject('VG Failed by timeout'), 15000);
             redisPublisher.publish('vatglassesActive', JSON.stringify({
                 vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
                 vatglassesActivePositions: outputVatglassesActivePositions,

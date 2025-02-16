@@ -375,10 +375,10 @@ defineCronJob('* * * * * *', async () => {
         await updateVatsimExtendedPilots();
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'ANK_W_CTR',
+            callsign: 'ULLL_R_CTR',
             cid: 3,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
-            frequency: '122.122',
+            frequency: '135.600',
             last_updated: '',
             logon_time: '',
             name: '',
@@ -386,7 +386,9 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3'],
             visual_range: 0,
-        });
+        });*/
+
+        /*
 
         radarStorage.vatsim.data.controllers.push({
             callsign: 'PCT_APP',
@@ -527,7 +529,7 @@ defineCronJob('* * * * * *', async () => {
                 influxDBWrite.writeRecords(data);
 
                 await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+                    const timeout = setTimeout(() => reject(new Error('Influx write Failed by timeout')), 5000);
                     await influxDBWrite.flush(true).catch(console.error);
                     clearTimeout(timeout);
                     resolve();
@@ -549,7 +551,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+            const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);
             redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
