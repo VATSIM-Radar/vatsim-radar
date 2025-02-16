@@ -1,5 +1,5 @@
 import { radarStorage } from '../storage';
-import type { VatsimData, VatsimPilot } from '~/types/data/vatsim';
+import type { VatsimData } from '~/types/data/vatsim';
 import {
     updateAustraliaData, updateTransceivers,
     updateVatsimDataStorage,
@@ -164,7 +164,7 @@ defineCronJob('* * * * * *', async () => {
         console.error(e);
     }
 
-   /*data?.pilots.push({
+    /* data?.pilots.push({
         cid: 10000,
             name: "Dummy",
             callsign: "DELTA",

@@ -107,7 +107,7 @@ export async function updateVatsimExtendedPilots() {
     })).filter(x => x.controllers.length);
 
     radarStorage.vatsim.extendedPilots = [];
-    let update_pilots: { [key: string]: VatsimExtendedPilot } = {};
+    const updatePilots: { [key: string]: VatsimExtendedPilot } = {};
 
     const pilotsToProcess: {
         pilot: VatsimExtendedPilot;
@@ -250,7 +250,6 @@ export async function updateVatsimExtendedPilots() {
         if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
             extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
             extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
-
             const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
             const arrival = extendedPilot.flight_plan?.arrival;
             const oldFlightPlan = oldPilot?.flight_plan;
@@ -260,28 +259,31 @@ export async function updateVatsimExtendedPilots() {
                     extendedPilot.flight_plan ??= {};
 
                     if (oldFlightPlan.diverted_arrival !== arrival) {
-                        if (oldFlightPlan.diverted_origin === arrival || arrival === "ZZZZ") {
+                        if (oldFlightPlan.diverted_origin === arrival || arrival === 'ZZZZ') {
                             extendedPilot.flight_plan.diverted = false;
-                        } else {
+                        }
+                        else {
                             extendedPilot.flight_plan.diverted_arrival = arrival;
                             extendedPilot.flight_plan.diverted_origin = oldFlightPlan.diverted_origin;
                             extendedPilot.flight_plan.diverted = true;
                         }
-                    } else {
+                    }
+                    else {
                         extendedPilot.flight_plan = {
                             ...extendedPilot.flight_plan,
                             diverted_arrival: oldFlightPlan.diverted_arrival,
                             diverted_origin: oldFlightPlan.diverted_origin,
-                            diverted: true
+                            diverted: true,
                         };
                     }
-                } else if (arrival !== "ZZZZ" && oldFlightPlan.arrival !== "ZZZZ" &&
-                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival && extendedPilot.flight_plan?.flight_rules !== "V") {
+                }
+                else if (arrival !== 'ZZZZ' && oldFlightPlan.arrival !== 'ZZZZ' &&
+                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival && extendedPilot.flight_plan?.flight_rules !== 'V') {
                     extendedPilot.flight_plan = {
                         ...extendedPilot.flight_plan,
                         diverted: true,
                         diverted_arrival: arrival,
-                        diverted_origin: oldFlightPlan.arrival
+                        diverted_origin: oldFlightPlan.arrival,
                     };
                 }
             }
@@ -295,11 +297,11 @@ export async function updateVatsimExtendedPilots() {
         origPilot.diverted_arrival = extendedPilot.flight_plan?.diverted_arrival;
         origPilot.diverted_origin = extendedPilot.flight_plan?.diverted_origin;
 
-        update_pilots[extendedPilot.cid] = extendedPilot;
+        updatePilots[extendedPilot.cid] = extendedPilot;
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 
-    radarStorage.extendedPilotsMap = update_pilots;
+    radarStorage.extendedPilotsMap = updatePilots;
 }
 
 const xmlParser = new XMLParser({
@@ -342,7 +344,7 @@ export async function updateTransceivers() {
 
 function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
     return Object.fromEntries(airlines.map(val => {
-        val.name = val.name.split(' ').map(x => `${x[0]}${x.toLowerCase().slice(1, x.length)}`).join(' ');
+        val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
 
         return [val.icao, val];
     }));

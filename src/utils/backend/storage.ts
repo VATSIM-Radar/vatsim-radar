@@ -233,7 +233,7 @@ export const radarStorage: RadarStorage = {
         virtual: {},
         all: {},
     },
-    extendedPilotsMap: {}
+    extendedPilotsMap: {},
 };
 
 export function getRadarStorage() {

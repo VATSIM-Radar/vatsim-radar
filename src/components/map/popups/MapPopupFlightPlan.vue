@@ -7,7 +7,7 @@
                     arrival: flightPlan.arrival,
                     diverted: flightPlan.diverted,
                     diverted_arrival: flightPlan.diverted_arrival,
-                    diverted_origin: flightPlan.diverted_origin
+                    diverted_origin: flightPlan.diverted_origin,
                 }"
             />
             <div
