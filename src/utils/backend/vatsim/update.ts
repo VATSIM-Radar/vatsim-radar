@@ -106,6 +106,7 @@ export async function updateVatsimExtendedPilots() {
         polygon,
     })).filter(x => x.controllers.length);
 
+    radarStorage.vatsim.extendedPilots = [];
     let update_pilots: { [key: string]: VatsimExtendedPilot } = {};
 
     const pilotsToProcess: {
@@ -250,7 +251,7 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
             extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
 
-            const oldPilot = radarStorage.pilotMap[extendedPilot.cid];
+            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
             const arrival = extendedPilot.flight_plan?.arrival;
             const oldFlightPlan = oldPilot?.flight_plan;
 
@@ -298,7 +299,7 @@ export async function updateVatsimExtendedPilots() {
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 
-    radarStorage.pilotMap = update_pilots;
+    radarStorage.extendedPilotsMap = update_pilots;
 }
 
 const xmlParser = new XMLParser({
