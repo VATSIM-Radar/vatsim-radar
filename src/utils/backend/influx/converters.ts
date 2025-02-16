@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { join } from 'path';
 import { getFlightRowGroup } from '~/utils/shared/flight';
+import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -41,10 +42,15 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
             },
             geometry: {
                 type: 'Point',
-                coordinates: [
-                    row.longitude!,
-                    row.latitude!,
-                ],
+                coordinates: row.longitude!.toString().split('.')[0].length < 5
+                    ? fromServerLonLat([
+                        row.longitude!,
+                        row.latitude!,
+                    ])
+                    : [
+                        row.longitude!,
+                        row.latitude!,
+                    ],
             },
         });
     }
