@@ -148,7 +148,6 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
-import { fromLonLat, toLonLat } from 'ol/proj';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -172,6 +171,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
+import { transformExtent } from 'ol/proj';
 
 defineProps({
     sigmetsMode: {
@@ -528,7 +528,7 @@ async function handleMoveEnd() {
 
     const query = {
         ...route.query,
-        center: toLonLat(view.getCenter()!).map(x => x.toFixed(5))?.join(','),
+        center: view.getCenter()!.map(x => x.toFixed(5))?.join(','),
         zoom: view.getZoom()?.toFixed(2),
     };
 
@@ -588,7 +588,7 @@ await setupDataFetch({
         ready.value = true;
 
         const view = new View({
-            center: fromLonLat([37.617633, 55.755820]),
+            center: [37.617633, 55.755820],
             zoom: 2,
             multiWorld: false,
         });
@@ -600,7 +600,7 @@ await setupDataFetch({
         projectionExtent[2] *= 2.5;
         projectionExtent[3] *= 1.4;
 
-        let center = store.localSettings.location ?? fromLonLat([37.617633, 55.755820]);
+        let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;
 
         if (store.config.airport) {
@@ -643,7 +643,7 @@ await setupDataFetch({
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
             if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
-                center = fromLonLat(coords);
+                center = coords;
             }
         }
 
@@ -671,7 +671,7 @@ await setupDataFetch({
                 maxZoom: 24,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
-                extent: projectionExtent,
+                extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
         });
 

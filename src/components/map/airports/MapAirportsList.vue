@@ -619,7 +619,10 @@ const getAirportsList = computed(() => {
     return list;
 });
 
-const geoJson = new GeoJSON();
+const geoJson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 const vatAirportsList = computed(() => {
     let list = dataStore.vatsim.data.airports.value;
@@ -651,10 +654,10 @@ async function setVisibleAirports() {
 
     try {
         const extent = mapStore.extent.slice();
-        extent[0] -= 100000;
-        extent[1] -= 100000;
-        extent[2] += 100000;
-        extent[3] += 100000;
+        extent[0] -= 0.9;
+        extent[1] -= 0.9;
+        extent[2] += 0.9;
+        extent[3] += 0.9;
 
         // @ts-expect-error Dynamic return value
         airportsList.value = vatAirportsList.value.map(x => {

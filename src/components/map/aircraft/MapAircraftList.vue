@@ -22,7 +22,6 @@ import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, collapsingWithOverlay, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
@@ -327,7 +326,7 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
-    const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+    const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
     let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
@@ -376,7 +375,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {
-        const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+        const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
         const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
         if (features.length < 1) {

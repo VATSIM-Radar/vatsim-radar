@@ -10,7 +10,6 @@ import {
     navigraphCurrentDb,
     navigraphOutdatedDb,
 } from '~/utils/backend/navigraph-db';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
 import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
@@ -137,7 +136,7 @@ export async function getNavigraphRunways({ user, icao, event }: {
                 (err, row: any) => {
                     if (err) return reject(err);
 
-                    const coords = fromServerLonLat([parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)]);
+                    const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
 
                     runways.push({
                         ...row,
@@ -183,7 +182,7 @@ export async function getNavigraphGates({ user, icao, event }: {
                 (err, row: any) => {
                     if (err) return reject(err);
 
-                    const coords = fromServerLonLat([parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)]);
+                    const coords = [parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)];
 
                     gates.push({
                         ...row,

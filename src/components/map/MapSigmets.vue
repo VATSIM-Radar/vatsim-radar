@@ -148,12 +148,15 @@ const jsonFeatures = computed(() => {
     if (!data.value) return [];
 
     return geojson.readFeatures(data.value, {
+        featureProjection: 'EPSG:4326',
         dataProjection: 'EPSG:4326',
-        featureProjection: 'EPSG:3857',
     });
 });
 
-const geojson = new GeoJSON();
+const geojson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 function buildStyle(color: ColorsList, type: string) {
     return new Style({

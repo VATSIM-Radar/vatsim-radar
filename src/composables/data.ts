@@ -13,7 +13,6 @@ import type {
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import { fromLonLat } from 'ol/proj';
 import type { IDBAirlinesData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
@@ -22,6 +21,7 @@ import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
+import { useGeographic } from 'ol/proj';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -173,11 +173,10 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
 
     vatsim.mandatoryData.value = {
         pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
-            const coords = fromLonLat([lon, lat]);
             return {
                 cid,
-                longitude: coords[0],
-                latitude: coords[1],
+                longitude: lon,
+                latitude: lat,
                 icon,
                 heading,
             };
@@ -256,6 +255,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     }
 
     onMounted(async () => {
+        useGeographic();
         onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
@@ -296,8 +296,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
 
-        const view = new View({
-            center: fromLonLat([37.617633, 55.755820]),
+        new View({
+            center: [37.617633, 55.755820],
             zoom: 2,
             multiWorld: false,
         });
@@ -307,16 +307,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
                 if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
                     vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
-                    vatspy.data.firs = vatspy.data.firs.map(x => ({
-                        ...x,
-                        feature: {
-                            ...x.feature,
-                            geometry: {
-                                ...x.feature.geometry,
-                                coordinates: x.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x, view.getProjection())))),
-                            },
-                        },
-                    }));
                     await clientDB.put('data', vatspy, 'vatspy');
                 }
 

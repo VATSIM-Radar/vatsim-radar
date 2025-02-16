@@ -10,23 +10,23 @@ export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot):
     let direction = pilot.heading;
 
     if (direction >= 0 && direction < 90) {
-        lonAdjustment = (direction / 90) * 30;
-        latAdjustment = (1 - (direction / 90)) * 30;
+        lonAdjustment = (direction / 90) * 0.0002;
+        latAdjustment = (1 - (direction / 90)) * 0.0002;
     }
     else if (direction >= 90 && direction < 180) {
         direction -= 90;
-        lonAdjustment = (1 - (direction / 90)) * 30;
-        latAdjustment = (direction / 90) * -30;
+        lonAdjustment = (1 - (direction / 90)) * 0.0002;
+        latAdjustment = (direction / 90) * -0.0002;
     }
     else if (direction >= 180 && direction < 270) {
         direction -= 180;
-        lonAdjustment = (direction / 90) * -30;
-        latAdjustment = (1 - (direction / 90)) * -30;
+        lonAdjustment = (direction / 90) * -0.0002;
+        latAdjustment = (1 - (direction / 90)) * -0.0002;
     }
     else {
         direction -= 270;
-        lonAdjustment = (1 - (direction / 90)) * -30;
-        latAdjustment = (direction / 90) * 30;
+        lonAdjustment = (1 - (direction / 90)) * -0.0002;
+        latAdjustment = (direction / 90) * 0.0002;
     }
 
     return [pilot.longitude + lonAdjustment, pilot.latitude + latAdjustment];
@@ -41,12 +41,12 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
         maybe: false,
     };
 
-    if (pilot.groundspeed > 5) return result;
+    if (pilot.groundspeed > 1) return result;
 
     let pilotLon = pilot.longitude;
     let pilotLat = pilot.latitude;
 
-    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
+    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.00015 && Math.abs(x.gate_latitude - pilotLat) < 0.00015)) {
         const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
         if (index === -1) continue;
         gates[index] = {
@@ -62,7 +62,7 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
     pilotLat = adjusted[1];
 
     if (!result.truly) {
-        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 25 && Math.abs(x.gate_latitude - pilotLat) < 25)) {
+        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.00015 && Math.abs(x.gate_latitude - pilotLat) < 0.00015)) {
             const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
             if (index === -1) continue;
             gates[index] = {
@@ -73,7 +73,7 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
         }
     }
 
-    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 50 && Math.abs(x.gate_latitude - pilot.latitude) < 50)) {
+    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 0.0003 && Math.abs(x.gate_latitude - pilot.latitude) < 0.0003)) {
         const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
         if (index === -1) continue;
         gates[index] = {
@@ -84,7 +84,7 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
     }
 
     if (!result.maybe) {
-        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 50 && Math.abs(x.gate_latitude - pilotLat) < 50)) {
+        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.0003 && Math.abs(x.gate_latitude - pilotLat) < 0.0003)) {
             const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
             if (index === -1) continue;
             gates[index] = {
