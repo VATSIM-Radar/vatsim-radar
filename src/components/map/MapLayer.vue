@@ -267,7 +267,7 @@ async function initLayer() {
             declutter: true,
             updateWhileAnimating: false,
             updateWhileInteracting: false,
-            renderMode: 'vector',
+            renderMode: 'hybrid',
         });
 
         glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => layer.id !== 'roads_labels_minor' && layer.id !== 'roads_labels_major' && layer.id !== 'water_waterway_label');
