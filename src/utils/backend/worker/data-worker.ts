@@ -164,6 +164,50 @@ defineCronJob('* * * * * *', async () => {
         console.error(e);
     }
 
+    /* data?.pilots.push({
+        cid: 10000,
+            name: "Dummy",
+            callsign: "DELTA",
+            server: "Nah ah",
+            pilot_rating: 1,
+            military_rating: 0,
+            latitude: 48.137154,
+            longitude: 11.576124,
+            altitude: 10000,
+            groundspeed: 100,
+            transponder: "7700",
+            heading: 360,
+            qnh_i_hg: 100,
+            qnh_mb: 100,
+            flight_plan: {
+                flight_rules: 'I',
+                aircraft: "C170",
+                aircraft_faa: "",
+                aircraft_short: "",
+                departure: "EDDM",
+                cruise_tas: "",
+                altitude: "10000",
+                arrival: "EDDH",
+                alternate: "EDDK",
+                deptime: "",
+                enroute_time: "",
+                fuel_time: "",
+                remarks: "DUMMY",
+                route: "",
+                revision_id: 1,
+                assigned_transponder: "7700",
+                locked: false,
+                diverted: true,
+                diverted_arrival: "EDDV",
+                diverted_origin: "EDDH",
+            },
+            logon_time: "",
+            last_updated: "",
+            frequencies: ["122.800"],
+            sim: "MSFS",
+            icon: "c17"
+    });*/
+
     dataInProgress = false;
     dataLatestFinished = Date.now();
 });
@@ -331,10 +375,10 @@ defineCronJob('* * * * * *', async () => {
         await updateVatsimExtendedPilots();
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'ANK_W_CTR',
+            callsign: 'ULLL_R_CTR',
             cid: 3,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().CTR,
-            frequency: '122.122',
+            frequency: '135.600',
             last_updated: '',
             logon_time: '',
             name: '',
@@ -342,7 +386,9 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3'],
             visual_range: 0,
-        });
+        });*/
+
+        /*
 
         radarStorage.vatsim.data.controllers.push({
             callsign: 'PCT_APP',
@@ -483,7 +529,7 @@ defineCronJob('* * * * * *', async () => {
                 influxDBWrite.writeRecords(data);
 
                 await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+                    const timeout = setTimeout(() => reject(new Error('Influx write Failed by timeout')), 5000);
                     await influxDBWrite.flush(true).catch(console.error);
                     clearTimeout(timeout);
                     resolve();
@@ -505,7 +551,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+            const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);
             redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);

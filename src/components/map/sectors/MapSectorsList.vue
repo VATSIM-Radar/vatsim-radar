@@ -184,14 +184,14 @@ watch(map, val => {
 
         const defaultStyle = new Style({
             stroke: new Stroke({
-                color: `rgb(${ getCurrentThemeRgbColor('mapSectorBorder').join(',') }, 0.5)`,
+                color: `rgba(${ getCurrentThemeRgbColor('mapSectorBorder').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 2,
         });
 
         if (store.localSettings.filters?.layers?.layer === 'basic') {
-            defaultStyle.getStroke()?.setColor(`rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
+            defaultStyle.getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
         }
 
         const localStyle = new Style({
@@ -202,7 +202,7 @@ watch(map, val => {
                 color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 4,
+            zIndex: 123,
         });
 
         const rootStyle = new Style({
@@ -263,7 +263,7 @@ watch(map, val => {
         vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
-            imageRatio: 2,
+            imageRatio: store.isTouch ? 1 : 2,
             properties: {
                 type: 'sectors',
             },

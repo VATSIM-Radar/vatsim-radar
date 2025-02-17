@@ -10,7 +10,6 @@ import {
     navigraphCurrentDb,
     navigraphOutdatedDb,
 } from '~/utils/backend/navigraph-db';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
 import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
@@ -137,7 +136,7 @@ export async function getNavigraphRunways({ user, icao, event }: {
                 (err, row: any) => {
                     if (err) return reject(err);
 
-                    const coords = fromServerLonLat([parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)]);
+                    const coords = [parseFloat(row.runway_longitude), parseFloat(row.runway_latitude)];
 
                     runways.push({
                         ...row,
@@ -175,7 +174,7 @@ export async function getNavigraphGates({ user, icao, event }: {
 
     try {
         await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('Failed by timeout')), 5000);
+            const timeout = setTimeout(() => reject(new Error('Navigraph Failed by timeout')), 15000);
 
             (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
                 `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_gate WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,
@@ -183,7 +182,7 @@ export async function getNavigraphGates({ user, icao, event }: {
                 (err, row: any) => {
                     if (err) return reject(err);
 
-                    const coords = fromServerLonLat([parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)]);
+                    const coords = [parseFloat(row.gate_longitude), parseFloat(row.gate_latitude)];
 
                     gates.push({
                         ...row,

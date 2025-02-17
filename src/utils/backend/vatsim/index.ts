@@ -1,9 +1,6 @@
 import { ofetch } from 'ofetch';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
-import { View } from 'ol';
-import { fromLonLat } from 'ol/proj';
-import type { Coordinate } from 'ol/coordinate';
 import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { IVatsimTransceiver } from '~/types/data/vatsim';
@@ -13,16 +10,6 @@ import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
-}
-
-const view = new View({
-    multiWorld: false,
-});
-
-const projection = view.getProjection();
-
-export function fromServerLonLat(coordinate: Coordinate) {
-    return fromLonLat(coordinate, projection);
 }
 
 export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {

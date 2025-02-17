@@ -155,7 +155,7 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
     });
 };
 
-const groundZone = 10000;
+const groundZone = 0.09;
 
 function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft): boolean {
     return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;

@@ -211,13 +211,10 @@ async function initLayer() {
             source: mapSource,
             style,
             zIndex: 0,
-            imageRatio: 2,
+            imageRatio: store.isTouch ? 1 : 2,
         });
 
-        mapSource.addFeatures(geoJson.readFeatures(continents, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857',
-        }));
+        mapSource.addFeatures(geoJson.readFeatures(continents));
 
         map.value?.addLayer(mapLayer);
 

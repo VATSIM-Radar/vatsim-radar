@@ -125,7 +125,7 @@ const update: Update = {
             ],
         },
     ],
-    active: true,
+    active: false,
 };
 
 const shownFeatureIndex = ref(0);

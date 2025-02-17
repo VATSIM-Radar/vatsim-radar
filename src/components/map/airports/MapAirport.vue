@@ -121,9 +121,8 @@ import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
 import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
-import { Circle, Point } from 'ol/geom';
+import { Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import { fromCircle } from 'ol/geom/Polygon';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
@@ -138,11 +137,12 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
-import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
+import { fromLonLat } from 'ol/proj';
+import { createCircle } from '~/utils';
 
 const props = defineProps({
     airport: {
@@ -323,7 +323,10 @@ watch(getAirportColor, () => {
     }));
 });
 
-const geojson = new GeoJSON();
+const geojson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 watch(hoveredFeature, val => {
     if (!val?.traconFeature && hoverFeature) {
@@ -434,7 +437,7 @@ onMounted(async () => {
 
         if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
             const borderFeature = new Feature({
-                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                geometry: createCircle([props.airport.lon, props.airport.lat], 50000),
                 icao: props.airport.icao,
                 iata: props.airport.iata,
                 id: 'circle',
@@ -598,10 +601,10 @@ onMounted(async () => {
                                 color,
                             }),
                             backgroundFill: new Fill({
-                                color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.5)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.5)`,
                             }),
                             backgroundStroke: new Stroke({
-                                color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
                             }),
                             rotation: toRadians(0),
                             padding: [2, 0, 2, 2],
@@ -624,10 +627,10 @@ onMounted(async () => {
                             color,
                         }),
                         backgroundFill: new Fill({
-                            color: `rgb(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.8)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 0.8)`,
                         }),
                         backgroundStroke: new Stroke({
-                            color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
                         }),
                         rotation: toRadians(0),
                         padding: [2, 0, 2, 2],
@@ -680,7 +683,7 @@ onMounted(async () => {
 
             const features = geojson.readFeatures(value, {
                 dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857',
+                featureProjection: 'EPSG:4326',
             });
 
             for (const feature of features) {
