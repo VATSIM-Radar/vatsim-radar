@@ -55,7 +55,7 @@
     "ol-mapbox-style": "^12.4.1",
     "pinia": "^3.0.1",
     "prisma": "^6.3.1",
-    "protomaps-themes-base": "^4.4.0",
+    "protomaps-themes-base": "^4.5.0",
     "sharp": "^0.33.5",
     "sqlite3": "^5.1.7",
     "svgo": "^3.3.2",
@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@navigraph/amdb": "^1.1.0",
-    "@nuxt/devtools": "^2.0.0",
+    "@nuxt/devtools": "^2.1.0",
     "@nuxt/eslint": "^1.0.1",
     "@nuxtjs/stylelint-module": "^5.2.0",
     "@stylistic/eslint-plugin": "^3.1.0",
