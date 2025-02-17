@@ -69,6 +69,16 @@ spec:
                 name: data
                 port:
                   number: 3000
+    - host: "tracks.vatsim-radar.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: influx
+                port:
+                  number: 8086
 ---
 apiVersion: apps/v1
 kind: Deployment
