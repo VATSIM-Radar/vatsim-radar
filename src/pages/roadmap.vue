@@ -83,6 +83,9 @@
                                             <template v-else-if="group.status === 'in-progress'">
                                                 In progress
                                             </template>
+                                            <template v-else-if="group.status === 'next'">
+                                                Done in Next
+                                            </template>
                                             <template v-else-if="group.status === 'completed'">
                                                 Completed
                                             </template>
@@ -103,7 +106,7 @@ import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 
-type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'none';
+type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none';
 
 interface Item {
     title: string;
@@ -268,20 +271,33 @@ const roadmap = reactive<Roadmap[]>([
             'Proper Github local setup',
             {
                 title: 'Oceanic Tracks integration',
-                status: 'todo',
+                status: 'in-progress',
             },
             {
                 title: 'Waypoints on map (including aircraft submitted route)',
+                status: 'in-progress',
+            },
+            {
+                title: 'Friends export/import',
+                description: 'Including VATSpy-like import',
                 status: 'todo',
             },
             {
-                title: 'Events/ATC Bookings',
+                title: 'Events/ATC Bookings 2.0',
                 description: 'More complex integration than current events',
+            },
+            {
+                title: 'ATC Bookings',
+                status: 'in-progress',
+            },
+            {
+                title: 'SIGMETs/AIRMETs',
+                status: 'next',
             },
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
-                status: 'todo',
+                status: 'next',
             },
             'Hoppie integration',
             {
@@ -300,6 +316,8 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Name of aircraft operating company',
                 status: 'completed',
             },
+            'Friends list UX improvements',
+            'Lock North button',
         ],
     },
     {
@@ -312,12 +330,20 @@ const roadmap = reactive<Roadmap[]>([
             'Images or aircraft type, airline + operator',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
+            'METAR request',
+            'Proper estimate arrival time',
+            'NOTAMs grouping',
         ],
     },
     {
         title: 'Considering',
         description: 'Those features may eventually come to some stage, but are still considered if they will be done at all',
         items: [
+            'PIPEPs',
+            'Stream Deck integration',
+            'Day/Night line',
+            'Map settings market',
+            'Smart positioning for aircraft info popup',
             'Google Play app',
             'Simbrief integration',
             'ATC/Booking notification for active flight',
@@ -326,7 +352,6 @@ const roadmap = reactive<Roadmap[]>([
             'Twitch/streamers integration',
             'Distance measuring tool',
             'Aircraft collision prediction',
-            'Smart positioning for aircraft info popup',
             {
                 title: 'Move overlays across the map',
                 description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
@@ -366,8 +391,9 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
     }
 
     const statuses: Record<ItemStatus, number> = {
-        'in-progress': 1,
-        todo: 2,
+        'in-progress': 0,
+        todo: 1,
+        next: 2,
         none: 3,
         completed: 4,
     };
@@ -603,6 +629,10 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             --status-color: #{$primary500};
         }
 
+        &--status-next {
+            --status-color: #{$info500};
+        }
+
         &--status-completed {
             --status-color: #{$success500};
         }
@@ -618,7 +648,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             display: grid;
             grid-template-columns: repeat(2, calc(50% - 8px));
 
-            >*:last-child {
+            > *:last-child {
                 grid-column: span 2;
             }
         }
