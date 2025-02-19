@@ -81,7 +81,7 @@
     "@types/node": "^22.13.4",
     "@types/ws": "^8.5.14",
     "eslint": "^9.20.1",
-    "fast-xml-parser": "^4.5.1",
+    "fast-xml-parser": "^5.0.1",
     "postcss": "^8.5.2",
     "postcss-html": "^1.8.0",
     "sass-embedded": "^1.85.0",
