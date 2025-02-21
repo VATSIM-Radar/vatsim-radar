@@ -175,7 +175,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     tracks: val => {
         if (!isObject(val)) return false;
-        if (!validateRandomObjectKeys(val, ['mode', 'showOutOfBounds'])) return false;
+        if (!validateRandomObjectKeys(val, ['mode', 'limit', 'showOutOfBounds'])) return false;
 
         if ('mode' in val && (typeof val.mode !== 'string' || !tracksKeys.includes(val.mode as any))) return false;
         if ('showOutOfBounds' in val && typeof val.showOutOfBounds !== 'boolean') return false;
