@@ -24,6 +24,7 @@
     "@influxdata/influxdb-client-apis": "^1.35.0",
     "@pinia/nuxt": "^0.10.1",
     "@prisma/client": "^6.4.1",
+    "@protomaps/basemaps": "^5.0.0",
     "@turf/difference": "^7.2.0",
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",
@@ -55,7 +56,6 @@
     "ol-mapbox-style": "^12.4.1",
     "pinia": "^3.0.1",
     "prisma": "^6.4.1",
-    "protomaps-themes-base": "^4.5.0",
     "sharp": "^0.33.5",
     "sqlite3": "^5.1.7",
     "svgo": "^3.3.2",
@@ -96,7 +96,7 @@
     "vue-tsc": "2.2.0"
   },
   "resolutions": {
-    "vite-plugin-checker": "^0.9.0"
+    "c12": "2.0.2"
   },
   "packageManager": "yarn@4.6.0"
 }
