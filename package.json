@@ -96,7 +96,7 @@
     "vue-tsc": "2.2.0"
   },
   "resolutions": {
-    "c12": "2.0.2"
+    "c12": "2.0.3"
   },
   "packageManager": "yarn@4.6.0"
 }
