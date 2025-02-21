@@ -1,6 +1,24 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'visc'
+    | 'vc10'
+    | 'sira'
+    | 'sh36'
+    | 'sb20'
+    | 'r66'
+    | 'r44'
+    | 'pc21'
+    | 'p212'
+    | 'me08'
+    | 'k35e'
+    | 'js41'
+    | 'e3cf'
+    | 'e295'
+    | 'dr40'
+    | 'c5m'
+    | 'c206'
+    | 'b350'
     | 'p180'
     | 'j328'
     | 'f28'
@@ -226,6 +244,78 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    visc: {
+        icon: 'visc',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    vc10: {
+        icon: 'vc10',
+        width: getAircraftSizeByCoef(0.76),
+    },
+    sira: {
+        icon: 'sira',
+        width: getAircraftSizeByCoef(0.14),
+    },
+    sh36: {
+        icon: 'sh36',
+        width: getAircraftSizeByCoef(0.38),
+    },
+    sb20: {
+        icon: 'sb20',
+        width: getAircraftSizeByCoef(0.41),
+    },
+    r66: {
+        icon: 'r66',
+        width: getAircraftSizeByCoef(0.07),
+    },
+    r44: {
+        icon: 'r44',
+        width: getAircraftSizeByCoef(0.05),
+    },
+    pc21: {
+        icon: 'pc21',
+        width: getAircraftSizeByCoef(0.23),
+    },
+    p212: {
+        icon: 'p212',
+        width: getAircraftSizeByCoef(0.23),
+    },
+    me08: {
+        icon: 'me08',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    k35e: {
+        icon: 'k35e',
+        width: getAircraftSizeByCoef(0.66),
+    },
+    js41: {
+        icon: 'js41',
+        width: getAircraftSizeByCoef(0.30),
+    },
+    e3cf: {
+        icon: 'e3cf',
+        width: getAircraftSizeByCoef(0.74),
+    },
+    e295: {
+        icon: 'e295',
+        width: getAircraftSizeByCoef(0.59),
+    },
+    dr40: {
+        icon: 'dr40',
+        width: getAircraftSizeByCoef(0.15),
+    },
+    c5m: {
+        icon: 'c5m',
+        width: getAircraftSizeByCoef(1.13),
+    },
+    c206: {
+        icon: 'c206',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    b350: {
+        icon: 'b350',
+        width: getAircraftSizeByCoef(0.29),
+    },
     p180: {
         icon: 'p180',
         width: getAircraftSizeByCoef(0.23),
@@ -1050,6 +1140,14 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'K35R':
+            return aircraftIcons.k35e;
+        case 'E3TF':
+            return aircraftIcons.e3cf;
+        case 'E290':
+            return aircraftIcons.e295;
+        case 'C210':
+            return aircraftIcons.c206;
         case 'B3XM':
             return aircraftIcons.b39m;
         case 'P8':
@@ -1257,7 +1355,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'PHIL':
         case 'PUMA':
         case 'R4':
-        case 'R44':
         case 'RMOU':
         case 'RP1':
         case 'RVAL':
@@ -1493,6 +1590,24 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'F28':
         case 'J328':
         case 'P180':
+        case 'B350':
+        case 'C206':
+        case 'C5M':
+        case 'DR40':
+        case 'E295':
+        case 'E3CF':
+        case 'JS41':
+        case 'K35E':
+        case 'ME08':
+        case 'P212':
+        case 'PC21':
+        case 'R44':
+        case 'R66':
+        case 'SB20':
+        case 'SH36':
+        case 'SIRA':
+        case 'VC10':
+        case 'VISC':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
