@@ -613,7 +613,10 @@ export async function updateVatglassesStateLocal(forceNoCombine = false) {
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
     if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !forceNoCombine) {
+        dataStore.vatglassesCombiningInProgress.value = true;
+
         await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
+        dataStore.vatglassesCombiningInProgress.value = false;
     }
     dataStore.vatglassesActivePositions.value = newVatglassesActivePositions;
     triggerUpdatedVatglassesPositions(newVatglassesActivePositions);
@@ -645,6 +648,7 @@ let combineDataInitialized = false;
 async function initVatglassesCombined() {
     vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
+    dataStore.vatglassesCombiningInProgress.value = true;
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
@@ -690,6 +694,10 @@ async function initVatglassesCombined() {
     catch {
         console.error('Error fetching or processing vatglasses-active data');
         // Optionally, you can handle the error further, such as displaying a user-friendly message
+
+        vatglassesUpdateInProgress = false;
+        // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
+        updateVatglassesStateLocal();
     }
 }
 
