@@ -364,24 +364,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             clearInterval(interval);
         }
     });
-
-    await useAsyncData(async () => {
-        try {
-            if (import.meta.server) {
-                const {
-                    isDataReady,
-                } = await import('~/utils/backend/storage');
-                if (!isDataReady()) return true;
-
-                mapStore.dataReady = true;
-            }
-
-            return true;
-        }
-        catch (e) {
-            console.error(e);
-        }
-    });
 }
 
 export interface ControllerStats {
