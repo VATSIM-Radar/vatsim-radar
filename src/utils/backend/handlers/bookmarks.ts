@@ -31,7 +31,7 @@ export type UserBookmarkPreset = UserPreset & {
 };
 
 const validators = async (): Promise<Record<keyof IUserBookmark, (val: unknown) => boolean>> => {
-    const vatspy = (await radarStorage.vatspy())?.data;
+    const vatspy = (radarStorage.vatspy)?.data;
 
     return {
         coords: val => {

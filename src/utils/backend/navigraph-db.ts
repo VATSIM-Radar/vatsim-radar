@@ -88,7 +88,7 @@ export async function checkNavigraphToken() {
     }
 }
 
-export async function initNavigraph(short = false) {
+export async function initNavigraph() {
     await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {

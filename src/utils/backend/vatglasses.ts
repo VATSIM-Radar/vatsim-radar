@@ -17,7 +17,7 @@ async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
 }
 
 async function getStoredSHA(): Promise<string | null> {
-    return (await radarStorage.vatglasses.data())?.version ?? null;
+    return (radarStorage.vatglasses.data)?.version ?? null;
 }
 
 async function downloadZip(url: string): Promise<AdmZip> {
@@ -106,7 +106,7 @@ export async function updateVatglassesData() {
 
             currentSHA = latestSHA;
 
-            setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
+            radarStorage.vatglasses.data = jsonData;
 
             await new Promise<void>((resolve, reject) => {
                 const timeout = setTimeout(() => reject('Failed by timeout'), 15000);

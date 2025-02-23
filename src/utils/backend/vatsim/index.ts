@@ -209,7 +209,7 @@ export async function validateAirportIcao(event: H3Event, detailed?: boolean): P
     airport: VatSpyData['airports'][0];
     icao: string;
 } | undefined> {
-    const vatspy = (await radarStorage.vatspy())!;
+    const vatspy = (radarStorage.vatspy)!;
 
     const icao = getRouterParam(event, 'icao')?.toUpperCase();
     if (icao?.length !== 4) {

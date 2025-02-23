@@ -47,6 +47,6 @@ metadata:
   name: redis-config
 data:
   redis.conf: |
-    client-output-buffer-limit normal 836870912 836870912 0
-    client-output-buffer-limit slave 836870912 836870912 0
-    client-output-buffer-limit pubsub 836870912 836870912 0
+    client-output-buffer-limit normal 0 0 0
+    client-output-buffer-limit slave 256mb 64mb 60
+    client-output-buffer-limit pubsub 64mb 16mb 60

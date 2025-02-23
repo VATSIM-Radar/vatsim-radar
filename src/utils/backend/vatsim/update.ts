@@ -22,7 +22,6 @@ import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
-import { setRedisData } from '~/utils/backend/redis';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -97,7 +96,7 @@ async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
 }
 
 export async function updateVatsimExtendedPilots() {
-    const vatspy = (await radarStorage.vatspy())!;
+    const vatspy = (radarStorage.vatspy)!;
 
     const firsPolygons = await getFirsPolygons();
 
@@ -360,12 +359,12 @@ export async function updateAirlines() {
     const airlines = mapAirlines(data.airlines);
     const virtual = mapAirlines(data.virtual);
 
-    setRedisData('data-airlines', {
+    radarStorage.airlines = {
         airlines,
         virtual,
         all: {
             ...virtual,
             ...airlines,
         },
-    }, 1000 * 60 * 60 * 24 * 7);
+    };
 }

@@ -64,7 +64,7 @@ export async function updateVatSpy() {
         headers: getVATSIMIdentHeaders(),
     });
     if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-    if ((await radarStorage.vatspy())?.version === data.current_commit_hash) return;
+    if ((radarStorage.vatspy)?.version === data.current_commit_hash) return;
 
     const [dat, geo] = await Promise.all([
         ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
@@ -203,11 +203,9 @@ export async function updateVatSpy() {
             });
         });
 
-    setRedisData('data-vatspy', {
-        version: data.current_commit_hash,
-        data: result,
-    }, 1000 * 60 * 60 * 24 * 2);
-    console.info(`VatSpy Update Complete (${ data.current_commit_hash })`);
+    radarStorage.vatspy.version = data.current_commit_hash;
+    radarStorage.vatspy.data = result;
+    console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
 }
 
 let firsPolygons: {
@@ -218,9 +216,9 @@ let firsPolygons: {
 let firsVersion = '';
 
 export async function getFirsPolygons() {
-    const vatspy = await radarStorage.vatspy();
+    const vatspy = radarStorage.vatspy;
     if (firsVersion !== vatspy!.version) {
-        firsPolygons = vatspy!.data.firs.map(fir => {
+        firsPolygons = vatspy!.data!.firs.map(fir => {
             return {
                 icao: fir.icao,
                 featureId: fir.feature.id as string,

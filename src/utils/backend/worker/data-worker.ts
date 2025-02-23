@@ -69,7 +69,7 @@ let dataProcessInProgress = false;
 let data: VatsimData | null = null;
 
 defineCronJob('* * * * * *', async () => {
-    const vatspy = await radarStorage.vatspy();
+    const vatspy = radarStorage.vatspy;
 
     if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
 
@@ -137,7 +137,7 @@ defineCronJob('* * * * * *', async () => {
 });
 
 defineCronJob('* * * * * *', async () => {
-    const vatspy = await radarStorage.vatspy();
+    const vatspy = radarStorage.vatspy;
 
     if (!vatspy?.data || dataProcessInProgress || !data) return;
 

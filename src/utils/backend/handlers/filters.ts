@@ -68,7 +68,7 @@ function validateCallsignFilter(val: unknown): boolean {
 }
 
 const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<keyof IUserFilter, (val: unknown) => boolean>> => {
-    const vatspy = await radarStorage.vatspy();
+    const vatspy = radarStorage.vatspy;
 
     return {
         users: val => {

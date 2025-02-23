@@ -158,19 +158,19 @@ export interface VatsimStorage {
 }
 
 export interface RadarStorage {
-    vatspy: RedisDataGet<{
+    vatspy: {
         version: string;
-        data: VatSpyData;
-    }>;
-    simaware: RedisDataGet<{
+        data: VatSpyData | null;
+    };
+    simaware: {
         version: string;
-        data: SimAwareData;
-    }>;
+        data: SimAwareData | null;
+    };
     vatglasses: {
-        data: RedisDataGet<{
+        data: {
             version: string;
-            data: VatglassesData;
-        }>;
+            data: VatglassesData | null;
+        };
         activeData: string | null;
     };
     vatsimStatic: {
@@ -181,15 +181,24 @@ export interface RadarStorage {
     vatsim: VatsimStorage;
     navigraph: RedisDataGet<typeof cycles>;
     patreonInfo: RedisDataGet<PatreonInfo>;
-    airlines: RedisDataGet<RadarDataAirlinesAllList, RadarDataAirlinesAllList>;
+    airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
 }
 
 export const radarStorage: RadarStorage = {
-    vatspy: () => getRedisData('data-vatspy'),
-    simaware: () => getRedisData('data-simaware'),
+    vatspy: {
+        version: '',
+        data: null,
+    },
+    simaware: {
+        version: '',
+        data: null,
+    },
     vatglasses: {
-        data: () => getRedisData('data-vatglasses'),
+        data: {
+            version: '',
+            data: null,
+        },
         activeData: null,
     },
     vatsimStatic: {
@@ -215,11 +224,11 @@ export const radarStorage: RadarStorage = {
     },
     navigraph: () => getRedisData('data-navigraph'),
     patreonInfo: () => getRedisData('data-patreon'),
-    airlines: () => getRedisData('data-airlines', {
+    airlines: {
         airlines: {},
         virtual: {},
         all: {},
-    }),
+    },
     extendedPilotsMap: {},
 };
 
@@ -227,15 +236,15 @@ export async function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 
-    return !!await radarStorage.vatspy() && !!await radarStorage.vatglasses.data() && !!radarStorage.vatsim.data && !!await radarStorage.simaware();
+    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
 }
 
 export async function getDataVersions(): Promise<VatDataVersions> {
-    const vatspy = await radarStorage.vatspy();
+    const vatspy = radarStorage.vatspy;
     const vatsim = radarStorage.vatsim.data;
     const navigraph = await radarStorage.navigraph();
-    const simaware = await radarStorage.simaware();
-    const vatglasses = await radarStorage.vatglasses.data();
+    const simaware = radarStorage.simaware;
+    const vatglasses = radarStorage.vatglasses.data;
 
     return {
         vatspy: vatspy!.version,

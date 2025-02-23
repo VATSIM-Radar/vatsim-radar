@@ -26,7 +26,7 @@ spec:
         app: redis-next
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2
+        doks.digitalocean.com/node-pool: basic-2-2
       containers:
         - name: redis-next
           image: redis
@@ -36,10 +36,15 @@ spec:
           volumeMounts:
             - name: redis-next-config
               mountPath: /usr/local/etc/redis
+            - name: redis-data
+              mountPath: /data
       volumes:
         - name: redis-next-config
           configMap:
             name: redis-next-config
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: radar-redis-next
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -47,6 +52,18 @@ metadata:
   name: redis-next-config
 data:
   redis.conf: |
-    client-output-buffer-limit normal 836870912 836870912 0
-    client-output-buffer-limit slave 836870912 836870912 0
-    client-output-buffer-limit pubsub 836870912 836870912 0
+    client-output-buffer-limit normal 836870912 836870912 60
+    client-output-buffer-limit slave 836870912 836870912  60
+    client-output-buffer-limit pubsub 836870912 836870912  60
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radar-redis-next
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage
