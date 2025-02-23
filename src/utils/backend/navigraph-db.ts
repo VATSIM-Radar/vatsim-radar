@@ -4,7 +4,7 @@ import { join } from 'path';
 import { readdirSync } from 'fs';
 import { existsSync, unlinkSync } from 'node:fs';
 import { $fetch } from 'ofetch';
-import { setRedisData } from '~/utils/backend/redis';
+import { radarStorage } from '~/utils/backend/storage';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
@@ -115,7 +115,7 @@ export async function initNavigraph() {
     cycles.current = currentCycle;
     cycles.outdated = outdatedCycle;
 
-    setRedisData('data-navigraph', cycles, 1000 * 60 * 60 * 24 * 2);
+    radarStorage.navigraph = cycles;
 
     const cwd = join(process.cwd(), 'src');
 

@@ -179,7 +179,7 @@ export interface RadarStorage {
         events: RedisDataGet<VatsimEvent[], []>;
     };
     vatsim: VatsimStorage;
-    navigraph: RedisDataGet<typeof cycles>;
+    navigraph: typeof cycles;
     patreonInfo: RedisDataGet<PatreonInfo>;
     airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
@@ -222,7 +222,10 @@ export const radarStorage: RadarStorage = {
             prefiles: [],
         },
     },
-    navigraph: () => getRedisData('data-navigraph'),
+    navigraph: {
+        current: '',
+        outdated: '',
+    },
     patreonInfo: () => getRedisData('data-patreon'),
     airlines: {
         airlines: {},
@@ -239,10 +242,10 @@ export async function isDataReady() {
     return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
 }
 
-export async function getDataVersions(): Promise<VatDataVersions> {
+export function getDataVersions(): VatDataVersions {
     const vatspy = radarStorage.vatspy;
     const vatsim = radarStorage.vatsim.data;
-    const navigraph = await radarStorage.navigraph();
+    const navigraph = radarStorage.navigraph;
     const simaware = radarStorage.simaware;
     const vatglasses = radarStorage.vatglasses.data;
 
