@@ -6,7 +6,6 @@ import { readFileSync } from 'fs';
 import { existsSync } from 'node:fs';
 import { join } from 'path';
 import type { VatglassesAPIData, VatsimStorage } from '../storage';
-import { updateVatglassesData } from '~/utils/backend/vatglasses';
 
 const DATA_DIR = join(process.cwd(), 'src/data');
 const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
@@ -32,8 +31,6 @@ async function loadSectors() {
         workerDataStore.vatglasses = JSON.parse(readFileSync(JSON_FILE, 'utf-8'));
     }
 }
-
-await defineCronJob('15 */2 * * *', updateVatglassesData);
 
 const redisSubscriber = getRedis();
 redisSubscriber.subscribe('data');

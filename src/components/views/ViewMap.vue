@@ -11,6 +11,7 @@
                 v-show="!store.config.hideOverlays"
                 ref="popups"
                 class="map_popups"
+                :class="{ 'map_popups--single': mapStore.overlays.length === 1 }"
                 :style="{
                     '--popups-height': `${ popupsHeight }px`,
                     '--overlays-height': `${ overlaysHeight }px`,
@@ -171,7 +172,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
-import { transformExtent } from 'ol/proj';
+import { fromLonLat, transformExtent } from 'ol/proj';
 
 defineProps({
     sigmetsMode: {
@@ -312,7 +313,7 @@ const restoreOverlays = async () => {
             };
         }
         else if (overlay.type === 'airport') {
-            const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === overlay.key);
+            const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.icao[overlay.key];
             if (!vatSpyAirport) return;
 
             const data = await Promise.allSettled([
@@ -388,7 +389,7 @@ const restoreOverlays = async () => {
             overlay = await mapStore.addAirportOverlay(route.query.airport as string);
         }
 
-        const airport = dataStore.vatspy.value?.data.airports.find(x => x.icao === route.query.airport as string);
+        const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[route.query.airport as string];
 
         if (overlay && overlay.type === 'airport' && airport) {
             overlay.sticky = true;
@@ -458,6 +459,7 @@ useUpdateInterval(() => {
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
+    if (mapStore.overlays.length === 1) return 'auto';
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
 });
 
@@ -585,8 +587,6 @@ await setupDataFetch({
         await checkAndAddOwnAircraft();
     },
     async onSuccessCallback() {
-        ready.value = true;
-
         const view = new View({
             center: [37.617633, 55.755820],
             zoom: 2,
@@ -604,18 +604,20 @@ await setupDataFetch({
         let zoom = store.localSettings.zoom ?? 3;
 
         if (store.config.airport) {
-            const airport = dataStore.vatspy.value?.data.airports.find(x => store.config.airport === x.icao);
+            const airport = dataStore.vatspy.value?.data.keyAirports.icao[store.config.airport];
 
             if (airport) {
                 center = [airport.lon, airport.lat];
             }
 
             if (airport && !store.config.showInfoForPrimaryAirport) {
+                const [lon, lat] = fromLonLat([airport.lon, airport.lat]);
+
                 projectionExtent = [
-                    airport.lon - 200000,
-                    airport.lat - 200000,
-                    airport.lon + 200000,
-                    airport.lat + 200000,
+                    lon - 0.9,
+                    lat - 0.9,
+                    lon + 0.9,
+                    lat + 0.9,
                 ];
             }
         }
@@ -674,6 +676,12 @@ await setupDataFetch({
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
         });
+
+        const mapView = map.value.getView();
+        mapStore.zoom = mapView.getZoom() ?? 0;
+        mapStore.rotation = toDegrees(mapView.getRotation() ?? 0);
+        mapStore.extent = mapView.calculateExtent(map.value!.getSize());
+        ready.value = true;
 
         if (isMobileOrTablet.value) {
             let dblClickInteraction;
@@ -871,6 +879,7 @@ onMounted(() => {
         left: 24px;
 
         display: flex;
+        align-items: flex-start;
         justify-content: flex-end;
 
         width: calc(100% - 48px);
@@ -899,6 +908,10 @@ onMounted(() => {
             }
         }
 
+        &--single .map_popups_list {
+            max-height: unset;
+        }
+
         &_popup {
             max-height: 100%;
             margin: 0;
@@ -907,6 +920,7 @@ onMounted(() => {
                 &-enter-active,
                 &-leave-active {
                     overflow: hidden;
+                    height: var(--max-height);
                     transition: 0.5s ease-in-out;
                 }
 

@@ -71,6 +71,7 @@ export const useStore = defineStore('index', {
 
         updateRequired: false,
         isTabVisible: false,
+        updateATCTracons: false,
 
         loginPopup: false,
         deleteAccountPopup: false,
@@ -93,6 +94,9 @@ export const useStore = defineStore('index', {
         engine: '' as IEngine['name'],
     }),
     getters: {
+        fullAirportsUpdate(): boolean {
+            return (this.featuredAirportsOpen && !this.featuredVisibleOnly) || this.updateATCTracons;
+        },
         datalistNotSupported(): boolean {
             return this.engine === 'Gecko';
         },

@@ -94,6 +94,10 @@ if (!isNaN(parseInt(name.value))) name.value = parseInt(name.value, 10).toString
 const comment = ref('');
 const selectedList = shallowRef<UserListLive | null>(null);
 
+onMounted(() => {
+    if (store.lists.length === 1) selectedList.value = store.lists[0];
+});
+
 const addToList = async () => {
     if (!selectedList.value) return;
 

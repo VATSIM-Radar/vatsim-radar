@@ -69,12 +69,6 @@ function receiveMessage(event: MessageEvent) {
     }
 }
 
-function sendSelectedPilotToDashboard(cid: number | null = null) {
-    const message = { selectedPilot: cid };
-    const targetOrigin = config.public.DOMAIN;
-    window.parent.postMessage(message, targetOrigin);
-}
-
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
     if (!pixel || isHideMapObject('pilots')) return [];
 
@@ -382,7 +376,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
             if (store.config.hideOverlays) {
                 mapStore.overlays = mapStore.overlays.filter(x => x.type === 'airport');
             }
-            sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
+            mapStore.sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
             return;
         }
     }
@@ -393,13 +387,11 @@ async function handleClick(e: MapBrowserEvent<any>) {
     const existingOverlay = mapStore.overlays.find(x => x.key === hoveredAircraft.value?.toString());
     if (existingOverlay) {
         mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot' || x.key !== hoveredAircraft.value?.toString());
-        sendSelectedPilotToDashboard(null); // an aircraft is deselected, we close the dashboard pilot overlay (for simplicity we close the overlay even when the deselected aircraft is not the one that is currently opened)
+        mapStore.sendSelectedPilotToDashboard(null); // an aircraft is deselected, we close the dashboard pilot overlay (for simplicity we close the overlay even when the deselected aircraft is not the one that is currently opened)
         return;
     }
 
     if (hoveredAircraft.value) {
-        sendSelectedPilotToDashboard(hoveredAircraft.value); // we selected an aircraft, we want to open the overlay for that pilot in the airport dashboard
-
         // we are hovering over an aircraft and open the overlay
         const overlay = await mapStore.addPilotOverlay(hoveredAircraft.value.toString());
         if (overlay && store.config.showInfoForPrimaryAirport) {

@@ -3,7 +3,7 @@ import { validateAirportIcao } from '~/utils/backend/vatsim';
 import { radarStorage } from '~/utils/backend/storage';
 
 export default defineEventHandler(async event => {
-    const icao = validateAirportIcao(event);
+    const icao = await validateAirportIcao(event);
     if (!icao) return;
 
     const dataAirport = radarStorage.vatsim.airports.find(x => x.icao === icao);

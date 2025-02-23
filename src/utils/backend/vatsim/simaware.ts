@@ -1,6 +1,7 @@
 import { radarStorage } from '~/utils/backend/storage';
 import type { SimAwareData } from '~/utils/backend/storage';
 import { $fetch } from 'ofetch';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
     'Release v1.1.34': 1,
@@ -19,7 +20,7 @@ export async function updateSimAware() {
 
     if (revisions[data.name]) data.name += `-${ revisions[data.name] }`;
 
-    if (radarStorage.simaware.version === data.name) return;
+    if ((await radarStorage.simaware())?.version === data.name) return;
 
     const url = data.assets?.find(x => x.name === 'TRACONBoundaries.geojson')?.browser_download_url;
     if (!url) throw new Error('SimAware asset not found');
@@ -39,8 +40,10 @@ export async function updateSimAware() {
         return 0;
     });
 
-    radarStorage.simaware.version = data.name;
-    radarStorage.simaware.data = geojson;
+    setRedisData('data-simaware', {
+        version: data.name,
+        data: geojson,
+    }, 1000 * 60 * 60 * 24 * 2);
 
     console.info(`SimAware Update Complete (${ data.name })`);
 }

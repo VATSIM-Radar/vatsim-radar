@@ -166,8 +166,10 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     time.value = data.serverTime;
+    if (vatsim.updateTime.value !== data.timestampNum) {
+        vatsim.localUpdateTime.value = Date.now();
+    }
     vatsim.updateTime.value = data.timestampNum;
-    vatsim.localUpdateTime.value = Date.now();
 
     if (hasActivePilotFilter()) data.pilots = data.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
 

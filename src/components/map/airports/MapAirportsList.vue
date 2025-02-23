@@ -417,7 +417,7 @@ const vatGlassesActive = isVatGlassesActive();
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
-    const airports = ((store.featuredAirportsOpen && !store.featuredVisibleOnly) ? airportsList : visibleAirports).value.map(({
+    const airports = (store.fullAirportsUpdate ? airportsList : visibleAirports).value.map(({
         vatsimAirport,
         vatspyAirport,
     }) => ({
@@ -634,7 +634,7 @@ const vatAirportsList = computed(() => {
     for (const airport of store.config.airport ? [store.config.airport!] : store.config.airports!) {
         if (list.some(x => x.icao === airport)) continue;
 
-        const vatspyAirport = dataStore.vatspy.value!.data.airports.find(x => x.icao === airport);
+        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.icao[airport];
         if (!vatspyAirport) continue;
 
         list.push({
@@ -654,17 +654,15 @@ async function setVisibleAirports() {
 
     try {
         const extent = mapStore.extent.slice();
-        extent[0] -= 100000;
-        extent[1] -= 100000;
-        extent[2] += 100000;
-        extent[3] += 100000;
+        extent[0] -= 0.9;
+        extent[1] -= 0.9;
+        extent[2] += 0.9;
+        extent[3] += 0.9;
 
-        // @ts-expect-error Dynamic return value
         airportsList.value = vatAirportsList.value.map(x => {
-            const vatAirport = dataStore.vatspy.value!.data.airports.find(y => x.iata ? y.iata === x.iata : y.icao === x.icao);
+            const vatAirport = dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
             let airport = x.isSimAware ? vatAirport || x : vatAirport;
             if (!x.isSimAware && airport?.icao !== x.icao) {
-                // @ts-expect-error We're ok with this airport type
                 airport = {
                     ...airport,
                     icao: x.icao,
@@ -697,7 +695,7 @@ async function setVisibleAirports() {
 
         visibleAirports.value = airportsList.value.filter(x => x.visible);
 
-        if ((map.value!.getView().getZoom() ?? 0) > 12) {
+        if ((map.value!.getView().getZoom() ?? 15) > 12) {
             const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
             if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {

@@ -92,7 +92,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao);
         if (!vatAirport) return null;
 
-        const airport = dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao);
+        const airport = getAirportByIcao(data.value.icao);
 
         const list = {
             groundDep: [] as AirportPopupPilotStatus[],
@@ -118,8 +118,8 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             let flown = 0;
             let eta: Date | null = null;
 
-            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.departure!);
-            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
+            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.icao[pilot.departure!];
+            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.icao[pilot.arrival!];
 
             if (arrivalAirport) {
                 const pilotCoords = [pilot.longitude, pilot.latitude];

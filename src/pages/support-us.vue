@@ -130,10 +130,10 @@
 
 <script setup lang="ts">
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import type { PatreonInfo } from '~/server/plugins/patreon';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import { useStore } from '~/store';
+import type { PatreonInfo } from '~/types/data/patreon';
 
 useHead({
     title: 'Support VATSIM Radar',

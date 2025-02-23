@@ -12,6 +12,13 @@
         >
             Management
         </common-button>
+        <common-toggle
+            v-if="!list && isMobile"
+            :model-value="!!store.localSettings.featuredDefaultBookmarks"
+            @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
+        >
+            Default to bookmarks
+        </common-toggle>
 
         <div
             v-for="user in sortedUsers"
@@ -47,22 +54,27 @@
                             class="users_user__btn"
                             @click="[mapStore.addPilotOverlay(user.cid.toString()), map && showPilotOnMap(user.data, map)]"
                         >
-                            <template v-if="user.data.status === 'depGate' || user.data.status === 'depTaxi'">
-                                Departing from {{ user.data.departure }}
-                            </template>
-                            <template v-else-if="user.data.status === 'arrGate' || user.data.status === 'arrTaxi'">
-                                Arrived to {{ user.data.arrival }}
-                            </template>
-                            <template v-else-if="user.data.status === 'departed'">
-                                Departed from {{ user.data.departure }}
-                            </template>
-                            <template v-else-if="user.data.status === 'arriving'">
-                                Arriving to {{ user.data.arrival }}
+                            <template v-if="user.data.departure">
+                                <template v-if="user.data.status === 'depGate' || user.data.status === 'depTaxi'">
+                                    Departing from {{ user.data.departure }}
+                                </template>
+                                <template v-else-if="user.data.status === 'arrGate' || user.data.status === 'arrTaxi'">
+                                    Arrived to {{ user.data.arrival }}
+                                </template>
+                                <template v-else-if="user.data.status === 'departed'">
+                                    Departed from {{ user.data.departure }}
+                                </template>
+                                <template v-else-if="user.data.status === 'arriving'">
+                                    Arriving to {{ user.data.arrival }}
+                                </template>
+                                <template v-else>
+                                    Flying from {{ user.data.departure }} to {{ user.data.arrival }}
+                                </template>
+                                as {{ user.data.callsign }}
                             </template>
                             <template v-else>
-                                Flying from {{ user.data.departure }} to {{ user.data.arrival }}
+                                {{ user.data.callsign }}
                             </template>
-                            as {{ user.data.callsign }}
                         </div>
                         <div
                             v-else-if="user.type === 'prefile'"
@@ -182,6 +194,7 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import { sortList } from '~/composables/fetchers/lists';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const props = defineProps({
     list: {

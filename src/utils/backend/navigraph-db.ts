@@ -1,10 +1,10 @@
 import sqlite3 from 'sqlite3';
 import AdmZip from 'adm-zip';
-import { radarStorage } from '~/utils/backend/storage';
 import { join } from 'path';
 import { readdirSync } from 'fs';
 import { existsSync, unlinkSync } from 'node:fs';
 import { $fetch } from 'ofetch';
+import { setRedisData } from '~/utils/backend/redis';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
@@ -88,7 +88,7 @@ export async function checkNavigraphToken() {
     }
 }
 
-export async function initNavigraph() {
+export async function initNavigraph(short = false) {
     await checkNavigraphToken();
 
     const [current] = await $fetch<File[]>('https://api.navigraph.com/v1/navdata/packages?package_status=current', {
@@ -115,7 +115,7 @@ export async function initNavigraph() {
     cycles.current = currentCycle;
     cycles.outdated = outdatedCycle;
 
-    radarStorage.navigraph = cycles;
+    setRedisData('data-navigraph', cycles, 1000 * 60 * 60 * 24 * 2);
 
     const cwd = join(process.cwd(), 'src');
 

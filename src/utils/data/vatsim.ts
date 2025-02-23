@@ -17,27 +17,27 @@ export const useFacilitiesIds = () => {
     };
 };
 
-function findFacility(name: string, controller: VatsimShortenedController) {
-    return radarStorage.vatspy.data!.firs.filter(x => {
+function findFacility(name: string, controller: VatsimShortenedController, vatspy: VatSpyData) {
+    return vatspy!.firs.filter(x => {
         if (x.icao !== name && x.callsign !== name) return false;
 
-        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
+        const duplicateFir = vatspy!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
         if (!duplicateFir) return true;
 
         return controller.facility === useFacilitiesIds().FSS ? x.isOceanic : !x.isOceanic;
     });
 }
 
-function findUir(name: string, controller: VatsimShortenedController): VatSpyDataFeature | undefined {
-    const uir = radarStorage.vatspy.data!.uirs.find(x => x.icao === name);
+function findUir(name: string, controller: VatsimShortenedController, vatspy: VatSpyData): VatSpyDataFeature | undefined {
+    const uir = vatspy!.uirs.find(x => x.icao === name);
 
     if (!uir) return;
 
     const firs = uir.firs.split(',');
-    const uirFeatures = radarStorage.vatspy.data!.firs.filter(x => {
+    const uirFeatures = vatspy!.firs.filter(x => {
         if (!firs.includes(x.callsign ?? '') && !firs.includes(x.icao ?? '')) return false;
 
-        const duplicateFir = radarStorage.vatspy.data!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
+        const duplicateFir = vatspy!.firs.find(y => x.icao === y.icao && x.isOceanic === !y.isOceanic);
         if (!duplicateFir) return true;
 
         return controller.facility === useFacilitiesIds().FSS ? x.isOceanic : !x.isOceanic;
@@ -63,15 +63,23 @@ function filterATCByType(types: number[]) {
     }) ?? [];
 }
 
-export const getLocalATC = (): VatSpyDataLocalATC[] => {
+export const getLocalATC = async (): Promise<VatSpyDataLocalATC[]> => {
     const facilities = useFacilitiesIds();
     const locals = [
         ...filterATCByType([facilities.DEL, facilities.GND, facilities.TWR, facilities.APP]),
         ...radarStorage.vatsim.regularData!.atis,
     ];
 
+    const vatspy = (await radarStorage.vatspy())!.data;
+    const simaware = (await radarStorage.simaware())!.data;
+
     return locals.map(atc => {
-        const airport = findAirportSomewhere(atc.callsign, atc.facility === facilities.APP);
+        const airport = findAirportSomewhere({
+            callsign: atc.callsign,
+            isApp: atc.facility === facilities.APP,
+            vatspy,
+            simaware,
+        });
 
         if (!airport) return null as unknown as VatSpyDataLocalATC;
 
@@ -91,39 +99,40 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
     }).filter(x => x);
 };
 
-function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: true): VatSpyDataFeature | null;
-function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: false): VatSpyData['firs'];
-function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: boolean) {
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: true, vatspy: VatSpyData): VatSpyDataFeature | null;
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: false, vatspy: VatSpyData): VatSpyData['firs'];
+function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, uir: boolean, vatspy: VatSpyData) {
     const regularName = splittedName.join('_');
     const firstName = splittedName[0];
     const secondName = splittedName.length === 2 && splittedName[1];
 
     if (uir) {
-        let uir = findUir(regularName, atc);
+        let uir = findUir(regularName, atc, vatspy);
         if (!uir && secondName && secondName.length > 1) {
             for (let i = 0; i < secondName.length; i++) {
-                uir = findUir(regularName.substring(0, regularName.length - 1 - i), atc);
+                uir = findUir(regularName.substring(0, regularName.length - 1 - i), atc, vatspy);
                 if (uir) break;
             }
         }
-        if (!uir) uir = findUir(firstName, atc);
+        if (!uir) uir = findUir(firstName, atc, vatspy);
         if (uir) return uir;
         return null;
     }
     else {
-        let feature = findFacility(regularName, atc);
+        let feature = findFacility(regularName, atc, vatspy);
         if (!feature.length && secondName && secondName.length > 1) {
             for (let i = 0; i < secondName.length - 1; i++) {
-                feature = findFacility(regularName.substring(0, regularName.length - 1 - i), atc);
+                feature = findFacility(regularName.substring(0, regularName.length - 1 - i), atc, vatspy);
                 if (feature.length) break;
             }
         }
-        if (!feature.length) feature = findFacility(firstName, atc);
+        if (!feature.length) feature = findFacility(firstName, atc, vatspy);
         return feature;
     }
 }
 
-export const getATCBounds = (): VatSpyDataFeature[] => {
+export const getATCBounds = async (): Promise<VatSpyDataFeature[]> => {
+    const vatspy = (await radarStorage.vatspy())!;
     const facilities = useFacilitiesIds();
     const atcWithBounds = filterATCByType([facilities.CTR, facilities.FSS]);
 
@@ -132,15 +141,15 @@ export const getATCBounds = (): VatSpyDataFeature[] => {
         splittedName = splittedName.slice(0, splittedName.length - 1);
 
         if (atc.facility === facilities.FSS) {
-            const uir = findUirOrFir(splittedName, atc, true);
+            const uir = findUirOrFir(splittedName, atc, true, vatspy.data);
 
             if (uir) return uir;
         }
 
-        const feature = findUirOrFir(splittedName, atc, false);
+        const feature = findUirOrFir(splittedName, atc, false, vatspy.data);
 
         if (!feature.length) {
-            const uir = findUirOrFir(splittedName, atc, true);
+            const uir = findUirOrFir(splittedName, atc, true, vatspy.data);
             if (uir) return uir;
         }
 
@@ -161,9 +170,10 @@ function isAircraftOnGround(zone: Coordinate, aircraft: VatsimShortenedAircraft)
     return aircraft.longitude < zone[0] + groundZone && aircraft.longitude > zone[0] - groundZone && aircraft.latitude < zone[1] + groundZone && aircraft.latitude > zone[1] - groundZone;
 }
 
-export function getAirportsList() {
+export async function getAirportsList() {
+    const vatspy = (await radarStorage.vatspy())!;
     const airports: MapAirport[] = [];
-    const dataAirports = radarStorage.vatspy.data!.airports.filter(x => !x.isPseudo);
+    const dataAirports = vatspy.data!.airports.filter(x => !x.isPseudo);
     const pilots = radarStorage.vatsim.data!.pilots;
 
     function addPilotToList(status: MapAircraftKeys, airport: VatSpyData['airports'][0], pilot: number) {
@@ -241,7 +251,7 @@ export function getAirportsList() {
         else {
             let departureAirport = (groundAirport?.icao === pilot.flight_plan.departure || groundAirport?.iata === pilot.flight_plan.departure)
                 ? groundAirport
-                : radarStorage.vatspy.data!.keyAirports.realIata[pilot.flight_plan!.departure] || radarStorage.vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.departure];
+                : vatspy.data!.keyAirports.realIata[pilot.flight_plan!.departure] || vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.departure];
 
             if (departureAirport) {
                 if (departureAirport.icao !== departureAirport.iata && departureAirport.iata === pilot.flight_plan.departure) {
@@ -275,7 +285,7 @@ export function getAirportsList() {
                 else {
                     let arrivalAirport = (groundAirport?.icao === pilot.flight_plan.arrival || (pilot.flight_plan.arrival && groundAirport?.iata === pilot.flight_plan.arrival))
                         ? groundAirport
-                        : radarStorage.vatspy.data!.keyAirports.realIata[pilot.flight_plan!.arrival!] || radarStorage.vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.arrival!];
+                        : vatspy.data!.keyAirports.realIata[pilot.flight_plan!.arrival!] || vatspy.data!.keyAirports.realIcao[pilot.flight_plan!.arrival!];
 
                     if (arrivalAirport) {
                         if (pilot.flight_plan.arrival && arrivalAirport.icao !== arrivalAirport.iata && arrivalAirport.iata === pilot.flight_plan.arrival) {
@@ -305,7 +315,7 @@ export function getAirportsList() {
 
     radarStorage.vatsim.regularData!.prefiles.filter(x => x.departure).forEach(prefile => {
         if (prefile.departure) {
-            const airport = radarStorage.vatspy.data!.keyAirports.realIata[prefile.departure] || radarStorage.vatspy.data!.keyAirports.realIcao[prefile.departure];
+            const airport = vatspy.data!.keyAirports.realIata[prefile.departure] || vatspy.data!.keyAirports.realIcao[prefile.departure];
             if (airport) addPilotToList('prefiles', airport, prefile.cid);
         }
     });
@@ -324,8 +334,8 @@ export function getAirportsList() {
         }
 
         if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
-            const airportExist = airport.iata ? radarStorage.vatspy.data!.keyAirports.realIata[airport.iata ?? ''] : radarStorage.vatspy.data!.keyAirports.realIcao[airport.icao];
-            const someAirportExist = radarStorage.vatspy.data!.keyAirports.iata[airport.iata ?? ''] || radarStorage.vatspy.data!.keyAirports.icao[airport.icao];
+            const airportExist = airport.iata ? vatspy.data!.keyAirports.realIata[airport.iata ?? ''] : vatspy.data!.keyAirports.realIcao[airport.icao];
+            const someAirportExist = vatspy.data!.keyAirports.iata[airport.iata ?? ''] || vatspy.data!.keyAirports.icao[airport.icao];
 
             airports.push({
                 icao: airport.icao,

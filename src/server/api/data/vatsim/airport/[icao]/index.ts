@@ -12,7 +12,7 @@ export interface VatsimAirportData {
 }
 
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
-    const validateAirport = validateAirportIcao(event, true);
+    const validateAirport = await validateAirportIcao(event, true);
     if (!validateAirport) return;
 
     const { icao, airport } = validateAirport;
@@ -50,7 +50,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
 
     await Promise.allSettled(promises);
 
-    const list = getFirsPolygons();
+    const list = await getFirsPolygons();
 
     const firs = list.map(fir => {
         return fir.polygon.intersectsCoordinate([airport.lon, airport.lat]) &&

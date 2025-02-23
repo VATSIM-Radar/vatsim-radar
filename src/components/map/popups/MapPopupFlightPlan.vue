@@ -1,6 +1,6 @@
 <template>
     <div class="flight-plan">
-        <template v-if="flightPlan.departure && flightPlan.arrival">
+        <template v-if="flightPlan?.departure && flightPlan.arrival">
             <common-pilot-destination
                 :pilot="{
                     departure: flightPlan.departure,
@@ -67,14 +67,17 @@
                 </common-info-block>
             </div>
         </template>
+        <common-notification v-else>
+            No flight plan uploaded
+        </common-notification>
         <common-copy-info-block
-            v-if="flightPlan.route"
+            v-if="flightPlan?.route"
             :text="flightPlan.route"
         >
             Route
         </common-copy-info-block>
         <common-copy-info-block
-            v-if="flightPlan.remarks"
+            v-if="flightPlan?.remarks"
             :text="flightPlan.remarks"
         >
             Remarks
@@ -95,13 +98,13 @@
 import type { VatsimExtendedPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const props = defineProps({
     flightPlan: {
-        type: Object as PropType<VatsimPilotFlightPlan>,
-        required: true,
+        type: Object as PropType<VatsimPilotFlightPlan | null>,
+        default: null,
     },
     stepclimbs: {
         type: Object as PropType<VatsimExtendedPilot['stepclimbs'] | null>,
@@ -123,7 +126,7 @@ const convertTime = (time: string) => {
 const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
 
 const selcal = computed<string | null>(() => {
-    const remarks = props.flightPlan.remarks;
+    const remarks = props.flightPlan?.remarks;
     if (!remarks) return null;
     const result = selcalRegex.exec(remarks);
     return result?.groups?.selcal || null;

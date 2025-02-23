@@ -242,8 +242,12 @@ const getStatus = computed<MapAircraftStatus>(() => {
 
     const isEmergency = store.mapSettings.highlightEmergency && (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500');
 
+    if (isEmergency) {
+        return 'landed';
+    }
+
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
-    if (store.config.airport && !activeCurrentOverlay.value && !isEmergency) {
+    if (store.config.airport && !activeCurrentOverlay.value) {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
         if (vatAirport?.aircraft.departures?.includes(props.aircraft.cid)) return 'default';
@@ -252,10 +256,6 @@ const getStatus = computed<MapAircraftStatus>(() => {
     }
 
     if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
-
-    if (isEmergency) {
-        return 'landed';
-    }
 
     return isOnGround.value ? 'ground' : 'default';
 });
@@ -368,8 +368,8 @@ watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLay
     setStyle(undefined, true);
 });
 
-const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
-const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.departure]);
+const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.arrival]);
 
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;

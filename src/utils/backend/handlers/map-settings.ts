@@ -184,7 +184,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     defaultAirportZoomLevel: val => {
-        return isNumber(val) && val > 0 && val < 50;
+        return isNumber(val, 1) && val > 0 && val < 50;
     },
 };
 

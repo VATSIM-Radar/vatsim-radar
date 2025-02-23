@@ -70,9 +70,8 @@
                     :pilot="overlayData!.pilot!"
                 />
                 <map-popup-flight-plan
-                    v-if="overlayData?.pilot?.flight_plan"
                     class="__info-sections"
-                    :flight-plan="overlayData?.pilot?.flight_plan"
+                    :flight-plan="overlayData?.pilot?.flight_plan ?? null"
                     :status="overlayData!.pilot.status"
                     :stepclimbs="overlayData!.pilot.stepclimbs"
                 />

@@ -69,6 +69,12 @@
                             >
                                 Manage friends
                             </common-button>
+                            <common-toggle
+                                :model-value="!!store.localSettings.featuredDefaultBookmarks"
+                                @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
+                            >
+                                Default to bookmarks
+                            </common-toggle>
                         </div>
                     </template>
 
@@ -89,7 +95,7 @@
                             <span>{{ getCounts.pilots }}</span> pilots
                         </div>
                         <div class="map-footer__connections_info_item">
-                            <span>{{ getCounts.firs + getCounts.atc }}</span> atc
+                            <span>{{ getCounts.firs + getCounts.atc }}</span> ATC
                         </div>
                         <div
                             v-if="getCounts.sups"
@@ -224,6 +230,7 @@ import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

@@ -9,7 +9,7 @@
                 class="destination_card"
                 :is-button="!!depAirport"
                 text-align="center"
-                :top-items="[depAirport?.icao]"
+                :top-items="[props.pilot.departure]"
                 @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
             />
             <div
@@ -29,7 +29,7 @@
                 class='destination_card'
                 :is-button="!!arrAirport"
                 text-align="center"
-                :top-items="[arrAirport?.icao]"
+                :top-items="[props.pilot.arrival]"
                 @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
             />
             <common-info-block
@@ -38,7 +38,7 @@
                 class='destination_diverted'
                 :is-button="!!divOrgAirport"
                 text-align="center"
-                :top-items="[divOrgAirport?.icao]"
+                :top-items="[props.pilot.diverted_origin]"
                 @click="mapStore.addAirportOverlay(divOrgAirport?.icao ?? '')"
             />
         </div>
@@ -48,7 +48,7 @@
             class="diverted"
             :is-button="!!divArrAirport"
             text-align="center"
-            :top-items="[divArrAirport?.icao]"
+            :top-items="[props.pilot.diverted_arrival]"
             @click="mapStore.addAirportOverlay(divArrAirport?.icao ?? '')"
         />
     </div>
@@ -71,12 +71,10 @@ const props = defineProps({
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-const airports = computed(() => dataStore.vatspy.value?.data.airports.filter(x => x.icao === props.pilot.departure || x.icao === props.pilot.arrival || x.icao === props.pilot.diverted_arrival || x.icao === props.pilot.diverted_origin) ?? []);
-
-const depAirport = computed(() => airports.value.find(x => x.icao === props.pilot.departure));
-const arrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.arrival));
-const divArrAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_arrival));
-const divOrgAirport = computed(() => airports.value.find(x => x.icao === props.pilot.diverted_origin));
+const depAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.departure ?? ''] ?? null);
+const arrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.arrival ?? ''] ?? null);
+const divArrAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_arrival ?? ''] ?? null);
+const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.pilot.diverted_origin ?? ''] ?? null);
 </script>
 
 <style scoped lang="scss">

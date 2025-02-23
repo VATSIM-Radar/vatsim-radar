@@ -5,6 +5,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
     'v2410.1': 3,
@@ -63,7 +64,7 @@ export async function updateVatSpy() {
         headers: getVATSIMIdentHeaders(),
     });
     if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-    if (radarStorage.vatspy.version === data.current_commit_hash) return;
+    if ((await radarStorage.vatspy())?.version === data.current_commit_hash) return;
 
     const [dat, geo] = await Promise.all([
         ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
@@ -202,9 +203,11 @@ export async function updateVatSpy() {
             });
         });
 
-    radarStorage.vatspy.version = data.current_commit_hash;
-    radarStorage.vatspy.data = result;
-    console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
+    setRedisData('data-vatspy', {
+        version: data.current_commit_hash,
+        data: result,
+    }, 1000 * 60 * 60 * 24 * 2);
+    console.info(`VatSpy Update Complete (${ data.current_commit_hash })`);
 }
 
 let firsPolygons: {
@@ -214,16 +217,17 @@ let firsPolygons: {
 }[] = [];
 let firsVersion = '';
 
-export function getFirsPolygons() {
-    if (firsVersion !== radarStorage.vatspy.version) {
-        firsPolygons = radarStorage.vatspy.data!.firs.map(fir => {
+export async function getFirsPolygons() {
+    const vatspy = await radarStorage.vatspy();
+    if (firsVersion !== vatspy!.version) {
+        firsPolygons = vatspy!.data.firs.map(fir => {
             return {
                 icao: fir.icao,
                 featureId: fir.feature.id as string,
                 polygon: new OlMultiPolygon(fir.feature.geometry.coordinates),
             };
         });
-        firsVersion = radarStorage.vatspy.version;
+        firsVersion = vatspy!.version;
     }
 
     return firsPolygons;

@@ -1,41 +1,44 @@
 <template>
     <div
-        v-if="view && !isMobile"
+        v-if="view"
         class="controls"
     >
+        <template v-if="!isMobile">
+            <common-button
+                class="controls_item"
+                :disabled="mapStore.zoom >= view.getMaxZoom()"
+                size="S"
+                type="secondary-flat"
+                @click="setZoom(true)"
+            >
+                <template #icon>
+                    <plus-icon/>
+                </template>
+            </common-button>
+            <common-button
+                class="controls_item"
+                :disabled="mapStore.zoom <= view.getMinZoom()"
+                size="S"
+                type="secondary-flat"
+                @click="setZoom(false)"
+            >
+                <template #icon>
+                    <minus-icon/>
+                </template>
+            </common-button>
+            <common-button
+                class="controls_item"
+                size="S"
+                type="secondary-flat"
+                @click="setRotate(false)"
+            >
+                <template #icon>
+                    <rotate-counterclockwise/>
+                </template>
+            </common-button>
+        </template>
         <common-button
-            class="controls_item"
-            :disabled="mapStore.zoom >= view.getMaxZoom()"
-            size="S"
-            type="secondary-flat"
-            @click="setZoom(true)"
-        >
-            <template #icon>
-                <plus-icon/>
-            </template>
-        </common-button>
-        <common-button
-            class="controls_item"
-            :disabled="mapStore.zoom <= view.getMinZoom()"
-            size="S"
-            type="secondary-flat"
-            @click="setZoom(false)"
-        >
-            <template #icon>
-                <minus-icon/>
-            </template>
-        </common-button>
-        <common-button
-            class="controls_item"
-            size="S"
-            type="secondary-flat"
-            @click="setRotate(false)"
-        >
-            <template #icon>
-                <rotate-counterclockwise/>
-            </template>
-        </common-button>
-        <common-button
+            v-if="!isMobile || mapStore.rotation !== 0"
             class="controls_item"
             :disabled="mapStore.rotation === 0"
             size="S"
@@ -47,6 +50,7 @@
             </template>
         </common-button>
         <common-button
+            v-if="!isMobile"
             class="controls_item"
             size="S"
             type="secondary-flat"

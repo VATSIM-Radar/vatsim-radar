@@ -116,8 +116,14 @@ export const useMapStore = defineStore('map', {
             const existingOverlay = this.overlays.find(x => x.type === 'pilot' && x.key === cid);
             if (existingOverlay) {
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.key !== cid);
+                this.sendSelectedPilotToDashboard(null);
             }
             else return this.addPilotOverlay(cid, tracked);
+        },
+        sendSelectedPilotToDashboard(cid: number | null = null) {
+            const message = { selectedPilot: cid };
+            const targetOrigin = useRuntimeConfig().public.DOMAIN;
+            window.parent.postMessage(message, targetOrigin);
         },
         async addPilotOverlay(cid: string, tracked = false) {
             if (this.openingOverlay) return;
@@ -138,6 +144,8 @@ export const useMapStore = defineStore('map', {
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
                 if (tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
                 await nextTick();
+
+                this.sendSelectedPilotToDashboard(+cid);
 
                 return this.addOverlay<StoreOverlayPilot>({
                     key: cid,
@@ -219,7 +227,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
                 if (existingOverlay) return;
 
-                const vatSpyAirport = useDataStore().vatspy.value?.data.airports.find(x => x.icao === airport);
+                const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.icao[airport];
                 if (!vatSpyAirport) return;
 
                 this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);

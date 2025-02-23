@@ -8,12 +8,12 @@ export interface VatsimEventData {
     subDivisions: VatsimSubDivision[];
 }
 
-export default defineEventHandler((event): VatsimEventData | undefined => {
-    if (!validateDataReady(event)) return;
+export default defineEventHandler(async (event): Promise<VatsimEventData | undefined> => {
+    if (!(await validateDataReady(event))) return;
 
     return {
-        events: radarStorage.vatsimStatic.events,
-        divisions: radarStorage.vatsimStatic.divisions,
-        subDivisions: radarStorage.vatsimStatic.subDivisions,
+        events: await radarStorage.vatsimStatic.events(),
+        divisions: await radarStorage.vatsimStatic.divisions(),
+        subDivisions: await radarStorage.vatsimStatic.subDivisions(),
     };
 });

@@ -1,5 +1,25 @@
 # Changelog
 
+# [1.1.0-alpha.7]
+
+- Fixed "next" performance and VG combined mode issues
+- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
+- Fixed aircraft popup on mobile version of Airport Dashboard
+- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
+- Based on severe community feedback, changed "atc" in the footer to "ATC"
+- Applied small performance improvements on each map update
+- Disabled zoom to CTR/FSS facilities
+- Fixed the way pilots without flight plans display in Favorite tab
+- Unknown airports ICAO will now be properly displayed in flight plan window
+- Added indication of no flight plan uploaded to pilot popup
+- Added auto-selection of list to "Add to Favorites" popup if you only have one list
+- Removed duplicate runway identifier from thresholds
+- Restored north reset icon for mobile
+- Fixed airport default zoom change to floating number breaking whole map settings save
+- Added 10% opacity as possible for weather/layers opacity
+- Fixed invisible region in popups list
+- Increased emergency color priority over enabled tracks
+
 # [1.1.0-alpha.6]
 
 - New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)

@@ -3,14 +3,12 @@ import AdmZip from 'adm-zip';
 import { join } from 'path';
 import { readFileSync, writeFileSync } from 'fs';
 import { existsSync } from 'node:fs';
-import { getRedis } from '~/utils/backend/redis';
+import { getRedis, setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
-const DATA_DIR = join(process.cwd(), 'src/data');
-const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
 const redisPublisher = getRedis();
 let currentSHA: string | null = null;
 
@@ -21,29 +19,14 @@ async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
     return commits[0].sha;
 }
 
-function getStoredSHA(): string | null {
-    if (existsSync(JSON_FILE)) {
-        const jsonData = JSON.parse(readFileSync(JSON_FILE, 'utf-8'));
-        return jsonData.version;
-    }
-    return null;
-}
-
-function storeDataInFile(jsonData: { version: string; data: VatglassesData }): void {
-    writeFileSync(JSON_FILE, JSON.stringify(jsonData), 'utf-8');
+async function getStoredSHA(): Promise<string | null> {
+    return (await radarStorage.vatglasses.data())?.version ?? null;
 }
 
 async function downloadZip(url: string): Promise<AdmZip> {
     // @ts-expect-error Types error
     const zipBuffer = await $fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
     return new AdmZip(Buffer.from(zipBuffer));
-}
-
-async function getFileDataAndStore() {
-    if (existsSync(JSON_FILE)) {
-        const jsonData = JSON.parse(readFileSync(JSON_FILE, 'utf-8'));
-        radarStorage.vatglasses.data = jsonData;
-    }
 }
 
 function combineJsonFiles(zip: AdmZip): VatglassesData {
@@ -115,7 +98,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
 export async function updateVatglassesData() {
     try {
         const latestSHA = await fetchLatestCommitSHA('3');
-        if (!currentSHA) currentSHA = getStoredSHA();
+        if (!currentSHA) currentSHA = await getStoredSHA();
 
         if (latestSHA !== currentSHA) {
             const zip = await downloadZip(GITHUB_ZIP_URL);
@@ -124,10 +107,9 @@ export async function updateVatglassesData() {
 
             const jsonData = { version: latestSHA, data: convertedData };
 
-            storeDataInFile(jsonData);
             currentSHA = latestSHA;
 
-            radarStorage.vatglasses.data = jsonData;
+            setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
 
             await new Promise<void>((resolve, reject) => {
                 const timeout = setTimeout(() => reject('Failed by timeout'), 15000);
@@ -138,12 +120,8 @@ export async function updateVatglassesData() {
                 });
             });
         }
-        else {
-            await getFileDataAndStore();
-        }
     }
     catch (error) {
-        console.error('Error fetching data, getting now already stored data:', error);
-        await getFileDataAndStore();
+        console.error('Error fetching data, ', error);
     }
 }

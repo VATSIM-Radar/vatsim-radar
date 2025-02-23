@@ -145,6 +145,7 @@ const iframeWhitelist = [
     'urrv.me',
     'vatsim.net',
     'vatsim-petersburg.com',
+    'vatsim-radar.com',
 ];
 
 export function useIframeHeader() {
@@ -177,14 +178,17 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
     const store = useStore();
 
-    onMounted(() => {
+    function setUpdate() {
         callback();
         const intervalCode = setInterval(() => {
             if (!store.isTabVisible) return;
             callback();
         }, interval);
         onBeforeUnmount(() => clearInterval(intervalCode));
-    });
+    }
+
+    if (getCurrentInstance()?.isMounted) setUpdate();
+    else onMounted(setUpdate);
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {

@@ -247,11 +247,11 @@ const canShowRightTransponder = computed(() => {
 });
 
 const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.pilot.flight_plan?.departure);
+    return getAirportByIcao(props.pilot.flight_plan?.departure);
 });
 
 const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === props.pilot.flight_plan?.arrival);
+    return getAirportByIcao(props.pilot.flight_plan?.arrival);
 });
 
 const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks));

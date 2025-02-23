@@ -1,30 +1,25 @@
 import { radarStorage } from '../storage';
 import type { VatsimData } from '~/types/data/vatsim';
 import {
-    updateAustraliaData, updateTransceivers,
     updateVatsimDataStorage,
     updateVatsimExtendedPilots, updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
-import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
-import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
-import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join } from 'path';
-import S3 from 'aws-sdk/clients/s3';
-import { prisma } from '~/utils/backend/prisma';
+import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
 
 initInfluxDB();
 initKafka();
 initNavigraph().catch(console.error);
+
+initWholeBunchOfBackendTasks();
 
 const redisPublisher = getRedis();
 
@@ -71,83 +66,12 @@ let dataLatestFinished = 0;
 let dataInProgress = false;
 let dataProcessInProgress = false;
 
-defineCronJob('15 * * * *', updateVatSpy);
-defineCronJob('* * * * * *', updateTransceivers);
-defineCronJob('15 * * * *', updateSimAware);
-defineCronJob('15 * * * *', updateAustraliaData);
-
-let s3: S3 | undefined;
-
-const dbRegex = new RegExp('mysql:\\/\\/(?<user>.*):(?<password>.*)@(?<host>.*):(?<port>.*)\\/(?<db>.*)\\?');
-
-defineCronJob('20 */2 * * *', async () => {
-    if (import.meta.dev || !process.env.CF_R2_API) return;
-
-    s3 ??= new S3({
-        endpoint: process.env.CF_R2_API,
-        accessKeyId: process.env.CF_R2_ACCESS_ID,
-        secretAccessKey: process.env.CF_R2_ACCESS_TOKEN,
-        signatureVersion: 'v4',
-    });
-
-    const {
-        groups: {
-            user,
-            password,
-            host,
-            port,
-            db,
-        },
-    } = dbRegex.exec(process.env.DATABASE_URL!)! as { groups: Record<string, string> };
-
-    execSync(`mysqldump -u${ user } -p${ password } -h${ host } --compact --create-options --quick --tz-utc -P${ port } ${ db } > dump.sql`);
-
-    const date = new Date();
-
-    s3.upload({
-        Bucket: 'backups',
-        Expires: new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)),
-        Body: readFileSync(join(process.cwd(), 'dump.sql')),
-        Key: `radar/${ date.getFullYear() }-${ date.getMonth() }-${ date.getDate() }-${ process.env.DOMAIN!.replace('https://', '').split(':')[0] }-${ date.getHours() }-${ date.getMinutes() }.sql`,
-        ContentType: 'application/sql',
-    }, (err, data) => {
-        if (err) console.error(err);
-        if (data) console.info('Backup completed', data.Location);
-    });
-});
-
-defineCronJob('*/15 * * * *', async () => {
-    if (!process.env.DATABASE_URL) return;
-
-    await prisma.userToken.deleteMany({
-        where: {
-            refreshMaxDate: {
-                lte: new Date(),
-            },
-        },
-    });
-
-    await prisma.auth.deleteMany({
-        where: {
-            createdAt: {
-                lte: new Date(Date.now() - (1000 * 60 * 60)),
-            },
-        },
-    });
-
-    await prisma.userRequest.deleteMany({
-        where: {
-            createdAt: {
-                lte: new Date(Date.now() - (1000 * 60 * 60)),
-            },
-        },
-    });
-});
-
 let data: VatsimData | null = null;
 
 defineCronJob('* * * * * *', async () => {
-    if (!radarStorage.vatspy.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
+    const vatspy = await radarStorage.vatspy();
+
+    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
 
     try {
         dataInProgress = true;
@@ -213,7 +137,9 @@ defineCronJob('* * * * * *', async () => {
 });
 
 defineCronJob('* * * * * *', async () => {
-    if (!radarStorage.vatspy.data || dataProcessInProgress || !data) return;
+    const vatspy = await radarStorage.vatspy();
+
+    if (!vatspy?.data || dataProcessInProgress || !data) return;
 
     try {
         dataProcessInProgress = true;
@@ -519,9 +445,9 @@ defineCronJob('* * * * * *', async () => {
                 };
             }),
         };
-        radarStorage.vatsim.firs = getATCBounds();
-        radarStorage.vatsim.locals = getLocalATC();
-        radarStorage.vatsim.airports = getAirportsList();
+        radarStorage.vatsim.firs = await getATCBounds();
+        radarStorage.vatsim.locals = await getLocalATC();
+        radarStorage.vatsim.airports = await getAirportsList();
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const data = getPlanInfluxDataForPilots();

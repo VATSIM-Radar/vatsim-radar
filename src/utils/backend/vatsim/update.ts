@@ -22,6 +22,7 @@ import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { setRedisData } from '~/utils/backend/redis';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -96,7 +97,9 @@ async function getCachedGates(icao: string): Promise<NavigraphGate[]> {
 }
 
 export async function updateVatsimExtendedPilots() {
-    const firsPolygons = getFirsPolygons();
+    const vatspy = (await radarStorage.vatspy())!;
+
+    const firsPolygons = await getFirsPolygons();
 
     const firsList = firsPolygons.map(({ icao, featureId, polygon }) => ({
         controllers: radarStorage.vatsim.firs.filter(
@@ -165,8 +168,8 @@ export async function updateVatsimExtendedPilots() {
 
         let totalDist: number | null = null;
 
-        const dep = extendedPilot.flight_plan?.departure && radarStorage.vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.departure];
-        const arr = extendedPilot.flight_plan?.arrival && radarStorage.vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.arrival];
+        const dep = extendedPilot.flight_plan?.departure && vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.departure];
+        const arr = extendedPilot.flight_plan?.arrival && vatspy.data?.keyAirports.icao[extendedPilot.flight_plan.arrival];
 
         if (dep && arr) {
             const pilotCoords = [extendedPilot.longitude, extendedPilot.latitude];
@@ -350,19 +353,19 @@ function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
 }
 
 export async function updateAirlines() {
-    const data = await $fetch<RadarDataAirlineAll>(!import.meta.dev ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
+    const data = await $fetch<RadarDataAirlineAll>(process.env.NODE_ENV !== 'development' ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
         retry: 3,
     });
 
     const airlines = mapAirlines(data.airlines);
     const virtual = mapAirlines(data.virtual);
 
-    radarStorage.airlines = {
+    setRedisData('data-airlines', {
         airlines,
         virtual,
         all: {
             ...virtual,
             ...airlines,
         },
-    };
+    }, 1000 * 60 * 60 * 24 * 7);
 }

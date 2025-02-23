@@ -129,7 +129,7 @@ if (file) {
 export function getPlanInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
 
-    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
+    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousPlanData.find(x => x.cid === pilot.cid);
 
         const obj = {

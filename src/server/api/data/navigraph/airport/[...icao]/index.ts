@@ -17,7 +17,7 @@ const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
     taxiwayguidanceline: ['color', 'style', 'idlin'],
     taxiwayholdingposition: ['idlin', 'catstop'],
-    runwaythreshold: ['idthr', 'brngtrue'],
+    runwaythreshold: ['idthr', 'brngtrue', 'thrtype'],
     finalapproachandtakeoffarea: ['idrwy'],
     verticalpolygonalstructure: ['plysttyp', 'ident'],
     deicingarea: ['ident'],
@@ -136,6 +136,8 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             }
         });
     }
+
+    if (layout?.runwaythreshold) layout.runwaythreshold.features = layout.runwaythreshold.features.filter(x => x.properties.thrtype === 0);
 
     if (!import.meta.dev) {
         setResponseHeader(event, 'Cache-Control', 'private, max-age=604800, stale-while-revalidate=86400, immutable');

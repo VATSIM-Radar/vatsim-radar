@@ -11,7 +11,9 @@ import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
-import type { PatreonInfo } from '~/server/plugins/patreon';
+import { getRedisData } from '~/utils/backend/redis';
+import type { RedisDataGet } from '~/utils/backend/redis';
+import type { PatreonInfo } from '~/types/data/patreon';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
@@ -146,9 +148,6 @@ export interface VatsimStorage {
     firs: VatSpyDataFeature[];
     locals: VatSpyDataLocalATC[];
     airports: MapAirport[];
-    divisions: VatsimDivision[];
-    subDivisions: VatsimSubDivision[];
-    events: VatsimEvent[];
     transceivers: VatsimTransceiver[];
     australia: AustraliaSector[];
     kafka: {
@@ -159,53 +158,44 @@ export interface VatsimStorage {
 }
 
 export interface RadarStorage {
-    vatspy: {
+    vatspy: RedisDataGet<{
         version: string;
-        data: VatSpyData | null;
-    };
-    simaware: {
+        data: VatSpyData;
+    }>;
+    simaware: RedisDataGet<{
         version: string;
-        data: SimAwareData | null;
-    };
+        data: SimAwareData;
+    }>;
     vatglasses: {
-        data: {
+        data: RedisDataGet<{
             version: string;
-            data: VatglassesData | null;
-        };
+            data: VatglassesData;
+        }>;
         activeData: string | null;
     };
     vatsimStatic: {
-        divisions: VatsimDivision[];
-        subDivisions: VatsimSubDivision[];
-        events: VatsimEvent[];
+        divisions: RedisDataGet<VatsimDivision[], []>;
+        subDivisions: RedisDataGet<VatsimSubDivision[], []>;
+        events: RedisDataGet<VatsimEvent[], []>;
     };
     vatsim: VatsimStorage;
-    navigraph: typeof cycles | null;
-    patreonInfo: PatreonInfo | null;
-    airlines: RadarDataAirlinesAllList;
+    navigraph: RedisDataGet<typeof cycles>;
+    patreonInfo: RedisDataGet<PatreonInfo>;
+    airlines: RedisDataGet<RadarDataAirlinesAllList, RadarDataAirlinesAllList>;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
 }
 
 export const radarStorage: RadarStorage = {
-    vatspy: {
-        version: '',
-        data: null,
-    },
-    simaware: {
-        version: '',
-        data: null,
-    },
+    vatspy: () => getRedisData('data-vatspy'),
+    simaware: () => getRedisData('data-simaware'),
     vatglasses: {
-        data: {
-            version: '',
-            data: null,
-        },
+        data: () => getRedisData('data-vatglasses'),
         activeData: null,
     },
     vatsimStatic: {
-        divisions: [],
-        subDivisions: [],
-        events: [],
+        divisions: () => getRedisData('data-divisions', []),
+        subDivisions: () => getRedisData('data-subdivisions', []),
+        events: () => getRedisData('data-events', []),
     },
     vatsim: {
         data: null,
@@ -215,9 +205,6 @@ export const radarStorage: RadarStorage = {
         firs: [],
         locals: [],
         airports: [],
-        divisions: [],
-        subDivisions: [],
-        events: [],
         transceivers: [],
         australia: [],
         kafka: {
@@ -226,40 +213,43 @@ export const radarStorage: RadarStorage = {
             prefiles: [],
         },
     },
-    navigraph: null,
-    patreonInfo: null,
-    airlines: {
+    navigraph: () => getRedisData('data-navigraph'),
+    patreonInfo: () => getRedisData('data-patreon'),
+    airlines: () => getRedisData('data-airlines', {
         airlines: {},
         virtual: {},
         all: {},
-    },
+    }),
     extendedPilotsMap: {},
 };
 
-export function getRadarStorage() {
-    return radarStorage;
-}
-
-export function isDataReady() {
+export async function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
-    return !!getRadarStorage().vatspy && !!getRadarStorage().vatsim.data && !!getRadarStorage().simaware.version;
+
+    return !!await radarStorage.vatspy() && !!await radarStorage.vatglasses.data() && !!radarStorage.vatsim.data && !!await radarStorage.simaware();
 }
 
-export function getDataVersions(): VatDataVersions {
+export async function getDataVersions(): Promise<VatDataVersions> {
+    const vatspy = await radarStorage.vatspy();
+    const vatsim = radarStorage.vatsim.data;
+    const navigraph = await radarStorage.navigraph();
+    const simaware = await radarStorage.simaware();
+    const vatglasses = await radarStorage.vatglasses.data();
+
     return {
-        vatspy: getRadarStorage().vatspy!.version,
+        vatspy: vatspy!.version,
         vatsim: {
-            data: getRadarStorage().vatsim.data!.general.update_timestamp,
+            data: vatsim!.general.update_timestamp,
         },
-        navigraph: getRadarStorage().navigraph,
-        simaware: getRadarStorage().simaware.version,
-        vatglasses: getRadarStorage().vatglasses.data.version,
+        navigraph: navigraph!,
+        simaware: simaware!.version,
+        vatglasses: vatglasses!.version,
     };
 }
 
 export function getServerVatsimLiveData(): VatsimLiveData {
-    const storage = getRadarStorage();
+    const storage = radarStorage;
 
     return {
         general: storage.vatsim.regularData!.general,
