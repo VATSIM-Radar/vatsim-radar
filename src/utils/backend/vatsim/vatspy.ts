@@ -5,7 +5,6 @@ import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
-import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
     'v2410.1': 3,

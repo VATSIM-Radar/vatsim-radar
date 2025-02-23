@@ -1,6 +1,4 @@
 import IORedis from 'ioredis';
-import type { VatSpyData } from '~/types/data/vatspy';
-import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData } from '~/utils/backend/storage';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/types/data/patreon';

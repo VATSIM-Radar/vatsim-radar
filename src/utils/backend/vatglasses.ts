@@ -1,6 +1,6 @@
 import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
-import { getRedis, setRedisData } from '~/utils/backend/redis';
+import { getRedis } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';
 
