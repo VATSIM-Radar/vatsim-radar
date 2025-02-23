@@ -20,7 +20,7 @@ import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { isProductionMode } from '~/utils/shared';
-import protoWithLabels, { noLabels as protoNoLabels } from 'protomaps-themes-base';
+import { layers, namedFlavor } from '@protomaps/basemaps';
 
 defineSlots<{ default: () => any }>();
 
@@ -260,7 +260,7 @@ async function initLayer() {
                     url: layer.value.url,
                 },
             },
-            layers: (isLabels.value ? protoWithLabels : protoNoLabels)('protomaps', layer.value.theme, 'en'),
+            layers: layers('protomaps', namedFlavor(layer.value.theme), { lang: isLabels.value ? 'en' : undefined }),
         };
 
         tileLayer.value = new VectorTileLayer({

@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.1.0-alpha.5",
+  "version": "1.1.0-alpha.6",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,7 +23,8 @@
     "@influxdata/influxdb-client": "^1.35.0",
     "@influxdata/influxdb-client-apis": "^1.35.0",
     "@pinia/nuxt": "^0.10.1",
-    "@prisma/client": "^6.3.1",
+    "@prisma/client": "^6.4.1",
+    "@protomaps/basemaps": "^5.0.0",
     "@turf/difference": "^7.2.0",
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",
@@ -54,8 +55,7 @@
     "ol": "^10.4.0",
     "ol-mapbox-style": "^12.4.1",
     "pinia": "^3.0.1",
-    "prisma": "^6.3.1",
-    "protomaps-themes-base": "^4.4.0",
+    "prisma": "^6.4.1",
     "sharp": "^0.33.5",
     "sqlite3": "^5.1.7",
     "svgo": "^3.3.2",
@@ -64,25 +64,25 @@
     "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
-    "ws": "^8.18.0"
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@navigraph/amdb": "^1.1.0",
-    "@nuxt/devtools": "^2.0.0",
-    "@nuxt/eslint": "^1.0.1",
+    "@nuxt/devtools": "^2.1.0",
+    "@nuxt/eslint": "^1.1.0",
     "@nuxtjs/stylelint-module": "^5.2.0",
-    "@stylistic/eslint-plugin": "^3.1.0",
+    "@stylistic/eslint-plugin": "^4.0.1",
     "@stylistic/stylelint-plugin": "^3.1.2",
     "@types/adm-zip": "^0.5.7",
     "@types/deep-equal": "^1.0.4",
     "@types/geojson": "^7946.0.16",
-    "@types/jsonwebtoken": "^9.0.8",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/merge-ranges": "^1.0.2",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.5",
     "@types/ws": "^8.5.14",
-    "eslint": "^9.20.1",
-    "fast-xml-parser": "^4.5.1",
-    "postcss": "^8.5.2",
+    "eslint": "^9.21.0",
+    "fast-xml-parser": "^5.0.6",
+    "postcss": "^8.5.3",
     "postcss-html": "^1.8.0",
     "sass-embedded": "^1.85.0",
     "stylelint": "^16.14.1",
@@ -93,10 +93,7 @@
     "tsx": "4.16.2",
     "typescript": "5.7.3",
     "vite-plugin-eslint2": "^5.0.3",
-    "vue-tsc": "2.2.0"
-  },
-  "resolutions": {
-    "vite-plugin-checker": "^0.8.0"
+    "vue-tsc": "2.2.4"
   },
   "packageManager": "yarn@4.6.0"
 }

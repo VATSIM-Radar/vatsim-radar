@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.1.0-alpha.6]
+
+- New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)
+- Added model matching (C210 -> C206, E290 -> E295, E3TF -> E3CF, K35R -> K35E)
+
 # [1.1.0-alpha.5]
 
 - Diverting flight state by MindCollaps
