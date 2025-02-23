@@ -5,6 +5,7 @@ import difference from '@turf/difference';
 import intersect from '@turf/intersect';
 import kinks from '@turf/kinks';
 import mergeRanges from 'merge-ranges';
+import { fromLonLat, toLonLat } from 'ol/proj';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, MultiPolygon as TurfMultiPolygon, LineString, Point } from 'geojson';
 import type { VatglassesSectorProperties } from './vatglasses';
 
@@ -62,6 +63,70 @@ function removeDuplicateCoords(feature: TurfFeature<TurfPolygon | TurfMultiPolyg
         for (let i = 0; i < feature.geometry.coordinates.length; i++) {
             for (let j = 0; j < feature.geometry.coordinates[i].length; j++) {
                 feature.geometry.coordinates[i][j] = removeDuplicates(feature.geometry.coordinates[i][j]);
+            }
+        }
+    }
+
+    return feature;
+}
+
+/**
+ * Converts latitude and longitude coordinates to another coordinate system using the fromLatLon function.
+ * @param feature The Turf polygon feature to modify.
+ * @param fromLatLon The function to convert latitude and longitude to another coordinate system.
+ * @returns The modified Turf polygon feature with transformed coordinates.
+ */
+export function convertPolygonCoordinates(feature: TurfFeature<TurfPolygon | TurfMultiPolygon>): TurfFeature<TurfPolygon | TurfMultiPolygon> {
+    const convertCoordinates = (coordinates: number[][]) => {
+        for (let i = 0; i < coordinates.length; i++) {
+            const [x, y] = fromLonLat(coordinates[i]);
+            coordinates[i][0] = x;
+            coordinates[i][1] = y;
+        }
+        return coordinates;
+    };
+
+    if (feature.geometry.type === 'Polygon') {
+        for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+            feature.geometry.coordinates[i] = convertCoordinates(feature.geometry.coordinates[i]);
+        }
+    }
+    else if (feature.geometry.type === 'MultiPolygon') {
+        for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+            for (let j = 0; j < feature.geometry.coordinates[i].length; j++) {
+                feature.geometry.coordinates[i][j] = convertCoordinates(feature.geometry.coordinates[i][j]);
+            }
+        }
+    }
+
+    return feature;
+}
+
+
+/**
+ * Converts coordinates from another coordinate system back to latitude and longitude using the toLonLat function.
+ * @param feature The Turf polygon feature to modify.
+ * @returns The modified Turf polygon feature with transformed coordinates.
+ */
+export function revertPolygonCoordinatesToLonLat(feature: TurfFeature<TurfPolygon | TurfMultiPolygon>): TurfFeature<TurfPolygon | TurfMultiPolygon> {
+    const revertCoordinates = (coordinates: number[][]) => {
+        for (let i = 0; i < coordinates.length; i++) {
+            const [lon, lat] = toLonLat(coordinates[i]);
+            coordinates[i][0] = lon;
+            coordinates[i][1] = lat;
+        }
+        return coordinates;
+    };
+
+    if (feature.geometry.type === 'Polygon') {
+        for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+            feature.geometry.coordinates[i] = revertCoordinates(feature.geometry.coordinates[i]);
+        }
+    }
+    else if (feature.geometry.type === 'MultiPolygon') {
+        for (let i = 0; i < feature.geometry.coordinates.length; i++) {
+            for (let j = 0; j < feature.geometry.coordinates[i].length; j++) {
+                feature.geometry.coordinates[i][j] = revertCoordinates(feature.geometry.coordinates[i][j]);
             }
         }
     }
@@ -230,6 +295,7 @@ function lineStringToPolygon(line: TurfFeature<LineString>): TurfFeature<TurfPol
 
 const insertfailed = false;
 export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
+    sectors.map(polygon => roundPolygonCoordinates(convertPolygonCoordinates(polygon))); // We convert the coords to EPSG:3857 because we get more reliable results from turf when we ust this projection.
     for (let i = sectors.length - 1; i >= 0; i--) {
         try {
             const currentPolygon = sectors[i];
@@ -242,7 +308,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             }
         }
         catch {
-        /* empty */
+            /* empty */
         }
     }
 
@@ -250,7 +316,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
     const sectorsWithIntersections = modifyPolygonsWithIntersections(sectors);
     sectorsWithIntersections.forEach(polygon => {
         try {
-            removeDuplicateCoords(roundPolygonCoordinates(polygon, 0));
+            removeDuplicateCoords(roundPolygonCoordinates(polygon));
         }
         catch {
             /* empty */
@@ -327,9 +393,13 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             resultPolygons = newResultPolygons;
         }
     }
-    catch { /* empty */ }
+    catch {
+        /* empty */
+    }
 
-    return resultPolygons;
+
+    resultPolygons.map(polygon => roundPolygonCoordinates(revertPolygonCoordinatesToLonLat(polygon), 6));
+    return resultPolygons
 }
 
 export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
@@ -376,7 +446,9 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
                 });
             }
         }
-        catch { /* empty */ }
+        catch {
+            /* empty */
+        }
     }
     return combinedGroupSectors;
 }
