@@ -1,8 +1,5 @@
 import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
-import { join } from 'path';
-import { readFileSync, writeFileSync } from 'fs';
-import { existsSync } from 'node:fs';
 import { getRedis, setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';

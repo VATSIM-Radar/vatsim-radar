@@ -399,7 +399,7 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
 
 
     resultPolygons.map(polygon => roundPolygonCoordinates(revertPolygonCoordinatesToLonLat(polygon), 6));
-    return resultPolygons
+    return resultPolygons;
 }
 
 export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
