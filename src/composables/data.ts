@@ -36,6 +36,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
+const vatglassesCombiningInProgress = ref(false);
 const time = ref(Date.now());
 const stats = shallowRef<{
     cid: number;
@@ -114,6 +115,7 @@ export interface UseDataStore {
     vatglasses: ShallowRef<VatglassesAPIData | undefined>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
+    vatglassesCombiningInProgress: Ref<boolean>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
@@ -129,6 +131,7 @@ export function useDataStore(): UseDataStore {
         vatglasses,
         vatglassesActivePositions,
         vatglassesActiveRunways,
+        vatglassesCombiningInProgress,
         stats,
         time,
         sigmets,
