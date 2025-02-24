@@ -2,55 +2,34 @@ import { defineCronJob } from '~/utils/backend';
 import { getRedis } from '~/utils/backend/redis';
 import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatglasses';
 import type { VatglassesActiveAirspaces, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
-import { readFileSync } from 'fs';
-import { existsSync } from 'node:fs';
-import { join } from 'path';
-import type { VatglassesAPIData, VatsimStorage } from '../storage';
 import { setupRedisDataFetch } from '~/utils/backend/tasks';
-
-const DATA_DIR = join(process.cwd(), 'src/data');
-const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
+import { radarStorage } from '~/utils/backend/storage';
 
 export interface WorkerDataStore {
-    vatsim: null | VatsimStorage;
-    vatglasses: null | VatglassesAPIData;
     vatglassesActiveRunways: VatglassesActiveRunways;
     vatglassesActivePositions: VatglassesActivePositions;
     vatglassesActiveAirspaces: VatglassesActiveAirspaces;
 }
 
 const workerDataStore: WorkerDataStore = {
-    vatsim: null,
-    vatglasses: null,
     vatglassesActiveRunways: {},
     vatglassesActivePositions: {},
     vatglassesActiveAirspaces: {},
 };
 
-async function loadSectors() {
-    if (existsSync(JSON_FILE)) {
-        workerDataStore.vatglasses = JSON.parse(readFileSync(JSON_FILE, 'utf-8'));
-    }
-}
-
 const redisSubscriber = getRedis();
 redisSubscriber.subscribe('data');
-redisSubscriber.subscribe('vatglassesData');
 
 redisSubscriber.on('message', (channel, message) => {
     if (channel === 'data') {
-        workerDataStore.vatsim = JSON.parse(message);
-    }
-    else if (channel === 'vatglassesData') {
-        loadSectors();
+        radarStorage.vatsim = JSON.parse(message);
     }
 });
 
 const redisPublisher = getRedis();
 
-setupRedisDataFetch();
-initVatglasses('server', workerDataStore);
-await loadSectors();
+await setupRedisDataFetch();
+initVatglasses('server', workerDataStore, radarStorage);
 
 let firstUpdate = true;
 console.log('Worker has been set up');
@@ -70,13 +49,13 @@ async function updateVatglassesActive() {
         }
     }
 
-    if (workerDataStore.vatglasses) {
+    if (radarStorage.vatglasses) {
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject('VG Failed by timeout'), 15000);
             redisPublisher.publish('vatglassesActive', JSON.stringify({
                 vatglassesActiveRunways: workerDataStore.vatglassesActiveRunways,
                 vatglassesActivePositions: outputVatglassesActivePositions,
-                version: workerDataStore.vatglasses?.version,
+                version: radarStorage.vatglasses?.data.version,
             }), err => {
                 clearTimeout(timeout);
                 if (err) {

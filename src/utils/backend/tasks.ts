@@ -199,14 +199,14 @@ export async function initWholeBunchOfBackendTasks() {
 }
 
 async function updateData() {
-    radarStorage.vatglasses = (await getRedisData('data-vatglasses'))!;
+    radarStorage.vatglasses.data = (await getRedisData('data-vatglasses'))!;
     radarStorage.simaware = (await getRedisData('data-simaware'))!;
     radarStorage.vatspy = (await getRedisData('data-vatspy'))!;
     radarStorage.airlines = (await getRedisData('data-airlines'))!;
 }
 
 export async function setupRedisDataFetch() {
-    defineCronJob('15 * * * *', async () => {
+    await defineCronJob('15 * * * *', async () => {
         await updateData();
 
         while (!radarStorage.vatspy.data) {

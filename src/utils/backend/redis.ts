@@ -50,10 +50,10 @@ export interface RedisData {
 }
 
 export async function getRedisData<K extends keyof RedisData, D extends RedisData[K], T = RedisData[K]>(key: K, defaults: D): Promise<T | D>;
-export async function getRedisData<K extends keyof RedisData, T = RedisData[K]>(key: K): Promise<T | null>;
-export async function getRedisData<K extends keyof RedisData, T = RedisData[K], D extends T | undefined = T | undefined>(key: K, defaults?: D): Promise<T | null> {
+export async function getRedisData<K extends keyof RedisData>(key: K): Promise<RedisData[K] | null>;
+export async function getRedisData<K extends keyof RedisData, D extends RedisData[K] | undefined = RedisData[K] | undefined>(key: K, defaults?: D): Promise<RedisData[K] | null> {
     const data = await getRedisSync(key);
-    if (typeof data === 'string') return JSON.parse(data) as T;
+    if (typeof data === 'string') return JSON.parse(data) as RedisData[K];
     return defaults || data || null;
 }
 

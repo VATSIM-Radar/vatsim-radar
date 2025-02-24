@@ -4,7 +4,7 @@ import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'g
 
 import { polygon } from '@turf/helpers';
 import { GeoJSON } from 'ol/format';
-import type { VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
+import type { RadarStorage, VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
@@ -12,6 +12,7 @@ import type { useStore } from '~/store';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
+let radarStorage: RadarStorage;
 let store: ReturnType<typeof useStore>;
 let mode: 'local' | 'server';
 let facilities: {
@@ -77,14 +78,14 @@ function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
 
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? workerDataStore?.vatglasses?.data;
+    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage?.vatglasses?.data.data;
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways.value ?? workerDataStore.vatglassesActiveRunways;
     const vatglassesActivePositions = dataStore?.vatglassesActivePositions.value ?? workerDataStore.vatglassesActivePositions;
-    const vatsimData = dataStore?.vatsim ?? workerDataStore.vatsim;
+    const vatsimData = dataStore?.vatsim ?? radarStorage.vatsim;
     if (!vatglassesData || !vatsimData) return newVatglassesActivePositions;
 
     if (!facilities) {
-        const facilitiesData = dataStore?.vatsim?.data?.facilities?.value ?? workerDataStore?.vatsim?.data?.facilities;
+        const facilitiesData = dataStore?.vatsim?.data?.facilities?.value ?? radarStorage?.vatsim?.data?.facilities;
         facilities = {
             ATIS: -1,
             OBS: facilitiesData.find(x => x.short === 'OBS')?.id ?? -1,
@@ -102,7 +103,7 @@ function updateVatglassesPositionsAndAirspaces() {
     // Fill the vatglassesActiveStations object with the active stations
     if (vatglassesData) {
         const arrivalController = [];
-        const locals = dataStore?.vatsim?.data?.locals.value ?? workerDataStore?.vatsim?.locals;
+        const locals = dataStore?.vatsim?.data?.locals.value ?? radarStorage?.vatsim?.locals;
         for (const atc of locals) {
             if (!atc.isATIS && [facilities.APP, facilities.TWR, facilities.GND].includes(atc.atc.facility)) {
                 arrivalController.push(atc);
@@ -111,7 +112,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
         // TODO: sort firs by the same as EuroScope sorts the positions before assigning logged in stations to a position
         // let first = 0; // used for debug
-        const firs = dataStore?.vatsim?.data?.firs.value ?? workerDataStore?.vatsim?.firs;
+        const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
             // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
             let atc = null;
@@ -381,7 +382,7 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 // Converts from vatglasses sector format to geojson format
 function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? workerDataStore.vatglasses?.data;
+    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -701,10 +702,13 @@ async function initVatglassesCombined() {
     }
 }
 
-export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null) {
+export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null, _radarStorage: RadarStorage | null = null) {
     if (inputMode === 'server') {
         mode = 'server';
-        if (serverDataStore) workerDataStore = serverDataStore;
+        if (serverDataStore && _radarStorage) {
+            workerDataStore = serverDataStore;
+            radarStorage = _radarStorage;
+        }
     }
     else {
         const { useStore } = await import('~/store');

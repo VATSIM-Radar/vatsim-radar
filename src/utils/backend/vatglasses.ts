@@ -108,15 +108,6 @@ export async function updateVatglassesData() {
 
             radarStorage.vatglasses.data = jsonData;
             await setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
-
-            await new Promise<void>((resolve, reject) => {
-                const timeout = setTimeout(() => reject('Failed by timeout'), 15000);
-                redisPublisher.publish('vatglassesData', 'updated', err => {
-                    clearTimeout(timeout);
-                    if (err) return reject(err);
-                    resolve();
-                });
-            });
         }
     }
     catch (error) {
