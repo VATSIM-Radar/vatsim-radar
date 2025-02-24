@@ -1,0 +1,947 @@
+<template>
+    <div
+        v-if="ready"
+        ref="dragContainer"
+        class="timeline"
+        :style="isDragging ? 'cursor: grabbing;' : 'cursor: grab;'"
+        @mousedown="startDrag"
+        @mouseleave="stopDrag"
+        @mousemove="drag"
+        @mouseup="stopDrag"
+    >
+        <div class="header">
+            <div class="header-heads">
+                <div
+                    v-for="header in headers"
+                    :key="header.name"
+                    class="header-head"
+                    :style="getCellStyle()"
+                >
+                    {{ header.name }}
+                </div>
+            </div>
+            <!-- Timeline -->
+            <div
+                class="timeline-timeline"
+                @wheel="onWheel"
+            >
+                <div
+                    v-for="time in getTimeline"
+                    :key="time.id"
+                    class="timeline-timeline-time"
+                    :style="'min-width: ' +
+                        cellWidth +
+                        'px; ' +
+                        'max-width: ' +
+                        cellWidth +
+                        'px; ' +
+                        'min-height: ' +
+                        rowHeight +
+                        'px; ' +
+                        'max-height: ' +
+                        rowHeight +
+                        'px; '
+                    "
+                >
+                    <span v-if="isToday(time.date)">
+                        {{ time.formattedTime }}
+                    </span>
+                    <span v-else>
+                        {{ time.formattedDate }}<br>
+                        {{ time.formattedTime }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="timeline-data">
+            <!-- Identifiers -->
+            <div class="id">
+                <div
+                    v-for="(col, colIndex) in idsRef"
+                    :key="colIndex"
+                    class="id-row"
+                >
+                    <div
+                        v-for="(row, rowIndex) in col"
+                        :key="rowIndex"
+                    >
+                        <div
+                            v-if="!row?.collapsed || row?.collapsable"
+                            :ref="el => {
+                                if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                            }"
+                            class="id-cell"
+                            :class="idClass(rowIndex, colIndex)"
+                            :style="getCellStyle()"
+                            @click="collapse(colIndex, rowIndex)"
+                        >
+                            <div
+                                v-if="!row?.invisible"
+                                class="id-text"
+                            >
+                                <fold-icon
+                                    v-if="row?.collapsable && !row.collapsed"
+                                    class="id-icon"
+                                />
+                                <unfold-icon
+                                    v-if="row?.collapsable && row.collapsed"
+                                    class="id-icon"
+                                />
+                                <div
+                                    v-if="!row?.collapsable"
+                                    class="id-icon"
+                                />
+                                <span
+                                    :ref="el => {
+                                        if (el) idTexts[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                    }"
+                                    :class="textAnim(colIndex, rowIndex)"
+                                >
+                                    {{ row?.name ?? '' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Entries -->
+            <div class="timeline-entries">
+                <div
+                    class="timeline-entries-now"
+                    :style="timelineNowStyle()"
+                />
+                <!-- Entries -->
+                <div class="timeline-entries-list">
+                    <div
+                        v-for="entry in entriesRef"
+                        :key="entry.id"
+                    >
+                        <div
+                            v-if="!entry.collapsed"
+                            class="timeline-entries-entry"
+                            :style="getEntryStyle(entry)"
+                            @mouseover="hover = entry.id"
+                        >
+                            {{ entry.title }}
+                            <div
+                                v-if="entry.details"
+                                class="timeline-entry-details"
+                            />
+                        </div>
+                    </div>
+                    <div
+                        v-for="cEntry in flattenedCollapsedEntries"
+                        :key="cEntry.id"
+                        class="timeline-entries-entry"
+                        :style="getEntryStyle(cEntry)"
+                    >
+                        <span>{{ cEntry.title }}</span>
+                        <div
+                            v-if="cEntry.details"
+                            class="timeline-entry-details"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div :style="'width: ' + getTimeline.length * cellWidth + 'px'"/>
+        </div>
+    </div>
+    <div
+        v-else
+        class="loading-screen"
+    >
+        <div class="loader"/>
+    </div>
+</template>
+
+<script setup lang="ts">
+import type { TimelineEntry, TimelineHeader, TimelineIdentifier } from '~/types/data/timeline';
+import type { PropType } from 'vue';
+import FoldIcon from '@/assets/icons/kit/fold.svg?component';
+import UnfoldIcon from '@/assets/icons/kit/unfold.svg?component';
+
+interface TimelineTime {
+    id: number; date: Date; formattedDate: string; formattedTime: string;
+}
+
+const props = defineProps({
+    headers: {
+        type: Array as PropType<TimelineHeader[]>,
+        required: true,
+    },
+    identifiers: {
+        type: Array as PropType<(TimelineIdentifier | null)[][]>,
+        required: true,
+    },
+    entries: {
+        type: Array as PropType<TimelineEntry[]>,
+        required: true,
+    },
+    start: {
+        type: Date as PropType<Date>,
+        required: true,
+    },
+    end: {
+        type: Date as PropType<Date>,
+        required: true,
+    },
+    scale: {
+        type: Number as PropType<number>,
+        required: false,
+        default: 1,
+    },
+    collapsed: {
+        type: Boolean as PropType<boolean>,
+        required: false,
+    },
+    utc: {
+        type: Boolean as PropType<boolean>,
+        required: false,
+    },
+});
+
+const isMobile = useIsMobile();
+
+const ready = ref(false);
+
+const cellWidth = isMobile.value ? 80 : 120;
+const rowHeight = 50;
+const gap = 4;
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const scale = ref(props.scale);
+
+const isDragging = ref(false);
+const startX = ref(0);
+const startY = ref(0);
+const dragContainer = ref<HTMLElement | null>(null);
+
+const scrollSpeed = 5;
+const scrollDown = ref(0);
+const scrollUp = ref(0);
+const scaleIngrement = ref(0.5);
+
+const idContainers = ref<{ [key: string]: HTMLElement | null }>({});
+const idTexts = ref<{ [key: string]: HTMLElement | null }>({});
+const hover = ref(-1);
+const collapsedEntries = ref<Map<number, TimelineEntry[]>>(new Map());
+const indexOffsetMap = ref<Map<number, number>>(new Map());
+
+let endCalculated = new Date(Date.now());
+const currentMinute = ref(new Date());
+
+const now = computed(() => currentMinute.value);
+const utc = toRef(props, 'utc');
+const timeZone = computed(() => utc.value ? 'UTC' : undefined);
+
+const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: timeZone.value,
+}));
+
+const formatterDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone: timeZone.value,
+}));
+
+if (props.end) {
+    endCalculated = props.end;
+}
+else {
+    props.entries.forEach(entry => {
+        if (entry.end > endCalculated) {
+            endCalculated = new Date(entry.end.getTime());
+        }
+    });
+}
+
+const idsRef = toRef(props, 'identifiers');
+const entriesRef = computed(() => {
+    return props.entries.filter(entry => {
+        if (entry.start <= props.start) {
+            if (entry.end <= props.start) {
+                return false;
+            }
+
+            entry.start = new Date(props.start.getTime());
+        }
+
+        if (entry.end >= endCalculated) {
+            if (entry.start >= endCalculated) {
+                return false;
+            }
+            entry.end = new Date(endCalculated.getTime());
+        }
+        return true;
+    });
+});
+
+const getTimeline: Ref<TimelineTime[]> = computed(generateTimeline);
+
+const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.value.values()).flatMap(entries => entries));
+
+onMounted(() => {
+    setInterval(() => {
+        const now = new Date();
+        if (now.getMinutes() !== currentMinute.value.getMinutes()) {
+            currentMinute.value = now;
+        }
+    }, 1000);
+
+    idsRef.value.forEach((col, colIndex) => {
+        col.forEach((row, rowIndex) => {
+            if (row?.collapsable) {
+                const rows = countChildRows(colIndex, rowIndex);
+                if (rows < 1) {
+                    row.collapsable = false;
+                }
+            }
+        });
+    });
+
+    if (props.collapsed) {
+        idsRef.value.forEach((col, colIndex) => {
+            col.forEach((row, rowIndex) => {
+                if (row?.collapsable) {
+                    collapse(colIndex, rowIndex);
+                }
+            });
+        });
+    }
+
+    ready.value = true;
+});
+
+function collapseEntries(startId: number, endId: number, collapsed: boolean) {
+    entriesRef.value.forEach(entry => {
+        if (entry.id >= startId && entry.id <= endId) {
+            entry.collapsed = collapsed;
+        }
+    });
+}
+
+function getSumOffset(index: number): number {
+    const sortedKeys = Array.from(indexOffsetMap.value.keys()).sort((a, b) => a - b);
+    let sum = 0;
+    for (const key of sortedKeys) {
+        if (key >= index) break;
+        sum += indexOffsetMap.value.get(key) || 0;
+    }
+    return sum;
+}
+
+function countChildRows(colIndex: number, rowIndex: number) {
+    let rowsToCollapse = 0;
+    for (let i = rowIndex + 1; i < idsRef.value[colIndex].length; i++) {
+        if (idsRef.value[colIndex][i] && !idsRef.value[colIndex][i]?.invisible) {
+            break;
+        }
+        rowsToCollapse++;
+    }
+
+    return rowsToCollapse;
+}
+
+function collapse(colIndex: number, rowIndex: number) {
+    if (!idsRef.value[colIndex] || !idsRef.value[colIndex][rowIndex]?.collapsable) {
+        return;
+    }
+
+    const identifier = idsRef.value[colIndex][rowIndex];
+    const isCurrentlyCollapsed = identifier.collapsed || false;
+
+    const rowsToCollapse = countChildRows(colIndex, rowIndex);
+
+    if (rowsToCollapse < 1) {
+        return;
+    }
+
+    idsRef.value[colIndex][rowIndex] = {
+        ...identifier,
+        collapsed: !isCurrentlyCollapsed,
+    };
+
+    collapseRow(colIndex, rowIndex, rowsToCollapse, !isCurrentlyCollapsed);
+    collapseEntries(rowIndex, rowIndex + rowsToCollapse, !isCurrentlyCollapsed);
+
+    if (isCurrentlyCollapsed) {
+        collapsedEntries.value.delete(rowIndex);
+        indexOffsetMap.value.delete(rowIndex);
+    }
+    else {
+        indexOffsetMap.value.set(rowIndex, rowsToCollapse);
+        makeCollapsedEntry(rowIndex, rowsToCollapse, identifier.name);
+    }
+}
+
+function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed: boolean) {
+    for (let i = colIndex; i < idsRef.value.length; i++) {
+        const column = idsRef.value[i];
+        if (column) {
+            for (let j = rowIndex + 1; j < rowIndex + rows + 1; j++) {
+                const item = column[j];
+                if (item) {
+                    if ('collapsed' in item) {
+                        item.collapsed = collapsed;
+                    }
+                    else {
+                        column[j] = { ...item, collapsed: collapsed } as TimelineIdentifier;
+                    }
+                }
+                else {
+                    column[j] = { name: '', collapsed: collapsed, invisible: true } as TimelineIdentifier;
+                }
+            }
+        }
+    }
+
+    for (let i = colIndex + 1; i < idsRef.value.length; i++) {
+        const id = idsRef.value[i][rowIndex];
+        if (id) {
+            id.invisible = collapsed;
+        }
+    }
+}
+
+function timelineNowStyle() {
+    return `
+        left: ${ getEntryLeft(now.value) }px;
+        `;
+}
+
+function getEntryStyle(entry: TimelineEntry) {
+    return `
+        height: ${ rowHeight - gap }px;
+        width: ${ getEntryWidth(entry.start, entry.end) }px;
+        left: ${ getEntryLeft(entry.start) }px;
+        top: ${ getEntryTop(entry.id) }px;
+        `;
+}
+
+function makeCollapsedEntry(rowIndex: number, rows: number, title: string) {
+    if (collapsedEntries.value.has(rowIndex)) {
+        return;
+    }
+
+    const relevantEntries = entriesRef.value
+        .filter(entry => entry.id >= rowIndex && entry.id < rowIndex + rows);
+
+    if (relevantEntries.length === 0) return;
+
+    const mergedEntries: TimelineEntry[] = [];
+    const sortedEntries = [...relevantEntries].sort((a, b) => a.start.getTime() - b.start.getTime());
+    let currentMerged = getCurrentMerged(sortedEntries[0].start, sortedEntries[0].end, rowIndex, title);
+
+    for (let i = 1; i < sortedEntries.length; i++) {
+        const current = sortedEntries[i];
+
+        if (current.start <= currentMerged.end) {
+            currentMerged = getCurrentMerged(currentMerged.start, new Date(Math.max(currentMerged.end.getTime(), current.end.getTime())), rowIndex, title);
+        }
+        else {
+            mergedEntries.push(currentMerged);
+            currentMerged = getCurrentMerged(current.start, current.end, rowIndex, title);
+        }
+    }
+
+    mergedEntries.push(currentMerged);
+
+    collapsedEntries.value.set(rowIndex, mergedEntries);
+}
+
+
+function getCurrentMerged(start: Date, end: Date, id: number, title: string): TimelineEntry {
+    return {
+        start: start,
+        end: end,
+        title: title,
+        id: id,
+        collapsed: false,
+    };
+}
+
+function isToday(date1: Date): boolean {
+    return date1.getFullYear() == now.value.getFullYear() &&
+        date1.getMonth() == now.value.getMonth() &&
+        date1.getDate() == now.value.getDate();
+}
+
+function idClass(rowIndex: number, colIndex: number) {
+    let classes = '';
+    if (colIndex > 0) {
+        if (props.identifiers[colIndex - 1][rowIndex] && !props.identifiers[colIndex - 1][rowIndex]?.invisible) {
+            classes += 'id-cell-start ';
+        }
+
+        if (props.identifiers[colIndex - 1].length > rowIndex + 1) {
+            if (props.identifiers[colIndex - 1][rowIndex + 1] && !props.identifiers[colIndex - 1][rowIndex + 1]?.invisible) {
+                classes += 'id-cell-end ';
+            }
+        }
+    }
+    else {
+        classes += 'id-cell-left ';
+
+        if (props.identifiers[colIndex][rowIndex] && !props.identifiers[colIndex][rowIndex]?.invisible) {
+            classes += 'id-cell-start ';
+        }
+
+        if (props.identifiers[colIndex].length > rowIndex + 1) {
+            if (props.identifiers[colIndex][rowIndex + 1] && !props.identifiers[colIndex][rowIndex + 1]?.invisible) {
+                classes += 'id-cell-end ';
+            }
+        }
+    }
+
+    if (props.identifiers.length - 1 === colIndex) {
+        classes += 'id-cell-right ';
+    }
+
+    if (rowIndex == 0) {
+        classes += 'id-cell-start ';
+    }
+
+    if (props.identifiers[colIndex].length - 1 === rowIndex) {
+        classes += 'id-cell-end ';
+    }
+
+    if (props.identifiers[colIndex][rowIndex]?.collapsable) {
+        classes += 'id-collapse';
+    }
+
+    return classes;
+}
+
+function getCellStyle() {
+    const style: any = {
+        minWidth: `${ cellWidth }px`,
+        maxWidth: `${ cellWidth }px`,
+        minHeight: `${ rowHeight }px`,
+        maxHeight: `${ rowHeight }px`,
+    };
+
+    return style;
+}
+
+function generateTimeline(): TimelineTime[] {
+    const scaleInMinutes = scale.value * 60;
+    const timeSlots = [];
+
+    for (
+        let i = new Date(props.start.getTime());
+        i < endCalculated;
+        i.setMinutes(i.getMinutes() + scaleInMinutes)
+    ) {
+        timeSlots.push({
+            id: i.getTime(),
+            date: new Date(i.getTime()),
+            formattedDate: formatterDate.value.format(i),
+            formattedTime: formatterTime.value.format(i),
+        });
+    }
+
+    return timeSlots;
+}
+
+function getEntryLeft(time: Date) {
+    const timeDifference = (time.getTime() - props.start.getTime()) / (60 * 60 * 1000);
+    const left = timeDifference * cellWidth / scale.value;
+
+    return left;
+}
+
+function getEntryTop(id: number) {
+    return ((id - getSumOffset(id)) * rowHeight) + (gap / 2);
+}
+
+function getEntryWidth(start: Date, end: Date) {
+    const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000);
+    return duration * cellWidth / scale.value;
+}
+
+function onWheel(event: WheelEvent) {
+    if (event.deltaY < 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        scrollUp.value++;
+        if (scrollUp.value === scrollSpeed) {
+            scale.value = Math.min(scale.value + scaleIngrement.value, 5);
+            scrollUp.value = 0;
+        }
+    }
+    if (event.deltaY > 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        scrollDown.value++;
+        if (scrollDown.value === scrollSpeed) {
+            scale.value = Math.max(scale.value - scaleIngrement.value, 0.5);
+            scrollDown.value = 0;
+        }
+    }
+}
+
+function startDrag(event: MouseEvent) {
+    if (dragContainer.value) {
+        isDragging.value = true;
+        startX.value = event.clientX;
+        startY.value = event.clientY;
+    }
+}
+
+function drag(event: MouseEvent) {
+    if (isDragging.value && dragContainer.value) {
+        const deltaX = event.clientX - startX.value;
+        const deltaY = event.clientY - startY.value;
+
+        dragContainer.value.scrollLeft -= deltaX;
+        dragContainer.value.scrollTop -= deltaY;
+
+        startX.value = event.clientX;
+        startY.value = event.clientY;
+    }
+}
+
+function stopDrag() {
+    isDragging.value = false;
+}
+
+function textAnim(colIndex: number, rowIndex: number) {
+    const key = `${ colIndex }-${ rowIndex }`;
+    const container = idContainers.value[key];
+    const span = idTexts.value[key];
+    if (!span || !container) {
+        return '';
+    }
+
+    if ((span.clientWidth / (container.clientWidth - 5)) > 1) {
+        return 'text-left-right';
+    }
+    return '';
+}
+</script>
+
+
+<style scoped lang="scss">
+.wrapper {
+    scrollbar-width: none;
+    overflow: auto;
+    width: 100%;
+}
+
+.header {
+    position: sticky;
+    z-index:8;
+    top: 0;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    width: fit-content;
+    padding-top: 8px;
+    padding-right: 4px;
+    padding-bottom: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+
+    background: $darkgray1000;
+
+    @include mobileOnly {
+        position: static;
+    }
+
+    &-heads {
+        position: sticky;
+        z-index: 6;
+        left: 0;
+
+        display: flex;
+        flex-direction: row;
+
+        background: $darkgray1000;
+
+        @include mobileOnly {
+            position: static;
+        }
+    }
+
+    &-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.id {
+    cursor: default;
+
+    position: sticky;
+    z-index: 5;
+    left: 0;
+
+    display: flex;
+    flex-direction: row;
+
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+
+    background: $darkgray1000;
+
+    @include mobileOnly {
+        position: static;
+    }
+
+    &-icon {
+        z-index: 6;
+        width: 19px;
+        border-radius: 5px;
+        background: $darkgray1000;
+    }
+
+    &-collapse {
+        cursor: pointer;
+    }
+
+    &-text {
+        display: flex;
+        align-items: center;
+    }
+
+    &-cell {
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: left;
+
+        margin: auto;
+        padding-top: 6px;
+        padding-right: 6px;
+        padding-bottom: 6px;
+    }
+}
+
+.text-left-right {
+    position: relative;
+    animation: leftright 12s infinite ease-in-out;
+}
+
+@keyframes leftright {
+    0% {
+        left: 0%;
+    }
+
+    20% {
+        left: 0%;
+    }
+
+    80% {
+        left: -40%;
+    }
+
+    90% {
+        left: -40%;
+    }
+
+    100% {
+        left: 0%;
+    }
+}
+
+.timeline {
+    user-select: none;
+    scrollbar-width: none;
+
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+
+    height: 75vh;
+
+    &-data {
+        position: sticky;
+        top: 0;
+
+        display: flex;
+        flex-direction: row;
+
+        width: fit-content;
+    }
+
+    &-timeline {
+        z-index: 2;
+        display: flex;
+
+        &-time {
+            position: relative;
+            top:0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 20px;
+
+            background-color: rgba(var(--darkgray900), 0.9);
+            box-shadow: inset -3px -3px 7px rgba(black, 0.3);
+        }
+    }
+
+    &-entries {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+
+        &-now {
+            position: absolute;
+            z-index: 1;
+
+            width: 2px;
+            height: 100%;
+
+            background-color: rgba(255, 0, 0, 0.8);
+
+            &::after {
+                content: "Now";
+
+                position: sticky;
+                top: 90px;
+                transform: rotate(-90deg);
+
+                display: inline-block;
+
+                padding: 4px;
+                border-radius: 10px;
+
+                color: currentColor;
+
+                background-color: $darkgray800;
+            }
+        }
+
+        &-list {
+            position: relative;
+            width: fit-content;
+        }
+
+        &-entry {
+            position: absolute;
+            z-index: 0;
+
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            padding: 5px;
+            border-radius: 10px;
+
+            font-size: 14px;
+
+            background: rgba(var(--primary300), 0.3);
+            box-shadow: 5px 5px 4px rgba(black, 0.3);
+        }
+    }
+}
+
+.loading-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+}
+
+.loader {
+    transform: rotateZ(45deg);
+
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+
+    color: white;
+
+    perspective: 1000px;
+}
+
+.loader::before,
+.loader::after {
+    content: '';
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotateX(70deg);
+
+    display: block;
+
+    width: inherit;
+    height: inherit;
+    border-radius: 50%;
+
+    animation: 1s spin linear infinite;
+}
+
+.loader::after {
+    transform: rotateY(70deg);
+    color: $primary700;
+    animation-delay: .4s;
+}
+
+@keyframes rotate {
+    0% {
+        transform: translate(-50%, -50%) rotateZ(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotateZ(360deg);
+    }
+}
+
+@keyframes rotateccw {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(-360deg);
+    }
+}
+
+@keyframes spin {
+    0%,
+    100% {
+        box-shadow: .2em 0 0 0 currentcolor;
+    }
+
+    12% {
+        box-shadow: .2em .2em 0 0 currentcolor;
+    }
+
+    25% {
+        box-shadow: 0 .2em 0 0 currentcolor;
+    }
+
+    37% {
+        box-shadow: -.2em .2em 0 0 currentcolor;
+    }
+
+    50% {
+        box-shadow: -.2em 0 0 0 currentcolor;
+    }
+
+    62% {
+        box-shadow: -.2em -.2em 0 0 currentcolor;
+    }
+
+    75% {
+        box-shadow: 0 -.2em 0 0 currentcolor;
+    }
+
+    87% {
+        box-shadow: .2em -.2em 0 0 currentcolor;
+    }
+}
+</style>

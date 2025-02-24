@@ -6,6 +6,7 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
+    VatsimBooking,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
@@ -177,6 +178,7 @@ export interface RadarStorage {
         divisions: RedisDataGet<VatsimDivision[], []>;
         subDivisions: RedisDataGet<VatsimSubDivision[], []>;
         events: RedisDataGet<VatsimEvent[], []>;
+        bookings: RedisDataGet<VatsimBooking[], []>;
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
@@ -205,6 +207,7 @@ export const radarStorage: RadarStorage = {
         divisions: () => getRedisData('data-divisions', []),
         subDivisions: () => getRedisData('data-subdivisions', []),
         events: () => getRedisData('data-events', []),
+        bookings: () => getRedisData('data-bookings', []),
     },
     vatsim: {
         data: null,

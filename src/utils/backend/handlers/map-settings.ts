@@ -94,6 +94,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    bookingHours: val => {
+        return isNumber(val, 1) && val > 0 && val < 5;
+    },
     heatmapLayer: val => {
         return typeof val === 'boolean';
     },
@@ -226,7 +229,9 @@ export interface IUserMapSettings {
         runways?: boolean;
         pilotsInfo?: boolean;
         atcInfo?: boolean;
+        bookings?: boolean;
     };
+    bookingHours: number;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;

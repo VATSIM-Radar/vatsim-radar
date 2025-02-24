@@ -1,5 +1,5 @@
 import IORedis from 'ioredis';
-import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/types/data/patreon';
 
@@ -32,14 +32,23 @@ export interface RedisData {
     'data-events': VatsimEvent[];
     'data-navigraph': typeof cycles;
     'data-patreon': PatreonInfo;
+    'data-bookings': VatsimBooking[];
 }
 
 export async function getRedisData<K extends keyof RedisData, D extends RedisData[K], T = RedisData[K]>(key: K, defaults: D): Promise<T | D>;
 export async function getRedisData<K extends keyof RedisData, T = RedisData[K]>(key: K): Promise<T | null>;
 export async function getRedisData<K extends keyof RedisData, T = RedisData[K], D extends T | undefined = T | undefined>(key: K, defaults?: D): Promise<T | null> {
     const data = await getRedisSync(key);
-    if (typeof data === 'string') return JSON.parse(data) as T;
-    return defaults || data || null;
+    if (typeof data === 'string') {
+        try {
+            return JSON.parse(data) as T;
+        }
+        catch (error) {
+            console.error(`Error parsing JSON for key ${ key }:`, error);
+            return defaults ?? null;
+        }
+    }
+    return defaults ?? data ?? null;
 }
 
 export function setRedisData<K extends keyof RedisData, T = RedisData[K]>(key: K, data: T, expireIn: number) {
