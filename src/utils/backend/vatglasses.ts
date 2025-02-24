@@ -1,6 +1,6 @@
 import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
-import { getRedis } from '~/utils/backend/redis';
+import { getRedis, setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';
 
@@ -107,6 +107,7 @@ export async function updateVatglassesData() {
             currentSHA = latestSHA;
 
             radarStorage.vatglasses.data = jsonData;
+            await setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
 
             await new Promise<void>((resolve, reject) => {
                 const timeout = setTimeout(() => reject('Failed by timeout'), 15000);

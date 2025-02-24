@@ -2,6 +2,8 @@ import IORedis from 'ioredis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/types/data/patreon';
+import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData } from '~/utils/backend/storage';
+import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getRedis() {
     return new IORedis({
@@ -27,11 +29,24 @@ export function getRedisSync(key: string) {
 export type RedisDataGet<T extends Record<string, any> | any[], D extends T | null = null> = () => Promise<T | D>;
 
 export interface RedisData {
+    'data-vatspy': {
+        version: string;
+        data: VatSpyData;
+    };
+    'data-simaware': {
+        version: string;
+        data: SimAwareData;
+    };
+    'data-vatglasses': {
+        version: string;
+        data: VatglassesData;
+    };
     'data-divisions': VatsimDivision[];
     'data-subdivisions': VatsimSubDivision[];
     'data-events': VatsimEvent[];
     'data-navigraph': typeof cycles;
     'data-patreon': PatreonInfo;
+    'data-airlines': RadarDataAirlinesAllList;
 }
 
 export async function getRedisData<K extends keyof RedisData, D extends RedisData[K], T = RedisData[K]>(key: K, defaults: D): Promise<T | D>;
@@ -42,7 +57,7 @@ export async function getRedisData<K extends keyof RedisData, T = RedisData[K], 
     return defaults || data || null;
 }
 
-export function setRedisData<K extends keyof RedisData, T = RedisData[K]>(key: K, data: T, expireIn: number) {
+export function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
     return setRedisSync(key, JSON.stringify(data), expireIn);
 }
 

@@ -22,6 +22,7 @@ import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
 import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { setRedisData } from '~/utils/backend/redis';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -367,4 +368,5 @@ export async function updateAirlines() {
             ...airlines,
         },
     };
+    await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
 }

@@ -6,6 +6,7 @@ import { readFileSync } from 'fs';
 import { existsSync } from 'node:fs';
 import { join } from 'path';
 import type { VatglassesAPIData, VatsimStorage } from '../storage';
+import { setupRedisDataFetch } from '~/utils/backend/tasks';
 
 const DATA_DIR = join(process.cwd(), 'src/data');
 const JSON_FILE = join(DATA_DIR, 'vatglasses.json');
@@ -47,6 +48,7 @@ redisSubscriber.on('message', (channel, message) => {
 
 const redisPublisher = getRedis();
 
+setupRedisDataFetch();
 initVatglasses('server', workerDataStore);
 await loadSectors();
 
