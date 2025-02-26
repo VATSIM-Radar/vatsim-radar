@@ -182,7 +182,7 @@ function patreonTask() {
             budget: myAccount.data[0].attributes.pledge_sum / 100,
             highlighted: patrons,
         }, 1000 * 60 * 60 * 24 * 2);
-    }).catch(console.error);
+    }).catch(() => {});
 }
 
 export async function initWholeBunchOfBackendTasks() {
@@ -213,7 +213,7 @@ export async function setupRedisDataFetch() {
             await sleep(1000 * 60);
             await updateData();
         }
-
-        console.log('Init has been completed');
     });
+
+    console.log('Init has been completed');
 }

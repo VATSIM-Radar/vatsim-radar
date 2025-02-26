@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: influx
+  name: influx-v2
 spec:
   ports:
     - port: 8086
   selector:
-    app: influx
+    app: influx-v2
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: influx
+  name: influx-v2
 spec:
   progressDeadlineSeconds: 600
   strategy:
@@ -19,44 +19,34 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: influx
+      app: influx-v2
   template:
     metadata:
       labels:
-        app: influx
+        app: influx-v2
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx-4
+        doks.digitalocean.com/node-pool: influx-2
       imagePullSecrets:
         - name: nyan404
       containers:
-        - name: influx
+        - name: influx-v2
           image: reg.nyan404.ru/telegraf-influxdb:latest
-          imagePullPolicy: IfNotPresent
-          resources:
-            requests:
-              cpu: 300m
-              memory: 600Mi
-            limits:
-              cpu: 4000m
-              memory: 8Gi
-          env:
-            - name: TELEGRAF_INPUT_URLS
-              value: "https://next.vatsim-radar.com/api/data/vatsim/turns-data"
+          imagePullPolicy: Always
           ports:
             - containerPort: 8086
           volumeMounts:
-            - name: influx-data
-              mountPath: /var/lib/influxdb2
+            - name: influx-data-v2
+              mountPath: /root/.influxdbv2
       volumes:
-        - name: influx-data
+        - name: influx-data-v2
           persistentVolumeClaim:
-            claimName: radar-influx
+            claimName: radar-influx-v2
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: radar-influx
+  name: radar-influx-v2
 spec:
   accessModes:
     - ReadWriteOnce

@@ -5,12 +5,12 @@ import {
     updateVatsimExtendedPilots, updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
-import { influxDBWrite, initInfluxDB } from '~/utils/backend/influx/influx';
+import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/backend/influx/influx';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
-import { getPlanInfluxDataForPilots } from '~/utils/backend/influx/converters';
+import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
@@ -450,16 +450,28 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.airports = await getAirportsList();
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
-            const data = getPlanInfluxDataForPilots();
-            if (data.length) {
-                influxDBWrite.writeRecords(data);
+            const plans = getPlanInfluxDataForPilots();
+            const pilots = getShortInfluxDataForPilots();
+            if (plans.length) {
+                influxDBWritePlans.writeRecords(plans);
 
                 await new Promise<void>(async (resolve, reject) => {
-                    const timeout = setTimeout(() => reject(new Error('Influx write Failed by timeout')), 5000);
-                    await influxDBWrite.flush(true).catch(console.error);
+                    const timeout = setTimeout(() => reject(new Error('Influx plans write Failed by timeout')), 5000);
+                    await influxDBWritePlans.flush(true).catch(console.error);
                     clearTimeout(timeout);
                     resolve();
-                });
+                }).catch(console.error);
+            }
+
+            if (pilots.length) {
+                influxDBWriteMain.writeRecords(pilots);
+
+                await new Promise<void>(async (resolve, reject) => {
+                    const timeout = setTimeout(() => reject(new Error('Influx pilots write Failed by timeout')), 5000);
+                    await influxDBWriteMain.flush(true).catch(console.error);
+                    clearTimeout(timeout);
+                    resolve();
+                }).catch(console.error);
             }
         }
 
