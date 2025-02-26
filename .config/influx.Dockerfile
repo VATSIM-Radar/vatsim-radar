@@ -6,10 +6,11 @@ RUN apt-get update && \
     echo "deb https://repos.influxdata.com/ubuntu $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/influxdb.list && \
     rm -rf /var/lib/apt/lists/*
 
+COPY ./.env /.env
 COPY .config/influx.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 8086
 
-ENTRYPOINT ["export $(grep -v '^#' /radar/.env | xargs) && /entrypoint.sh"]
+ENTRYPOINT ["sh", "-c", "export $(grep -v '^#' /.env | xargs) && /entrypoint.sh"]

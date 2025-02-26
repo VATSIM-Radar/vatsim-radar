@@ -28,10 +28,10 @@ spec:
       nodeSelector:
         doks.digitalocean.com/node-pool: influx-2
       imagePullSecrets:
-        - name: nyan404
+        - name: ghcr-login-secret
       containers:
         - name: influx-v2
-          image: reg.nyan404.ru/telegraf-influxdb:latest
+          image: ghcr.io/vatsim-radar/vatsim-radar/influx
           imagePullPolicy: Always
           ports:
             - containerPort: 8086
