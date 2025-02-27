@@ -1,15 +1,18 @@
 import { defineCronJob } from '~/utils/backend';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
-import { updateSimAware } from '~/utils/backend/vatsim/simaware';
-import { updateVatglassesData } from '~/utils/backend/vatglasses';
-import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
-import { updateAirlines } from '~/utils/backend/vatsim/update';
+import { setupRedisDataFetch } from '~/utils/backend/tasks';
+import { radarStorage } from '~/utils/backend/storage';
+import { getRedis } from '~/utils/backend/redis';
+
+const redisSubscriber = getRedis();
 
 export default defineNitroPlugin(app => {
+    setupRedisDataFetch();
+
+    redisSubscriber.subscribe('vatglassesActive');
+    redisSubscriber.on('message', (_, message) => {
+        radarStorage.vatglasses.activeData = message;
+    });
+
     defineCronJob('15 */2 * * *', initNavigraph);
-    defineCronJob('15 * * * *', updateSimAware);
-    defineCronJob('15 */2 * * *', updateVatglassesData);
-    defineCronJob('15 * * * *', updateVatSpy);
-    defineCronJob('15 */2 * * *', initNavigraph);
-    defineCronJob('15 0 * * *', updateAirlines);
 });

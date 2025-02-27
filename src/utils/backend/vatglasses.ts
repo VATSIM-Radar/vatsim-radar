@@ -1,12 +1,11 @@
 import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
-import { getRedis } from '~/utils/backend/redis';
+import { setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesData } from '~/utils/backend/storage';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
-const redisPublisher = getRedis();
 let currentSHA: string | null = null;
 
 async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
@@ -107,15 +106,7 @@ export async function updateVatglassesData() {
             currentSHA = latestSHA;
 
             radarStorage.vatglasses.data = jsonData;
-
-            await new Promise<void>((resolve, reject) => {
-                const timeout = setTimeout(() => reject('Failed by timeout'), 15000);
-                redisPublisher.publish('vatglassesData', 'updated', err => {
-                    clearTimeout(timeout);
-                    if (err) return reject(err);
-                    resolve();
-                });
-            });
+            await setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
         }
     }
     catch (error) {

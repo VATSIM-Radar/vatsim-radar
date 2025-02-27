@@ -2,9 +2,7 @@ import type { InfluxFlight } from '~/utils/backend/influx/queries';
 import { getInfluxOnlineFlightTurns } from '~/utils/backend/influx/queries';
 import type { Feature, FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
-import { readFileSync, writeFileSync } from 'node:fs';
 import type { VatsimPilot } from '~/types/data/vatsim';
-import { join } from 'path';
 import { getFlightRowGroup } from '~/utils/shared/flight';
 import { toLonLat } from 'ol/proj';
 
@@ -108,29 +106,14 @@ function outputInfluxValue(value: string | number | boolean, isFloat = false) {
     if (typeof value === 'boolean') return String(value);
 }
 
-let previousPlanData: VatsimPilot[] = [];
-let previousShortData: VatsimPilot[] = [];
-
-const cwd = join(process.cwd(), 'src');
-const dataPath = join(cwd, 'data/turns-save.json');
-let file: string | undefined;
-
-try {
-    file = readFileSync(dataPath, 'utf-8');
-}
-catch { // empty
-}
-
-if (file) {
-    previousPlanData = JSON.parse(file);
-    previousShortData = previousPlanData;
-}
+let previousPlanData: Record<number, VatsimPilot> = {};
+let previousShortData: Record<number, { previousLogTime: number; pilot: VatsimPilot }> = {};
 
 export function getPlanInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
 
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
-        const previousPilot = previousPlanData.find(x => x.cid === pilot.cid);
+        const previousPilot = previousPlanData[pilot.cid];
 
         const obj = {
             altitude: pilot.altitude,
@@ -144,13 +127,14 @@ export function getPlanInfluxDataForPilots() {
             transponder: pilot.transponder,
             fpl_route: pilot.flight_plan?.route,
             fpl_enroute_time: pilot.flight_plan?.enroute_time,
+            fpl_departure_time: pilot.flight_plan?.deptime,
             fpl_flight_rules: pilot.flight_plan?.flight_rules,
             fpl_departure: pilot.flight_plan?.departure,
             fpl_arrival: pilot.flight_plan?.arrival,
             fpl_altitude: pilot.flight_plan?.altitude,
         };
 
-        if (previousPilot && !!previousPilot.flight_plan?.route === !!obj.fpl_route && previousPilot.callsign === obj.callsign && previousPilot.flight_plan?.arrival === obj.fpl_arrival && previousPilot.flight_plan?.departure === obj.fpl_departure) return;
+        if (previousPilot && previousPilot.callsign === obj.callsign && previousPilot.flight_plan?.deptime === obj.fpl_departure_time && previousPilot.flight_plan?.enroute_time === obj.fpl_enroute_time && previousPilot.flight_plan?.departure === obj.fpl_departure) return;
 
         const entries = Object.entries(obj)
             .filter(([key, value]) => value !== undefined && value !== null)
@@ -162,17 +146,37 @@ export function getPlanInfluxDataForPilots() {
         return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
     }).filter(x => !!x) as string[];
 
-    writeFileSync(dataPath, JSON.stringify(radarStorage.vatsim.data!.pilots), 'utf-8');
-    previousPlanData = radarStorage.vatsim.data!.pilots;
+    previousPlanData = Object.fromEntries(radarStorage.vatsim.data!.pilots.map(x => [x.cid, x]));
 
     return data;
+}
+
+function shouldUpdatePilot(altitude: number, previousTime: number) {
+    const diff = Date.now() - previousTime;
+
+    if (altitude > 30000) return diff > 1000 * 30;
+    if (altitude > 20000) return diff > 1000 * 20;
+    if (altitude > 15000) return diff > 1000 * 10;
+    if (altitude > 10000) return diff > 1000 * 7;
+
+    return true;
 }
 
 export function getShortInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
 
-    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign && x.altitude).map(pilot => {
-        const previousPilot = previousShortData.find(x => x.cid === pilot.cid);
+    const newPilotsData: typeof previousShortData = {};
+
+    const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
+        const previousPilot = previousShortData[pilot.cid];
+
+        if (previousPilot && !shouldUpdatePilot(pilot.altitude, previousPilot.previousLogTime)) {
+            newPilotsData[pilot.cid] = {
+                previousLogTime: previousPilot.previousLogTime,
+                pilot,
+            };
+            return;
+        }
 
         const obj = {
             altitude: pilot.altitude,
@@ -187,29 +191,32 @@ export function getShortInfluxDataForPilots() {
         };
 
         const previousObj = previousPilot && {
-            altitude: previousPilot.altitude,
-            callsign: previousPilot.callsign,
-            groundspeed: previousPilot.groundspeed,
-            heading: previousPilot.heading,
-            latitude: previousPilot.latitude,
-            longitude: previousPilot.longitude,
-            name: previousPilot.name,
-            qnh_mb: previousPilot.qnh_mb,
-            transponder: previousPilot.transponder,
+            altitude: previousPilot.pilot.altitude,
+            callsign: previousPilot.pilot.callsign,
+            groundspeed: previousPilot.pilot.groundspeed,
+            heading: previousPilot.pilot.heading,
+            latitude: previousPilot.pilot.latitude,
+            longitude: previousPilot.pilot.longitude,
+            name: previousPilot.pilot.name,
+            qnh_mb: previousPilot.pilot.qnh_mb,
+            transponder: previousPilot.pilot.transponder,
         };
 
         const entries = Object.entries(obj)
             .filter(([key, value]) => value !== undefined && value !== null && (!previousObj || previousObj[key as keyof typeof previousObj] !== value))
-            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!) }`)
+            .map(([key, value]) => `${ key }=${ outputInfluxValue(value!, key === 'latitude' || key === 'longitude') }`)
             .join(',');
 
         if (!entries) return;
 
+        newPilotsData[pilot.cid] = {
+            previousLogTime: Date.now(),
+            pilot,
+        };
+
         return `data,cid=${ pilot.cid } ${ entries } ${ date }`;
     }).filter(x => !!x) as string[];
 
-    writeFileSync(dataPath, JSON.stringify(radarStorage.vatsim.data!.pilots), 'utf-8');
-    previousShortData = radarStorage.vatsim.data!.pilots;
-
+    previousShortData = newPilotsData;
     return data;
 }

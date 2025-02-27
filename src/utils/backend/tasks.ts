@@ -11,7 +11,7 @@ import { radarStorage } from '~/utils/backend/storage';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
-import { getRedis, setRedisData } from '~/utils/backend/redis';
+import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { updateAirlines, updateAustraliaData, updateBookings, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
@@ -20,6 +20,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { prisma } from '~/utils/backend/prisma';
+import { sleep } from '~/utils';
 
 const redisSubscriber = getRedis();
 
@@ -182,7 +183,7 @@ function patreonTask() {
             budget: myAccount.data[0].attributes.pledge_sum / 100,
             highlighted: patrons,
         }, 1000 * 60 * 60 * 24 * 2);
-    }).catch(console.error);
+    }).catch(() => {});
 }
 
 export async function initWholeBunchOfBackendTasks() {
@@ -196,4 +197,24 @@ export async function initWholeBunchOfBackendTasks() {
     catch (e) {
         console.error(e);
     }
+}
+
+async function updateData() {
+    radarStorage.vatglasses.data = (await getRedisData('data-vatglasses'))!;
+    radarStorage.simaware = (await getRedisData('data-simaware'))!;
+    radarStorage.vatspy = (await getRedisData('data-vatspy'))!;
+    radarStorage.airlines = (await getRedisData('data-airlines'))!;
+}
+
+export async function setupRedisDataFetch() {
+    await defineCronJob('15 * * * *', async () => {
+        await updateData();
+
+        while (!radarStorage.vatspy.data) {
+            await sleep(1000 * 60);
+            await updateData();
+        }
+    });
+
+    console.log('Init has been completed');
 }

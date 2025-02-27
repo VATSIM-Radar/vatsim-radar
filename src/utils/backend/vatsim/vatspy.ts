@@ -5,6 +5,8 @@ import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import type { RedisData } from '~/utils/backend/redis';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
     'v2410.1': 3,
@@ -204,6 +206,7 @@ export async function updateVatSpy() {
 
     radarStorage.vatspy.version = data.current_commit_hash;
     radarStorage.vatspy.data = result;
+    await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
     console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
 }
 

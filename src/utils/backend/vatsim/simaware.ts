@@ -1,6 +1,8 @@
 import { radarStorage } from '~/utils/backend/storage';
 import type { SimAwareData } from '~/utils/backend/storage';
 import { $fetch } from 'ofetch';
+import type { RedisData } from '~/utils/backend/redis';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
     'Release v1.1.34': 1,
@@ -41,6 +43,7 @@ export async function updateSimAware() {
 
     radarStorage.simaware.version = data.name;
     radarStorage.simaware.data = geojson;
+    await setRedisData('data-simaware', radarStorage.simaware as RedisData['data-simaware'], 1000 * 60 * 60 * 24 * 2);
 
     console.info(`SimAware Update Complete (${ data.name })`);
 }
