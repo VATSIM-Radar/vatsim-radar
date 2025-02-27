@@ -71,3 +71,4 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
 
     return new Polygon([coords]);
 }
+

@@ -17,6 +17,26 @@ export const useFacilitiesIds = () => {
     };
 };
 
+export function getFacilityByCallsign(callsign: string): number {
+    const facilityMap: { [key: string]: string } = {
+        _TWR: 'TWR',
+        _GND: 'GND',
+        _DEL: 'DEL',
+        _APP: 'APP',
+        _CTR: 'CTR',
+        _FSS: 'FSS',
+        _OBS: 'OBS',
+    };
+
+    for (const suffix in facilityMap) {
+        if (callsign.endsWith(suffix)) {
+            const facilityShort = facilityMap[suffix];
+            return radarStorage.vatsim.data?.facilities.find(x => x.short === facilityShort)?.id ?? -1;
+        }
+    }
+    return -1;
+}
+
 function findFacility(name: string, controller: VatsimShortenedController) {
     return radarStorage.vatspy.data!.firs.filter(x => {
         if (x.icao !== name && x.callsign !== name) return false;

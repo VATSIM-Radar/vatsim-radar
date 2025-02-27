@@ -2,6 +2,8 @@ import PatreonIcon from 'assets/icons/basic/patreon.svg?component';
 import MapIcon from 'assets/icons/kit/map.svg?component';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 import EventsIcon from 'assets/icons/kit/event.svg?component';
+import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
+import BookingsIcon from 'assets/icons/kit/bookings.svg?component';
 import PathIcon from 'assets/icons/kit/path.svg?component';
 import { useStore } from '~/store';
 
@@ -39,9 +41,20 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
             ],
         },
         {
-            text: 'Events',
-            path: '/events',
-            icon: EventsIcon,
+            text: 'Calendar',
+            icon: CalendarIcon,
+            children: [
+                {
+                    text: 'Bookings',
+                    path: '/bookings',
+                    icon: BookingsIcon,
+                },
+                {
+                    text: 'Events',
+                    path: '/events',
+                    icon: EventsIcon,
+                },
+            ],
         },
         {
             text: 'Stats',
