@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Change Telegraf config file env
-envsubst < /etc/telegraf/telegraf.conf > /etc/telegraf_resolved.conf
-
 # Run InfluxDB in background
 influxd &
 
@@ -33,3 +30,5 @@ else
       --retention 24h \
       --token $INFLUX_TOKEN
 fi
+
+tail -f /dev/null

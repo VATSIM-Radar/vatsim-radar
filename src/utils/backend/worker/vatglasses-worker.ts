@@ -29,7 +29,7 @@ redisSubscriber.on('message', (channel, message) => {
 const redisPublisher = getRedis();
 
 await setupRedisDataFetch();
-initVatglasses('server', workerDataStore, radarStorage);
+await initVatglasses('server', workerDataStore, radarStorage);
 
 let firstUpdate = true;
 console.log('Worker has been set up');
