@@ -151,9 +151,12 @@ export function getPlanInfluxDataForPilots() {
     return data;
 }
 
-function shouldUpdatePilot(altitude: number, previousTime: number) {
-    const diff = Date.now() - previousTime;
+function shouldUpdatePilot(pilot: VatsimPilot, previousPilot: VatsimPilot, previousTime: number): boolean {
+    if (previousPilot.heading === pilot.heading && Math.abs(previousPilot.altitude - pilot.altitude) < 750) return false;
+    if (previousPilot.longitude === pilot.longitude && previousPilot.latitude === pilot.latitude) return false;
 
+    const diff = Date.now() - previousTime;
+    const altitude = pilot.altitude;
     if (altitude > 30000) return diff > 1000 * 30;
     if (altitude > 20000) return diff > 1000 * 20;
     if (altitude > 15000) return diff > 1000 * 10;
@@ -170,7 +173,7 @@ export function getShortInfluxDataForPilots() {
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousShortData[pilot.cid];
 
-        if (previousPilot && !shouldUpdatePilot(pilot.altitude, previousPilot.previousLogTime)) {
+        if (previousPilot && !shouldUpdatePilot(pilot, previousPilot.pilot, previousPilot.previousLogTime)) {
             newPilotsData[pilot.cid] = {
                 previousLogTime: previousPilot.previousLogTime,
                 pilot,
