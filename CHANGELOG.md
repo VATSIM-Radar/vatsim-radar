@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.3-1]
+
+- Fixed gates not showing up for some airports when using Navigraph
+
 # [1.0.3]
 
 - New icons from DotWallop (P180, BA11, DH88, F28, J328)
