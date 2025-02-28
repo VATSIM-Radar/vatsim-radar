@@ -120,6 +120,8 @@ function getSumOffset(index: number): number {
 
         width: 100%;
         height: 100%;
+        padding-right: 8px;
+        padding-left: 8px;
     }
 
     &-colorbox {
