@@ -29,6 +29,7 @@ import type { TimelineEntry, TimelineIdentifier } from '~/types/data/timeline';
 import CommonTimeline from '~/components/common/basic/CommonTimeline.vue';
 import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { useStore } from '~/store';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -48,8 +49,8 @@ const dateRange = ref({
 
 const data = ref(await fetchBookings());
 
-const bookingTimelineIdentifiers = ref(makeBookingTimelineIds());
-const bookingTimelineEntries = ref(makeBookingTimelineEntries());
+const bookingTimelineIdentifiers = computed(() => makeBookingTimelineIds());
+const bookingTimelineEntries = computed(() => makeBookingTimelineEntries());
 
 watch(dateRange, async () => {
     if (fetchStart.value > dateRange.value.from || fetchEnd.value < dateRange.value.to) {
@@ -58,9 +59,6 @@ watch(dateRange, async () => {
         fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.value.from.getTime()));
         fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.value.to.getTime()));
     }
-
-    bookingTimelineIdentifiers.value = makeBookingTimelineIds();
-    bookingTimelineEntries.value = makeBookingTimelineEntries();
 });
 
 async function fetchBookings() {
@@ -68,6 +66,11 @@ async function fetchBookings() {
         query: { starting: start.getTime(), ending: end.getTime() },
     });
 }
+
+onMounted(() => {
+    const store = useStore();
+    store.getVATSIMData();
+});
 
 function makeBookingTimelineEntries(): TimelineEntry[] {
     const entries: TimelineEntry[] = [];

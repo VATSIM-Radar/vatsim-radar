@@ -65,9 +65,6 @@
                     >
                         <div
                             v-if="!row?.collapsed || row?.collapsable"
-                            :ref="el => {
-                                if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
-                            }"
                             class="id-cell"
                             :class="idClass(rowIndex, colIndex)"
                             :style="getCellStyle()"
@@ -90,7 +87,11 @@
                                     class="id-icon"
                                 />
                                 <div
+                                    :ref="el => {
+                                        if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                    }"
                                     class="id-box-text"
+
                                     :style="'width:' + (cellWidth - 30) + 'px;'"
                                 >
                                     <span
@@ -683,7 +684,7 @@ function textAnim(colIndex: number, rowIndex: number) {
         return '';
     }
 
-    if ((span.clientWidth / (container.clientWidth - 5)) > 1) {
+    if ((span.clientWidth / (container.clientWidth)) > 1) {
         return 'text-left-right';
     }
     return '';
@@ -818,11 +819,19 @@ function textAnim(colIndex: number, rowIndex: number) {
     }
 
     80% {
-        left: -40%;
+        left: -100%;
+
+        @include mobileOnly {
+            left: -200%;
+        }
     }
 
     90% {
-        left: -40%;
+        left: -100%;
+
+        @include mobileOnly {
+            left: -200%;
+        }
     }
 
     100% {
@@ -838,7 +847,7 @@ function textAnim(colIndex: number, rowIndex: number) {
     display: flex;
     flex-direction: column;
 
-    height: 72vh;
+    height: 80vh;
 
     &-data {
         position: sticky;
