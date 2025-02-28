@@ -18,6 +18,7 @@ export interface TimelineEntry {
     id: number;
     collapsed?: boolean;
     details?: TimelineDetails;
+    color?: string;
 }
 
 export interface TimelineDetails {

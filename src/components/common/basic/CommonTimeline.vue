@@ -1,53 +1,100 @@
 <template>
-    <div v-if="ready" ref="dragContainer" class="timeline" :style="isDragging ? 'cursor: grabbing;' : 'cursor: grab;'"
-        @mousedown="startDrag" @mouseleave="stopDrag" @mousemove="drag" @mouseup="stopDrag">
+    <div
+        v-if="ready"
+        ref="dragContainer"
+        class="timeline"
+        :style="isDragging ? 'cursor: grabbing;' : 'cursor: grab;'"
+        @mousedown="startDrag"
+        @mouseleave="stopDrag"
+        @mousemove="drag"
+        @mouseup="stopDrag"
+    >
         <div class="header">
             <div class="header-heads">
-                <div v-for="header in headers" :key="header.name" class="header-head" :style="getCellStyle()">
+                <div
+                    v-for="header in headers"
+                    :key="header.name"
+                    class="header-head"
+                    :style="getWidthStyle()"
+                >
                     {{ header.name }}
                 </div>
             </div>
             <!-- Timeline -->
-            <div class="timeline-timeline" @wheel="onWheel">
-                <div v-for="time in getTimeline" :key="time.id" class="timeline-timeline-time" :style="'min-width: ' +
-                    cellWidth +
-                    'px; ' +
-                    'max-width: ' +
-                    cellWidth +
-                    'px; ' +
-                    'min-height: ' +
-                    rowHeight +
-                    'px; ' +
-                    'max-height: ' +
-                    rowHeight +
-                    'px; '
-                    ">
-                    <span v-if="isToday(time.date)">
-                        {{ time.formattedTime }}
+            <div
+                class="timeline-timeline"
+                @wheel="onWheel"
+            >
+                <div
+                    v-for="day in getTimelineDays"
+                    :key="day.id"
+                    class="timeline-timeline-day"
+                >
+                    <span
+                        class="timeline-timeline-day-txt"
+                        :style="getDayStyle()"
+                    >
+                        {{ day.formattedDate }}
                     </span>
-                    <span v-else>
-                        {{ time.formattedDate }}<br>
-                        {{ time.formattedTime }}
-                    </span>
+                    <div class="timeline-timeline-day-list">
+                        <div
+                            v-for="time in getTimelineTime(day.day)"
+                            :key="time.id"
+                            class="timeline-timeline-time"
+                            :style="getWidthStyle()"
+                        >
+                            <span>
+                                {{ time.formattedTime }}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="timeline-data">
             <!-- Identifiers -->
             <div class="id">
-                <div v-for="(col, colIndex) in idsRef" :key="colIndex" class="id-row">
-                    <div v-for="(row, rowIndex) in col" :key="rowIndex">
-                        <div v-if="!row?.collapsed || row?.collapsable" :ref="el => {
-                            if (el) idContainers[`${colIndex}-${rowIndex}`] = el as HTMLElement
-                        }" class="id-cell" :class="idClass(rowIndex, colIndex)" :style="getCellStyle()"
-                            @click="collapse(colIndex, rowIndex)">
-                            <div v-if="!row?.invisible" class="id-text">
-                                <fold-icon v-if="row?.collapsable && !row.collapsed" class="id-icon" />
-                                <unfold-icon v-if="row?.collapsable && row.collapsed" class="id-icon" />
-                                <div v-if="!row?.collapsable" class="id-icon" />
-                                <span :ref="el => {
-                                    if (el) idTexts[`${colIndex}-${rowIndex}`] = el as HTMLElement
-                                }" :class="textAnim(colIndex, rowIndex)">
+                <div
+                    v-for="(col, colIndex) in idsRef"
+                    :key="colIndex"
+                    class="id-row"
+                >
+                    <div
+                        v-for="(row, rowIndex) in col"
+                        :key="rowIndex"
+                    >
+                        <div
+                            v-if="!row?.collapsed || row?.collapsable"
+                            :ref="el => {
+                                if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                            }"
+                            class="id-cell"
+                            :class="idClass(rowIndex, colIndex)"
+                            :style="getCellStyle()"
+                            @click="collapse(colIndex, rowIndex)"
+                        >
+                            <div
+                                v-if="!row?.invisible"
+                                class="id-text"
+                            >
+                                <fold-icon
+                                    v-if="row?.collapsable && !row.collapsed"
+                                    class="id-icon"
+                                />
+                                <unfold-icon
+                                    v-if="row?.collapsable && row.collapsed"
+                                    class="id-icon"
+                                />
+                                <div
+                                    v-if="!row?.collapsable"
+                                    class="id-icon"
+                                />
+                                <span
+                                    :ref="el => {
+                                        if (el) idTexts[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                    }"
+                                    :class="textAnim(colIndex, rowIndex)"
+                                >
                                     {{ row?.name ?? '' }}
                                 </span>
                             </div>
@@ -57,28 +104,51 @@
             </div>
             <!-- Entries -->
             <div class="timeline-entries">
-                <div class="timeline-entries-now" :style="timelineNowStyle()" />
+                <div
+                    class="timeline-entries-now"
+                    :style="timelineNowStyle()"
+                />
                 <!-- Entries -->
                 <div class="timeline-entries-list">
-                    <div v-for="entry in entriesRef" :key="entry.id + entry.start.getTime()">
-                        <div v-if="!entry.collapsed" class="timeline-entries-entry" :style="getEntryStyle(entry)"
-                            @mouseover="hover = entry.id">
-                            {{ entry.title }}
-                            <div v-if="entry.details" class="timeline-entry-details" />
-                        </div>
-                    </div>
-                    <div v-for="cEntry in flattenedCollapsedEntries" :key="cEntry.id" class="timeline-entries-entry"
-                        :style="getEntryStyle(cEntry)">
-                        <span>{{ cEntry.title }}</span>
-                        <div v-if="cEntry.details" class="timeline-entry-details" />
-                    </div>
+                    <template
+                        v-for="entry in entriesRef"
+                        :key="entry.id + entry.start.getTime()"
+                    >
+                        <common-timeline-entry
+                            v-if="!entry.collapsed"
+                            :cell-width
+                            :entry
+                            :gap
+                            :index-offset-map
+                            :row-height
+                            :scale
+                            :start
+                        />
+                    </template>
+                    <template
+                        v-for="cEntry in flattenedCollapsedEntries"
+                        :key="cEntry.id + cEntry.start.getTime()"
+                    >
+                        <common-timeline-entry
+                            :cell-width
+                            :entry="cEntry"
+                            :gap
+                            :index-offset-map
+                            :row-height
+                            :scale
+                            :start
+                        />
+                    </template>
                 </div>
             </div>
-            <div :style="'width: ' + getTimeline.length * cellWidth + 'px'" />
+            <div :style="'width: ' + getTimeline.length * cellWidth + 'px'"/>
         </div>
     </div>
-    <div v-else class="loading-screen">
-        <div class="loader" />
+    <div
+        v-else
+        class="loading-screen"
+    >
+        <div class="loader"/>
     </div>
 </template>
 
@@ -87,9 +157,10 @@ import type { TimelineEntry, TimelineHeader, TimelineIdentifier } from '~/types/
 import type { PropType } from 'vue';
 import FoldIcon from '@/assets/icons/kit/fold.svg?component';
 import UnfoldIcon from '@/assets/icons/kit/unfold.svg?component';
+import CommonTimelineEntry from './CommonTimelineEntry.vue';
 
 interface TimelineTime {
-    id: number; date: Date; formattedDate: string; formattedTime: string;
+    id: number; date: Date; formattedDate: string; formattedTime: string; day: number;
 }
 
 const props = defineProps({
@@ -135,6 +206,7 @@ const ready = ref(false);
 const cellWidth = isMobile.value ? 80 : 120;
 const rowHeight = 50;
 const gap = 4;
+const headerWidth = props.headers.length * cellWidth;
 
 // I dont care if its reactivity is losed....didnt found a workaround, because toRef cannot be edited ... so its like this :) suggestions?
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
@@ -155,14 +227,14 @@ const getIdentifiers = toRef(props, 'identifiers');
 
 const idContainers = ref<{ [key: string]: HTMLElement | null }>({});
 const idTexts = ref<{ [key: string]: HTMLElement | null }>({});
-const hover = ref(-1);
 const collapsedEntries = ref<Map<number, TimelineEntry[]>>(new Map());
 const indexOffsetMap = ref<Map<number, number>>(new Map());
 const collapseMap = ref(new Map<string, boolean>());
 
 const endCalculated = computed(() => {
-    if (props.end)
+    if (props.end) {
         return props.end;
+    }
 
     let tmp = new Date();
     getEntries.value.forEach(entry => {
@@ -192,7 +264,7 @@ const formatterDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     timeZone: timeZone.value,
 }));
 
-const idsRef = ref(prepareIds())
+const idsRef = ref(prepareIds());
 
 const entriesRef = ref(filterEntries());
 watch([getEntries, getIdentifiers], () => {
@@ -204,7 +276,13 @@ watch([getEntries, getIdentifiers], () => {
     collapseByMap();
 });
 
-const getTimeline: Ref<TimelineTime[]> = computed(generateTimeline);
+const getTimeline: Ref<TimelineTime[]> = shallowRef(generateTimeline());
+const getTimelineDays: Ref<TimelineTime[]> = shallowRef(generateTimelineDays());
+
+watch(scale, () => {
+    getTimeline.value = generateTimeline();
+    getTimelineDays.value = generateTimelineDays();
+});
 
 const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.value.values()).flatMap(entries => entries));
 
@@ -216,7 +294,7 @@ onMounted(() => {
         }
     }, 1000);
 
-    //prepareIds();
+    // prepareIds();
 
     if (props.collapsed) {
         idsRef.value.forEach((col, colIndex) => {
@@ -234,29 +312,30 @@ onMounted(() => {
 function collapseByMap() {
     idsRef.value.forEach((col, colIndex) => {
         col.forEach((row, rowIndex) => {
-            if (row?.collapsable)
-                if (collapseMap.value.has(row.name))
-                    if (!collapseMap.value.get(row.name))
+            if (row?.collapsable) {
+                if (collapseMap.value.has(row.name)) {
+                    if (!collapseMap.value.get(row.name)) {
                         collapse(colIndex, rowIndex);
-        })
-    })
+                    }
+                }
+            }
+        });
+    });
 }
 
 function prepareIds() {
-    return getIdentifiers.value.map((col, colIndex) =>
-        col.map((row, rowIndex) => {
-            if (row === null) return null;
+    return getIdentifiers.value.map((col, colIndex) => col.map((row, rowIndex) => {
+        if (row === null) return null;
 
-            let newRow = { ...row };
-            if (newRow.collapsable) {
-                const rows = countChildRows(colIndex, rowIndex, getIdentifiers.value);
-                if (rows < 1) {
-                    newRow.collapsable = false;
-                }
+        const newRow = { ...row };
+        if (newRow.collapsable) {
+            const rows = countChildRows(colIndex, rowIndex, getIdentifiers.value);
+            if (rows < 1) {
+                newRow.collapsable = false;
             }
-            return newRow;
-        })
-    );
+        }
+        return newRow;
+    }));
 }
 
 function filterEntries() {
@@ -282,7 +361,7 @@ function filterEntries() {
     }).map(entry => ({
         ...entry,
         start: new Date(Math.max(entry.start.getTime(), props.start.getTime())),
-        end: new Date(Math.min(entry.end.getTime(), endCalculated.value.getTime()))
+        end: new Date(Math.min(entry.end.getTime(), endCalculated.value.getTime())),
     }));
 }
 
@@ -292,16 +371,6 @@ function collapseEntries(startId: number, endId: number, collapsed: boolean) {
             entry.collapsed = collapsed;
         }
     });
-}
-
-function getSumOffset(index: number): number {
-    const sortedKeys = Array.from(indexOffsetMap.value.keys()).sort((a, b) => a - b);
-    let sum = 0;
-    for (const key of sortedKeys) {
-        if (key >= index) break;
-        sum += indexOffsetMap.value.get(key) || 0;
-    }
-    return sum;
 }
 
 function countChildRows(colIndex: number, rowIndex: number, source: (TimelineIdentifier | null)[][]) {
@@ -381,24 +450,22 @@ function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed
 
 function timelineNowStyle() {
     return `
-        left: ${getEntryLeft(now.value)}px;
+        left: ${ getEntryLeft(now.value) }px;
         `;
 }
 
-function getEntryStyle(entry: TimelineEntry) {
-    return `
-        height: ${rowHeight - gap}px;
-        width: ${getEntryWidth(entry.start, entry.end)}px;
-        left: ${getEntryLeft(entry.start)}px;
-        top: ${getEntryTop(entry.id)}px;
-        `;
+
+function getEntryLeft(time: Date) {
+    const timeDifference = (time.getTime() - props.start.getTime()) / (60 * 60 * 1000);
+    const left = timeDifference * cellWidth / scale.value;
+
+    return left;
 }
 
 function makeCollapsedEntry(rowIndex: number, rows: number, title: string) {
     if (collapsedEntries.value.has(rowIndex)) {
         return;
     }
-
 
 
     const relevantEntries = entriesRef.value
@@ -436,12 +503,6 @@ function getCurrentMerged(start: Date, end: Date, id: number, title: string): Ti
         id: id,
         collapsed: false,
     };
-}
-
-function isToday(date1: Date): boolean {
-    return date1.getFullYear() == now.value.getFullYear() &&
-        date1.getMonth() == now.value.getMonth() &&
-        date1.getDate() == now.value.getDate();
 }
 
 function idClass(rowIndex: number, colIndex: number) {
@@ -491,50 +552,76 @@ function idClass(rowIndex: number, colIndex: number) {
 }
 
 function getCellStyle() {
-    const style: any = {
-        minWidth: `${cellWidth}px`,
-        maxWidth: `${cellWidth}px`,
-        minHeight: `${rowHeight}px`,
-        maxHeight: `${rowHeight}px`,
+    return {
+        ...getWidthStyle(),
+        ...getHeightStyle(),
     };
+}
 
-    return style;
+function getWidthStyle() {
+    return {
+        minWidth: `${ cellWidth }px`,
+        maxWidth: `${ cellWidth }px`,
+    };
+}
+
+function getHeightStyle() {
+    return {
+        minHeight: `${ rowHeight }px`,
+        maxHeight: `${ rowHeight }px`,
+    };
+}
+
+function getDayStyle() {
+    if (!isMobile.value) {
+        return 'left: ' + headerWidth + 'px;';
+    }
+    else {
+        return 'left: 0;';
+    }
+}
+
+function getTimelineTime(day: number): TimelineTime[] {
+    return getTimeline.value.filter(e => {
+        return e.day === day;
+    });
+}
+
+function generateTimelineDays(): TimelineTime[] {
+    return getTimeline.value.reduce((acc: TimelineTime[], current: TimelineTime) => {
+        if (!acc.some(item => item.day === current.day)) {
+            acc.push(current);
+        }
+        return acc;
+    }, []);
 }
 
 function generateTimeline(): TimelineTime[] {
     const scaleInMinutes = scale.value * 60;
     const timeSlots = [];
+    let day = 0;
+    let before = new Date(props.start.getTime());
 
     for (
         let i = new Date(props.start.getTime());
         i < endCalculated.value;
         i.setMinutes(i.getMinutes() + scaleInMinutes)
     ) {
+        if (i.getDay() !== before.getDay()) {
+            day++;
+            before = new Date(i);
+        }
+
         timeSlots.push({
             id: i.getTime(),
             date: new Date(i.getTime()),
+            day: day,
             formattedDate: formatterDate.value.format(i),
             formattedTime: formatterTime.value.format(i),
         });
     }
 
     return timeSlots;
-}
-
-function getEntryLeft(time: Date) {
-    const timeDifference = (time.getTime() - props.start.getTime()) / (60 * 60 * 1000);
-    const left = timeDifference * cellWidth / scale.value;
-
-    return left;
-}
-
-function getEntryTop(id: number) {
-    return ((id - getSumOffset(id)) * rowHeight) + (gap / 2);
-}
-
-function getEntryWidth(start: Date, end: Date) {
-    const duration = (end.getTime() - start.getTime()) / (60 * 60 * 1000);
-    return duration * cellWidth / scale.value;
 }
 
 function onWheel(event: WheelEvent) {
@@ -584,7 +671,7 @@ function stopDrag() {
 }
 
 function textAnim(colIndex: number, rowIndex: number) {
-    const key = `${colIndex}-${rowIndex}`;
+    const key = `${ colIndex }-${ rowIndex }`;
     const container = idContainers.value[key];
     const span = idTexts.value[key];
     if (!span || !container) {
@@ -625,10 +712,6 @@ function textAnim(colIndex: number, rowIndex: number) {
 
     background: $darkgray1000;
 
-    @include mobileOnly {
-        position: static;
-    }
-
     &-heads {
         position: sticky;
         z-index: 6;
@@ -636,6 +719,8 @@ function textAnim(colIndex: number, rowIndex: number) {
 
         display: flex;
         flex-direction: row;
+
+        height: 100%;
 
         background: $darkgray1000;
 
@@ -734,7 +819,7 @@ function textAnim(colIndex: number, rowIndex: number) {
     display: flex;
     flex-direction: column;
 
-    height: 75vh;
+    height: 72vh;
 
     &-data {
         position: sticky;
@@ -750,14 +835,39 @@ function textAnim(colIndex: number, rowIndex: number) {
         z-index: 2;
         display: flex;
 
+        &-day {
+            position: relative;
+            left: 0;
+
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            &-list {
+                display: flex;
+                flex-direction: row;
+            }
+
+            &-txt {
+                position: sticky;
+
+                width: fit-content;
+                padding: 10px;
+                border-radius: 20px;
+
+                background-color: rgba(var(--darkgray900), 0.9);
+                box-shadow: inset -3px -3px 7px rgba(black, 0.3);
+            }
+        }
+
         &-time {
             position: relative;
-            top: 0;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
+            padding: 10px;
             border-radius: 20px;
 
             background-color: rgba(var(--darkgray900), 0.9);
@@ -784,7 +894,7 @@ function textAnim(colIndex: number, rowIndex: number) {
                 content: "Now";
 
                 position: sticky;
-                top: 90px;
+                top: 165px;
                 transform: rotate(-90deg);
 
                 display: inline-block;
@@ -802,24 +912,10 @@ function textAnim(colIndex: number, rowIndex: number) {
             position: relative;
             width: fit-content;
         }
+    }
 
-        &-entry {
-            position: absolute;
-            z-index: 0;
-
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-
-            padding: 5px;
-            border-radius: 10px;
-
-            font-size: 14px;
-
-            background: rgba(var(--primary300), 0.3);
-            box-shadow: 5px 5px 4px rgba(black, 0.3);
-        }
+    @include mobileOnly {
+        height: 90vh;
     }
 }
 
@@ -887,7 +983,6 @@ function textAnim(colIndex: number, rowIndex: number) {
 }
 
 @keyframes spin {
-
     0%,
     100% {
         box-shadow: .2em 0 0 0 currentcolor;

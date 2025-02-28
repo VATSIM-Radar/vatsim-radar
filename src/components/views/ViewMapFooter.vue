@@ -138,6 +138,17 @@
                 hide-if-disabled
             />
 
+            <div v-if="store.mapSettings.bookingOverride">
+                <common-button
+                    primary-color="error700"
+                    size="S"
+                    type="primary"
+                    @click="cancelBookingOverride"
+                >
+                    Cancel Booking Override
+                </common-button>
+            </div>
+
             <div
                 v-if="getCounts.lastUpdated"
                 class="map-footer_right_date"
@@ -252,6 +263,14 @@ onMounted(() => {
         clearInterval(interval);
     });
 });
+
+function cancelBookingOverride() {
+    store.mapSettings.bookingOverride = false;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('start');
+    url.searchParams.delete('end');
+    window.history.replaceState({}, '', url.toString());
+}
 </script>
 
 <style scoped lang="scss">

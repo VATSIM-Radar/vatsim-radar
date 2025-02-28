@@ -155,6 +155,13 @@
                 />
             </div>
 
+            <common-notification
+                v-if="store.mapSettings.bookingOverride"
+                type="error"
+            >
+                Booking override is active!
+            </common-notification>
+
             <div class="__section-group __section-group--even">
                 <common-toggle
                     :model-value="store.mapSettings.visibility?.atc !== false"

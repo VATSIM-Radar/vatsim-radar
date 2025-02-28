@@ -95,6 +95,14 @@ const isMobileOrTablet = useIsMobileOrTablet();
 const start = new Date(Date.now());
 const end = new Date(start.getTime() + (5 * 60 * 60 * 1000));
 
+const url = new URL(location.href);
+
+if (url.searchParams.has('start') && url.searchParams.has('end')) {
+    start.setTime(Number(url.searchParams.get('start')));
+    end.setTime(Number(url.searchParams.get('end')));
+    store.mapSettings.bookingOverride = true;
+}
+
 const { data } = await useAsyncData('bookings', async () => {
     return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
         query: { starting: start.getTime(), ending: end.getTime() },
@@ -534,10 +542,12 @@ const getAirportsList = computed(() => {
         bookingsData.forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
 
-            const start = new Date(booking.start);
-            const end = new Date(booking.end);
+            if (!store.mapSettings.bookingOverride) {
+                const start = new Date(booking.start);
+                const end = new Date(booking.end);
 
-            if (start > timeInHours || now > end) return;
+                if (start > timeInHours || now > end) return;
+            }
 
             const airportIcao = booking.atc.callsign.split('_')[0];
             let airport = airports.find(x => airportIcao === x.airport.icao);

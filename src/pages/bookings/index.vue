@@ -1,15 +1,24 @@
 <template>
     <common-page-block>
-        <template #title>
-            VATSIM Bookings
-            <div class="sub-title">
-                For the next 2 Days
-            </div>
-        </template>
-        <common-date-picker v-model="dateRange" />
-        <common-timeline collapsed :end="dateRange.to" :entries="bookingTimelineEntries"
-            :headers="[{ name: 'Airport' }, { name: 'Facility' }]" :identifiers="bookingTimelineIdentifiers"
-            :start="dateRange.from" />
+        <div class="picker">
+            <template v-if="!isMobile && !collapsed">
+                <common-date-picker v-model="dateRange"/>
+                <common-button
+                    type="primary"
+                    @click="viewOnMap()"
+                >
+                    View on Map
+                </common-button>
+            </template>
+        </div>
+        <common-timeline
+            collapsed
+            :end="dateRange.to"
+            :entries="bookingTimelineEntries"
+            :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
+            :identifiers="bookingTimelineIdentifiers"
+            :start="dateRange.from"
+        />
     </common-page-block>
 </template>
 
@@ -19,7 +28,9 @@ import type { VatsimBooking } from '~/types/data/vatsim';
 import type { TimelineEntry, TimelineIdentifier } from '~/types/data/timeline';
 import CommonTimeline from '~/components/common/basic/CommonTimeline.vue';
 import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
+const collapsed = ref(false);
 const isMobile = useIsMobile();
 const start = new Date(Date.now());
 start.setMinutes(0);
@@ -32,10 +43,10 @@ const fetchEnd = ref(end);
 
 const dateRange = ref({
     from: start,
-    to: end
+    to: end,
 });
 
-const data = ref(await fetchBookings())
+const data = ref(await fetchBookings());
 
 const bookingTimelineIdentifiers = ref(makeBookingTimelineIds());
 const bookingTimelineEntries = ref(makeBookingTimelineEntries());
@@ -55,7 +66,7 @@ watch(dateRange, async () => {
 async function fetchBookings() {
     return await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
         query: { starting: start.getTime(), ending: end.getTime() },
-    })
+    });
 }
 
 function makeBookingTimelineEntries(): TimelineEntry[] {
@@ -79,6 +90,7 @@ function makeBookingTimelineEntries(): TimelineEntry[] {
                     end: new Date(Math.min(booking.end, dateRange.value.to.getTime())),
                     title: booking.atc.callsign,
                     id: groupInfo.subgroupIndex,
+                    color: getControllerPositionColor(booking.atc),
                 });
             }
         }
@@ -109,10 +121,14 @@ function makeBookingTimelineIds(): (TimelineIdentifier | null)[][] {
             facilityAcc.push(...Array.from(facilities).map(facility => ({ name: facility })));
             return [groupAcc, facilityAcc];
         },
-        [[], []]
+        [[], []],
     );
 
     return [groupIds, facilityIds];
+}
+
+function viewOnMap() {
+    location.href = `/?start=${ dateRange.value.from.getTime() }&end=${ dateRange.value.to.getTime() }`;
 }
 
 useHead({
@@ -121,14 +137,12 @@ useHead({
 </script>
 
 <style scoped lang="scss">
-.sub-title {
-    margin-top: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    color: $lightgray200;
+.picker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-    @include mobileOnly {
-        font-size: 12px;
-    }
+    width: 100%;
+    margin-bottom: 10px;
 }
 </style>
