@@ -59,7 +59,7 @@
                     :key="colIndex"
                     class="id-row"
                 >
-                    <div
+                    <template
                         v-for="(row, rowIndex) in col"
                         :key="rowIndex"
                     >
@@ -75,7 +75,7 @@
                         >
                             <div
                                 v-if="!row?.invisible"
-                                class="id-text"
+                                class="id-box"
                             >
                                 <fold-icon
                                     v-if="row?.collapsable && !row.collapsed"
@@ -89,17 +89,22 @@
                                     v-if="!row?.collapsable"
                                     class="id-icon"
                                 />
-                                <span
-                                    :ref="el => {
-                                        if (el) idTexts[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
-                                    }"
-                                    :class="textAnim(colIndex, rowIndex)"
+                                <div
+                                    class="id-box-text"
+                                    :style="'width:' + (cellWidth - 30) + 'px;'"
                                 >
-                                    {{ row?.name ?? '' }}
-                                </span>
+                                    <span
+                                        :ref="el => {
+                                            if (el) idTexts[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                        }"
+                                        :class="textAnim(colIndex, rowIndex)"
+                                    >
+                                        {{ row?.name ?? '' }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </template>
                 </div>
             </div>
             <!-- Entries -->
@@ -574,7 +579,7 @@ function getHeightStyle() {
 
 function getDayStyle() {
     if (!isMobile.value) {
-        return 'left: ' + headerWidth + 'px;';
+        return 'left: ' + (headerWidth + 30) + 'px;';
     }
     else {
         return 'left: 0;';
@@ -705,7 +710,8 @@ function textAnim(colIndex: number, rowIndex: number) {
     width: fit-content;
     padding-top: 8px;
     padding-right: 4px;
-    padding-bottom: 8px;
+    border-bottom: solid;
+    border-bottom-color: $darkgray900;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -721,6 +727,8 @@ function textAnim(colIndex: number, rowIndex: number) {
         flex-direction: row;
 
         height: 100%;
+        border-right: solid;
+        border-right-color: $darkgray900;
 
         background: $darkgray1000;
 
@@ -746,6 +754,8 @@ function textAnim(colIndex: number, rowIndex: number) {
     display: flex;
     flex-direction: row;
 
+    border-right: solid;
+    border-right-color: $darkgray900;
     border-bottom-right-radius: 8px;
     border-bottom-left-radius: 8px;
 
@@ -766,9 +776,18 @@ function textAnim(colIndex: number, rowIndex: number) {
         cursor: pointer;
     }
 
-    &-text {
+    &-box {
         display: flex;
         align-items: center;
+
+        &-text {
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+
+            padding-right: 5px;
+        }
     }
 
     &-cell {
@@ -834,6 +853,7 @@ function textAnim(colIndex: number, rowIndex: number) {
     &-timeline {
         z-index: 2;
         display: flex;
+        padding-bottom: 8px;
 
         &-day {
             position: relative;
@@ -852,8 +872,8 @@ function textAnim(colIndex: number, rowIndex: number) {
                 position: sticky;
 
                 width: fit-content;
-                padding: 10px;
-                border-radius: 20px;
+                padding: 8px;
+                border-radius: 8px;
 
                 background-color: rgba(var(--darkgray900), 0.9);
                 box-shadow: inset -3px -3px 7px rgba(black, 0.3);
@@ -867,8 +887,8 @@ function textAnim(colIndex: number, rowIndex: number) {
             align-items: center;
             justify-content: center;
 
-            padding: 10px;
-            border-radius: 20px;
+            padding: 8px;
+            border-radius: 8px;
 
             background-color: rgba(var(--darkgray900), 0.9);
             box-shadow: inset -3px -3px 7px rgba(black, 0.3);
