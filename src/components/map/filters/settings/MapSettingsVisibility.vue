@@ -136,7 +136,7 @@
             </common-toggle>
 
             <common-toggle
-                :model-value="store.mapSettings.visibility?.bookings ?? false"
+                :model-value="store.mapSettings.visibility?.bookings ?? true"
                 @update:modelValue="setUserMapSettings({ visibility: { bookings: $event } })"
             >
                 Show Booked
@@ -147,7 +147,7 @@
                     Hours In Advance
                 </div>
                 <common-select
-                    :disabled="!(store.mapSettings.visibility?.bookings ?? false)"
+                    :disabled="!(store.mapSettings.visibility?.bookings ?? true)"
                     :items="[{ value: '1', text: '1h' }, { value: '2', text: '2h' }, { value: '3', text: '3h' }, { value: '4', text: '4h' }]"
                     :model-value="store.mapSettings.bookingHours ?? '1h'"
                     placeholder="1h"

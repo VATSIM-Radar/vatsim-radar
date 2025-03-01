@@ -533,7 +533,7 @@ const getAirportsList = computed(() => {
         if (isLocal) airport.localAtc.push(atc.atc);
     }
 
-    if (store.mapSettings.visibility?.bookings ?? false) {
+    if (store.mapSettings.visibility?.bookings ?? true) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 

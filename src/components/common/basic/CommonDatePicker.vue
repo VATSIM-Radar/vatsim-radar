@@ -57,39 +57,33 @@ interface DateRange {
     to?: Date;
 }
 
-const props = defineProps<{
-    modelValue: DateRange;
-}>();
-
-const emit = defineEmits<{
-    (e: 'update:modelValue', value: DateRange): void;
-}>();
+const dateRange = defineModel<DateRange>({ required: true });
 
 const formatDate = (date: Date): string => {
     return date.toISOString().slice(0, 16);
 };
 
-const formattedStartDate = computed(() => formatDate(props.modelValue.from));
-const formattedEndDate = computed(() => props.modelValue.to ? formatDate(props.modelValue.to) : '');
+const formattedStartDate = computed(() => formatDate(dateRange.value.from));
+const formattedEndDate = computed(() => dateRange.value.to ? formatDate(dateRange.value.to) : '');
 
 const updateStartDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    emit('update:modelValue', { ...props.modelValue, from: new Date(target.value) });
+    dateRange.value = { ...dateRange.value, from: new Date(target.value) };
 };
 
 const updateEndDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    emit('update:modelValue', { ...props.modelValue, to: new Date(target.value) });
+    dateRange.value = { ...dateRange.value, to: new Date(target.value) };
 };
 
 const adjustTime = (isStart: boolean, minutes: number) => {
-    const dateToAdjust = isStart ? props.modelValue.from : props.modelValue.to;
+    const dateToAdjust = isStart ? dateRange.value.from : dateRange.value.to;
     if (dateToAdjust) {
         const newDate = new Date(dateToAdjust.getTime() + (minutes * 60000));
-        emit('update:modelValue', {
-            ...props.modelValue,
+        dateRange.value = {
+            ...dateRange.value,
             [isStart ? 'from' : 'to']: newDate,
-        });
+        };
     }
 };
 </script>

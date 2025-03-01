@@ -17,7 +17,7 @@
         >
             <div
                 class="entry-colorbox-color"
-                :style="'background: ' + entry.color"
+                :style="{background: entry.color}"
             />
         </div>
     </div>
@@ -41,19 +41,19 @@ const props = defineProps({
         required: true,
     },
     rowHeight: {
-        type: Number as PropType<number>,
+        type: Number,
         required: true,
     },
     cellWidth: {
-        type: Number as PropType<number>,
+        type: Number,
         required: true,
     },
     scale: {
-        type: Number as PropType<number>,
+        type: Number,
         required: true,
     },
     gap: {
-        type: Number as PropType<number>,
+        type: Number,
         required: true,
     },
 });
@@ -61,12 +61,12 @@ const props = defineProps({
 const hover = ref(false);
 
 function getEntryStyle(entry: TimelineEntry) {
-    return `
-        height: ${ props.rowHeight - props.gap }px;
-        width: ${ getEntryWidth(entry.start, entry.end) }px;
-        left: ${ getEntryLeft(entry.start) }px;
-        top: ${ getEntryTop(entry.id) }px;
-        `;
+    return {
+        height: `${ props.rowHeight - props.gap }px`,
+        width: `${ getEntryWidth(entry.start, entry.end) }px`,
+        left: `${ getEntryLeft(entry.start) }px`,
+        top: `${ getEntryTop(entry.id) }px`,
+        };
 }
 
 function getEntryLeft(time: Date) {
@@ -111,7 +111,7 @@ function getSumOffset(index: number): number {
     font-size: 14px;
 
     background: rgba(var(--primary300), 0.3);
-    box-shadow: 5px 5px 4px rgba(black, 0.3);
+    box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
 
     &-title {
         display: flex;

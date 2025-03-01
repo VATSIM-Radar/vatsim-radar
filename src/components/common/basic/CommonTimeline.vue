@@ -3,7 +3,7 @@
         v-if="ready"
         ref="dragContainer"
         class="timeline"
-        :style="isDragging ? 'cursor: grabbing;' : 'cursor: grab;'"
+        :style="{ cursor: isDragging ? 'grabbing' : 'grab'}"
         @mousedown="startDrag"
         @mouseleave="stopDrag"
         @mousemove="drag"
@@ -15,7 +15,7 @@
                     v-for="header in headers"
                     :key="header.name"
                     class="header-head"
-                    :style="getWidthStyle()"
+                    :style="getWidthStyle"
                 >
                     {{ header.name }}
                 </div>
@@ -32,7 +32,7 @@
                 >
                     <span
                         class="timeline-timeline-day-txt"
-                        :style="getDayStyle()"
+                        :style="getDayStyle"
                     >
                         {{ day.formattedDate }}
                     </span>
@@ -41,7 +41,7 @@
                             v-for="time in getTimelineTime(day.day)"
                             :key="time.id"
                             class="timeline-timeline-time"
-                            :style="getWidthStyle()"
+                            :style="getWidthStyle"
                         >
                             <span>
                                 {{ time.formattedTime }}
@@ -67,7 +67,7 @@
                             v-if="!row?.collapsed || row?.collapsable"
                             class="id-cell"
                             :class="idClass(rowIndex, colIndex)"
-                            :style="getCellStyle()"
+                            :style="getCellStyle"
                             @click="collapse(colIndex, rowIndex)"
                         >
                             <div
@@ -91,8 +91,7 @@
                                         if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
                                     }"
                                     class="id-box-text"
-
-                                    :style="'width:' + (cellWidth - 30) + 'px;'"
+                                    :style="{ width: `${cellWidth - 30}px` }"
                                 >
                                     <span
                                         :ref="el => {
@@ -112,7 +111,7 @@
             <div class="timeline-entries">
                 <div
                     class="timeline-entries-now"
-                    :style="timelineNowStyle()"
+                    :style="getNowStyle"
                 />
                 <!-- Entries -->
                 <div class="timeline-entries-list">
@@ -147,7 +146,7 @@
                     </template>
                 </div>
             </div>
-            <div :style="'width: ' + getTimeline.length * cellWidth + 'px'"/>
+            <div :style="{ width: (getTimeline.length * cellWidth) + 'px'}"/>
         </div>
     </div>
     <div
@@ -191,16 +190,16 @@ const props = defineProps({
         required: true,
     },
     scale: {
-        type: Number as PropType<number>,
+        type: Number,
         required: false,
         default: 1,
     },
     collapsed: {
-        type: Boolean as PropType<boolean>,
+        type: Boolean,
         required: false,
     },
     utc: {
-        type: Boolean as PropType<boolean>,
+        type: Boolean,
         required: false,
     },
 });
@@ -209,10 +208,10 @@ const isMobile = useIsMobile();
 
 const ready = ref(false);
 
-const cellWidth = isMobile.value ? 80 : 120;
+const cellWidth = computed(() => isMobile.value ? 80 : 120);
 const rowHeight = 50;
 const gap = 4;
-const headerWidth = props.headers.length * cellWidth;
+const headerWidth = computed(() => props.headers.length * cellWidth.value);
 
 // I dont care if its reactivity is losed....didnt found a workaround, because toRef cannot be edited ... so its like this :) suggestions?
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
@@ -228,8 +227,39 @@ const scrollDown = ref(0);
 const scrollUp = ref(0);
 const scaleIngrement = ref(0.5);
 
-const getEntries = toRef(props, 'entries');
-const getIdentifiers = toRef(props, 'identifiers');
+const getNowStyle = computed(() => timelineNowStyle());
+const getCellStyle = computed(() => {
+    return {
+        ...getWidthStyle.value,
+        ...getHeightStyle.value,
+    };
+});
+
+const getWidthStyle = computed(() => {
+    return {
+        minWidth: `${ cellWidth.value }px`,
+        maxWidth: `${ cellWidth.value }px`,
+    };
+});
+
+const getHeightStyle = computed(() => {
+    return {
+        minHeight: `${ rowHeight }px`,
+        maxHeight: `${ rowHeight }px`,
+    };
+});
+
+const getDayStyle = computed(() => {
+    if (!isMobile.value) {
+        return {left: (headerWidth.value + 30) + 'px'};
+    }
+    else {
+        return {left: 0};
+    }
+});
+
+const getEntries: ComputedRef<TimelineEntry[]> = computed(() => props.entries);
+const getIdentifiers: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => props.identifiers);
 
 const idContainers = ref<{ [key: string]: HTMLElement | null }>({});
 const idTexts = ref<{ [key: string]: HTMLElement | null }>({});
@@ -254,8 +284,8 @@ const endCalculated = computed(() => {
 
 const currentMinute = ref(new Date());
 
-const now = computed(() => currentMinute.value);
-const utc = toRef(props, 'utc');
+const now: ComputedRef<Date> = computed(() => currentMinute.value);
+const utc = computed(() => props.utc);
 const timeZone = computed(() => utc.value ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
@@ -270,30 +300,23 @@ const formatterDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     timeZone: timeZone.value,
 }));
 
-const idsRef = ref(prepareIds());
+const idsRef: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => prepareIds());
+const entriesRef: ComputedRef<TimelineEntry[]> = computed(() => filterEntries());
 
-const entriesRef = ref(filterEntries());
 watch([getEntries, getIdentifiers], () => {
     collapsedEntries.value.clear();
     indexOffsetMap.value.clear();
-    idsRef.value = prepareIds();
-    entriesRef.value = filterEntries();
 
     collapseByMap();
 });
 
-const getTimeline: Ref<TimelineTime[]> = shallowRef(generateTimeline());
-const getTimelineDays: Ref<TimelineTime[]> = shallowRef(generateTimelineDays());
-
-watch(scale, () => {
-    getTimeline.value = generateTimeline();
-    getTimelineDays.value = generateTimelineDays();
-});
+const getTimeline: Ref<TimelineTime[]> = computed(() => generateTimeline());
+const getTimelineDays: Ref<TimelineTime[]> = computed(() => generateTimelineDays());
 
 const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.value.values()).flatMap(entries => entries));
 
 onMounted(() => {
-    setInterval(() => {
+    const interval = setInterval(() => {
         const now = new Date();
         if (now.getMinutes() !== currentMinute.value.getMinutes()) {
             currentMinute.value = now;
@@ -313,6 +336,10 @@ onMounted(() => {
     }
 
     ready.value = true;
+
+    onBeforeUnmount(() => {
+        clearInterval(interval);
+    });
 });
 
 function collapseByMap() {
@@ -455,15 +482,13 @@ function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed
 }
 
 function timelineNowStyle() {
-    return `
-        left: ${ getEntryLeft(now.value) }px;
-        `;
+    return { left: getEntryLeft(now.value) + 'px'};
 }
 
 
 function getEntryLeft(time: Date) {
     const timeDifference = (time.getTime() - props.start.getTime()) / (60 * 60 * 1000);
-    const left = timeDifference * cellWidth / scale.value;
+    const left = (timeDifference * cellWidth.value) / scale.value;
 
     return left;
 }
@@ -512,79 +537,49 @@ function getCurrentMerged(start: Date, end: Date, id: number, title: string): Ti
 }
 
 function idClass(rowIndex: number, colIndex: number) {
-    let classes = '';
+    const classes: string[] = [];
     if (colIndex > 0) {
         if (idsRef.value[colIndex - 1][rowIndex] && !idsRef.value[colIndex - 1][rowIndex]?.invisible) {
-            classes += 'id-cell-start ';
+            classes.push('id-cell-start');
         }
 
         if (idsRef.value[colIndex - 1].length > rowIndex + 1) {
             if (idsRef.value[colIndex - 1][rowIndex + 1] && !idsRef.value[colIndex - 1][rowIndex + 1]?.invisible) {
-                classes += 'id-cell-end ';
+                classes.push('id-cell-end');
             }
         }
     }
     else {
-        classes += 'id-cell-left ';
+         classes.push('id-cell-left');
 
         if (idsRef.value[colIndex][rowIndex] && !idsRef.value[colIndex][rowIndex]?.invisible) {
-            classes += 'id-cell-start ';
+            classes.push('id-cell-start');
         }
 
         if (idsRef.value[colIndex].length > rowIndex + 1) {
             if (idsRef.value[colIndex][rowIndex + 1] && !idsRef.value[colIndex][rowIndex + 1]?.invisible) {
-                classes += 'id-cell-end ';
+                classes.push('id-cell-end');
             }
         }
     }
 
     if (idsRef.value.length - 1 === colIndex) {
-        classes += 'id-cell-right ';
+         classes.push('id-cell-right');
     }
 
     if (rowIndex == 0) {
-        classes += 'id-cell-start ';
+        classes.push('id-cell-start');
     }
 
     if (idsRef.value[colIndex].length - 1 === rowIndex) {
-        classes += 'id-cell-end ';
+         classes.push('id-cell-end');
     }
 
     if (idsRef.value[colIndex][rowIndex]?.collapsable) {
-        classes += 'id-collapse';
+         classes.push('id-collapse');
     }
 
     return classes;
-}
-
-function getCellStyle() {
-    return {
-        ...getWidthStyle(),
-        ...getHeightStyle(),
-    };
-}
-
-function getWidthStyle() {
-    return {
-        minWidth: `${ cellWidth }px`,
-        maxWidth: `${ cellWidth }px`,
-    };
-}
-
-function getHeightStyle() {
-    return {
-        minHeight: `${ rowHeight }px`,
-        maxHeight: `${ rowHeight }px`,
-    };
-}
-
-function getDayStyle() {
-    if (!isMobile.value) {
-        return 'left: ' + (headerWidth + 30) + 'px;';
-    }
-    else {
-        return 'left: 0;';
-    }
 }
 
 function getTimelineTime(day: number): TimelineTime[] {
@@ -695,8 +690,13 @@ function textAnim(colIndex: number, rowIndex: number) {
 <style scoped lang="scss">
 .wrapper {
     scrollbar-width: none;
+    -ms-overflow-style: none;
     overflow: auto;
     width: 100%;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 .header {
@@ -965,10 +965,9 @@ function textAnim(colIndex: number, rowIndex: number) {
     color: white;
 
     perspective: 1000px;
-}
 
-.loader::before,
-.loader::after {
+   &::before,
+    &::after {
     content: '';
 
     position: absolute;
@@ -985,10 +984,11 @@ function textAnim(colIndex: number, rowIndex: number) {
     animation: 1s spin linear infinite;
 }
 
-.loader::after {
+&::after {
     transform: rotateY(70deg);
     color: $primary700;
     animation-delay: .4s;
+}
 }
 
 @keyframes rotate {

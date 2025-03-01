@@ -249,6 +249,9 @@ const dataStore = useDataStore();
 const getCounts = useOnlineCounters();
 const curDate = ref(Date.now());
 
+const route = useRoute();
+const router = useRouter();
+
 const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
 });
@@ -266,10 +269,8 @@ onMounted(() => {
 
 function cancelBookingOverride() {
     store.mapSettings.bookingOverride = false;
-    const url = new URL(window.location.href);
-    url.searchParams.delete('start');
-    url.searchParams.delete('end');
-    window.history.replaceState({}, '', url.toString());
+    const { start, end, ...remainingQuery } = route.query;
+    router.replace({ query: remainingQuery });
 }
 </script>
 
