@@ -78,7 +78,7 @@
     "@types/geojson": "^7946.0.16",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/merge-ranges": "^1.0.2",
-    "@types/node": "^22.13.7",
+    "@types/node": "^22.13.8",
     "@types/ws": "^8.5.14",
     "eslint": "^9.21.0",
     "fast-xml-parser": "^5.0.8",
