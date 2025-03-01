@@ -17,7 +17,7 @@
         >
             <div
                 class="entry-colorbox-color"
-                :style="{background: entry.color}"
+                :style="{ background: entry.color }"
             />
         </div>
     </div>
@@ -66,7 +66,7 @@ function getEntryStyle(entry: TimelineEntry) {
         width: `${ getEntryWidth(entry.start, entry.end) }px`,
         left: `${ getEntryLeft(entry.start) }px`,
         top: `${ getEntryTop(entry.id) }px`,
-        };
+    };
 }
 
 function getEntryLeft(time: Date) {

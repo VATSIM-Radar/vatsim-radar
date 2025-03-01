@@ -269,8 +269,9 @@ onMounted(() => {
 
 function cancelBookingOverride() {
     store.mapSettings.bookingOverride = false;
-    const { start, end, ...remainingQuery } = route.query;
-    router.replace({ query: remainingQuery });
+    delete route.query.start;
+    delete route.query.end;
+    router.replace({ query: route.query });
 }
 </script>
 

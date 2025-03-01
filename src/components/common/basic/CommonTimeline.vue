@@ -3,7 +3,7 @@
         v-if="ready"
         ref="dragContainer"
         class="timeline"
-        :style="{ cursor: isDragging ? 'grabbing' : 'grab'}"
+        :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
         @mousedown="startDrag"
         @mouseleave="stopDrag"
         @mousemove="drag"
@@ -91,7 +91,7 @@
                                         if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
                                     }"
                                     class="id-box-text"
-                                    :style="{ width: `${cellWidth - 30}px` }"
+                                    :style="{ width: `${ cellWidth - 30 }px` }"
                                 >
                                     <span
                                         :ref="el => {
@@ -146,7 +146,7 @@
                     </template>
                 </div>
             </div>
-            <div :style="{ width: (getTimeline.length * cellWidth) + 'px'}"/>
+            <div :style="{ width: (getTimeline.length * cellWidth) + 'px' }"/>
         </div>
     </div>
     <div
@@ -251,10 +251,10 @@ const getHeightStyle = computed(() => {
 
 const getDayStyle = computed(() => {
     if (!isMobile.value) {
-        return {left: (headerWidth.value + 30) + 'px'};
+        return { left: (headerWidth.value + 30) + 'px' };
     }
     else {
-        return {left: 0};
+        return { left: 0 };
     }
 });
 
@@ -482,7 +482,7 @@ function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed
 }
 
 function timelineNowStyle() {
-    return { left: getEntryLeft(now.value) + 'px'};
+    return { left: getEntryLeft(now.value) + 'px' };
 }
 
 
@@ -550,7 +550,7 @@ function idClass(rowIndex: number, colIndex: number) {
         }
     }
     else {
-         classes.push('id-cell-left');
+        classes.push('id-cell-left');
 
         if (idsRef.value[colIndex][rowIndex] && !idsRef.value[colIndex][rowIndex]?.invisible) {
             classes.push('id-cell-start');
@@ -564,7 +564,7 @@ function idClass(rowIndex: number, colIndex: number) {
     }
 
     if (idsRef.value.length - 1 === colIndex) {
-         classes.push('id-cell-right');
+        classes.push('id-cell-right');
     }
 
     if (rowIndex == 0) {
@@ -572,11 +572,11 @@ function idClass(rowIndex: number, colIndex: number) {
     }
 
     if (idsRef.value[colIndex].length - 1 === rowIndex) {
-         classes.push('id-cell-end');
+        classes.push('id-cell-end');
     }
 
     if (idsRef.value[colIndex][rowIndex]?.collapsable) {
-         classes.push('id-collapse');
+        classes.push('id-collapse');
     }
 
     return classes;
@@ -690,9 +690,10 @@ function textAnim(colIndex: number, rowIndex: number) {
 <style scoped lang="scss">
 .wrapper {
     scrollbar-width: none;
-    -ms-overflow-style: none;
     overflow: auto;
     width: 100%;
+
+    -ms-overflow-style: none;
 
     &::-webkit-scrollbar {
         display: none;
@@ -966,29 +967,29 @@ function textAnim(colIndex: number, rowIndex: number) {
 
     perspective: 1000px;
 
-   &::before,
+    &::before,
     &::after {
-    content: '';
+        content: '';
 
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: rotateX(70deg);
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: rotateX(70deg);
 
-    display: block;
+        display: block;
 
-    width: inherit;
-    height: inherit;
-    border-radius: 50%;
+        width: inherit;
+        height: inherit;
+        border-radius: 50%;
 
-    animation: 1s spin linear infinite;
-}
+        animation: 1s spin linear infinite;
+    }
 
-&::after {
-    transform: rotateY(70deg);
-    color: $primary700;
-    animation-delay: .4s;
-}
+    &::after {
+        transform: rotateY(70deg);
+        color: $primary700;
+        animation-delay: .4s;
+    }
 }
 
 @keyframes rotate {
