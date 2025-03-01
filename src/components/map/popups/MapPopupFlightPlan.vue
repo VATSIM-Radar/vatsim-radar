@@ -100,6 +100,7 @@ import type { PropType } from 'vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
 const props = defineProps({
     flightPlan: {

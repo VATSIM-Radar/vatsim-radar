@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.0-alpha.8]
+
+- Fixed gates not showing up for some airports when using Navigraph
+
 # [1.1.0-alpha.7]
 
 - Fixed "next" performance and VG combined mode issues

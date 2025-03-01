@@ -53,7 +53,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
     }
 
     if (!dataFromLayout || !isLayout || !layout || !layout.standguidanceline?.features.length || !layout.parkingstandarea?.features.length) {
-        if (!dataFromLayout) {
+        if (!dataFromLayout || !layout) {
             gates = await getNavigraphGates({
                 user,
                 event,
