@@ -89,6 +89,7 @@ export interface VatsimController {
     text_atis: string[] | null;
     last_updated: string;
     logon_time: string;
+    booking?: VatsimBooking;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -127,6 +128,14 @@ export interface VatsimInfoLongName extends VatsimInfoDefault {
     long_name: string;
 }
 
+export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'subdivision' | 'callsign' | 'cid'> {
+    division?: VatsimDivision;
+    subdivision?: VatsimSubDivision;
+    atc: VatsimShortenedController;
+    start_local?: string;
+    end_local?: string;
+}
+
 export interface VatsimData {
     general: VatsimGeneral;
     pilots: VatsimPilot[];
@@ -138,6 +147,17 @@ export interface VatsimData {
     ratings: VatsimInfoLong[];
     pilot_ratings: VatsimInfoLongName[];
     military_ratings: VatsimInfoLongName[];
+}
+
+export interface VatsimBookingData {
+    id: number;
+    callsign: string;
+    cid: number;
+    type: 'booking' | 'event' | 'exam' | 'mentoring';
+    start: number;
+    end: number;
+    division: string;
+    subdivision: string;
 }
 
 export type VatsimShortenedData = {

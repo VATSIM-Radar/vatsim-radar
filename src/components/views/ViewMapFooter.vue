@@ -138,6 +138,17 @@
                 hide-if-disabled
             />
 
+            <div v-if="store.mapSettings.bookingOverride">
+                <common-button
+                    primary-color="error700"
+                    size="S"
+                    type="primary"
+                    @click="cancelBookingOverride"
+                >
+                    Cancel Booking Override
+                </common-button>
+            </div>
+
             <div
                 v-if="getCounts.lastUpdated"
                 class="map-footer_right_date"
@@ -238,6 +249,9 @@ const dataStore = useDataStore();
 const getCounts = useOnlineCounters();
 const curDate = ref(Date.now());
 
+const route = useRoute();
+const router = useRouter();
+
 const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
 });
@@ -252,6 +266,13 @@ onMounted(() => {
         clearInterval(interval);
     });
 });
+
+function cancelBookingOverride() {
+    store.mapSettings.bookingOverride = false;
+    delete route.query.start;
+    delete route.query.end;
+    router.replace({ query: route.query });
+}
 </script>
 
 <style scoped lang="scss">

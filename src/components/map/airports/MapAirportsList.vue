@@ -1,11 +1,12 @@
 <template>
     <template v-if="!isHideMapObject('airports')">
         <map-airport
-            v-for="({ airport, aircraft, localAtc, arrAtc, features }, index) in getShownAirports"
+            v-for="({ airport, aircraft, localAtc, arrAtc, features, bookings }, index) in getShownAirports"
             :key="airport.icao + index + (airport.iata ?? 'undefined')"
             :aircraft="aircraft"
             :airport="airport"
             :arr-atc="arrAtc"
+            :bookings="bookings"
             :features
             :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
             :hovered-pixel="hoveredPixel"
@@ -22,21 +23,18 @@
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
-import type { Map, MapBrowserEvent } from 'ol';
-import { Feature } from 'ol';
+import type { Map, MapBrowserEvent, Feature } from 'ol';
 import { attachMoveEnd, isPointInExtent, useIsMobileOrTablet } from '~/composables';
 import type { MapAircraft, MapAircraftList, MapAirport as MapAirportType } from '~/types/map';
 
-import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
 import type {
     NavigraphAirportData,
     NavigraphGate,
     NavigraphLayout,
     NavigraphRunway,
 } from '~/types/data/navigraph';
-import { Point } from 'ol/geom';
-import { Fill, Style, Text } from 'ol/style';
-import { adjustPilotLonLat, checkIsPilotInGate, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
+import { checkIsPilotInGate, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
 import type { Coordinate } from 'ol/coordinate';
@@ -94,8 +92,27 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
+const start = new Date(Date.now());
+const end = new Date(start.getTime() + (5 * 60 * 60 * 1000));
+
+const url = new URL(location.href);
+
+if (url.searchParams.has('start') && url.searchParams.has('end')) {
+    start.setTime(Number(url.searchParams.get('start')));
+    end.setTime(Number(url.searchParams.get('end')));
+    store.mapSettings.bookingOverride = true;
+}
+
+const { data } = await useAsyncData('bookings', async () => {
+    return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: { starting: start.getTime(), ending: end.getTime() },
+    });
+});
+
+const bookingsData = data.value ? data.value : [];
+
 const getShownAirports = computed(() => {
-    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao));
+    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
 
     switch (store.mapSettings.airportsMode) {
         case 'staffedOnly':
@@ -358,7 +375,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
         const gates: NavigraphGate[] = gateAirport.gates.map(x => structuredClone(x));
 
         for (const pilot of [...airport.aircraft.groundDep ?? [], ...airport.aircraft.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            if (pilot.callsign === 'QAC3404') {
+            /* if (pilot.callsign === 'QAC3404') {
                 const correct = adjustPilotLonLat(pilot);
                 console.log(pilot.heading);
                 const feature = new Feature({
@@ -381,7 +398,7 @@ const getAirportsData = computed<NavigraphAirportData[]>(() => {
                     vectorSource.value?.removeFeature(feature);
                     feature.dispose();
                 }, 5000);
-            }
+            }*/
 
             checkIsPilotInGate(pilot, gates);
         }
@@ -409,6 +426,7 @@ export interface AirportsList {
     localAtc: VatsimShortenedController[];
     arrAtc: VatsimShortenedController[];
     arrAtcInfo: VatSpyDataLocalATC[];
+    bookings: VatsimBooking[];
     features: AirportTraconFeature[];
     isSimAware: boolean;
 }
@@ -428,6 +446,7 @@ const getAirportsList = computed(() => {
         localAtc: [],
         arrAtc: [],
         arrAtcInfo: [],
+        bookings: [],
         features: [],
         isSimAware: vatsimAirport.isSimAware,
     } satisfies AirportsList as AirportsList));
@@ -512,6 +531,71 @@ const getAirportsList = computed(() => {
 
         const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
         if (isLocal) airport.localAtc.push(atc.atc);
+    }
+
+    if (store.mapSettings.visibility?.bookings ?? true) {
+        const now = new Date();
+        const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
+
+        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL]);
+
+        bookingsData.forEach((booking: VatsimBooking) => {
+            if (!validFacilities.has(booking.atc.facility)) return;
+
+            if (!store.mapSettings.bookingOverride) {
+                const start = new Date(booking.start);
+                const end = new Date(booking.end);
+
+                if (start > timeInHours || now > end) return;
+            }
+
+            const airportIcao = booking.atc.callsign.split('_')[0];
+            let airport = airports.find(x => airportIcao === x.airport.icao);
+
+            if (!airport) {
+                const vAirport = dataStore.vatspy.value?.data.airports.find(x => airportIcao === x.icao);
+                if (!vAirport) return;
+
+                airport = createNewAirport(vAirport);
+                airports.push(airport);
+            }
+
+            updateAirportWithBooking(airport, booking);
+        });
+    }
+
+    function createNewAirport(vAirport: VatSpyAirport): AirportsList {
+        return {
+            aircraft: {},
+            aircraftCids: [],
+            aircraftList: {},
+            airport: {
+                icao: vAirport.icao,
+                isPseudo: false,
+                lat: vAirport.lat,
+                lon: vAirport.lon,
+                name: vAirport.name,
+            },
+            arrAtc: [],
+            arrAtcInfo: [],
+            bookings: [],
+            features: [],
+            isSimAware: false,
+            localAtc: [],
+        };
+    }
+
+    function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
+        const existingLocal = airport.localAtc.find(x => x.facility === booking.atc.facility);
+
+        if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+            if (existingLocal) {
+                airport.localAtc = airport.localAtc.filter(x => x.cid !== existingLocal.cid);
+            }
+            booking.atc.booking = booking;
+            airport.bookings.push(booking);
+            airport.localAtc.push(booking.atc);
+        }
     }
 
     function findSectorAirport(sector: GeoJSONFeature) {

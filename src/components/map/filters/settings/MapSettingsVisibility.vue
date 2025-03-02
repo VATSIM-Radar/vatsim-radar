@@ -135,6 +135,33 @@
                 Labels
             </common-toggle>
 
+            <common-toggle
+                :model-value="store.mapSettings.visibility?.bookings ?? true"
+                @update:modelValue="setUserMapSettings({ visibility: { bookings: $event } })"
+            >
+                Show Booked
+            </common-toggle>
+
+            <div class="__grid-info-sections __grid-info-sections--large-title">
+                <div class="__grid-info-sections_title">
+                    Hours In Advance
+                </div>
+                <common-select
+                    :disabled="!(store.mapSettings.visibility?.bookings ?? true)"
+                    :items="[{ value: '1', text: '1h' }, { value: '2', text: '2h' }, { value: '3', text: '3h' }, { value: '4', text: '4h' }]"
+                    :model-value="store.mapSettings.bookingHours ?? '1h'"
+                    placeholder="1h"
+                    @update:modelValue="setUserMapSettings({ bookingHours: $event as any })"
+                />
+            </div>
+
+            <common-notification
+                v-if="store.mapSettings.bookingOverride"
+                type="error"
+            >
+                Booking override is active!
+            </common-notification>
+
             <div class="__section-group __section-group--even">
                 <common-toggle
                     :model-value="store.mapSettings.visibility?.atc !== false"

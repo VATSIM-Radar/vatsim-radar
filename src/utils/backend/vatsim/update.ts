@@ -1,13 +1,18 @@
 import { getTransceiverData } from '~/utils/backend/vatsim/index';
-import { useFacilitiesIds } from '~/utils/data/vatsim';
+import { useFacilitiesIds, getFacilityByCallsign } from '~/utils/data/vatsim';
 import type { RadarDataAirline, RadarDataAirlineAll, RadarDataAirlinesList } from '~/utils/backend/storage';
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady, radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
 import type {
     VatsimExtendedPilot,
     VatsimMandatoryData,
     VatsimShortenedAircraft,
     VatsimTransceiver,
+    VatsimBookingData,
+    VatsimBooking,
+    VatsimDivision,
+    VatsimSubDivision,
+    VatsimShortenedController,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -384,4 +389,106 @@ export async function updateAirlines() {
         },
     };
     await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
+}
+
+export async function updateBookings() {
+    try {
+        if (!(await isDataReady())) {
+            return;
+        }
+        const bookingData = await fetchBookingData();
+        if (!bookingData) return;
+
+        const { divisionCache, subDivisionCache } = await createCaches();
+
+        const bookings = bookingData.map(booking => {
+            const division = divisionCache[booking.division];
+            const subdivision = subDivisionCache[booking.subdivision];
+            const atc = makeFakeAtc(booking);
+            const start = new Date(booking.start + 'Z').getTime();
+            const end = new Date(booking.end + 'Z').getTime();
+
+            return {
+                ...booking,
+                division: division,
+                subdivision: subdivision,
+                atc: atc,
+                start: start,
+                end: end,
+            };
+        }) as VatsimBooking[];
+
+        /* const start = new Date();
+        const end = new Date();
+        start.setMinutes(start.getMinutes() + 60);
+        end.setMinutes((end.getMinutes() + 60) * 3);
+
+        bookings.push({
+            atc: {
+                callsign: 'ETNW_TWR',
+                cid: 10000,
+                facility: getFacilityByCallsign('ETNW_TWR'),
+                frequency: '122.800',
+                logon_time: '',
+                name: 'Test dummy',
+                rating: 1,
+                text_atis: [],
+                visual_range: 1,
+            },
+            start: start.getTime(),
+            end: end.getTime(),
+            id: 0,
+            type: 'booking',
+        });*/
+
+        setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
+    }
+    catch (error) {
+        console.error('Error in cron job:', error);
+    }
+}
+
+async function fetchBookingData(): Promise<VatsimBookingData[] | undefined> {
+    try {
+        const response = await $fetch<VatsimBookingData[]>('https://atc-bookings.vatsim.net/api/booking', {
+            parseResponse: responseText => JSON.parse(responseText),
+            timeout: 1000 * 30,
+        });
+        return response;
+    }
+    catch (e) {
+        console.error(e);
+        return undefined;
+    }
+}
+
+async function createCaches(): Promise<{
+    divisionCache: { [key: string]: VatsimDivision };
+    subDivisionCache: { [key: string]: VatsimSubDivision };
+}> {
+    const divisionCache: { [key: string]: VatsimDivision } = {};
+    const subDivisionCache: { [key: string]: VatsimSubDivision } = {};
+
+    for (const division of (await radarStorage.vatsimStatic.divisions()).values().toArray()) {
+        divisionCache[division.id] = division;
+    }
+    for (const subdivision of (await radarStorage.vatsimStatic.subDivisions()).values().toArray()) {
+        subDivisionCache[subdivision.code] = subdivision;
+    }
+
+    return { divisionCache, subDivisionCache };
+}
+
+function makeFakeAtc(booking: VatsimBookingData): VatsimShortenedController {
+    return {
+        cid: booking.cid,
+        name: '',
+        callsign: booking.callsign,
+        frequency: '',
+        facility: getFacilityByCallsign(booking.callsign),
+        rating: -1,
+        visual_range: 0,
+        logon_time: '',
+        text_atis: [],
+    };
 }

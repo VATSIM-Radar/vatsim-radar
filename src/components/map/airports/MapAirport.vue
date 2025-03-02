@@ -31,7 +31,7 @@
                         :key="local.facility"
                         class="airport_facilities_facility"
                         :class="{ 'airport_facilities_facility--hovered': hoveredFacility === local.facility }"
-                        :style="{ background: getControllerPositionColor(local.atc[0]) }"
+                        :style="{ background: local.booked ? radarColors.darkgray800 : getControllerPositionColor(local.atc[0]) }"
                         @click.stop="hoveredFacility = local.facility"
                         @mouseover="hoveredFacility = local.facility"
                     >
@@ -123,7 +123,7 @@ import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
 import { Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
@@ -162,6 +162,10 @@ const props = defineProps({
     },
     localAtc: {
         type: Array as PropType<VatsimShortenedController[]>,
+        required: true,
+    },
+    bookings: {
+        type: Array as PropType<VatsimBooking[]>,
         required: true,
     },
     arrAtc: {
@@ -248,24 +252,70 @@ const getAirportColor = computed(() => {
     return radarColors.warning700;
 });
 
-const localsFacilities = computed(() => {
-    const facilities: { facility: number; atc: VatsimShortenedController[] }[] = [];
+interface Facility {
+    facility: number;
+    booked: boolean;
+    atc: VatsimShortenedController[];
+}
 
-    for (const local of props.localAtc) {
-        const existingFacility = facilities.find(x => x.facility === (local.isATIS ? -1 : local.facility));
-        if (!existingFacility) {
-            facilities.push({
-                facility: local.isATIS ? -1 : local.facility,
-                atc: [local],
-            });
-            continue;
+const formatterTime = new Intl.DateTimeFormat(['en-DE'], {
+    hour: '2-digit',
+    minute: '2-digit',
+});
+
+const formatterWithDate = new Intl.DateTimeFormat(['en-DE'], {
+    hour: '2-digit',
+    minute: '2-digit',
+    month: 'short',
+    day: '2-digit',
+});
+
+const now = new Date();
+
+const localsFacilities = computed(() => {
+    const facilitiesMap = new Map<number, Facility>();
+
+    props.localAtc.forEach(local => {
+        const facilityId = local.isATIS ? -1 : local.facility;
+        let facility = facilitiesMap.get(facilityId);
+
+        if (!facility) {
+            const booking = props.bookings.find(x => x.atc.facility === facilityId);
+            facility = createFacility(facilityId, booking);
+            facilitiesMap.set(facilityId, facility);
         }
 
-        existingFacility.atc.push(local);
+        facility.atc.push(local);
+    });
+
+    return sortControllersByPosition(Array.from(facilitiesMap.values()));
+});
+
+function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
+    const facility: Facility = {
+        facility: facilityId,
+        booked: !!booking,
+        atc: [],
+    };
+
+    if (booking) {
+        const start = new Date(booking.start);
+        const end = new Date(booking.end);
+
+        booking.start_local = formatDate(start, isToday(start));
+        booking.end_local = formatDate(end, isToday(end));
     }
 
-    return sortControllersByPosition(facilities);
-});
+    return facility;
+}
+
+function formatDate(date: Date, isToday: boolean): string {
+    return isToday ? formatterTime.format(date) : formatterWithDate.format(date);
+}
+
+function isToday(date: Date): boolean {
+    return date.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
+}
 
 let feature: Feature | null = null;
 let hoverFeature: Feature | null = null;

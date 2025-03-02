@@ -13,7 +13,7 @@ import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
 import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
-import { updateAirlines, updateAustraliaData, updateTransceivers } from '~/utils/backend/vatsim/update';
+import { updateAirlines, updateAustraliaData, updateBookings, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import S3 from 'aws-sdk/clients/s3';
 import { execSync } from 'node:child_process';
@@ -70,6 +70,7 @@ function vatsimTasks() {
     defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
     defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
     defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
+    defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
 }
 
 let s3: S3 | undefined;
