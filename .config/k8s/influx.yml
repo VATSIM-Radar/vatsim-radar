@@ -33,8 +33,18 @@ spec:
         - name: influx-v2
           image: ghcr.io/vatsim-radar/vatsim-radar/influx
           imagePullPolicy: Always
+          env:
+            - name: INFLUXDB_MONITOR_STORE_ENABLED
+              value: "FALSE"
           ports:
             - containerPort: 8086
+          resources:
+            requests:
+              cpu: 300m
+              memory: 600Mi
+            limits:
+              cpu: 1800m
+              memory: 2000Mi
           volumeMounts:
             - name: influx-data-v2
               mountPath: /root/.influxdbv2
