@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.0-beta.2]
+
+- Added sorting support for all presets
+
 # [1.1.0-beta.1]
 
 - Added ATC Bookings by Noah. Bookings on map seem not to work for now

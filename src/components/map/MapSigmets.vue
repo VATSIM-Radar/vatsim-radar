@@ -57,7 +57,9 @@ const { refresh, data } = await useAsyncData<Sigmets>(async () => {
     let url = '/api/data/sigmets';
     const activeDate = store.localSettings.filters?.layers?.sigmets?.activeDate;
 
-    if (activeDate && activeDate !== 'current') url += `?date=${ activeDate }`;
+    const lastDate = typeof data !== 'undefined' && data.value?.validUntil;
+
+    if (activeDate && activeDate !== 'current') url += `?date=${ activeDate }${ lastDate ? `&lastDate=${ lastDate }` : '' }`;
 
     return $fetch<Sigmets>(url);
 });
@@ -199,7 +201,7 @@ const styles = {
 function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType)) return;
+    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local')) return;
 
     const sigmets = features.filter(x => x.getProperties()?.dataType);
     if (!sigmets.length) return;
