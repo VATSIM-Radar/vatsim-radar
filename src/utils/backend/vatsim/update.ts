@@ -101,7 +101,11 @@ export async function updateVatsimExtendedPilots() {
 
     const firsPolygons = await getFirsPolygons();
 
-    const firsList = firsPolygons.map(({ icao, featureId, polygon }) => ({
+    const firsList = firsPolygons.map(({
+        icao,
+        featureId,
+        polygon,
+    }) => ({
         controllers: radarStorage.vatsim.firs.filter(
             x => x.controller && x.firs.some(x => x.icao === icao && x.boundaryId === featureId),
         ),
@@ -116,7 +120,10 @@ export async function updateVatsimExtendedPilots() {
         origPilot: VatsimShortenedAircraft;
 
         controllers?: Set<string>;
-    }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({ pilot: structuredClone(pilot), origPilot: pilot }));
+    }[] = radarStorage.vatsim.data!.pilots.map(pilot => ({
+        pilot: structuredClone(pilot),
+        origPilot: pilot,
+    }));
 
     for (const fir of firsList.map(x => ({
         controllers: x.controllers.flatMap(x => x.controller?.callsign),
@@ -131,7 +138,11 @@ export async function updateVatsimExtendedPilots() {
         }
     }
 
-    for (const { pilot: extendedPilot, origPilot, controllers } of pilotsToProcess) {
+    for (const {
+        pilot: extendedPilot,
+        origPilot,
+        controllers,
+    } of pilotsToProcess) {
         const groundDep = radarStorage.vatsim.airports.find(x => x.aircraft.groundDep?.includes(extendedPilot.cid));
         const groundArr = radarStorage.vatsim.airports.find(x => x.aircraft.groundArr?.includes(extendedPilot.cid));
 
@@ -279,8 +290,12 @@ export async function updateVatsimExtendedPilots() {
                         };
                     }
                 }
-                else if (arrival !== 'ZZZZ' && oldFlightPlan.arrival !== 'ZZZZ' &&
-                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival && extendedPilot.flight_plan?.flight_rules !== 'V') {
+                else if (
+                    arrival !== 'ZZZZ' && oldFlightPlan.arrival !== 'ZZZZ' &&
+                    oldFlightPlan.arrival && oldFlightPlan.arrival !== arrival &&
+                    radarStorage.vatspy.data?.keyAirports.realIcao[oldFlightPlan.arrival] && radarStorage.vatspy.data?.keyAirports.realIcao[arrival] &&
+                    extendedPilot.flight_plan?.flight_rules !== 'V'
+                ) {
                     extendedPilot.flight_plan = {
                         ...extendedPilot.flight_plan,
                         diverted: true,
