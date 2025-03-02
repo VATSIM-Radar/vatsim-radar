@@ -24,59 +24,66 @@
             </nuxt-link>
             <div class="header__sections __from-tablet">
                 <div class="header__sections_section header__buttons">
-                    <common-button
+                    <div
                         v-for="button in headerMenu"
                         :key="button.text"
-                        class="header__buttons_btn-container"
-                        :class="{ 'header__buttons_btn-container--has-children': button.children }"
-                        :disabled="button.disabled"
-                        :to="button.path"
-                        :type="button.active ? 'primary' : 'secondary'"
-                        :width="button.width"
-                        @click="button.action?.()"
+                        class="header__buttons_btn-wrapper"
+                        :class="{ 'header__buttons_btn-wrapper--has-children': button.children }"
                     >
-                        <template
-                            v-if="button.icon"
-                            #icon
+                        <common-button
+                            class="header__buttons_btn-container"
+                            :disabled="button.disabled"
+                            :to="button.path"
+                            :type="button.active ? 'primary' : 'secondary'"
+                            :width="button.width"
+                            @click="button.action?.()"
                         >
-                            <component :is="button.icon"/>
-                        </template>
-                        <template
-                            v-if="!isMobileOrTablet || button.children?.length"
-                            #default
-                        >
-                            <div class="header__buttons_btn">
-                                <div class="header__buttons_btn_text">
-                                    {{ button.text }}
-                                </div>
-                                <div
-                                    v-if="button.children"
-                                    class="header__buttons_btn_children"
-                                >
-                                    <arrow-top-icon class="header__buttons_btn_children_icon"/>
-                                    <div class="header__buttons_btn_children_menu">
-                                        <common-button
-                                            v-for="childrenButton in button.children"
-                                            :key="childrenButton.text"
-                                            :disabled="childrenButton.disabled"
-                                            :to="childrenButton.path"
-                                            :type="childrenButton.active ? 'primary' : 'secondary'"
-                                            @click="childrenButton.action?.()"
-                                        >
-                                            <template
-                                                v-if="childrenButton.icon"
-                                                #icon
-                                            >
-                                                <component :is="childrenButton.icon"/>
-                                            </template>
-
-                                            {{ childrenButton.text }}
-                                        </common-button>
+                            <template
+                                v-if="button.icon"
+                                #icon
+                            >
+                                <component :is="button.icon"/>
+                            </template>
+                            <template
+                                v-if="!isMobileOrTablet || button.children?.length"
+                                #default
+                            >
+                                <div class="header__buttons_btn">
+                                    <div class="header__buttons_btn_text">
+                                        {{ button.text }}
+                                    </div>
+                                    <div
+                                        v-if="button.children"
+                                        class="header__buttons_btn_children"
+                                    >
+                                        <arrow-top-icon class="header__buttons_btn_children_icon"/>
                                     </div>
                                 </div>
-                            </div>
-                        </template>
-                    </common-button>
+                            </template>
+                        </common-button>
+                        <div
+                            v-if="button.children"
+                            class="header__buttons_btn_children_menu"
+                        >
+                            <common-button
+                                v-for="childrenButton in button.children"
+                                :key="childrenButton.text"
+                                :disabled="childrenButton.disabled"
+                                :to="childrenButton.path"
+                                :type="childrenButton.active ? 'primary' : 'secondary'"
+                                @click="childrenButton.action?.()"
+                            >
+                                <template
+                                    v-if="childrenButton.icon"
+                                    #icon
+                                >
+                                    <component :is="childrenButton.icon"/>
+                                </template>
+
+                                {{ childrenButton.text }}
+                            </common-button>
+                        </div>
+                    </div>
                 </div>
                 <div
                     v-if="route.path === '/' && !isMobileOrTablet"
@@ -409,12 +416,18 @@ const mobileMenuOpened = ref(false);
 
             &-container {
                 position: relative;
+            }
+
+            &-wrapper {
+                position: relative;
 
                 &--has-children {
                     &:hover {
-                        border-bottom-right-radius: 0 !important;
-                        border-bottom-left-radius: 0 !important;
-                        background: $darkgray875 !important;
+                        .header__buttons_btn-container {
+                            border-bottom-right-radius: 0 !important;
+                            border-bottom-left-radius: 0 !important;
+                            background: $darkgray875 !important;
+                        }
 
                         .header__buttons_btn_children_menu {
                             visibility: visible;

@@ -43,11 +43,11 @@ import type { Sigmet, Sigmets } from '~/utils/backend/storage';
 import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import { Fill, Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Coordinate } from 'ol/coordinate';
 import RenderFeature from 'ol/render/Feature';
-import { getCurrentThemeRgbColor } from '~/composables';
+import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 
 const store = useStore();
@@ -144,10 +144,16 @@ let source: VectorSource;
 
 const types = ref(new Set<string | null | undefined>());
 
+const localDisabled = computed(() => store.localSettings.filters?.layers?.sigmets?.disabled);
+
 const jsonFeatures = computed(() => {
     if (!data.value) return [];
 
-    return geojson.readFeatures(data.value, {
+    const geoData: Sigmets = { ...data.value };
+
+    geoData.features = geoData.features.filter(x => x.properties.hazard && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
+
+    return geojson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',
         dataProjection: 'EPSG:4326',
     });
@@ -167,6 +173,13 @@ function buildStyle(color: ColorsList, type: string) {
             color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
             width: 1,
             lineDash: [12, 2],
+        }),
+        text: new Text({
+            text: `${ type }`,
+            font: 'bold 14px Montserrat',
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
+            }),
         }),
         zIndex: 1,
     });
@@ -199,7 +212,7 @@ function handleMapClick(event: MapBrowserEvent<any>) {
 
 attachMoveEnd(() => openSigmet.value = null);
 
-watch([jsonFeatures, map], () => {
+watch([jsonFeatures, map, localDisabled], () => {
     if (!map.value) return;
 
     if (!source) {
@@ -222,14 +235,14 @@ watch([jsonFeatures, map], () => {
 
                 types.value.add(properties.hazard);
 
-                if (properties.hazard?.includes('OBSC')) return styles.IFR;
-                if (properties.hazard?.includes('FZLVL')) return styles.ICE;
-                if (properties.hazard?.includes('WS')) return styles.WIND;
-                if (properties.hazard?.includes('WIND') || properties.hazard?.includes('WND')) return styles.WIND;
-                if (properties.hazard?.startsWith('TURB')) return styles.TURB;
+                const type = getSigmetType(properties.hazard);
+                if (!type) return styles.default;
 
-                // @ts-expect-error We are ok with that
-                return styles[properties.hazard ?? 'default'] ?? styles.default;
+                if (type === 'OBSC') return styles.IFR;
+                if (type === 'FZLVL') return styles.ICE;
+                if (type === 'WS') return styles.WIND;
+
+                return styles[type] ?? styles.default;
             },
         });
 

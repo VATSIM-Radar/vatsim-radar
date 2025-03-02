@@ -1,9 +1,21 @@
 # Changelog
 
+# [1.1.0-beta.1]
+
+- Added ATC Bookings by Noah. Bookings on map seem not to work for now
+- Airport names in destination card will now be limited by 2 lines
+- (QA) Fixed some approach labels not displaying on "next"
+- Added "Z" suffix to time in events page if time is local
+- Added single event page SEO optimization
+- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
+- Fix delay when tracking aircraft
+- Fixed an issue when local timezone was not displayed in VATSIM Events page
+- (QA) You can now edit SIGMETs data displayed
+- (QA) SIGMETs now show labels
+
 # [1.1.0-alpha.8]
 
 - Fixed gates not showing up for some airports when using Navigraph
-- ATC Bookings
 
 # [1.1.0-alpha.7]
 

@@ -33,6 +33,7 @@ logs
 !.yarn/versions
 
 .config/certs
+.config/redis
 .config/db
 
 dump.sql

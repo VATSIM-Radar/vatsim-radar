@@ -189,7 +189,7 @@ function patreonTask() {
 export async function initWholeBunchOfBackendTasks() {
     try {
         basicTasks();
-        vatsimTasks();
+        await vatsimTasks();
         patreonTask();
         backupTask();
         clearTask();
@@ -200,10 +200,10 @@ export async function initWholeBunchOfBackendTasks() {
 }
 
 async function updateData() {
-    radarStorage.vatglasses.data = (await getRedisData('data-vatglasses'))!;
-    radarStorage.simaware = (await getRedisData('data-simaware'))!;
-    radarStorage.vatspy = (await getRedisData('data-vatspy'))!;
-    radarStorage.airlines = (await getRedisData('data-airlines'))!;
+    radarStorage.vatglasses.data = (await getRedisData('data-vatglasses')) ?? radarStorage.vatglasses.data;
+    radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
+    radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
+    radarStorage.airlines = (await getRedisData('data-airlines')) ?? radarStorage.airlines;
 }
 
 export async function setupRedisDataFetch() {

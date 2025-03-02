@@ -201,7 +201,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'LEMD_EN_APP',
+            callsign: 'UUDD_APP',
             cid: 4,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
@@ -215,7 +215,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data.controllers.push({
-            callsign: 'ENAL_APP',
+            callsign: 'UUWW_APP',
             cid: 3,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',

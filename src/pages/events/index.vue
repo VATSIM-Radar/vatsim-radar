@@ -67,7 +67,6 @@ function getDate(_date: string) {
 const timezone = new Intl.DateTimeFormat(['de-DE'], {
     day: '2-digit',
     timeZoneName: 'shortOffset',
-    timeZone,
 });
 
 const groupedEventData = computed(() => {

@@ -1,7 +1,7 @@
 import { getTransceiverData } from '~/utils/backend/vatsim/index';
 import { useFacilitiesIds, getFacilityByCallsign } from '~/utils/data/vatsim';
 import type { RadarDataAirline, RadarDataAirlineAll, RadarDataAirlinesList } from '~/utils/backend/storage';
-import { isDataReady, radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from '~/utils/backend/storage';
 import { wss } from '~/utils/backend/vatsim/ws';
 import type {
     VatsimExtendedPilot,
@@ -366,7 +366,15 @@ export async function updateTransceivers() {
 
 function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
     return Object.fromEntries(airlines.map(val => {
-        val.name = val.name.split(' ').map(x => `${ x[0] }${ x.toLowerCase().slice(1, x.length) }`).join(' ');
+        const name = val.name.split('');
+
+        name.forEach((symbol, index) => {
+            const previousSymbol = val.name[index - 1];
+            if (previousSymbol !== undefined && previousSymbol !== ' ' && previousSymbol !== '(') name[index] = symbol.toLowerCase();
+            else name[index] = symbol.toUpperCase();
+        });
+
+        val.name = name.join('');
 
         return [val.icao, val];
     }));
@@ -393,9 +401,6 @@ export async function updateAirlines() {
 
 export async function updateBookings() {
     try {
-        if (!(await isDataReady())) {
-            return;
-        }
         const bookingData = await fetchBookingData();
         if (!bookingData) return;
 

@@ -7,7 +7,7 @@
         >
             <div class="event-card_start">
                 <client-only>
-                    {{ formattedStart }} - {{ formattedEnd }}
+                    {{ formattedStart }} - {{ formattedEnd }}<template v-if="store.localSettings.eventsLocalTimezone">z</template>
                 </client-only>
             </div>
             <div class="event-card_name">

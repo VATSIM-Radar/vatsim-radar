@@ -23,6 +23,7 @@
                 { key: 'actions', name: 'Actions', width: 120 },
             ]"
             item-key="callsign"
+            mobile-width="800px"
             @click="$event.text_atis && mapStore.addAtcOverlay($event.callsign)"
         >
             <template #data-logon_time="{ item }">

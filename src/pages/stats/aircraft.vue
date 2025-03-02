@@ -16,6 +16,7 @@
                 { key: 'actions', name: 'Actions', width: 80 },
             ]"
             item-key="cid"
+            mobile-width="100%"
             multiple-sort
         >
             <template #data-place="{ index }">
