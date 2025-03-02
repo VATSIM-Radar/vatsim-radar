@@ -44,7 +44,7 @@ spec:
               memory: 600Mi
             limits:
               cpu: 1800m
-              memory: 2000Mi
+              memory: 1800Mi
           volumeMounts:
             - name: influx-data-v2
               mountPath: /root/.influxdbv2
