@@ -26,16 +26,13 @@ spec:
         app: influx-v2
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx
+        doks.digitalocean.com/node-pool: influx-m
       imagePullSecrets:
         - name: ghcr-login-secret
       containers:
         - name: influx-v2
           image: ghcr.io/vatsim-radar/vatsim-radar/influx
           imagePullPolicy: Always
-          env:
-            - name: INFLUXDB_MONITOR_STORE_ENABLED
-              value: "FALSE"
           ports:
             - containerPort: 8086
           resources:
