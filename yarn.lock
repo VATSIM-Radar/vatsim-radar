@@ -10029,10 +10029,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"metar-taf-parser@npm:^9.1.1":
-  version: 9.1.1
-  resolution: "metar-taf-parser@npm:9.1.1"
-  checksum: 10c0/1a212f1c49cc1ce01c1e1e37777d72d611a56f861d0d639974864ab28609f57126333488b0b3c4dedd33a74d0708cb95d3159ecfc54290a5cd01dc9edf0f4eb3
+"metar-taf-parser@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "metar-taf-parser@npm:9.1.2"
+  checksum: 10c0/8732b911f41714829c03129e350f65aaca16d1ce5a22c20fc31638337a8fb1d401f3e46394fdd0af8a897fe24a7ce1acc2e47d2d2054a558e9521e9e4c51af0c
   languageName: node
   linkType: hard
 
@@ -14898,7 +14898,7 @@ __metadata:
     klona: "npm:^2.0.6"
     marked: "npm:^15.0.7"
     merge-ranges: "npm:^1.0.2"
-    metar-taf-parser: "npm:^9.1.1"
+    metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:3.15.4"
     ol: "npm:^10.4.0"
     ol-mapbox-style: "npm:^12.5.0"

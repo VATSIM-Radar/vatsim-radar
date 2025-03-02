@@ -3,6 +3,7 @@
 # [1.1.0-alpha.8]
 
 - Fixed gates not showing up for some airports when using Navigraph
+- ATC Bookings
 
 # [1.1.0-alpha.7]
 
