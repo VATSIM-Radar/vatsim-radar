@@ -11,7 +11,7 @@ import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
 import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
-import type { RadarDataAirline, Sigmet } from '~/utils/backend/storage';
+import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 
