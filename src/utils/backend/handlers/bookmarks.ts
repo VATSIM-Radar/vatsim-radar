@@ -127,6 +127,14 @@ export async function handleBookmarksEvent(event: H3Event) {
                 userId: user.id,
                 type: UserPresetType.BOOKMARK,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         });
 
         let bookmark: UserPreset | null = null;
