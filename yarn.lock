@@ -11058,11 +11058,11 @@ __metadata:
   linkType: hard
 
 "package-manager-detector@npm:^0.2.8, package-manager-detector@npm:^0.2.9":
-  version: 0.2.10
-  resolution: "package-manager-detector@npm:0.2.10"
+  version: 0.2.11
+  resolution: "package-manager-detector@npm:0.2.11"
   dependencies:
-    quansync: "npm:^0.2.2"
-  checksum: 10c0/d2c3aff1e7757224f55e7329aeea92ef34f7357d8fc21067846471bcdea778f0ed4c75fa86783de70469a3ed7f67fa3b290de7b0cf2f22a8c16c6c922d607f5b
+    quansync: "npm:^0.2.7"
+  checksum: 10c0/247991de461b9e731f3463b7dae9ce187e53095b7b94d7d96eec039abf418b61ccf74464bec1d0c11d97311f33472e77baccd4c5898f77358da4b5b33395e0b1
   languageName: node
   linkType: hard
 
@@ -11926,10 +11926,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"quansync@npm:^0.2.1, quansync@npm:^0.2.2":
-  version: 0.2.6
-  resolution: "quansync@npm:0.2.6"
-  checksum: 10c0/de27a8dfa89de92a9b9fc10c49167ada1ea8b04b0335d0921e84abec51699b36f0f06f8ee0479514d5d5f32cb14e975a54a41e5fe3c3a96e72e3ad333aa422ca
+"quansync@npm:^0.2.1, quansync@npm:^0.2.7":
+  version: 0.2.7
+  resolution: "quansync@npm:0.2.7"
+  checksum: 10c0/1e23f92aaf7f9e409aa1ad81ed5e39dbd8f687c62f1b4d6e8d800c1335ff3d530d6addc5fe54190e146b85271762aa4e4c7310da530cb5531647aa2259af18fe
   languageName: node
   linkType: hard
 
