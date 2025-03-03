@@ -49,6 +49,8 @@ export interface SearchResults {
 
 export type SearchFilter = keyof SearchResults;
 
+export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC';
+
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
@@ -67,6 +69,7 @@ interface IUserLocalSettings {
             sigmets?: {
                 enabled?: boolean;
                 activeDate?: string;
+                disabled?: SigmetType[];
             };
             transparencySettings?: UserLayersTransparencySettings;
         };

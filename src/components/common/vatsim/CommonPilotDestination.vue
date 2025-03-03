@@ -11,7 +11,13 @@
                 text-align="center"
                 :top-items="[props.pilot.departure]"
                 @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
-            />
+            >
+                <template #bottom="{ item }">
+                    <span :title="String(item)">
+                        {{ item }}
+                    </span>
+                </template>
+            </common-info-block>
             <div
                 class="destination_aircraft-icon"
             >
@@ -31,7 +37,13 @@
                 text-align="center"
                 :top-items="[props.pilot.arrival]"
                 @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
-            />
+            >
+                <template #bottom="{ item }">
+                    <span :title="String(item)">
+                        {{ item }}
+                    </span>
+                </template>
+            </common-info-block>
             <common-info-block
                 v-if="pilot.diverted"
                 :bottom-items="[divOrgAirport?.name]"
@@ -40,7 +52,13 @@
                 text-align="center"
                 :top-items="[props.pilot.diverted_origin]"
                 @click="mapStore.addAirportOverlay(divOrgAirport?.icao ?? '')"
-            />
+            >
+                <template #bottom="{ item }">
+                    <span :title="String(item)">
+                        {{ item }}
+                    </span>
+                </template>
+            </common-info-block>
         </div>
         <common-info-block
             v-if="pilot.diverted"
@@ -50,7 +68,13 @@
             text-align="center"
             :top-items="[props.pilot.diverted_arrival]"
             @click="mapStore.addAirportOverlay(divArrAirport?.icao ?? '')"
-        />
+        >
+            <template #bottom="{ item }">
+                <span :title="String(item)">
+                    {{ item }}
+                </span>
+            </template>
+        </common-info-block>
     </div>
 </template>
 
@@ -127,6 +151,15 @@ const divOrgAirport = computed(() => dataStore.vatspy.value?.data.keyAirports.re
         flex-direction: column;
         gap: 4px;
         justify-content: center;
+    }
+
+    :deep(.info-block_bottom) {
+        @supports(-webkit-line-clamp: 2) {
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
     }
 }
 

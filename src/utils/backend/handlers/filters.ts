@@ -229,6 +229,14 @@ export async function handleFiltersEvent(event: H3Event) {
             include: {
                 lists: true,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         })).map(x => {
             const json = x.json as UserFilter;
             if (json.users?.lists) {

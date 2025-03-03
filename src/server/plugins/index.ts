@@ -18,6 +18,14 @@ export default defineNitroPlugin(async app => {
             where: {
                 type: UserPresetType.BOOKMARK,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         });
 
         for (const _bookmark of bookmarks) {

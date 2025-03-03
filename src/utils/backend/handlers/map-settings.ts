@@ -324,6 +324,14 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 userId: user.id,
                 type: UserPresetType.MAP_SETTINGS,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         });
 
         let settings: UserPreset | null = null;

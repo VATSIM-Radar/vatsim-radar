@@ -146,7 +146,10 @@ async function handleClick(e: MapBrowserEvent<any>) {
         sectors.push(properties);
     });
 
-    sectorsAtClick.value = sectors.filter(x => x.atc).sort((a, b) => b.min - a.min);
+    sectorsAtClick.value = sectors.filter(x => x.atc).sort((a, b) => b.min - a.min).map(x => ({
+        ...x,
+        atc: findAtcByCallsign(x.atc.callsign) ?? x.atc,
+    }));
 
     getCoordinates.value = e.coordinate;
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;

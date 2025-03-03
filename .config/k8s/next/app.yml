@@ -24,11 +24,11 @@ spec:
             - containerPort: 3000
           resources:
             requests:
-              cpu: 600m
-              memory: 300Mi
+              cpu: 300m
+              memory: 600Mi
             limits:
               cpu: 950m
-              memory: 950Mi
+              memory: 2Gi
           readinessProbe:
             tcpSocket:
               port: 3000

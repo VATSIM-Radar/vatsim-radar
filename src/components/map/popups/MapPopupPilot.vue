@@ -474,7 +474,7 @@ function handleMouseMove() {
     });
 }
 
-watch(dataStore.vatsim.updateTimestamp, handleMouseMove);
+watch(() => [pilot.value.longitude, pilot.value.latitude].join(','), handleMouseMove);
 watch(() => props.overlay.data.tracked, val => {
     handleMouseMove();
     if (val) {

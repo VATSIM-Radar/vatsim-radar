@@ -13,6 +13,7 @@ import { createDefu } from 'defu';
 import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
+import type { SigmetType } from '~/types/map';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -322,4 +323,20 @@ export const startDataStoreTimeUpdate = () => {
 
         onBeforeUnmount(() => clearInterval(interval));
     });
+};
+
+export const getSigmetType = (hazard: string | null | undefined): SigmetType | null => {
+    if (hazard?.includes('OBSC')) return 'OBSC';
+    if (hazard?.includes('FZLVL')) return 'FZLVL';
+    if (hazard?.includes('WS')) return 'WS';
+    if (hazard?.includes('WIND') || hazard?.includes('WND')) return 'WIND';
+
+    if (hazard?.startsWith('TURB')) return 'TURB';
+    if (hazard?.startsWith('TS')) return 'TS';
+    if (hazard?.startsWith('ICE')) return 'ICE';
+    if (hazard?.startsWith('VA')) return 'VA';
+    if (hazard?.startsWith('MTW')) return 'MTW';
+    if (hazard?.startsWith('IFR')) return 'IFR';
+
+    return null;
 };

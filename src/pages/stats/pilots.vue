@@ -26,6 +26,7 @@
                 { key: 'actions', name: 'Actions', width: 120 },
             ]"
             item-key="cid"
+            mobile-width="1200px"
             multiple-sort
             @click="mapStore.addPilotOverlay($event.cid)"
         >

@@ -126,6 +126,7 @@
                                     Active date
                                 </template>
                             </common-radio-group>
+                            <common-sigmets-settings/>
                             <div class="__partner-info">
                                 <div class="__partner-info_image">
                                     <img
@@ -353,6 +354,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import { sigmetDates } from '~/composables';
+import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

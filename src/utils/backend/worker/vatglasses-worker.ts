@@ -4,6 +4,7 @@ import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatgla
 import type { VatglassesActiveAirspaces, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { setupRedisDataFetch } from '~/utils/backend/tasks';
 import { radarStorage } from '~/utils/backend/storage';
+import { sleep } from '~/utils';
 
 export interface WorkerDataStore {
     vatglassesActiveRunways: VatglassesActiveRunways;
@@ -24,6 +25,14 @@ redisSubscriber.on('message', (channel, message) => {
     if (channel === 'data') {
         radarStorage.vatsim = JSON.parse(message);
     }
+});
+
+await new Promise<void>(async resolve => {
+    do {
+        await sleep(1000 * 5);
+    } while (!radarStorage.vatsim.data);
+
+    resolve();
 });
 
 const redisPublisher = getRedis();

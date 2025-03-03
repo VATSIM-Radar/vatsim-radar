@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run InfluxDB in background
-influxd &
+influxd --log-level=error &
 
 # Wait for InfluxDB to be available
 until curl -s http://localhost:8086/health | grep -q '"status":"pass"'; do

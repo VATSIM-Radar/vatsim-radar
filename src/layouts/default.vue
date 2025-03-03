@@ -142,10 +142,6 @@ useHead(() => {
                 content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
             },
             {
-                name: 'keywords',
-                content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
-            },
-            {
                 name: 'msapplication-TileColor',
                 content: themeColor,
             },
