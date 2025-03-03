@@ -325,7 +325,7 @@ const showNow = computed(() => {
 });
 
 watch([() => props.start, () => props.end, getEntries], () => {
-//    collapseByMap();
+    collapseByMap();
 });
 
 onMounted(() => {
