@@ -258,20 +258,6 @@ interface Facility {
     atc: VatsimShortenedController[];
 }
 
-const formatterTime = new Intl.DateTimeFormat(['en-DE'], {
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
-const formatterWithDate = new Intl.DateTimeFormat(['en-DE'], {
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-    day: '2-digit',
-});
-
-const now = new Date();
-
 const localsFacilities = computed(() => {
     const facilitiesMap = new Map<number, Facility>();
 
@@ -281,6 +267,8 @@ const localsFacilities = computed(() => {
 
         if (!facility) {
             const booking = props.bookings.find(x => x.atc.facility === facilityId);
+            if (!booking) return;
+
             facility = createFacility(facilityId, booking);
             facilitiesMap.set(facilityId, facility);
         }
@@ -291,30 +279,16 @@ const localsFacilities = computed(() => {
     return sortControllersByPosition(Array.from(facilitiesMap.values()));
 });
 
-function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
+function createFacility(facilityId: number, booking: VatsimBooking): Facility {
     const facility: Facility = {
         facility: facilityId,
         booked: !!booking,
         atc: [],
     };
 
-    if (booking) {
-        const start = new Date(booking.start);
-        const end = new Date(booking.end);
-
-        booking.start_local = formatDate(start, isToday(start));
-        booking.end_local = formatDate(end, isToday(end));
-    }
+    makeBookingLocalTime(booking);
 
     return facility;
-}
-
-function formatDate(date: Date, isToday: boolean): string {
-    return isToday ? formatterTime.format(date) : formatterWithDate.format(date);
-}
-
-function isToday(date: Date): boolean {
-    return date.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
 }
 
 let feature: Feature | null = null;

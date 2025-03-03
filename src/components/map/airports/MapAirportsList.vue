@@ -506,31 +506,33 @@ const getAirportsList = computed(() => {
         }
     }
 
-    for (const atc of dataStore.vatsim.data.locals.value) {
-        const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
-        const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
-        const iataAirport = airports.find(x => (
-            atc.airport.iata &&
-            x.airport.iata === atc.airport.iata &&
-            (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
-        ));
+    if (!store.mapSettings.bookingOverride) {
+        for (const atc of dataStore.vatsim.data.locals.value) {
+            const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
+            const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
+            const iataAirport = airports.find(x => (
+                atc.airport.iata &&
+                x.airport.iata === atc.airport.iata &&
+                (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
+            ));
 
-        const airport = iataAirport || icaoOnlyAirport;
+            const airport = iataAirport || icaoOnlyAirport;
 
-        if (!airport) continue;
+            if (!airport) continue;
 
-        if (isArr) {
-            if (vatGlassesActive.value && dataStore.vatglassesActivePositions.value['fallback']) {
-                const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
-                if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+            if (isArr) {
+                if (vatGlassesActive.value && dataStore.vatglassesActivePositions.value['fallback']) {
+                    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+                    if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+                }
+                airport.arrAtc.push(atc.atc);
+                airport.arrAtcInfo.push(atc);
+                continue;
             }
-            airport.arrAtc.push(atc.atc);
-            airport.arrAtcInfo.push(atc);
-            continue;
-        }
 
-        const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
-        if (isLocal) airport.localAtc.push(atc.atc);
+            const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
+            if (isLocal) airport.localAtc.push(atc.atc);
+        }
     }
 
     if (store.mapSettings.visibility?.bookings ?? true) {

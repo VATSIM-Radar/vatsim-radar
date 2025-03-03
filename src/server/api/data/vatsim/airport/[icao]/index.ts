@@ -3,12 +3,14 @@ import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
 import { getAirportWeather } from '~/utils/backend/vatsim/weather';
 import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
+import type { VatsimBooking } from '~/types/data/vatsim';
 
 export interface VatsimAirportData {
     metar?: string;
     taf?: string;
     vatInfo?: VatsimAirportInfo | null;
     center: string[];
+    bookings?: VatsimBooking[];
 }
 
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
@@ -20,8 +22,11 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     const weatherOnly = getQuery(event).requestedDataType === '1';
     const controllersOnly = getQuery(event).requestedDataType === '2';
 
+    const bookings = (await radarStorage.vatsimStatic.bookings()).filter(b => b.atc.callsign.split('_')[0] === icao);
+
     const data: VatsimAirportData = {
         center: [],
+        bookings: bookings,
     };
     const promises: PromiseLike<any>[] = [];
 

@@ -203,6 +203,14 @@
         <template #atc>
             <airport-controllers/>
         </template>
+        <template #bookings>
+            <common-controller-info
+                class="booking-controller-info"
+                :controllers="bookings"
+                max-height="170px"
+                show-facility
+            />
+        </template>
         <template #aircraft>
             <div
                 v-if="vatAirport?.aircraft.arrivals?.length"
@@ -300,6 +308,8 @@ import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
 import CommonBookmarkData from '~/components/common/vatsim/CommonBookmarkData.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 
 const props = defineProps({
     overlay: {
@@ -327,6 +337,18 @@ const notams = computed(() => props.overlay.data.notams);
 const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
+const bookings = computed(() => {
+    const atcs: VatsimShortenedController[] = [];
+    data.value?.bookings?.forEach(b => {
+        const atc = makeFacilityFromBooking(b);
+        if (!atc) return;
+
+        atcs.push(atc);
+    });
+
+    return atcs;
+});
+
 const showOnMap = () => {
     if (!airport.value) return;
     showAirportOnMap(airport.value, map.value);
@@ -350,7 +372,7 @@ const tabs = computed<InfoPopupContent>(() => {
         },
         atc: {
             title: 'ATC',
-            disabled: !atc.value.length,
+            disabled: !atc.value.length && !bookings.value.length,
             sections: [],
         },
         info: {
@@ -418,6 +440,16 @@ const tabs = computed<InfoPopupContent>(() => {
             collapsedDefault: true,
             collapsedDefaultOnce: true,
             key: 'notams',
+        });
+    }
+
+    if (data.value?.bookings?.length) {
+        list.atc.sections.push({
+            title: 'Booked Controllers',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+            key: 'bookings',
         });
     }
 
@@ -683,5 +715,9 @@ onMounted(() => {
             }
         }
     }
+}
+
+.booking-controller-info {
+    width: 100%;
 }
 </style>

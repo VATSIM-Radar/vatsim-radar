@@ -52,17 +52,22 @@
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 
-interface DateRange {
+export interface DateRange {
     from: Date;
-    to?: Date;
+    to: Date;
 }
 
 const dateRange = defineModel<DateRange>({ required: true });
 
 const formatDate = (date: Date): string => {
-    return date.toISOString().slice(0, 16);
-};
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
 
+    return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`;
+};
 const formattedStartDate = computed(() => formatDate(dateRange.value.from));
 const formattedEndDate = computed(() => dateRange.value.to ? formatDate(dateRange.value.to) : '');
 

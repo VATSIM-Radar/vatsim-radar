@@ -12,7 +12,7 @@
             </template>
         </div>
         <common-timeline
-            collapsed
+            :collapsed
             :end="dateRange.to"
             :entries="bookingTimelineEntries"
             :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
@@ -30,6 +30,7 @@ import CommonTimeline from '~/components/common/basic/CommonTimeline.vue';
 import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
+import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -42,12 +43,20 @@ end.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 const fetchStart = ref(start);
 const fetchEnd = ref(end);
 
-const dateRange = ref({
+const dateRange: Ref<DateRange> = ref({
     from: start,
     to: end,
 });
 
 const data = ref(await fetchBookings());
+const sortedData = computed(() => {
+    let sorted = [...data.value];
+    sorted = sorted
+        .sort((a, b) => b.atc.facility - a.atc.facility)
+        .sort((a, b) => a.start - b.start);
+
+    return sorted;
+});
 
 const bookingTimelineIdentifiers = computed(() => makeBookingTimelineIds());
 const bookingTimelineEntries = computed(() => makeBookingTimelineEntries());
@@ -67,7 +76,7 @@ async function fetchBookings() {
     });
 }
 
-onMounted(() => {
+onBeforeMount(async () => {
     const store = useStore();
     store.getVATSIMData();
 });
@@ -84,7 +93,7 @@ function makeBookingTimelineEntries(): TimelineEntry[] {
         });
     });
 
-    data.value?.forEach(booking => {
+    sortedData.value.forEach(booking => {
         if (booking.end >= dateRange.value.from.getTime() && booking.start <= dateRange.value.to.getTime()) {
             const groupInfo = groupMap.get(booking.atc.callsign);
             if (groupInfo) {
@@ -105,10 +114,9 @@ function makeBookingTimelineEntries(): TimelineEntry[] {
 function makeBookingTimelineIds(): (TimelineIdentifier | null)[][] {
     const groups = new Map<string, Set<string>>();
 
-    if (!data.value) return [[]];
+    if (!sortedData.value) return [[]];
 
-    data.value
-        .sort((a, b) => b.atc.facility - a.atc.facility)
+    sortedData.value
         .forEach(booking => {
             if (booking.end >= dateRange.value.from.getTime() && booking.start <= dateRange.value.to.getTime()) {
                 const [groupKey] = booking.atc.callsign.split('_');

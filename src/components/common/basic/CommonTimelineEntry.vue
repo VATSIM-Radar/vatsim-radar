@@ -5,7 +5,12 @@
         @mouseover="hover = true"
     >
         <div class="entry-title">
-            {{ entry.title }}
+            <common-scroll-text>
+                <template #text>
+                    {{ entry.title }}
+                </template>
+            </common-scroll-text>
+
         </div>
         <div
             v-if="entry.details"
@@ -26,6 +31,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { TimelineEntry } from '~/types/data/timeline';
+import CommonScrollText from './CommonScrollText.vue';
 
 const props = defineProps({
     entry: {

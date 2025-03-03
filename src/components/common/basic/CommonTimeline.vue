@@ -1,160 +1,171 @@
 <template>
-    <div
-        v-if="ready"
-        ref="dragContainer"
-        class="timeline"
-        :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
-        @mousedown="startDrag"
-        @mouseleave="stopDrag"
-        @mousemove="drag"
-        @mouseup="stopDrag"
-    >
-        <div class="header">
-            <div class="header-heads">
-                <div
-                    v-for="header in headers"
-                    :key="header.name"
-                    class="header-head"
-                    :style="getWidthStyle"
-                >
-                    {{ header.name }}
-                </div>
-            </div>
-            <!-- Timeline -->
+    <client-only>
+        <div
+            v-if="ready"
+            ref="dragContainer"
+            class="timeline"
+            :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
+            @mousedown="startDrag"
+            @mouseleave="stopDrag"
+            @mousemove="drag"
+            @mouseup="stopDrag"
+        >
             <div
-                class="timeline-timeline"
-                @wheel="onWheel"
+                v-if="start > end"
+                class="timeline-wrong"
             >
-                <div
-                    v-for="day in getTimelineDays"
-                    :key="day.id"
-                    class="timeline-timeline-day"
-                >
-                    <span
-                        class="timeline-timeline-day-txt"
-                        :style="getDayStyle"
+                Invalid date range: The start date should precede the end date
+            </div>
+            <div
+                v-if="start < end"
+                class="header"
+            >
+                <div class="header-heads">
+                    <div
+                        v-for="header in headers"
+                        :key="header.name"
+                        class="header-head"
+                        :style="getWidthStyle"
                     >
-                        {{ day.formattedDate }}
-                    </span>
-                    <div class="timeline-timeline-day-list">
-                        <div
-                            v-for="time in getTimelineTime(day.day)"
-                            :key="time.id"
-                            class="timeline-timeline-time"
-                            :style="getWidthStyle"
+                        {{ header.name }}
+                    </div>
+                </div>
+                <!-- Timeline -->
+                <div
+                    class="timeline-timeline"
+                    @wheel="onWheel"
+                >
+                    <div
+                        v-for="day in getTimelineDays"
+                        :key="day.id"
+                        class="timeline-timeline-day"
+                    >
+                        <span
+                            class="timeline-timeline-day-txt"
+                            :style="getDayStyle"
                         >
-                            <span>
-                                {{ time.formattedTime }}
-                            </span>
+                            {{ day.formattedDate }}
+                        </span>
+                        <div class="timeline-timeline-day-list">
+                            <div
+                                v-for="time in getTimelineTime(day.day)"
+                                :key="time.id"
+                                class="timeline-timeline-time"
+                                :style="getWidthStyle"
+                            >
+                                <span>
+                                    {{ time.formattedTime }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="timeline-data">
-            <!-- Identifiers -->
-            <div class="id">
-                <div
-                    v-for="(col, colIndex) in idsRef"
-                    :key="colIndex"
-                    class="id-row"
-                >
-                    <template
-                        v-for="(row, rowIndex) in col"
-                        :key="rowIndex"
+            <div class="timeline-data">
+                <!-- Identifiers -->
+                <div class="id">
+                    <div
+                        v-for="(col, colIndex) in getIds"
+                        :key="colIndex"
+                        class="id-row"
                     >
-                        <div
-                            v-if="!row?.collapsed || row?.collapsable"
-                            class="id-cell"
-                            :class="idClass(rowIndex, colIndex)"
-                            :style="getCellStyle"
-                            @click="collapse(colIndex, rowIndex)"
+                        <template
+                            v-for="(row, rowIndex) in col"
+                            :key="rowIndex"
                         >
                             <div
-                                v-if="!row?.invisible"
-                                class="id-box"
+                                v-if="!row?.collapsed || row?.collapsable"
+                                class="id-cell"
+                                :class="idClass(rowIndex, colIndex)"
+                                :style="getCellStyle"
+                                @click="collapse(colIndex, rowIndex)"
                             >
-                                <fold-icon
-                                    v-if="row?.collapsable && !row.collapsed"
-                                    class="id-icon"
-                                />
-                                <unfold-icon
-                                    v-if="row?.collapsable && row.collapsed"
-                                    class="id-icon"
-                                />
                                 <div
-                                    v-if="!row?.collapsable"
-                                    class="id-icon"
-                                />
-                                <div
-                                    :ref="el => {
-                                        if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
-                                    }"
-                                    class="id-box-text"
-                                    :style="{ width: `${ cellWidth - 30 }px` }"
+                                    v-if="!row?.invisible"
+                                    class="id-box"
                                 >
-                                    <span
+                                    <fold-icon
+                                        v-if="row?.collapsable && !row?.collapsed"
+                                        class="id-icon"
+                                    />
+                                    <unfold-icon
+                                        v-else-if="row?.collapsable && row?.collapsed"
+                                        class="id-icon"
+                                    />
+                                    <div
+                                        v-else
+                                        class="id-icon"
+                                    />
+                                    <div
                                         :ref="el => {
-                                            if (el) idTexts[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                            if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
                                         }"
-                                        :class="textAnim(colIndex, rowIndex)"
+                                        class="id-box-text"
+                                        :style="{ width: `${ cellWidth - 30 }px` }"
                                     >
-                                        {{ row?.name ?? '' }}
-                                    </span>
+                                        <common-scroll-text>
+                                            <template #text>
+                                                {{ row?.name ?? '' }}
+                                            </template>
+                                        </common-scroll-text>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                    </div>
                 </div>
-            </div>
-            <!-- Entries -->
-            <div class="timeline-entries">
-                <div
-                    class="timeline-entries-now"
-                    :style="getNowStyle"
-                />
                 <!-- Entries -->
-                <div class="timeline-entries-list">
-                    <template
-                        v-for="entry in entriesRef"
-                        :key="entry.id + entry.start.getTime()"
-                    >
-                        <common-timeline-entry
-                            v-if="!entry.collapsed"
-                            :cell-width
-                            :entry
-                            :gap
-                            :index-offset-map
-                            :row-height
-                            :scale
-                            :start
-                        />
-                    </template>
-                    <template
-                        v-for="cEntry in flattenedCollapsedEntries"
-                        :key="cEntry.id + cEntry.start.getTime()"
-                    >
-                        <common-timeline-entry
-                            :cell-width
-                            :entry="cEntry"
-                            :gap
-                            :index-offset-map
-                            :row-height
-                            :scale
-                            :start
-                        />
-                    </template>
+                <div class="timeline-entries">
+                    <div
+                        v-if="showNow"
+                        class="timeline-entries-now"
+                        :style="getNowStyle"
+                    />
+                    <!-- Entries -->
+                    <div class="timeline-entries-list">
+                        <template
+                            v-for="entry in getEntries"
+                            :key="entry.id + entry.start.getTime()"
+                        >
+                            <common-timeline-entry
+                                v-if="!entry.collapsed"
+                                :cell-width
+                                :entry
+                                :gap
+                                :index-offset-map
+                                :row-height
+                                :scale
+                                :start
+                            />
+                        </template>
+                        <template
+                            v-for="cEntry in flattenedCollapsedEntries"
+                            :key="cEntry.id + cEntry.start.getTime()"
+                        >
+                            <common-timeline-entry
+                                :cell-width
+                                class="timeline-entries-collapsed"
+                                :entry="cEntry"
+                                :gap
+                                :index-offset-map
+                                :row-height
+                                :scale
+                                :start
+                                @click="uncollapseEntry(cEntry)"
+                            />
+                        </template>
+                    </div>
                 </div>
+                <div :style="{ width: (getTimeline.length * cellWidth) + 'px' }"/>
             </div>
-            <div :style="{ width: (getTimeline.length * cellWidth) + 'px' }"/>
         </div>
-    </div>
-    <div
-        v-else
-        class="loading-screen"
-    >
-        <div class="loader"/>
-    </div>
+        <div
+            v-else
+            class="loading-screen"
+        >
+            <div class="loader"/>
+        </div>
+    </client-only>
 </template>
 
 <script setup lang="ts">
@@ -163,6 +174,7 @@ import type { PropType } from 'vue';
 import FoldIcon from '@/assets/icons/kit/fold.svg?component';
 import UnfoldIcon from '@/assets/icons/kit/unfold.svg?component';
 import CommonTimelineEntry from './CommonTimelineEntry.vue';
+import CommonScrollText from './CommonScrollText.vue';
 
 interface TimelineTime {
     id: number; date: Date; formattedDate: string; formattedTime: string; day: number;
@@ -258,11 +270,7 @@ const getDayStyle = computed(() => {
     }
 });
 
-const getEntries: ComputedRef<TimelineEntry[]> = computed(() => props.entries);
-const getIdentifiers: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => props.identifiers);
-
 const idContainers = ref<{ [key: string]: HTMLElement | null }>({});
-const idTexts = ref<{ [key: string]: HTMLElement | null }>({});
 const collapsedEntries = ref<Map<number, TimelineEntry[]>>(new Map());
 const indexOffsetMap = ref<Map<number, number>>(new Map());
 const collapseMap = ref(new Map<string, boolean>());
@@ -273,7 +281,7 @@ const endCalculated = computed(() => {
     }
 
     let tmp = new Date();
-    getEntries.value.forEach(entry => {
+    props.entries.forEach(entry => {
         if (entry.end > tmp) {
             tmp = new Date(entry.end.getTime());
         }
@@ -300,20 +308,23 @@ const formatterDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     timeZone: timeZone.value,
 }));
 
-const idsRef: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => prepareIds());
-const entriesRef: ComputedRef<TimelineEntry[]> = computed(() => filterEntries());
-
-watch([getEntries, getIdentifiers], () => {
-    collapsedEntries.value.clear();
-    indexOffsetMap.value.clear();
-
-    collapseByMap();
-});
+const getIds: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => prepareIds());
+const getEntries: ComputedRef<TimelineEntry[]> = computed(() => filterEntries());
 
 const getTimeline: Ref<TimelineTime[]> = computed(() => generateTimeline());
 const getTimelineDays: Ref<TimelineTime[]> = computed(() => generateTimelineDays());
 
 const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.value.values()).flatMap(entries => entries));
+
+const showNow = computed(() => {
+    return now.value > props.start && now.value < props.end;
+});
+
+const watcherReady = ref(false);
+
+watch([() => props.start, () => props.end, getEntries, collapseMap], () => {
+    collapseByMap();
+});
 
 onMounted(() => {
     const interval = setInterval(() => {
@@ -323,16 +334,17 @@ onMounted(() => {
         }
     }, 1000);
 
-    // prepareIds();
-
-    if (props.collapsed) {
-        idsRef.value.forEach((col, colIndex) => {
-            col.forEach((row, rowIndex) => {
-                if (row?.collapsable) {
-                    collapse(colIndex, rowIndex);
-                }
+    if (!watcherReady.value) {
+        if (props.collapsed) {
+            getIds.value.forEach(col => {
+                col.forEach(row => {
+                    if (row?.collapsable) {
+                        collapseMap.value.set(row.name, false);
+                    }
+                });
             });
-        });
+        }
+        watcherReady.value = true;
     }
 
     ready.value = true;
@@ -342,27 +354,13 @@ onMounted(() => {
     });
 });
 
-function collapseByMap() {
-    idsRef.value.forEach((col, colIndex) => {
-        col.forEach((row, rowIndex) => {
-            if (row?.collapsable) {
-                if (collapseMap.value.has(row.name)) {
-                    if (!collapseMap.value.get(row.name)) {
-                        collapse(colIndex, rowIndex);
-                    }
-                }
-            }
-        });
-    });
-}
-
 function prepareIds() {
-    return getIdentifiers.value.map((col, colIndex) => col.map((row, rowIndex) => {
+    return props.identifiers.map((col, colIndex) => col.map((row, rowIndex) => {
         if (row === null) return null;
 
         const newRow = { ...row };
         if (newRow.collapsable) {
-            const rows = countChildRows(colIndex, rowIndex, getIdentifiers.value);
+            const rows = countChildRows(colIndex, rowIndex, props.identifiers);
             if (rows < 1) {
                 newRow.collapsable = false;
             }
@@ -371,8 +369,43 @@ function prepareIds() {
     }));
 }
 
+function collapseByMap() {
+    for (let colIndex = 0; colIndex < getIds.value.length; colIndex++) {
+        const col = getIds.value[colIndex];
+        for (let rowIndex = 0; rowIndex < col.length; rowIndex++) {
+            const row = col[rowIndex];
+            if (row?.collapsable) {
+                if (collapseMap.value.has(row.name)) {
+                    if (!collapseMap.value.get(row.name)) {
+                        if (!row.collapsed) {
+                            collapse(colIndex, rowIndex);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function uncollapseEntry(entry: TimelineEntry) {
+    const rowIndex = entry.id;
+    let colIndex = 0;
+    let found = false;
+
+    for (colIndex; colIndex < getIds.value.length; colIndex++) {
+        if (getIds.value[colIndex][rowIndex]?.collapsable) {
+            found = true;
+            break;
+        }
+    }
+
+    if (found) {
+        collapse(colIndex, rowIndex);
+    }
+}
+
 function filterEntries() {
-    return getEntries.value.filter(entry => {
+    return props.entries.filter(entry => {
         let start = new Date(entry.start.getTime());
         let end = new Date(entry.end.getTime());
 
@@ -393,13 +426,14 @@ function filterEntries() {
         return true;
     }).map(entry => ({
         ...entry,
+        collapsed: false,
         start: new Date(Math.max(entry.start.getTime(), props.start.getTime())),
         end: new Date(Math.min(entry.end.getTime(), endCalculated.value.getTime())),
     }));
 }
 
 function collapseEntries(startId: number, endId: number, collapsed: boolean) {
-    entriesRef.value.forEach(entry => {
+    getEntries.value.forEach(entry => {
         if (entry.id >= startId && entry.id <= endId) {
             entry.collapsed = collapsed;
         }
@@ -419,20 +453,20 @@ function countChildRows(colIndex: number, rowIndex: number, source: (TimelineIde
 }
 
 function collapse(colIndex: number, rowIndex: number) {
-    if (!idsRef.value[colIndex] || !idsRef.value[colIndex][rowIndex]?.collapsable) {
+    if (!getIds.value[colIndex] || !getIds.value[colIndex][rowIndex]?.collapsable) {
         return;
     }
 
-    const identifier = idsRef.value[colIndex][rowIndex];
+    const identifier = getIds.value[colIndex][rowIndex];
     const isCurrentlyCollapsed = (identifier.collapsed ?? false);
 
-    const rowsToCollapse = countChildRows(colIndex, rowIndex, idsRef.value);
+    const rowsToCollapse = countChildRows(colIndex, rowIndex, getIds.value);
 
     if (rowsToCollapse < 1) {
         return;
     }
 
-    idsRef.value[colIndex][rowIndex] = {
+    getIds.value[colIndex][rowIndex] = {
         ...identifier,
         collapsed: !isCurrentlyCollapsed,
     };
@@ -453,8 +487,8 @@ function collapse(colIndex: number, rowIndex: number) {
 }
 
 function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed: boolean) {
-    for (let i = colIndex; i < idsRef.value.length; i++) {
-        const column = idsRef.value[i];
+    for (let i = colIndex; i < getIds.value.length; i++) {
+        const column = getIds.value[i];
         if (column) {
             for (let j = rowIndex + 1; j < rowIndex + rows + 1; j++) {
                 const item = column[j];
@@ -473,8 +507,8 @@ function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed
         }
     }
 
-    for (let i = colIndex + 1; i < idsRef.value.length; i++) {
-        const id = idsRef.value[i][rowIndex];
+    for (let i = colIndex + 1; i < getIds.value.length; i++) {
+        const id = getIds.value[i][rowIndex];
         if (id) {
             id.invisible = collapsed;
         }
@@ -499,17 +533,16 @@ function makeCollapsedEntry(rowIndex: number, rows: number, title: string) {
     }
 
 
-    const relevantEntries = entriesRef.value
+    const relevantEntries = getEntries.value
         .filter(entry => entry.id >= rowIndex && entry.id < rowIndex + rows);
 
     if (relevantEntries.length === 0) return;
 
     const mergedEntries: TimelineEntry[] = [];
-    const sortedEntries = [...relevantEntries].sort((a, b) => a.start.getTime() - b.start.getTime());
-    let currentMerged = getCurrentMerged(sortedEntries[0].start, sortedEntries[0].end, rowIndex, title);
+    let currentMerged = getCurrentMerged(relevantEntries[0].start, relevantEntries[0].end, rowIndex, title);
 
-    for (let i = 1; i < sortedEntries.length; i++) {
-        const current = sortedEntries[i];
+    for (let i = 1; i < relevantEntries.length; i++) {
+        const current = relevantEntries[i];
 
         if (current.start <= currentMerged.end) {
             currentMerged = getCurrentMerged(currentMerged.start, new Date(Math.max(currentMerged.end.getTime(), current.end.getTime())), rowIndex, title);
@@ -539,12 +572,12 @@ function getCurrentMerged(start: Date, end: Date, id: number, title: string): Ti
 function idClass(rowIndex: number, colIndex: number) {
     const classes: string[] = [];
     if (colIndex > 0) {
-        if (idsRef.value[colIndex - 1][rowIndex] && !idsRef.value[colIndex - 1][rowIndex]?.invisible) {
+        if (getIds.value[colIndex - 1][rowIndex] && !getIds.value[colIndex - 1][rowIndex]?.invisible) {
             classes.push('id-cell-start');
         }
 
-        if (idsRef.value[colIndex - 1].length > rowIndex + 1) {
-            if (idsRef.value[colIndex - 1][rowIndex + 1] && !idsRef.value[colIndex - 1][rowIndex + 1]?.invisible) {
+        if (getIds.value[colIndex - 1].length > rowIndex + 1) {
+            if (getIds.value[colIndex - 1][rowIndex + 1] && !getIds.value[colIndex - 1][rowIndex + 1]?.invisible) {
                 classes.push('id-cell-end');
             }
         }
@@ -552,18 +585,18 @@ function idClass(rowIndex: number, colIndex: number) {
     else {
         classes.push('id-cell-left');
 
-        if (idsRef.value[colIndex][rowIndex] && !idsRef.value[colIndex][rowIndex]?.invisible) {
+        if (getIds.value[colIndex][rowIndex] && !getIds.value[colIndex][rowIndex]?.invisible) {
             classes.push('id-cell-start');
         }
 
-        if (idsRef.value[colIndex].length > rowIndex + 1) {
-            if (idsRef.value[colIndex][rowIndex + 1] && !idsRef.value[colIndex][rowIndex + 1]?.invisible) {
+        if (getIds.value[colIndex].length > rowIndex + 1) {
+            if (getIds.value[colIndex][rowIndex + 1] && !getIds.value[colIndex][rowIndex + 1]?.invisible) {
                 classes.push('id-cell-end');
             }
         }
     }
 
-    if (idsRef.value.length - 1 === colIndex) {
+    if (getIds.value.length - 1 === colIndex) {
         classes.push('id-cell-right');
     }
 
@@ -571,11 +604,11 @@ function idClass(rowIndex: number, colIndex: number) {
         classes.push('id-cell-start');
     }
 
-    if (idsRef.value[colIndex].length - 1 === rowIndex) {
+    if (getIds.value[colIndex].length - 1 === rowIndex) {
         classes.push('id-cell-end');
     }
 
-    if (idsRef.value[colIndex][rowIndex]?.collapsable) {
+    if (getIds.value[colIndex][rowIndex]?.collapsable) {
         classes.push('id-collapse');
     }
 
@@ -669,20 +702,6 @@ function drag(event: MouseEvent) {
 
 function stopDrag() {
     isDragging.value = false;
-}
-
-function textAnim(colIndex: number, rowIndex: number) {
-    const key = `${ colIndex }-${ rowIndex }`;
-    const container = idContainers.value[key];
-    const span = idTexts.value[key];
-    if (!span || !container) {
-        return '';
-    }
-
-    if ((span.clientWidth / (container.clientWidth)) > 1) {
-        return 'text-left-right';
-    }
-    return '';
 }
 </script>
 
@@ -805,41 +824,6 @@ function textAnim(colIndex: number, rowIndex: number) {
     }
 }
 
-.text-left-right {
-    position: relative;
-    animation: leftright 12s infinite ease-in-out;
-}
-
-@keyframes leftright {
-    0% {
-        left: 0%;
-    }
-
-    20% {
-        left: 0%;
-    }
-
-    80% {
-        left: -100%;
-
-        @include mobileOnly {
-            left: -200%;
-        }
-    }
-
-    90% {
-        left: -100%;
-
-        @include mobileOnly {
-            left: -200%;
-        }
-    }
-
-    100% {
-        left: 0%;
-    }
-}
-
 .timeline {
     user-select: none;
     scrollbar-width: none;
@@ -938,10 +922,25 @@ function textAnim(colIndex: number, rowIndex: number) {
             }
         }
 
+        &-collapsed {
+            cursor: pointer;
+        }
+
         &-list {
             position: relative;
             width: fit-content;
         }
+    }
+
+    &-wrong {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 100%;
+        height: 20vh;
+
+        color: $error300;
     }
 
     @include mobileOnly {
