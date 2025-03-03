@@ -28,6 +28,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const menu: HeaderItem[] = [
         {
             text: 'Map',
+            path: '/',
             icon: MapIcon,
             children: [
                 {

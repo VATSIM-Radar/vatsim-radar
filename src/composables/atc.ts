@@ -88,7 +88,7 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     });
 }
 
-export function findAtcByCallsign(callsign: string) {
+export function findAtcByCallsign(callsign: string): VatsimShortenedController | undefined {
     const dataStore = useDataStore();
     const local = dataStore.vatsim.data.locals.value.find(x => x.atc.callsign === callsign)?.atc;
     if (local) return local;

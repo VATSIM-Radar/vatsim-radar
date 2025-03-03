@@ -1,6 +1,18 @@
 <template>
     <view-map sigmets-mode>
         <div class="date __info-sections">
+            <common-radio-group
+                :items="sigmetDatesList"
+                :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
+                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
+            >
+                <template #label>
+                    Active date
+                </template>
+            </common-radio-group>
+
+            <common-sigmets-settings/>
+
             <div class="__partner-info date_info">
                 <div class="__partner-info_image">
                     <img
@@ -16,16 +28,6 @@
                     >Aviation Weather Center</a>
                 </span>
             </div>
-
-            <common-radio-group
-                :items="sigmetDatesList"
-                :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
-                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
-            >
-                <template #label>
-                    Active date
-                </template>
-            </common-radio-group>
         </div>
     </view-map>
 </template>
@@ -34,6 +36,7 @@
 import ViewMap from '~/components/views/ViewMap.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import { useStore } from '~/store';
+import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 
 const config = useRuntimeConfig();
 const store = useStore();
@@ -57,6 +60,7 @@ useHead(() => ({
     top: 10px;
     left: 10px;
 
+    width: 250px;
     padding: 10px;
     border-radius: 8px;
 

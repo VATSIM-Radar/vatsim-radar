@@ -39,6 +39,8 @@
                 </common-toggle>
                 <map-filters-presets
                     :key="String(bookmarkSaveTick)"
+                    create-collapse
+                    create-reverse
                     disable-actions
                     endpoint-suffix="bookmarks"
                     has-share

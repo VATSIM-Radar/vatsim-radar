@@ -14,9 +14,9 @@
                         :class="{ 'mobile-menu__menu_item--active': openedMenu === button.text }"
                         :disabled="button.disabled"
                         text-align="left"
-                        :to="button.path"
+                        :to="button.children ? undefined : button.path"
                         :type="button.active ? 'primary' : 'secondary'"
-                        @click="(button.path || button.action) ? [model = false, button.action?.()] : openedMenu = openedMenu === button.text ? null : button.text"
+                        @click="((button.path || button.action) && !button.children) ? [model = false, button.action?.()] : openedMenu = openedMenu === button.text ? null : button.text"
                     >
                         <template
                             v-if="button.icon"

@@ -54,6 +54,7 @@ model UserPreset {
   id     Int              @id @default(autoincrement())
   type   UserPresetType
   name   String
+  order  Int              @default(0)
   json   Json
   userId Int
   user   User             @relation(onDelete: Cascade, fields: [userId], references: [id])

@@ -66,7 +66,10 @@
                 </div>
             </template>
             <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length) && !controller.booking">
-                <div class="atc__time">
+                <div
+                    v-if="!isMobile"
+                    class="atc__time"
+                >
                     {{ getATCTime(controller) }}
                 </div>
             </template>
@@ -147,7 +150,11 @@ const emit = defineEmits({
         return true;
     },
 });
+
 defineSlots<{ title?(): any; additionalTitle?(): any }>();
+
+const isMobile = useIsMobile();
+
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();

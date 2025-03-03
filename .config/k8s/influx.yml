@@ -26,7 +26,7 @@ spec:
         app: influx-v2
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx
+        doks.digitalocean.com/node-pool: influx-m
       imagePullSecrets:
         - name: ghcr-login-secret
       containers:
@@ -35,6 +35,13 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8086
+          resources:
+            requests:
+              cpu: 300m
+              memory: 600Mi
+            limits:
+              cpu: 1800m
+              memory: 1800Mi
           volumeMounts:
             - name: influx-data-v2
               mountPath: /root/.influxdbv2
