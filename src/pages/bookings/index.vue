@@ -12,7 +12,7 @@
             </template>
         </div>
         <common-timeline
-            :collapsed
+            collapsed
             :end="dateRange.to"
             :entries="bookingTimelineEntries"
             :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
@@ -58,6 +58,9 @@ const sortedData = computed(() => {
     return sorted;
 });
 
+const store = useStore();
+await store.getVATSIMData();
+
 const bookingTimelineIdentifiers = computed(() => makeBookingTimelineIds());
 const bookingTimelineEntries = computed(() => makeBookingTimelineEntries());
 
@@ -75,11 +78,6 @@ async function fetchBookings() {
         query: { starting: start.getTime(), ending: end.getTime() },
     });
 }
-
-onBeforeMount(async () => {
-    const store = useStore();
-    store.getVATSIMData();
-});
 
 function makeBookingTimelineEntries(): TimelineEntry[] {
     const entries: TimelineEntry[] = [];

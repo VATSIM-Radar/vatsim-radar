@@ -267,7 +267,6 @@ const localsFacilities = computed(() => {
 
         if (!facility) {
             const booking = props.bookings.find(x => x.atc.facility === facilityId);
-            if (!booking) return;
 
             facility = createFacility(facilityId, booking);
             facilitiesMap.set(facilityId, facility);
@@ -279,14 +278,16 @@ const localsFacilities = computed(() => {
     return sortControllersByPosition(Array.from(facilitiesMap.values()));
 });
 
-function createFacility(facilityId: number, booking: VatsimBooking): Facility {
+function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
     const facility: Facility = {
         facility: facilityId,
         booked: !!booking,
         atc: [],
     };
 
-    makeBookingLocalTime(booking);
+    if (booking) {
+        makeBookingLocalTime(booking);
+    }
 
     return facility;
 }
@@ -541,15 +542,13 @@ onMounted(async () => {
                     const geometry = feature.getGeometry();
                     const extent = feature.getGeometry()?.getExtent();
                     const topCoord = [extent![0], extent![3]];
-                    let textCoord: Coordinate | undefined;
+                    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
                     if (feature.getProperties().label_lat) {
-                        textCoord = [feature.getProperties().label_lon, feature.getProperties().label_lat];
+                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
                     }
 
-                    textCoord = geometry?.getClosestPoint(textCoord ?? topCoord) || topCoord;
-
                     const labelFeature = new Feature({
-                        geometry: new Point(textCoord!),
+                        geometry: new Point(textCoord),
                         type: 'tracon-label',
                         icao: props.airport.icao,
                         iata: props.airport.iata,

@@ -1,171 +1,175 @@
 <template>
-    <client-only>
+    <div
+        v-if="ready"
+        ref="dragContainer"
+        class="timeline"
+        :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
+        @mousedown="startDrag"
+        @mouseleave="stopDrag"
+        @mousemove="drag"
+        @mouseup="stopDrag"
+    >
         <div
-            v-if="ready"
-            ref="dragContainer"
-            class="timeline"
-            :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
-            @mousedown="startDrag"
-            @mouseleave="stopDrag"
-            @mousemove="drag"
-            @mouseup="stopDrag"
+            v-if="getEntries.length === 0"
+            class="timeline-wrong"
         >
-            <div
-                v-if="start > end"
-                class="timeline-wrong"
-            >
-                Invalid date range: The start date should precede the end date
-            </div>
-            <div
-                v-if="start < end"
-                class="header"
-            >
-                <div class="header-heads">
-                    <div
-                        v-for="header in headers"
-                        :key="header.name"
-                        class="header-head"
-                        :style="getWidthStyle"
-                    >
-                        {{ header.name }}
-                    </div>
-                </div>
-                <!-- Timeline -->
+            There is no data to be displayed
+        </div>
+        <div
+            v-else-if="start > end"
+            class="timeline-wrong"
+        >
+            Invalid date range: The start date should precede the end date
+        </div>
+        <div
+            v-if="start < end"
+            class="header"
+        >
+            <div class="header-heads">
                 <div
-                    class="timeline-timeline"
-                    @wheel="onWheel"
+                    v-for="header in headers"
+                    :key="header.name"
+                    class="header-head"
+                    :style="getWidthStyle"
                 >
-                    <div
-                        v-for="day in getTimelineDays"
-                        :key="day.id"
-                        class="timeline-timeline-day"
+                    {{ header.name }}
+                </div>
+            </div>
+            <!-- Timeline -->
+            <div
+                class="timeline-timeline"
+                @wheel="onWheel"
+            >
+                <div
+                    v-for="day in getTimelineDays"
+                    :key="day.id"
+                    class="timeline-timeline-day"
+                >
+                    <span
+                        class="timeline-timeline-day-txt"
+                        :style="getDayStyle"
                     >
-                        <span
-                            class="timeline-timeline-day-txt"
-                            :style="getDayStyle"
+                        {{ day.formattedDate }}
+                    </span>
+                    <div class="timeline-timeline-day-list">
+                        <div
+                            v-for="time in getTimelineTime(day.day)"
+                            :key="time.id"
+                            class="timeline-timeline-time"
+                            :style="getWidthStyle"
                         >
-                            {{ day.formattedDate }}
-                        </span>
-                        <div class="timeline-timeline-day-list">
-                            <div
-                                v-for="time in getTimelineTime(day.day)"
-                                :key="time.id"
-                                class="timeline-timeline-time"
-                                :style="getWidthStyle"
-                            >
-                                <span>
-                                    {{ time.formattedTime }}
-                                </span>
-                            </div>
+                            <span>
+                                {{ time.formattedTime }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="timeline-data">
-                <!-- Identifiers -->
-                <div class="id">
-                    <div
-                        v-for="(col, colIndex) in getIds"
-                        :key="colIndex"
-                        class="id-row"
+        </div>
+        <div class="timeline-data">
+            <!-- Identifiers -->
+            <div class="id">
+                <div
+                    v-for="(col, colIndex) in getIds"
+                    :key="colIndex"
+                    class="id-row"
+                >
+                    <template
+                        v-for="(row, rowIndex) in col"
+                        :key="rowIndex"
                     >
-                        <template
-                            v-for="(row, rowIndex) in col"
-                            :key="rowIndex"
+                        <div
+                            v-if="!row?.collapsed || row?.collapsable"
+                            class="id-cell"
+                            :class="idClass(rowIndex, colIndex)"
+                            :style="getCellStyle"
+                            @click="collapse(colIndex, rowIndex)"
                         >
                             <div
-                                v-if="!row?.collapsed || row?.collapsable"
-                                class="id-cell"
-                                :class="idClass(rowIndex, colIndex)"
-                                :style="getCellStyle"
-                                @click="collapse(colIndex, rowIndex)"
+                                v-if="!row?.invisible"
+                                class="id-box"
                             >
+                                <fold-icon
+                                    v-if="row?.collapsable && !row?.collapsed"
+                                    class="id-icon"
+                                />
+                                <unfold-icon
+                                    v-else-if="row?.collapsable && row?.collapsed"
+                                    class="id-icon"
+                                />
                                 <div
-                                    v-if="!row?.invisible"
-                                    class="id-box"
+                                    v-else
+                                    class="id-icon"
+                                />
+                                <div
+                                    :ref="el => {
+                                        if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
+                                    }"
+                                    class="id-box-text"
+                                    :style="{ width: `${ cellWidth - 30 }px` }"
                                 >
-                                    <fold-icon
-                                        v-if="row?.collapsable && !row?.collapsed"
-                                        class="id-icon"
-                                    />
-                                    <unfold-icon
-                                        v-else-if="row?.collapsable && row?.collapsed"
-                                        class="id-icon"
-                                    />
-                                    <div
-                                        v-else
-                                        class="id-icon"
-                                    />
-                                    <div
-                                        :ref="el => {
-                                            if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
-                                        }"
-                                        class="id-box-text"
-                                        :style="{ width: `${ cellWidth - 30 }px` }"
-                                    >
-                                        <common-scroll-text>
-                                            <template #text>
-                                                {{ row?.name ?? '' }}
-                                            </template>
-                                        </common-scroll-text>
-                                    </div>
+                                    <common-scroll-text>
+                                        <template #text>
+                                            {{ row?.name ?? '' }}
+                                        </template>
+                                    </common-scroll-text>
                                 </div>
                             </div>
-                        </template>
-                    </div>
+                        </div>
+                    </template>
                 </div>
-                <!-- Entries -->
-                <div class="timeline-entries">
-                    <div
-                        v-if="showNow"
-                        class="timeline-entries-now"
-                        :style="getNowStyle"
-                    />
-                    <!-- Entries -->
-                    <div class="timeline-entries-list">
-                        <template
-                            v-for="entry in getEntries"
-                            :key="entry.id + entry.start.getTime()"
-                        >
-                            <common-timeline-entry
-                                v-if="!entry.collapsed"
-                                :cell-width
-                                :entry
-                                :gap
-                                :index-offset-map
-                                :row-height
-                                :scale
-                                :start
-                            />
-                        </template>
-                        <template
-                            v-for="cEntry in flattenedCollapsedEntries"
-                            :key="cEntry.id + cEntry.start.getTime()"
-                        >
-                            <common-timeline-entry
-                                :cell-width
-                                class="timeline-entries-collapsed"
-                                :entry="cEntry"
-                                :gap
-                                :index-offset-map
-                                :row-height
-                                :scale
-                                :start
-                                @click="uncollapseEntry(cEntry)"
-                            />
-                        </template>
-                    </div>
-                </div>
-                <div :style="{ width: (getTimeline.length * cellWidth) + 'px' }"/>
             </div>
+            <!-- Entries -->
+            <div class="timeline-entries">
+                <div
+                    v-if="showNow"
+                    class="timeline-entries-now"
+                    :style="getNowStyle"
+                />
+                <!-- Entries -->
+                <div class="timeline-entries-list">
+                    <template
+                        v-for="entry in getEntries"
+                        :key="entry.id + entry.start.getTime()"
+                    >
+                        <common-timeline-entry
+                            v-if="!entry.collapsed"
+                            :cell-width
+                            :entry
+                            :gap
+                            :index-offset-map
+                            :row-height
+                            :scale
+                            :start
+                        />
+                    </template>
+                    <template
+                        v-for="cEntry in flattenedCollapsedEntries"
+                        :key="cEntry.id + cEntry.start.getTime()"
+                    >
+                        <common-timeline-entry
+                            :cell-width
+                            class="timeline-entries-collapsed"
+                            :entry="cEntry"
+                            :gap
+                            :index-offset-map
+                            :row-height
+                            :scale
+                            :start
+                            @click="uncollapseEntry(cEntry)"
+                        />
+                    </template>
+                </div>
+            </div>
+            <div :style="{ width: (getTimeline.length * cellWidth) + 'px' }"/>
         </div>
-        <div
-            v-else
-            class="loading-screen"
-        >
-            <div class="loader"/>
-        </div>
-    </client-only>
+    </div>
+    <div
+        v-else
+        class="loading-screen"
+    >
+        <div class="loader"/>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -320,10 +324,8 @@ const showNow = computed(() => {
     return now.value > props.start && now.value < props.end;
 });
 
-const watcherReady = ref(false);
-
-watch([() => props.start, () => props.end, getEntries, collapseMap], () => {
-    collapseByMap();
+watch([() => props.start, () => props.end, getEntries], () => {
+//    collapseByMap();
 });
 
 onMounted(() => {
@@ -334,18 +336,17 @@ onMounted(() => {
         }
     }, 1000);
 
-    if (!watcherReady.value) {
-        if (props.collapsed) {
-            getIds.value.forEach(col => {
-                col.forEach(row => {
-                    if (row?.collapsable) {
-                        collapseMap.value.set(row.name, false);
-                    }
-                });
+    if (props.collapsed) {
+        getIds.value.forEach(col => {
+            col.forEach(row => {
+                if (row?.collapsable) {
+                    collapseMap.value.set(row.name, true);
+                }
             });
-        }
-        watcherReady.value = true;
+        });
     }
+
+    collapseByMap();
 
     ready.value = true;
 
@@ -376,7 +377,7 @@ function collapseByMap() {
             const row = col[rowIndex];
             if (row?.collapsable) {
                 if (collapseMap.value.has(row.name)) {
-                    if (!collapseMap.value.get(row.name)) {
+                    if (collapseMap.value.get(row.name)) {
                         if (!row.collapsed) {
                             collapse(colIndex, rowIndex);
                         }
@@ -483,7 +484,7 @@ function collapse(colIndex: number, rowIndex: number) {
         makeCollapsedEntry(rowIndex, rowsToCollapse, identifier.name);
     }
 
-    collapseMap.value.set(identifier.name, isCurrentlyCollapsed);
+    collapseMap.value.set(identifier.name, !isCurrentlyCollapsed);
 }
 
 function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed: boolean) {
