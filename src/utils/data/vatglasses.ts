@@ -726,23 +726,15 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         if (unref(vatglassesCombined)) {
             await initVatglassesCombined();
         }
-        else {
-            // initVatglassesCombined is not called now, so we have to watch the vatglassesCombined value to call it when needed
-            let vatglassesCombinedWatcher: ReturnType<typeof watch> | null = null;
 
-            if (!combineDataInitialized) {
-                vatglassesCombinedWatcher = watch([vatglassesCombined], async () => {
-                    await updateVatglassesStateLocal(true);
-                    await initVatglassesCombined();
-                    if (combineDataInitialized && vatglassesCombinedWatcher) {
-                        vatglassesCombinedWatcher();
-                        vatglassesCombinedWatcher = null;
-                    }
-                });
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], async () => {
+            if (!combineDataInitialized && vatglassesCombined.value) {
+                await updateVatglassesStateLocal(true);
+                await initVatglassesCombined();
             }
-        }
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], () => {
-            updateVatglassesStateLocal();
+            else {
+                updateVatglassesStateLocal();
+            }
         });
 
         watch(dataStore.vatglasses, val => {
