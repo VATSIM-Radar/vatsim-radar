@@ -107,6 +107,8 @@ const { data } = await useAsyncData('bookings', async () => {
     return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
         query: { starting: start.getTime(), ending: end.getTime() },
     });
+}, {
+    server: false,
 });
 
 const bookingsData = data.value ? data.value : [];

@@ -30,7 +30,7 @@
                     v-for="header in headers"
                     :key="header.name"
                     class="header-head"
-                    :style="getWidthStyle"
+                    :style="widthStyle"
                 >
                     {{ header.name }}
                 </div>
@@ -47,7 +47,7 @@
                 >
                     <span
                         class="timeline-timeline-day-txt"
-                        :style="getDayStyle"
+                        :style="dayStyle"
                     >
                         {{ day.formattedDate }}
                     </span>
@@ -56,7 +56,7 @@
                             v-for="time in getTimelineTime(day.day)"
                             :key="time.id"
                             class="timeline-timeline-time"
-                            :style="getWidthStyle"
+                            :style="widthStyle"
                         >
                             <span>
                                 {{ time.formattedTime }}
@@ -82,7 +82,7 @@
                             v-if="!row?.collapsed || row?.collapsable"
                             class="id-cell"
                             :class="idClass(rowIndex, colIndex)"
-                            :style="getCellStyle"
+                            :style="cellStyle"
                             @click="collapse(colIndex, rowIndex)"
                         >
                             <div
@@ -124,7 +124,7 @@
                 <div
                     v-if="showNow"
                     class="timeline-entries-now"
-                    :style="getNowStyle"
+                    :style="nowStyle"
                 />
                 <!-- Entries -->
                 <div class="timeline-entries-list">
@@ -229,7 +229,6 @@ const rowHeight = 50;
 const gap = 4;
 const headerWidth = computed(() => props.headers.length * cellWidth.value);
 
-// I dont care if its reactivity is losed....didnt found a workaround, because toRef cannot be edited ... so its like this :) suggestions?
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
 const scale = ref(props.scale);
 
@@ -243,29 +242,29 @@ const scrollDown = ref(0);
 const scrollUp = ref(0);
 const scaleIngrement = ref(0.5);
 
-const getNowStyle = computed(() => timelineNowStyle());
-const getCellStyle = computed(() => {
+const nowStyle = computed(() => ({ left: getEntryLeft(currentMinute.value) + 'px' }));
+const cellStyle = computed(() => {
     return {
-        ...getWidthStyle.value,
-        ...getHeightStyle.value,
+        ...widthStyle.value,
+        ...heightStyle.value,
     };
 });
 
-const getWidthStyle = computed(() => {
+const widthStyle = computed(() => {
     return {
         minWidth: `${ cellWidth.value }px`,
         maxWidth: `${ cellWidth.value }px`,
     };
 });
 
-const getHeightStyle = computed(() => {
+const heightStyle = computed(() => {
     return {
         minHeight: `${ rowHeight }px`,
         maxHeight: `${ rowHeight }px`,
     };
 });
 
-const getDayStyle = computed(() => {
+const dayStyle = computed(() => {
     if (!isMobile.value) {
         return { left: (headerWidth.value + 30) + 'px' };
     }
@@ -296,9 +295,7 @@ const endCalculated = computed(() => {
 
 const currentMinute = ref(new Date());
 
-const now: ComputedRef<Date> = computed(() => currentMinute.value);
-const utc = computed(() => props.utc);
-const timeZone = computed(() => utc.value ? 'UTC' : undefined);
+const timeZone = computed(() => props.utc ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     hour: '2-digit',
@@ -312,8 +309,47 @@ const formatterDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
     timeZone: timeZone.value,
 }));
 
-const getIds: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => prepareIds());
-const getEntries: ComputedRef<TimelineEntry[]> = computed(() => filterEntries());
+const getIds: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => {
+    return props.identifiers.map((col, colIndex) => col.map((row, rowIndex) => {
+        if (row === null) return null;
+
+        const newRow = { ...row };
+        if (newRow.collapsable) {
+            const rows = countChildRows(colIndex, rowIndex, props.identifiers);
+            if (rows < 1) {
+                newRow.collapsable = false;
+            }
+        }
+        return newRow;
+    }));
+});
+const getEntries = computed<TimelineEntry[]>(() => {
+    return props.entries.filter(entry => {
+        let start = new Date(entry.start.getTime());
+        let end = new Date(entry.end.getTime());
+
+        if (start <= props.start) {
+            if (end <= props.start) {
+                return false;
+            }
+            start = new Date(props.start.getTime());
+        }
+
+        if (end >= endCalculated.value) {
+            if (start >= endCalculated.value) {
+                return false;
+            }
+            end = new Date(endCalculated.value.getTime());
+        }
+
+        return true;
+    }).map(entry => ({
+        ...entry,
+        collapsed: false,
+        start: new Date(Math.max(entry.start.getTime(), props.start.getTime())),
+        end: new Date(Math.min(entry.end.getTime(), endCalculated.value.getTime())),
+    }));
+});
 
 const getTimeline: Ref<TimelineTime[]> = computed(() => generateTimeline());
 const getTimelineDays: Ref<TimelineTime[]> = computed(() => generateTimelineDays());
@@ -321,10 +357,10 @@ const getTimelineDays: Ref<TimelineTime[]> = computed(() => generateTimelineDays
 const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.value.values()).flatMap(entries => entries));
 
 const showNow = computed(() => {
-    return now.value > props.start && now.value < props.end;
+    return currentMinute.value > props.start && currentMinute.value < props.end;
 });
 
-watch([() => props.start, () => props.end, getEntries], () => {
+watch(() => props.start.getTime() + props.end.getTime() + JSON.stringify(getEntries.value), () => {
     collapseByMap();
 });
 
@@ -335,6 +371,10 @@ onMounted(() => {
             currentMinute.value = now;
         }
     }, 1000);
+
+    onBeforeUnmount(() => {
+        clearInterval(interval);
+    });
 
     if (props.collapsed) {
         getIds.value.forEach(col => {
@@ -349,26 +389,7 @@ onMounted(() => {
     collapseByMap();
 
     ready.value = true;
-
-    onBeforeUnmount(() => {
-        clearInterval(interval);
-    });
 });
-
-function prepareIds() {
-    return props.identifiers.map((col, colIndex) => col.map((row, rowIndex) => {
-        if (row === null) return null;
-
-        const newRow = { ...row };
-        if (newRow.collapsable) {
-            const rows = countChildRows(colIndex, rowIndex, props.identifiers);
-            if (rows < 1) {
-                newRow.collapsable = false;
-            }
-        }
-        return newRow;
-    }));
-}
 
 function collapseByMap() {
     for (let colIndex = 0; colIndex < getIds.value.length; colIndex++) {
@@ -403,34 +424,6 @@ function uncollapseEntry(entry: TimelineEntry) {
     if (found) {
         collapse(colIndex, rowIndex);
     }
-}
-
-function filterEntries() {
-    return props.entries.filter(entry => {
-        let start = new Date(entry.start.getTime());
-        let end = new Date(entry.end.getTime());
-
-        if (start <= props.start) {
-            if (end <= props.start) {
-                return false;
-            }
-            start = new Date(props.start.getTime());
-        }
-
-        if (end >= endCalculated.value) {
-            if (start >= endCalculated.value) {
-                return false;
-            }
-            end = new Date(endCalculated.value.getTime());
-        }
-
-        return true;
-    }).map(entry => ({
-        ...entry,
-        collapsed: false,
-        start: new Date(Math.max(entry.start.getTime(), props.start.getTime())),
-        end: new Date(Math.min(entry.end.getTime(), endCalculated.value.getTime())),
-    }));
 }
 
 function collapseEntries(startId: number, endId: number, collapsed: boolean) {
@@ -516,23 +509,16 @@ function collapseRow(colIndex: number, rowIndex: number, rows: number, collapsed
     }
 }
 
-function timelineNowStyle() {
-    return { left: getEntryLeft(now.value) + 'px' };
-}
-
 
 function getEntryLeft(time: Date) {
     const timeDifference = (time.getTime() - props.start.getTime()) / (60 * 60 * 1000);
-    const left = (timeDifference * cellWidth.value) / scale.value;
-
-    return left;
+    return (timeDifference * cellWidth.value) / scale.value;
 }
 
 function makeCollapsedEntry(rowIndex: number, rows: number, title: string) {
     if (collapsedEntries.value.has(rowIndex)) {
         return;
     }
-
 
     const relevantEntries = getEntries.value
         .filter(entry => entry.id >= rowIndex && entry.id < rowIndex + rows);

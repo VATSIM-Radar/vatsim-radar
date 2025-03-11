@@ -12,6 +12,7 @@
             </template>
         </div>
         <common-timeline
+            v-if="data"
             collapsed
             :end="dateRange.to"
             :entries="bookingTimelineEntries"
@@ -48,38 +49,52 @@ const dateRange: Ref<DateRange> = ref({
     to: end,
 });
 
-const data = ref(await fetchBookings());
-const sortedData = computed(() => {
-    let sorted = [...data.value];
-    sorted = sorted
-        .sort((a, b) => b.atc.facility - a.atc.facility)
-        .sort((a, b) => a.start - b.start);
-
-    return sorted;
+const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+    query: { starting: start.getTime(), ending: end.getTime() },
+}), {
+    server: false,
 });
 
 const store = useStore();
-await store.getVATSIMData();
-
-const bookingTimelineIdentifiers = computed(() => makeBookingTimelineIds());
-const bookingTimelineEntries = computed(() => makeBookingTimelineEntries());
-
-watch(dateRange, async () => {
-    if (fetchStart.value > dateRange.value.from || fetchEnd.value < dateRange.value.to) {
-        data.value = await fetchBookings();
-
-        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.value.from.getTime()));
-        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.value.to.getTime()));
-    }
+await useAsyncData('bookings-data', async () => {
+    await store.getVATSIMData();
+    return true;
 });
 
-async function fetchBookings() {
-    return await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: start.getTime(), ending: end.getTime() },
-    });
-}
+const sortedData = computed(() => {
+    return (data.value ?? [])
+        .slice(0)
+        .sort((a, b) => b.atc.facility - a.atc.facility)
+        .sort((a, b) => a.start - b.start);
+});
 
-function makeBookingTimelineEntries(): TimelineEntry[] {
+const bookingTimelineIdentifiers = computed(() => {
+    const groups = new Map<string, Set<string>>();
+
+    if (!sortedData.value) return [[]];
+
+    sortedData.value
+        .forEach(booking => {
+            if (booking.end >= dateRange.value.from.getTime() && booking.start <= dateRange.value.to.getTime()) {
+                const [groupKey] = booking.atc.callsign.split('_');
+                if (!groups.has(groupKey)) groups.set(groupKey, new Set());
+                groups.get(groupKey)!.add(booking.atc.callsign);
+            }
+        });
+
+    const [groupIds, facilityIds] = Array.from(groups).reduce<[TimelineIdentifier[], TimelineIdentifier[]]>(
+        ([groupAcc, facilityAcc], [groupKey, facilities]) => {
+            groupAcc.push({ name: groupKey, collapsable: true });
+            groupAcc.push(...Array(facilities.size - 1).fill(null));
+            facilityAcc.push(...Array.from(facilities).map(facility => ({ name: facility })));
+            return [groupAcc, facilityAcc];
+        },
+        [[], []],
+    );
+
+    return [groupIds, facilityIds];
+});
+const bookingTimelineEntries = computed(() => {
     const entries: TimelineEntry[] = [];
     const groupMap = new Map<string, { groupIndex: number; subgroupIndex: number }>();
 
@@ -107,34 +122,16 @@ function makeBookingTimelineEntries(): TimelineEntry[] {
     });
 
     return entries;
-}
+});
 
-function makeBookingTimelineIds(): (TimelineIdentifier | null)[][] {
-    const groups = new Map<string, Set<string>>();
+watch(dateRange, async () => {
+    if (fetchStart.value > dateRange.value.from || fetchEnd.value < dateRange.value.to) {
+        await refresh();
 
-    if (!sortedData.value) return [[]];
-
-    sortedData.value
-        .forEach(booking => {
-            if (booking.end >= dateRange.value.from.getTime() && booking.start <= dateRange.value.to.getTime()) {
-                const [groupKey] = booking.atc.callsign.split('_');
-                if (!groups.has(groupKey)) groups.set(groupKey, new Set());
-                groups.get(groupKey)!.add(booking.atc.callsign);
-            }
-        });
-
-    const [groupIds, facilityIds] = Array.from(groups).reduce<[TimelineIdentifier[], TimelineIdentifier[]]>(
-        ([groupAcc, facilityAcc], [groupKey, facilities]) => {
-            groupAcc.push({ name: groupKey, collapsable: true });
-            groupAcc.push(...Array(facilities.size - 1).fill(null));
-            facilityAcc.push(...Array.from(facilities).map(facility => ({ name: facility })));
-            return [groupAcc, facilityAcc];
-        },
-        [[], []],
-    );
-
-    return [groupIds, facilityIds];
-}
+        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.value.from.getTime()));
+        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.value.to.getTime()));
+    }
+});
 
 function viewOnMap() {
     location.href = `/?start=${ dateRange.value.from.getTime() }&end=${ dateRange.value.to.getTime() }`;
