@@ -12,7 +12,7 @@
             </template>
         </div>
         <common-timeline
-            v-if="data"
+            v-if="bookingsData"
             collapsed
             :end="dateRange.to"
             :entries="bookingTimelineEntries"
@@ -56,9 +56,11 @@ const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBook
 });
 
 const store = useStore();
-await useAsyncData('bookings-data', async () => {
+const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     await store.getVATSIMData();
     return true;
+}, {
+    server: false,
 });
 
 const sortedData = computed(() => {
