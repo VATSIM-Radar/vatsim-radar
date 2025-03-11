@@ -210,6 +210,7 @@ if (route.query.discord === '1') {
 }
 
 provide('map', map);
+// eslint-disable-next-line vue/no-ref-as-operand
 emit('map', map);
 
 let initialSpawn = false;
