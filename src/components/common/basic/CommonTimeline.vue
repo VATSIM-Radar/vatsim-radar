@@ -365,7 +365,7 @@ watch(() => ({
     start: props.start.getTime(),
     end: props.end.getTime(),
     entries: getEntries.value,
-  }), async () => {
+}), async () => {
     collapsedEntries.value.clear();
     indexOffsetMap.value.clear();
     await nextTick();

@@ -47,7 +47,7 @@ const fetchEnd = ref(initialEnd);
 
 const dateRange: Reactive<DateRange> = reactive({
     from: new Date(initialStart),
-  to: new Date(initialEnd),
+    to: new Date(initialEnd),
 });
 
 const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {

@@ -85,9 +85,10 @@ const adjustTime = (isStart: boolean, minutes: number) => {
     const dateToAdjust = isStart ? dateRange.value.from : dateRange.value.to;
     if (dateToAdjust) {
         const newDate = new Date(dateToAdjust.getTime() + (minutes * 60000));
-        if (isStart){
+        if (isStart) {
             dateRange.value.from = newDate;
-        } else {
+        }
+        else {
             dateRange.value.to = newDate;
         }
     }
