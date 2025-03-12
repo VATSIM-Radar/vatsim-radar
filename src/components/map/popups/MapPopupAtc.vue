@@ -96,7 +96,7 @@
                     class="atc__sections_section"
                     :text="getATIS(atc)?.join('\n')"
                 >
-                    ATIS
+                    ATC Information
                 </common-copy-info-block>
                 <div
                     v-else
