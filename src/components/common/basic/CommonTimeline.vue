@@ -323,6 +323,7 @@ const getIds: ComputedRef<(TimelineIdentifier | null)[][]> = computed(() => {
         return newRow;
     }));
 });
+
 const getEntries = computed<TimelineEntry[]>(() => {
     return props.entries.filter(entry => {
         let start = new Date(entry.start.getTime());
@@ -360,7 +361,14 @@ const showNow = computed(() => {
     return currentMinute.value > props.start && currentMinute.value < props.end;
 });
 
-watch(() => props.start.getTime() + props.end.getTime() + JSON.stringify(getEntries.value), () => {
+watch(() => ({
+    start: props.start.getTime(),
+    end: props.end.getTime(),
+    entries: getEntries.value,
+  }), async () => {
+    collapsedEntries.value.clear();
+    indexOffsetMap.value.clear();
+    await nextTick();
     collapseByMap();
 });
 

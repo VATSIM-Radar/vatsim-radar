@@ -73,22 +73,23 @@ const formattedEndDate = computed(() => dateRange.value.to ? formatDate(dateRang
 
 const updateStartDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    dateRange.value = { ...dateRange.value, from: new Date(target.value) };
+    dateRange.value.from = new Date(target.value);
 };
 
 const updateEndDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    dateRange.value = { ...dateRange.value, to: new Date(target.value) };
+    dateRange.value.to = new Date(target.value);
 };
 
 const adjustTime = (isStart: boolean, minutes: number) => {
     const dateToAdjust = isStart ? dateRange.value.from : dateRange.value.to;
     if (dateToAdjust) {
         const newDate = new Date(dateToAdjust.getTime() + (minutes * 60000));
-        dateRange.value = {
-            ...dateRange.value,
-            [isStart ? 'from' : 'to']: newDate,
-        };
+        if (isStart){
+            dateRange.value.from = newDate;
+        } else {
+            dateRange.value.to = newDate;
+        }
     }
 };
 </script>
