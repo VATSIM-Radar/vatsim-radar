@@ -45,6 +45,6 @@ export function getVATSIMIdentHeaders(): Record<string, string> {
     }
 
     return {
-        'x-identifier': token,
+        'User-Agent': token,
     };
 }
