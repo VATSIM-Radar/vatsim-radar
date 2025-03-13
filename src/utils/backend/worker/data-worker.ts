@@ -8,13 +8,14 @@ import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim'
 import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/backend/influx/influx';
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
-import { wss } from '~/utils/backend/vatsim/ws';
+import { initWebsocket, wss } from '~/utils/backend/vatsim/ws';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
 
+initWebsocket();
 initInfluxDB();
 initKafka();
 initNavigraph().catch(console.error);
