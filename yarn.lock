@@ -2478,6 +2478,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nuxt/devtools-kit@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@nuxt/devtools-kit@npm:2.3.0"
+  dependencies:
+    "@nuxt/kit": "npm:^3.16.0"
+    "@nuxt/schema": "npm:^3.16.0"
+    execa: "npm:^9.5.2"
+  peerDependencies:
+    vite: ">=6.0"
+  checksum: 10c0/2252b05a7daf2bd42770a2587d64cb4e842e960e41c70dd3d5d243e26cfd1c7367b13bd5c10cca1b9ee3c1a655e663faf5a38947c40af0ac2dfc11f257113314
+  languageName: node
+  linkType: hard
+
 "@nuxt/devtools-wizard@npm:2.2.1":
   version: 2.2.1
   resolution: "@nuxt/devtools-wizard@npm:2.2.1"
@@ -2493,6 +2506,24 @@ __metadata:
   bin:
     devtools-wizard: cli.mjs
   checksum: 10c0/429c1867eda0b1792d4a75fbfa2dd68d213ebb57d1c9a07878ef61a8d8d257a1b5fe80664965ee6ee27840e9857160bd20b1da539992ab83166037985b8daaf6
+  languageName: node
+  linkType: hard
+
+"@nuxt/devtools-wizard@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@nuxt/devtools-wizard@npm:2.3.0"
+  dependencies:
+    consola: "npm:^3.4.0"
+    diff: "npm:^7.0.0"
+    execa: "npm:^9.5.2"
+    magicast: "npm:^0.3.5"
+    pathe: "npm:^2.0.3"
+    pkg-types: "npm:^2.1.0"
+    prompts: "npm:^2.4.2"
+    semver: "npm:^7.7.1"
+  bin:
+    devtools-wizard: cli.mjs
+  checksum: 10c0/9da3d827f1acca21ba82d50fa8a2594e33b9f8b668e8af0ebadadd40ab71bfca22a5ada768992e5c39be3b9a06ef3c171ff32c16d6f030dbab269552fd00bbef
   languageName: node
   linkType: hard
 
@@ -2537,6 +2568,50 @@ __metadata:
   bin:
     devtools: cli.mjs
   checksum: 10c0/a6318b1943a51ca891400ad3a1f68b94f59cc79f6b2b627e0be82040119ce3569d4a27dab6a656d50621c1730df1dae0e7863825a9ced307468f8c65bd6ce166
+  languageName: node
+  linkType: hard
+
+"@nuxt/devtools@npm:^2.3.0":
+  version: 2.3.0
+  resolution: "@nuxt/devtools@npm:2.3.0"
+  dependencies:
+    "@nuxt/devtools-kit": "npm:2.3.0"
+    "@nuxt/devtools-wizard": "npm:2.3.0"
+    "@nuxt/kit": "npm:^3.16.0"
+    "@vue/devtools-core": "npm:^7.7.2"
+    "@vue/devtools-kit": "npm:^7.7.2"
+    birpc: "npm:^2.2.0"
+    consola: "npm:^3.4.0"
+    destr: "npm:^2.0.3"
+    error-stack-parser-es: "npm:^1.0.5"
+    execa: "npm:^9.5.2"
+    fast-npm-meta: "npm:^0.3.1"
+    get-port-please: "npm:^3.1.2"
+    hookable: "npm:^5.5.3"
+    image-meta: "npm:^0.2.1"
+    is-installed-globally: "npm:^1.0.0"
+    launch-editor: "npm:^2.10.0"
+    local-pkg: "npm:^1.1.1"
+    magicast: "npm:^0.3.5"
+    nypm: "npm:^0.6.0"
+    ohash: "npm:^2.0.11"
+    pathe: "npm:^2.0.3"
+    perfect-debounce: "npm:^1.0.0"
+    pkg-types: "npm:^2.1.0"
+    semver: "npm:^7.7.1"
+    simple-git: "npm:^3.27.0"
+    sirv: "npm:^3.0.1"
+    structured-clone-es: "npm:^1.0.0"
+    tinyglobby: "npm:^0.2.12"
+    vite-plugin-inspect: "npm:^11.0.0"
+    vite-plugin-vue-tracer: "npm:^0.1.1"
+    which: "npm:^5.0.0"
+    ws: "npm:^8.18.1"
+  peerDependencies:
+    vite: ">=6.0"
+  bin:
+    devtools: cli.mjs
+  checksum: 10c0/9611f87bbb4d8cafe999aceb80dd7553a74f573b1f56b47565810c761f89c73e67e2edf92fe6ce675413aad0227d14bbadce34f200bf6d8839a310f38bb40d8e
   languageName: node
   linkType: hard
 
@@ -2646,7 +2721,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/schema@npm:3.16.0, @nuxt/schema@npm:^3.15.4":
+"@nuxt/schema@npm:3.16.0, @nuxt/schema@npm:^3.15.4, @nuxt/schema@npm:^3.16.0":
   version: 3.16.0
   resolution: "@nuxt/schema@npm:3.16.0"
   dependencies:
@@ -7288,14 +7363,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.0.8":
-  version: 5.0.8
-  resolution: "fast-xml-parser@npm:5.0.8"
+"fast-xml-parser@npm:^5.0.9":
+  version: 5.0.9
+  resolution: "fast-xml-parser@npm:5.0.9"
   dependencies:
     strnum: "npm:^2.0.5"
   bin:
     fxparser: src/cli/cli.js
-  checksum: 10c0/c99b1df141fd41990246985577f6d94f5604f48049aa620e1d9857c33e428bad8787d6be3f40c9766852c888e9caf4e344bbf7898d43ffdfebfaddf0c597eca0
+  checksum: 10c0/29aaa74cb5224ddf755c2777fefce41961514fb525ce153ba9a8cbfd03292c93b67c0c19f3f4fdb5d8fa96a4b70c42dc31504eefc6477a668cea71a11999bc45
   languageName: node
   linkType: hard
 
@@ -14442,7 +14517,7 @@ __metadata:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
-    "@nuxt/devtools": "npm:^2.2.1"
+    "@nuxt/devtools": "npm:^2.3.0"
     "@nuxt/eslint": "npm:^1.2.0"
     "@nuxtjs/stylelint-module": "npm:^5.2.0"
     "@pinia/nuxt": "npm:^0.10.1"
@@ -14475,7 +14550,7 @@ __metadata:
     deep-equal: "npm:^2.2.3"
     discord.js: "npm:^14.18.0"
     eslint: "npm:^9.22.0"
-    fast-xml-parser: "npm:^5.0.8"
+    fast-xml-parser: "npm:^5.0.9"
     idb: "npm:^8.0.2"
     ioredis: "npm:^5.6.0"
     jsonwebtoken: "npm:^9.0.2"
@@ -14694,7 +14769,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-vue-tracer@npm:^0.1.0":
+"vite-plugin-vue-tracer@npm:^0.1.0, vite-plugin-vue-tracer@npm:^0.1.1":
   version: 0.1.1
   resolution: "vite-plugin-vue-tracer@npm:0.1.1"
   dependencies:
