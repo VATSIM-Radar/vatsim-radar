@@ -36,7 +36,7 @@ export interface VatglassesAirspace {
     group: string;
     docs?: string[];
     fua?: Record<string, any>[];
-    owner: string[];
+    owner?: string[];
     sectors: VatglassesSector[];
 }
 export interface VatglassesData {
@@ -83,6 +83,34 @@ export interface VatglassesData {
 export interface VatglassesAPIData {
     version: string;
     data: VatglassesData;
+}
+
+
+export interface VatglassesDynamicData {
+    [key: string]: {
+        airports: {
+            [key: string]: {
+                pre?: string[];
+                callsign?: string;
+                coord?: number[];
+                runways?: string[];
+                default?: boolean;
+                topdown?: string[];
+                sector?: string;
+                major?: string;
+                end?: {
+                    [key: string]: { [key: string]: string };
+                };
+            };
+        };
+        airspace: {
+            [key: string]: string [];
+        };
+    };
+}
+export interface VatglassesDynamicAPIData {
+    version: string;
+    data: VatglassesDynamicData | null;
 }
 
 interface KafkaExtension {
@@ -172,6 +200,7 @@ export interface RadarStorage {
             version: string;
             data: VatglassesData | null;
         };
+        dynamicData: VatglassesDynamicAPIData;
         activeData: string | null;
     };
     vatsimStatic: {
@@ -198,6 +227,10 @@ export const radarStorage: RadarStorage = {
     },
     vatglasses: {
         data: {
+            version: '',
+            data: null,
+        },
+        dynamicData: {
             version: '',
             data: null,
         },

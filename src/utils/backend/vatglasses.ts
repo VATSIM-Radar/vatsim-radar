@@ -31,14 +31,34 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
 
     const ignoredFiles = ['ulll'];
 
+
     zipEntries.forEach(entry => {
         if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
-            let fileName = entry.entryName.split('/').pop(); // Get the filename
-            if (fileName) {
+            const pathParts = entry.entryName.split('/');
+            const fileName = pathParts.pop(); // Get the filename
+            const folderPath = pathParts; // Get the folder path as an array
+
+            if (fileName && fileName.endsWith('.json')) {
                 try {
-                    fileName = fileName.replace('.json', ''); // Remove the .json extension
-                    const fileData = JSON.parse(entry.getData().toString('utf-8'));
-                    combinedData[fileName] = fileData; // Use the filename as the key
+                    if (folderPath.length === 2) {
+                        const fileData = JSON.parse(entry.getData().toString('utf-8'));
+                        const key = fileName.replace('.json', ''); // Remove the .json extension
+
+                        combinedData[key] = fileData; // Use the filename as the key
+                    }
+                    else if (folderPath.length === 3 && fileName === 'positions.json') {
+                        // if the folderPath.length we know it is a subfolder, we use the positions.json as anchor
+                        const fileData = JSON.parse(entry.getData().toString('utf-8'));
+                        const key = folderPath[2];
+
+                        // Check if airspace.json exists in the folder
+                        const airspaceFilePath = folderPath.join('/') + '/airspace.json';
+                        const airspaceEntry = zipEntries.find(e => e.entryName === airspaceFilePath);
+                        if (airspaceEntry) {
+                            const airspaceData = JSON.parse(airspaceEntry.getData().toString('utf-8'));
+                            combinedData[key] = { ...airspaceData, ...fileData };
+                        }
+                    }
                 }
                 catch (e) {
                     console.warn(`Error parsing ${ fileName }`, e);

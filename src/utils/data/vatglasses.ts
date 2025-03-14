@@ -81,6 +81,7 @@ function updateVatglassesPositionsAndAirspaces() {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage?.vatglasses?.data.data;
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways.value ?? workerDataStore.vatglassesActiveRunways;
     const vatglassesActivePositions = dataStore?.vatglassesActivePositions.value ?? workerDataStore.vatglassesActivePositions;
+    const vatglassesDynamicData = dataStore?.vatglassesDynamicData?.value ?? radarStorage.vatglasses.dynamicData;
     const vatsimData = dataStore?.vatsim ?? radarStorage.vatsim;
     if (!vatglassesData || !vatsimData) return newVatglassesActivePositions;
 
@@ -182,7 +183,6 @@ function updateVatglassesPositionsAndAirspaces() {
 
     // TODO: We could compare the entries of `vatglassesActiveStations` with `dataStore.vatglassesActivePositions.value[countryGroupId][positionId]`, and if they are equal, no position has changed and we have nothing to do. However, we need to consider if a runway was updated or changed in the frontend and therefore this update cycle was called. Maybe use a parameter in this function like `runwayChanged`, and when we call updateVatglassesState() in the `activeRunwayChanged` function, we pass this parameter.
 
-
     // Fill the vatglassesActiveAirspaces object with the active airspaces
     vatglassesActiveAirspaces = {};
     for (const countryGroupId in vatglassesData) {
@@ -191,7 +191,15 @@ function updateVatglassesPositionsAndAirspaces() {
         let activeGroupVatglassesPosition: string[] = [];
         if (vatglassesActiveController[countryGroupId]) activeGroupVatglassesPosition = Object.keys(vatglassesActiveController[countryGroupId]);
         for (const [airspaceIndex, airspace] of countryGroup.airspace.entries()) {
-            const vatglassesPositionId = airspace.owner.find((element: string) => {
+            let airspaceOwner: string [] = [];
+            if (vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex]) {
+                airspaceOwner = vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex];
+            }
+            else if (airspace?.owner) {
+                airspaceOwner = airspace.owner;
+            }
+
+            const vatglassesPositionId = airspaceOwner.find((element: string) => {
                 if (element.includes('/')) { // Covers this cases: Positions from other data files can be referenced in the format country/position, where position is defined in country.json
                     const elementSplit = element.split('/');
                     const otherCountryCode = elementSplit[0];
@@ -651,7 +659,7 @@ async function initVatglassesCombined() {
     combineDataInitialized = true;
     dataStore.vatglassesCombiningInProgress.value = true;
     try {
-        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
+        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses/active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
         if (vatglassesDataVersion === data.version) {
             for (const countryGroupId in data.vatglassesActivePositions) {
@@ -727,7 +735,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
             await initVatglassesCombined();
         }
 
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], async () => {
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, dataStore.vatglassesDynamicData, vatglassesCombined], async () => {
             if (!combineDataInitialized && vatglassesCombined.value) {
                 await updateVatglassesStateLocal(true);
                 await initVatglassesCombined();
