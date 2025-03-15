@@ -1,17 +1,20 @@
 import { useStore } from '~/store';
 import type { UserFilter } from '~/utils/backend/handlers/filters';
 import { useFileDownload } from '~/composables/settings';
+import { customDefu } from '~/composables';
+
 
 export function setUserFilter(settings?: UserFilter) {
     const store = useStore();
 
     const settingsText = localStorage.getItem('filters') ?? '{}';
+    if (!settings && JSON.stringify(store.filter) === settingsText) return;
 
-    store.filter = settings ?? JSON.parse(settingsText);
+    let localSettings = JSON.parse(settingsText) as UserFilter;
+    localSettings = customDefu(settings || {}, localSettings);
 
-    if (settings) {
-        localStorage.setItem('filters', JSON.stringify(settings));
-    }
+    store.filter = localSettings;
+    localStorage.setItem('filters', JSON.stringify(localSettings));
 }
 
 export async function resetUserFilter() {

@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.0.3-2]
+
+- Fixed an issue when you could not set more than one filter parameter at once. Very sorry about that
+
 # [1.0.3-1]
 
 - Fixed gates not showing up for some airports when using Navigraph
