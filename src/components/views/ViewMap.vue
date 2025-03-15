@@ -142,6 +142,7 @@
             <map-layer/>
             <map-sigmets/>
         </client-only>
+        <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
 </template>
@@ -535,7 +536,7 @@ async function handleMoveEnd() {
         zoom: view.getZoom()?.toFixed(2),
     };
 
-    if (initialOwnCheck) {
+    if (initialOwnCheck && !store.mapSettings.disableQueryUpdate) {
         router.replace({
             query,
         });
@@ -642,9 +643,9 @@ await setupDataFetch({
             zoom = store.config.showInfoForPrimaryAirport ? 12 : 14;
         }
         else if (store.config.airports?.length) zoom = 1;
-
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
+            if (coords[0] > 300) coords[0] = 0;
             if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
                 center = coords;
             }

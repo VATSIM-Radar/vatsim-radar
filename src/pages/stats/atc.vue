@@ -13,6 +13,8 @@
                 { key: 'cid', name: 'CID', width: 80, sort: true },
                 { key: 'callsign', name: 'Callsign', width: 100,  sort: true },
                 { key: 'frequency', name: 'Frequency', width: 100,  sort: true },
+                { key: 'rating', name: 'Rating', width: 70,  sort: true },
+                { key: 'facility', name: 'Facility', width: 80,  sort: true },
                 { key: 'name', name: 'Name', sort: true },
                 { key: 'logon_time', name: 'Time Online', width: 120, sort: (a: any, b: any, method) => {
                     const aData = new Date(a.logon_time).getTime()
@@ -28,6 +30,12 @@
         >
             <template #data-logon_time="{ item }">
                 {{getATCTime(item)}}
+            </template>
+            <template #data-rating="{ data }">
+                {{ ratings[(data as number).toString()] }}
+            </template>
+            <template #data-facility="{ item }">
+                {{ item.callsign.split('_')[item.callsign.split('_').length - 1] }}
             </template>
             <template #data-actions="{ item }">
                 <a
@@ -82,11 +90,13 @@ mapStore.$reset();
 
 const list = computed(() => {
     return [
-        ...dataStore.vatsim.data.locals.value.map(x => x.atc),
+        ...dataStore.vatsim.data.locals.value.map(x => x.atc).filter(x => !x.atis_code),
         ...dataStore.vatsim.data.firs.value.map(x => x.controller),
         ...dataStore.vatsim.data.general.value?.sups ?? [],
     ];
 });
+
+const ratings = Object.fromEntries(Object.entries(useRatingsIds()).map(([key, value]) => [value, key]));
 
 const overlayData = computed(() => mapStore.overlays.find(x => x.type === 'atc')?.data);
 const overlayAtc = computed(() => list.value.find(x => x.callsign === overlayData.value?.callsign));

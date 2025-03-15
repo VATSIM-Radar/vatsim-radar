@@ -47,6 +47,41 @@
                                 </common-block-title>
 
                                 <common-toggle
+                                    :model-value="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event } } })"
+                                >
+                                    Relative distance indicator
+                                </common-toggle>
+                                <common-select
+                                    v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                                    :items="[
+                                        {
+                                            value: 'degrees',
+                                            text: 'Degrees',
+                                        },
+                                        {
+                                            value: 'imperial',
+                                            text: 'Imperial (mi)',
+                                        },
+                                        {
+                                            value: 'nautical',
+                                            text: 'Nautical (NM)',
+                                        },
+                                        {
+                                            value: 'metric',
+                                            text: 'Metric (km)',
+                                        },
+                                    ]"
+                                    :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
+                                >
+                                    <template #label>
+                                        Distance unit
+                                        Distance unit
+                                    </template>
+                                </common-select>
+
+                                <common-toggle
                                     :disabled="!radarIsDefault"
                                     :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
                                     @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
@@ -355,6 +390,8 @@ import type { StoreOverlayPilot } from '~/store/map';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import { sigmetDates } from '~/composables';
 import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import type { Units } from 'ol/control/ScaleLine';
 
 const store = useStore();
 const dataStore = useDataStore();

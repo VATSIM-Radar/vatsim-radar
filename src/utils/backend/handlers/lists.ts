@@ -237,7 +237,7 @@ export async function handleListsEvent(event: H3Event) {
             }
 
             if (body.name) {
-                const duplicatedList = lists.find(x => x.name.toLowerCase().trim() === body.name?.toLowerCase().trim());
+                const duplicatedList = lists.find(x => (!id || x.id !== +id) && x.name.toLowerCase().trim() === body.name?.toLowerCase().trim());
 
                 if (duplicatedList) {
                     if (getQuery(event).force === '1') {

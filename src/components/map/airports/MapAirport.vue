@@ -508,10 +508,12 @@ onMounted(async () => {
                 const geometry = feature.getGeometry();
                 const extent = feature.getGeometry()?.getExtent();
                 const topCoord = [extent![0], extent![3]];
-                let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                let textCoord: Coordinate | undefined;
                 if (feature.getProperties().label_lat) {
-                    textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                    textCoord = [feature.getProperties().label_lon, feature.getProperties().label_lat];
                 }
+
+                textCoord = geometry?.getClosestPoint(textCoord ?? topCoord) || topCoord;
 
                 const labelFeature = new Feature({
                     geometry: new Point(textCoord),
