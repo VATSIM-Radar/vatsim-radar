@@ -52,38 +52,45 @@
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 
-interface DateRange {
+export interface DateRange {
     from: Date;
-    to?: Date;
+    to: Date;
 }
 
 const dateRange = defineModel<DateRange>({ required: true });
 
 const formatDate = (date: Date): string => {
-    return date.toISOString().slice(0, 16);
-};
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
 
+    return `${ year }-${ month }-${ day }T${ hours }:${ minutes }`;
+};
 const formattedStartDate = computed(() => formatDate(dateRange.value.from));
 const formattedEndDate = computed(() => dateRange.value.to ? formatDate(dateRange.value.to) : '');
 
 const updateStartDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    dateRange.value = { ...dateRange.value, from: new Date(target.value) };
+    dateRange.value.from = new Date(target.value);
 };
 
 const updateEndDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    dateRange.value = { ...dateRange.value, to: new Date(target.value) };
+    dateRange.value.to = new Date(target.value);
 };
 
 const adjustTime = (isStart: boolean, minutes: number) => {
     const dateToAdjust = isStart ? dateRange.value.from : dateRange.value.to;
     if (dateToAdjust) {
         const newDate = new Date(dateToAdjust.getTime() + (minutes * 60000));
-        dateRange.value = {
-            ...dateRange.value,
-            [isStart ? 'from' : 'to']: newDate,
-        };
+        if (isStart) {
+            dateRange.value.from = newDate;
+        }
+        else {
+            dateRange.value.to = newDate;
+        }
     }
 };
 </script>

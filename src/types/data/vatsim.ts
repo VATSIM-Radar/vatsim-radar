@@ -89,7 +89,7 @@ export interface VatsimController {
     text_atis: string[] | null;
     last_updated: string;
     logon_time: string;
-    booking?: VatsimBooking;
+    booking?: VatsimBookingAtc;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -135,6 +135,8 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
     start_local?: string;
     end_local?: string;
 }
+
+export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;
 
 export interface VatsimData {
     general: VatsimGeneral;
