@@ -1,10 +1,13 @@
 <template>
     <div
-        v-if="false && !notamCookie"
+        v-if="!notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            VATSIM Radar will undergo maintenance on August 11th at 14:00z with expected downtime of 5-10 minutes, during which online services may be temporally unavailable. Thank you for your patience.
+            We have initiated VATSIM Radar feedback poll. We would appreciate if you could provide us your feedback, so we could plan our development and listen to you. <a
+                href="https://forms.gle/q7iFB7RuzULoqz1q6"
+                target="_blank"
+            >You can find it here</a>. Thanks in advance &lt;3
         </div>
         <div
             class="header-error_close"
@@ -253,7 +256,7 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     path: '/',
     sameSite: 'strict',
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 60 * 60 * 24 * 7,
 });
 
 const isMobileOrTablet = useIsMobileOrTablet();
@@ -294,18 +297,24 @@ const mobileMenuOpened = ref(false);
 
         background: $error500;
 
+        a {
+            color: $lightgray150Orig;
+        }
+
         &--notam {
             background: $primary600;
 
-            &::before {
-                content: 'NOTAM';
+            @include pc {
+                &::before {
+                    content: 'NOTAM';
 
-                position: absolute;
-                right: 40px;
+                    position: absolute;
+                    right: 40px;
 
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 2px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                }
             }
         }
 

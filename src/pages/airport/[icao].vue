@@ -274,7 +274,7 @@ const mounted = ref(false);
 const config = useRuntimeConfig();
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
-const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.icao[icao.value]);
+const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[icao.value]);
 const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
 const atc = getATCForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 const aircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);

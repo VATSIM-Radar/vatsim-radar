@@ -227,7 +227,7 @@ export const useMapStore = defineStore('map', {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
                 if (existingOverlay) return;
 
-                const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.icao[airport];
+                const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[airport];
                 if (!vatSpyAirport) return;
 
                 this.overlays = this.overlays.filter(x => x.type !== 'airport' || x.sticky);

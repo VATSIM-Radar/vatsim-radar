@@ -27,7 +27,7 @@ spec:
               cpu: 300m
               memory: 600Mi
             limits:
-              cpu: 950m
+              cpu: 900m
               memory: 2Gi
           readinessProbe:
             tcpSocket:
@@ -123,7 +123,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 270
+          averageUtilization: 250
     - type: Resource
       resource:
         name: memory

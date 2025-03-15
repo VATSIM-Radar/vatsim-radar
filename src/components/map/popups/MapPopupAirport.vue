@@ -330,7 +330,7 @@ const dataStore = useDataStore();
 const copy = useCopyText();
 const config = useRuntimeConfig();
 
-const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.icao[props.overlay.data.icao]);
+const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.overlay.data.icao]);
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);

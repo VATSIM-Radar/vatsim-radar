@@ -72,6 +72,14 @@
 
 - Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC
 
+# [1.0.3-2]
+
+- Fixed an issue when you could not set more than one filter parameter at once. Very sorry about that
+
+# [1.0.3-1]
+
+- Fixed gates not showing up for some airports when using Navigraph
+
 # [1.0.3]
 
 - New icons from DotWallop (P180, BA11, DH88, F28, J328)
