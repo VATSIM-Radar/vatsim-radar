@@ -17,21 +17,20 @@ export const useFacilitiesIds = () => {
     };
 };
 
-export function getFacilityByCallsign(callsign: string): number {
-    const facilityMap: { [key: string]: string } = {
-        _TWR: 'TWR',
-        _GND: 'GND',
-        _DEL: 'DEL',
-        _APP: 'APP',
-        _CTR: 'CTR',
-        _FSS: 'FSS',
-        _OBS: 'OBS',
-    };
+const facilitiesMap: { [key: string]: number } = {
+    OBS: 0,
+    FSS: 1,
+    DEL: 2,
+    GND: 3,
+    TWR: 4,
+    APP: 5,
+    CTR: 6,
+};
 
-    for (const suffix in facilityMap) {
+export function getFacilityByCallsign(callsign: string): number {
+    for (const suffix in facilitiesMap) {
         if (callsign.endsWith(suffix)) {
-            const facilityShort = facilityMap[suffix];
-            return radarStorage.vatsim.data?.facilities.find(x => x.short === facilityShort)?.id ?? -1;
+            return facilitiesMap[suffix];
         }
     }
     return -1;

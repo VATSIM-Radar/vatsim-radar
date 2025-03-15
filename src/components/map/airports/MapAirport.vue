@@ -143,6 +143,7 @@ import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { fromLonLat } from 'ol/proj';
 import { createCircle } from '~/utils';
+import { makeBookingLocalTime } from '~/composables/bookings';
 
 const props = defineProps({
     airport: {
@@ -258,20 +259,6 @@ interface Facility {
     atc: VatsimShortenedController[];
 }
 
-const formatterTime = new Intl.DateTimeFormat(['en-DE'], {
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
-const formatterWithDate = new Intl.DateTimeFormat(['en-DE'], {
-    hour: '2-digit',
-    minute: '2-digit',
-    month: 'short',
-    day: '2-digit',
-});
-
-const now = new Date();
-
 const localsFacilities = computed(() => {
     const facilitiesMap = new Map<number, Facility>();
 
@@ -281,6 +268,7 @@ const localsFacilities = computed(() => {
 
         if (!facility) {
             const booking = props.bookings.find(x => x.atc.facility === facilityId);
+
             facility = createFacility(facilityId, booking);
             facilitiesMap.set(facilityId, facility);
         }
@@ -299,22 +287,10 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
     };
 
     if (booking) {
-        const start = new Date(booking.start);
-        const end = new Date(booking.end);
-
-        booking.start_local = formatDate(start, isToday(start));
-        booking.end_local = formatDate(end, isToday(end));
+        makeBookingLocalTime(booking);
     }
 
     return facility;
-}
-
-function formatDate(date: Date, isToday: boolean): string {
-    return isToday ? formatterTime.format(date) : formatterWithDate.format(date);
-}
-
-function isToday(date: Date): boolean {
-    return date.toISOString().slice(0, 10) === now.toISOString().slice(0, 10);
 }
 
 let feature: Feature | null = null;
@@ -569,15 +545,13 @@ onMounted(async () => {
                     const geometry = feature.getGeometry();
                     const extent = feature.getGeometry()?.getExtent();
                     const topCoord = [extent![0], extent![3]];
-                    let textCoord: Coordinate | undefined;
+                    let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
                     if (feature.getProperties().label_lat) {
-                        textCoord = [feature.getProperties().label_lon, feature.getProperties().label_lat];
+                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
                     }
 
-                    textCoord = geometry?.getClosestPoint(textCoord ?? topCoord) || topCoord;
-
                     const labelFeature = new Feature({
-                        geometry: new Point(textCoord!),
+                        geometry: new Point(textCoord),
                         type: 'tracon-label',
                         icao: props.airport.icao,
                         iata: props.airport.iata,
