@@ -118,8 +118,8 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             let flown = 0;
             let eta: Date | null = null;
 
-            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.icao[pilot.departure!];
-            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.icao[pilot.arrival!];
+            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
+            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
 
             if (arrivalAirport) {
                 const pilotCoords = [pilot.longitude, pilot.latitude];

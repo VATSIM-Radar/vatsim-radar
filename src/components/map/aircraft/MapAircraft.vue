@@ -368,8 +368,8 @@ watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLay
     setStyle(undefined, true);
 });
 
-const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.departure]);
-const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.arrival]);
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.departure]);
+const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.arrival]);
 
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;

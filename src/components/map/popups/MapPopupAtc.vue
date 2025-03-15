@@ -232,7 +232,7 @@ watch(() => props.overlay?.data.callsign, async val => {
 });
 
 const country = computed(() => {
-    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.icao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
+    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.realIcao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
 
     return icaoAirport ? getAirportCountry(airport.value?.icao) : undefined;
 });

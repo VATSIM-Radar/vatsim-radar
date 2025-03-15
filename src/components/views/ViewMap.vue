@@ -314,7 +314,7 @@ const restoreOverlays = async () => {
             };
         }
         else if (overlay.type === 'airport') {
-            const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.icao[overlay.key];
+            const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[overlay.key];
             if (!vatSpyAirport) return;
 
             const data = await Promise.allSettled([
@@ -460,7 +460,7 @@ useUpdateInterval(() => {
 const overlays = computed(() => mapStore.overlays);
 const overlaysGap = 16;
 const overlaysHeight = computed(() => {
-    if (mapStore.overlays.length === 1) return 'auto';
+    if (mapStore.overlays.length <= 1) return 'auto';
     return mapStore.overlays.reduce((acc, { _maxHeight }) => acc + (_maxHeight ?? 0), 0) + (overlaysGap * (mapStore.overlays.length - 1));
 });
 
@@ -605,7 +605,7 @@ await setupDataFetch({
         let zoom = store.localSettings.zoom ?? 3;
 
         if (store.config.airport) {
-            const airport = dataStore.vatspy.value?.data.keyAirports.icao[store.config.airport];
+            const airport = dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport];
 
             if (airport) {
                 center = [airport.lon, airport.lat];
@@ -921,18 +921,15 @@ onMounted(() => {
                 &-enter-active,
                 &-leave-active {
                     overflow: hidden;
-                    height: var(--max-height);
+                    max-height: var(--max-height);
                     transition: 0.5s ease-in-out;
                 }
 
                 &-enter-from,
                 &-leave-to {
                     transform: translate(30px, -30px);
-
-                    height: 0;
                     max-height: 0;
                     margin-top: -16px;
-
                     opacity: 0;
                 }
             }

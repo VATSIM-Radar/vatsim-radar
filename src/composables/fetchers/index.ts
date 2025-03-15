@@ -30,7 +30,7 @@ export const showBookmark = async (bookmark: UserBookmark, map: Map | null) => {
     const store = useStore();
 
     if (bookmark.icao) {
-        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.icao[bookmark.icao]!, map, zoom, !store.localSettings.skipBookmarkAnimation);
+        showAirportOnMap(dataStore.vatspy.value!.data.keyAirports.realIcao[bookmark.icao]!, map, zoom, !store.localSettings.skipBookmarkAnimation);
     }
     else if (bookmark.coords) {
         if (store.localSettings.skipBookmarkAnimation) {
