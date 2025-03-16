@@ -23,7 +23,7 @@ export interface NavigraphNavDataVHF {
     declination: number;
 }
 
-export type NavigraphNavDataNDB = Pick<NavigraphNavDataVHF, 'country' | 'datum' | 'icaoCode' | 'magneticVariation' | 'class' | 'frequency' | 'navaid' | 'range' | 'airport'>;
+export type NavigraphNavDataNDB = Pick<NavigraphNavDataVHF, 'country' | 'datum' | 'icaoCode' | 'magneticVariation' | 'class' | 'frequency' | 'navaid' | 'range' | 'airport' | 'coordinates'>;
 
 export interface NavigraphNavDataHolding {
     name: string;
@@ -125,6 +125,7 @@ export type NavDataProcedure<T extends NavigraphNavDataApproach | NavigraphNavDa
 }[];
 
 export interface NavigraphNavData {
+    vhf: Record<string, NavigraphNavDataVHF>;
     ndb: Record<string, NavigraphNavDataNDB>;
     holdings: Record<string, NavigraphNavDataHolding>;
     airways: Record<string, {
@@ -144,6 +145,7 @@ export type NavigraphNavItems = {
 };
 
 export interface NavigraphNavDataShort {
+    vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number]>;
     airways: Record<string, [identifier: string, waypoints: [identifier: string, longitude: number, latitude: number][]]>;
@@ -163,7 +165,10 @@ export async function processDatabase(db: sqlite3.Database) {
 
     // region VHF
 
-    /* const vhf = await dbPartialRequest<{
+    fullData.vhf = {};
+    shortData.vhf = {};
+
+    const vhf = await dbPartialRequest<{
         airport_identifier: string;
         area_code: string;
         continent: string;
@@ -186,40 +191,36 @@ export async function processDatabase(db: sqlite3.Database) {
         station_declination: number;
     }>({
         db,
-        sql: 'SELECT * FROM tbl_d_vhfnavaids',
+        sql: 'SELECT * FROM tbl_d_vhfnavaids WHERE airport_identifier IS NULL',
         table: 'tbl_d_vhfnavaids',
     });
 
-    obj.vhf = {
-        type: 'FeatureCollection',
-        features: vhf.map(x => ({
-            type: 'Feature',
-            properties: {
-                airport: x.airport_identifier,
-                country: x.country,
-                datum: x.datum_code,
-                elevation: x.dme_elevation,
-                ident: x.dme_ident,
-                coordinates: [x.dme_longitude, x.dme_latitude],
-                icaoCode: x.icao_code,
-                bias: x.ilsdme_bias,
-                magneticVariation: x.magnetic_variation,
-                class: x.navaid_class,
-                frequency: x.navaid_frequency,
-                navaid: {
-                    ident: x.navaid_identifier,
-                    coordinates: [x.navaid_longitude, x.navaid_latitude],
-                    name: x.navaid_name,
-                },
-                range: x.range,
-                declination: x.station_declination,
+    for (const item of vhf) {
+        const key = `${ item.icao_code }-${ item.navaid_frequency }`;
+
+        fullData.vhf[key] = {
+            airport: null,
+            country: item.country,
+            datum: item.datum_code,
+            icaoCode: item.icao_code,
+            magneticVariation: item.magnetic_variation,
+            class: item.navaid_class,
+            frequency: item.navaid_frequency,
+            navaid: {
+                ident: item.navaid_identifier,
+                coordinates: [item.navaid_longitude, item.navaid_latitude],
+                name: item.navaid_name,
             },
-            geometry: {
-                type: 'Point',
-                coordinates: [x.dme_longitude, x.dme_latitude],
-            },
-        })),
-    };*/
+            range: item.range,
+            elevation: item.dme_elevation,
+            ident: item.dme_ident,
+            bias: item.ilsdme_bias,
+            declination: item.station_declination,
+            coordinates: [item.navaid_longitude, item.navaid_latitude],
+        };
+
+        shortData.vhf[key] = [item.navaid_name, item.icao_code, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
+    }
 
     // endregion VHF
 
@@ -265,6 +266,7 @@ export async function processDatabase(db: sqlite3.Database) {
                 name: item.navaid_name,
             },
             range: item.range,
+            coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
         shortData.ndb[key] = [item.navaid_name, item.icao_code, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];

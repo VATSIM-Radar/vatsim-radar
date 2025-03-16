@@ -263,7 +263,7 @@ export async function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 
-    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
+    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware && !!radarStorage.navigraphData.short.current;
 }
 
 export function getDataVersions(): VatDataVersions {

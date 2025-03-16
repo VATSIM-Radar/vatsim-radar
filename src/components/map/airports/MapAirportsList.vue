@@ -253,6 +253,7 @@ watch(map, val => {
         airportsLayer = new VectorLayer<any>({
             source: airportsSource.value,
             zIndex: 8,
+            declutter: true,
             properties: {
                 type: 'airports',
             },

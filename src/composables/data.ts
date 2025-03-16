@@ -13,7 +13,7 @@ import type {
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import type { IDBAirlinesData } from '~/utils/client-db';
+import type { IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
@@ -22,9 +22,12 @@ import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
+import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
+const navigraph = shallowRef<UseDataStore['navigraph']['data'] | null>(null);
+const navigraphVersion = ref<string | null>(null);
 const airlines = shallowRef<RadarDataAirlinesAllList>({
     airlines: {},
     virtual: {},
@@ -120,6 +123,10 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
+    navigraph: {
+        version: Ref<string | null>;
+        data: ShallowRef<Omit<NavigraphNavDataShort, 'stars' | 'sids' | 'approaches'> | null>;
+    };
 }
 
 export function useDataStore(): UseDataStore {
@@ -136,6 +143,10 @@ export function useDataStore(): UseDataStore {
         time,
         sigmets,
         airlines,
+        navigraph: {
+            version: navigraphVersion,
+            data: navigraph,
+        },
     };
 }
 
@@ -316,6 +327,19 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 }
 
                 dataStore.vatspy.value = vatspy;
+            }()),
+            (async function() {
+                let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
+                if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated']) {
+                    navigraph = {
+                        version: dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated'] ?? '',
+                        data: await $fetch<NavigraphNavDataShort>('/api/data/navigraph/data'),
+                    };
+                    await clientDB.put('data', navigraph, 'navigraph');
+                }
+
+                dataStore.navigraph.version.value = navigraph.version;
+                dataStore.navigraph.data.value = navigraph.data;
             }()),
             (async function() {
                 let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
