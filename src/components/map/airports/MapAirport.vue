@@ -141,7 +141,6 @@ import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
-import { fromLonLat } from 'ol/proj';
 import { createCircle } from '~/utils';
 import { makeBookingLocalTime } from '~/composables/bookings';
 
