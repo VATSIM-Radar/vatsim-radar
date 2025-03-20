@@ -5,6 +5,7 @@
         absolute
         class="settings"
         max-height="calc(100dvh - 56px - 92px - 20px)"
+        shadow
         :tabs="{
             main: {
                 title: 'Settings',

@@ -1,5 +1,17 @@
 # Changelog
 
+# [1.1.0-beta.3]
+
+- Renamed ATIS to ATC Information in ATC Overlay
+- Fixed R44 icon size
+- Removed duplicate ATC from VATGlasses popup
+- (next) Added ATC rating and facility to ATC stats 
+- (next) Excluded ATIS from ATC online
+- Added relative scale indicator to map
+- Added Map Setting that prevents VR to update center/zoom in address bar
+- VATGlasses has been moved to the top of general as more frequently used setting
+- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
+
 # [1.1.0-beta.2]
 
 - Added sorting support for all presets

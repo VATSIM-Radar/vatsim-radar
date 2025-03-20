@@ -270,7 +270,7 @@ export const aircraftIcons: AircraftIcons = {
     },
     r44: {
         icon: 'r44',
-        width: getAircraftSizeByCoef(0.05),
+        width: getAircraftSizeByCoef(0.3, true),
     },
     pc21: {
         icon: 'pc21',

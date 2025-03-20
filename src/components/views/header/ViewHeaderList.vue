@@ -13,6 +13,29 @@
             Settings
         </common-block-title>
 
+        <common-button-group>
+            <common-button @click="toImport = true">
+                Import
+            </common-button>
+            <common-button
+                v-if="list.users.length"
+                @click="exportList"
+            >
+                Export
+            </common-button>
+            <common-button
+                v-if="list.users.length"
+                @click="copyCids.copy(list.users.map(x => x.cid).join(','))"
+            >
+                <template v-if="copyCids.copyState.value">
+                    Copied!
+                </template>
+                <template v-else>
+                    Copy CIDs
+                </template>
+            </common-button>
+        </common-button-group>
+
         <div
             v-if="list.id === -1 || activeListSettings === list.id"
             class="__info-sections"
@@ -173,6 +196,85 @@
                 </common-button>
             </template>
         </common-popup>
+        <common-popup
+            v-model="toImport"
+            disable-teleport
+            width="600px"
+        >
+            <template #title>
+                Import to {{ list.name }}
+            </template>
+            <div class="__info-sections">
+                <common-block-title remove-margin>
+                    VATSIM Radar JSON
+                </common-block-title>
+                <common-block-title remove-margin>
+                    Import as file
+                </common-block-title>
+                <common-button @click="fileInput?.click()">
+                    Import VATSpy XML or VATSIM Radar JSON
+                </common-button>
+                <input
+                    v-show="false"
+                    ref="fileImport"
+                    accept="application/json,application/xml"
+                    type="file"
+                    @input="() => importFile()"
+                >
+                <common-block-title remove-margin>
+                    Import as text
+                </common-block-title>
+                <common-input-text
+                    v-model="importedText"
+                    placeholder="1234567,1234567"
+                    @change="[
+                        importedText = (($event.target as HTMLInputElement).value).split(',').filter(x => !isNaN(parseInt(x.trim(), 10))).map(x => x.trim()).join(','),
+                        importedList = importedText.split(',').map(x => ({ cid: +x, name: x })),
+                    ]"
+                >
+                    Enter a list of comma-separated CIDs
+                </common-input-text>
+            </div>
+            <template #actions>
+                <common-button
+                    :disabled="!importedList.length"
+                    @click="[importList(), toImport = false]"
+                >
+                    <template v-if="importedList.length">
+                        Import {{ importedList.length }} users
+                    </template>
+                    <template v-else>
+                        Import
+                    </template>
+                </common-button>
+            </template>
+        </common-popup>
+        <common-popup
+            disable-teleport
+            :model-value="!!vatSpyImport"
+            width="500px"
+            @update:modelValue="vatSpyImport = null"
+        >
+            <template  #title>
+                VATSpy import
+            </template>
+            <div class="list__vatspy-list">
+                <common-select
+                    v-if="vatSpyImport"
+                    :items="vatSpyImport.map((x, index) => ({ value: index, text: `${ x.title } (#${ index + 1 })` }))"
+                    max-dropdown-height="150px"
+                    :model-value="null"
+                    @update:modelValue="[
+                        importedList = vatSpyImport![$event as number].cids.map(x => ({ cid: x, name: x.toString() })),
+                        vatSpyImport = null,
+                    ]"
+                >
+                    <template #label>
+                        Select a list
+                    </template>
+                </common-select>
+            </div>
+        </common-popup>
     </div>
 </template>
 
@@ -188,6 +290,10 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import ViewUserList from '~/components/views/ViewUserList.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import { useFileDownload } from '~/composables/settings';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+
+import { XMLParser } from 'fast-xml-parser';
 
 const props = defineProps({
     list: {
@@ -206,16 +312,27 @@ const emit = defineEmits({
     },
 });
 
+interface VatspyFilter {
+    title: string;
+    cids: number[];
+}
+
 const toDelete = ref(false);
+const toImport = ref(false);
+const importedText = ref('');
+const importedList = ref<UserListUser[]>([]);
+const vatSpyImport = ref<VatspyFilter[] | null>(null);
 const toClear = ref(false);
 const store = useStore();
 const activeListSettings = ref(0);
+const fileInput = useTemplateRef<HTMLInputElement>('fileImport');
 
 const duplicateName = computed(() => {
     return store.lists.some(x => x.id !== props.list.id && x.name.toLowerCase() === props.list.name.toLowerCase());
 });
 
 const userAddActive = ref(false);
+const copyCids = useCopyText();
 
 const newUser = reactive<UserListUser>({
     name: '',
@@ -230,6 +347,76 @@ function resetNewUser() {
         cid: 0,
     });
     userAddActive.value = false;
+}
+
+function exportList() {
+    useFileDownload({
+        fileName: `vatsim-radar-favorite-${ props.list.name.toLowerCase() }-${ Date.now() }.json`,
+        mime: 'application/json',
+        blob: new Blob([JSON.stringify(props.list.users.map(x => ({
+            cid: x.cid,
+            name: x.name,
+            comment: x.comment || undefined,
+        })))], { type: 'application/json' }),
+    });
+}
+
+async function importList() {
+    importedList.value = importedList.value.filter(x => !props.list.users.some(y => x.cid === y.cid));
+
+    console.log(props.list.id);
+
+    await editUserList({
+        ...props.list,
+        users: [
+            ...props.list.users,
+            ...importedList.value,
+        ],
+    });
+}
+
+async function importFile() {
+    const input = fileInput.value?.files?.[0];
+    if (!input) return;
+
+    const content = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.addEventListener('load', async () => {
+            resolve(reader.result as string);
+        });
+
+        reader.addEventListener('error', e => {
+            reject(e);
+        });
+
+        reader.readAsText(input);
+    });
+
+    if (input.name.endsWith('.xml')) {
+        const xmlParser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: '',
+        });
+
+        console.log(xmlParser.parse(content).VATSpyConfig.Filters.Filter);
+
+        vatSpyImport.value = xmlParser.parse(content).VATSpyConfig.Filters.Filter.map((x: any) => ({
+            title: x.Name,
+            cids: x.CIDs.string,
+        }));
+    }
+    else if (input.name.endsWith('.json')) {
+        const json = JSON.parse(content) as UserListUser[];
+
+        if (!Array.isArray(json) || !json.every(x => typeof x.cid === 'number' && typeof x.name === 'string')) return;
+
+        importedList.value = json.map(x => ({
+            cid: x.cid,
+            name: x.name,
+            comment: typeof x.comment === 'string' ? x.comment : undefined,
+        }));
+    }
 }
 
 watch(() => props.list, val => {
@@ -249,6 +436,10 @@ watch(() => props.list, val => {
 
     &_settings {
         padding-left: 12px;
+    }
+
+    &__vatspy-list {
+        height: 200px;
     }
 }
 </style>
