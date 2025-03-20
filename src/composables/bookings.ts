@@ -16,10 +16,14 @@ export function makeBookingLocalTime(booking: VatsimBooking | VatsimBookingAtc) 
     const start = new Date(booking.start);
     const end = new Date(booking.end);
 
-    booking.start_local = formatDate(start, isToday(start));
-    booking.end_local = formatDate(end, isToday(end));
+    booking.start_local = makeLocalTime(start);
+    booking.end_local = makeLocalTime(end);
 
     return booking;
+}
+
+export function makeLocalTime(date: Date) {
+    return formatDate(date, isToday(date));
 }
 
 function formatDate(date: Date, isToday: boolean): string {

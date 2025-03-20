@@ -537,7 +537,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if (store.mapSettings.visibility?.bookings ?? true) {
+    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
