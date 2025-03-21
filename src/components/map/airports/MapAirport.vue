@@ -266,7 +266,9 @@ const localsFacilities = computed(() => {
         let facility = facilitiesMap.get(facilityId);
 
         if (!facility) {
-            const booking = props.bookings.find(x => x.atc.facility === facilityId);
+            const booking = props.bookings.find(x => facilityId === (x.atc.isATIS ? -1 : x.atc.facility));
+
+            local.booking = booking;
 
             facility = createFacility(facilityId, booking);
             facilitiesMap.set(facilityId, facility);
