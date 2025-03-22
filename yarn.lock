@@ -5,6 +5,22 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"7zip-bin@npm:5.1.1":
+  version: 5.1.1
+  resolution: "7zip-bin@npm:5.1.1"
+  checksum: 10c0/528db0d93d8a1de62e12624570f49c733e707606602a48be211b2186b6453903b61c659bcc919bfbb021029157af06f43d5017b628fff2a1e66d0190b26eea0e
+  languageName: node
+  linkType: hard
+
+"7zip-min@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "7zip-min@npm:2.0.0"
+  dependencies:
+    7zip-bin: "npm:5.1.1"
+  checksum: 10c0/e65ec8955240651fa0b4730df469112f1554a431bd947732140a11ea408a9cc63246a339c1e426ec7cf7a99def04e27728c11ae46b13f36d5f8c73f6c9253741
+  languageName: node
+  linkType: hard
+
 "@ampproject/remapping@npm:^2.2.0":
   version: 2.3.0
   resolution: "@ampproject/remapping@npm:2.3.0"
@@ -10426,6 +10442,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nuxt-workers@npm:0.1.0":
+  version: 0.1.0
+  resolution: "nuxt-workers@npm:0.1.0"
+  dependencies:
+    "@nuxt/kit": "npm:^3.15.4"
+    magic-string: "npm:^0.30.17"
+    mlly: "npm:^1.7.4"
+    pathe: "npm:^2.0.3"
+    ufo: "npm:^1.5.4"
+    unplugin: "npm:^2.2.0"
+  checksum: 10c0/6b0b6582e658484a61767c6ea05fda362f1314c92be7ebf1e003f17c033292ecb0f75ef3b3a5b9a1601c9dbacac2ecc479927e0c6cd2de30fbb8890829b8e9a8
+  languageName: node
+  linkType: hard
+
 "nuxt@npm:3.16.0":
   version: 3.16.0
   resolution: "nuxt@npm:3.16.0"
@@ -14583,6 +14613,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vatsim-radar@workspace:."
   dependencies:
+    7zip-min: "npm:^2.0.0"
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
@@ -14630,6 +14661,7 @@ __metadata:
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:3.16.0"
+    nuxt-workers: "npm:0.1.0"
     ol: "npm:^10.4.0"
     ol-mapbox-style: "npm:^12.5.0"
     pinia: "npm:^3.0.1"

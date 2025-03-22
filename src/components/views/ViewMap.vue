@@ -48,6 +48,7 @@
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-airports-list v-if="!store.config.hideAirports"/>
+                    <navigraph-layers v-if="dataStore.navigraph.data"/>
                     <map-weather v-if="!store.config.hideHeader"/>
                     <a
                         v-if="store.config.showCornerLogo"
@@ -174,6 +175,7 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, transformExtent } from 'ol/proj';
+import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 
 defineProps({
     sigmetsMode: {

@@ -8,7 +8,7 @@ import type {
     PatreonPledgesUser,
 } from '~/types/data/patreon';
 import { radarStorage } from '~/utils/backend/storage';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { initNavigraph } from '~/utils/backend/navigraph/db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
 import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
