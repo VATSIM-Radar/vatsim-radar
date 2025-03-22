@@ -151,8 +151,6 @@ jobs:
         with:
           node-version: 22
           cache: yarn
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
       - name: Install dependencies
         run: yarn
       - name: Build with VitePress
