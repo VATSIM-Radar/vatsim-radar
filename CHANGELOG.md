@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.0-rc.2]
+
+- (QA) You can now separately disable airmets
+- Favorite count in a single list was increased to 200 from 50
+- Fixed favorite add if it was exceeding max count
+
 # [1.1.0-rc.1]
 
 ## Bookings
