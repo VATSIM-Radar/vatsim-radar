@@ -141,7 +141,6 @@ import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
-import { fromLonLat } from 'ol/proj';
 import { createCircle } from '~/utils';
 import { makeBookingLocalTime } from '~/composables/bookings';
 
@@ -267,7 +266,9 @@ const localsFacilities = computed(() => {
         let facility = facilitiesMap.get(facilityId);
 
         if (!facility) {
-            const booking = props.bookings.find(x => x.atc.facility === facilityId);
+            const booking = props.bookings.find(x => facilityId === (x.atc.isATIS ? -1 : x.atc.facility));
+
+            local.booking = booking;
 
             facility = createFacility(facilityId, booking);
             facilitiesMap.set(facilityId, facility);
@@ -547,7 +548,7 @@ onMounted(async () => {
                     const topCoord = [extent![0], extent![3]];
                     let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
                     if (feature.getProperties().label_lat) {
-                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                        textCoord = geometry?.getClosestPoint([feature.getProperties().label_lon, feature.getProperties().label_lat]);
                     }
 
                     const labelFeature = new Feature({

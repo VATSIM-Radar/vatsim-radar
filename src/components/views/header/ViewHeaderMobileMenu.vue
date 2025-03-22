@@ -76,6 +76,15 @@
                     </template>
                 </common-button>
                 <common-button
+                    href="https://docs.vatsim-radar.com"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <question-icon/>
+                    </template>
+                </common-button>
+                <common-button
                     href="/discord"
                     target="_blank"
                     type="secondary"
@@ -123,6 +132,7 @@ import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import { useStore } from '~/store';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
 const model = defineModel({ type: Boolean, required: true });
 

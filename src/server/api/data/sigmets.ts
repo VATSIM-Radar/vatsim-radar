@@ -163,7 +163,7 @@ export default defineEventHandler(async event => {
                 timeFrom: properties.issueTime,
                 timeTo: properties.validTime,
                 raw: properties.dueTo,
-                dataType: 'airmet',
+                dataType: 'gairmet',
                 base: (typeof base === 'number' && !isNaN(base)) ? base : basePropety,
                 top: (typeof top === 'number' && !isNaN(top)) ? top : properties.top,
             },

@@ -538,7 +538,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if (store.mapSettings.visibility?.bookings ?? true) {
+    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
@@ -591,12 +591,13 @@ const getAirportsList = computed(() => {
     }
 
     function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
-        const existingLocal = airport.localAtc.find(x => x.facility === booking.atc.facility);
+        const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
 
         if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
             if (existingLocal) {
-                airport.localAtc = airport.localAtc.filter(x => x.cid !== existingLocal.cid);
+                airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
             }
+
             booking.atc.booking = booking;
             airport.bookings.push(booking);
             airport.localAtc.push(booking.atc);

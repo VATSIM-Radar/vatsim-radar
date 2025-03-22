@@ -113,7 +113,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
                 {
                     text: 'About Us',
-                    path: '/about',
+                    path: 'https://docs.vatsim-radar.com',
                 },
                 {
                     text: 'Install App',

@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="!notamCookie"
+        v-if="false && !notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
@@ -173,6 +173,16 @@
                     </template>
                 </common-button>
                 <common-button
+                    href="https://docs.vatsim-radar.com"
+                    size="S"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <question-icon/>
+                    </template>
+                </common-button>
+                <common-button
                     href="/discord"
                     size="S"
                     target="_blank"
@@ -234,6 +244,7 @@ import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import SearchIcon from 'assets/icons/kit/search.svg?component';
