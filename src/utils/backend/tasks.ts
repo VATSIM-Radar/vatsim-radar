@@ -204,6 +204,11 @@ async function updateData() {
     radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
     radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
     radarStorage.airlines = (await getRedisData('data-airlines')) ?? radarStorage.airlines;
+    radarStorage.vatsimStatic.divisions = (await getRedisData('data-divisions')) ?? radarStorage.vatsimStatic.divisions;
+    radarStorage.vatsimStatic.subDivisions = (await getRedisData('data-subdivisions')) ?? radarStorage.vatsimStatic.subDivisions;
+    radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
+    radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
+    radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
 }
 
 export async function setupRedisDataFetch() {
