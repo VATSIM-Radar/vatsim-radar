@@ -139,7 +139,53 @@ jobs:
           clusterName: main
       - name: Deploy Ingress
         run: kubectl apply -f .config/k8s/ingress.yml
-
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Install dependencies
+        run: yarn
+      - name: Build with VitePress
+        run: yarn docs:build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+  deploy-docs:
+    needs:
+      - build-docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy docs
+    environment:
+      name: docs
+      url: https://docs.vatsim-radar.com
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      # Run your project's build step
+      # - name: Build
+      #   run: npm install && npm run build
+      - name: Publish
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: vr-docs
+          directory: docs/.vitepress/dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   github-release:
     name: Release tag to Github

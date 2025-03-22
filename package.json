@@ -17,7 +17,10 @@
     "stylelint:fix": "stylelint --fix ./src/**/*{.css,scss,.vue}",
     "lint:fix": "yarn stylelint:fix && yarn lint:ts:fix",
     "lint": "yarn stylelint && yarn lint:ts",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.35.0",
@@ -62,6 +65,7 @@
     "ua-parser-js": "2.0.3",
     "vite-plugin-pwa": "^0.21.2",
     "vite-svg-loader": "^5.1.0",
+    "vitepress": "^1.6.3",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0",
     "vuedraggable": "^4.1.0",
