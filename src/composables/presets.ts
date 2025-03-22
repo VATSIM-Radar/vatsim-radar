@@ -73,6 +73,7 @@ const dashboardPreset: SiteConfig = {
     hideOverlays: true,
     onlyAirportAircraft: true,
     showInfoForPrimaryAirport: true,
+    hideBookings: true,
 };
 
 const myulllSmallPreset: SiteConfig = {

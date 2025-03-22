@@ -16,13 +16,13 @@
             There is no data to be displayed
         </div>
         <div
-            v-else-if="start > end"
+            v-else-if="start >= end"
             class="timeline-wrong"
         >
             Invalid date range: The start date should precede the end date
         </div>
         <div
-            v-if="start < end"
+            v-if="!timelineFaulty"
             class="header"
         >
             <div class="header-heads">
@@ -66,7 +66,10 @@
                 </div>
             </div>
         </div>
-        <div class="timeline-data">
+        <div
+            v-if="!timelineFaulty"
+            class="timeline-data"
+        >
             <!-- Identifiers -->
             <div class="id">
                 <div
@@ -360,6 +363,9 @@ const flattenedCollapsedEntries = computed(() => Array.from(collapsedEntries.val
 const showNow = computed(() => {
     return currentMinute.value > props.start && currentMinute.value < props.end;
 });
+
+const timelineFaulty = computed(() => getEntries.value.length === 0 ||
+    props.start > props.end);
 
 watch(() => ({
     start: props.start.getTime(),

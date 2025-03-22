@@ -23,6 +23,7 @@ export interface SiteConfig {
     hideOverlays?: boolean;
     hideHeader?: boolean;
     hideFooter?: boolean;
+    hideBookings?: boolean;
 
     theme?: ThemesList;
     allAircraftGreen?: boolean;

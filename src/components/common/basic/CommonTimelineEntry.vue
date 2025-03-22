@@ -1,37 +1,49 @@
 <template>
-    <div
-        class="entry"
-        :style="getEntryStyle(entry)"
-        @mouseover="hover = true"
+    <common-tooltip
+        class="entry-tooltip"
+        location='bottom'
+        :style="getBoxStyle()"
     >
-        <div class="entry-title">
-            <common-scroll-text>
-                <template #text>
-                    {{ entry.title }}
-                </template>
-            </common-scroll-text>
-
-        </div>
-        <div
-            v-if="entry.details"
-            class="timeline-entry-details"
-        />
-        <div
-            v-if="entry.color"
-            class="entry-colorbox"
-        >
+        <template #activator>
             <div
-                class="entry-colorbox-color"
-                :style="{ background: entry.color }"
-            />
+                class="entry"
+                :style="getEntryStyle()"
+            >
+                <div class="entry-title">
+                    <common-scroll-text>
+                        <template #text>
+                            {{ entry.title }}
+                        </template>
+                    </common-scroll-text>
+
+                </div>
+                <div
+                    v-if="entry.details"
+                    class="timeline-entry-details"
+                />
+                <div
+                    v-if="entry.color"
+                    class="entry-colorbox"
+                >
+                    <div
+                        class="entry-colorbox-color"
+                        :style="{ background: entry.color }"
+                    />
+                </div>
+            </div>
+        </template>
+        <div class="entry-tooltip-container">
+            {{ localStart }} - {{ localEnd }}
         </div>
-    </div>
+    </common-tooltip>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { TimelineEntry } from '~/types/data/timeline';
 import CommonScrollText from './CommonScrollText.vue';
+import CommonTooltip from './CommonTooltip.vue';
+import { makeLocalTime } from '~/composables/bookings';
 
 const props = defineProps({
     entry: {
@@ -64,14 +76,23 @@ const props = defineProps({
     },
 });
 
-const hover = ref(false);
+const localStart = computed(() => makeLocalTime(props.entry.start));
+const localEnd = computed(() => makeLocalTime(props.entry.end));
 
-function getEntryStyle(entry: TimelineEntry) {
+function getEntryStyle() {
+    const entry = props.entry;
     return {
         height: `${ props.rowHeight - props.gap }px`,
         width: `${ getEntryWidth(entry.start, entry.end) }px`,
+    };
+}
+
+function getBoxStyle() {
+    const entry = props.entry;
+    return {
         left: `${ getEntryLeft(entry.start) }px`,
         top: `${ getEntryTop(entry.id) }px`,
+        height: `${ props.rowHeight - props.gap }px`,
     };
 }
 
@@ -118,6 +139,14 @@ function getSumOffset(index: number): number {
 
     background: rgba(var(--primary300), 0.3);
     box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
+
+    &-tooltip {
+        position: absolute;
+
+        &-container {
+            width: max-content;
+        }
+    }
 
     &-title {
         display: flex;
