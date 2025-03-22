@@ -9,6 +9,7 @@
     "prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "node .output/server/index.mjs",
+    "postinstall": "yarn prepare",
     "recreateDb": "npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/migrations/0_init/migration.sql && rm -rf .config/db && docker compose down",
     "lint:ts": "eslint .",
     "lint:ts:fix": "eslint . --fix",
