@@ -14,7 +14,7 @@ export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},(
 
 export const MAX_MAP_PRESETS = 5;
 export const MAX_USER_LISTS = 5;
-export const MAX_LISTS_PILOTS = 200;
+export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 5;
 export const MAX_BOOKMARKS = 20;
 export const MAX_FILTER_ARRAY_VALUE = 30;

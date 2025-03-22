@@ -35,7 +35,7 @@
                 />
 
                 <common-radio-group
-                    :items="store.lists.map(x => ({ value: x.id, text: x.name, key: x.id.toString() }))"
+                    :items="store.lists.filter(x => x.users.length < MAX_LISTS_USERS).map(x => ({ value: x.id, text: x.name, key: x.id.toString() }))"
                     :model-value="selectedList?.id ?? addedList?.id"
                     two-cols
                     @update:modelValue="selectedList = store.lists.find(x => x.id === $event) ?? null"
@@ -63,6 +63,7 @@ import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserListLive } from '~/utils/backend/handlers/lists';
+import { MAX_LISTS_USERS } from '~/utils/shared';
 
 const props = defineProps({
     cid: {

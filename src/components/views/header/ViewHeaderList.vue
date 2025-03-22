@@ -3,103 +3,110 @@
         class="list __info-sections"
         :class="{ 'list--empty': !list.users.length && last }"
     >
-        <common-block-title
-            v-if="list.id !== -1"
-            class="list_settings-title"
-            :collapsed="activeListSettings !== list.id"
-            remove-margin
-            @update:collapsed="activeListSettings = !$event ? list.id : 0"
-        >
-            Settings
-        </common-block-title>
+        <div  :class="{ 'list_settings-container': list.id !== -1 }">
+            <common-block-title
+                v-if="list.id !== -1"
+                class="list_settings-title"
+                :collapsed="activeListSettings !== list.id"
+                remove-margin
+                @update:collapsed="activeListSettings = !$event ? list.id : 0"
+            >
+                Settings
+            </common-block-title>
 
-        <common-button-group>
-            <common-button @click="toImport = true">
-                Import
-            </common-button>
-            <common-button
-                v-if="list.users.length"
-                @click="exportList"
+            <div
+                v-if="list.id === -1 || activeListSettings === list.id"
+                class="__info-sections"
+                :class="{ 'list_settings': list.id !== -1 }"
             >
-                Export
-            </common-button>
-            <common-button
-                v-if="list.users.length"
-                @click="copyCids.copy(list.users.map(x => x.cid).join(','))"
-            >
-                <template v-if="copyCids.copyState.value">
-                    Copied!
-                </template>
-                <template v-else>
-                    Copy CIDs
-                </template>
-            </common-button>
-        </common-button-group>
-
-        <div
-            v-if="list.id === -1 || activeListSettings === list.id"
-            class="__info-sections"
-            :class="{ 'list_settings': list.id !== -1 }"
-        >
-            <common-input-text
-                :model-value="list.name"
-                @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
-                @update:modelValue="list.name = $event"
-            >
-                Name
-            </common-input-text>
-            <common-button-group v-if="list.id !== -1 && (list.type !== 'FRIENDS' || list.users.length)">
+                <common-button-group>
+                    <common-button @click="toImport = true">
+                        Import
+                    </common-button>
+                    <common-button
+                        v-if="list.users.length"
+                        @click="exportList"
+                    >
+                        Export
+                    </common-button>
+                    <common-button
+                        v-if="list.users.length"
+                        @click="copyCids.copy(list.users.map(x => x.cid).join(','))"
+                    >
+                        <template v-if="copyCids.copyState.value">
+                            Copied!
+                        </template>
+                        <template v-else>
+                            Copy CIDs
+                        </template>
+                    </common-button>
+                </common-button-group>
                 <common-button
-                    :disabled="list.type === 'FRIENDS'"
-                    @click="toDelete = true"
+                    v-if="list.users.length < MAX_LISTS_USERS"
+                    size="S"
+                    :type="userAddActive ? 'primary' : 'secondary'"
+                    @click="userAddActive = !userAddActive"
                 >
-                    Delete
+                    Add via CID
                 </common-button>
+                <common-notification
+                    v-else
+                    type="error"
+                >
+                    Max count of {{ MAX_LISTS_USERS }} is reached
+                </common-notification>
+                <common-input-text
+                    :model-value="list.name"
+                    @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
+                    @update:modelValue="list.name = $event"
+                >
+                    Name
+                </common-input-text>
+                <common-button-group v-if="list.id !== -1 && (list.type !== 'FRIENDS' || list.users.length)">
+                    <common-button
+                        :disabled="list.type === 'FRIENDS'"
+                        @click="toDelete = true"
+                    >
+                        Delete
+                    </common-button>
+                    <common-button
+                        :disabled="!list.users.length"
+                        @click="toClear = true"
+                    >
+                        Clear
+                    </common-button>
+                </common-button-group>
+
+                <common-notification v-if="duplicateName">
+                    A list with this name already exists
+                </common-notification>
+
+                <common-color
+                    color-only
+                    :model-value="{ color: list.color }"
+                    @update:modelValue="list.id === -1 ? list.color = $event.color as string : editUserList({ id: list.id, color: $event.color })"
+                >
+                    Color
+                </common-color>
+
+                <common-toggle
+                    :model-value="list.showInMenu"
+                    @update:modelValue="list.id === -1 ? list.showInMenu = $event : editUserList({ id: list.id, showInMenu: $event })"
+                >
+                    Show in menu
+                    <template #description>
+                        Shows online users from this list in menu
+                    </template>
+                </common-toggle>
+
                 <common-button
-                    :disabled="!list.users.length"
-                    @click="toClear = true"
+                    v-if="list.id === -1"
+                    :disabled="!list.name || duplicateName"
+                    @click="emit('add')"
                 >
-                    Clear
+                    Save
                 </common-button>
-            </common-button-group>
-
-            <common-notification v-if="duplicateName">
-                A list with this name already exists
-            </common-notification>
-
-            <common-color
-                color-only
-                :model-value="{ color: list.color }"
-                @update:modelValue="list.id === -1 ? list.color = $event.color as string : editUserList({ id: list.id, color: $event.color })"
-            >
-                Color
-            </common-color>
-
-            <common-toggle
-                :model-value="list.showInMenu"
-                @update:modelValue="list.id === -1 ? list.showInMenu = $event : editUserList({ id: list.id, showInMenu: $event })"
-            >
-                Show in menu
-                <template #description>
-                    Shows online users from this list in menu
-                </template>
-            </common-toggle>
-
-            <common-button
-                v-if="list.id === -1"
-                :disabled="!list.name || duplicateName"
-                @click="emit('add')"
-            >
-                Save
-            </common-button>
-
-            <common-button
-                size="S"
-                :type="userAddActive ? 'primary' : 'secondary'"
-                @click="userAddActive = !userAddActive"
-            >
-                Add via CID
-            </common-button>
+            </div>
         </div>
 
         <common-notification
@@ -234,6 +241,12 @@
                 >
                     Enter a list of comma-separated CIDs
                 </common-input-text>
+                <common-notification
+                    v-if="(importedList.length + list.users.length) > MAX_LISTS_USERS"
+                    type="error"
+                >
+                    Max count of {{ MAX_LISTS_USERS }} reached. Only {{ MAX_LISTS_USERS - list.users.length }} will be added.
+                </common-notification>
             </div>
             <template #actions>
                 <common-button
@@ -294,6 +307,7 @@ import { useFileDownload } from '~/composables/settings';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 import { XMLParser } from 'fast-xml-parser';
+import { MAX_LISTS_USERS } from '~/utils/shared';
 
 const props = defineProps({
     list: {
@@ -362,7 +376,7 @@ function exportList() {
 }
 
 async function importList() {
-    importedList.value = importedList.value.filter(x => !props.list.users.some(y => x.cid === y.cid));
+    importedList.value = importedList.value.filter(x => !props.list.users.some(y => x.cid === y.cid)).slice(0, MAX_LISTS_USERS - props.list.users.length);
 
     console.log(props.list.id);
 
@@ -430,12 +444,18 @@ watch(() => props.list, val => {
         padding-bottom: 220px;
     }
 
-    &_settings-title {
-        margin-left: 12px;
-    }
-
     &_settings {
         padding-left: 12px;
+
+        &-title {
+            margin-left: 12px;
+        }
+
+        &-container {
+            padding: 8px 4px;
+            border: 1px solid varToRgba('lightgray125', 0.15);
+            border-radius: 4px;
+        }
     }
 
     &__vatspy-list {
