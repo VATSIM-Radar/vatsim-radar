@@ -153,12 +153,9 @@ jobs:
         run: yarn
       - name: Build VP
         run: yarn docs:build
-      - name: Add Wrangler
-        run: yarn add wrangler
-
       - name: Deploy to Cloudflare Pages
         run: |
-          wrangler pages publish ./docs/.vitepress/dist \
+          npx wrangler pages publish ./docs/.vitepress/dist \
             --project-name=$PROJECT_NAME \
             --branch=next \
             --commit-hash=${{ github.sha }}
