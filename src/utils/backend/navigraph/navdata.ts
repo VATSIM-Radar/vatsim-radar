@@ -55,6 +55,9 @@ export interface NavigraphNavDataEnrouteWaypoint {
 export type NavigraphNavDataAirwayWaypoint = NavigraphNavDataWaypoint & {
     maxAlt: number;
     minAlt: number;
+    inbound: number;
+    outbound: number;
+    seqno: number;
 };
 
 export interface NavigraphNavDataAirway {
@@ -148,7 +151,8 @@ export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number]>;
-    airways: Record<string, [identifier: string, waypoints: [identifier: string, longitude: number, latitude: number][]]>;
+    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number][]]>;
+    parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number]>;
     approaches: NavDataProcedure<NavigraphNavDataApproach>;
     stars: NavDataProcedure<NavigraphNavDataStar>;
@@ -398,9 +402,11 @@ export async function processDatabase(db: sqlite3.Database) {
     shortData.airways = {};
 
     for (const airway of airways) {
-        const key = `${ airway.area_code }-${ airway.route_type }-${ airway.route_identifier }`;
+        const key = `${ airway.route_identifier }-${ airway.area_code }-${ airway.route_type }`;
         let objectAirway = fullData.airways[key];
         let shortAirway = shortData.airways[key];
+
+        if (Math.abs(objectAirway?.waypoints[objectAirway?.waypoints.length - 1].seqno - airway.seqno) > 20) continue;
 
         if (!objectAirway) {
             objectAirway = {
@@ -417,7 +423,7 @@ export async function processDatabase(db: sqlite3.Database) {
         }
 
         if (!shortAirway) {
-            shortAirway = [airway.route_identifier, []];
+            shortAirway = [airway.route_identifier, airway.route_type, []];
             shortData.airways[key] = shortAirway;
         }
 
@@ -427,8 +433,11 @@ export async function processDatabase(db: sqlite3.Database) {
             ref: airway.waypoint_ref_table,
             minAlt: airway.minimum_altitude1,
             maxAlt: airway.maximum_altitude,
+            inbound: airway.inbound_course,
+            outbound: airway.outbound_course,
+            seqno: airway.seqno,
         });
-        shortAirway[1].push([airway.waypoint_identifier, airway.waypoint_longitude, airway.waypoint_latitude]);
+        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude]);
     }
 
     // endregion airways

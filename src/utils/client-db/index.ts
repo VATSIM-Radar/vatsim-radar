@@ -31,11 +31,13 @@ export interface IDBAirlinesData {
     };
 }
 
+export type ClientNavigraphData = Omit<Required<NavigraphNavDataShort>, 'stars' | 'sids' | 'approaches'>;
+
 export interface IDBNavigraphData {
     key: 'navigraph';
     value: {
         version: string;
-        data: NavigraphNavDataShort;
+        data: ClientNavigraphData;
     };
 }
 

@@ -13,7 +13,7 @@ import type {
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import type { IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
+import type { ClientNavigraphData, IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
@@ -125,7 +125,7 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraph: {
         version: Ref<string | null>;
-        data: ShallowRef<Omit<NavigraphNavDataShort, 'stars' | 'sids' | 'approaches'> | null>;
+        data: ShallowRef<ClientNavigraphData | null>;
     };
 }
 
@@ -331,9 +331,19 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             (async function() {
                 let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
                 if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated']) {
+                    const fetchedData = await $fetch<NavigraphNavDataShort>('/api/data/navigraph/data');
+
+                    fetchedData.parsedAirways = {};
+
+                    for (const [airway, data] of Object.entries(fetchedData.airways)) {
+                        const identifier = data[0];
+                        if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
+                        fetchedData.parsedAirways[identifier][airway] = data;
+                    }
+
                     navigraph = {
                         version: dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated'] ?? '',
-                        data: await $fetch<NavigraphNavDataShort>('/api/data/navigraph/data'),
+                        data: fetchedData as ClientNavigraphData,
                     };
                     await clientDB.put('data', navigraph, 'navigraph');
                 }

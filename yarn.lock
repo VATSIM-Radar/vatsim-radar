@@ -10337,6 +10337,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nuxt-workers@npm:0.1.0":
+  version: 0.1.0
+  resolution: "nuxt-workers@npm:0.1.0"
+  dependencies:
+    "@nuxt/kit": "npm:^3.15.4"
+    magic-string: "npm:^0.30.17"
+    mlly: "npm:^1.7.4"
+    pathe: "npm:^2.0.3"
+    ufo: "npm:^1.5.4"
+    unplugin: "npm:^2.2.0"
+  checksum: 10c0/6b0b6582e658484a61767c6ea05fda362f1314c92be7ebf1e003f17c033292ecb0f75ef3b3a5b9a1601c9dbacac2ecc479927e0c6cd2de30fbb8890829b8e9a8
+  languageName: node
+  linkType: hard
+
 "nuxt@npm:3.16.0":
   version: 3.16.0
   resolution: "nuxt@npm:3.16.0"
@@ -14551,6 +14565,7 @@ __metadata:
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:3.16.0"
+    nuxt-workers: "npm:0.1.0"
     ol: "npm:^10.4.0"
     ol-mapbox-style: "npm:^12.5.0"
     pinia: "npm:^3.0.1"
