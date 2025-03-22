@@ -140,6 +140,33 @@ jobs:
       - name: Deploy Ingress
         run: kubectl apply -f .config/k8s/ingress.yml
 
+  deploy-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      - name: Install deps
+        run: yarn
+      - name: Build VP
+        run: yarn docs:build
+      - name: Add Wrangler
+        run: yarn add wrangler
+
+      - name: Deploy to Cloudflare Pages
+        run: |
+          wrangler pages publish ./docs/.vitepress/dist \
+            --project-name=$PROJECT_NAME \
+            --branch=next \
+            --commit-hash=${{ github.sha }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT_NAME: vr-docs
+
   github-release:
     name: Release tag to Github
     needs:
