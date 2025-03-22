@@ -142,6 +142,9 @@ jobs:
 
   deploy-docs:
     runs-on: ubuntu-latest
+    environment:
+      name: docs
+      url: https://docs.vatsim-radar.com
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -155,13 +158,11 @@ jobs:
         run: yarn docs:build
       - name: Deploy to Cloudflare Pages
         run: |
-          npx wrangler pages publish ./docs/.vitepress/dist \
-            --project-name=$PROJECT_NAME \
-            --branch=next \
-            --commit-hash=${{ github.sha }}
+          wrangler pages deploy ./docs/.vitepress/dist \
+            --project-name=$PROJECT_NAME
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           PROJECT_NAME: vr-docs
 
   github-release:
