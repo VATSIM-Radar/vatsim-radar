@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.1.0-rc.1]
+
+## Bookings
+
+- Fixed a bug where wrong date inputs would show weird bookings page
+- Showing popup of specific time of booking in bookings page
+- Removed bookings from airport view
+
 # [1.1.0-beta.3]
 
 - Renamed ATIS to ATC Information in ATC Overlay
