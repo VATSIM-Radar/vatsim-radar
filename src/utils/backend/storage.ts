@@ -12,7 +12,6 @@ import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
-import { getRedisData } from '~/utils/backend/redis';
 import type { PatreonInfo } from '~/types/data/patreon';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
