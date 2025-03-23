@@ -7,6 +7,7 @@
         <template #activator>
             <div
                 class="entry"
+                :class="store.theme === 'default' ? '' : 'entry-lightmode'"
                 :style="getEntryStyle()"
             >
                 <div class="entry-title">
@@ -44,6 +45,7 @@ import type { TimelineEntry } from '~/types/data/timeline';
 import CommonScrollText from './CommonScrollText.vue';
 import CommonTooltip from './CommonTooltip.vue';
 import { makeLocalTime } from '~/composables/bookings';
+import { useStore } from '~/store';
 
 const props = defineProps({
     entry: {
@@ -75,6 +77,9 @@ const props = defineProps({
         required: true,
     },
 });
+
+
+const store = useStore();
 
 const localStart = computed(() => makeLocalTime(props.entry.start));
 const localEnd = computed(() => makeLocalTime(props.entry.end));
@@ -138,7 +143,11 @@ function getSumOffset(index: number): number {
     font-size: 14px;
 
     background: rgba(var(--primary300), 0.3);
-    box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
+    box-shadow: 0 3px 4px rgba(0,0,0, 0.3);
+
+    &-lightmode {
+        background: rgba(var(--primary300), 0.4);
+    }
 
     &-tooltip {
         position: absolute;
