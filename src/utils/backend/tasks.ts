@@ -25,8 +25,8 @@ import { processDatabase } from '~/utils/backend/navigraph/navdata';
 
 const redisSubscriber = getRedis();
 
-function basicTasks() {
-    defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
+async function basicTasks() {
+    await defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
     defineCronJob('15 * * * *', updateSimAware).catch(console.error);
     defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
@@ -188,14 +188,29 @@ function patreonTask() {
 }
 
 async function navigraphTask() {
-    const current = await processDatabase(navigraphCurrentDb!);
-    const outdated = await processDatabase(navigraphOutdatedDb!);
+    const data = (await getRedisData('navigraph-data'));
+
+    if (!data || data.versions.current !== radarStorage.navigraph.current) {
+        const current = await processDatabase(navigraphCurrentDb!);
+        const outdated = await processDatabase(navigraphOutdatedDb!);
+
+        radarStorage.navigraphData.versions = radarStorage.navigraph;
+
+        radarStorage.navigraphData.full.current = current.full;
+        radarStorage.navigraphData.short.current = current.short;
+
+        radarStorage.navigraphData.full.outdated = outdated.full;
+        radarStorage.navigraphData.short.outdated = outdated.short;
+
+        await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+    }
 }
 
 export async function initWholeBunchOfBackendTasks() {
     try {
         await basicTasks();
         await vatsimTasks();
+        await navigraphTask();
         patreonTask();
         backupTask();
         clearTask();
@@ -215,13 +230,14 @@ async function updateData() {
     radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
     radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
     radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
+    radarStorage.navigraphData = (await getRedisData('navigraph-data')) ?? radarStorage.navigraphData;
 }
 
 export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateData();
 
-        while (!radarStorage.vatspy.data) {
+        while (!radarStorage.navigraphData.full.current) {
             await sleep(1000 * 60);
             await updateData();
         }

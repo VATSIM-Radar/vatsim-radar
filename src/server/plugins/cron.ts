@@ -16,5 +16,4 @@ export default defineNitroPlugin(async app => {
     });
 
     await defineCronJob('15 */2 * * *', initNavigraph);
-    radarStorage.navigraphData.short.current = (await processDatabase(navigraphCurrentDb!)).short;
 });

@@ -12,7 +12,6 @@ import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph/db';
-import { getRedisData } from '~/utils/backend/redis';
 import type { PatreonInfo } from '~/types/data/patreon';
 import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
 
@@ -183,6 +182,7 @@ export interface RadarStorage {
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
     navigraphData: {
+        versions: typeof cycles;
         full: {
             current: NavigraphNavData | null;
             outdated: NavigraphNavData | null;
@@ -240,6 +240,10 @@ export const radarStorage: RadarStorage = {
         outdated: '',
     },
     navigraphData: {
+        versions: {
+            current: '',
+            outdated: '',
+        },
         full: {
             current: null,
             outdated: null,
