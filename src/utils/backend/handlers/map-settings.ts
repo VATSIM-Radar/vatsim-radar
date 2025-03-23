@@ -262,6 +262,14 @@ export interface IUserMapSettings {
         hideRunwayExit?: boolean;
         hideDeicing?: boolean;
     }>;
+    navigraphData: Partial<{
+        ndb: boolean;
+        airways: Partial<{
+            enabled: boolean;
+            showAirwaysLabel: boolean;
+            showWaypointsLabel: boolean;
+        }>;
+    }>;
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     tracks: {
