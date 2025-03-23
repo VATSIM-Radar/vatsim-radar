@@ -143,6 +143,8 @@ export interface NavigraphNavData {
     controlledAirspace: NavigraphNavDataControlledAirspace[];
 }
 
+export type NavigraphGetData<K extends keyof NavigraphNavData> = NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never;
+
 export type NavigraphNavItems = {
     [K in keyof NavigraphNavData]: NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never
 };

@@ -22,7 +22,7 @@ import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
-import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
+import type { NavigraphGetData, NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -432,4 +432,12 @@ export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | Vatsi
 
     if (type === 'atc') return getAtcStats(data as VatsimShortenedController, stats);
     return Math.floor(stats.pilot ?? 0);
+}
+
+export async function getNavigraphData<T extends keyof NavigraphNavData>({ data, key }: {
+    data: T;
+    key: string;
+}): Promise<NavigraphGetData<T>> {
+    const store = useStore();
+    return $fetch<NavigraphGetData<T>>(`/api/data/navigraph/item/${ store.user?.hasFms && store.user.hasCharts ? 'current' : 'outdated' }/${ data }/${ key }`);
 }

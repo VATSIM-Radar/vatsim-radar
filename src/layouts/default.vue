@@ -395,6 +395,12 @@ img {
         gap: 8px;
         align-items: stretch;
     }
+
+    &--flex {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
 }
 
 .__section-group {

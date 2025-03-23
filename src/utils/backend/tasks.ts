@@ -27,9 +27,9 @@ const redisSubscriber = getRedis();
 
 async function basicTasks() {
     await defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
-    defineCronJob('15 * * * *', updateSimAware).catch(console.error);
-    defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
-    defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
+    await defineCronJob('15 * * * *', updateSimAware).catch(console.error);
+    await defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
+    await defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
     redisSubscriber.subscribe('vatglassesActive');
     redisSubscriber.on('message', (_, message) => {
@@ -37,7 +37,7 @@ async function basicTasks() {
     });
 }
 
-function vatsimTasks() {
+async function vatsimTasks() {
     async function fetchDivisions() {
         const [divisions, subdivisions] = await Promise.all([
             $fetch<VatsimDivision[]>('https://api.vatsim.net/api/divisions/', {
@@ -56,7 +56,7 @@ function vatsimTasks() {
         setRedisData('data-subdivisions', subdivisions, 1000 * 60 * 60 * 24);
     }
 
-    defineCronJob('30 * * * *', async () => {
+    await defineCronJob('30 * * * *', async () => {
         const myData = await $fetch<{
             data: VatsimEvent[];
         }>('https://my.vatsim.net/api/v2/events/latest', {
@@ -67,11 +67,11 @@ function vatsimTasks() {
         setRedisData('data-events', myData.data.filter(e => new Date(e.start_time) < inFourWeeks), 1000 * 60 * 60);
     }).catch(console.error);
 
-    defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
-    defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
-    defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
-    defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
-    defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
+    await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
+    await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
+    await defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
+    await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
+    await defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
 }
 
 let s3: S3 | undefined;
@@ -142,14 +142,14 @@ function clearTask() {
     }).catch(console.error);
 }
 
-function patreonTask() {
+async function patreonTask() {
     const pFetch = $fetch.create({
         headers: {
             Authorization: `Bearer ${ process.env.PATREON_ACCESS_TOKEN }`,
         },
     });
 
-    defineCronJob('15 * * * *', async () => {
+    await defineCronJob('15 * * * *', async () => {
         const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns');
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
@@ -210,8 +210,8 @@ export async function initWholeBunchOfBackendTasks() {
     try {
         await basicTasks();
         await vatsimTasks();
+        await patreonTask();
         await navigraphTask();
-        patreonTask();
         backupTask();
         clearTask();
     }

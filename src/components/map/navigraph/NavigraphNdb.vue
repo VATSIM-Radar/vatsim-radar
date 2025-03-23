@@ -26,15 +26,17 @@ watch(isEnabled, val => {
     }
     else {
         features = [
-            ...Object.values(dataStore.navigraph.data.value!.vhf).map(([name, code, frequency, longitude, latitude]) => new Feature({
+            ...Object.entries(dataStore.navigraph.data.value!.vhf).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
                 geometry: new Point([longitude, latitude]),
+                key,
                 name,
                 code,
                 frequency,
                 type: 'vhf',
             })),
-            ...Object.values(dataStore.navigraph.data.value!.ndb).map(([name, code, frequency, longitude, latitude]) => new Feature({
+            ...Object.entries(dataStore.navigraph.data.value!.ndb).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
                 geometry: new Point([longitude, latitude]),
+                key,
                 name,
                 code,
                 frequency,
