@@ -12,8 +12,6 @@ import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph-db';
-import { getRedisData } from '~/utils/backend/redis';
-import type { RedisDataGet } from '~/utils/backend/redis';
 import type { PatreonInfo } from '~/types/data/patreon';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
@@ -175,14 +173,14 @@ export interface RadarStorage {
         activeData: string | null;
     };
     vatsimStatic: {
-        divisions: RedisDataGet<VatsimDivision[], []>;
-        subDivisions: RedisDataGet<VatsimSubDivision[], []>;
-        events: RedisDataGet<VatsimEvent[], []>;
-        bookings: RedisDataGet<VatsimBooking[], []>;
+        divisions: VatsimDivision[];
+        subDivisions: VatsimSubDivision[];
+        events: VatsimEvent[];
+        bookings: VatsimBooking[];
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
-    patreonInfo: RedisDataGet<PatreonInfo>;
+    patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
 }
@@ -204,10 +202,10 @@ export const radarStorage: RadarStorage = {
         activeData: null,
     },
     vatsimStatic: {
-        divisions: () => getRedisData('data-divisions', []),
-        subDivisions: () => getRedisData('data-subdivisions', []),
-        events: () => getRedisData('data-events', []),
-        bookings: () => getRedisData('data-bookings', []),
+        divisions: [],
+        subDivisions: [],
+        events: [],
+        bookings: [],
     },
     vatsim: {
         data: null,
@@ -229,7 +227,7 @@ export const radarStorage: RadarStorage = {
         current: '',
         outdated: '',
     },
-    patreonInfo: () => getRedisData('data-patreon'),
+    patreonInfo: null,
     airlines: {
         airlines: {},
         virtual: {},

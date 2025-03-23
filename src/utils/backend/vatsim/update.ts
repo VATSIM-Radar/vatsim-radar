@@ -474,10 +474,10 @@ async function createCaches(): Promise<{
     const divisionCache: { [key: string]: VatsimDivision } = {};
     const subDivisionCache: { [key: string]: VatsimSubDivision } = {};
 
-    for (const division of (await radarStorage.vatsimStatic.divisions()).values().toArray()) {
+    for (const division of radarStorage.vatsimStatic.divisions.values().toArray()) {
         divisionCache[division.id] = division;
     }
-    for (const subdivision of (await radarStorage.vatsimStatic.subDivisions()).values().toArray()) {
+    for (const subdivision of radarStorage.vatsimStatic.subDivisions.values().toArray()) {
         subDivisionCache[subdivision.code] = subdivision;
     }
 

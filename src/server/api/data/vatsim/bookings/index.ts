@@ -2,7 +2,7 @@ import { radarStorage } from '~/utils/backend/storage';
 
 export default defineEventHandler(async event => {
     const query = getQuery(event);
-    const bookings = await radarStorage.vatsimStatic.bookings();
+    const bookings = radarStorage.vatsimStatic.bookings;
 
     if (query.starting && query.ending) {
         try {

@@ -22,7 +22,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
     const weatherOnly = getQuery(event).requestedDataType === '1';
     const controllersOnly = getQuery(event).requestedDataType === '2';
 
-    const bookings = (await radarStorage.vatsimStatic.bookings()).filter(b => b.atc.callsign.split('_')[0] === icao);
+    const bookings = radarStorage.vatsimStatic.bookings.filter(b => b.atc.callsign.split('_')[0] === icao);
 
     const data: VatsimAirportData = {
         center: [],

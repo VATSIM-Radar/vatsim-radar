@@ -14,6 +14,12 @@
         >
             {{ button.text }}
         </div>
+        <common-toggle
+            :model-value="store.localSettings?.filters?.layers?.sigmets?.showAirmets !== false"
+            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { showAirmets: $event } } } })"
+        >
+            AIRMETs
+        </common-toggle>
     </div>
 </template>
 
@@ -21,6 +27,7 @@
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { SigmetType } from '~/types/map';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 

@@ -1,5 +1,20 @@
 # Changelog
 
+# [1.1.0-rc.2]
+
+- (QA) You can now separately disable airmets
+- Favorite count in a single list was increased to 200 from 50
+- Fixed favorite add if it was exceeding max count
+- Updated default map layer data
+
+# [1.1.0-rc.1]
+
+## Bookings
+
+- Fixed a bug where wrong date inputs would show weird bookings page
+- Showing popup of specific time of booking in bookings page
+- Removed bookings from airport view
+
 # [1.1.0-beta.3]
 
 - Renamed ATIS to ATC Information in ATC Overlay

@@ -72,6 +72,8 @@ interface IUserLocalSettings {
                 enabled?: boolean;
                 activeDate?: string;
                 disabled?: SigmetType[];
+                showAirmets?: boolean;
+                showGAirmets?: boolean;
             };
             transparencySettings?: UserLayersTransparencySettings;
         };
