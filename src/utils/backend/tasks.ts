@@ -8,7 +8,7 @@ import type {
     PatreonPledgesUser,
 } from '~/types/data/patreon';
 import { radarStorage } from '~/utils/backend/storage';
-import { initNavigraph } from '~/utils/backend/navigraph/db';
+import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
 import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { prisma } from '~/utils/backend/prisma';
 import { sleep } from '~/utils';
+import { processDatabase } from '~/utils/backend/navigraph/navdata';
 
 const redisSubscriber = getRedis();
 
@@ -186,9 +187,14 @@ function patreonTask() {
     }).catch(() => {});
 }
 
+async function navigraphTask() {
+    const current = await processDatabase(navigraphCurrentDb!);
+    const outdated = await processDatabase(navigraphOutdatedDb!);
+}
+
 export async function initWholeBunchOfBackendTasks() {
     try {
-        basicTasks();
+        await basicTasks();
         await vatsimTasks();
         patreonTask();
         backupTask();

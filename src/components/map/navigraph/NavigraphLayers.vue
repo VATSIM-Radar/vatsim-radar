@@ -1,5 +1,10 @@
 <template>
-    <div class="layers"/>
+    <div
+        v-if="navigraphSource"
+        class="layers"
+    >
+        <navigraph-ndb/>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -16,12 +21,12 @@ import { greatCircleGeometryToOL } from '~/utils';
 import { getSelectedColorFromSettings } from '~/composables/colors';
 import { useMapStore } from '~/store/map';
 import { toRadians } from 'ol/math';
+import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 
-let ndbSource: VectorSource | undefined;
-let ndbLayer: VectorImageLayer<any> | undefined;
+const navigraphSource = shallowRef<VectorSource | null>(null);
+let navigraphLayer: VectorImageLayer<any> | undefined;
 
-let airwaySource: VectorSource | undefined;
-let airwayLayer: VectorImageLayer<any> | undefined;
+provide('navigraph-source', navigraphSource);
 
 const ndbEnabled = ref(true);
 const mapStore = useMapStore();
@@ -44,83 +49,7 @@ const vordmeStyle = new Icon({
     opacity: 0.6,
 });
 
-function initNDB() {
-    if (ndbEnabled.value) {
-        if (!ndbLayer) {
-            ndbLayer = new VectorImageLayer<any>({
-                source: ndbSource = new VectorSource(),
-                zIndex: 7,
-                minZoom: 7,
-                declutter: true,
-                properties: {
-                    type: 'navigraph',
-                },
-                style: function(feature) {
-                    const properties = feature.getProperties();
-
-                    if (properties.isVHF) {
-                        return new Style({
-                            image: vordmeStyle,
-                            text: new Text({
-                                font: '8px Montserrat',
-                                text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.code }`,
-                                offsetX: 15,
-                                offsetY: 2,
-                                textAlign: 'left',
-                                justify: 'center',
-                                fill: new Fill({
-                                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
-                                }),
-                            }),
-                        });
-                    }
-
-                    return new Style({
-                        image: ndbStyle,
-                        text: new Text({
-                            font: '8px Montserrat',
-                            text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.code }`,
-                            offsetX: 15,
-                            offsetY: 2,
-                            textAlign: 'left',
-                            justify: 'center',
-                            fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
-                            }),
-                        }),
-                    });
-                },
-            });
-        }
-
-        ndbSource?.clear();
-
-        ndbSource?.addFeatures(Object.values(dataStore.navigraph.data.value!.vhf).map(([name, code, frequency, longitude, latitude]) => new Feature({
-            geometry: new Point([longitude, latitude]),
-            name,
-            code,
-            frequency,
-            isVHF: true,
-        })));
-
-        ndbSource?.addFeatures(Object.values(dataStore.navigraph.data.value!.ndb).map(([name, code, frequency, longitude, latitude]) => new Feature({
-            geometry: new Point([longitude, latitude]),
-            name,
-            code,
-            frequency,
-        })));
-
-        map.value?.addLayer(ndbLayer);
-    }
-    else {
-        if (ndbLayer) {
-            map.value?.removeLayer(ndbLayer);
-        }
-        ndbLayer?.dispose();
-    }
-}
-
-async function initAirways() {
+/* async function initAirways() {
     if (airwaysEnabled.value) {
         if (!airwayLayer) {
             airwayLayer = new VectorImageLayer<any>({
@@ -139,7 +68,7 @@ async function initAirways() {
                             image: new Circle({
                                 radius: 4,
                                 stroke: new Stroke({
-                                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+                                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
                                     width: 2,
                                 }),
                             }),
@@ -150,7 +79,7 @@ async function initAirways() {
                                 offsetY: 2,
                                 textAlign: 'left',
                                 justify: 'center',
-                                padding: [12, 12, 12, 12],
+                                padding: [6, 6, 6, 6],
                                 fill: new Fill({
                                     color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
                                 }),
@@ -160,7 +89,7 @@ async function initAirways() {
 
                     return new Style({
                         stroke: new Stroke({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
                             width: 1,
                         }),
                         text: new Text({
@@ -169,7 +98,7 @@ async function initAirways() {
                             placement: 'line',
                             keepUpright: true,
                             justify: 'center',
-                            padding: [12, 12, 12, 12],
+                            padding: [6, 6, 6, 6],
                             rotateWithView: false,
                             fill: new Fill({
                                 color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 1)`,
@@ -189,33 +118,39 @@ async function initAirways() {
         const entries = Object.entries(dataStore.navigraph.data.value!.airways);
         const len = entries.length;
 
-        for (let i = 0; i < len; i++) {
-            const entry = entries[i];
-            const [key, [identifier, type, waypoints]] = entry;
+        for (let i = 0; i < len; i += 100) {
+            for (let k = i; k < i + 100; k++) {
+                const entry = entries[k];
+                if (!entry) continue;
+                const [key, [identifier, type, waypoints]] = entry;
 
-            if (type === 'C') continue;
-            waypoints.forEach((waypoint, index) => {
-                const nextWaypoint = waypoints[index + 1];
+                if (type === 'C') continue;
+                waypoints.forEach((waypoint, index) => {
+                    const nextWaypoint = waypoints[index + 1];
 
-                features.push(new Feature({
-                    geometry: new Point([waypoint[3], waypoint[4]]),
-                    key,
-                    identifier,
-                    waypoint: waypoint[0],
-                    type: 'point',
-                }));
+                    features.push(new Feature({
+                        geometry: new Point([waypoint[3], waypoint[4]]),
+                        key,
+                        identifier,
+                        waypoint: waypoint[0],
+                        type: 'point',
+                    }));
 
-                if (!nextWaypoint) return;
+                    if (!nextWaypoint) return;
 
-                features.push(new Feature({
-                    geometry: greatCircleGeometryToOL(greatCircle([waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]])),
-                    // geometry: new LineString([[waypoint[1], waypoint[2]], [nextWaypoint[1], nextWaypoint[2]]]),
-                    key,
-                    identifier,
-                    inbound: waypoint[1],
-                    waypoint: waypoint[0],
-                }));
-            });
+                    features.push(new Feature({
+                        geometry: greatCircleGeometryToOL(greatCircle([waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]])),
+                        // geometry: new LineString([[waypoint[1], waypoint[2]], [nextWaypoint[1], nextWaypoint[2]]]),
+                        key,
+                        identifier,
+                        inbound: waypoint[1],
+                        outbound: waypoint[2],
+                        waypoint: waypoint[0],
+                    }));
+                });
+            }
+
+            await sleep(0);
         }
 
         console.timeLog('features add');
@@ -232,27 +167,74 @@ async function initAirways() {
         }
         airwayLayer?.dispose();
     }
-}
+}*/
 
 watch(map, val => {
     if (!val) return;
 
-    initNDB();
-    initAirways();
+    if (!navigraphLayer) {
+        navigraphSource.value = new VectorSource();
+
+        navigraphLayer = new VectorImageLayer<any>({
+            source: navigraphSource.value,
+            zIndex: 6,
+            minZoom: 6,
+            declutter: true,
+            properties: {
+                type: 'navigraph',
+            },
+            style: function(feature) {
+                const properties = feature.getProperties();
+
+                if (properties.type === 'vhf') {
+                    return new Style({
+                        image: vordmeStyle,
+                        zIndex: 6,
+                        text: new Text({
+                            font: '8px Montserrat',
+                            text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.code }`,
+                            offsetX: 15,
+                            offsetY: 2,
+                            textAlign: 'left',
+                            justify: 'center',
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                            }),
+                        }),
+                    });
+                }
+
+                if (properties.type === 'ndb') {
+                    return new Style({
+                        image: ndbStyle,
+                        zIndex: 6,
+                        text: new Text({
+                            font: '8px Montserrat',
+                            text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.code }`,
+                            offsetX: 15,
+                            offsetY: 2,
+                            textAlign: 'left',
+                            justify: 'center',
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                            }),
+                        }),
+                    });
+                }
+            },
+        });
+
+        map.value?.addLayer(navigraphLayer);
+    }
 }, {
     immediate: true,
 });
 
 onBeforeUnmount(() => {
-    if (ndbLayer) {
-        map.value?.removeLayer(ndbLayer);
+    if (navigraphLayer) {
+        map.value?.removeLayer(navigraphLayer);
     }
-    ndbLayer?.dispose();
-
-    if (airwayLayer) {
-        map.value?.removeLayer(airwayLayer);
-    }
-    airwayLayer?.dispose();
+    navigraphLayer?.dispose();
 });
 </script>
 
