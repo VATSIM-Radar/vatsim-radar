@@ -190,7 +190,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
         let activeGroupVatglassesPosition: string[] = [];
         if (vatglassesActiveController[countryGroupId]) activeGroupVatglassesPosition = Object.keys(vatglassesActiveController[countryGroupId]);
-        for (const [airspaceIndex, airspace] of countryGroup.airspace.entries()) {
+        for (const [airspaceIndex, airspace] of (Array.isArray(countryGroup.airspace) ? countryGroup.airspace : Object.values(countryGroup.airspace)).entries()) {
             let airspaceOwner: string [] = [];
             if (vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex]) {
                 airspaceOwner = vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex];

@@ -2,7 +2,7 @@ import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
 import { setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
-import type { VatglassesData } from '~/utils/backend/storage';
+import type { VatglassesAirspace, VatglassesData } from '~/utils/backend/storage';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
@@ -30,7 +30,6 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
     const zipEntries = zip.getEntries();
 
     const ignoredFiles = ['ulll'];
-
 
     zipEntries.forEach(entry => {
         if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
@@ -92,7 +91,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
     // Loop through all entries in the Map and convert coordinates
     combinedDataMap.forEach((countryGroup, key) => {
         try {
-            countryGroup.airspace.forEach(airspace => {
+            (Array.isArray(countryGroup.airspace) ? countryGroup.airspace : Object.values(countryGroup.airspace)).forEach((airspace: VatglassesAirspace) => {
                 airspace.sectors.forEach(sector => {
                     // @ts-expect-error: only temporary code
                     sector.points = sector.points.map(point => {
