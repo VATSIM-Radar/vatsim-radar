@@ -89,6 +89,7 @@ async function updateVatglassesActive() {
 
 
 let latestVatglassesDynamicResponse = '';
+let latestVatglassesData = '';
 export async function updateVatglassesDynamic() {
     try {
         const response = await $fetch<VatglassesDynamicData>('https://api3.vatglasses.uk/live/activeownership', {
@@ -96,13 +97,16 @@ export async function updateVatglassesDynamic() {
         });
 
         const responseText = JSON.stringify(response);
-        if (responseText === latestVatglassesDynamicResponse) return;
+        if (responseText === latestVatglassesDynamicResponse) {
+            redisPublisher.publish('vatglassesDynamic', latestVatglassesData);
+        }
         latestVatglassesDynamicResponse = responseText;
 
-        redisPublisher.publish('vatglassesDynamic', JSON.stringify({
+        latestVatglassesData = JSON.stringify({
             data: response,
             version: Date.now().toString(),
-        }));
+        });
+        redisPublisher.publish('vatglassesDynamic', latestVatglassesData);
     }
     catch (error) {
         console.error('Error in cron job:', error);
