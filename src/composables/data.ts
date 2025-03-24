@@ -38,7 +38,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
-const vatglassesDynamicData = shallowRef<VatglassesDynamicAPIData>();
+const vatglassesDynamicData = shallowRef<VatglassesDynamicAPIData>({ version: null, data: null });
 const vatglassesCombiningInProgress = ref(false);
 const time = ref(Date.now());
 const stats = shallowRef<{

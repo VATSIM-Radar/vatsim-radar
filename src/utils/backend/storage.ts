@@ -109,7 +109,7 @@ export interface VatglassesDynamicData {
     };
 }
 export interface VatglassesDynamicAPIData {
-    version: string;
+    version: string | null;
     data: VatglassesDynamicData | null;
 }
 
