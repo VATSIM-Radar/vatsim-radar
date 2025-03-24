@@ -94,6 +94,15 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
 
         return true;
     },
+    bookingHours: val => {
+        return isNumber(val, 1) && val > 0 && val < 5;
+    },
+    bookingOverride: val => {
+        return typeof val === 'boolean';
+    },
+    disableQueryUpdate: val => {
+        return typeof val === 'boolean';
+    },
     heatmapLayer: val => {
         return typeof val === 'boolean';
     },
@@ -184,7 +193,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     defaultAirportZoomLevel: val => {
-        return isNumber(val) && val > 0 && val < 50;
+        return isNumber(val, 1) && val > 0 && val < 50;
     },
 };
 
@@ -226,7 +235,11 @@ export interface IUserMapSettings {
         runways?: boolean;
         pilotsInfo?: boolean;
         atcInfo?: boolean;
+        bookings?: boolean;
     };
+    bookingHours: number;
+    bookingOverride?: boolean;
+    disableQueryUpdate?: boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;
@@ -315,6 +328,14 @@ export async function handleMapSettingsEvent(event: H3Event) {
                 userId: user.id,
                 type: UserPresetType.MAP_SETTINGS,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         });
 
         let settings: UserPreset | null = null;

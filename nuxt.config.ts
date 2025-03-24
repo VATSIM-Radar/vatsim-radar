@@ -45,13 +45,6 @@ export default defineNuxtConfig({
                 'ol',
             ],
     },
-    $development: {
-        vite: {
-            ssr: {
-                noExternal: ['chardet'],
-            },
-        },
-    },
     srcDir: 'src/',
     devtools: {
         enabled: false,
@@ -157,6 +150,9 @@ export default defineNuxtConfig({
             },
             '/vg': {
                 redirect: `${ process.env.DOMAIN }/?vg=1`,
+            },
+            '/about': {
+                redirect: `https://docs.vatsim-radar.com`,
             },
             '/layers/esri/**': {
                 proxy: 'https://ibasemaps-api.arcgis.com/**',

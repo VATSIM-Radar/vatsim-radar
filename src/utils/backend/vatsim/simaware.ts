@@ -1,11 +1,11 @@
 import { radarStorage } from '~/utils/backend/storage';
 import type { SimAwareData } from '~/utils/backend/storage';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 import { $fetch } from 'ofetch';
-import type { MultiPolygon, Polygon, Position } from 'geojson';
+import type { RedisData } from '~/utils/backend/redis';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
-    'Release v1.1.32': 1,
+    'Release v1.1.34': 1,
 };
 
 export async function updateSimAware() {
@@ -21,7 +21,7 @@ export async function updateSimAware() {
 
     if (revisions[data.name]) data.name += `-${ revisions[data.name] }`;
 
-    if (radarStorage.simaware.version === data.name) return;
+    if ((radarStorage.simaware)?.version === data.name) return;
 
     const url = data.assets?.find(x => x.name === 'TRACONBoundaries.geojson')?.browser_download_url;
     if (!url) throw new Error('SimAware asset not found');
@@ -34,13 +34,7 @@ export async function updateSimAware() {
             x = x.features[0];
         }
 
-        return {
-            ...x,
-            geometry: {
-                ...x.geometry,
-                coordinates: x.geometry.coordinates.map(x => x.map(x => Array.isArray(x[0]) ? x.map(x => fromServerLonLat(x as Position)) : fromServerLonLat(x as Position))),
-            } as MultiPolygon | Polygon,
-        };
+        return x;
     }).sort((a, b) => {
         if (a.properties!.suffix && !b.properties!.suffix) return -1;
         if (!a.properties!.suffix && b.properties!.suffix) return 1;
@@ -49,6 +43,7 @@ export async function updateSimAware() {
 
     radarStorage.simaware.version = data.name;
     radarStorage.simaware.data = geojson;
+    await setRedisData('data-simaware', radarStorage.simaware as RedisData['data-simaware'], 1000 * 60 * 60 * 24 * 2);
 
     console.info(`SimAware Update Complete (${ data.name })`);
 }

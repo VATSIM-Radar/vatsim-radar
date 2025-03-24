@@ -2,6 +2,7 @@ import type { PartialRecord } from '~/types/index';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate';
 import type { VatSpyAirport } from '~/types/data/vatspy';
+import type { Units } from 'ol/control/ScaleLine';
 
 export interface MapAirport {
     icao: string;
@@ -49,6 +50,8 @@ export interface SearchResults {
 
 export type SearchFilter = keyof SearchResults;
 
+export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC';
+
 interface IUserLocalSettings {
     location: Coordinate;
     zoom: number;
@@ -64,6 +67,14 @@ interface IUserLocalSettings {
             layer?: MapLayoutLayerWithOptions;
             layerLabels?: boolean;
             layerVector?: boolean;
+            relativeIndicator?: boolean | Units;
+            sigmets?: {
+                enabled?: boolean;
+                activeDate?: string;
+                disabled?: SigmetType[];
+                showAirmets?: boolean;
+                showGAirmets?: boolean;
+            };
             transparencySettings?: UserLayersTransparencySettings;
         };
         notamsSortBy?: NotamsSortBy;

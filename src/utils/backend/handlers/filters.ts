@@ -67,7 +67,9 @@ function validateCallsignFilter(val: unknown): boolean {
     return true;
 }
 
-const initValidators = (lists: UserTrackingList[] = []): Record<keyof IUserFilter, (val: unknown) => boolean> => {
+const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<keyof IUserFilter, (val: unknown) => boolean>> => {
+    const vatspy = radarStorage.vatspy;
+
     return {
         users: val => {
             if (!isObject(val)) return false;
@@ -98,15 +100,15 @@ const initValidators = (lists: UserTrackingList[] = []): Record<keyof IUserFilte
             if (!isObject(val)) return false;
             if (!validateRandomObjectKeys(val, ['departure', 'arrival', 'departurePrefix', 'arrivalPrefix', 'routes'])) return false;
 
-            if ('departure' in val && (!Array.isArray(val.departure) || val.departure.length > MAX_FILTER_ARRAY_VALUE || !val.departure.every(x => radarStorage.vatspy.data?.keyAirports.realIcao[x]))) return false;
-            if ('arrival' in val && (!Array.isArray(val.arrival) || val.arrival.length > MAX_FILTER_ARRAY_VALUE || !val.arrival.every(x => radarStorage.vatspy.data?.keyAirports.realIcao[x]))) return false;
+            if ('departure' in val && (!Array.isArray(val.departure) || val.departure.length > MAX_FILTER_ARRAY_VALUE || !val.departure.every(x => vatspy?.data?.keyAirports.realIcao[x]))) return false;
+            if ('arrival' in val && (!Array.isArray(val.arrival) || val.arrival.length > MAX_FILTER_ARRAY_VALUE || !val.arrival.every(x => vatspy?.data?.keyAirports.realIcao[x]))) return false;
             if ('departurePrefix' in val && (!Array.isArray(val.departurePrefix) || val.departurePrefix.length > MAX_FILTER_ARRAY_VALUE || !val.departurePrefix.every(x => typeof x === 'string' && x.length > 0 && x.length <= 30))) return false;
             if ('arrivalPrefix' in val && (!Array.isArray(val.arrivalPrefix) || val.arrivalPrefix.length > MAX_FILTER_ARRAY_VALUE || !val.arrivalPrefix.every(x => typeof x === 'string' && x.length > 0 && x.length <= 30))) return false;
             if ('routes' in val && (!Array.isArray(val.routes) || val.routes.length > MAX_FILTER_ARRAY_VALUE || !val.routes.every(x => {
                 if (typeof x !== 'string') return false;
 
                 const split = x.split('-');
-                return split.length === 2 && split.every(x => radarStorage.vatspy.data?.keyAirports.realIcao[x]);
+                return split.length === 2 && split.every(x => vatspy?.data?.keyAirports.realIcao[x]);
             }))) return false;
 
             return true;
@@ -227,6 +229,14 @@ export async function handleFiltersEvent(event: H3Event) {
             include: {
                 lists: true,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         })).map(x => {
             const json = x.json as UserFilter;
             if (json.users?.lists) {
@@ -287,7 +297,7 @@ export async function handleFiltersEvent(event: H3Event) {
             if (body.json) {
                 body.json = body.json as Record<string, any>;
 
-                const validators = initValidators(user.lists);
+                const validators = await initValidators(user.lists);
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserFilter, unknown][]) {
                     if (!(key in validators)) {

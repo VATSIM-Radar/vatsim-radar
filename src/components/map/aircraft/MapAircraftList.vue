@@ -22,7 +22,6 @@ import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { fromLonLat, toLonLat } from 'ol/proj';
 import { attachMoveEnd, collapsingWithOverlay, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
@@ -68,12 +67,6 @@ function receiveMessage(event: MessageEvent) {
             mapStore.addPilotOverlay(event.data.selectedPilot.toString());
         }
     }
-}
-
-function sendSelectedPilotToDashboard(cid: number | null = null) {
-    const message = { selectedPilot: cid };
-    const targetOrigin = config.public.DOMAIN;
-    window.parent.postMessage(message, targetOrigin);
 }
 
 function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
@@ -327,7 +320,7 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
 
 function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
-    const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+    const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
     let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
@@ -376,14 +369,14 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
     // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
     if (!hoveredAircraft.value && store.config.hideOverlays) {
-        const eventPixel = map.value!.getPixelFromCoordinate(fromLonLat(toLonLat(e.coordinate)));
+        const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
         const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
 
         if (features.length < 1) {
             if (store.config.hideOverlays) {
                 mapStore.overlays = mapStore.overlays.filter(x => x.type === 'airport');
             }
-            sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
+            mapStore.sendSelectedPilotToDashboard(null); // no aircraft is selected, so we send null to make sure the dashboard pilot overlay will be closed
             return;
         }
     }
@@ -394,13 +387,11 @@ async function handleClick(e: MapBrowserEvent<any>) {
     const existingOverlay = mapStore.overlays.find(x => x.key === hoveredAircraft.value?.toString());
     if (existingOverlay) {
         mapStore.overlays = mapStore.overlays.filter(x => x.type !== 'pilot' || x.key !== hoveredAircraft.value?.toString());
-        sendSelectedPilotToDashboard(null); // an aircraft is deselected, we close the dashboard pilot overlay (for simplicity we close the overlay even when the deselected aircraft is not the one that is currently opened)
+        mapStore.sendSelectedPilotToDashboard(null); // an aircraft is deselected, we close the dashboard pilot overlay (for simplicity we close the overlay even when the deselected aircraft is not the one that is currently opened)
         return;
     }
 
     if (hoveredAircraft.value) {
-        sendSelectedPilotToDashboard(hoveredAircraft.value); // we selected an aircraft, we want to open the overlay for that pilot in the airport dashboard
-
         // we are hovering over an aircraft and open the overlay
         const overlay = await mapStore.addPilotOverlay(hoveredAircraft.value.toString());
         if (overlay && store.config.showInfoForPrimaryAirport) {

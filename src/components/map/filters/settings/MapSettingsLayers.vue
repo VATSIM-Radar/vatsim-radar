@@ -9,6 +9,59 @@
             Reset to defaults
         </common-button>
         <common-block-title>
+            VATGlasses
+        </common-block-title>
+
+        <div class="__section-group __section-group--even">
+            <common-toggle
+                v-if="store.user"
+                :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
+            >
+                Auto-enable
+
+                <template #description>
+                    Enables when you have active flight
+                </template>
+            </common-toggle>
+            <common-toggle
+                :model-value="!!store.mapSettings.vatglasses?.active"
+                @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
+            >
+                Toggle Active
+            </common-toggle>
+            <div class="flex-container">
+                <common-toggle
+                    :disabled="!vatglassesActive"
+                    :model-value="store.mapSettings.vatglasses?.combined"
+                    @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
+                >
+                    Combined Mode
+
+                    <template #description>
+                        All sectors at once. Eats performance.
+                    </template>
+                </common-toggle>
+                <div
+                    v-if="dataStore.vatglassesCombiningInProgress.value"
+                    class="loading-spinner"
+                >
+                    <div class="spinner"/>
+                </div>
+            </div>
+            <common-toggle
+                v-if="vatglassesActive"
+                :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
+                @update:modelValue="setUserMapSettings({ vatglasses: { autoLevel: $event } })"
+            >
+                Auto-Set Level
+
+                <template #description>
+                    Based on your flight
+                </template>
+            </common-toggle>
+        </div>
+        <common-block-title>
             General
         </common-block-title>
         <map-filter-columns>
@@ -29,6 +82,16 @@
                 </common-toggle>
             </template>
         </map-filter-columns>
+        <common-toggle
+            :model-value="!!store.mapSettings.disableQueryUpdate"
+            @update:modelValue="setUserMapSettings({ disableQueryUpdate: $event })"
+        >
+            Disable query update
+
+            <template #description>
+                URL will stop updating with constant center-zoom change. Use this if you hate this feature, or simply need infinite browser history entries to stop appearing
+            </template>
+        </common-toggle>
         <common-notification
             cookie-name="settings-emergency"
             type="info"
@@ -59,52 +122,6 @@
                 width="100%"
                 @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
             />
-        </div>
-
-        <common-block-title>
-            VATGlasses
-        </common-block-title>
-
-        <div class="__section-group __section-group--even">
-            <common-toggle
-                v-if="store.user"
-                :model-value="store.mapSettings.vatglasses?.autoEnable !== false"
-                @update:modelValue="setUserMapSettings({ vatglasses: { autoEnable: $event } })"
-            >
-                Auto-enable
-
-                <template #description>
-                    Enables when you have active flight
-                </template>
-            </common-toggle>
-            <common-toggle
-                :model-value="!!store.mapSettings.vatglasses?.active"
-                @update:modelValue="setUserMapSettings({ vatglasses: { active: $event } })"
-            >
-                Toggle Active
-            </common-toggle>
-            <common-toggle
-                :disabled="!vatglassesActive"
-                :model-value="store.mapSettings.vatglasses?.combined"
-                @update:modelValue="setUserMapSettings({ vatglasses: { combined: $event } })"
-            >
-                Combined Mode
-
-                <template #description>
-                    All sectors at once. Eats performance.
-                </template>
-            </common-toggle>
-            <common-toggle
-                v-if="vatglassesActive"
-                :model-value="store.mapSettings.vatglasses?.autoLevel !== false"
-                @update:modelValue="setUserMapSettings({ vatglasses: { autoLevel: $event } })"
-            >
-                Auto-Set Level
-
-                <template #description>
-                    Based on your flight
-                </template>
-            </common-toggle>
         </div>
 
         <map-settings-vat-glasses-level/>
@@ -213,6 +230,7 @@ import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
+const dataStore = useDataStore();
 
 const resetActive = ref(false);
 const vatglassesActive = isVatGlassesActive();
@@ -284,3 +302,35 @@ const zoomOptions = (() => {
     return options;
 })();
 </script>
+
+<style scoped lang="scss">
+.flex-container {
+    display: flex;
+    align-items: center;
+}
+
+.loading-spinner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 5px;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    // border: 4px solid rgba(0, 0, 0, 0.1);
+    border: 4px solid $darkgray850;
+    // border-left-color: #000;
+    border-left-color: $lightgray200;
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>

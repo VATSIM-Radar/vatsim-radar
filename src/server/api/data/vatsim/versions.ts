@@ -1,11 +1,11 @@
 import { getDataVersions } from '~/utils/backend/storage';
 import { validateDataReady } from '~/utils/backend/h3';
 
-export default defineEventHandler(event => {
-    if (!validateDataReady(event)) return;
+export default defineEventHandler(async event => {
+    if (!await validateDataReady(event)) return;
 
     return {
-        ...getDataVersions().vatsim,
+        ...(await getDataVersions()).vatsim,
         time: Date.now(),
     };
 });

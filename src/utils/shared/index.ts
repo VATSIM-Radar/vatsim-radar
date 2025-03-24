@@ -14,7 +14,7 @@ export const hexColorRegex = /^((#([0-9A-Z]{3}|[0-9A-Z]{6}))|(rgb(a?)\(\d{1,3},(
 
 export const MAX_MAP_PRESETS = 5;
 export const MAX_USER_LISTS = 5;
-export const MAX_LISTS_PILOTS = 50;
+export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 5;
 export const MAX_BOOKMARKS = 20;
 export const MAX_FILTER_ARRAY_VALUE = 30;
@@ -115,4 +115,43 @@ export function getVAWebsite(remarks: string) {
         console.warn(`Failed to parse VA url from ${ remarks } (result: ${ website })`);
         return null;
     }
+}
+
+export function addLeadingZero(str: string | number) {
+    return `0${ str }`.slice(-2);
+}
+
+/**
+ * @see https://stackoverflow.com/questions/76174054/javascript-determine-memory-size-of-object-with-package-object-sizeof
+ */
+export function calculateObjectSize(obj: Record<string, any>) {
+    // Initialize a variable to store the total size
+    let totalSize = 0;
+    // Get the keys of the object
+    const keys = Object.keys(obj);
+    // Loop through each key
+    for (const key of keys) {
+        // Get the value of the key
+        const value = obj[key];
+        // Check the type of the value
+        if (typeof value === 'string') {
+            // If the value is a string, add its length to the total size
+            totalSize += value.length;
+        }
+        else if (typeof value === 'number') {
+            // If the value is a number, add 8 bytes to the total size
+            totalSize += 8;
+        }
+        else if (typeof value === 'boolean') {
+            // If the value is a boolean, add 4 bytes to the total size
+            totalSize += 4;
+        }
+        else if (typeof value === 'object' && value !== null) {
+            // If the value is an object and not null, recursively call the function and add the result to the total size
+            totalSize += calculateObjectSize(value);
+        }
+        // Ignore other types of values such as undefined, function, symbol, etc.
+    }
+    // Return the total size
+    return totalSize;
 }

@@ -28,8 +28,8 @@ export function handleH3Error({ error, event, statusCode = 500, data }: { error?
     }));
 }
 
-export function validateDataReady(event: H3Event) {
-    if (!isDataReady()) {
+export async function validateDataReady(event: H3Event) {
+    if (!await isDataReady()) {
         handleH3Error({
             event,
             statusCode: 423,

@@ -1,4 +1,9 @@
 import IORedis from 'ioredis';
+import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
+import type { cycles } from '~/utils/backend/navigraph-db';
+import type { PatreonInfo } from '~/types/data/patreon';
+import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData } from '~/utils/backend/storage';
+import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getRedis() {
     return new IORedis({
@@ -21,8 +26,44 @@ export function getRedisSync(key: string) {
     }));
 }
 
-export function setRedisSync(key: string, data: string, expiration: number) {
-    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expiration, (err, result) => {
+export type RedisDataGet<T extends Record<string, any> | any[], D extends T | null = null> = () => Promise<T | D>;
+
+export interface RedisData {
+    'data-vatspy': {
+        version: string;
+        data: VatSpyData;
+    };
+    'data-simaware': {
+        version: string;
+        data: SimAwareData;
+    };
+    'data-vatglasses': {
+        version: string;
+        data: VatglassesData;
+    };
+    'data-divisions': VatsimDivision[];
+    'data-subdivisions': VatsimSubDivision[];
+    'data-events': VatsimEvent[];
+    'data-navigraph': typeof cycles;
+    'data-patreon': PatreonInfo;
+    'data-bookings': VatsimBooking[];
+    'data-airlines': RadarDataAirlinesAllList;
+}
+
+export async function getRedisData<K extends keyof RedisData, D extends RedisData[K], T = RedisData[K]>(key: K, defaults: D): Promise<T | D>;
+export async function getRedisData<K extends keyof RedisData>(key: K): Promise<RedisData[K] | null>;
+export async function getRedisData<K extends keyof RedisData, D extends RedisData[K] | undefined = RedisData[K] | undefined>(key: K, defaults?: D): Promise<RedisData[K] | null> {
+    const data = await getRedisSync(key);
+    if (typeof data === 'string') return JSON.parse(data) as RedisData[K];
+    return defaults || data || null;
+}
+
+export function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
+    return setRedisSync(key, JSON.stringify(data), expireIn);
+}
+
+export function setRedisSync(key: string, data: string, expireIn: number) {
+    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expireIn, (err, result) => {
         if (err) return reject(err);
         resolve();
     }));

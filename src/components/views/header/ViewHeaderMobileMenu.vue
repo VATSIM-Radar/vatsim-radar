@@ -10,13 +10,13 @@
                     :key="button.text"
                 >
                     <common-button
-                        v-if="!button.children"
                         class="mobile-menu__menu_item"
+                        :class="{ 'mobile-menu__menu_item--active': openedMenu === button.text }"
                         :disabled="button.disabled"
                         text-align="left"
-                        :to="button.path"
+                        :to="button.children ? undefined : button.path"
                         :type="button.active ? 'primary' : 'secondary'"
-                        @click="[model = false, button.action?.()]"
+                        @click="((button.path || button.action) && !button.children) ? [model = false, button.action?.()] : openedMenu = openedMenu === button.text ? null : button.text"
                     >
                         <template
                             v-if="button.icon"
@@ -25,13 +25,26 @@
                             <component :is="button.icon"/>
                         </template>
 
-                        {{ button.text }}
+                        <div class="mobile-menu__menu_item_content">
+                            <div class="mobile-menu__menu_item_content_text">
+                                {{ button.text }}
+                            </div>
+                            <div
+                                v-if="button.children"
+                                class="mobile-menu__menu_item_content_arrow"
+                            >
+                                <arrow-top-icon/>
+                            </div>
+                        </div>
                     </common-button>
-                    <template v-else>
+                    <div
+                        v-if="openedMenu === button.text && button.children"
+                        class="mobile-menu__menu mobile-menu__menu--children"
+                    >
                         <common-button
                             v-for="childrenButton in button.children"
                             :key="childrenButton.text"
-                            class="mobile-menu__menu_item"
+                            class="mobile-menu__menu_item mobile-menu__menu_item--children"
                             :disabled="childrenButton.disabled"
                             text-align="left"
                             :to="childrenButton.path"
@@ -47,7 +60,7 @@
 
                             {{ childrenButton.text }}
                         </common-button>
-                    </template>
+                    </div>
                 </template>
             </div>
             <div class="__spacer"/>
@@ -60,6 +73,15 @@
                 >
                     <template #icon>
                         <github-icon/>
+                    </template>
+                </common-button>
+                <common-button
+                    href="https://docs.vatsim-radar.com"
+                    target="_blank"
+                    type="secondary"
+                >
+                    <template #icon>
+                        <question-icon/>
                     </template>
                 </common-button>
                 <common-button
@@ -109,6 +131,8 @@ import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import { useStore } from '~/store';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
 const model = defineModel({ type: Boolean, required: true });
 
@@ -116,6 +140,7 @@ const onlineCounters = useOnlineCounters();
 const store = useStore();
 const headerMenu = useHeaderMenu();
 const config = useRuntimeConfig();
+const openedMenu = ref<string | null>(headerMenu.value.find(x => !x.disabled && x.active)?.text ?? null);
 
 const counters = computed(() => ([
     ['Connections', onlineCounters.value.total],
@@ -204,6 +229,29 @@ const counters = computed(() => ([
         @include tablet {
             display: grid;
             grid-template-columns: repeat(2, calc(50% - 8px));
+        }
+
+        &--children {
+            margin-left: 16px;
+        }
+
+        &_item {
+            &_content {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+
+                &_arrow {
+                    transform: rotate(180deg);
+                    width: 12px;
+                    min-width: 12px;
+                    transition: 0.3s;
+                }
+            }
+
+            &--active .mobile-menu__menu_item_content_arrow {
+                transform: rotate(0deg);
+            }
         }
     }
 

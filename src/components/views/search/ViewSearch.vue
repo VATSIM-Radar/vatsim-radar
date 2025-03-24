@@ -281,7 +281,7 @@ function compareFlightWithSearch(search: string, data: SearchResults['flights'])
     const dataStore = useDataStore();
 
     return data.filter(x => {
-        const name = x.name.split(' ').filter(x => !dataStore.vatspy.value?.data.keyAirports.icao[x] && !dataStore.vatspy.value?.data.keyAirports.iata[x]).join(' ');
+        const name = x.name.split(' ').filter(x => !dataStore.vatspy.value?.data.keyAirports.realIcao[x] && !dataStore.vatspy.value?.data.keyAirports.realIata[x]).join(' ');
 
         return x.cid.toString().includes(search) || x.callsign.includes(search) || name.toUpperCase().includes(search) || x.aircraft_short?.includes(search) || x.aircraft_faa?.includes(search);
     });

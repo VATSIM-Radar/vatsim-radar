@@ -108,9 +108,8 @@
         </template>
         <template #flightplan>
             <map-popup-flight-plan
-                v-if="pilot.flight_plan"
                 class="pilot__content __info-sections"
-                :flight-plan="pilot.flight_plan"
+                :flight-plan="pilot.flight_plan ?? null"
                 :status="pilot.status ?? null"
                 :stepclimbs="pilot.stepclimbs"
             />
@@ -228,11 +227,11 @@ const airportInfo = computed(() => {
 const isOffline = ref(false);
 
 const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.departure);
+    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.departure ?? ''];
 });
 
 const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value.flight_plan?.arrival);
+    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.arrival ?? ''];
 });
 
 const showOnMap = () => {
@@ -295,13 +294,11 @@ const sections = computed<InfoPopupSection[]>(() => {
         },
     ];
 
-    if (pilot.value.flight_plan) {
-        sections.push({
-            key: 'flightplan',
-            title: 'Flight Plan',
-            collapsible: true,
-        });
-    }
+    sections.push({
+        key: 'flightplan',
+        title: 'Flight Plan',
+        collapsible: true,
+    });
 
     if (depRunways.value) {
         sections.push({
@@ -477,7 +474,7 @@ function handleMouseMove() {
     });
 }
 
-watch(dataStore.vatsim.updateTimestamp, handleMouseMove);
+watch(() => [pilot.value.longitude, pilot.value.latitude].join(','), handleMouseMove);
 watch(() => props.overlay.data.tracked, val => {
     handleMouseMove();
     if (val) {

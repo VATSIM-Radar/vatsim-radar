@@ -1,7 +1,6 @@
 import type { StoreOverlayAirport } from '~/store/map';
 import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
-import { toLonLat } from 'ol/proj';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type {
     MapAircraftKeys,
@@ -10,7 +9,7 @@ import type {
 /**
  * @note data must be reactive object or a computed
  */
-export function provideAirport(data: MaybeRef<StoreOverlayAirport['data']>) {
+export function provideAirport(data: MaybeRef<StoreOverlayAirport['data'] | undefined>) {
     provide('airport', data);
 }
 
@@ -93,7 +92,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao);
         if (!vatAirport) return null;
 
-        const airport = dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao);
+        const airport = getAirportByIcao(data.value.icao);
 
         const list = {
             groundDep: [] as AirportPopupPilotStatus[],
@@ -119,13 +118,13 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             let flown = 0;
             let eta: Date | null = null;
 
-            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.departure!);
-            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.arrival!);
+            const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
+            const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
 
             if (arrivalAirport) {
-                const pilotCoords = toLonLat([pilot.longitude, pilot.latitude]);
-                const depCoords = toLonLat([departureAirport?.lon ?? 0, departureAirport?.lat ?? 0]);
-                const arrCoords = toLonLat([arrivalAirport.lon, arrivalAirport.lat]);
+                const pilotCoords = [pilot.longitude, pilot.latitude];
+                const depCoords = [departureAirport?.lon ?? 0, departureAirport?.lat ?? 0];
+                const arrCoords = [arrivalAirport.lon, arrivalAirport.lat];
 
                 distance = calculateDistanceInNauticalMiles(pilotCoords, arrCoords);
                 flown = calculateDistanceInNauticalMiles(pilotCoords, depCoords);

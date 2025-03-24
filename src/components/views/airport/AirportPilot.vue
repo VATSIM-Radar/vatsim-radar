@@ -6,6 +6,10 @@
         <div class="pilot_header">
             <div class="pilot_header_title">
                 {{ pilot.callsign }}
+
+                <template v-if="isPrefile">
+                    {{ pilot.cid }}
+                </template>
             </div>
             <div
                 class="pilot_header_close"
@@ -34,7 +38,6 @@
                 />
             </div>
             <div
-                v-if="pilot.flight_plan"
                 class="pilot__section"
             >
                 <common-block-title

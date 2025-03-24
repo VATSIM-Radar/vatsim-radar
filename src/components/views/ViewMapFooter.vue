@@ -69,6 +69,12 @@
                             >
                                 Manage friends
                             </common-button>
+                            <common-toggle
+                                :model-value="!!store.localSettings.featuredDefaultBookmarks"
+                                @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
+                            >
+                                Default to bookmarks
+                            </common-toggle>
                         </div>
                     </template>
 
@@ -89,7 +95,7 @@
                             <span>{{ getCounts.pilots }}</span> pilots
                         </div>
                         <div class="map-footer__connections_info_item">
-                            <span>{{ getCounts.firs + getCounts.atc }}</span> atc
+                            <span>{{ getCounts.firs + getCounts.atc }}</span> ATC
                         </div>
                         <div
                             v-if="getCounts.sups"
@@ -131,6 +137,17 @@
                 class="map-footer_right_vg"
                 hide-if-disabled
             />
+
+            <div v-if="store.mapSettings.bookingOverride">
+                <common-button
+                    primary-color="error700"
+                    size="S"
+                    type="primary"
+                    @click="cancelBookingOverride"
+                >
+                    Cancel Booking Override
+                </common-button>
+            </div>
 
             <div
                 v-if="getCounts.lastUpdated"
@@ -224,12 +241,16 @@ import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
 
 const getCounts = useOnlineCounters();
 const curDate = ref(Date.now());
+
+const route = useRoute();
+const router = useRouter();
 
 const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
@@ -245,6 +266,13 @@ onMounted(() => {
         clearInterval(interval);
     });
 });
+
+function cancelBookingOverride() {
+    store.mapSettings.bookingOverride = false;
+    delete route.query.start;
+    delete route.query.end;
+    router.replace({ query: route.query });
+}
 </script>
 
 <style scoped lang="scss">

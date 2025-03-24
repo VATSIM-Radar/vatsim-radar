@@ -1,5 +1,86 @@
 # Changelog
 
+# [1.1.0-final]
+
+Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.
+
+## Highlights
+
+🌩️ SIGMETs / AIRMETs (US)
+📅 ATC Bookings
+📊 Live Stats
+📥 Friends Import
+📂 Presets Sorting
+✅ UI/UX Improvements and bug fixes
+
+### SIGMETs
+
+Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to show additional details.
+
+AIRMETs are also available for US. You can enable SIGMETs on map in Map Layers menu.
+
+This data was provided by [Aviation Weather Center](https://aviationweather.gov/).
+
+### Bookings (BETA)
+
+Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
+
+On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
+
+They are also displayed on map (TWR and below) 1 hour before they come online. 
+
+This feature should now be considered BETA - more improvements are coming later.
+
+### Live Stats
+
+With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as ATC/Pilots online.
+
+You can also sort by various columns, and filter map by some of the data you choose.
+
+## Features and Improvements
+
+- Favorite count in a single list was increased to 200 from 50
+- Updated default map layer data
+- Added Where2Fly integration into airports popup
+- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
+- Added diverting flight state by MindCollaps
+- New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)
+- Added model matching (C210 -> C206, E290 -> E295, E3TF -> E3CF, K35R -> K35E)
+- Added 10% opacity as possible for weather/layers opacity
+- Restored north reset icon for mobile
+- Removed duplicate runway identifier from thresholds
+- Added auto-selection of list to "Add to Favorites" popup if you only have one list
+- Added indication of no flight plan uploaded to pilot popup
+- Unknown airports ICAO will now be properly displayed in flight plan window
+- Applied small performance improvements on each map update
+- Based on severe community feedback, changed "atc" in the footer to "ATC"
+- Added "Z" suffix to time in events page if time is local
+- Added single event page SEO optimization
+- Airport names in destination card will now be limited by 2 lines
+- Added sorting support for all presets
+- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
+- VATGlasses has been moved to the top of general as more frequently used setting
+- Added relative scale indicator to map
+- Renamed ATIS to ATC Information in ATC Overlay
+- Added Map Setting that prevents VR to update center/zoom in address bar
+- Removed duplicate ATC from VATGlasses popup
+
+## Bug Fixes
+
+- Fixed favorite add if it was exceeding max count
+- Increased emergency color priority over enabled tracks
+- Fixed invisible region in popups list
+- Fixed airport default zoom change to floating number breaking whole map settings save
+- Fixed the way pilots without flight plans display in Favorite tab
+- Disabled zoom to CTR/FSS facilities
+- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
+- Fixed aircraft popup on mobile version of Airport Dashboard
+- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
+- Fixed an issue when local timezone was not displayed in VATSIM Events page
+- Fix delay when tracking aircraft
+- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
+- Fixed R44 icon size
+
 # [1.0.3-2]
 
 - Fixed an issue when you could not set more than one filter parameter at once. Very sorry about that
@@ -26,6 +107,7 @@
 - Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc) or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
+
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)
 - Improved VATGlasses stability for incorrect HEX colors

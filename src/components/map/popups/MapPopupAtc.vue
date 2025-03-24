@@ -96,7 +96,7 @@
                     class="atc__sections_section"
                     :text="getATIS(atc)?.join('\n')"
                 >
-                    ATIS
+                    ATC Information
                 </common-copy-info-block>
                 <div
                     v-else
@@ -135,13 +135,13 @@
         >
             <common-button-group>
                 <common-button
-                    :disabled="!airport || airport.isPseudo"
+                    :disabled="!airport || airport.isPseudo || atc.facility === facilities.CTR || atc.facility === facilities.FSS"
                     @click="showOnMap"
                 >
                     <template #icon>
                         <location-icon/>
                     </template>
-                    <template v-if="atc.facility !== facilities.APP">
+                    <template v-if="!airport || airport.isPseudo || atc.facility === facilities.CTR || atc.facility === facilities.FSS">
                         Focus On Map
                     </template>
                     <template v-else>
@@ -194,6 +194,7 @@ import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import { useStore } from '~/store';
+import type { VatSpyAirport } from '~/types/data/vatspy';
 
 const props = defineProps({
     overlay: {
@@ -220,15 +221,20 @@ const pilots = computed(() => {
     return dataStore.vatsim.data.pilots.value.filter(x => x.frequencies.some(x => atc.value?.frequency.startsWith(x))).sort((a, b) => a.callsign.localeCompare(b.callsign));
 });
 
-const airport = computed(() => {
-    if (!atc.value || atc.value.facility === facilities.CTR) return;
-    return findAtcAirport(atc.value);
+const airport = shallowRef<null | VatSpyAirport>(null);
+
+watch(() => props.overlay?.data.callsign, async val => {
+    if (atc.value) {
+        airport.value = await findAtcAirport(atc.value);
+    }
+}, {
+    immediate: true,
 });
 
 const country = computed(() => {
-    const icaoAirport = dataStore.vatspy.value?.data.airports.find(x => x.icao === airport.value?.icao && x.iata === airport.value?.iata);
+    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.realIcao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
 
-    return getAirportCountry(icaoAirport?.icao);
+    return icaoAirport ? getAirportCountry(airport.value?.icao) : undefined;
 });
 
 const shortRating = computed(() => {

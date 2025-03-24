@@ -60,8 +60,8 @@ export function filterRows(rows: InfluxFlight[]): InfluxFlight[] {
     return rows.filter((row, index) => {
         const nextRow = rows[index + 1];
 
-        const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival && (!row.altitude || row.altitude < 3000));
-        const isFplnChange = row?.fpl_arrival !== nextRow?.fpl_arrival;
+        const isNew = !row?.heading || !row.name || !row.qnh_mb || !row.transponder || !row.fpl_arrival || (!row.groundspeed && row.fpl_arrival);
+        const isFplnChange = row?.fpl_arrival !== nextRow?.fpl_arrival && row?.fpl_departure !== nextRow?.fpl_departure;
 
         if (isNew && !isFplnChange) return true;
 

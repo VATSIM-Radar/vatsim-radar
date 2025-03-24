@@ -215,7 +215,7 @@ const aircraftMode = ref<'departed' | 'ground' | 'arriving'>(props.mode);
 const aircraftGroundMode = ref<AircraftGroundMode>('depArr');
 const aircraftGroundFilterOpened = ref(false);
 
-const airport = computed(() => dataStore.vatspy.value?.data.airports.find(x => x.icao === data.value.icao));
+const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[data.value.icao ?? '']);
 
 const aircraft = getAircraftForAirport(data, computed(() => props.simpleMode));
 

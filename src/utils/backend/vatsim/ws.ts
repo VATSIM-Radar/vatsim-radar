@@ -2,41 +2,46 @@ import { WebSocketServer } from 'ws';
 import { createGzip } from 'node:zlib';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
-export const wss = new WebSocketServer({
-    port: 8880,
-    perMessageDeflate: false,
-});
+// @ts-expect-error Late-init
+export let wss: WebSocketServer = undefined;
 
-wss.on('connection', function connection(ws) {
-    ws.on('error', console.error);
-    ws.on('message', async msg => {
-        const data = (msg as Buffer).toString('utf-8');
+export function initWebsocket() {
+    wss = new WebSocketServer({
+        port: 8880,
+        perMessageDeflate: false,
+    });
 
-        if (data === 'alive') {
-            // @ts-expect-error non-standard type
-            ws.failCheck = 0;
-            return;
-        }
+    wss.on('connection', function connection(ws) {
+        ws.on('error', console.error);
+        ws.on('message', async msg => {
+            const data = (msg as Buffer).toString('utf-8');
 
-        if (!data.includes('"type"')) return;
-        const json = JSON.parse(data) as { type: 'turns'; cid: number };
+            if (data === 'alive') {
+                // @ts-expect-error non-standard type
+                ws.failCheck = 0;
+                return;
+            }
 
-        const gzip = createGzip();
-        gzip.write(JSON.stringify({
-            type: 'turns',
-            cid: json.cid,
-            data: await getInfluxOnlineFlightTurnsGeojson(json.cid.toString()),
-        }));
-        gzip.end();
+            if (!data.includes('"type"')) return;
+            const json = JSON.parse(data) as { type: 'turns'; cid: number };
 
-        const chunks: Buffer[] = [];
-        gzip.on('data', chunk => {
-            chunks.push(chunk);
-        });
+            const gzip = createGzip();
+            gzip.write(JSON.stringify({
+                type: 'turns',
+                cid: json.cid,
+                data: await getInfluxOnlineFlightTurnsGeojson(json.cid.toString()),
+            }));
+            gzip.end();
 
-        gzip.on('end', () => {
-            const compressedData = Buffer.concat(chunks);
-            ws.send(compressedData);
+            const chunks: Buffer[] = [];
+            gzip.on('data', chunk => {
+                chunks.push(chunk);
+            });
+
+            gzip.on('end', () => {
+                const compressedData = Buffer.concat(chunks);
+                ws.send(compressedData);
+            });
         });
     });
-});
+}

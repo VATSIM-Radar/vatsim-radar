@@ -49,6 +49,8 @@ const model = defineModel({
 
     min-height: 24px;
 
+    font-family: $defaultFont;
+
     transition: 0.3s;
 
     &--disabled {

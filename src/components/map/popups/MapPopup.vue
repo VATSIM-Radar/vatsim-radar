@@ -40,6 +40,7 @@ defineProps({
         type: String,
     },
 });
+
 const MapPopupPilot = defineAsyncComponent(() => import('./MapPopupPilot.vue'));
 const MapPopupPrefile = defineAsyncComponent(() => import('./MapPopupPrefile.vue'));
 const MapPopupAtc = defineAsyncComponent(() => import('./MapPopupAtc.vue'));
@@ -49,7 +50,8 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapPopupAirport.vue
 <style scoped lang="scss">
 .map-popup {
     position: relative;
-    height: var(--max-height);
+    display: flex;
+    max-height: var(--max-height) !important;
     transition: 0.5s ease-in-out;
 
     :deep(.pilot-header) {

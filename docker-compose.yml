@@ -3,6 +3,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
+        image: vr-1.1.0
         env_file:
             - ./.env
         container_name: vatsim-radar
@@ -30,6 +31,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
+        image: vr-1.1.0
         env_file:
             - ./.env
         container_name: vatsim-radar-worker
@@ -52,6 +54,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
+        image: vr-1.1.0
         env_file:
             - ./.env
         container_name: vatsim-radar-vg-worker
@@ -93,3 +96,4 @@ services:
             - REDIS_APPLICATION_MODE=master
         volumes:
             - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
+            - ./.config/redis:/data

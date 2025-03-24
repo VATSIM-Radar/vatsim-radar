@@ -72,6 +72,9 @@ export type VatsimPilotFlightPlan = Partial<{
     revision_id: number;
     assigned_transponder: string;
     locked?: boolean;
+    diverted?: boolean;
+    diverted_arrival?: string;
+    diverted_origin?: string;
 }>;
 
 export interface VatsimController {
@@ -86,6 +89,7 @@ export interface VatsimController {
     text_atis: string[] | null;
     last_updated: string;
     logon_time: string;
+    booking?: VatsimBookingAtc;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -124,6 +128,16 @@ export interface VatsimInfoLongName extends VatsimInfoDefault {
     long_name: string;
 }
 
+export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'subdivision' | 'callsign' | 'cid'> {
+    division?: VatsimDivision;
+    subdivision?: VatsimSubDivision;
+    atc: VatsimShortenedController;
+    start_local?: string;
+    end_local?: string;
+}
+
+export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;
+
 export interface VatsimData {
     general: VatsimGeneral;
     pilots: VatsimPilot[];
@@ -137,11 +151,22 @@ export interface VatsimData {
     military_ratings: VatsimInfoLongName[];
 }
 
+export interface VatsimBookingData {
+    id: number;
+    callsign: string;
+    cid: number;
+    type: 'booking' | 'event' | 'exam' | 'mentoring';
+    start: number;
+    end: number;
+    division: string;
+    subdivision: string;
+}
+
 export type VatsimShortenedData = {
     general: VatsimGeneral;
     pilots: Array<
-        Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated' | 'logon_time'> &
-        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>> &
+        Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated'> &
+        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'diverted' | 'diverted_arrival' | 'diverted_origin'>> &
         Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>> & {
             filteredColor?: UserMapSettingsColor;
             filteredOpacity?: number;

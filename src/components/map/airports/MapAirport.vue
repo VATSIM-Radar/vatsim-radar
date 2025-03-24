@@ -31,7 +31,7 @@
                         :key="local.facility"
                         class="airport_facilities_facility"
                         :class="{ 'airport_facilities_facility--hovered': hoveredFacility === local.facility }"
-                        :style="{ background: getControllerPositionColor(local.atc[0]) }"
+                        :style="{ background: local.booked ? radarColors.darkgray800 : getControllerPositionColor(local.atc[0]) }"
                         @click.stop="hoveredFacility = local.facility"
                         @mouseover="hoveredFacility = local.facility"
                     >
@@ -121,10 +121,9 @@ import type { PropType, ShallowRef } from 'vue';
 import type { MapAircraft } from '~/types/map';
 import { Feature } from 'ol';
 import type VectorSource from 'ol/source/Vector';
-import { Circle, Point } from 'ol/geom';
+import { Point } from 'ol/geom';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import { fromCircle } from 'ol/geom/Polygon';
-import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vatsim';
 import { sortControllersByPosition } from '~/composables/atc';
 import MapAirportCounts from '~/components/map/airports/MapAirportCounts.vue';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
@@ -138,11 +137,12 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
-import { fromLonLat } from 'ol/proj';
 import { getSelectedColorFromSettings } from '~/composables/colors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
+import { createCircle } from '~/utils';
+import { makeBookingLocalTime } from '~/composables/bookings';
 
 const props = defineProps({
     airport: {
@@ -162,6 +162,10 @@ const props = defineProps({
     },
     localAtc: {
         type: Array as PropType<VatsimShortenedController[]>,
+        required: true,
+    },
+    bookings: {
+        type: Array as PropType<VatsimBooking[]>,
         required: true,
     },
     arrAtc: {
@@ -248,24 +252,47 @@ const getAirportColor = computed(() => {
     return radarColors.warning700;
 });
 
-const localsFacilities = computed(() => {
-    const facilities: { facility: number; atc: VatsimShortenedController[] }[] = [];
+interface Facility {
+    facility: number;
+    booked: boolean;
+    atc: VatsimShortenedController[];
+}
 
-    for (const local of props.localAtc) {
-        const existingFacility = facilities.find(x => x.facility === (local.isATIS ? -1 : local.facility));
-        if (!existingFacility) {
-            facilities.push({
-                facility: local.isATIS ? -1 : local.facility,
-                atc: [local],
-            });
-            continue;
+const localsFacilities = computed(() => {
+    const facilitiesMap = new Map<number, Facility>();
+
+    props.localAtc.forEach(local => {
+        const facilityId = local.isATIS ? -1 : local.facility;
+        let facility = facilitiesMap.get(facilityId);
+
+        if (!facility) {
+            const booking = props.bookings.find(x => facilityId === (x.atc.isATIS ? -1 : x.atc.facility));
+
+            local.booking = booking;
+
+            facility = createFacility(facilityId, booking);
+            facilitiesMap.set(facilityId, facility);
         }
 
-        existingFacility.atc.push(local);
+        facility.atc.push(local);
+    });
+
+    return sortControllersByPosition(Array.from(facilitiesMap.values()));
+});
+
+function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
+    const facility: Facility = {
+        facility: facilityId,
+        booked: !!booking,
+        atc: [],
+    };
+
+    if (booking) {
+        makeBookingLocalTime(booking);
     }
 
-    return sortControllersByPosition(facilities);
-});
+    return facility;
+}
 
 let feature: Feature | null = null;
 let hoverFeature: Feature | null = null;
@@ -323,7 +350,10 @@ watch(getAirportColor, () => {
     }));
 });
 
-const geojson = new GeoJSON();
+const geojson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 watch(hoveredFeature, val => {
     if (!val?.traconFeature && hoverFeature) {
@@ -434,7 +464,7 @@ onMounted(async () => {
 
         if (!props.features.length && 'lon' in props.airport && !isPseudoAirport.value) {
             const borderFeature = new Feature({
-                geometry: fromCircle(new Circle([props.airport.lon, props.airport.lat], 80000), undefined, toRadians(-90)),
+                geometry: createCircle([props.airport.lon, props.airport.lat], 50000),
                 icao: props.airport.icao,
                 iata: props.airport.iata,
                 id: 'circle',
@@ -455,10 +485,12 @@ onMounted(async () => {
                 const geometry = feature.getGeometry();
                 const extent = feature.getGeometry()?.getExtent();
                 const topCoord = [extent![0], extent![3]];
-                let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
+                let textCoord: Coordinate | undefined;
                 if (feature.getProperties().label_lat) {
-                    textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                    textCoord = [feature.getProperties().label_lon, feature.getProperties().label_lat];
                 }
+
+                textCoord = geometry?.getClosestPoint(textCoord ?? topCoord) || topCoord;
 
                 const labelFeature = new Feature({
                     geometry: new Point(textCoord),
@@ -516,7 +548,7 @@ onMounted(async () => {
                     const topCoord = [extent![0], extent![3]];
                     let textCoord = geometry?.getClosestPoint(topCoord) || topCoord;
                     if (feature.getProperties().label_lat) {
-                        textCoord = fromLonLat([feature.getProperties().label_lon, feature.getProperties().label_lat]);
+                        textCoord = geometry?.getClosestPoint([feature.getProperties().label_lon, feature.getProperties().label_lat]);
                     }
 
                     const labelFeature = new Feature({
@@ -680,7 +712,7 @@ onMounted(async () => {
 
             const features = geojson.readFeatures(value, {
                 dataProjection: 'EPSG:4326',
-                featureProjection: 'EPSG:3857',
+                featureProjection: 'EPSG:4326',
             });
 
             for (const feature of features) {

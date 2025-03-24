@@ -36,10 +36,15 @@ spec:
           volumeMounts:
             - name: redis-config
               mountPath: /usr/local/etc/redis
+            - name: redis-data
+              mountPath: /data
       volumes:
         - name: redis-config
           configMap:
             name: redis-config
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: radar-redis
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -50,3 +55,15 @@ data:
     client-output-buffer-limit normal 836870912 836870912 0
     client-output-buffer-limit slave 836870912 836870912 0
     client-output-buffer-limit pubsub 836870912 836870912 0
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: radar-redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: do-block-storage

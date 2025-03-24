@@ -2,12 +2,14 @@ import PatreonIcon from 'assets/icons/basic/patreon.svg?component';
 import MapIcon from 'assets/icons/kit/map.svg?component';
 import DataIcon from 'assets/icons/kit/data.svg?component';
 import EventsIcon from 'assets/icons/kit/event.svg?component';
+import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
+import BookingsIcon from 'assets/icons/kit/bookings.svg?component';
 import PathIcon from 'assets/icons/kit/path.svg?component';
 import { useStore } from '~/store';
 
 export interface HeaderItem {
     text: string;
-    active: boolean;
+    active?: boolean;
     action?: () => any;
     path?: string;
     disabled?: boolean;
@@ -23,21 +25,67 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     const store = useStore();
     const isMobile = useIsMobile();
 
-    return [
+    const menu: HeaderItem[] = [
         {
             text: 'Map',
             path: '/',
             icon: MapIcon,
+            children: [
+                {
+                    text: 'Map',
+                    path: '/',
+                },
+                {
+                    text: 'SIGMETs',
+                    path: '/sigmets',
+                },
+            ],
         },
         {
-            text: 'Events',
-            path: '/events',
-            icon: EventsIcon,
+            text: 'Calendar',
+            icon: CalendarIcon,
+            children: [
+                {
+                    text: 'Bookings',
+                    path: '/bookings',
+                    icon: BookingsIcon,
+                },
+                {
+                    text: 'Events',
+                    path: '/events',
+                    icon: EventsIcon,
+                },
+            ],
         },
         {
             text: 'Stats',
-            disabled: true,
             icon: DataIcon,
+            children: [
+                {
+                    text: 'Airports',
+                    path: '/stats/airports',
+                },
+                {
+                    text: 'Airlines',
+                    path: '/stats/airlines',
+                },
+                {
+                    text: 'Aircraft',
+                    path: '/stats/aircraft',
+                },
+                {
+                    text: 'Routes',
+                    path: '/stats/routes',
+                },
+                {
+                    text: 'Pilots',
+                    path: '/stats/pilots',
+                },
+                {
+                    text: 'ATC',
+                    path: '/stats/atc',
+                },
+            ],
         },
         {
             text: 'Featured Airports',
@@ -65,7 +113,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
                 {
                     text: 'About Us',
-                    path: '/about',
+                    path: 'https://docs.vatsim-radar.com',
                 },
                 {
                     text: 'Install App',
@@ -77,7 +125,9 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
             ].filter(x => !x.hide),
         },
-    ].filter(x => !x.hide).map(x => {
+    ];
+
+    return menu.filter(x => !x.hide).map(x => {
         return {
             ...x,
             active: x.active ?? (x.path === route.path || !!x.children?.some(x => x.path === route.path)),

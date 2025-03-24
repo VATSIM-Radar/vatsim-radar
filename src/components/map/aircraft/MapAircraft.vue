@@ -164,7 +164,6 @@ import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import { fromLonLat, toLonLat } from 'ol/proj';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
@@ -243,8 +242,12 @@ const getStatus = computed<MapAircraftStatus>(() => {
 
     const isEmergency = store.mapSettings.highlightEmergency && (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500');
 
+    if (isEmergency) {
+        return 'landed';
+    }
+
     // color aircraft icon based on departure/arrival when the airport dashboard is in use
-    if (store.config.airport && !activeCurrentOverlay.value && !isEmergency) {
+    if (store.config.airport && !activeCurrentOverlay.value) {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (vatAirport?.aircraft.groundDep?.includes(props.aircraft.cid)) return 'departing';
         if (vatAirport?.aircraft.departures?.includes(props.aircraft.cid)) return 'default';
@@ -253,10 +256,6 @@ const getStatus = computed<MapAircraftStatus>(() => {
     }
 
     if (activeCurrentOverlay.value || (airportOverlayTracks.value && !isOnGround.value)) return 'active';
-
-    if (isEmergency) {
-        return 'landed';
-    }
 
     return isOnGround.value ? 'ground' : 'default';
 });
@@ -369,8 +368,8 @@ watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLay
     setStyle(undefined, true);
 });
 
-const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.departure));
-const arrAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.airports.find(x => x.icao === pilot.value?.arrival));
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.departure]);
+const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.arrival]);
 
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;
@@ -384,8 +383,8 @@ async function toggleAirportLines(value = canShowLines.value) {
         const distance = () => {
             if (!arrivalAirport) return null;
             return calculateDistanceInNauticalMiles(
-                toLonLat([arrivalAirport.lon, arrivalAirport.lat]),
-                toLonLat([props.aircraft.longitude, props.aircraft.latitude]),
+                [arrivalAirport.lon, arrivalAirport.lat],
+                [props.aircraft.longitude, props.aircraft.latitude],
             );
         };
 
@@ -504,7 +503,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         collection.features[0].geometry.coordinates.slice(),
                         [props.aircraft.longitude, props.aircraft.latitude],
                     ];
-                    const points = coordinates.map(x => point(toLonLat(x)));
+                    const points = coordinates.map(x => point(x));
                     const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
@@ -550,7 +549,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         [departureAirport.lon, departureAirport.lat],
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
-                    const points = coordinates.map(x => point(toLonLat(x)));
+                    const points = coordinates.map(x => point(x));
                     const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
@@ -597,13 +596,13 @@ async function toggleAirportLines(value = canShowLines.value) {
 
                     const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
 
-                    const points = coords.map(x => point(toLonLat(x)));
+                    const points = coords.map(x => point(x));
 
                     let npoints = 4;
 
                     if (
-                        Math.abs(coords[0][0] - coords[1][0]) > 100000 ||
-                        Math.abs(coords[0][1] - coords[1][1]) > 100000
+                        Math.abs(coords[0][0] - coords[1][0]) > 0.9 ||
+                        Math.abs(coords[0][1] - coords[1][1]) > 0.9
                     ) {
                         npoints = 100;
                     }
@@ -612,7 +611,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         npoints,
                     });
 
-                    const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates.map(x => fromLonLat(x)) : circle.geometry.coordinates.map(x => x.map(x => fromLonLat(x)));
+                    const geometry = circle.geometry.type === 'LineString' ? circle.geometry.coordinates : circle.geometry.coordinates;
 
                     geometry.map(x => addFeature(x));
                 }
@@ -632,8 +631,8 @@ async function toggleAirportLines(value = canShowLines.value) {
             clearLineFeatures();
 
             if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20 && props.isVisible) {
-                const start = point(toLonLat([departureAirport.lon, departureAirport.lat]));
-                const end = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
+                const start = point([departureAirport.lon, departureAirport.lat]);
+                const end = point([props.aircraft?.longitude, props.aircraft?.latitude]);
 
                 const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 
@@ -668,8 +667,8 @@ async function toggleAirportLines(value = canShowLines.value) {
         }
 
         if (arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
-            const start = point(toLonLat([props.aircraft?.longitude, props.aircraft?.latitude]));
-            const end = point(toLonLat([arrivalAirport.lon, arrivalAirport.lat]));
+            const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
+            const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 
             const geometry = greatCircleGeometryToOL(greatCircle(start, end));
 

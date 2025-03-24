@@ -1,28 +1,16 @@
 import { ofetch } from 'ofetch';
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
-import { View } from 'ol';
-import { fromLonLat } from 'ol/proj';
-import type { Coordinate } from 'ol/coordinate';
+import type { SimAwareData } from '~/utils/backend/storage';
 import { radarStorage } from '~/utils/backend/storage';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
-import type { VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
-}
-
-const view = new View({
-    multiWorld: false,
-});
-
-const projection = view.getProjection();
-
-export function fromServerLonLat(coordinate: Coordinate) {
-    return fromLonLat(coordinate, projection);
 }
 
 export function vatsimAuthOrRefresh(code: string, type: 'auth' | 'refresh') {
@@ -84,14 +72,16 @@ export async function vatsimGetUser(token: string) {
     return result;
 }
 
-export function findAirportSomewhere(callsign: string, isApp: boolean) {
+export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: simawareData, isApp }: {
+    callsign: string; isApp: boolean; vatspy: VatSpyData; simaware: SimAwareData;
+}): VatSpyAirport | SimAwareData['features'][0] {
     const splittedName = callsign.split('_').slice(0, 2);
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];
 
     let prefix: string | undefined;
-    let simaware = isApp && radarStorage.simaware.data?.features.find(x => {
+    let simaware = isApp && simawareData?.features.find(x => {
         const suffix = getTraconSuffix(x);
         prefix = getTraconPrefixes(x).find(x => x === regularName);
         return !!prefix && (!suffix || callsign.endsWith(suffix));
@@ -99,7 +89,7 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
 
     if (isApp && !simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
-            simaware = radarStorage.simaware.data?.features.find(x => {
+            simaware = simawareData?.features.find(x => {
                 const suffix = getTraconSuffix(x);
                 prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
                 return !!prefix && (!suffix || callsign.endsWith(suffix));
@@ -108,7 +98,7 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
         }
 
         if (!simaware) {
-            simaware = radarStorage.simaware.data?.features.find(x => {
+            simaware = simawareData?.features.find(x => {
                 const suffix = getTraconSuffix(x);
                 prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
                 return !!prefix && (!suffix || callsign.endsWith(suffix));
@@ -116,8 +106,8 @@ export function findAirportSomewhere(callsign: string, isApp: boolean) {
         }
     }
 
-    let vatspy = radarStorage.vatspy.data?.keyAirports.realIata[callsignAirport] || radarStorage.vatspy.data?.keyAirports.iata[callsignAirport];
-    const icao = radarStorage.vatspy.data?.keyAirports.realIcao[callsignAirport] || radarStorage.vatspy.data?.keyAirports.icao[callsignAirport];
+    let vatspy = vatspyData?.keyAirports.realIata[callsignAirport] || vatspyData?.keyAirports.iata[callsignAirport];
+    const icao = vatspyData?.keyAirports.realIcao[callsignAirport] || vatspyData?.keyAirports.icao[callsignAirport];
     let isIata = true;
     if (!vatspy) {
         isIata = false;
@@ -210,9 +200,17 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
     };
 }
 
-export function validateAirportIcao(event: H3Event, detailed: true): { airport: VatSpyData['airports'][0]; icao: string } | undefined;
-export function validateAirportIcao(event: H3Event, detailed?: false): string | undefined;
-export function validateAirportIcao(event: H3Event, detailed?: boolean): string | { airport: VatSpyData['airports'][0]; icao: string } | undefined {
+export async function validateAirportIcao(event: H3Event, detailed: true): Promise<{
+    airport: VatSpyData['airports'][0];
+    icao: string;
+} | undefined>;
+export async function validateAirportIcao(event: H3Event, detailed?: false): Promise<string | undefined>;
+export async function validateAirportIcao(event: H3Event, detailed?: boolean): Promise<string | {
+    airport: VatSpyData['airports'][0];
+    icao: string;
+} | undefined> {
+    const vatspy = (radarStorage.vatspy)!;
+
     const icao = getRouterParam(event, 'icao')?.toUpperCase();
     if (icao?.length !== 4) {
         handleH3Error({
@@ -223,7 +221,7 @@ export function validateAirportIcao(event: H3Event, detailed?: boolean): string 
         return;
     }
 
-    const airport = radarStorage.vatspy.data?.airports.find(x => x.icao === icao);
+    const airport = vatspy.data?.airports.find(x => x.icao === icao);
     if (!airport) {
         handleH3Error({
             event,

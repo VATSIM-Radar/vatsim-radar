@@ -23,13 +23,13 @@ export async function resetUserFilter() {
     localStorage.removeItem('filters');
 }
 
-export function setUserActiveFilter(settings?: UserFilter) {
+export function setUserActiveFilter(settings?: UserFilter, updateLocalStorage = true) {
     const store = useStore();
 
     const settingsText = localStorage.getItem('active-filters') ?? '{}';
 
     store.activeFilter = settings ?? JSON.parse(settingsText);
-    if (settings) {
+    if (settings && updateLocalStorage) {
         localStorage.setItem('active-filters', JSON.stringify(settings));
     }
 }

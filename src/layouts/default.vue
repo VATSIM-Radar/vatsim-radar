@@ -142,10 +142,6 @@ useHead(() => {
                 content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
             },
             {
-                name: 'keywords',
-                content: 'vatsim, vatspy, simaware, vatglasses, ватсим, vatsim traffic, vatsim tracker',
-            },
-            {
                 name: 'msapplication-TileColor',
                 content: themeColor,
             },
@@ -481,6 +477,10 @@ img {
     }
 }
 
+.no-overflow {
+    overflow: hidden;
+}
+
 @include fromTablet {
     .__mobile {
         display: none !important;
@@ -506,6 +506,21 @@ img {
 @include pc {
     .__tablet {
         display: none !important;
+    }
+}
+
+.__partner-info {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+
+    img {
+        width: 56px;
+        min-width: 56px;
+        max-width: 56px;
     }
 }
 </style>

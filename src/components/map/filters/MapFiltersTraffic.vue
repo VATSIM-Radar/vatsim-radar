@@ -13,79 +13,48 @@
                 traffic: {
                     title: 'Traffic',
                 },
+                share: {
+                    title: 'Share',
+                },
             }"
         />
 
         <map-filter v-if="tab === 'filters'"/>
         <template v-else-if="tab === 'bookmarks'">
-            <common-tabs
-                v-model="bookmarksTab"
-                :tabs="{
-                    bookmarks: {
-                        title: 'Bookmarks',
-                    },
-                    share: {
-                        title: 'Page Share',
-                    },
-                }"
-            />
+            <common-toggle
+                :model-value="!!store.localSettings.skipBookmarkAnimation"
+                @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
+            >
+                Disable animation
+            </common-toggle>
+            <map-filters-presets
+                :key="String(bookmarkSaveTick)"
+                create-collapse
+                create-reverse
+                disable-actions
+                endpoint-suffix="bookmarks"
+                has-share
+                :max-presets="MAX_BOOKMARKS"
+                no-confirm
+                :presets="store.bookmarks"
+                :refresh="() => store.fetchBookmarks()"
+                :selected-preset="activeBookmark"
+                type="bookmark"
+                @create="createBookmark"
+                @reset="activeBookmark = defaultBookmark()"
+                @save="applyBookmark"
+            >
+                <template #title>
+                    New Bookmark
+                </template>
 
-            <template v-if="bookmarksTab === 'bookmarks'">
-                <common-toggle
-                    :model-value="!!store.localSettings.skipBookmarkAnimation"
-                    @update:modelValue="setUserLocalSettings({ skipBookmarkAnimation: $event })"
-                >
-                    Disable animation
-                </common-toggle>
-                <map-filters-presets
-                    :key="String(bookmarkSaveTick)"
-                    disable-actions
-                    endpoint-suffix="bookmarks"
-                    has-share
-                    :max-presets="MAX_BOOKMARKS"
-                    no-confirm
-                    :presets="store.bookmarks"
-                    :refresh="() => store.fetchBookmarks()"
-                    :selected-preset="activeBookmark"
-                    type="bookmark"
-                    @create="createBookmark"
-                    @reset="activeBookmark = defaultBookmark()"
-                    @save="applyBookmark"
-                >
-                    <template #title>
-                        New Bookmark
-                    </template>
-
-                    <template #data="{ preset, id }">
-                        <common-bookmark-data
-                            :id
-                            :bookmark="preset"
-                        />
-                    </template>
-                </map-filters-presets>
-            </template>
-            <template v-else-if="bookmarksTab === 'share'">
-                <common-button
-                    size="S"
-                    @click="copyUrl"
-                >
-                    <template v-if="copyState">
-                        Copied!
-                    </template>
-                    <template v-else>
-                        Copy current location
-                    </template>
-                </common-button>
-
-                <common-toggle v-model="includeOverlays">
-                    Include overlays
-                </common-toggle>
-
-                <common-input-text
-                    v-model="customUrl"
-                    placeholder="Paste copied URL"
-                />
-            </template>
+                <template #data="{ preset, id }">
+                    <common-bookmark-data
+                        :id
+                        :bookmark="preset"
+                    />
+                </template>
+            </map-filters-presets>
         </template>
         <template v-else-if="tab === 'traffic'">
             <common-toggle
@@ -97,6 +66,28 @@
                     Sets update to once per 15 seconds. Expected delay from 15 to 30 seconds, but it will consume much less traffic
                 </template>
             </common-toggle>
+        </template>
+        <template v-else-if="tab === 'share'">
+            <common-button
+                size="S"
+                @click="copyUrl"
+            >
+                <template v-if="copyState">
+                    Copied!
+                </template>
+                <template v-else>
+                    Copy current location
+                </template>
+            </common-button>
+
+            <common-toggle v-model="includeOverlays">
+                Include overlays
+            </common-toggle>
+
+            <common-input-text
+                v-model="customUrl"
+                placeholder="Paste copied URL"
+            />
         </template>
     </div>
 </template>
@@ -125,7 +116,6 @@ const includeOverlays = ref(false);
 const customUrl = ref('');
 
 const tab = ref('filters');
-const bookmarksTab = ref('bookmarks');
 
 const copyUrl = () => {
     let text = location.href;
@@ -180,3 +170,11 @@ watch(customUrl, val => {
     }
 });
 </script>
+
+<style lang="scss" scoped>
+.traffic :deep(.tabs_list) {
+    gap: 4px;
+    padding-right: 4px;
+    padding-left: 4px;
+}
+</style>

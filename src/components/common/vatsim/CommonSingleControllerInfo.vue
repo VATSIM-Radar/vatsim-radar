@@ -20,7 +20,7 @@
                     <div
                         v-if="showFacility"
                         class="atc__position_facility"
-                        :style="{ background: getControllerPositionColor(controller) }"
+                        :style="{ background: !controller.booking ? getControllerPositionColor(controller) : radarColors.darkgray800 }"
                     >
                         {{ controller.isATIS ? 'ATIS' : controller.facility === -2 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
                     </div>
@@ -50,12 +50,12 @@
                     </template>
                 </common-spoiler>
             </template>
-            <template v-else-if="index === 2">
+            <template v-else-if="index === 2 && !controller.booking">
                 <div
                     class="atc__frequency"
                     @click.stop="[copy(item as string), copiedFor = controller.callsign]"
                 >
-                    <template v-if="!isCopied(controller.callsign)">
+                    <template v-if="!isCopied(controller.callsign)  && !controller.booking">
                         {{ item }}
 
                         <save-icon width="12"/>
@@ -65,8 +65,11 @@
                     </template>
                 </div>
             </template>
-            <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length)">
-                <div class="atc__time">
+            <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length) && !controller.booking">
+                <div
+                    v-if="!isMobile"
+                    class="atc__time"
+                >
                     {{ getATCTime(controller) }}
                 </div>
             </template>
@@ -75,7 +78,7 @@
             </template>
         </template>
         <template
-            v-if="showAtis && controller.text_atis?.length"
+            v-if="showAtis && controller.text_atis?.length && !controller.booking"
             #bottom
         >
             <ul class="atc__atis">
@@ -91,6 +94,14 @@
                 v-if="controller.logon_time"
                 :controller="controller"
             />
+        </template>
+        <template
+            v-else-if="controller.booking"
+            #bottom
+        >
+            <div>
+                Booked from {{ controller.booking?.start_local }} to {{ controller.booking?.end_local }}
+            </div>
         </template>
     </common-info-block>
 </template>
@@ -139,7 +150,11 @@ const emit = defineEmits({
         return true;
     },
 });
+
 defineSlots<{ title?(): any; additionalTitle?(): any }>();
+
+const isMobile = useIsMobile();
+
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();

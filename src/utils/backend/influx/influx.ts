@@ -3,7 +3,8 @@ import { InfluxDB } from '@influxdata/influxdb-client';
 
 export let influxDB: InfluxDB;
 export let influxDBQuery: QueryApi;
-export let influxDBWrite: WriteApi;
+export let influxDBWritePlans: WriteApi;
+export let influxDBWriteMain: WriteApi;
 
 export function initInfluxDB() {
     try {
@@ -13,7 +14,8 @@ export function initInfluxDB() {
         });
 
         influxDBQuery = influxDB.getQueryApi(process.env.INFLUX_ORG!);
-        influxDBWrite = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_PLANS!);
+        influxDBWritePlans = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_PLANS!);
+        influxDBWriteMain = influxDB.getWriteApi(process.env.INFLUX_ORG!, process.env.INFLUX_BUCKET_MAIN!);
     }
     catch (e) {
         console.error(e);

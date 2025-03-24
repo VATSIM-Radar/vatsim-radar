@@ -24,7 +24,7 @@ const props = defineProps({
     },
     maxOpacity: {
         type: Number,
-        default: 0.2,
+        default: 0.1,
     },
     placeholder: {
         type: String,

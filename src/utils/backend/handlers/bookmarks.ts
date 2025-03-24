@@ -30,30 +30,34 @@ export type UserBookmarkPreset = UserPreset & {
     json: UserBookmark;
 };
 
-const validators: Record<keyof IUserBookmark, (val: unknown) => boolean> = {
-    coords: val => {
-        return Array.isArray(val) && val.length === 2 && val.every(x => typeof x === 'number' && x.toString().length < 50);
-    },
-    zoom: val => {
-        return typeof val === 'number' && val > 0 && val < 50;
-    },
-    icao: val => {
-        return typeof val === 'string' && !!radarStorage.vatspy.data?.keyAirports.realIcao[val];
-    },
-    binding: val => {
-        if (!isObject(val)) return false;
-        if (!validateRandomObjectKeys(val, ['code', 'keys'])) return false;
+const validators = async (): Promise<Record<keyof IUserBookmark, (val: unknown) => boolean>> => {
+    const vatspy = (radarStorage.vatspy)?.data;
 
-        if (!('code' in val) || typeof val.code !== 'string' || val.code.length === 0 || val.code.length > 100) return false;
+    return {
+        coords: val => {
+            return Array.isArray(val) && val.length === 2 && val.every(x => typeof x === 'number' && x.toString().length < 50);
+        },
+        zoom: val => {
+            return typeof val === 'number' && val > 0 && val < 50;
+        },
+        icao: val => {
+            return typeof val === 'string' && !!vatspy?.keyAirports.realIcao[val];
+        },
+        binding: val => {
+            if (!isObject(val)) return false;
+            if (!validateRandomObjectKeys(val, ['code', 'keys'])) return false;
 
-        if ('keys' in val) {
-            if (!isObject(val.keys)) return false;
-            if (!validateRandomObjectKeys(val.keys, ['alt', 'ctrl', 'shift', 'meta'])) return false;
-            if (!Object.values(val.keys).every(x => typeof x === 'boolean')) return false;
-        }
+            if (!('code' in val) || typeof val.code !== 'string' || val.code.length === 0 || val.code.length > 100) return false;
 
-        return true;
-    },
+            if ('keys' in val) {
+                if (!isObject(val.keys)) return false;
+                if (!validateRandomObjectKeys(val.keys, ['alt', 'ctrl', 'shift', 'meta'])) return false;
+                if (!Object.values(val.keys).every(x => typeof x === 'boolean')) return false;
+            }
+
+            return true;
+        },
+    };
 };
 
 export async function handleBookmarksEvent(event: H3Event) {
@@ -123,6 +127,14 @@ export async function handleBookmarksEvent(event: H3Event) {
                 userId: user.id,
                 type: UserPresetType.BOOKMARK,
             },
+            orderBy: [
+                {
+                    order: 'asc',
+                },
+                {
+                    id: 'desc',
+                },
+            ],
         });
 
         let bookmark: UserPreset | null = null;
@@ -176,15 +188,17 @@ export async function handleBookmarksEvent(event: H3Event) {
             if (body.json) {
                 body.json = body.json as Record<string, any>;
 
+                const initValidators = await validators();
+
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserBookmark, unknown][]) {
-                    if (!(key in validators)) {
+                    if (!(key in initValidators)) {
                         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;
                     }
 
-                    if (!validators[key](value)) {
+                    if (!initValidators[key](value)) {
                         return handleH3Error({
                             event,
                             statusCode: 400,

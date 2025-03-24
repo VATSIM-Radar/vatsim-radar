@@ -2,7 +2,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { getHoursAndMinutes } from '~/utils';
 import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
-import type { VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useStore } from '~/store';
@@ -88,7 +88,7 @@ export function sortControllersByPosition<T extends { facility: number; isATIS?:
     });
 }
 
-export function findAtcByCallsign(callsign: string) {
+export function findAtcByCallsign(callsign: string): VatsimShortenedController | undefined {
     const dataStore = useDataStore();
     const local = dataStore.vatsim.data.locals.value.find(x => x.atc.callsign === callsign)?.atc;
     if (local) return local;
@@ -100,10 +100,21 @@ export function getATCTime(controller: VatsimShortenedController) {
     return getHoursAndMinutes(new Date(controller.logon_time).getTime());
 }
 
-export function findAtcAirport(atc: VatsimShortenedController) {
+export async function findAtcAirport(atc: VatsimShortenedController): Promise<VatSpyAirport | null> {
     const dataStore = useDataStore();
+    const store = useStore();
     const title = atc.callsign.split('_')[0];
-    const iataAirport = dataStore.vatspy.value?.data.airports.find(x => x.iata === title);
+
+    const icaoAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[title];
+    if (icaoAirport) return icaoAirport;
+
+    store.updateATCTracons = true;
+    await new Promise(resolve => watch(dataStore.vatsim.parsedAirports, resolve, { once: true }));
+    const airport = dataStore.vatsim.parsedAirports.value.find(x => x.arrAtc.some(x => x.callsign === atc.callsign));
+    store.updateATCTracons = false;
+    if (airport) return airport.airport;
+
+    const iataAirport = dataStore.vatspy.value?.data.keyAirports.iata[title];
     if (iataAirport) {
         return {
             ...iataAirport,
@@ -111,7 +122,7 @@ export function findAtcAirport(atc: VatsimShortenedController) {
         };
     }
 
-    return dataStore.vatspy.value?.data.airports.find(x => x.icao === title);
+    return null;
 }
 
 export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: Map | null, zoom?: number, animate = true) {
@@ -138,12 +149,14 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     }
 }
 
-export function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
+export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | null) {
     map = map || inject<ShallowRef<Map | null>>('map')!.value;
-    const airport = findAtcAirport(atc);
+    const airport = await findAtcAirport(atc);
     if (!airport) return;
 
-    return showAirportOnMap(airport, map);
+    const facilities = useFacilitiesIds();
+
+    return showAirportOnMap(airport, map, (atc.facility === facilities.CTR || atc.facility === facilities.FSS) ? 8 : undefined);
 }
 
 export function getATIS(controller: VatsimShortenedController) {

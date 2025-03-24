@@ -8,12 +8,11 @@ import type {
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
-    RadarDataAirlinesAllList,
+    RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import { fromLonLat } from 'ol/proj';
 import type { IDBAirlinesData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
@@ -22,6 +21,7 @@ import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
+import { useGeographic } from 'ol/proj';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -31,10 +31,12 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
     all: {},
 });
 const simaware = shallowRef<SimAwareAPIData>();
+const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
+const vatglassesCombiningInProgress = ref(false);
 const time = ref(Date.now());
 const stats = shallowRef<{
     cid: number;
@@ -113,8 +115,10 @@ export interface UseDataStore {
     vatglasses: ShallowRef<VatglassesAPIData | undefined>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
+    vatglassesCombiningInProgress: Ref<boolean>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
+    sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
 }
 
@@ -127,8 +131,10 @@ export function useDataStore(): UseDataStore {
         vatglasses,
         vatglassesActivePositions,
         vatglassesActiveRunways,
+        vatglassesCombiningInProgress,
         stats,
         time,
+        sigmets,
         airlines,
     };
 }
@@ -163,18 +169,19 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     time.value = data.serverTime;
+    if (vatsim.updateTime.value !== data.timestampNum) {
+        vatsim.localUpdateTime.value = Date.now();
+    }
     vatsim.updateTime.value = data.timestampNum;
-    vatsim.localUpdateTime.value = Date.now();
 
     if (hasActivePilotFilter()) data.pilots = data.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
 
     vatsim.mandatoryData.value = {
         pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
-            const coords = fromLonLat([lon, lat]);
             return {
                 cid,
-                longitude: coords[0],
-                latitude: coords[1],
+                longitude: lon,
+                latitude: lat,
                 icon,
                 heading,
             };
@@ -196,7 +203,8 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 }
 
-export async function setupDataFetch({ onFetch, onSuccessCallback }: {
+export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
+    onMount?: () => any;
     onFetch?: () => any;
     onSuccessCallback?: () => any;
 } = {}) {
@@ -252,6 +260,8 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
     }
 
     onMounted(async () => {
+        useGeographic();
+        onMount?.();
         store.isTabVisible = document.visibilityState === 'visible';
         isMounted.value = true;
         let watcher: WatchStopHandle | undefined;
@@ -291,8 +301,8 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
         dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
         dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
 
-        const view = new View({
-            center: fromLonLat([37.617633, 55.755820]),
+        new View({
+            center: [37.617633, 55.755820],
             zoom: 2,
             multiWorld: false,
         });
@@ -302,16 +312,6 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
                 let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
                 if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
                     vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
-                    vatspy.data.firs = vatspy.data.firs.map(x => ({
-                        ...x,
-                        feature: {
-                            ...x.feature,
-                            geometry: {
-                                ...x.feature.geometry,
-                                coordinates: x.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromLonLat(x, view.getProjection())))),
-                            },
-                        },
-                    }));
                     await clientDB.put('data', vatspy, 'vatspy');
                 }
 
@@ -362,24 +362,6 @@ export async function setupDataFetch({ onFetch, onSuccessCallback }: {
         ws?.();
         if (interval) {
             clearInterval(interval);
-        }
-    });
-
-    await useAsyncData(async () => {
-        try {
-            if (import.meta.server) {
-                const {
-                    isDataReady,
-                } = await import('~/utils/backend/storage');
-                if (!isDataReady()) return true;
-
-                mapStore.dataReady = true;
-            }
-
-            return true;
-        }
-        catch (e) {
-            console.error(e);
         }
     });
 }

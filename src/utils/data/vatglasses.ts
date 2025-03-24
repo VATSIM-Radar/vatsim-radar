@@ -4,7 +4,7 @@ import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'g
 
 import { polygon } from '@turf/helpers';
 import { GeoJSON } from 'ol/format';
-import type { VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
+import type { RadarStorage, VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
@@ -12,6 +12,7 @@ import type { useStore } from '~/store';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
+let radarStorage: RadarStorage;
 let store: ReturnType<typeof useStore>;
 let mode: 'local' | 'server';
 let facilities: {
@@ -77,14 +78,14 @@ function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
 
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? workerDataStore?.vatglasses?.data;
+    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage?.vatglasses?.data.data;
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways.value ?? workerDataStore.vatglassesActiveRunways;
     const vatglassesActivePositions = dataStore?.vatglassesActivePositions.value ?? workerDataStore.vatglassesActivePositions;
-    const vatsimData = dataStore?.vatsim ?? workerDataStore.vatsim;
+    const vatsimData = dataStore?.vatsim ?? radarStorage.vatsim;
     if (!vatglassesData || !vatsimData) return newVatglassesActivePositions;
 
     if (!facilities) {
-        const facilitiesData = dataStore?.vatsim?.data?.facilities?.value ?? workerDataStore?.vatsim?.data?.facilities;
+        const facilitiesData = dataStore?.vatsim?.data?.facilities?.value ?? radarStorage?.vatsim?.data?.facilities;
         facilities = {
             ATIS: -1,
             OBS: facilitiesData.find(x => x.short === 'OBS')?.id ?? -1,
@@ -102,7 +103,7 @@ function updateVatglassesPositionsAndAirspaces() {
     // Fill the vatglassesActiveStations object with the active stations
     if (vatglassesData) {
         const arrivalController = [];
-        const locals = dataStore?.vatsim?.data?.locals.value ?? workerDataStore?.vatsim?.locals;
+        const locals = dataStore?.vatsim?.data?.locals.value ?? radarStorage?.vatsim?.locals;
         for (const atc of locals) {
             if (!atc.isATIS && [facilities.APP, facilities.TWR, facilities.GND].includes(atc.atc.facility)) {
                 arrivalController.push(atc);
@@ -111,7 +112,7 @@ function updateVatglassesPositionsAndAirspaces() {
 
         // TODO: sort firs by the same as EuroScope sorts the positions before assigning logged in stations to a position
         // let first = 0; // used for debug
-        const firs = dataStore?.vatsim?.data?.firs.value ?? workerDataStore?.vatsim?.firs;
+        const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
             // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
             let atc = null;
@@ -381,7 +382,7 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 // Converts from vatglasses sector format to geojson format
 function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? workerDataStore.vatglasses?.data;
+    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -537,7 +538,10 @@ async function combineAllVatglassesActiveSectors(newVatglassesActiveSectors: Vat
 
 // Function to convert GeoJSON back to OpenLayers features
 export function convertToOpenLayersFeatures(geoJSONPolygons: TurfFeature<TurfPolygon>[]): Feature<Polygon>[] {
-    const format = new GeoJSON();
+    const format = new GeoJSON({
+        featureProjection: 'EPSG:4326',
+        dataProjection: 'EPSG:4326',
+    });
     return geoJSONPolygons.map(polygon => format.readFeature(polygon) as Feature<Polygon>);
 }
 
@@ -610,7 +614,10 @@ export async function updateVatglassesStateLocal(forceNoCombine = false) {
     vatglassesUpdateInProgress = true;
     const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
     if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !forceNoCombine) {
+        dataStore.vatglassesCombiningInProgress.value = true;
+
         await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
+        dataStore.vatglassesCombiningInProgress.value = false;
     }
     dataStore.vatglassesActivePositions.value = newVatglassesActivePositions;
     triggerUpdatedVatglassesPositions(newVatglassesActivePositions);
@@ -642,6 +649,7 @@ let combineDataInitialized = false;
 async function initVatglassesCombined() {
     vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
+    dataStore.vatglassesCombiningInProgress.value = true;
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
@@ -687,13 +695,20 @@ async function initVatglassesCombined() {
     catch {
         console.error('Error fetching or processing vatglasses-active data');
         // Optionally, you can handle the error further, such as displaying a user-friendly message
+
+        vatglassesUpdateInProgress = false;
+        // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
+        updateVatglassesStateLocal();
     }
 }
 
-export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null) {
+export async function initVatglasses(inputMode: string = 'local', serverDataStore: WorkerDataStore | null = null, _radarStorage: RadarStorage | null = null) {
     if (inputMode === 'server') {
         mode = 'server';
-        if (serverDataStore) workerDataStore = serverDataStore;
+        if (serverDataStore && _radarStorage) {
+            workerDataStore = serverDataStore;
+            radarStorage = _radarStorage;
+        }
     }
     else {
         const { useStore } = await import('~/store');
@@ -711,23 +726,15 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         if (unref(vatglassesCombined)) {
             await initVatglassesCombined();
         }
-        else {
-            // initVatglassesCombined is not called now, so we have to watch the vatglassesCombined value to call it when needed
-            let vatglassesCombinedWatcher: ReturnType<typeof watch> | null = null;
 
-            if (!combineDataInitialized) {
-                vatglassesCombinedWatcher = watch([vatglassesCombined], async () => {
-                    await updateVatglassesStateLocal(true);
-                    await initVatglassesCombined();
-                    if (combineDataInitialized && vatglassesCombinedWatcher) {
-                        vatglassesCombinedWatcher();
-                        vatglassesCombinedWatcher = null;
-                    }
-                });
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], async () => {
+            if (!combineDataInitialized && vatglassesCombined.value) {
+                await updateVatglassesStateLocal(true);
+                await initVatglassesCombined();
             }
-        }
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], () => {
-            updateVatglassesStateLocal();
+            else {
+                updateVatglassesStateLocal();
+            }
         });
 
         watch(dataStore.vatglasses, val => {

@@ -1,12 +1,5 @@
 <template>
     <div class="favorite __info-sections">
-        <common-toggle
-            :model-value="!!store.localSettings.featuredDefaultBookmarks"
-            @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
-        >
-            Default to bookmarks
-        </common-toggle>
-
         <common-tabs
             v-model="tab"
             :tabs="{ friends: { title: 'Friends', disabled: !store.friends.length }, bookmarks: { title: 'Bookmarks', disabled: !store.bookmarks.length } }"
@@ -38,7 +31,6 @@
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import ViewUserList from '~/components/views/ViewUserList.vue';
 import { useStore } from '~/store';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { showBookmark } from '~/composables/fetchers';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';

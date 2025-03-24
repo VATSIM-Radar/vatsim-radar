@@ -2,6 +2,7 @@
     <div
         v-if="presets"
         class="presets"
+        :class="{ 'presets--create-reverse': createReverse }"
     >
         <div
             v-if="store.user"
@@ -11,34 +12,40 @@
                 v-if="noConfirm || (!currentPreset && Object.keys(selectedPreset).length)"
                 class="presets__create __info-sections"
             >
-                <common-block-title remove-margin>
+                <common-block-title
+                    :collapsed="createCollapse ? activeCreatePreset : undefined"
+                    remove-margin
+                    @update:collapsed="activeCreatePreset = $event"
+                >
                     <slot name="title">
                         Save Current Settings
                     </slot>
                 </common-block-title>
 
-                <div class="presets__row presets__row--no-wrap">
-                    <common-input-text
-                        v-model="newPresetName"
-                        placeholder="Preset Name"
-                    />
-                    <div class="presets__row_divider"/>
-                    <common-button
-                        :disabled="presets.length >= maxPresets || !newPresetName || presets.some(x => x.name.toLowerCase() === newPresetName.toLowerCase())"
-                        size="S"
-                        type="secondary"
-                        @click="createPreset"
-                    >
-                        <template #icon>
-                            <save-icon/>
-                        </template>
-                    </common-button>
-                </div>
+                <template v-if="!createCollapse || !activeCreatePreset">
+                    <div class="presets__row presets__row--no-wrap">
+                        <common-input-text
+                            v-model="newPresetName"
+                            placeholder="Preset Name"
+                        />
+                        <div class="presets__row_divider"/>
+                        <common-button
+                            :disabled="presets.length >= maxPresets || !newPresetName || presets.some(x => x.name.toLowerCase() === newPresetName.toLowerCase())"
+                            size="S"
+                            type="secondary"
+                            @click="createPreset"
+                        >
+                            <template #icon>
+                                <save-icon/>
+                            </template>
+                        </common-button>
+                    </div>
 
-                <slot
-                    name="data"
-                    :preset="selectedPreset"
-                />
+                    <slot
+                        name="data"
+                        :preset="selectedPreset"
+                    />
+                </template>
             </div>
 
             <small
@@ -49,123 +56,134 @@
             </small>
 
             <template v-if="presets.length">
-                <template
-                    v-for="preset in presets"
-                    :key="preset.id"
+                <draggable
+                    v-model="localPresets"
+                    class="presets__drag-container"
+                    :item-key="(item: any) => item.id"
+                    @change="sortPresets"
                 >
-                    <common-block-title
-                        class="presets__list-title"
-                        :collapsed="activePreset?.id !== preset.id"
-                        remove-margin
-                        @update:collapsed="!$event ? activePreset = preset : activePreset = null"
+                    <template
+                        #item="{ element: preset }"
                     >
-                        {{ preset.name }}
-
-                        <template #append>
-                            <common-toggle
-                                :model-value="currentPreset === preset.id"
-                                @click.stop
-                                @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
-                            />
-                        </template>
-                    </common-block-title>
-
-                    <template v-if="activePreset?.id === preset.id">
-                        <div
-                            class="__grid-info-sections"
-                            :class="{ '__grid-info-sections--large-title': isMobile }"
-                        >
-                            <div class="__grid-info-sections_title">
-                                Preset
-                            </div>
-                            <div class="presets__row">
-                                <common-input-text
-                                    v-model="activePreset.name"
-                                    @change="renamePreset()"
-                                />
-                                <div class="presets__row_divider"/>
-                                <common-tooltip
-                                    v-if="!disableActions"
-                                    location="bottom"
-                                    open-method="mouseOver"
-                                >
-                                    <template #activator>
-                                        <common-button
-                                            size="S"
-                                            type="secondary"
-                                            @click="exportPreset(activePreset)"
-                                        >
-                                            <template #icon>
-                                                <export-icon/>
-                                            </template>
-                                        </common-button>
-                                    </template>
-
-                                    Export
-                                </common-tooltip>
-                                <common-tooltip
-                                    v-if="shareUrl"
-                                    location="bottom"
-                                    open-method="mouseOver"
-                                >
-                                    <template #activator>
-                                        <common-button
-                                            size="S"
-                                            type="secondary"
-                                            @click="share.copy(shareUrl)"
-                                        >
-                                            <template #icon>
-                                                <check-icon v-if="share.copyState.value"/>
-                                                <share-icon v-else/>
-                                            </template>
-                                        </common-button>
-                                    </template>
-
-                                    Share
-                                </common-tooltip>
-                                <common-tooltip
-                                    v-if="!disableActions"
-                                    location="left"
-                                    open-method="mouseOver"
-                                >
-                                    <template #activator>
-                                        <common-button
-                                            :disabled="isCurrentPreset(activePreset)"
-                                            size="S"
-                                            type="secondary"
-                                            @click="states.overwrite = true"
-                                        >
-                                            <template #icon>
-                                                <edit-icon/>
-                                            </template>
-                                        </common-button>
-                                    </template>
-
-                                    Overwrite
-                                </common-tooltip>
-                            </div>
-                        </div>
-
-                        <slot
-                            :id="preset.id"
-                            name="data"
-                            :preset="preset.json"
-                        />
-
-                        <div class="presets__delete">
-                            <common-button
-                                focus-color="error700"
-                                hover-color="error300"
-                                link-color="error500"
-                                theme="red"
-                                type="link"
-                                @click="states.delete = true"
+                        <div class="presets__list __info-sections">
+                            <common-block-title
+                                class="presets__list-title"
+                                :collapsed="activePreset?.id !== preset.id"
+                                remove-margin
+                                @update:collapsed="!$event ? activePreset = preset : activePreset = null"
                             >
-                                Delete preset
-                            </common-button>
+                                {{ preset.name }}
+
+                                <template #append>
+                                    <div class="presets__list-title_append">
+                                        <common-toggle
+                                            :model-value="currentPreset === preset.id"
+                                            @click.stop
+                                            @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
+                                        />
+                                        <drag-icon class="presets__drag"/>
+                                    </div>
+                                </template>
+                            </common-block-title>
+
+                            <template v-if="activePreset?.id === preset.id">
+                                <div
+                                    class="__grid-info-sections"
+                                    :class="{ '__grid-info-sections--large-title': isMobile }"
+                                >
+                                    <div class="__grid-info-sections_title">
+                                        Preset
+                                    </div>
+                                    <div class="presets__row">
+                                        <common-input-text
+                                            v-model="activePreset!.name"
+                                            @change="renamePreset()"
+                                        />
+                                        <div class="presets__row_divider"/>
+                                        <common-tooltip
+                                            v-if="!disableActions"
+                                            location="bottom"
+                                            open-method="mouseOver"
+                                        >
+                                            <template #activator>
+                                                <common-button
+                                                    size="S"
+                                                    type="secondary"
+                                                    @click="exportPreset(activePreset!)"
+                                                >
+                                                    <template #icon>
+                                                        <export-icon/>
+                                                    </template>
+                                                </common-button>
+                                            </template>
+
+                                            Export
+                                        </common-tooltip>
+                                        <common-tooltip
+                                            v-if="shareUrl"
+                                            location="bottom"
+                                            open-method="mouseOver"
+                                        >
+                                            <template #activator>
+                                                <common-button
+                                                    size="S"
+                                                    type="secondary"
+                                                    @click="share.copy(shareUrl)"
+                                                >
+                                                    <template #icon>
+                                                        <check-icon v-if="share.copyState.value"/>
+                                                        <share-icon v-else/>
+                                                    </template>
+                                                </common-button>
+                                            </template>
+
+                                            Share
+                                        </common-tooltip>
+                                        <common-tooltip
+                                            v-if="!disableActions"
+                                            location="left"
+                                            open-method="mouseOver"
+                                        >
+                                            <template #activator>
+                                                <common-button
+                                                    :disabled="isCurrentPreset(activePreset!)"
+                                                    size="S"
+                                                    type="secondary"
+                                                    @click="states.overwrite = true"
+                                                >
+                                                    <template #icon>
+                                                        <edit-icon/>
+                                                    </template>
+                                                </common-button>
+                                            </template>
+
+                                            Overwrite
+                                        </common-tooltip>
+                                    </div>
+                                </div>
+
+                                <slot
+                                    :id="preset.id"
+                                    name="data"
+                                    :preset="preset.json"
+                                />
+
+                                <div class="presets__delete">
+                                    <common-button
+                                        focus-color="error700"
+                                        hover-color="error300"
+                                        link-color="error500"
+                                        theme="red"
+                                        type="link"
+                                        @click="states.delete = true"
+                                    >
+                                        Delete preset
+                                    </common-button>
+                                </div>
+                            </template>
                         </div>
                     </template>
-                </template>
+                </draggable>
             </template>
         </div>
         <common-button
@@ -255,10 +273,12 @@ import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
+import DragIcon from '@/assets/icons/kit/drag.svg?component';
 import type { UserPreset } from '@prisma/client';
 import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import equal from 'deep-equal';
+import draggable from 'vuedraggable';
 
 const props = defineProps({
     presets: {
@@ -297,6 +317,14 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    createCollapse: {
+        type: Boolean,
+        default: false,
+    },
+    createReverse: {
+        type: Boolean,
+        default: false,
+    },
 });
 const emit = defineEmits({
     create(name: string, data: UserCustomPreset['json']) {
@@ -311,6 +339,11 @@ const emit = defineEmits({
 });
 
 defineSlots<{ title: () => any; data: (settings: { preset: UserCustomPreset['json']; id?: number }) => any }>();
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const localPresets = shallowRef(props.presets);
+
+watch(() => props.presets, val => localPresets.value = val);
 
 const config = useRuntimeConfig();
 export type UserCustomPreset = Omit<UserPreset, 'json'> & { [key: string]: any };
@@ -327,6 +360,8 @@ const store = useStore();
 
 const newPresetName = ref('');
 const activePreset = shallowRef<UserCustomPreset | null>(null);
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const activeCreatePreset = ref<boolean | null>(!!props.presets.length);
 const isMobile = useIsMobile();
 
 const currentPreset = computed(() => {
@@ -360,6 +395,14 @@ const exportPreset = (preset: UserCustomPreset) => {
         mime: 'application/json',
         blob: new Blob([JSON.stringify(preset)], { type: 'application/json' }),
     });
+};
+
+const sortPresets = async () => {
+    await $fetch('/api/user/presets/sort', {
+        method: 'PUT',
+        body: localPresets.value.map(x => x.id),
+    });
+    await props.refresh();
 };
 
 const overwritePreset = async () => {
@@ -420,19 +463,50 @@ const deletePreset = async () => {
         }
     }
 
+    &__drag-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
     &__warning {
         color: $error400;
     }
 
     &__list-title {
+        position: relative;
+
         :deep(.title_append) {
+            position: static;
             margin-right: auto;
         }
+
+        &_append {
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    &__drag {
+        cursor: grab;
+        position: absolute;
+        right: 48px;
+        width: 24px;
     }
 
     &__delete {
         display: flex;
         justify-content: flex-end;
+    }
+
+    &--create-reverse .__info-sections {
+        >* {
+            order: 0;
+        }
+
+        .presets__create {
+            order: 1;
+        }
     }
 }
 </style>

@@ -4,11 +4,12 @@ import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
 import type { Feature, MultiPolygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
-import { fromServerLonLat } from '~/utils/backend/vatsim/index';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import type { RedisData } from '~/utils/backend/redis';
+import { setRedisData } from '~/utils/backend/redis';
 
 const revisions: Record<string, number> = {
-    'v2410.1': 2,
+    'v2410.1': 3,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -64,7 +65,7 @@ export async function updateVatSpy() {
         headers: getVATSIMIdentHeaders(),
     });
     if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-    if (radarStorage.vatspy.version === data.current_commit_hash) return;
+    if ((radarStorage.vatspy)?.version === data.current_commit_hash) return;
 
     const [dat, geo] = await Promise.all([
         ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
@@ -136,7 +137,7 @@ export async function updateVatSpy() {
                 delete duplicateIata.iata;
             }
 
-            const lonlat = fromServerLonLat([+value.lon!, +value.lat!]);
+            const lonlat = [+value.lon!, +value.lat!];
 
             return {
                 ...value as Required<typeof value>,
@@ -184,7 +185,7 @@ export async function updateVatSpy() {
                     return x;
                 })))) as any;
 
-                const coordinate = fromServerLonLat([+boundary.properties!.label_lon, +boundary.properties!.label_lat]);
+                const coordinate = [+boundary.properties!.label_lon, +boundary.properties!.label_lat];
 
                 result.firs.push({
                     ...value as Required<typeof value>,
@@ -205,6 +206,7 @@ export async function updateVatSpy() {
 
     radarStorage.vatspy.version = data.current_commit_hash;
     radarStorage.vatspy.data = result;
+    await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
     console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
 }
 
@@ -215,16 +217,17 @@ let firsPolygons: {
 }[] = [];
 let firsVersion = '';
 
-export function getFirsPolygons() {
-    if (firsVersion !== radarStorage.vatspy.version) {
-        firsPolygons = radarStorage.vatspy.data!.firs.map(fir => {
+export async function getFirsPolygons() {
+    const vatspy = radarStorage.vatspy;
+    if (firsVersion !== vatspy!.version) {
+        firsPolygons = vatspy!.data!.firs.map(fir => {
             return {
                 icao: fir.icao,
                 featureId: fir.feature.id as string,
-                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates.map(x => x.map(x => x.map(x => fromServerLonLat(x))))),
+                polygon: new OlMultiPolygon(fir.feature.geometry.coordinates),
             };
         });
-        firsVersion = radarStorage.vatspy.version;
+        firsVersion = vatspy!.version;
     }
 
     return firsPolygons;

@@ -10,8 +10,10 @@ import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
-import { getVACallsign, getVAWebsite } from '~/utils/shared';
+import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { SelectItem } from '~/types/components/select';
+import type { SigmetType } from '~/types/map';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -144,6 +146,7 @@ const iframeWhitelist = [
     'urrv.me',
     'vatsim.net',
     'vatsim-petersburg.com',
+    'vatsim-radar.com',
 ];
 
 export function useIframeHeader() {
@@ -176,14 +179,17 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
     const store = useStore();
 
-    onMounted(() => {
+    function setUpdate() {
         callback();
         const intervalCode = setInterval(() => {
             if (!store.isTabVisible) return;
             callback();
         }, interval);
         onBeforeUnmount(() => clearInterval(intervalCode));
-    });
+    }
+
+    if (getCurrentInstance()?.isMounted) setUpdate();
+    else onMounted(setUpdate);
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {
@@ -276,3 +282,61 @@ export const customDefu = createDefu((obj, key, value) => {
         return true;
     }
 });
+
+export const sigmetDates = () => computed<SelectItem[]>(() => {
+    const dates: SelectItem[] = [
+        {
+            value: 'current',
+            text: 'Current',
+        },
+    ];
+
+    const date = new Date(useDataStore().time.value);
+    const hour = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    if (minutes < 30) {
+        dates.push({
+            value: `${ date.getUTCFullYear() }-${ addLeadingZero(date.getUTCMonth() + 1) }-${ addLeadingZero(date.getUTCDate()) }T${ addLeadingZero(hour + 1) }:00:00.000Z`,
+            text: `${ hour + 1 }Z`,
+        });
+    }
+
+    for (let i = 2; i < 7; i++) {
+        dates.push({
+            value: `${ date.getUTCFullYear() }-${ addLeadingZero(date.getUTCMonth() + 1) }-${ addLeadingZero(date.getUTCDate()) }T${ addLeadingZero(hour + i) }:00:00.000Z`,
+            text: `${ hour + i }Z`,
+        });
+    }
+
+    return dates;
+});
+
+export const startDataStoreTimeUpdate = () => {
+    if (!getCurrentInstance()) throw new Error('Only can use startDataStoreTimeUpdate in setup');
+
+    const dataStore = useDataStore();
+
+    onMounted(() => {
+        const interval = setInterval(() => {
+            dataStore.time.value = Date.now();
+        }, 5000);
+
+        onBeforeUnmount(() => clearInterval(interval));
+    });
+};
+
+export const getSigmetType = (hazard: string | null | undefined): SigmetType | null => {
+    if (hazard?.includes('OBSC')) return 'OBSC';
+    if (hazard?.includes('FZLVL')) return 'FZLVL';
+    if (hazard?.includes('WS')) return 'WS';
+    if (hazard?.includes('WIND') || hazard?.includes('WND')) return 'WIND';
+
+    if (hazard?.startsWith('TURB')) return 'TURB';
+    if (hazard?.startsWith('TS')) return 'TS';
+    if (hazard?.startsWith('ICE')) return 'ICE';
+    if (hazard?.startsWith('VA')) return 'VA';
+    if (hazard?.startsWith('MTW')) return 'MTW';
+    if (hazard?.startsWith('IFR')) return 'IFR';
+
+    return null;
+};

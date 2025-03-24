@@ -1,6 +1,7 @@
 import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString } from 'geojson';
 import { LineString, MultiLineString } from 'ol/geom';
-import { fromLonLat } from 'ol/proj';
+import type { Coordinate } from 'ol/coordinate';
+import Polygon from 'ol/geom/Polygon';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -49,5 +50,25 @@ export function serializeClass<T extends string | null | undefined>(className: T
 }
 
 export function greatCircleGeometryToOL(feature: Feature<GeoLineString | GeoMultiLineString>) {
-    return feature.geometry.type === 'LineString' ? new LineString(feature.geometry.coordinates.map(x => fromLonLat(x))) : new MultiLineString(feature.geometry.coordinates.map(x => x.map(x => fromLonLat(x))));
+    return feature.geometry.type === 'LineString' ? new LineString(feature.geometry.coordinates) : new MultiLineString(feature.geometry.coordinates);
 }
+
+export function createCircle(center: Coordinate, radius: number, numPoints = 64) {
+    const coords = [];
+    const [lon, lat] = center;
+
+    const latRadius = (radius / 111320);
+    const lonRadius = radius / (111320 * Math.cos(lat * Math.PI / 180));
+
+    for (let i = 0; i < numPoints; i++) {
+        const angle = (i / numPoints) * 2 * Math.PI;
+        const x = lon + (lonRadius * Math.cos(angle));
+        const y = lat + (latRadius * Math.sin(angle));
+        coords.push([x, y]);
+    }
+
+    coords.push(coords[0]);
+
+    return new Polygon([coords]);
+}
+

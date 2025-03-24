@@ -32,73 +32,152 @@
                         center-by="start"
                         class="filters_sections_section_content"
                         location="right"
+                        max-height="57vh"
                         :model-value="selectedFilter === 'map'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
-                            Map layer
+                            Map layers
                         </template>
 
-                        <template v-if="radarIsDefault">
-                            <common-block-title>
-                                Settings
+                        <div class="__info-sections">
+                            <template v-if="radarIsDefault">
+                                <common-block-title remove-margin>
+                                    Settings
+                                </common-block-title>
+
+                                <common-toggle
+                                    :model-value="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event } } })"
+                                >
+                                    Relative distance indicator
+                                </common-toggle>
+                                <common-select
+                                    v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                                    :items="[
+                                        {
+                                            value: 'degrees',
+                                            text: 'Degrees',
+                                        },
+                                        {
+                                            value: 'imperial',
+                                            text: 'Imperial (mi)',
+                                        },
+                                        {
+                                            value: 'nautical',
+                                            text: 'Nautical (NM)',
+                                        },
+                                        {
+                                            value: 'metric',
+                                            text: 'Metric (km)',
+                                        },
+                                    ]"
+                                    :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
+                                >
+                                    <template #label>
+                                        Distance unit
+                                        Distance unit
+                                    </template>
+                                </common-select>
+
+                                <common-toggle
+                                    :disabled="!radarIsDefault"
+                                    :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
+                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
+                                >
+                                    Show labels
+                                </common-toggle>
+                                <!--
+                                <template v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')">
+                                    <common-toggle
+                                        v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')"
+                                        :disabled="store.getCurrentTheme === 'default'"
+                                        :model-value="store.localSettings.filters?.layers?.layer === 'protoDataGray'"
+                                        @update:modelValue="setUserLocalSettings({ filters: { layers: { layer: !$event ? 'protoData' : 'protoDataGray' } } })"
+                                    >
+                                        Grayscale
+
+                                        <template
+                                            v-if="store.getCurrentTheme === 'default'"
+                                            #description
+                                        >
+                                            Light theme only
+                                        </template>
+                                    </common-toggle>
+                                </template>
+    -->
+                            </template>
+
+                            <common-block-title remove-margin>
+                                Layers
+                            </common-block-title>
+
+                            <common-notification
+                                cookie-name="layers-tutorial"
+                                type="info"
+                            >
+                                Light and Detailed have worse performance than other layers
+                            </common-notification>
+
+                            <map-filter-transparency
+                                v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
+                                setting="osm"
+                            />
+                            <map-filter-transparency
+                                v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite' || store.localSettings.filters?.layers?.layer === 'SatelliteEsri'"
+                                setting="satellite"
+                            />
+                            <common-radio-group
+                                :items="mapLayers"
+                                :model-value="store.localSettings.filters?.layers?.layer ?? 'protoData'"
+                                @update:modelValue="changeLayer($event as MapLayoutLayer)"
+                            />
+
+                            <common-block-title remove-margin>
+                                SIGMETs
                             </common-block-title>
 
                             <common-toggle
-                                :disabled="!radarIsDefault"
-                                :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
-                                @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
+                                :model-value="!!store.localSettings.filters?.layers?.sigmets?.enabled"
+                                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { enabled: $event } } } })"
                             >
-                                Show labels
+                                Enable
                             </common-toggle>
-                            <!--
-                            <template v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')">
-                                <common-toggle
-                                    v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')"
-                                    :disabled="store.getCurrentTheme === 'default'"
-                                    :model-value="store.localSettings.filters?.layers?.layer === 'protoDataGray'"
-                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { layer: !$event ? 'protoData' : 'protoDataGray' } } })"
-                                >
-                                    Grayscale
-
-                                    <template
-                                        v-if="store.getCurrentTheme === 'default'"
-                                        #description
+                            <common-button
+                                size="S"
+                                to="/sigmets"
+                                type="secondary"
+                            >
+                                View on separate page
+                            </common-button>
+                            <common-radio-group
+                                v-if="store.localSettings.filters?.layers?.sigmets?.enabled"
+                                :items="sigmetDatesList"
+                                :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
+                                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
+                            >
+                                <template #label>
+                                    Active date
+                                </template>
+                            </common-radio-group>
+                            <common-sigmets-settings/>
+                            <div class="__partner-info">
+                                <div class="__partner-info_image">
+                                    <img
+                                        alt="NWS"
+                                        src="~/assets/images/NWS-logo.svg"
                                     >
-                                        Light theme only
-                                    </template>
-                                </common-toggle>
-                            </template>
--->
-
-                            <br>
-                        </template>
-
-                        <common-block-title>
-                            Layers
-                        </common-block-title>
-
-                        <common-notification
-                            cookie-name="layers-tutorial"
-                            type="info"
-                        >
-                            Light and Detailed have worse performance than other layers
-                        </common-notification>
-                        <br>
-
-                        <map-filter-transparency
-                            v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
-                            setting="osm"
-                        />
-                        <map-filter-transparency
-                            v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite' || store.localSettings.filters?.layers?.layer === 'SatelliteEsri'"
-                            setting="satellite"
-                        />
-                        <common-radio-group
-                            :items="mapLayers"
-                            :model-value="store.localSettings.filters?.layers?.layer ?? 'protoData'"
-                            @update:modelValue="changeLayer($event as MapLayoutLayer)"
-                        />
+                                </div>
+                                <span>
+                                    Data provided by <a
+                                        class="__link"
+                                        href="https://aviationweather.gov/"
+                                        target="_blank"
+                                    >Aviation Weather Center</a>
+                                </span>
+                            </div>
+                        </div>
                     </common-control-block>
                 </div>
                 <div
@@ -309,6 +388,10 @@ import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import { sigmetDates } from '~/composables';
+import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import type { Units } from 'ol/control/ScaleLine';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -327,6 +410,7 @@ const filtersImport = useTemplateRef('filtersImport');
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
 const isMobile = useIsMobile();
+const sigmetDatesList = sigmetDates();
 
 let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {

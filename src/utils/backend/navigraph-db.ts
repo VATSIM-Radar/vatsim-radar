@@ -1,10 +1,10 @@
 import sqlite3 from 'sqlite3';
 import AdmZip from 'adm-zip';
-import { radarStorage } from '~/utils/backend/storage';
 import { join } from 'path';
 import { readdirSync } from 'fs';
 import { existsSync, unlinkSync } from 'node:fs';
 import { $fetch } from 'ofetch';
+import { radarStorage } from '~/utils/backend/storage';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;

@@ -1,0 +1,3 @@
+.vitepress
+!.vitepress/config.ts
+!.vitepress/theme

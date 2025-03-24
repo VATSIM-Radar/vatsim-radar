@@ -12,13 +12,12 @@ import type { PartialRecord } from '~/types';
 import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
-import { fromServerLonLat } from '~/utils/backend/vatsim';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
     taxiwayguidanceline: ['color', 'style', 'idlin'],
     taxiwayholdingposition: ['idlin', 'catstop'],
-    runwaythreshold: ['idthr', 'brngtrue'],
+    runwaythreshold: ['idthr', 'brngtrue', 'thrtype'],
     finalapproachandtakeoffarea: ['idrwy'],
     verticalpolygonalstructure: ['plysttyp', 'ident'],
     deicingarea: ['ident'],
@@ -95,7 +94,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
                 const nearestPoint = nearestPointOnLine(geometry, centroid);
 
-                const coords = fromServerLonLat(nearestPoint.geometry.coordinates);
+                const coords = nearestPoint.geometry.coordinates;
 
                 return [{
                     gate_identifier: `${ ident }:${ area.properties.termref }`,
@@ -108,7 +107,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
             const remainingGates = subGates.filter(ident => !guidanceLineGates.find(item => item.name === ident));
 
-            const coords = fromServerLonLat(centroid.coordinates);
+            const coords = centroid.coordinates;
 
             // For all subGates which have no associated standguidancelines, place a gate at the centroid of the parkingstandarea
             const centroidGates = remainingGates.map(ident => ({
@@ -137,6 +136,8 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             }
         });
     }
+
+    if (layout?.runwaythreshold) layout.runwaythreshold.features = layout.runwaythreshold.features.filter(x => x.properties.thrtype === 0);
 
     if (!import.meta.dev) {
         setResponseHeader(event, 'Cache-Control', 'private, max-age=604800, stale-while-revalidate=86400, immutable');
