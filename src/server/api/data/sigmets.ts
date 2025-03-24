@@ -170,10 +170,10 @@ export default defineEventHandler(async event => {
         });
     }
 
-    const validUntil = requestDate?.getTime() ? requestDate.getTime() : Date.now() + (1000 * 60 * 30);
-    sigmets.validUntil = validUntil;
+    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 30;
+    sigmets.validUntil = Date.now() + expireIn;
 
-    await setRedisSync(key, JSON.stringify(sigmets), validUntil);
+    await setRedisSync(key, JSON.stringify(sigmets), expireIn);
 
     return sigmets;
 });
