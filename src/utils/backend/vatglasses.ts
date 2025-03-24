@@ -42,7 +42,11 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
                     if (folderPath.length === 2) {
                         const fileData = JSON.parse(entry.getData().toString('utf-8'));
                         const key = fileName.replace('.json', ''); // Remove the .json extension
-
+                        if (Array.isArray(fileData.airspace)) {
+                            fileData.airspace = Object.fromEntries(
+                                fileData.airspace.map((airspace: VatglassesAirspace, index: any) => [index, airspace]),
+                            );
+                        }
                         combinedData[key] = fileData; // Use the filename as the key
                     }
                     else if (folderPath.length === 3 && fileName === 'positions.json') {
@@ -91,7 +95,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
     // Loop through all entries in the Map and convert coordinates
     combinedDataMap.forEach((countryGroup, key) => {
         try {
-            (Array.isArray(countryGroup.airspace) ? countryGroup.airspace : Object.values(countryGroup.airspace)).forEach((airspace: VatglassesAirspace) => {
+            Object.values(countryGroup.airspace).forEach(airspace => {
                 airspace.sectors.forEach(sector => {
                     // @ts-expect-error: only temporary code
                     sector.points = sector.points.map(point => {
