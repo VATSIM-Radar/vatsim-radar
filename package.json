@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.1.0",
+  "version": "1.1.0-1-final",
   "private": true,
   "type": "module",
   "scripts": {
@@ -27,7 +27,7 @@
     "@influxdata/influxdb-client-apis": "^1.35.0",
     "@pinia/nuxt": "^0.10.1",
     "@prisma/client": "^6.5.0",
-    "@protomaps/basemaps": "^5.0.1",
+    "@protomaps/basemaps": "^5.0.2",
     "@turf/difference": "^7.2.0",
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",
@@ -83,7 +83,7 @@
     "@types/geojson": "^7946.0.16",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/merge-ranges": "^1.0.2",
-    "@types/node": "^22.13.11",
+    "@types/node": "^22.13.13",
     "@types/ws": "^8.18.0",
     "eslint": "^9.23.0",
     "fast-xml-parser": "^5.0.9",

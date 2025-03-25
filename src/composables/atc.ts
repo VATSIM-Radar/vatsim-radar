@@ -105,7 +105,7 @@ export async function findAtcAirport(atc: VatsimShortenedController): Promise<Va
     const store = useStore();
     const title = atc.callsign.split('_')[0];
 
-    const icaoAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[title];
+    const icaoAirport = dataStore.vatspy.value?.data.keyAirports.realIcao[title] ?? dataStore.vatspy.value?.data.keyAirports.icao[title];
     if (icaoAirport) return icaoAirport;
 
     store.updateATCTracons = true;

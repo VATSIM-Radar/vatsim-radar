@@ -1140,6 +1140,15 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'A33E':
+        case 'DISC':
+        case 'JS3J':
+        case 'JS3E':
+        case 'LS4':
+        case 'LS8':
+        case 'DG80':
+        case 'DG1T':
+            return aircraftIcons.glid;
         case 'K35R':
             return aircraftIcons.k35e;
         case 'E3TF':

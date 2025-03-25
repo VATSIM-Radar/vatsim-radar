@@ -28,6 +28,7 @@ services:
             - "host.docker.internal:host-gateway"
 
     worker:
+        restart: on-failure
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
@@ -51,6 +52,7 @@ services:
             - "host.docker.internal:host-gateway"
 
     vatglasses-worker:
+        restart: on-failure
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
