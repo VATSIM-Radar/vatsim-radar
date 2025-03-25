@@ -30,9 +30,14 @@ function basicTasks() {
     defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
-    redisSubscriber.subscribe('vatglassesActive');
-    redisSubscriber.on('message', (_, message) => {
-        radarStorage.vatglasses.activeData = message;
+    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.on('message', (channel, message) => {
+        if (channel === 'vatglassesActive') {
+            radarStorage.vatglasses.activeData = message;
+        }
+        else if (channel === 'vatglassesDynamic') {
+            radarStorage.vatglasses.dynamicData = JSON.parse(message);
+        }
     });
 }
 
