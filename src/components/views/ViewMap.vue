@@ -652,6 +652,9 @@ await setupDataFetch({
             }
         }
 
+        if (center[0] > 300 || isNaN(center[0])) center[0] = 37.617633;
+        if (isNaN(center[1])) center[1] = 55.755820;
+
         if (typeof route.query.tracks === 'string') {
             mapStore.autoShowTracks = route.query.tracks === '1';
         }
