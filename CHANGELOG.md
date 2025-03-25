@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.1.0-final]
+# [1.1.0]
 
 Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.
 
