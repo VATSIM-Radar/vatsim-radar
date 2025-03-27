@@ -11,6 +11,8 @@ import type { VatglassesSectorProperties } from './vatglasses';
 
 import lineIntersect from '@turf/line-intersect';
 
+const VGdebugMode = false;
+
 /**
  * Rounds the coordinates of a Turf polygon feature to the specified number of decimal places.
  * @param feature The Turf polygon feature to round.
@@ -264,7 +266,9 @@ function modifyPolygonsWithIntersections(polygons: TurfFeature<TurfPolygon>[]): 
 
             modifiedPolygons.push(modifiedPolygon1);
         }
-        catch { /* empty */ }
+        catch (e) {
+            if (VGdebugMode) console.error(e);
+        }
     }
 
     return modifiedPolygons;
@@ -295,7 +299,7 @@ function lineStringToPolygon(line: TurfFeature<LineString>): TurfFeature<TurfPol
 
 const insertfailed = false;
 export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
-    sectors.map(polygon => roundPolygonCoordinates(convertPolygonCoordinates(polygon))); // We convert the coords to EPSG:3857 because we get more reliable results from turf when we ust this projection.
+    sectors.map(polygon => roundPolygonCoordinates(convertPolygonCoordinates(polygon))); // We convert the coords to EPSG:3857 because we get more reliable results from turf when we use this projection.
     for (let i = sectors.length - 1; i >= 0; i--) {
         try {
             const currentPolygon = sectors[i];
@@ -303,12 +307,20 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
 
             const kinksResult = kinks(currentPolygon);
             if (kinksResult.features.length > 0) {
-            // console.log('kink removing id; ' + i);
+                if (VGdebugMode) {
+                    console.log('kink removing id; ' + i);
+                    console.log(JSON.stringify(revertPolygonCoordinatesToLonLat(currentPolygon)));
+                    kinksResult.features = kinksResult.features.map(feature => {
+                        feature.geometry.coordinates = toLonLat(feature.geometry.coordinates);
+                        return feature;
+                    });
+                    console.log(JSON.stringify(kinksResult.features));
+                }
                 sectors.splice(i, 1);
             }
         }
-        catch {
-            /* empty */
+        catch (e) {
+            if (VGdebugMode) console.error(e);
         }
     }
 
@@ -318,8 +330,8 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
         try {
             removeDuplicateCoords(roundPolygonCoordinates(polygon));
         }
-        catch {
-            /* empty */
+        catch (e) {
+            if (VGdebugMode) console.error(e);
         }
     });
 
@@ -393,8 +405,8 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
             resultPolygons = newResultPolygons;
         }
     }
-    catch {
-        /* empty */
+    catch (e) {
+        if (VGdebugMode) console.error(e);
     }
 
 
@@ -446,8 +458,8 @@ export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
                 });
             }
         }
-        catch {
-            /* empty */
+        catch (e) {
+            if (VGdebugMode) console.error(e);
         }
     }
     return combinedGroupSectors;
