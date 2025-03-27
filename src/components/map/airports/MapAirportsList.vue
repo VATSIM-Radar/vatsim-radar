@@ -723,7 +723,7 @@ const vatAirportsList = computed(() => {
     for (const airport of store.config.airport ? [store.config.airport!] : store.config.airports!) {
         if (list.some(x => x.icao === airport)) continue;
 
-        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.realIcao[airport];
+        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.realIcao[airport] || dataStore.vatspy.value!.data.keyAirports.icao[airport];
         if (!vatspyAirport) continue;
 
         list.push({
@@ -749,7 +749,7 @@ async function setVisibleAirports() {
         extent[3] += 0.9;
 
         airportsList.value = vatAirportsList.value.map(x => {
-            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''];
+            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
             let airport = x.isSimAware ? vatAirport || x : vatAirport;
             if (!x.isSimAware && airport?.icao !== x.icao) {
                 airport = {
