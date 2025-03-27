@@ -645,14 +645,14 @@ await setupDataFetch({
         else if (store.config.airports?.length) zoom = 1;
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
-            if (coords[0] > 300 || isNaN(coords[0])) coords[0] = 37.617633;
+            if (coords[0] > 300 || coords[0] < -300 || isNaN(coords[0])) coords[0] = 37.617633;
             if (isNaN(coords[1])) coords[1] = 55.755820;
             if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
                 center = coords;
             }
         }
 
-        if (center[0] > 300 || isNaN(center[0])) center[0] = 37.617633;
+        if (center[0] > 300 || center[0] < -300 || isNaN(center[0])) center[0] = 37.617633;
         if (isNaN(center[1])) center[1] = 55.755820;
 
         if (typeof route.query.tracks === 'string') {
