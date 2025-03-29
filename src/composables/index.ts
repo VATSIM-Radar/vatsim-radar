@@ -346,5 +346,6 @@ export const cookiePolicyStatus = () => useCookie<{ rum: boolean; sentry: boolea
     path: '/',
     sameSite: 'lax',
     secure: true,
+    maxAge: 60 * 60 * 24 * 30 * 12,
     default: () => ({ rum: true, sentry: true, accepted: false }),
 });
