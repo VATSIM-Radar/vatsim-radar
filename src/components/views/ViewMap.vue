@@ -173,7 +173,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
-import { fromLonLat, transformExtent } from 'ol/proj';
+import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 
 defineProps({
     sigmetsMode: {
@@ -624,15 +624,15 @@ await setupDataFetch({
             }
         }
         else if (store.config.area) {
-            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
-            center = getCenter(projectionExtent);
+            projectionExtent = buffer(boundingExtent(store.config.area.map(x => fromLonLat(x))), 200000);
+            center = toLonLat(getCenter(projectionExtent));
         }
         else if (store.config.airports && !store.config.center) {
             const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
 
             if (airports.length) {
-                projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
-                center = getCenter(projectionExtent);
+                projectionExtent = buffer(boundingExtent(airports.map(x => fromLonLat([x.lon, x.lat]))), 0.5);
+                center = toLonLat(getCenter(projectionExtent));
             }
         }
 
