@@ -238,6 +238,7 @@ onMounted(() => {
 });
 
 const policy = cookiePolicyStatus();
+policy.value ??= { rum: true, sentry: true, accepted: false }
 
 watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {

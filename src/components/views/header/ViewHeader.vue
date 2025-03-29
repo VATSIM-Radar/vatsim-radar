@@ -215,9 +215,7 @@
                 >
                     <template #activator>
                         <common-button
-                            href="/discord"
                             size="S"
-                            target="_blank"
                             type="secondary"
                         >
                             <template #icon>
