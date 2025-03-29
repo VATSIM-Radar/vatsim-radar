@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.1.0-1-final",
+  "version": "1.1.1-beta.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -28,6 +28,7 @@
     "@pinia/nuxt": "^0.10.1",
     "@prisma/client": "^6.5.0",
     "@protomaps/basemaps": "^5.1.0",
+    "@sentry/nuxt": "^9.10.1",
     "@turf/difference": "^7.2.0",
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",

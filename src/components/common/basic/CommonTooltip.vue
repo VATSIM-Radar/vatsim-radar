@@ -2,7 +2,7 @@
     <div
         ref="tooltip"
         class="tooltip"
-        :class="[`tooltip--location-${ location }`, { 'tooltip--cursor-default': cursorDefault }]"
+        :class="[`tooltip--location-${ location }`, `tooltip--align-${ align }`, { 'tooltip--cursor-default': cursorDefault }]"
         @mouseleave="handleClick('mouseLeave')"
         @mouseover="handleClick('mouseOver')"
     >
@@ -43,6 +43,10 @@ const props = defineProps({
     location: {
         type: String as PropType<TooltipLocation>,
         default: 'top',
+    },
+    align: {
+        type: String as PropType<'right' | 'left' | 'center'>,
+        default: 'center',
     },
     width: {
         type: String,
@@ -114,6 +118,14 @@ useClickOutside({
 .tooltip {
     --transform: -50%;
     position: relative;
+
+    &--align-right {
+        --transform: -90%;
+    }
+
+    &--align-left {
+        --transform: -10%;
+    }
 
     &_activator {
         cursor: pointer;

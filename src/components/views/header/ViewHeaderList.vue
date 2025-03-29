@@ -453,8 +453,8 @@ async function importFile() {
     }
 }
 
-watch(() => props.list, val => {
-    editUserList(val);
+watch(() => JSON.stringify(props.list), val => {
+    editUserList(props.list);
 });
 </script>
 

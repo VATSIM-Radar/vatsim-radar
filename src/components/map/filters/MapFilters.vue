@@ -392,6 +392,7 @@ import { sigmetDates } from '~/composables';
 import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { Units } from 'ol/control/ScaleLine';
+import { useError } from '~/composables/errors';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -507,7 +508,7 @@ const importPreset = async () => {
         });
     }
     catch (e) {
-        console.error(e);
+        useError(e);
         importedPreset.value = false;
     }
 };

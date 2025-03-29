@@ -1,5 +1,18 @@
 # Changelog
 
+# [1.1.1-beta.1]
+
+- Added separate VATSIM General Discord link
+- Added "Install App" button to header
+- Added Sentry error reporting
+- Added Data Policy Popup for GDPR and other compliance
+- Updated Privacy Policy with little changes mentioning Data Policy Popup
+- Fixed scale being above menu on mobile
+- Fixed rare issue when overlays were not showing up
+- Improved mobile friends layout
+- Fixed significant performance issues on Favorite Lists settings open
+- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+
 # [1.1.0]
 
 Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.

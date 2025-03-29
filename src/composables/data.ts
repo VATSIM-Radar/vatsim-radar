@@ -22,6 +22,7 @@ import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
+import { useError } from '~/composables/errors';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -238,7 +239,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                     dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
                 }
                 catch (e) {
-                    console.error(e);
+                    useError(e);
                 }
                 mandatoryInProgess = false;
             }

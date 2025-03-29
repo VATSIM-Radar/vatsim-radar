@@ -174,6 +174,7 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
+import { useError } from '~/composables/errors';
 
 defineProps({
     sigmetsMode: {
@@ -188,7 +189,7 @@ const emit = defineEmits({
 });
 defineSlots<{ default: () => any }>();
 const mapContainer = ref<HTMLDivElement | null>(null);
-const popups = ref<HTMLDivElement | null>(null);
+const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const ready = ref(false);
@@ -269,7 +270,7 @@ const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
-    await checkAndAddOwnAircraft().catch(console.error);
+    await checkAndAddOwnAircraft().catch(useError);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
@@ -475,7 +476,13 @@ useLazyAsyncData('bookmarks', async () => {
     server: false,
 });
 
-watch([overlays, popupsHeight], () => {
+watch([isMobile, popups], () => {
+    mapStore.overlays.forEach(x => x._maxHeight = undefined);
+    popupsHeight.value = popups.value?.clientHeight ?? 0;
+});
+
+watch([overlays, popupsHeight, isMobile], async () => {
+    await nextTick();
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
 
