@@ -48,14 +48,16 @@ const stats = shallowRef<{
 }[]>([]);
 
 export type VatsimData = {
-    [K in keyof Required<VatsimLiveData>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
+    [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
+} & {
+    keyedPilots: Ref<NonNullable<VatsimLiveData['keyedPilots']>>;
 };
 
 const data: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
-    keyedPilots: shallowRef([]),
+    keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
     locals: shallowRef([]),
@@ -64,13 +66,14 @@ const data: VatsimData = {
     military_ratings: shallowRef([]),
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
+    bars: shallowRef({}),
 };
 
 const rawData: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
-    keyedPilots: shallowRef([]),
+    keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
     locals: shallowRef([]),
@@ -79,6 +82,7 @@ const rawData: VatsimData = {
     military_ratings: shallowRef([]),
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
+    bars: shallowRef({}),
 };
 
 const vatsim = {
@@ -127,22 +131,24 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
 }
 
+const dataStore: UseDataStore = {
+    versions,
+    vatspy,
+    vatsim,
+    simaware,
+    vatglasses,
+    vatglassesActivePositions,
+    vatglassesActiveRunways,
+    vatglassesCombiningInProgress,
+    vatglassesDynamicData,
+    stats,
+    time,
+    sigmets,
+    airlines,
+};
+
 export function useDataStore(): UseDataStore {
-    return {
-        versions,
-        vatspy,
-        vatsim,
-        simaware,
-        vatglasses,
-        vatglassesActivePositions,
-        vatglassesActiveRunways,
-        vatglassesCombiningInProgress,
-        vatglassesDynamicData,
-        stats,
-        time,
-        sigmets,
-        airlines,
-    };
+    return dataStore;
 }
 
 export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
@@ -170,7 +176,7 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
         data[key].value = vatsimData[key];
     }
 
-    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid, pilot]));
+    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), pilot]));
 }
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {

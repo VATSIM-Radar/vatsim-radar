@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.1-beta.4]
+
+- Minor performance improvements on each update
+- Added VATGlasses to footer even with auto-level, so you can easily plan ahead and switch back
+- Implemented BARS integration
+
 # [1.1.1-beta.3]
 
 - Fixed VATSpy friends import if you only had a single preset

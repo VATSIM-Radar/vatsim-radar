@@ -35,8 +35,8 @@
             </div>
 
             <div
-                v-if="store.friends.length || store.bookmarks.length"
-                class="map-footer_left_section __from-tablet"
+                v-if="(store.friends.length || store.bookmarks.length) &&  store.viewport.width > 1000"
+                class="map-footer_left_section"
             >
                 <common-button
                     size="S"
@@ -133,9 +133,9 @@
         </div>
         <div class="map-footer_right">
             <map-settings-vat-glasses-level
-                v-if="store.viewport.width > (store.friends.length ? 1100 : 900)"
+                v-if="store.viewport.width > (store.friends.length ? 1200 : 1000)"
                 class="map-footer_right_vg"
-                hide-if-disabled
+                show-auto
             />
 
             <div v-if="store.mapSettings.bookingOverride">
@@ -350,7 +350,7 @@ function cancelBookingOverride() {
         align-items: center;
 
         &_vg {
-            width: 280px;
+            min-width: 320px;
 
             :deep(.input) {
                 height: 32px !important;

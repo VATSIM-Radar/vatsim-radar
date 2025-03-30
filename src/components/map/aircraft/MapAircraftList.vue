@@ -99,7 +99,7 @@ const getShownPilots = computed(() => {
     if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return visiblePilots.value;
 
     const pilots = visiblePilots.value;
-    const me = dataStore.vatsim.data.pilots.value.find(x => x.cid.toString() === store.user?.cid);
+    const me = dataStore.vatsim.data.keyedPilots.value[store.user?.cid.toString() ?? ''];
 
     let arrivalAirport = '';
 
@@ -138,7 +138,7 @@ function setVisiblePilots() {
 
         // Don't iterate through pilots if no need
         // TODO: convert pilots and other things to a map
-        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.pilots.value.find(y => y.cid === x.cid);
+        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
 
         const isShown = mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
 

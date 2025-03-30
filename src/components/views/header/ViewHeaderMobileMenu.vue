@@ -102,7 +102,7 @@
                         <load-on-pc-icon/>
                     </template>
                 </common-button>
-                <common-button-group mobile-horizontal>
+                <common-button-group>
                     <common-button
                         href="https://discord.com/invite/vatsim"
                         orientation="horizontal"
@@ -253,11 +253,6 @@ const counters = computed(() => ([
         flex-direction: column;
         gap: 8px;
 
-        @include tablet {
-            display: grid;
-            grid-template-columns: repeat(2, calc(50% - 8px));
-        }
-
         &--children {
             margin-left: 16px;
         }
@@ -287,6 +282,12 @@ const counters = computed(() => ([
         flex-wrap: wrap;
         gap: 12px;
         align-items: center;
+
+        @include tablet {
+            .button-group {
+                flex-grow: 1;
+            }
+        }
     }
 }
 </style>
