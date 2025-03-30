@@ -5378,20 +5378,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:^0.10.8":
-  version: 0.10.8
-  resolution: "@vite-pwa/nuxt@npm:0.10.8"
+"@vite-pwa/nuxt@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@vite-pwa/nuxt@npm:1.0.0"
   dependencies:
     "@nuxt/kit": "npm:^3.9.0"
     pathe: "npm:^1.1.1"
     ufo: "npm:^1.3.2"
-    vite-plugin-pwa: "npm:>=0.21.2 <1"
+    vite-plugin-pwa: "npm:^1.0.0"
   peerDependencies:
-    "@vite-pwa/assets-generator": ^0.2.6
+    "@vite-pwa/assets-generator": ^1.0.0
   peerDependenciesMeta:
     "@vite-pwa/assets-generator":
       optional: true
-  checksum: 10c0/239d465435c74334eedbb7e954936ed30827d9b1071d5ef41a6c677ab9de79a8ea2f372073af197259210c5de85f1bd4cf8879df81f9cc959b745e6cbb788b6b
+  checksum: 10c0/571e305c3af50b4903f696d985fe2d7684ea8a6f638a128f50761cc327c36818d2e95935004c6fac9b5490a3a516f48ecd5ad295770e74cfc76669711a74c969
   languageName: node
   linkType: hard
 
@@ -16181,7 +16181,7 @@ __metadata:
     "@types/merge-ranges": "npm:^1.0.2"
     "@types/node": "npm:^22.13.14"
     "@types/ws": "npm:^8.18.0"
-    "@vite-pwa/nuxt": "npm:^0.10.8"
+    "@vite-pwa/nuxt": "npm:^1.0.0"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
@@ -16381,27 +16381,6 @@ __metadata:
     "@nuxt/kit":
       optional: true
   checksum: 10c0/808ef69ec2c3baec05f5024d634abb353b4916d1caaede5180560a9e74bafa4761ddde32f651a557ef080910a77d99ea42198081bb8fe1ea0a32891b7730fc8c
-  languageName: node
-  linkType: hard
-
-"vite-plugin-pwa@npm:>=0.21.2 <1":
-  version: 0.21.2
-  resolution: "vite-plugin-pwa@npm:0.21.2"
-  dependencies:
-    debug: "npm:^4.3.6"
-    pretty-bytes: "npm:^6.1.1"
-    tinyglobby: "npm:^0.2.10"
-    workbox-build: "npm:^7.3.0"
-    workbox-window: "npm:^7.3.0"
-  peerDependencies:
-    "@vite-pwa/assets-generator": ^0.2.6
-    vite: ^3.1.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
-    workbox-build: ^7.3.0
-    workbox-window: ^7.3.0
-  peerDependenciesMeta:
-    "@vite-pwa/assets-generator":
-      optional: true
-  checksum: 10c0/bddd12598a5522137fcf352e0eb69a314bd62d5a4473988cace51db4ea44a756333afb5dac9075735874dfe8536a89569de71a5751078c9d702f6783f810d2c8
   languageName: node
   linkType: hard
 
