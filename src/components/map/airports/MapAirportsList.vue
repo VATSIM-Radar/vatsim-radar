@@ -100,7 +100,9 @@ const url = new URL(location.href);
 if (url.searchParams.has('start') && url.searchParams.has('end')) {
     start.setTime(Number(url.searchParams.get('start')));
     end.setTime(Number(url.searchParams.get('end')));
-    store.mapSettings.bookingOverride = true;
+    setUserMapSettings({
+        bookingOverride: true,
+    });
 }
 
 const { data } = await useAsyncData('bookings', async () => {

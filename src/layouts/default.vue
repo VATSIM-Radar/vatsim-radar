@@ -238,7 +238,7 @@ onMounted(() => {
 });
 
 const policy = cookiePolicyStatus();
-policy.value ??= { rum: true, sentry: true, accepted: false }
+policy.value ??= { rum: true, sentry: true, accepted: false };
 
 watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {
@@ -456,6 +456,11 @@ await useAsyncData('default-init', async () => {
         display: flex;
         flex-direction: column;
         gap: 8px;
+    }
+
+    &_introduction {
+        align-self: stretch;
+        justify-content: space-evenly;
     }
 
     &_item {

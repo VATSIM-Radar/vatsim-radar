@@ -83,14 +83,14 @@ jobs:
           clusterName: main
       - name: Deploy App
         run: kubectl apply -f .config/k8s/next/app.yml
-      - name: Apply App
-        run: kubectl rollout restart deployment app-next
       - name: Apply Worker
         run: kubectl rollout restart deployment worker-next
-      - name: Validate App
-        run: kubectl rollout status deployment app-next
       - name: Validate Worker
         run: kubectl rollout status deployment worker-next
+      - name: Apply App
+        run: kubectl rollout restart deployment app-next
+      - name: Validate App
+        run: kubectl rollout status deployment app-next
       - name: Apply VG
         run: kubectl rollout restart deployment vatglasses
       - name: Validate VG

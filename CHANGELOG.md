@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.1.1-beta.3]
+
+- Fixed VATSpy friends import if you only had a single preset
+- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+
 # [1.1.1-beta.2]
 
 - Added VATGlasses dynamic sectors support

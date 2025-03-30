@@ -135,12 +135,20 @@
                 Labels
             </common-toggle>
 
-            <common-toggle
-                :model-value="store.mapSettings.visibility?.bookings ?? true"
-                @update:modelValue="setUserMapSettings({ visibility: { bookings: $event } })"
-            >
-                Show Booked
-            </common-toggle>
+            <div class="__section-group __section-group--even">
+                <common-toggle
+                    :model-value="store.mapSettings.visibility?.bookings ?? true"
+                    @update:modelValue="setUserMapSettings({ visibility: { bookings: $event } })"
+                >
+                    Show Bookings
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
+                    @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                >
+                    Bookings local time
+                </common-toggle>
+            </div>
 
             <div class="__grid-info-sections __grid-info-sections--large-title">
                 <div class="__grid-info-sections_title">

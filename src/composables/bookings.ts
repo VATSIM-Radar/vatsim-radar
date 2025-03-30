@@ -16,20 +16,23 @@ export function makeBookingLocalTime(booking: VatsimBooking | VatsimBookingAtc) 
     const start = new Date(booking.start);
     const end = new Date(booking.end);
 
-    booking.start_local = makeLocalTime(start);
-    booking.end_local = makeLocalTime(end);
+    booking.start_local = makeBookingTime(start, true);
+    booking.end_local = makeBookingTime(end, true);
+    booking.start_z = makeBookingTime(start, false);
+    booking.end_z = makeBookingTime(end, false);
 
     return booking;
 }
 
-export function makeLocalTime(date: Date) {
-    return formatDate(date, isToday(date));
+export function makeBookingTime(date: Date, local: boolean) {
+    return formatDate(date, isToday(date), local);
 }
 
-function formatDate(date: Date, isToday: boolean): string {
+function formatDate(date: Date, isToday: boolean, local: boolean): string {
     const formatterTime = new Intl.DateTimeFormat(['en-DE'], {
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: local ? undefined : 'UTC',
     });
 
     const formatterWithDate = new Intl.DateTimeFormat(['en-DE'], {
@@ -37,6 +40,7 @@ function formatDate(date: Date, isToday: boolean): string {
         minute: '2-digit',
         month: 'short',
         day: '2-digit',
+        timeZone: local ? undefined : 'UTC',
     });
 
     return isToday ? formatterTime.format(date) : formatterWithDate.format(date);

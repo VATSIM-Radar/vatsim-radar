@@ -33,7 +33,12 @@
             </div>
         </template>
         <div class="entry-tooltip-container">
-            {{ localStart }} - {{ localEnd }}
+            <template v-if="store.mapSettings.bookingsLocalTimezone">
+                {{ localStart }} - {{ localEnd }}
+            </template>
+            <template v-else>
+                {{ localStart }}Z - {{ localEnd }}Z
+            </template>
         </div>
     </common-tooltip>
 </template>
@@ -43,7 +48,8 @@ import type { PropType } from 'vue';
 import type { TimelineEntry } from '~/types/data/timeline';
 import CommonScrollText from './CommonScrollText.vue';
 import CommonTooltip from './CommonTooltip.vue';
-import { makeLocalTime } from '~/composables/bookings';
+import { makeBookingTime } from '~/composables/bookings';
+import { useStore } from '~/store';
 
 const props = defineProps({
     entry: {
@@ -76,8 +82,10 @@ const props = defineProps({
     },
 });
 
-const localStart = computed(() => makeLocalTime(props.entry.start));
-const localEnd = computed(() => makeLocalTime(props.entry.end));
+const store = useStore();
+
+const localStart = computed(() => makeBookingTime(props.entry.start, store.mapSettings.bookingsLocalTimezone ?? false));
+const localEnd = computed(() => makeBookingTime(props.entry.end, store.mapSettings.bookingsLocalTimezone ?? false));
 
 function getEntryStyle() {
     const entry = props.entry;
