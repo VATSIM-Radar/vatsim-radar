@@ -4,7 +4,7 @@ import { findUserByCookie } from '~/utils/backend/user';
 import type { UserTrackingList } from '@prisma/client';
 import { prisma } from '~/utils/backend/prisma';
 import { UserTrackingListType } from '@prisma/client';
-import { isObject, MAX_LISTS_PILOTS, MAX_USER_LISTS } from '~/utils/shared';
+import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
 import { colorsList } from '~/utils/backend/styles';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { validateColor, validateRandomObjectKeys } from '~/utils/backend/handlers/index';
@@ -189,11 +189,11 @@ export async function handleListsEvent(event: H3Event) {
                     });
                 }
 
-                if (body.users.length > MAX_LISTS_PILOTS) {
+                if (body.users.length > MAX_LISTS_USERS) {
                     return handleH3Error({
                         event,
                         statusCode: 400,
-                        data: `Users count cannot extend ${ MAX_LISTS_PILOTS }`,
+                        data: `Users count cannot extend ${ MAX_LISTS_USERS }`,
                     });
                 }
 
@@ -237,7 +237,7 @@ export async function handleListsEvent(event: H3Event) {
             }
 
             if (body.name) {
-                const duplicatedList = lists.find(x => x.name.toLowerCase().trim() === body.name?.toLowerCase().trim());
+                const duplicatedList = lists.find(x => (!id || x.id !== +id) && x.name.toLowerCase().trim() === body.name?.toLowerCase().trim());
 
                 if (duplicatedList) {
                     if (getQuery(event).force === '1') {

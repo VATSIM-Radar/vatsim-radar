@@ -227,11 +227,11 @@ const airportInfo = computed(() => {
 const isOffline = ref(false);
 
 const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.icao[pilot.value.flight_plan?.departure ?? ''];
+    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.departure ?? ''];
 });
 
 const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.icao[pilot.value.flight_plan?.arrival ?? ''];
+    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.arrival ?? ''];
 });
 
 const showOnMap = () => {

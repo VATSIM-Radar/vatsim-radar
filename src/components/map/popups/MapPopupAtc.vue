@@ -96,7 +96,7 @@
                     class="atc__sections_section"
                     :text="getATIS(atc)?.join('\n')"
                 >
-                    ATIS
+                    ATC Information
                 </common-copy-info-block>
                 <div
                     v-else
@@ -232,7 +232,7 @@ watch(() => props.overlay?.data.callsign, async val => {
 });
 
 const country = computed(() => {
-    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.icao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
+    const icaoAirport = airport.value?.icao && dataStore.vatspy.value?.data.keyAirports.realIcao[airport.value?.icao ?? ''] === dataStore.vatspy.value?.data.keyAirports.iata[airport.value?.iata ?? ''];
 
     return icaoAirport ? getAirportCountry(airport.value?.icao) : undefined;
 });

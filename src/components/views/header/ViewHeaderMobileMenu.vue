@@ -76,12 +76,12 @@
                     </template>
                 </common-button>
                 <common-button
-                    href="/discord"
+                    href="https://docs.vatsim-radar.com"
                     target="_blank"
                     type="secondary"
                 >
                     <template #icon>
-                        <discord-icon/>
+                        <question-icon/>
                     </template>
                 </common-button>
                 <common-button
@@ -93,6 +93,39 @@
                         <settings-icon/>
                     </template>
                 </common-button>
+                <common-button
+                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
+                    type="secondary"
+                    @click="app.$pwa?.install()"
+                >
+                    <template #icon>
+                        <load-on-pc-icon/>
+                    </template>
+                </common-button>
+                <common-button-group mobile-horizontal>
+                    <common-button
+                        href="https://discord.com/invite/vatsim"
+                        orientation="horizontal"
+                        target="_blank"
+                        type="secondary-875"
+                    >
+                        <template #icon>
+                            <discord-icon/>
+                        </template>
+                        General VATSIM Discord
+                    </common-button>
+                    <common-button
+                        href="/discord"
+                        orientation="horizontal"
+                        target="_blank"
+                        type="secondary"
+                    >
+                        <template #icon>
+                            <discord-icon/>
+                        </template>
+                        VATSIM Radar Development
+                    </common-button>
+                </common-button-group>
                 <common-airac/>
             </div>
             <div class="mobile-menu__stats">
@@ -123,9 +156,13 @@ import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import { useStore } from '~/store';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 
 const model = defineModel({ type: Boolean, required: true });
 
+const app = useNuxtApp();
 const onlineCounters = useOnlineCounters();
 const store = useStore();
 const headerMenu = useHeaderMenu();

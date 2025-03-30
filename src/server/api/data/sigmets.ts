@@ -163,17 +163,17 @@ export default defineEventHandler(async event => {
                 timeFrom: properties.issueTime,
                 timeTo: properties.validTime,
                 raw: properties.dueTo,
-                dataType: 'airmet',
+                dataType: 'gairmet',
                 base: (typeof base === 'number' && !isNaN(base)) ? base : basePropety,
                 top: (typeof top === 'number' && !isNaN(top)) ? top : properties.top,
             },
         });
     }
 
-    const validUntil = requestDate?.getTime() ? requestDate.getTime() : Date.now() + (1000 * 60 * 30);
-    sigmets.validUntil = validUntil;
+    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 30;
+    sigmets.validUntil = Date.now() + expireIn;
 
-    await setRedisSync(key, JSON.stringify(sigmets), validUntil);
+    await setRedisSync(key, JSON.stringify(sigmets), expireIn);
 
     return sigmets;
 });

@@ -11,6 +11,7 @@ import { getColorFromSettings, hexToRgb } from '~/composables/colors';
 import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useError } from '~/composables/errors';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -38,7 +39,7 @@ export function usePilotRatings() {
 export function getAirportByIcao(icao?: string | null | undefined): VatSpyData['airports'][0] | null {
     if (!icao) return null;
 
-    return useDataStore().vatspy.value!.data.keyAirports.icao[icao] ?? null;
+    return useDataStore().vatspy.value!.data.keyAirports.realIcao[icao] ?? null;
 }
 
 export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {
@@ -231,7 +232,7 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
                 resolve(result);
             }
             catch (e) {
-                console.error(e);
+                useError(e);
                 reject();
             }
         });

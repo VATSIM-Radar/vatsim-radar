@@ -4,7 +4,6 @@ import type { Feature, FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { getFlightRowGroup } from '~/utils/shared/flight';
-import { toLonLat } from 'ol/proj';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -40,15 +39,10 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
             },
             geometry: {
                 type: 'Point',
-                coordinates: row.longitude!.toString().split('.')[0].length > 5
-                    ? toLonLat([
-                        row.longitude!,
-                        row.latitude!,
-                    ])
-                    : [
-                        row.longitude!,
-                        row.latitude!,
-                    ],
+                coordinates: [
+                    row.longitude!,
+                    row.latitude!,
+                ],
             },
         });
     }

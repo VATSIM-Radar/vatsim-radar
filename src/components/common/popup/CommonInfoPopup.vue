@@ -2,7 +2,7 @@
     <div
         v-if="model"
         class="info-popup"
-        :class="{ 'info-popup--absolute': absolute, 'info-popup--collapsed': collapsible && collapsed }"
+        :class="{ 'info-popup--absolute': absolute, 'info-popup--collapsed': collapsible && collapsed, 'info-popup--shadow': shadow }"
         :style="{ '--max-height': maxHeight }"
     >
         <div class="info-popup_header">
@@ -165,6 +165,10 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    shadow: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const model = defineModel({
@@ -207,6 +211,7 @@ watch(getSections, sections => {
 .info-popup {
     scrollbar-gutter: stable;
 
+    container-name: info-popup;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -224,6 +229,10 @@ watch(getSections, sections => {
 
     @include mobileOnly {
         width: 100%;
+    }
+
+    &--shadow {
+        box-shadow: 0 0 4px 4px varToRgba('lightgray125', 0.05);
     }
 
     &--absolute {
@@ -314,7 +323,7 @@ watch(getSections, sections => {
 
         &--collapse {
             &-enter-active, &-leave-active {
-                max-height: 100%;
+                max-height: 100cqh;
                 transition: 0.5s ease-in-out;
             }
 

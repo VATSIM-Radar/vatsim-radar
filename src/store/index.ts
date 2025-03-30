@@ -23,6 +23,7 @@ export interface SiteConfig {
     hideOverlays?: boolean;
     hideHeader?: boolean;
     hideFooter?: boolean;
+    hideBookings?: boolean;
 
     theme?: ThemesList;
     allAircraftGreen?: boolean;
@@ -72,6 +73,7 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
+        cookieCustomize: false,
 
         loginPopup: false,
         deleteAccountPopup: false,

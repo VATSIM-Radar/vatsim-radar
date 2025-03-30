@@ -265,6 +265,7 @@ import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import { useError } from '~/composables/errors';
 
 const route = useRoute();
 const router = useRouter();
@@ -274,7 +275,7 @@ const mounted = ref(false);
 const config = useRuntimeConfig();
 
 const icao = computed(() => (route.params.icao as string)?.toUpperCase());
-const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.icao[icao.value]);
+const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[icao.value]);
 const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
 const atc = getATCForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 const aircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);
@@ -595,7 +596,7 @@ airportData.value = (await useAsyncData(async () => {
         };
     }
     catch (e) {
-        console.error(e);
+        useError(e);
         showError({
             statusCode: 404,
         });

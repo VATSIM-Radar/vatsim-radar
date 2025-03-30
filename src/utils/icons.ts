@@ -270,7 +270,7 @@ export const aircraftIcons: AircraftIcons = {
     },
     r44: {
         icon: 'r44',
-        width: getAircraftSizeByCoef(0.05),
+        width: getAircraftSizeByCoef(0.3, true),
     },
     pc21: {
         icon: 'pc21',
@@ -1140,6 +1140,15 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'A33E':
+        case 'DISC':
+        case 'JS3J':
+        case 'JS3E':
+        case 'LS4':
+        case 'LS8':
+        case 'DG80':
+        case 'DG1T':
+            return aircraftIcons.glid;
         case 'K35R':
             return aircraftIcons.k35e;
         case 'E3TF':

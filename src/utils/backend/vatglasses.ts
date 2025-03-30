@@ -116,7 +116,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
 
 export async function updateVatglassesData() {
     try {
-        const latestSHA = await fetchLatestCommitSHA('3');
+        const latestSHA = await fetchLatestCommitSHA('150325');
         if (!currentSHA) currentSHA = await getStoredSHA();
 
         if (latestSHA !== currentSHA) {

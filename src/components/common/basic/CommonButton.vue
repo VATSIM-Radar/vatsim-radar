@@ -166,7 +166,7 @@ const getAttrs = computed(() => {
 
     &_content {
         width: 100%;
-        min-width: max-content;
+        min-width: min-content;
     }
 
     @include pc {

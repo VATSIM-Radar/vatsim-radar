@@ -7,7 +7,7 @@ import type {
     PatreonPledgesReward,
     PatreonPledgesUser,
 } from '~/types/data/patreon';
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady, radarStorage } from '~/utils/backend/storage';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
@@ -209,13 +209,18 @@ async function updateData() {
     radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
     radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
     radarStorage.airlines = (await getRedisData('data-airlines')) ?? radarStorage.airlines;
+    radarStorage.vatsimStatic.divisions = (await getRedisData('data-divisions')) ?? radarStorage.vatsimStatic.divisions;
+    radarStorage.vatsimStatic.subDivisions = (await getRedisData('data-subdivisions')) ?? radarStorage.vatsimStatic.subDivisions;
+    radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
+    radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
+    radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
 }
 
 export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateData();
 
-        while (!radarStorage.vatspy.data) {
+        while (!await isDataReady()) {
             await sleep(1000 * 60);
             await updateData();
         }

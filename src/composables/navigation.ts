@@ -6,6 +6,7 @@ import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
 import BookingsIcon from 'assets/icons/kit/bookings.svg?component';
 import PathIcon from 'assets/icons/kit/path.svg?component';
 import { useStore } from '~/store';
+import { useError } from '~/composables/errors';
 
 export interface HeaderItem {
     text: string;
@@ -113,14 +114,20 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
                 {
                     text: 'About Us',
-                    path: '/about',
+                    path: 'https://docs.vatsim-radar.com',
+                },
+                {
+                    text: 'Customize Data Policy',
+                    action: () => {
+                        return store.cookieCustomize = true;
+                    },
                 },
                 {
                     text: 'Install App',
                     active: false,
                     hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
                     action: () => {
-                        return app.$pwa?.install().then(console.log).catch(console.error);
+                        return app.$pwa?.install().then(console.log).catch(useError);
                     },
                 },
             ].filter(x => !x.hide),

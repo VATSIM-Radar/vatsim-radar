@@ -171,6 +171,7 @@ import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import { useError } from '~/composables/errors';
 
 const props = defineProps({
     aircraft: {
@@ -368,8 +369,8 @@ watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLay
     setStyle(undefined, true);
 });
 
-const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.departure]);
-const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.icao[pilot.value?.arrival]);
+const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.departure]);
+const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.arrival]);
 
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;
@@ -702,7 +703,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         }
     }
     catch (e) {
-        console.error(e);
+        useError(e);
     }
     finally {
         linesUpdateInProgress.value = false;

@@ -203,6 +203,14 @@
         <template #atc>
             <airport-controllers/>
         </template>
+        <template #bookings>
+            <common-controller-info
+                class="booking-controller-info"
+                :controllers="bookings"
+                max-height="170px"
+                show-facility
+            />
+        </template>
         <template #aircraft>
             <div
                 v-if="vatAirport?.aircraft.arrivals?.length"
@@ -300,6 +308,9 @@ import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
 import CommonBookmarkData from '~/components/common/vatsim/CommonBookmarkData.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import { useError } from '~/composables/errors';
 
 const props = defineProps({
     overlay: {
@@ -320,12 +331,24 @@ const dataStore = useDataStore();
 const copy = useCopyText();
 const config = useRuntimeConfig();
 
-const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.icao[props.overlay.data.icao]);
+const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao[props.overlay.data.icao]);
 const vatAirport = computed(() => dataStore.vatsim.data.airports.value.find(x => x.icao === props.overlay.data.icao));
 const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
 const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
+
+const bookings = computed(() => {
+    const atcs: VatsimShortenedController[] = [];
+    data.value?.bookings?.forEach(b => {
+        const atc = makeFacilityFromBooking(b);
+        if (!atc) return;
+
+        atcs.push(atc);
+    });
+
+    return atcs;
+});
 
 const showOnMap = () => {
     if (!airport.value) return;
@@ -350,7 +373,7 @@ const tabs = computed<InfoPopupContent>(() => {
         },
         atc: {
             title: 'ATC',
-            disabled: !atc.value.length,
+            disabled: !atc.value.length && !bookings.value.length,
             sections: [],
         },
         info: {
@@ -421,6 +444,16 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
+    if (data.value?.bookings?.length) {
+        list.atc.sections.push({
+            title: 'Booked Controllers',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+            key: 'bookings',
+        });
+    }
+
     if (atc.value.length) {
         list.atc.sections.push({
             title: 'Active Controllers',
@@ -460,7 +493,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
         };
     }
     catch (e) {
-        console.error(e);
+        useError(e);
     }
     finally {
         updateInProgress = false;
@@ -683,5 +716,9 @@ onMounted(() => {
             }
         }
     }
+}
+
+.booking-controller-info {
+    width: 100%;
 }
 </style>

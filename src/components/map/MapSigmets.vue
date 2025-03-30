@@ -49,19 +49,30 @@ import type { Coordinate } from 'ol/coordinate';
 import RenderFeature from 'ol/render/Feature';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
+import { useError } from '~/composables/errors';
 
 const store = useStore();
 const dataStore = useDataStore();
+let initialCall = false;
 
-const { refresh, data } = await useAsyncData<Sigmets>(async () => {
-    let url = '/api/data/sigmets';
-    const activeDate = store.localSettings.filters?.layers?.sigmets?.activeDate;
+const { refresh, data } = await useAsyncData<Sigmets>('sigmets', () => {
+    try {
+        let url = '/api/data/sigmets';
+        const activeDate = store.localSettings.filters?.layers?.sigmets?.activeDate;
 
-    const lastDate = typeof data !== 'undefined' && data.value?.validUntil;
+        const lastDate = initialCall && data.value?.validUntil;
+        initialCall = true;
 
-    if (activeDate && activeDate !== 'current') url += `?date=${ activeDate }${ lastDate ? `&lastDate=${ lastDate }` : '' }`;
+        if (activeDate && activeDate !== 'current') url += `?date=${ activeDate }${ lastDate ? `&lastDate=${ lastDate }` : '' }`;
 
-    return $fetch<Sigmets>(url);
+        return $fetch<Sigmets>(url);
+    }
+    catch (e) {
+        useError(e);
+        throw e;
+    }
+}, {
+    server: false,
 });
 
 const isExpired = computed(() => {
@@ -153,7 +164,7 @@ const jsonFeatures = computed(() => {
 
     const geoData: Sigmets = { ...data.value };
 
-    geoData.features = geoData.features.filter(x => x.properties.hazard && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
+    geoData.features = geoData.features.filter(x => x.properties.hazard && (store.localSettings.filters?.layers?.sigmets?.showAirmets !== false || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
 
     return geojson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',

@@ -107,6 +107,8 @@ const { data } = await useAsyncData('bookings', async () => {
     return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
         query: { starting: start.getTime(), ending: end.getTime() },
     });
+}, {
+    server: false,
 });
 
 const bookingsData = data.value ? data.value : [];
@@ -506,34 +508,36 @@ const getAirportsList = computed(() => {
         }
     }
 
-    for (const atc of dataStore.vatsim.data.locals.value) {
-        const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
-        const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
-        const iataAirport = airports.find(x => (
-            atc.airport.iata &&
-            x.airport.iata === atc.airport.iata &&
-            (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
-        ));
+    if (!store.mapSettings.bookingOverride) {
+        for (const atc of dataStore.vatsim.data.locals.value) {
+            const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
+            const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
+            const iataAirport = airports.find(x => (
+                atc.airport.iata &&
+                x.airport.iata === atc.airport.iata &&
+                (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
+            ));
 
-        const airport = iataAirport || icaoOnlyAirport;
+            const airport = iataAirport || icaoOnlyAirport;
 
-        if (!airport) continue;
+            if (!airport) continue;
 
-        if (isArr) {
-            if (vatGlassesActive.value && dataStore.vatglassesActivePositions.value['fallback']) {
-                const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
-                if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+            if (isArr) {
+                if (vatGlassesActive.value && dataStore.vatglassesActivePositions.value['fallback']) {
+                    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+                    if (!fallbackPositions.includes(atc.atc.callsign)) continue; // We don't add the current station if it is not in the fallback array, because it is shown with vatglasses sector. We need the tracon sectors as fallback for positions which are not defined in vatglasses.
+                }
+                airport.arrAtc.push(atc.atc);
+                airport.arrAtcInfo.push(atc);
+                continue;
             }
-            airport.arrAtc.push(atc.atc);
-            airport.arrAtcInfo.push(atc);
-            continue;
-        }
 
-        const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
-        if (isLocal) airport.localAtc.push(atc.atc);
+            const isLocal = atc.isATIS || atc.atc.facility === facilities.DEL || atc.atc.facility === facilities.TWR || atc.atc.facility === facilities.GND;
+            if (isLocal) airport.localAtc.push(atc.atc);
+        }
     }
 
-    if (store.mapSettings.visibility?.bookings ?? true) {
+    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
@@ -586,12 +590,13 @@ const getAirportsList = computed(() => {
     }
 
     function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
-        const existingLocal = airport.localAtc.find(x => x.facility === booking.atc.facility);
+        const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
 
         if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
             if (existingLocal) {
-                airport.localAtc = airport.localAtc.filter(x => x.cid !== existingLocal.cid);
+                airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
             }
+
             booking.atc.booking = booking;
             airport.bookings.push(booking);
             airport.localAtc.push(booking.atc);
@@ -718,7 +723,7 @@ const vatAirportsList = computed(() => {
     for (const airport of store.config.airport ? [store.config.airport!] : store.config.airports!) {
         if (list.some(x => x.icao === airport)) continue;
 
-        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.icao[airport];
+        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.realIcao[airport] || dataStore.vatspy.value!.data.keyAirports.icao[airport];
         if (!vatspyAirport) continue;
 
         list.push({
@@ -744,7 +749,7 @@ async function setVisibleAirports() {
         extent[3] += 0.9;
 
         airportsList.value = vatAirportsList.value.map(x => {
-            const vatAirport = dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
+            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
             let airport = x.isSimAware ? vatAirport || x : vatAirport;
             if (!x.isSimAware && airport?.icao !== x.icao) {
                 airport = {

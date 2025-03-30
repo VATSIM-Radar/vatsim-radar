@@ -4,10 +4,6 @@
             Privacy Policy
         </template>
 
-        Please visit <nuxt-link to="/about">
-            About Page
-        </nuxt-link> to know more about service goals and used libraries & data.
-
         Contact Email: <a
             class="__link"
             href="mailto:dan@vatsim-radar.com"
@@ -25,7 +21,7 @@
                         Services on this domain and subdomains would be described from later on as VATSIM Radar
                     </li>
                     <li>
-                        This Privacy Policy was last updated on 06 September 2024 (revision 3)
+                        This Privacy Policy was last updated on 29 March 2025 (revision 4)
                     </li>
                     <li>
                         User agrees to Privacy Policy by using VATSIM Radar
@@ -62,7 +58,7 @@
                                 Twitch user info: ID, nickname and relation with VATSIM account
                             </li>
                             <li>
-                                User's preferences, including, but not limited to, Settings, Favourite users, Filters,
+                                User's preferences, including, but not limited to, Settings, Favorite users, Filters,
                                 and other non-3rd party related preferences
                             </li>
                         </ol>
@@ -97,14 +93,8 @@
                         VATSIM Radar does not share any data, described in 2. and 3. with any external service
                     </li>
                     <li>
-                        VATSIM Radar may use CloudFlare Beacon to track minimum amount of information, as described <a
-                            href="https://developers.cloudflare.com/web-analytics/data-metrics/"
-                            target="_blank"
-                        >here</a>
-                    </li>
-                    <li>
                         VATSIM Radar does not include any other analytics scripts or hidden pixels that can be used to track
-                        user
+                        user without explicit notice via Data Policy Popup
                     </li>
                     <li>
                         All personal data can not be accessed via API, excluding accessing his own data by authorized

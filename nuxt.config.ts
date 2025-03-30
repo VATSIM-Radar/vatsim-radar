@@ -1,5 +1,10 @@
 import svgLoader from 'vite-svg-loader';
 
+let appName = 'VATSIM Radar';
+
+if (process.env.NODE_ENV === 'development') appName = 'VATSIM Radar Dev';
+if (process.env.DOMAIN?.includes('next')) appName = 'VATSIM Radar Next';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     app: {
@@ -125,6 +130,7 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
         '@vite-pwa/nuxt',
+        '@sentry/nuxt/module',
     ],
     eslint: {
         checker: {
@@ -151,6 +157,9 @@ export default defineNuxtConfig({
             '/vg': {
                 redirect: `${ process.env.DOMAIN }/?vg=1`,
             },
+            '/about': {
+                redirect: `https://docs.vatsim-radar.com`,
+            },
             '/layers/esri/**': {
                 proxy: 'https://ibasemaps-api.arcgis.com/**',
             },
@@ -169,8 +178,8 @@ export default defineNuxtConfig({
             installPrompt: true,
         },
         manifest: {
-            name: 'VATSIM Radar',
-            short_name: 'VATSIM Radar',
+            name: appName,
+            short_name: appName,
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
             display: 'standalone',

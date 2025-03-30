@@ -12,8 +12,8 @@ export default defineEventHandler(async (event): Promise<VatsimEventData | undef
     if (!(await validateDataReady(event))) return;
 
     return {
-        events: await radarStorage.vatsimStatic.events(),
-        divisions: await radarStorage.vatsimStatic.divisions(),
-        subDivisions: await radarStorage.vatsimStatic.subDivisions(),
+        events: radarStorage.vatsimStatic.events,
+        divisions: radarStorage.vatsimStatic.divisions,
+        subDivisions: radarStorage.vatsimStatic.subDivisions,
     };
 });

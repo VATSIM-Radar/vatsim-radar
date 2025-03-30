@@ -9,59 +9,6 @@
             Reset to defaults
         </common-button>
         <common-block-title>
-            General
-        </common-block-title>
-        <map-filter-columns>
-            <template #col1>
-                <common-toggle
-                    :model-value="!!store.mapSettings.highlightEmergency"
-                    @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
-                >
-                    Highlight Emergencies
-                </common-toggle>
-            </template>
-            <template #col2>
-                <common-toggle
-                    :model-value="!!store.mapSettings.heatmapLayer"
-                    @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
-                >
-                    Traffic Heatmap
-                </common-toggle>
-            </template>
-        </map-filter-columns>
-        <common-notification
-            cookie-name="settings-emergency"
-            type="info"
-        >
-            Emergencies are aircraft squawking 7700 and 7600
-        </common-notification>
-        <div class="__grid-info-sections __grid-info-sections--large-title">
-            <div class="__grid-info-sections_title">
-                Aircraft scale
-            </div>
-            <common-select
-                :items="scaleOptions"
-                max-dropdown-height="200px"
-                :model-value="store.mapSettings.aircraftScale ?? null"
-                placeholder="Choose Scale"
-                width="100%"
-                @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
-            />
-        </div>
-        <div class="__grid-info-sections __grid-info-sections--large-title">
-            <div class="__grid-info-sections_title">
-                Airport default zoom level
-            </div>
-            <common-select
-                :items="zoomOptions"
-                max-dropdown-height="200px"
-                :model-value="store.mapSettings.defaultAirportZoomLevel ?? 14"
-                width="100%"
-                @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
-            />
-        </div>
-
-        <common-block-title>
             VATGlasses
         </common-block-title>
 
@@ -113,6 +60,68 @@
                     Based on your flight
                 </template>
             </common-toggle>
+        </div>
+        <common-block-title>
+            General
+        </common-block-title>
+        <map-filter-columns>
+            <template #col1>
+                <common-toggle
+                    :model-value="!!store.mapSettings.highlightEmergency"
+                    @update:modelValue="setUserMapSettings({ highlightEmergency: $event })"
+                >
+                    Highlight Emergencies
+                </common-toggle>
+            </template>
+            <template #col2>
+                <common-toggle
+                    :model-value="!!store.mapSettings.heatmapLayer"
+                    @update:modelValue="setUserMapSettings({ heatmapLayer: $event })"
+                >
+                    Traffic Heatmap
+                </common-toggle>
+            </template>
+        </map-filter-columns>
+        <common-toggle
+            :model-value="!!store.mapSettings.disableQueryUpdate"
+            @update:modelValue="setUserMapSettings({ disableQueryUpdate: $event })"
+        >
+            Disable query update
+
+            <template #description>
+                URL will stop updating with constant center-zoom change. Use this if you hate this feature, or simply need infinite browser history entries to stop appearing
+            </template>
+        </common-toggle>
+        <common-notification
+            cookie-name="settings-emergency"
+            type="info"
+        >
+            Emergencies are aircraft squawking 7700 and 7600
+        </common-notification>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Aircraft scale
+            </div>
+            <common-select
+                :items="scaleOptions"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.aircraftScale ?? null"
+                placeholder="Choose Scale"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
+            />
+        </div>
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Airport default zoom level
+            </div>
+            <common-select
+                :items="zoomOptions"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.defaultAirportZoomLevel ?? 14"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
+            />
         </div>
 
         <map-settings-vat-glasses-level/>

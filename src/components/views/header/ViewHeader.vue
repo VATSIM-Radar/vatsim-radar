@@ -4,7 +4,10 @@
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            VATSIM Radar will undergo maintenance on August 11th at 14:00z with expected downtime of 5-10 minutes, during which online services may be temporally unavailable. Thank you for your patience.
+            We have initiated VATSIM Radar feedback poll. We would appreciate if you could provide us your feedback, so we could plan our development and listen to you. <a
+                href="https://forms.gle/q7iFB7RuzULoqz1q6"
+                target="_blank"
+            >You can find it here</a>. Thanks in advance &lt;3
         </div>
         <div
             class="header-error_close"
@@ -169,16 +172,72 @@
                         <github-icon/>
                     </template>
                 </common-button>
-                <common-button
-                    href="/discord"
-                    size="S"
-                    target="_blank"
-                    type="secondary"
+                <common-tooltip
+                    location="bottom"
+                    width="max-content"
                 >
-                    <template #icon>
-                        <discord-icon/>
+                    <template #activator>
+                        <common-button
+                            href="https://docs.vatsim-radar.com"
+                            size="S"
+                            target="_blank"
+                            type="secondary"
+                        >
+                            <template #icon>
+                                <question-icon/>
+                            </template>
+                        </common-button>
                     </template>
-                </common-button>
+                    Documentation
+                </common-tooltip>
+                <common-tooltip
+                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
+                    location="bottom"
+                    width="max-content"
+                >
+                    <template #activator>
+                        <common-button
+                            size="S"
+                            type="secondary"
+                            @click="app.$pwa?.install()"
+                        >
+                            <template #icon>
+                                <load-on-pc-icon/>
+                            </template>
+                        </common-button>
+                    </template>
+                    Install App
+                </common-tooltip>
+                <common-tooltip
+                    align="right"
+                    location="bottom"
+                    width="200px"
+                >
+                    <template #activator>
+                        <common-button
+                            size="S"
+                            type="secondary"
+                        >
+                            <template #icon>
+                                <discord-icon/>
+                            </template>
+                        </common-button>
+                    </template>
+                    <div class="__info-sections">
+                        <common-button
+                            href="https://discord.com/invite/vatsim"
+                            target="_blank"
+                        >
+                            General VATSIM Discussion
+                        </common-button>
+                        <common-button
+                            href="/discord"
+                            target="_blank"
+                        >
+                            VATSIM Radar Development
+                        </common-button>
+                    </div>
+                </common-tooltip>
                 <common-button
                     v-if="config.public.IS_DOWN !== 'true'"
                     size="S"
@@ -231,6 +290,7 @@ import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import SearchIcon from 'assets/icons/kit/search.svg?component';
@@ -243,6 +303,8 @@ import ViewHeaderMobileMenu from '~/components/views/header/ViewHeaderMobileMenu
 import ViewHeaderThemeSwitcher from '~/components/views/header/ViewHeaderThemeSwitcher.vue';
 import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 
 const headerMenu = useHeaderMenu();
 
@@ -253,8 +315,10 @@ const notamCookie = useCookie<boolean>('notam-closed', {
     path: '/',
     sameSite: 'strict',
     secure: true,
-    maxAge: 60 * 60 * 24,
+    maxAge: 60 * 60 * 24 * 7,
 });
+
+const app = useNuxtApp();
 
 const isMobileOrTablet = useIsMobileOrTablet();
 const isMobile = useIsMobile();
@@ -294,18 +358,24 @@ const mobileMenuOpened = ref(false);
 
         background: $error500;
 
+        a {
+            color: $lightgray150Orig;
+        }
+
         &--notam {
             background: $primary600;
 
-            &::before {
-                content: 'NOTAM';
+            @include pc {
+                &::before {
+                    content: 'NOTAM';
 
-                position: absolute;
-                right: 40px;
+                    position: absolute;
+                    right: 40px;
 
-                font-size: 15px;
-                font-weight: 700;
-                letter-spacing: 2px;
+                    font-size: 15px;
+                    font-weight: 700;
+                    letter-spacing: 2px;
+                }
             }
         }
 
