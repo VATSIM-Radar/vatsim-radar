@@ -693,7 +693,7 @@ async function initVatglassesCombined() {
         const localRunways = dataStore.vatglassesActiveRunways.value;
 
         for (const icao in localRunways) {
-            if (localRunways[icao].active !== serverRunways?.[icao].active) {
+            if (localRunways[icao].active !== serverRunways?.[icao]?.active) {
                 await activeRunwayChanged(icao, false);
             }
         }
