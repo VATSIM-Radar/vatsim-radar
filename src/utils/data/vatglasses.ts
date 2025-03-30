@@ -28,6 +28,7 @@ let facilities: {
 /*
 If we want to get the initial load of the combined sectors, we need sectorsCombined, airspaceKeys and the vatglasses Data version of the server on which base the sectors were combined, to make sure we have the same data version on the client side.
 */
+const VGdebugMode = false;
 
 export interface VatglassesActiveData {
     vatglassesActiveRunways: VatglassesActiveRunways;
@@ -112,7 +113,7 @@ function updateVatglassesPositionsAndAirspaces() {
         }
 
         // TODO: sort firs by the same as EuroScope sorts the positions before assigning logged in stations to a position
-        // let first = 0; // used for debug
+        let first = 0; // used for debug
         const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
             // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
@@ -126,23 +127,24 @@ function updateVatglassesPositionsAndAirspaces() {
             if (!atc) continue;
 
             // // used for debug
-            // if (first === 0) {
-            //     atc.frequency = '135.050';
-            //     atc.callsign = 'AFRE_FSS';
-            //     atc.cid = 1025793;
-            //     first++;
-            // }
-            // else if (first === 1) {
-            //     break;
-            //     if (calls > 3) break;
-            //     atc.frequency = '129.100';
-            //     atc.callsign = 'EDMM_ALB_CTR';
-            //     atc.cid = 1025794;
-            // // first++;
-            // }
-            // else {
-            //     break;
-            // }
+            if (VGdebugMode) {
+                if (first === 0) {
+                    atc.frequency = '121.550';
+                    atc.callsign = 'ENOR_S_CTR';
+                    atc.cid = 1025793;
+                    first++;
+                }
+                else if (first === 1) {
+                    break;
+                    atc.frequency = '127.755';
+                    atc.callsign = 'ESMM_2_CTR';
+                    atc.cid = 1025794;
+                    // first++;
+                }
+                else {
+                    break;
+                }
+            }
 
             let foundMatchingVatglassesController = false;
             let doublePositionMatch = false;
