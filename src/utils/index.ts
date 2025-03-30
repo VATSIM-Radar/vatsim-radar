@@ -1,5 +1,5 @@
-import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString } from 'geojson';
-import { LineString, MultiLineString } from 'ol/geom';
+import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString, Point as GeoPoint } from 'geojson';
+import { LineString, MultiLineString, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import Polygon from 'ol/geom/Polygon';
 
@@ -49,8 +49,12 @@ export function serializeClass<T extends string | null | undefined>(className: T
     return className;
 }
 
-export function greatCircleGeometryToOL(feature: Feature<GeoLineString | GeoMultiLineString>) {
-    return feature.geometry.type === 'LineString' ? new LineString(feature.geometry.coordinates) : new MultiLineString(feature.geometry.coordinates);
+export function greatCircleGeometryToOL(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint>) {
+    if (feature.geometry.type === 'LineString') return new LineString(feature.geometry.coordinates);
+    if (feature.geometry.type === 'MultiLineString') return new MultiLineString(feature.geometry.coordinates);
+    if (feature.geometry.type === 'Point') return new Point(feature.geometry.coordinates);
+
+    throw new Error('Invalid geometry');
 }
 
 export function createCircle(center: Coordinate, radius: number, numPoints = 64) {

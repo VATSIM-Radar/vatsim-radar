@@ -1,12 +1,13 @@
 import { defineCronJob } from '~/utils/backend';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { initNavigraph, navigraphCurrentDb } from '~/utils/backend/navigraph/db';
 import { setupRedisDataFetch } from '~/utils/backend/tasks';
 import { radarStorage } from '~/utils/backend/storage';
 import { getRedis } from '~/utils/backend/redis';
+import { processDatabase } from '~/utils/backend/navigraph/navdata';
 
 const redisSubscriber = getRedis();
 
-export default defineNitroPlugin(app => {
+export default defineNitroPlugin(async app => {
     setupRedisDataFetch();
 
     redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
@@ -19,5 +20,5 @@ export default defineNitroPlugin(app => {
         }
     });
 
-    defineCronJob('15 */2 * * *', initNavigraph);
+    await defineCronJob('15 */2 * * *', initNavigraph);
 });

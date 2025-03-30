@@ -1,8 +1,8 @@
 import IORedis from 'ioredis';
 import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
-import type { cycles } from '~/utils/backend/navigraph-db';
+import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
-import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/backend/storage';
+import type { RadarDataAirlinesAllList, RadarStorage, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/backend/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getRedis() {
@@ -49,6 +49,7 @@ export interface RedisData {
     'data-patreon': PatreonInfo;
     'data-bookings': VatsimBooking[];
     'data-airlines': RadarDataAirlinesAllList;
+    'navigraph-data': RadarStorage['navigraphData'];
 }
 
 export async function getRedisData<K extends keyof RedisData, D extends RedisData[K], T = RedisData[K]>(key: K, defaults: D): Promise<T | D>;

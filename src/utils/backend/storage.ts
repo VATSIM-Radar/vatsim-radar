@@ -11,8 +11,9 @@ import type {
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
-import type { cycles } from '~/utils/backend/navigraph-db';
+import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
+import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
@@ -209,6 +210,17 @@ export interface RadarStorage {
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
+    navigraphData: {
+        versions: typeof cycles;
+        full: {
+            current: NavigraphNavData | null;
+            outdated: NavigraphNavData | null;
+        };
+        short: {
+            current: NavigraphNavDataShort | null;
+            outdated: NavigraphNavDataShort | null;
+        };
+    };
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
@@ -260,6 +272,20 @@ export const radarStorage: RadarStorage = {
         current: '',
         outdated: '',
     },
+    navigraphData: {
+        versions: {
+            current: '',
+            outdated: '',
+        },
+        full: {
+            current: null,
+            outdated: null,
+        },
+        short: {
+            current: null,
+            outdated: null,
+        },
+    },
     patreonInfo: null,
     airlines: {
         airlines: {},
@@ -273,7 +299,9 @@ export async function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 
-    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
+    if (!process.env.NAVIGRAPH_CLIENT_ID) return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
+
+    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware && !!radarStorage.navigraphData.short.current;
 }
 
 export function getDataVersions(): VatDataVersions {
