@@ -219,6 +219,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let vgInterval: NodeJS.Timeout | null = null;
+    let visibilityInterval: NodeJS.Timeout | null = null;
     let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
@@ -228,7 +230,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
     function startIntervalChecks() {
         getVatglassesDynamic(dataStore);
-        interval = setInterval(async () => {
+        vgInterval = setInterval(async () => {
             if (isVatGlassesActive()) {
                 getVatglassesDynamic(dataStore);
             }
@@ -257,7 +259,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             }
         }, 2000);
 
-        interval = setInterval(async () => {
+        visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
             await store.getVATSIMData(socketsEnabled());
@@ -373,9 +375,9 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         document.removeEventListener('visibilitychange', setVisibilityState);
         isMounted.value = false;
         ws?.();
-        if (interval) {
-            clearInterval(interval);
-        }
+        if (interval) clearInterval(interval);
+        if (vgInterval) clearInterval(interval);
+        if (visibilityInterval) clearInterval(interval);
     });
 }
 
