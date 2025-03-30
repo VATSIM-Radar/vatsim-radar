@@ -376,8 +376,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         isMounted.value = false;
         ws?.();
         if (interval) clearInterval(interval);
-        if (vgInterval) clearInterval(interval);
-        if (visibilityInterval) clearInterval(interval);
+        if (vgInterval) clearInterval(vgInterval);
+        if (visibilityInterval) clearInterval(visibilityInterval);
     });
 }
 
