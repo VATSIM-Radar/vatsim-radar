@@ -14,7 +14,7 @@ import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -100,7 +100,7 @@ export function attachPointerMove(callback: (event: any) => unknown) {
             await callback(e);
         }
         catch (e) {
-            useError(e);
+            useRadarError(e);
         }
         finally {
             await sleep(300);

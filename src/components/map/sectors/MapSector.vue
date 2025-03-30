@@ -70,7 +70,7 @@ import { getAirportCountry } from '~/composables/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     fir: {
@@ -193,7 +193,7 @@ const init = () => {
         }
     }
     catch (e) {
-        useError(e);
+        useRadarError(e);
     }
 };
 

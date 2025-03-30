@@ -24,7 +24,7 @@ import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -253,7 +253,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                     dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
                 }
                 catch (e) {
-                    useError(e);
+                    useRadarError(e);
                 }
                 mandatoryInProgess = false;
             }

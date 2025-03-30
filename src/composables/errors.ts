@@ -4,7 +4,7 @@ import { captureException, captureMessage } from '@sentry/nuxt';
 
 export type AnyError = unknown | Error | IFetchError;
 
-export function useError(error: AnyError) {
+export function useRadarError(error: AnyError) {
     if (isFetchError(error)) {
         const fetchError = error;
         if (fetchError?.statusCode !== 404 && fetchError?.statusCode !== 423 && fetchError?.statusCode !== 503) {

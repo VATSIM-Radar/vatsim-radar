@@ -265,7 +265,7 @@ import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 const route = useRoute();
 const router = useRouter();
@@ -596,7 +596,7 @@ airportData.value = (await useAsyncData(async () => {
         };
     }
     catch (e) {
-        useError(e);
+        useRadarError(e);
         showError({
             statusCode: 404,
         });

@@ -174,7 +174,7 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 defineProps({
     sigmetsMode: {
@@ -270,7 +270,7 @@ const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
-    await checkAndAddOwnAircraft().catch(useError);
+    await checkAndAddOwnAircraft().catch(useRadarError);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);

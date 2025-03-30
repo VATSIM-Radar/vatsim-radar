@@ -49,7 +49,7 @@ import type { Coordinate } from 'ol/coordinate';
 import RenderFeature from 'ol/render/Feature';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -68,7 +68,7 @@ const { refresh, data } = await useAsyncData<Sigmets>('sigmets', () => {
         return $fetch<Sigmets>(url);
     }
     catch (e) {
-        useError(e);
+        useRadarError(e);
         throw e;
     }
 }, {

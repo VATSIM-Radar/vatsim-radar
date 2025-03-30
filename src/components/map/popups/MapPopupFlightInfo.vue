@@ -218,7 +218,7 @@ import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vu
 import { getAirlineFromCallsign } from '~/composables';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import { useStore } from '~/store';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     pilot: {
@@ -274,7 +274,7 @@ const getDistAndTime = computed(() => {
         return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
     }
     catch (e) {
-        useError(e);
+        useRadarError(e);
         return null;
     }
 });

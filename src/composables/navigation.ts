@@ -6,7 +6,7 @@ import CalendarIcon from 'assets/icons/kit/calendar.svg?component';
 import BookingsIcon from 'assets/icons/kit/bookings.svg?component';
 import PathIcon from 'assets/icons/kit/path.svg?component';
 import { useStore } from '~/store';
-import { useError } from '~/composables/errors';
+import { useRadarError } from '~/composables/errors';
 
 export interface HeaderItem {
     text: string;
@@ -127,7 +127,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     active: false,
                     hide: app.$pwa?.isPWAInstalled || !app.$pwa?.showInstallPrompt,
                     action: () => {
-                        return app.$pwa?.install().then(console.log).catch(useError);
+                        return app.$pwa?.install().then(console.log).catch(useRadarError);
                     },
                 },
             ].filter(x => !x.hide),
