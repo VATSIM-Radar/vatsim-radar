@@ -92,7 +92,7 @@ jobs:
       - name: Validate App
         run: kubectl rollout status deployment app-next
       - name: Apply VG
-        run: kubectl rollout restart deployment vatglasses
+        run: kubectl rollout restart deployment vatglasses-next
       - name: Validate VG
         run: kubectl rollout status deployment vatglasses-next
 
