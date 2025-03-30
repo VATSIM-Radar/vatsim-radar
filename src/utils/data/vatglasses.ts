@@ -662,7 +662,6 @@ async function initVatglassesCombined() {
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses/active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
-        console.log(data)
         if (vatglassesDataVersion === data.version) {
             for (const countryGroupId in data.vatglassesActivePositions) {
                 for (const positionId in data.vatglassesActivePositions[countryGroupId]) {
