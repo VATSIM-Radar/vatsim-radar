@@ -327,8 +327,6 @@ watch(map, val => {
             wrapX: false,
         });
 
-        const styles = airportLayoutStyles();
-
         gatesLayer = new VectorLayer<any>({
             source: gatesSource.value,
             properties: {
@@ -356,6 +354,11 @@ watch(map, val => {
     val.on('click', handleMapClick);
 }, {
     immediate: true,
+});
+
+watch(dataStore.vatsim.data.bars, val => {
+    if (!Object.keys(val).length) return;
+    airportLayerSource.value?.dispatchEvent('change');
 });
 
 onBeforeUnmount(() => {

@@ -231,7 +231,7 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const aircraft = dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString()];
     if (!aircraft) {
         initialOwnCheck = true;
         return;
@@ -451,7 +451,7 @@ watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
-    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
     if (!user) return;
 
     setUserLocalSettings({

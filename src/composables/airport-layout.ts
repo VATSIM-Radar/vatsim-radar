@@ -8,6 +8,15 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 
 const taxiwayNameRegex = new RegExp('^((Main TWY)|Main|Route) ', 'i');
 
+const dataStore = useDataStore();
+
+function getIntersectionStatus(airport: string, label: string) {
+    const bars = dataStore.vatsim.data.bars.value[airport];
+    if (!bars) return true;
+
+    return bars.find(x => x.bars.find(x => x[0].split('--')[0] === label))?.bars.find(x => x[0].split('--')[0] === label)?.[1] ?? true;
+}
+
 export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Style[] | ((feature: FeatureLike) => Style | Style[] | undefined)> => {
     const theme = useStore().getCurrentTheme;
 
@@ -249,6 +258,8 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             return styles;
         },
         taxiwayholdingposition: feature => {
+            const properties = feature.getProperties();
+
             const options: StyleOptions = {
                 stroke: new Stroke({
                     color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.5)`,
@@ -256,9 +267,9 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 zIndex: 5,
             };
 
-            if (feature.getProperties().idlin) {
+            if (properties.idlin) {
                 options.text = new Text({
-                    text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
+                    text: properties.idlin.replace(taxiwayNameRegex, ''),
                     font: 'bold 12px Montserrat',
                     placement: 'line',
                     fill: new Fill({
@@ -269,9 +280,16 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 });
             }
 
-            if (feature.getProperties().catstop === 2) {
+            if (properties.catstop === 2) {
                 options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.5)`);
                 options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.6)`);
+            }
+
+            if (properties.idlin && !getIntersectionStatus(properties.airport, properties.idlin)) {
+                options.stroke?.setWidth(2);
+                options.stroke?.setLineDash([1, 4]);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error700').join(',') }, 0.8)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error700').join(',') }, 0.8)`);
             }
 
             return new Style(options);

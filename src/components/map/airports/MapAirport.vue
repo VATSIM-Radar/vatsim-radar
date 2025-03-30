@@ -719,6 +719,7 @@ onMounted(async () => {
                 feature.setProperties({
                     ...feature.getProperties(),
                     type: key,
+                    airport: props.airport.icao,
                 });
 
                 if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline') {
