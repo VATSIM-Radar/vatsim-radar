@@ -151,6 +151,11 @@ async function handleClick(e: MapBrowserEvent<any>) {
         atc: findAtcByCallsign(x.atc.callsign) ?? x.atc,
     }));
 
+    if (!vatGlassesCombinedActive.value) {
+        // Apply the second filter to remove duplicates based on `cid`
+        sectorsAtClick.value = sectorsAtClick.value.filter((x, index) => !sectorsAtClick.value.some((y, yIndex) => y.atc?.cid === x.atc.cid && yIndex < index));
+    }
+
     getCoordinates.value = e.coordinate;
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
 }
