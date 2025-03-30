@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.1-beta.5]
+
+- (QA) Potential VATGlasses dynamic fix
+- (QA) Fixed BARS showing red instead of green and vice versa
+- Fixed VATGlasses combined positions not showing controllers correctly on click
+
 # [1.1.1-beta.4]
 
 - Minor performance improvements on each update
