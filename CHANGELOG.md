@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.1-beta.2]
+
+- Added VATGlasses dynamic sectors support
+
 # [1.1.1-beta.1]
 
 - Added separate VATSIM General Discord link
