@@ -11,6 +11,7 @@ import type {
     RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
     VatglassesAPIData,
+    VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
 import type { IDBAirlinesData } from '~/utils/client-db';
@@ -22,6 +23,7 @@ import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useError } from '~/composables/errors';
 
 const versions = ref<null | VatDataVersions>(null);
@@ -37,6 +39,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
+const vatglassesDynamicData = shallowRef<VatglassesDynamicAPIData>({ version: null, data: null });
 const vatglassesCombiningInProgress = ref(false);
 const time = ref(Date.now());
 const stats = shallowRef<{
@@ -117,6 +120,7 @@ export interface UseDataStore {
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     vatglassesCombiningInProgress: Ref<boolean>;
+    vatglassesDynamicData: ShallowRef<VatglassesDynamicAPIData | undefined>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
@@ -133,6 +137,7 @@ export function useDataStore(): UseDataStore {
         vatglassesActivePositions,
         vatglassesActiveRunways,
         vatglassesCombiningInProgress,
+        vatglassesDynamicData,
         stats,
         time,
         sigmets,
@@ -214,6 +219,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let vgInterval: NodeJS.Timeout | null = null;
+    let visibilityInterval: NodeJS.Timeout | null = null;
     let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
@@ -222,6 +229,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
 
     function startIntervalChecks() {
+        getVatglassesDynamic(dataStore);
+        vgInterval = setInterval(async () => {
+            if (isVatGlassesActive()) {
+                getVatglassesDynamic(dataStore);
+            }
+        }, 30000);
+
         interval = setInterval(async () => {
             if (mandatoryInProgess || !store.isTabVisible) return;
             if (socketsEnabled()) {
@@ -245,7 +259,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             }
         }, 2000);
 
-        interval = setInterval(async () => {
+        visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
             await store.getVATSIMData(socketsEnabled());
@@ -361,10 +375,30 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         document.removeEventListener('visibilitychange', setVisibilityState);
         isMounted.value = false;
         ws?.();
-        if (interval) {
-            clearInterval(interval);
-        }
+        if (interval) clearInterval(interval);
+        if (vgInterval) clearInterval(vgInterval);
+        if (visibilityInterval) clearInterval(visibilityInterval);
     });
+}
+
+async function getVatglassesDynamic(dataStore: UseDataStore) {
+    try {
+        const vatglassesDynamicDataVersion = await $fetch<string>(`/api/data/vatsim/data/vatglasses/dynamic-version`, {
+            timeout: 1000 * 60,
+        });
+
+
+        if (vatglassesDynamicDataVersion !== dataStore.vatglassesDynamicData.value?.version) {
+            const vatglassesDynamicData = await $fetch<VatglassesDynamicAPIData>(`/api/data/vatsim/data/vatglasses/dynamic`, {
+                timeout: 1000 * 60,
+            });
+
+            dataStore.vatglassesDynamicData.value = vatglassesDynamicData;
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
 }
 
 export interface ControllerStats {

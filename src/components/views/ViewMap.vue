@@ -326,7 +326,7 @@ const restoreOverlays = async () => {
             if (!('value' in data[0])) return overlay;
 
             (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`).catch(console.error) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;

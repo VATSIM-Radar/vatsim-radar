@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.1.1-beta.2]
+
+- Added VATGlasses dynamic sectors support
+- Fixed small memory leak when leaving the map and going back again at the same tab
+
 # [1.1.1-beta.1]
 
 - Added separate VATSIM General Discord link
