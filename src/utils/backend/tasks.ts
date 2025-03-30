@@ -7,7 +7,7 @@ import type {
     PatreonPledgesReward,
     PatreonPledgesUser,
 } from '~/types/data/patreon';
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady, radarStorage } from '~/utils/backend/storage';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
@@ -215,7 +215,7 @@ export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateData();
 
-        while (!radarStorage.vatspy.data) {
+        while (!await isDataReady()) {
             await sleep(1000 * 60);
             await updateData();
         }
