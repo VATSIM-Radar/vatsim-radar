@@ -310,6 +310,7 @@ import CommonBookmarkData from '~/components/common/vatsim/CommonBookmarkData.vu
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     overlay: {
@@ -492,7 +493,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
         };
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
     }
     finally {
         updateInProgress = false;

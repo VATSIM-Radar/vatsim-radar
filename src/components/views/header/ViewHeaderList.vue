@@ -55,6 +55,36 @@
                 >
                     Max count of {{ MAX_LISTS_USERS }} is reached
                 </common-notification>
+                <div
+                    v-if="userAddActive"
+                    class="__info-sections users_add"
+                >
+                    <common-notification v-if="newUser.cid && store.lists.some(x => x.users.some(x => x.cid === newUser.cid))">
+                        This user already exists in list {{ store.lists.find(x => x.users.some(x => x.cid === newUser.cid))?.name }}
+                    </common-notification>
+                    <div class="__section-group">
+                        <common-input-text
+                            :model-value="!newUser.cid ? '' : newUser.cid.toString()"
+                            placeholder="CID"
+                            @update:modelValue="newUser.cid = (isNaN(parseInt($event, 10)) || parseInt($event, 10) < 1) ? 0 : +parseInt($event, 10)"
+                        />
+                        <common-input-text
+                            v-model="newUser.name"
+                            placeholder="Name"
+                        />
+                    </div>
+                    <common-input-text
+                        v-model="newUser.comment"
+                        placeholder="Comment"
+                    />
+                    <common-button
+                        :disabled="!newUser.cid || !newUser.name || store.lists.some(x => x.users.some(x => x.cid === newUser.cid))"
+                        size="S"
+                        @click="[list!.id === 0 ? editUserList({ ...list, users: [newUser]}) : editUserList({ id: list!.id, users: [newUser, ...list.users!]}), resetNewUser()]"
+                    >
+                        Add user to list
+                    </common-button>
+                </div>
                 <common-input-text
                     :model-value="list.name"
                     @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
@@ -116,37 +146,6 @@
         >
             Want to modify favorite user?<br> Just click on user's card!
         </common-notification>
-
-        <div
-            v-if="userAddActive"
-            class="__info-sections users_add"
-        >
-            <common-notification v-if="newUser.cid && store.lists.some(x => x.users.some(x => x.cid === newUser.cid))">
-                This user already exists in list {{ store.lists.find(x => x.users.some(x => x.cid === newUser.cid))?.name }}
-            </common-notification>
-            <div class="__section-group">
-                <common-input-text
-                    :model-value="!newUser.cid ? '' : newUser.cid.toString()"
-                    placeholder="CID"
-                    @update:modelValue="newUser.cid = (isNaN(parseInt($event, 10)) || parseInt($event, 10) < 1) ? 0 : +parseInt($event, 10)"
-                />
-                <common-input-text
-                    v-model="newUser.name"
-                    placeholder="Name"
-                />
-            </div>
-            <common-input-text
-                v-model="newUser.comment"
-                placeholder="Comment"
-            />
-            <common-button
-                :disabled="!newUser.cid || !newUser.name || store.lists.some(x => x.users.some(x => x.cid === newUser.cid))"
-                size="S"
-                @click="[list!.id === 0 ? editUserList({ ...list, users: [newUser]}) : editUserList({ id: list!.id, users: [newUser, ...list.users!]}), resetNewUser()]"
-            >
-                Add user to list
-            </common-button>
-        </div>
 
         <view-user-list
             :key="String(store.user?.settings.favoriteSort)"
@@ -218,6 +217,27 @@
                 <common-block-title remove-margin>
                     Import as file
                 </common-block-title>
+                <common-notification
+                    cookie-name="vatspy-import"
+                    type="info"
+                >
+                    <details>
+                        <summary>
+                            How to import VATSpy data?
+                        </summary>
+                        <ol>
+                            <li>
+                                Open <code>%AppData%</code> in Explorer
+                            </li>
+                            <li>
+                                Locate VATSpyConfig.xml
+                            </li>
+                            <li>
+                                Import it. You should have at least one filter with CIDs for it to work
+                            </li>
+                        </ol>
+                    </details>
+                </common-notification>
                 <common-button @click="fileInput?.click()">
                     Import VATSpy XML or VATSIM Radar JSON
                 </common-button>
@@ -413,12 +433,29 @@ async function importFile() {
             attributeNamePrefix: '',
         });
 
-        console.log(xmlParser.parse(content).VATSpyConfig.Filters.Filter);
+        const parsedContent = xmlParser.parse(content).VATSpyConfig;
 
-        vatSpyImport.value = xmlParser.parse(content).VATSpyConfig.Filters.Filter.map((x: any) => ({
+        const filters = Array.isArray(parsedContent.Filters.Filter) ? parsedContent.Filters.Filter : [parsedContent.Filters.Filter];
+
+        const importedData = filters.map((x: any) => ({
             title: x.Name,
-            cids: x.CIDs.string,
-        }));
+            cids: x.CIDs?.string,
+        })).filter((x: any) => x.cids?.length);
+
+        if (!filters.length) {
+            alert('No VATSpy presets found');
+            return;
+        }
+
+        if (importedData.length === 1) {
+            importedList.value = importedData[0].cids.map((x: number) => ({ cid: x, name: x.toString() }));
+        }
+        else {
+            vatSpyImport.value = importedData.map((x: any) => ({
+                title: x.Name,
+                cids: x.CIDs.string,
+            }));
+        }
     }
     else if (input.name.endsWith('.json')) {
         const json = JSON.parse(content) as UserListUser[];
@@ -433,8 +470,8 @@ async function importFile() {
     }
 }
 
-watch(() => props.list, val => {
-    editUserList(val);
+watch(() => JSON.stringify(props.list), val => {
+    editUserList(props.list);
 });
 </script>
 

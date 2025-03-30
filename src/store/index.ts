@@ -73,6 +73,7 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
+        cookieCustomize: false,
 
         loginPopup: false,
         deleteAccountPopup: false,

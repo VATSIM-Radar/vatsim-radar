@@ -2,7 +2,7 @@ import IORedis from 'ioredis';
 import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
-import type { RadarDataAirlinesAllList, RadarStorage, SimAwareData, VatglassesData } from '~/utils/backend/storage';
+import type { RadarDataAirlinesAllList, RadarStorage, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/backend/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getRedis() {
@@ -41,6 +41,7 @@ export interface RedisData {
         version: string;
         data: VatglassesData;
     };
+    'data-vatglasses-dynamic': VatglassesDynamicAPIData;
     'data-divisions': VatsimDivision[];
     'data-subdivisions': VatsimSubDivision[];
     'data-events': VatsimEvent[];

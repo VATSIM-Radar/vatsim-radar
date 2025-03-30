@@ -7,7 +7,7 @@ import type {
     PatreonPledgesReward,
     PatreonPledgesUser,
 } from '~/types/data/patreon';
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady, radarStorage } from '~/utils/backend/storage';
 import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
@@ -31,9 +31,14 @@ async function basicTasks() {
     await defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     await defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
-    redisSubscriber.subscribe('vatglassesActive');
-    redisSubscriber.on('message', (_, message) => {
-        radarStorage.vatglasses.activeData = message;
+    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.on('message', (channel, message) => {
+        if (channel === 'vatglassesActive') {
+            radarStorage.vatglasses.activeData = message;
+        }
+        else if (channel === 'vatglassesDynamic') {
+            radarStorage.vatglasses.dynamicData = JSON.parse(message);
+        }
     });
 }
 
@@ -237,7 +242,7 @@ export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateData();
 
-        while (!radarStorage.navigraphData.full.current) {
+        while (!await isDataReady() && radarStorage.navigraphData.full.current) {
             await sleep(1000 * 60);
             await updateData();
         }

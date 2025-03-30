@@ -268,7 +268,9 @@ onMounted(() => {
 });
 
 function cancelBookingOverride() {
-    store.mapSettings.bookingOverride = false;
+    setUserMapSettings({
+        bookingOverride: false,
+    });
     delete route.query.start;
     delete route.query.end;
     router.replace({ query: route.query });

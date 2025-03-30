@@ -10,6 +10,12 @@
                     View on Map
                 </common-button>
             </template>
+            <common-toggle
+                :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
+                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+            >
+                Bookings local time
+            </common-toggle>
         </div>
         <common-timeline
             v-if="bookingsData"
@@ -33,6 +39,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
 import type { Reactive } from 'vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();

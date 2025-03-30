@@ -17,6 +17,7 @@
 import type { PropType } from 'vue';
 import type { INuxtError } from '~/types';
 import CrashIcon from 'assets/icons/errors/crash.svg?component';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     error: {
@@ -26,7 +27,7 @@ const props = defineProps({
 });
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
-console.error(props.error);
+useRadarError(props.error);
 </script>
 
 <style scoped lang="scss">

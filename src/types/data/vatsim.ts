@@ -134,6 +134,8 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
     atc: VatsimShortenedController;
     start_local?: string;
     end_local?: string;
+    start_z?: string;
+    end_z?: string;
 }
 
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;

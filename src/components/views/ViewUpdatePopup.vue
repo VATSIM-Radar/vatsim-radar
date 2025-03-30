@@ -109,23 +109,73 @@ const title = useTemplateRef('title');
 
 const update: Update = {
     type: 'major',
-    name: '1.0.2',
-    height: 'auto',
+    name: '1.1.0',
+    height: '580px',
     features: [
         {
+            title: 'Welcome to newest VATSIM Radar update!',
+            image: images['../../assets/update/presentation.png'],
+            imageRatio: '1920 / 1080',
+            description: `This update is packed with a bunch of new features that were requested from our fellow community.`,
+            list: [
+                'SIGMETs: view them directly on map or on separate page. AIRMETs are also available for US!',
+                'Bookings: view Bookings on map and timeline on separate page - made by Noah Elijah Till',
+                'Stats: view live VATSIM data',
+                'Many other features, UI/UX improvements and bug fixes',
+            ],
+        },
+        {
+            title: 'SIGMETs',
+            image: images['../../assets/update/sigmets.png'],
+            description: `Provided by Aviation Weather Center, SIGMETs are now available in VATSIM Radar!`,
+            list: [
+                'Enable SIGMETs for main map - or view them on separate page',
+                'Hide different SIGMETs types',
+                'View US AIRWAYs - not available for other continents, at least for now',
+                'Click on SIGMET to view additional details',
+                'Enable them now in Map Layers',
+            ],
+        },
+        {
+            title: 'Bookings (BETA)',
+            image: images['../../assets/update/bookings.png'],
+            description: `Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!`,
+            list: [
+                'View timeline on separate page',
+                'Click on airport group to view bookings by position',
+                'View all coming bookings on map by setting their date',
+                'Bookings are also displayed on map (TWR and below for now)',
+                'This feature should now be considered BETA - more improvements are coming later',
+            ],
+        },
+        {
+            title: 'Live Stats',
+            description: `Long-time requested SimAware feature is making it's way to VR!`,
+            image: images['../../assets/update/stats.png'],
+            list: [
+                'View top Airports, Airlines, Aircraft, Routes',
+                'View ATC and Pilots online',
+                'Sort columns if needed',
+                'Open a specific route on map or filter it by airline - using only one click',
+            ],
+        },
+        {
             title: 'Quality of Life',
-            description: 'Welcome to newest VATSIM Radar update! This is a small one, but we wanted to highlight some things.<br><br>Also, make sure to visit our Discord for full changelog: <a href="https://vatsim-radar.com/discord" target="_blank" class="__link">https://vatsim-radar.com/discord</a>',
+            description: 'Visit our <a href="/discord" target="_blank">Discord</a> for a full changelog',
             image: images['../../assets/update/quality.png'],
             list: [
-                'New map layer instead of CartoDB, available in Light and Detailed variants. This layer renders <strong>on your device</strong>, so if you experience performance issues after this update - switch to Basic layer instead',
-                'Satellite layer is back - but has quality data for USA only. Better Satellite is available for Patreon subscribers since we have to pay money for it. If you know a better free unlimited satellite layer - let us know',
-                'Updated VA CS parsing logic - VA will now require to be present in GNG fictional airlines list (or in VATSIM Radar Data repository)',
-                'METARs will now be fetched from VATSIM API',
-                'Small bug fixes',
+                'You can now sort presets (map settings, filters, bookmarks)',
+                'You can now import favorite lists - even from VATSpy config!',
+                'Added relative scale indicator',
+                'Updated default Map Layer data',
+                'Small performance and data consumption improvements',
+                'Diverting flight state by Noah Elijah Till',
+                'New aircraft icons from DotWallop',
+                'Many other improvements and bug fixes',
             ],
         },
     ],
-    active: false,
+    active: true,
 };
 
 const shownFeatureIndex = ref(0);

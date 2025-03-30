@@ -41,7 +41,7 @@ onBeforeUnmount(() => scaleLine?.dispose());
 <style scoped lang="scss">
 .scale {
     position: absolute;
-    z-index: 10;
+    z-index: 8;
     right: 20px;
     bottom: 10px;
 

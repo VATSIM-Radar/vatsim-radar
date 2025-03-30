@@ -1,103 +1,108 @@
 # Changelog
 
-# [1.1.0-rc.2]
+# [1.1.1-beta.3]
 
-- (QA) You can now separately disable airmets
+- Fixed VATSpy friends import if you only had a single preset
+- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+
+# [1.1.1-beta.2]
+
+- Added VATGlasses dynamic sectors support
+- Fixed small memory leak when leaving the map and going back again at the same tab
+
+# [1.1.1-beta.1]
+
+- Added separate VATSIM General Discord link
+- Added "Install App" button to header
+- Added Sentry error reporting
+- Added Data Policy Popup for GDPR and other compliance
+- Updated Privacy Policy with little changes mentioning Data Policy Popup
+- Fixed scale being above menu on mobile
+- Fixed rare issue when overlays were not showing up
+- Improved mobile friends layout
+- Fixed significant performance issues on Favorite Lists settings open
+- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+
+# [1.1.0]
+
+Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.
+
+## Highlights
+
+🌩️ SIGMETs / AIRMETs (US)
+📅 ATC Bookings
+📊 Live Stats
+📥 Friends Import
+📂 Presets Sorting
+✅ UI/UX Improvements and bug fixes
+
+### SIGMETs
+
+Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to show additional details.
+
+AIRMETs are also available for US. You can enable SIGMETs on map in Map Layers menu.
+
+This data was provided by [Aviation Weather Center](https://aviationweather.gov/).
+
+### Bookings (BETA)
+
+Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
+
+On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
+
+They are also displayed on map (TWR and below) 1 hour before they come online. 
+
+This feature should now be considered BETA - more improvements are coming later.
+
+### Live Stats
+
+With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as ATC/Pilots online.
+
+You can also sort by various columns, and filter map by some of the data you choose.
+
+## Features and Improvements
+
 - Favorite count in a single list was increased to 200 from 50
-- Fixed favorite add if it was exceeding max count
 - Updated default map layer data
-
-# [1.1.0-rc.1]
-
-## Bookings
-
-- Fixed a bug where wrong date inputs would show weird bookings page
-- Showing popup of specific time of booking in bookings page
-- Removed bookings from airport view
-
-# [1.1.0-beta.3]
-
-- Renamed ATIS to ATC Information in ATC Overlay
-- Fixed R44 icon size
-- Removed duplicate ATC from VATGlasses popup
-- (next) Added ATC rating and facility to ATC stats 
-- (next) Excluded ATIS from ATC online
-- Added relative scale indicator to map
-- Added Map Setting that prevents VR to update center/zoom in address bar
-- VATGlasses has been moved to the top of general as more frequently used setting
-- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
-
-# [1.1.0-beta.2]
-
-- Added sorting support for all presets
-
-# [1.1.0-beta.1]
-
-- Added ATC Bookings by Noah. Bookings on map seem not to work for now
-- Airport names in destination card will now be limited by 2 lines
-- (QA) Fixed some approach labels not displaying on "next"
-- Added "Z" suffix to time in events page if time is local
-- Added single event page SEO optimization
-- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
-- Fix delay when tracking aircraft
-- Fixed an issue when local timezone was not displayed in VATSIM Events page
-- (QA) You can now edit SIGMETs data displayed
-- (QA) SIGMETs now show labels
-
-# [1.1.0-alpha.8]
-
-- Fixed gates not showing up for some airports when using Navigraph
-
-# [1.1.0-alpha.7]
-
-- Fixed "next" performance and VG combined mode issues
-- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
-- Fixed aircraft popup on mobile version of Airport Dashboard
-- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
-- Based on severe community feedback, changed "atc" in the footer to "ATC"
-- Applied small performance improvements on each map update
-- Disabled zoom to CTR/FSS facilities
-- Fixed the way pilots without flight plans display in Favorite tab
-- Unknown airports ICAO will now be properly displayed in flight plan window
-- Added indication of no flight plan uploaded to pilot popup
-- Added auto-selection of list to "Add to Favorites" popup if you only have one list
-- Removed duplicate runway identifier from thresholds
-- Restored north reset icon for mobile
-- Fixed airport default zoom change to floating number breaking whole map settings save
-- Added 10% opacity as possible for weather/layers opacity
-- Fixed invisible region in popups list
-- Increased emergency color priority over enabled tracks
-
-# [1.1.0-alpha.6]
-
+- Added Where2Fly integration into airports popup
+- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
+- Added diverting flight state by MindCollaps
 - New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)
 - Added model matching (C210 -> C206, E290 -> E295, E3TF -> E3CF, K35R -> K35E)
+- Added 10% opacity as possible for weather/layers opacity
+- Restored north reset icon for mobile
+- Removed duplicate runway identifier from thresholds
+- Added auto-selection of list to "Add to Favorites" popup if you only have one list
+- Added indication of no flight plan uploaded to pilot popup
+- Unknown airports ICAO will now be properly displayed in flight plan window
+- Applied small performance improvements on each map update
+- Based on severe community feedback, changed "atc" in the footer to "ATC"
+- Added "Z" suffix to time in events page if time is local
+- Added single event page SEO optimization
+- Airport names in destination card will now be limited by 2 lines
+- Added sorting support for all presets
+- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
+- VATGlasses has been moved to the top of general as more frequently used setting
+- Added relative scale indicator to map
+- Renamed ATIS to ATC Information in ATC Overlay
+- Added Map Setting that prevents VR to update center/zoom in address bar
+- Removed duplicate ATC from VATGlasses popup
 
-# [1.1.0-alpha.5]
+## Bug Fixes
 
-- Diverting flight state by MindCollaps
-
-# [1.1.0-alpha.4]
-
-- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
-
-# [1.1.0-alpha.3]
-
-- Added Where2Fly integration into airports popup
-
-# [1.1.0-alpha.2]
-
-- SIGMETs layer and page have been added
-- (QA) Updates on Stats
-  - Airports tab is put before airlines
-  - Added Aircraft stats
-  - Fixed airports names in routes stats
-  - Added time online to pilots
-  - Removed multiple sort from all tables, excluding airlines and pilots
-
-# [1.1.0-alpha.1]
-
-- Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC
+- Fixed favorite add if it was exceeding max count
+- Increased emergency color priority over enabled tracks
+- Fixed invisible region in popups list
+- Fixed airport default zoom change to floating number breaking whole map settings save
+- Fixed the way pilots without flight plans display in Favorite tab
+- Disabled zoom to CTR/FSS facilities
+- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
+- Fixed aircraft popup on mobile version of Airport Dashboard
+- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
+- Fixed an issue when local timezone was not displayed in VATSIM Events page
+- Fix delay when tracking aircraft
+- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
+- Fixed R44 icon size
 
 # [1.0.3-2]
 

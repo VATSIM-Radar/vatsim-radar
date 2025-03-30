@@ -171,6 +171,7 @@ import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     aircraft: {
@@ -702,7 +703,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         }
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
     }
     finally {
         linesUpdateInProgress.value = false;

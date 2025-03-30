@@ -100,6 +100,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     bookingOverride: val => {
         return typeof val === 'boolean';
     },
+    bookingsLocalTimezone: val => {
+        return typeof val === 'boolean';
+    },
     disableQueryUpdate: val => {
         return typeof val === 'boolean';
     },
@@ -239,6 +242,7 @@ export interface IUserMapSettings {
     };
     bookingHours: number;
     bookingOverride?: boolean;
+    bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
