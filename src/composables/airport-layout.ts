@@ -12,9 +12,9 @@ const dataStore = useDataStore();
 
 function getIntersectionStatus(airport: string, label: string) {
     const bars = dataStore.vatsim.data.bars.value[airport];
-    if (!bars) return true;
+    if (!bars) return null;
 
-    return bars.find(x => x.bars.find(x => x[0].split('--')[0] === label))?.bars.find(x => x[0].split('--')[0] === label)?.[1] ?? true;
+    return bars.find(x => x.bars.find(x => x[0].split('--')[0] === label))?.bars.find(x => x[0].split('--')[0] === label)?.[1] ?? null;
 }
 
 export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Style[] | ((feature: FeatureLike) => Style | Style[] | undefined)> => {
@@ -285,11 +285,13 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.6)`);
             }
 
-            if (properties.idlin && !getIntersectionStatus(properties.airport, properties.idlin)) {
+            const barsStatus = getIntersectionStatus(properties.airport, properties.idlin);
+
+            if (properties.idlin && typeof barsStatus === 'boolean') {
                 options.stroke?.setWidth(2);
                 options.stroke?.setLineDash([1, 4]);
-                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor('error700').join(',') }, 0.8)`);
-                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error700').join(',') }, 0.8)`);
+                options.stroke?.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'success500' : 'error700').join(',') }, 0.8)`);
+                options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor(!barsStatus ? 'success500' : 'error700').join(',') }, 0.8)`);
             }
 
             return new Style(options);
