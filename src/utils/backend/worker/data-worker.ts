@@ -201,9 +201,23 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'LZIB_APP',
-            cid: 4,
+        /*        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_APP',
+            cid: 6,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.atis.push({
+            callsign: 'MCO_ATIS',
+            cid: 55,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
@@ -216,8 +230,8 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data.controllers.push({
-            callsign: 'MSK_APP',
-            cid: 3,
+            callsign: 'MCO_W_TWR',
+            cid: 4,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
@@ -227,7 +241,92 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3', 'Extending OCEAN', 'area'],
             visual_range: 0,
-        });*/
+        });
+
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_W_GND',
+            cid: 44,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_W_GND',
+            cid: 10,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_E1_APP',
+            cid: 11,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_E2_APP',
+            cid: 11,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'PHX_A_APP',
+            cid: 2,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'A90_APP',
+            cid: 1,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        }); */
 
         const length = radarStorage.vatsim.data!.controllers.length;
 
