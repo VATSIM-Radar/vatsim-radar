@@ -108,70 +108,19 @@ const images = import.meta.glob('../../assets/update/*', { import: 'default', ea
 const title = useTemplateRef('title');
 
 const update: Update = {
-    type: 'major',
-    name: '1.1.0',
-    height: '580px',
+    type: 'minor',
+    name: '1.1.1',
     features: [
-        {
-            title: 'Welcome to newest VATSIM Radar update!',
-            image: images['../../assets/update/presentation.png'],
-            imageRatio: '1920 / 1080',
-            description: `This update is packed with a bunch of new features that were requested from our fellow community.`,
-            list: [
-                'SIGMETs: view them directly on map or on separate page. AIRMETs are also available for US!',
-                'Bookings: view Bookings on map and timeline on separate page - made by Noah Elijah Till',
-                'Stats: view live VATSIM data',
-                'Many other features, UI/UX improvements and bug fixes',
-            ],
-        },
-        {
-            title: 'SIGMETs',
-            image: images['../../assets/update/sigmets.png'],
-            description: `Provided by Aviation Weather Center, SIGMETs are now available in VATSIM Radar!`,
-            list: [
-                'Enable SIGMETs for main map - or view them on separate page',
-                'Hide different SIGMETs types',
-                'View US AIRWAYs - not available for other continents, at least for now',
-                'Click on SIGMET to view additional details',
-                'Enable them now in Map Layers',
-            ],
-        },
-        {
-            title: 'Bookings (BETA)',
-            image: images['../../assets/update/bookings.png'],
-            description: `Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!`,
-            list: [
-                'View timeline on separate page',
-                'Click on airport group to view bookings by position',
-                'View all coming bookings on map by setting their date',
-                'Bookings are also displayed on map (TWR and below for now)',
-                'This feature should now be considered BETA - more improvements are coming later',
-            ],
-        },
-        {
-            title: 'Live Stats',
-            description: `Long-time requested SimAware feature is making it's way to VR!`,
-            image: images['../../assets/update/stats.png'],
-            list: [
-                'View top Airports, Airlines, Aircraft, Routes',
-                'View ATC and Pilots online',
-                'Sort columns if needed',
-                'Open a specific route on map or filter it by airline - using only one click',
-            ],
-        },
         {
             title: 'Quality of Life',
             description: 'Visit our <a href="/discord" target="_blank">Discord</a> for a full changelog',
             image: images['../../assets/update/quality.png'],
             list: [
-                'You can now sort presets (map settings, filters, bookmarks)',
-                'You can now import favorite lists - even from VATSpy config!',
-                'Added relative scale indicator',
-                'Updated default Map Layer data',
-                'Small performance and data consumption improvements',
-                'Diverting flight state by Noah Elijah Till',
-                'New aircraft icons from DotWallop',
-                'Many other improvements and bug fixes',
+                'VATGlasses dynamic sectors support',
+                'Added Sentry error logging, as well as privacy popup',
+                'Bookings on map will now show zulu time',
+                'BARS integration',
+                'Bug fixes and improvements',
             ],
         },
     ],

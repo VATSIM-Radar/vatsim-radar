@@ -33,6 +33,7 @@
 
             <common-popup-block
                 class="atc-popup"
+                @mouseleave="vatglassesPopupIsShown = false"
             >
                 <template #title>
                     Positions
@@ -43,7 +44,6 @@
                 >
                     <div
                         class="atc-popup_list"
-                        @mouseleave="vatglassesPopupIsShown = false"
                     >
                         <template v-if="vatGlassesCombinedActive">
                             <template v-if="index === 0 || sector.max !== sectorsAtClick[index - 1].min">

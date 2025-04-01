@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.1-rc.1]
+
+- Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
+
 # [1.1.1-beta.5]
 
 - (QA) Potential VATGlasses dynamic fix
