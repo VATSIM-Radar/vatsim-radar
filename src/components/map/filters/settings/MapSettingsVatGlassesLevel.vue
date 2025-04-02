@@ -1,17 +1,18 @@
 <template>
     <div
         v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel)"
-        class="__grid-info-sections __grid-info-sections--large-title"
+        class="__grid-info-sections"
     >
         <div class="__grid-info-sections_title">
             VATGlasses Level
         </div>
         <div class="__section-group">
             <input
-                v-if="!disabledLevel && store.isPC"
+                v-if="(!disabledLevel || showAuto) && store.isPC"
                 v-model="vatglassesLevel"
                 class="range"
                 :class="{ 'range--wide': hideIfDisabled }"
+                :disabled="disabledLevel && !showAuto"
                 max="430"
                 min="0"
                 step="10"
@@ -25,10 +26,18 @@
                     max: 430,
                     min: 0,
                     step: 10,
-                    disabled: disabledLevel,
+                    disabled: disabledLevel && !showAuto,
                 }"
                 input-type="number"
             />
+            <label v-if="disabledLevel && showAuto">
+                <input
+                    :checked="store.mapSettings.vatglasses?.autoLevel !== false"
+                    type="checkbox"
+                    @input="setUserMapSettings({ vatglasses: { autoLevel: !store.mapSettings.vatglasses?.autoLevel } })"
+                >
+                A
+            </label>
         </div>
     </div>
 </template>
@@ -37,16 +46,20 @@
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
-import { useMapStore } from '~/store/map';
+import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 
 defineProps({
     hideIfDisabled: {
         type: Boolean,
         default: false,
     },
+    showAuto: {
+        type: Boolean,
+        default: false,
+    },
 });
 const store = useStore();
-const mapStore = useMapStore();
+const dataStore = useDataStore();
 
 const vatglassesLevel = computed({
     get() {
@@ -55,16 +68,35 @@ const vatglassesLevel = computed({
     set(value) {
         if (value !== undefined) {
             setUserLocalSettings({ vatglassesLevel: Number(value) });
+            setUserMapSettings({ vatglasses: { autoLevel: false } });
         }
     },
 });
 
+watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
+    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
+    if (!user) return;
+
+    setUserLocalSettings({
+        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+    });
+});
+
 const vatglassesActive = isVatGlassesActive();
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && mapStore.overlays.some(x => x.key === store.user?.cid));
+const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
 </script>
 
 <style lang="scss" scoped>
 .range--wide {
     width: 80px;
+}
+
+label {
+    display: flex;
+    align-items: center;
+}
+
+.vatglassesLevel-input :deep(.input_container) {
+    padding: 0 8px;
 }
 </style>

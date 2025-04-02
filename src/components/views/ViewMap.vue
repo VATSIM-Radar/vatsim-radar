@@ -174,6 +174,7 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
+import { useRadarError } from '~/composables/errors';
 
 defineProps({
     sigmetsMode: {
@@ -188,7 +189,7 @@ const emit = defineEmits({
 });
 defineSlots<{ default: () => any }>();
 const mapContainer = ref<HTMLDivElement | null>(null);
-const popups = ref<HTMLDivElement | null>(null);
+const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const ready = ref(false);
@@ -230,7 +231,7 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const aircraft = dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString()];
     if (!aircraft) {
         initialOwnCheck = true;
         return;
@@ -269,7 +270,7 @@ const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
-    await checkAndAddOwnAircraft().catch(console.error);
+    await checkAndAddOwnAircraft().catch(useRadarError);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
@@ -325,7 +326,7 @@ const restoreOverlays = async () => {
             if (!('value' in data[0])) return overlay;
 
             (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`).catch(console.error) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
@@ -450,7 +451,7 @@ watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
-    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
     if (!user) return;
 
     setUserLocalSettings({
@@ -475,7 +476,13 @@ useLazyAsyncData('bookmarks', async () => {
     server: false,
 });
 
-watch([overlays, popupsHeight], () => {
+watch([isMobile, popups], () => {
+    mapStore.overlays.forEach(x => x._maxHeight = undefined);
+    popupsHeight.value = popups.value?.clientHeight ?? 0;
+});
+
+watch([overlays, popupsHeight, isMobile], async () => {
+    await nextTick();
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
 
@@ -598,9 +605,9 @@ await setupDataFetch({
         let projectionExtent = view.getProjection().getExtent().slice();
 
         projectionExtent[0] *= 2.5;
-        projectionExtent[1] *= 1.4;
+        projectionExtent[1] *= 2;
         projectionExtent[2] *= 2.5;
-        projectionExtent[3] *= 1.4;
+        projectionExtent[3] *= 2;
 
         let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;

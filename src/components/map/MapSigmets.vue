@@ -49,6 +49,7 @@ import type { Coordinate } from 'ol/coordinate';
 import RenderFeature from 'ol/render/Feature';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
+import { useRadarError } from '~/composables/errors';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -67,7 +68,7 @@ const { refresh, data } = await useAsyncData<Sigmets>('sigmets', () => {
         return $fetch<Sigmets>(url);
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
         throw e;
     }
 }, {
@@ -179,18 +180,18 @@ const geojson = new GeoJSON({
 function buildStyle(color: ColorsList, type: string) {
     return new Style({
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.15)`,
         }),
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.4)`,
             width: 1,
-            lineDash: [12, 2],
+            lineDash: [12, 6],
         }),
         text: new Text({
             text: `${ type }`,
             font: 'bold 14px Montserrat',
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
+                color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.5)`,
             }),
         }),
         zIndex: 1,
@@ -241,7 +242,7 @@ watch([jsonFeatures, map, localDisabled], () => {
                 type: 'sigmets',
             },
             declutter: true,
-            zIndex: 6,
+            zIndex: 2,
             style: function(_feature) {
                 const properties = _feature.getProperties() as Sigmet['properties'];
 

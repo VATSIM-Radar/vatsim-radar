@@ -41,6 +41,117 @@
                 </div>
             </div>
         </div>
+        <div
+            v-if="!policy.accepted || policy.accepted <= 0"
+            class="app_consent"
+        >
+            <div class="app_consent_introduction __info-sections">
+                <div class="app_consent_title">
+                    Data Policy
+                </div>
+                <div class="app_consent_description">
+                    Uh oh! VATSIM Radar wants to share some little data with 3rd party. What do we do?
+                </div>
+            </div>
+            <div class="app_consent_actions">
+                <common-button
+                    type="secondary-875"
+                    @click="consentChoose = true"
+                >
+                    Customize
+                </common-button>
+                <common-button @click="policy.accepted = 1">
+                    Accept All
+                </common-button>
+            </div>
+        </div>
+        <common-popup
+            :model-value="consentChoose || store.cookieCustomize"
+            @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
+        >
+            <template #title>
+                Choose what can VATSIM Radar send to 3rd party
+            </template>
+
+            <div class="app_consent_things __info-sections">
+                <div class="app_consent_item app_consent_item--enabled app_consent_item--disabled">
+                    <common-checkbox
+                        class="app_consent_item_checkbox"
+                        model-value
+                    >
+                        Required Data
+                    </common-checkbox>
+                    <div class="app_consent_item_text">
+                        Cookies, storage. Learn more:
+                        <a
+                            class="__link"
+                            href="/privacy-policy.vue"
+                            target="_blank"
+                        >Privacy Policy</a>.
+
+                        This one is required for us to work correctly.
+                    </div>
+                </div>
+                <div
+                    class="app_consent_item"
+                    :class="{ 'app_consent_item--enabled': policy.rum }"
+                    @click="policy.rum = !policy.rum"
+                >
+                    <common-checkbox
+                        v-model="policy.rum"
+                        class="app_consent_checkbox"
+                        @click.stop
+                    >
+                        CloudFlare Beacon
+                    </common-checkbox>
+                    <div class="app_consent_item_text">
+                        Privacy-focused script to collect page load performance -
+                        <a
+                            class="__link"
+                            href="https://developers.cloudflare.com/web-analytics/data-metrics/"
+                            target="_blank"
+                            @click.stop
+                        >Learn More</a>.
+                    </div>
+                </div>
+                <div
+                    class="app_consent_item"
+                    :class="{ 'app_consent_item--enabled': policy.sentry }"
+                    @click="policy.sentry = !policy.sentry"
+                >
+                    <common-checkbox
+                        v-model="policy.sentry"
+                        class="app_consent_checkbox app_consent_checkbox--disabled"
+                        @click.stop
+                    >
+                        Sentry Error Reporting
+                    </common-checkbox>
+                    <div class="app_consent_item_text">
+                        This setting allows us to also send your VATSIM CID and request IP address to Sentry, as well as browser performance data. Error reporting is always enabled - but anonymous if this is not selected
+                    </div>
+                </div>
+            </div>
+
+            <template #actions>
+                <common-button
+                    v-if="store.cookieCustomize"
+                    @click="store.cookieCustomize = false"
+                >
+                    Save
+                </common-button>
+                <template v-else>
+                    <common-button
+                        type="secondary"
+                        @click="consentChoose = false"
+                    >
+                        Cancel
+                    </common-button>
+                    <common-button @click="[policy.accepted = 1, consentChoose = false]">
+                        Agree
+                    </common-button>
+                </template>
+            </template>
+        </common-popup>
     </div>
     <restricted-auth
         v-else
@@ -60,17 +171,25 @@ import ViewUpdatePopup from '~/components/views/ViewUpdatePopup.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import type { ResolvableScript } from '@unhead/vue';
+import * as Sentry from '@sentry/nuxt';
+import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 
 defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const route = useRoute();
 const updateRequired = ref(true);
+const consentChoose = ref(false);
 const { $pwa } = useNuxtApp();
 
 const reload = () => {
-    if ($pwa?.needRefresh) $pwa.updateServiceWorker();
-    else location.reload();
+    if ($pwa?.needRefresh) {
+        $pwa.updateServiceWorker();
+    }
+    else {
+        location.reload();
+    }
 };
 
 const theme = useCookie<ThemesList>('theme', {
@@ -118,6 +237,20 @@ onMounted(() => {
     }
 });
 
+const policy = cookiePolicyStatus();
+policy.value ??= { rum: true, sentry: true, accepted: false };
+
+watch(() => policy.value.sentry, val => {
+    if (store.user && policy.value.accepted && val) {
+        Sentry.setUser({ id: store.user.id });
+    }
+    else {
+        Sentry.setUser(null);
+    }
+}, {
+    immediate: true,
+});
+
 useHead(() => {
     const theme = store.theme ?? 'default';
     const css = Object
@@ -130,6 +263,17 @@ useHead(() => {
         .join(';');
 
     const themeColor = getCurrentThemeHexColor('darkgray1000');
+
+    const script: ResolvableScript[] = [];
+
+    if (policy.value.accepted && policy.value.rum) {
+        script.push({
+            tagPosition: 'bodyClose',
+            defer: true,
+            src: 'https://static.cloudflareinsights.com/beacon.min.js',
+            'data-cf-beacon': '{"token": "e82abe7cc5a0420982b5e7d6b849bb79"}',
+        });
+    }
 
     return {
         titleTemplate(title) {
@@ -158,6 +302,7 @@ useHead(() => {
             key: 'radarStyles',
             innerHTML: `:root {${ css }}`,
         }],
+        script,
     };
 });
 
@@ -273,6 +418,85 @@ await useAsyncData('default-init', async () => {
         }
     }
 }
+
+.app_consent {
+    position: fixed;
+    z-index: 10;
+    bottom: 56px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 650px;
+    max-width: 90%;
+    padding: 16px;
+    border-radius: 8px;
+
+    background: $darkgray950;
+
+    @include mobileOnly {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    &_title {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    &_description {
+        font-size: 14px;
+    }
+
+    &_actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &_introduction {
+        align-self: stretch;
+        justify-content: space-evenly;
+    }
+
+    &_item {
+        cursor: pointer;
+        user-select: none;
+
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        padding: 8px;
+        border: 1px solid varToRgba('lightgray125', 0.15);
+        border-radius: 8px;
+
+        background: $darkgray900;
+
+        transition: 0.3s;
+
+        &--disabled {
+            cursor: default;
+
+            .app_consent_item_checkbox {
+                pointer-events: none;
+                opacity: 0.8;
+            }
+        }
+
+        &--enabled {
+            border-color: $primary300;
+        }
+
+        &_text {
+            font-size: 14px;
+        }
+    }
+}
 </style>
 
 <style lang="scss">
@@ -291,7 +515,7 @@ html, body {
     color-scheme: dark;
     background: $darkgray1000;
 
-    &:not(.iframe){
+    &:not(.iframe) {
         scrollbar-gutter: stable;
     }
 
@@ -402,13 +626,13 @@ img {
     gap: 8px;
     width: 100%;
 
-    >*{
+    > * {
         flex: 1 1 0;
         width: 0;
     }
 
     &--even {
-        >* {
+        > * {
             flex: unset;
             width: unset;
         }
@@ -416,7 +640,7 @@ img {
 
     @include mobileOnly {
         &--even-mobile, &--disable-mobile {
-            >* {
+            > * {
                 flex: unset;
                 width: unset;
             }
@@ -425,7 +649,7 @@ img {
         &--disable-mobile {
             flex-direction: column;
 
-            >* {
+            > * {
                 width: 100%;
             }
         }

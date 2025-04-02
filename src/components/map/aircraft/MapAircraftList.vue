@@ -2,7 +2,7 @@
     <template v-if="!isHideMapObject('pilots')">
         <map-aircraft
             v-for="aircraft in getShownPilots"
-            :key="aircraft.cid"
+            :key="aircraft.cid+String(store.mapSettings.heatmapLayer)"
             :aircraft="aircraft"
             :can-show-tracks="showTracks.find(x => x.pilot.cid === aircraft.cid)?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
@@ -99,7 +99,7 @@ const getShownPilots = computed(() => {
     if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return visiblePilots.value;
 
     const pilots = visiblePilots.value;
-    const me = dataStore.vatsim.data.pilots.value.find(x => x.cid.toString() === store.user?.cid);
+    const me = dataStore.vatsim.data.keyedPilots.value[store.user?.cid.toString() ?? ''];
 
     let arrivalAirport = '';
 
@@ -138,7 +138,7 @@ function setVisiblePilots() {
 
         // Don't iterate through pilots if no need
         // TODO: convert pilots and other things to a map
-        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.pilots.value.find(y => y.cid === x.cid);
+        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
 
         const isShown = mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
 
@@ -266,8 +266,8 @@ function setVisiblePilots() {
     }
 }
 
-useUpdateInterval(handleMoveEnd);
 
+useUpdateInterval(handleMoveEnd);
 function initHeatmap() {
     if (store.mapSettings.heatmapLayer) {
         if (!vectorSource.value || heatmap) return;
@@ -286,9 +286,13 @@ function initHeatmap() {
     }
 }
 
+watch(() => store.mapSettings.heatmapLayer, async () => {
+    await nextTick();
+    initHeatmap();
+});
+
 watch(dataStore.vatsim.updateTimestamp, () => {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
-    initHeatmap();
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -478,6 +482,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (linesLayer) map.value?.removeLayer(linesLayer);
+    vectorSource.value?.clear();
     map.value?.un('click', handleClick);
     window.removeEventListener('message', receiveMessage);
     if (heatmap) {

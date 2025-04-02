@@ -134,6 +134,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import { useStore } from '~/store';
 import type { PatreonInfo } from '~/types/data/patreon';
+import { useRadarError } from '~/composables/errors';
 
 useHead({
     title: 'Support VATSIM Radar',
@@ -162,7 +163,7 @@ const { data } = await useAsyncData('support-us', async () => {
         return data;
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
         showError({
             statusCode: 500,
         });

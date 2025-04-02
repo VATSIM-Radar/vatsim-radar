@@ -57,16 +57,16 @@ jobs:
           clusterName: main
       - name: Deploy App
         run: kubectl apply -f .config/k8s/main/app.yml
-      - name: Apply App
-        run: kubectl rollout restart deployment app-prod
       - name: Apply Worker
         run: kubectl rollout restart deployment worker-prod
-      - name: Apply VG
-        run: kubectl rollout restart deployment vatglasses
-      - name: Validate App
-        run: kubectl rollout status deployment app-prod
       - name: Validate Worker
         run: kubectl rollout status deployment worker-prod
+      - name: Apply App
+        run: kubectl rollout restart deployment app-prod
+      - name: Validate App
+        run: kubectl rollout status deployment app-prod
+      - name: Apply VG
+        run: kubectl rollout restart deployment vatglasses
       - name: Validate VG
         run: kubectl rollout status deployment vatglasses
       - name: Sleep for a minute

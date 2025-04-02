@@ -433,12 +433,29 @@ async function importFile() {
             attributeNamePrefix: '',
         });
 
-        console.log(xmlParser.parse(content).VATSpyConfig.Filters.Filter);
+        const parsedContent = xmlParser.parse(content).VATSpyConfig;
 
-        vatSpyImport.value = xmlParser.parse(content).VATSpyConfig.Filters.Filter.map((x: any) => ({
+        const filters = Array.isArray(parsedContent.Filters.Filter) ? parsedContent.Filters.Filter : [parsedContent.Filters.Filter];
+
+        const importedData = filters.map((x: any) => ({
             title: x.Name,
-            cids: x.CIDs.string,
-        }));
+            cids: x.CIDs?.string,
+        })).filter((x: any) => x.cids?.length);
+
+        if (!filters.length) {
+            alert('No VATSpy presets found');
+            return;
+        }
+
+        if (importedData.length === 1) {
+            importedList.value = importedData[0].cids.map((x: number) => ({ cid: x, name: x.toString() }));
+        }
+        else {
+            vatSpyImport.value = importedData.map((x: any) => ({
+                title: x.Name,
+                cids: x.CIDs.string,
+            }));
+        }
     }
     else if (input.name.endsWith('.json')) {
         const json = JSON.parse(content) as UserListUser[];
@@ -453,8 +470,8 @@ async function importFile() {
     }
 }
 
-watch(() => props.list, val => {
-    editUserList(val);
+watch(() => JSON.stringify(props.list), val => {
+    editUserList(props.list);
 });
 </script>
 

@@ -26,6 +26,11 @@
                 :airport="props.overlay.data.icao"
             />
         </template>
+        <template
+            #bars
+        >
+            <map-airport-bars-info :data="dataStore.vatsim.data.bars.value[airport.icao] ?? []"/>
+        </template>
         <template #action-sticky>
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
@@ -310,6 +315,8 @@ import CommonBookmarkData from '~/components/common/vatsim/CommonBookmarkData.vu
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import { useRadarError } from '~/composables/errors';
+import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 
 const props = defineProps({
     overlay: {
@@ -413,6 +420,16 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
+    if (dataStore.vatsim.data.bars.value[airport.value!.icao]) {
+        list.info.sections.push({
+            title: 'BARS is in use',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+            key: 'bars',
+        });
+    }
+
     if (data.value?.metar) {
         list.info.sections.push({
             title: 'METAR',
@@ -492,7 +509,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
         };
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
     }
     finally {
         updateInProgress = false;

@@ -34,7 +34,7 @@ export interface VatglassesAirspace {
     group: string;
     docs?: string[];
     fua?: Record<string, any>[];
-    owner: string[];
+    owner?: string[];
     sectors: VatglassesSector[];
 }
 export interface VatglassesData {
@@ -81,6 +81,34 @@ export interface VatglassesData {
 export interface VatglassesAPIData {
     version: string;
     data: VatglassesData;
+}
+
+
+export interface VatglassesDynamicData {
+    [key: string]: {
+        airports: {
+            [key: string]: {
+                pre?: string[];
+                callsign?: string;
+                coord?: number[];
+                runways?: string[];
+                default?: boolean;
+                topdown?: string[];
+                sector?: string;
+                major?: string;
+                end?: {
+                    [key: string]: { [key: string]: string };
+                };
+            };
+        };
+        airspace: {
+            [key: string]: string [];
+        };
+    };
+}
+export interface VatglassesDynamicAPIData {
+    version: string | null;
+    data: VatglassesDynamicData | null;
 }
 
 interface KafkaExtension {
@@ -139,6 +167,30 @@ export type Sigmet = Feature<Geometry, SigmetCombined>;
 
 export type Sigmets<T = Sigmet['properties']> = FeatureCollection<Geometry, T> & { validUntil?: number };
 
+export interface BARS {
+    runways: {
+        airportICAO: string;
+        runway: string;
+        controller: string;
+        callsign: string;
+        lastUpdate: string;
+        expiresAt: string;
+    }[];
+    stopbars: {
+        airportICAO: string;
+        runway: string;
+        bars: string;
+        lastUpdate: string;
+    }[];
+}
+
+export interface BARSShortItem {
+    runway: string;
+    bars: [string, boolean][];
+}
+
+export type BARSShort = Record<string, BARSShortItem[]>;
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -170,6 +222,7 @@ export interface RadarStorage {
             version: string;
             data: VatglassesData | null;
         };
+        dynamicData: VatglassesDynamicAPIData;
         activeData: string | null;
     };
     vatsimStatic: {
@@ -196,6 +249,10 @@ export const radarStorage: RadarStorage = {
     },
     vatglasses: {
         data: {
+            version: '',
+            data: null,
+        },
+        dynamicData: {
             version: '',
             data: null,
         },
@@ -275,6 +332,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         ratings: storage.vatsim.regularData!.ratings,
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
+        bars: radarStorage.vatsim.regularData!.bars,
     };
 }
 
@@ -286,5 +344,6 @@ export function getServerVatsimLiveShortData() {
         locals: radarStorage.vatsim.locals,
         prefiles: radarStorage.vatsim.regularData!.prefiles,
         airports: radarStorage.vatsim.airports,
+        bars: radarStorage.vatsim.regularData!.bars,
     } satisfies VatsimLiveDataShort;
 }

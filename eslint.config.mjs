@@ -392,4 +392,7 @@ export default withNuxt([
             'vue/match-component-file-name': 'off',
         },
     },
+    {
+        ignores: ['docs/.vitepress/cache', 'docs/.vitepress/dist'],
+    },
 ]);

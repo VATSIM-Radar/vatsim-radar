@@ -4,7 +4,9 @@ import { initVatglasses, updateVatglassesStateServer } from '~/utils/data/vatgla
 import type { VatglassesActiveAirspaces, VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { setupRedisDataFetch } from '~/utils/backend/tasks';
 import { radarStorage } from '~/utils/backend/storage';
+import type { VatglassesDynamicData } from '~/utils/backend/storage';
 import { sleep } from '~/utils';
+import { $fetch } from 'ofetch';
 
 export interface WorkerDataStore {
     vatglassesActiveRunways: VatglassesActiveRunways;
@@ -24,6 +26,9 @@ redisSubscriber.subscribe('data');
 redisSubscriber.on('message', (channel, message) => {
     if (channel === 'data') {
         radarStorage.vatsim = JSON.parse(message);
+    }
+    else if (channel === 'vatglassesDynamic') {
+        radarStorage.vatglasses.dynamicData = JSON.parse(message);
     }
 });
 
@@ -82,8 +87,35 @@ async function updateVatglassesActive() {
     }
 }
 
+
+let latestVatglassesDynamicResponse = '';
+let latestVatglassesData = '';
+export async function updateVatglassesDynamic() {
+    try {
+        const response = await $fetch<VatglassesDynamicData>('https://api3.vatglasses.uk/live/activeownership', {
+            timeout: 1000 * 30,
+        });
+
+        const responseText = JSON.stringify(response);
+        if (responseText === latestVatglassesDynamicResponse) {
+            redisPublisher.publish('vatglassesDynamic', latestVatglassesData);
+        }
+        latestVatglassesDynamicResponse = responseText;
+
+        latestVatglassesData = JSON.stringify({
+            data: response,
+            version: Date.now().toString(),
+        });
+        redisPublisher.publish('vatglassesDynamic', latestVatglassesData);
+    }
+    catch (error) {
+        console.error('Error in cron job:', error);
+    }
+}
+
+
 // We are generating the combined data every 30 seconds. We could also call it in the redisSubscriber above every time we get new VATSIM data, but then the combine function would be way more often.
 defineCronJob('*/30 * * * * *', async () => {
+    await updateVatglassesDynamic();
     await updateVatglassesActive();
 });
-
