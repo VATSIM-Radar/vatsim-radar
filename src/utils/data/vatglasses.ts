@@ -160,7 +160,7 @@ function updateVatglassesPositionsAndAirspaces() {
                 const countryGroup = vatglassesData[countryGroupId];
                 for (const vatglassesPositionId in countryGroup.positions) {
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
-                    if (vatglassesPosition.frequency !== atc.frequency) continue;
+                    if (vatglassesPosition.frequency && vatglassesPosition.frequency !== atc.frequency) continue;
                     if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;
                     if (!vatglassesPosition.pre.some((prefix: string) => atc.callsign.startsWith(prefix))) continue;
                     if (vatglassesActiveController?.[countryGroupId]?.[vatglassesPositionId] != null) {
