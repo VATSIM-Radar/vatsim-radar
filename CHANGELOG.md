@@ -1,43 +1,38 @@
 # Changelog
 
-# [1.1.1-rc.1]
+# [1.1.1-final]
 
-- Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
-
-# [1.1.1-beta.5]
-
-- (QA) Potential VATGlasses dynamic fix
-- (QA) Fixed BARS showing red instead of green and vice versa
-- Fixed VATGlasses combined positions not showing controllers correctly on click
-
-# [1.1.1-beta.4]
-
-- Minor performance improvements on each update
-- Added VATGlasses to footer even with auto-level, so you can easily plan ahead and switch back
-- Implemented BARS integration
-
-# [1.1.1-beta.3]
-
-- Fixed VATSpy friends import if you only had a single preset
-- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
-
-# [1.1.1-beta.2]
+## Highlights
 
 - Added VATGlasses dynamic sectors support
-- Fixed small memory leak when leaving the map and going back again at the same tab
+- Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
+- Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
-# [1.1.1-beta.1]
+## Features and Improvements 
 
 - Added separate VATSIM General Discord link
 - Added "Install App" button to header
 - Added Sentry error reporting
 - Added Data Policy Popup for GDPR and other compliance
 - Updated Privacy Policy with little changes mentioning Data Policy Popup
+- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+- Improved sigmets visibility so they get less confused with normal sectors
+- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+- Minor performance improvements on each update
+- Removed estimate time for aircraft taxiing on ground
+
+## Bug Fixes
+
 - Fixed scale being above menu on mobile
 - Fixed rare issue when overlays were not showing up
 - Improved mobile friends layout
 - Fixed significant performance issues on Favorite Lists settings open
-- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+- Fixed small memory leak when leaving the map and going back again at the same tab
+- Fixed some oceanic VATGlasses sectors not displaying
+- Fixed VATSpy friends import if you only had a single preset
+- Fixed VATGlasses combined positions not showing controllers correctly on click
+- Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
+- Fixed traffic heatmap. Why did no one tell me it's broken?
 
 # [1.1.0]
 

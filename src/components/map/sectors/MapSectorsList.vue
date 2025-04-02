@@ -91,7 +91,7 @@ import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
 
-let vectorLayer: VectorImageLayer<any>;
+let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
@@ -171,12 +171,10 @@ attachMoveEnd(() => {
 watch(map, val => {
     if (!val) return;
 
-    let hasLayer = false;
-    val.getLayers().forEach(layer => {
-        if (hasLayer) return;
-        hasLayer = layer.getProperties().type === 'sectors';
-    });
-    if (hasLayer) return;
+    if (vectorLayer) {
+        val.removeLayer(vectorLayer);
+        vectorLayer = undefined;
+    }
 
     if (!vectorLayer) {
         vectorSource.value = new VectorSource<any>({
@@ -210,7 +208,7 @@ watch(map, val => {
                 color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 123,
+            zIndex: 3,
         });
 
         const rootStyle = new Style({

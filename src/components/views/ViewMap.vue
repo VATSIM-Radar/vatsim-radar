@@ -605,9 +605,9 @@ await setupDataFetch({
         let projectionExtent = view.getProjection().getExtent().slice();
 
         projectionExtent[0] *= 2.5;
-        projectionExtent[1] *= 1.4;
+        projectionExtent[1] *= 2;
         projectionExtent[2] *= 2.5;
-        projectionExtent[3] *= 1.4;
+        projectionExtent[3] *= 2;
 
         let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;

@@ -29,7 +29,7 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
     const combinedData: VatglassesData = {};
     const zipEntries = zip.getEntries();
 
-    const ignoredFiles = ['ulll'];
+    const ignoredFiles = ['ulll', 'nodata'];
 
     zipEntries.forEach(entry => {
         if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
@@ -116,7 +116,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
 
 export async function updateVatglassesData() {
     try {
-        const latestSHA = await fetchLatestCommitSHA('300325');
+        const latestSHA = await fetchLatestCommitSHA('020425');
         if (!currentSHA) currentSHA = await getStoredSHA();
 
         if (latestSHA !== currentSHA) {

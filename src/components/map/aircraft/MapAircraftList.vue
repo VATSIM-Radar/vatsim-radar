@@ -2,7 +2,7 @@
     <template v-if="!isHideMapObject('pilots')">
         <map-aircraft
             v-for="aircraft in getShownPilots"
-            :key="aircraft.cid"
+            :key="aircraft.cid+String(store.mapSettings.heatmapLayer)"
             :aircraft="aircraft"
             :can-show-tracks="showTracks.find(x => x.pilot.cid === aircraft.cid)?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
@@ -266,8 +266,8 @@ function setVisiblePilots() {
     }
 }
 
-useUpdateInterval(handleMoveEnd);
 
+useUpdateInterval(handleMoveEnd);
 function initHeatmap() {
     if (store.mapSettings.heatmapLayer) {
         if (!vectorSource.value || heatmap) return;
@@ -286,9 +286,13 @@ function initHeatmap() {
     }
 }
 
+watch(() => store.mapSettings.heatmapLayer, async () => {
+    await nextTick();
+    initHeatmap();
+});
+
 watch(dataStore.vatsim.updateTimestamp, () => {
     visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
-    initHeatmap();
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -478,6 +482,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (linesLayer) map.value?.removeLayer(linesLayer);
+    vectorSource.value?.clear();
     map.value?.un('click', handleClick);
     window.removeEventListener('message', receiveMessage);
     if (heatmap) {
