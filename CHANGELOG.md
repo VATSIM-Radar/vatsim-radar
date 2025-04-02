@@ -20,6 +20,7 @@
 - Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
 - Minor performance improvements on each update
 - Removed estimate time for aircraft taxiing on ground
+- Max users per favorite list increased to 200
 
 ## Bug Fixes
 
