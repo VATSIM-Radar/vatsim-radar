@@ -717,7 +717,7 @@ await setupDataFetch({
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
             if (event.button === 1) {
-                const center = map.value!.getView().getCenter() as Coordinate;
+                const center = fromLonLat(map.value!.getView().getCenter() as Coordinate);
                 const resolution = map.value!.getView().getResolution();
                 let increaseX = window.innerWidth / 2;
                 let increaseY = window.innerHeight / 2;
@@ -741,7 +741,7 @@ await setupDataFetch({
 
                 if (center.some(x => isNaN(x))) return;
 
-                map.value!.getView().animate({ center, duration: 300 });
+                map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
             }
         });
 
