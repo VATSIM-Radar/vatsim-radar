@@ -119,7 +119,7 @@ const update: Update = {
                 'VATGlasses dynamic sectors support',
                 'Added Sentry error logging, as well as privacy popup',
                 'Bookings on map will now show zulu time',
-                'BARS integration',
+                '<a target="_blank" href="https://vats.im/bars">BARS</a> integration',
                 'Bug fixes and improvements',
             ],
         },
