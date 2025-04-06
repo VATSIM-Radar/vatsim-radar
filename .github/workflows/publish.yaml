@@ -67,99 +67,99 @@ jobs:
           push: true
           file: .config/debug.Dockerfile
 
-#  deploy-app:
-#    runs-on: ubuntu-latest
-#    needs:
-#      - push
-#    permissions:
-#      contents: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Set up kubectl
-#        uses: matootie/dokube@v1.4.1
-#        with:
-#          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
-#          clusterName: main
-#      - name: Deploy App
-#        run: kubectl apply -f .config/k8s/main/app.yml
-#      - name: Apply Worker
-#        run: kubectl rollout restart deployment worker-prod
-#      - name: Validate Worker
-#        run: kubectl rollout status deployment worker-prod
-#      - name: Apply App
-#        run: kubectl rollout restart deployment app-prod
-#      - name: Validate App
-#        run: kubectl rollout status deployment app-prod
-#      - name: Apply VG
-#        run: kubectl rollout restart deployment vatglasses
-#      - name: Validate VG
-#        run: kubectl rollout status deployment vatglasses
-#
-#  deploy-db-redis:
-#    runs-on: ubuntu-latest
-#    needs:
-#      - push
-#    permissions:
-#      contents: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Set up kubectl
-#        uses: matootie/dokube@v1.4.1
-#        with:
-#          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
-#          clusterName: main
-#      - name: Deploy Volume
-#        run: kubectl apply -f .config/k8s/main/volume.yml
-#      - name: Deploy Redis
-#        run: kubectl apply -f .config/k8s/main/redis.yml
-#      - name: Validate Redis
-#        run: kubectl rollout status deployment redis
-#      - name: Deploy DB
-#        run: kubectl apply -f .config/k8s/main/db.yml
-#      - name: Validate DB
-#        run: kubectl rollout status deployment db
-##      - name: Deploy Influx
-##        run: kubectl apply -f .config/k8s/influx.yml
-##      - name: Validate Influx
-##        run: kubectl rollout status deployment influx-v2
-#
-#  deploy-ingress:
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
-#      packages: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Set up kubectl
-#        uses: matootie/dokube@v1.4.1
-#        with:
-#          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
-#          clusterName: main
-#      - name: Deploy Ingress
-#        run: kubectl apply -f .config/k8s/ingress.yml
-#
-#
-#  github-release:
-#    name: Release tag to Github
-#    needs:
-#      - deploy-app
-#      - deploy-db-redis
-#    runs-on: ubuntu-latest
-#    permissions:
-#      contents: write
-#    steps:
-#      - uses: actions/checkout@v4
-#      - name: Get Tag Name
-#        id: tagName
-#        uses: beaconbrigade/package-json-version@v0.3
-#      - name: Extract release notes
-#        id: extract-release-notes
-#        uses: ffurrer2/extract-release-notes@v2
-#      - name: Create Release
-#        uses: softprops/action-gh-release@v2
-#        with:
-#          target_commitish: main
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          tag_name: ${{ steps.tagName.outputs.version }}
-#          name: ${{ steps.release.outputs.title }}
-#          body: ${{ steps.extract-release-notes.outputs.release_notes }}
+  deploy-app:
+    runs-on: ubuntu-latest
+    needs:
+      - push
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy App
+        run: kubectl apply -f .config/k8s/main/app.yml
+      - name: Apply Worker
+        run: kubectl rollout restart deployment worker-prod
+      - name: Validate Worker
+        run: kubectl rollout status deployment worker-prod
+      - name: Apply App
+        run: kubectl rollout restart deployment app-prod
+      - name: Validate App
+        run: kubectl rollout status deployment app-prod
+      - name: Apply VG
+        run: kubectl rollout restart deployment vatglasses
+      - name: Validate VG
+        run: kubectl rollout status deployment vatglasses
+
+  deploy-db-redis:
+    runs-on: ubuntu-latest
+    needs:
+      - push
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy Volume
+        run: kubectl apply -f .config/k8s/main/volume.yml
+      - name: Deploy Redis
+        run: kubectl apply -f .config/k8s/main/redis.yml
+      - name: Validate Redis
+        run: kubectl rollout status deployment redis
+      - name: Deploy DB
+        run: kubectl apply -f .config/k8s/main/db.yml
+      - name: Validate DB
+        run: kubectl rollout status deployment db
+#      - name: Deploy Influx
+#        run: kubectl apply -f .config/k8s/influx.yml
+#      - name: Validate Influx
+#        run: kubectl rollout status deployment influx-v2
+
+  deploy-ingress:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up kubectl
+        uses: matootie/dokube@v1.4.1
+        with:
+          personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
+          clusterName: main
+      - name: Deploy Ingress
+        run: kubectl apply -f .config/k8s/ingress.yml
+
+
+  github-release:
+    name: Release tag to Github
+    needs:
+      - deploy-app
+      - deploy-db-redis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get Tag Name
+        id: tagName
+        uses: beaconbrigade/package-json-version@v0.3
+      - name: Extract release notes
+        id: extract-release-notes
+        uses: ffurrer2/extract-release-notes@v2
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          target_commitish: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.tagName.outputs.version }}
+          name: ${{ steps.release.outputs.title }}
+          body: ${{ steps.extract-release-notes.outputs.release_notes }}
