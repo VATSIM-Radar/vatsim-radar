@@ -1,5 +1,9 @@
 import svgLoader from 'vite-svg-loader';
 
+function isDebug() {
+    return process.env.VR_DEBUG === '1' || import.meta.dev || process.env.NODE_ENV === 'development';
+}
+
 let appName = 'VATSIM Radar';
 
 if (process.env.NODE_ENV === 'development') appName = 'VATSIM Radar Dev';
@@ -122,6 +126,7 @@ export default defineNuxtConfig({
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
             DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
+            VR_DEBUG: process.env.VR_DEBUG,
         },
     },
     modules: [
@@ -177,6 +182,8 @@ export default defineNuxtConfig({
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
         },
+        injectRegister: isDebug() ? false : 'auto',
+        selfDestroying: isDebug(),
         manifest: {
             name: appName,
             short_name: appName,

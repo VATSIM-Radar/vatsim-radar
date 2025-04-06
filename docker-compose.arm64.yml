@@ -1,5 +1,3 @@
-#ЭТОТ ФАЙЛ СПРОЕЦИРОВАН ДЛЯ DEV ОКРУЖЕНИЯ
-
 services:
     frontend:
         build:

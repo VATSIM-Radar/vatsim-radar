@@ -12,6 +12,7 @@ import type { PartialRecord } from '~/types';
 import { multiLineString } from '@turf/helpers';
 import type { Point } from 'geojson';
 import nearestPointOnLine from '@turf/nearest-point-on-line';
+import { isDebug } from '~/utils/backend/debug';
 
 const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     taxiwayintersectionmarking: ['idlin'],
@@ -139,7 +140,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
     if (layout?.runwaythreshold) layout.runwaythreshold.features = layout.runwaythreshold.features.filter(x => x.properties.thrtype === 0);
 
-    if (!import.meta.dev) {
+    if (!isDebug()) {
         setResponseHeader(event, 'Cache-Control', 'private, max-age=604800, stale-while-revalidate=86400, immutable');
     }
 

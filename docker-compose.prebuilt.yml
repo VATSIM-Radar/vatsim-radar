@@ -1,22 +1,18 @@
 services:
     frontend:
-        build:
-            context: .
-            dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.1
-        env_file:
-            - ./.env
-        container_name: vatsim-radar
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt
         expose:
+            - 3000
             - 8080
-            - 9229
-        command: /radar/.config/command.sh
         ports:
-            - "8080:8080"
+            - "8080:3000"
+        environment:
+            - NITRO_HOST=0.0.0.0
         volumes:
-            - ".:/radar:rw"
+            - "./src/data:/radar/src/data:rw"
         healthcheck:
-            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
+            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
             interval: 1s
             retries: 360
         depends_on:
@@ -28,19 +24,13 @@ services:
             - "host.docker.internal:host-gateway"
 
     worker:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.1
-        env_file:
-            - ./.env
-        container_name: vatsim-radar-worker
-        command: /radar/.config/worker.sh
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt-worker
         ports:
             - 8880:8880
+        command: /radar/.config/worker-prod.sh
         volumes:
-            - ".:/radar:rw"
+            - "./src/data:/radar/src/data:rw"
         depends_on:
             db:
                 condition: service_healthy
@@ -52,17 +42,11 @@ services:
             - "host.docker.internal:host-gateway"
 
     vatglasses-worker:
-        restart: unless-stopped
-        build:
-            context: .
-            dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.1
-        env_file:
-            - ./.env
-        container_name: vatsim-radar-vg-worker
-        command: /radar/.config/vatglasses-worker.sh
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt-vg
+        command: /radar/.config/vatglasses-worker-prod.sh
         volumes:
-            - ".:/radar:rw"
+            - "./src/data:/radar/src/data:rw"
         depends_on:
             db:
                 condition: service_healthy
@@ -70,9 +54,12 @@ services:
                 condition: service_started
             frontend:
                 condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     db:
         image: mysql
+        container_name: vatsim-radar-prebuilt-db
         cap_add:
             - SYS_NICE
         environment:
@@ -88,9 +75,12 @@ services:
             retries: 40
         volumes:
             - .config/db:/var/lib/mysql
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     redis:
         image: redis
+        container_name: vatsim-radar-prebuilt-redis
         command: redis-server /usr/local/etc/redis/redis.conf --requirepass RADAR
         expose:
             - 6379
@@ -99,3 +89,5 @@ services:
         volumes:
             - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
             - ./.config/redis:/data
+        extra_hosts:
+            - "host.docker.internal:host-gateway"

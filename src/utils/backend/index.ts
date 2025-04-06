@@ -7,18 +7,15 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
     const cron = new Cron(pattern, {
         // protect: true,
         ...options,
-    }, func);
+    }, async () => {
+        await func().catch(console.error);
+    });
 
     if (options?.runOnInit !== false) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await cron.trigger();
+        return new Promise(async resolve => {
+            await cron.trigger().catch(console.error);
 
-                resolve(cron);
-            }
-            catch (e) {
-                reject(e);
-            }
+            resolve(cron);
         });
     }
 

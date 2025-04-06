@@ -357,7 +357,7 @@ export const useShowPilotStats = () => {
     const store = useStore();
 
     store.showPilotStats = useCookie<boolean>('show-pilot-stats', {
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
     }).value ?? false;
 
@@ -367,7 +367,7 @@ export const useShowPilotStats = () => {
         },
         set(value: boolean) {
             useCookie<boolean>('show-pilot-stats', {
-                sameSite: 'strict',
+                sameSite: 'none',
                 secure: true,
             }).value = value;
             store.showPilotStats = value;

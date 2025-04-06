@@ -870,8 +870,8 @@ function stopDrag() {
                 padding: 8px;
                 border-radius: 8px;
 
-                background-color: rgba(var(--darkgray900), 0.9);
-                box-shadow: inset -3px -3px 7px rgba(black, 0.3);
+                background-color: rgb(var(--darkgray900), 0.9);
+                box-shadow: inset -3px -3px 7px rgb(black, 0.3);
             }
         }
 
@@ -885,8 +885,8 @@ function stopDrag() {
             padding: 8px;
             border-radius: 8px;
 
-            background-color: rgba(var(--darkgray900), 0.9);
-            box-shadow: inset -3px -3px 7px rgba(black, 0.3);
+            background-color: rgb(var(--darkgray900), 0.9);
+            box-shadow: inset -3px -3px 7px rgb(black, 0.3);
         }
     }
 
@@ -903,7 +903,7 @@ function stopDrag() {
             width: 2px;
             height: 100%;
 
-            background-color: rgba(255, 0, 0, 0.8);
+            background-color: rgb(255, 0, 0, 0.8);
 
             &::after {
                 content: "Now";

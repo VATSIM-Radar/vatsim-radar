@@ -342,10 +342,20 @@ export const getSigmetType = (hazard: string | null | undefined): SigmetType | n
     return null;
 };
 
-export const cookiePolicyStatus = () => useCookie<{ rum: boolean; sentry: boolean; accepted: false | number }>('cookie-policy', {
-    path: '/',
-    sameSite: 'lax',
-    secure: true,
-    maxAge: 60 * 60 * 24 * 30 * 12,
-    default: () => ({ rum: true, sentry: true, accepted: false }),
-});
+export const cookiePolicyStatus = () => {
+    const cookie = useCookie<{ rum: boolean; sentry: boolean; accepted: false | number }>('cookie-policy', {
+        path: '/',
+        sameSite: 'none',
+        secure: true,
+        maxAge: 60 * 60 * 24 * 30 * 12,
+        default: () => ({ rum: true, sentry: true, accepted: false }),
+    });
+
+    return computed(() => {
+        if (!cookie.value) cookie.value = { rum: true, sentry: true, accepted: false };
+
+        return cookie.value;
+    });
+};
+
+export const useIsDebug = () => import.meta.dev || !!useRuntimeConfig().VR_DEBUG;

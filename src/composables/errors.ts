@@ -8,11 +8,12 @@ export function useRadarError(error: AnyError) {
     if (isFetchError(error)) {
         const fetchError = error;
         if (fetchError?.statusCode !== 404 && fetchError?.statusCode !== 423 && fetchError?.statusCode !== 503) {
-            const errorText = `${ 'fetchError' in error ? error.message : fetchError.statusMessage }: ${ typeof fetchError?.request === 'string'
+            if (fetchError.statusMessage === undefined) return;
+            const errorText = `${ fetchError.statusMessage }: ${ typeof fetchError?.request === 'string'
                 ? fetchError?.request?.split('?')[0]
                 : 'unknown' }`;
 
-            if (typeof window === 'undefined' && import.meta.dev) {
+            if (typeof window === 'undefined' && useIsDebug()) {
                 console.error(errorText);
                 return;
             }
@@ -22,7 +23,7 @@ export function useRadarError(error: AnyError) {
         return;
     }
     else {
-        if (typeof window === 'undefined' && import.meta.dev) {
+        if (typeof window === 'undefined' && useIsDebug()) {
             console.error(error);
             return;
         }

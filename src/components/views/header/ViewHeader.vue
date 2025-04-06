@@ -316,7 +316,7 @@ const store = useStore();
 const config = useRuntimeConfig();
 const notamCookie = useCookie<boolean>('notam-closed', {
     path: '/',
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 7,
 });

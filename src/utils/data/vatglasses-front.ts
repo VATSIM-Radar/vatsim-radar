@@ -13,7 +13,7 @@ export function getAirportRunways(icao: string): VatglassesAirportRunways | null
 
     runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
         path: '/',
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: true,
         default: () => ({}),
     });
@@ -34,7 +34,7 @@ export function setAirportActiveRunway(icao: string, active: string) {
 
     runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
         path: '/',
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: true,
         default: () => ({}),
     });

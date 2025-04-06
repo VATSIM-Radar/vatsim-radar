@@ -66,16 +66,18 @@ export default defineConfig({
                 link: '/contributing/',
                 items: [
                     {
-                        text: 'Report an issue/request',
-                        link: 'https://github.com/VATSIM-Radar/vatsim-radar/issues/new/choose',
-                    },
-                    {
                         text: 'Developing VR',
                         link: '/contributing/setting-up',
                     },
                     {
                         text: 'ATC/Airports Data',
                         link: '/contributing/data',
+                        items: [
+                            {
+                                text: 'Data debugging',
+                                link: '/contributing/debug',
+                            },
+                        ]
                     },
                     {
                         text: 'Display your VA badge',
@@ -84,6 +86,10 @@ export default defineConfig({
                     {
                         text: 'Airlines data',
                         link: '/contributing/airlines',
+                    },
+                    {
+                        text: 'Report an issue/request',
+                        link: 'https://github.com/VATSIM-Radar/vatsim-radar/issues/new/choose',
                     },
                 ],
             },

@@ -7,6 +7,7 @@ COPY .yarn /radar/.yarn/
 COPY .yarnrc.yml .yarnrc.yml
 
 ENV NODE_ENV=production
+ENV VR_DEBUG=1
 
 RUN apt-get update
 RUN apt-get install -y default-mysql-client git

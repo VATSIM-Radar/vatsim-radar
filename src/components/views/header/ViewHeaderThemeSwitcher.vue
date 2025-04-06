@@ -28,7 +28,7 @@ const store = useStore();
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });
