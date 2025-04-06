@@ -358,4 +358,4 @@ export const cookiePolicyStatus = () => {
     });
 };
 
-export const useIsDebug = () => import.meta.dev || !!useRuntimeConfig().VR_DEBUG;
+export const useIsDebug = () => import.meta.dev || !!useRuntimeConfig().public.VR_DEBUG;
