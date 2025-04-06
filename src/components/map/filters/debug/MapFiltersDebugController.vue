@@ -82,9 +82,3 @@ const controller = defineModel({
 const atcPositions: SelectItem[] = Object.entries(useFacilitiesIds()).filter(([key]) => key !== 'OBS').map(([text, value]) => ({ value, text }));
 const atcRatings: SelectItem[] = Object.entries(useRatingsIds()).map(([text, value]) => ({ value, text }));
 </script>
-
-<style scoped lang="scss">
-.debug-controller {
-
-}
-</style>

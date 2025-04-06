@@ -50,9 +50,3 @@ const saveModel = () => {
     triggerRef(model);
 };
 </script>
-
-<style scoped lang="scss">
-.debug-upload {
-
-}
-</style>

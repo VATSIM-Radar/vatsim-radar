@@ -11,6 +11,8 @@ services:
         environment:
             - NITRO_PORT=8080
             - NITRO_HOST=0.0.0.0
+            - NUXT_PUBLIC_VR_DEBUG=1
+            - VR_DEBUG=1
         volumes:
             - "./src/data:/radar/src/data:rw"
         healthcheck:
@@ -32,6 +34,9 @@ services:
         container_name: vatsim-radar-prebuilt-worker
         ports:
             - 8880:8880
+        environment:
+            - NUXT_PUBLIC_VR_DEBUG=1
+            - VR_DEBUG=1
         volumes:
             - "./src/data:/radar/src/data:rw"
         depends_on:
@@ -49,6 +54,9 @@ services:
         env_file:
             - ./.env
         container_name: vatsim-radar-prebuilt-vg
+        environment:
+            - NUXT_PUBLIC_VR_DEBUG=1
+            - VR_DEBUG=1
         volumes:
             - "./src/data:/radar/src/data:rw"
         depends_on:
