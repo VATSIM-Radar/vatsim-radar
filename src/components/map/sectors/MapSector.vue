@@ -239,7 +239,7 @@ onBeforeUnmount(() => {
         z-index: 10;
 
         padding: 4px;
-        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
+        border: 1px solid rgb(var(--text-raw, var(--lightgray150)), 0.1);
         border-radius: 4px;
 
         font-size: 11px;
@@ -250,7 +250,7 @@ onBeforeUnmount(() => {
         background: var(--bg, $darkgray850);
 
         &_sub {
-            color: rgba(var(--text-raw, var(--lightgray150)), 0.5);
+            color: rgb(var(--text-raw, var(--lightgray150)), 0.5);
         }
     }
 

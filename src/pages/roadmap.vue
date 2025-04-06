@@ -423,7 +423,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             width: 92%;
             height: 1px;
 
-            background-image: linear-gradient(to right, $darkgray800 33%, rgba(255, 255, 255, 0) 0%);
+            background-image: linear-gradient(to right, $darkgray800 33%, rgb(255, 255, 255, 0) 0%);
             background-repeat: repeat-x;
             background-position: bottom;
             background-size: 25px 1px;

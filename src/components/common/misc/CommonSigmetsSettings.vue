@@ -104,7 +104,7 @@ const buttons: Record<SigmetType, Button> = {
 
         @include hover {
             &:hover {
-                background: rgba(var(--color), 0.2);
+                background: rgb(var(--color), 0.2);
             }
         }
 
