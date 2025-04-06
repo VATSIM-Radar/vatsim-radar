@@ -194,7 +194,7 @@ const reload = () => {
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });
@@ -238,7 +238,6 @@ onMounted(() => {
 });
 
 const policy = cookiePolicyStatus();
-policy.value ??= { rum: true, sentry: true, accepted: false };
 
 watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {

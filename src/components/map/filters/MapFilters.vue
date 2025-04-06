@@ -338,6 +338,31 @@
                     </common-control-block>
                 </div>
                 <div
+                    v-if="isDebug && isPC"
+                    class="filters_sections_section"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'debug' }"
+                    @click="selectFilter('debug')"
+                >
+                    <common-button :type="selectedFilter === 'debug' ? 'primary' : 'secondary'">
+                        <template #icon>
+                            <debug-icon/>
+                        </template>
+                    </common-button>
+                    <common-control-block
+                        center-by="start"
+                        class="filters_sections_section_content"
+                        location="right"
+                        :model-value="selectedFilter === 'debug'"
+                        width="600px"
+                        @update:modelValue="!$event ? selectedFilter = null : undefined"
+                    >
+                        <template #title>
+                            Debug
+                        </template>
+                        <map-filters-debug/>
+                    </common-control-block>
+                </div>
+                <div
                     v-if="store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid]"
                     class="filters_sections_section filters_sections_section--location"
                     :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
@@ -361,6 +386,7 @@ import MapIcon from '@/assets/icons/kit/map.svg?component';
 import ImportIcon from '@/assets/icons/kit/import.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import LayersIcon from '@/assets/icons/kit/layers.svg?component';
+import DebugIcon from '@/assets/icons/kit/debug.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
@@ -408,10 +434,15 @@ const selectFilter = (filter: string) => {
 const filtersImportMode = ref(null as null | 'settings' | 'filters');
 const filtersImport = useTemplateRef('filtersImport');
 
+const MapFiltersDebug = defineAsyncComponent(() => import('./debug/MapFiltersDebug.vue'));
+
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
 const isMobile = useIsMobile();
+const isPC = useIsPC();
 const sigmetDatesList = sigmetDates();
+
+const isDebug = useIsDebug();
 
 let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {

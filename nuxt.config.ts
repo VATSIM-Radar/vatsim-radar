@@ -122,6 +122,7 @@ export default defineNuxtConfig({
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
             DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
+            VR_DEBUG: process.env.VR_DEBUG,
         },
     },
     modules: [

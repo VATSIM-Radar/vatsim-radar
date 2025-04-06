@@ -133,7 +133,7 @@ function setVisiblePilots() {
         showOutOfBounds = false,
     } = store.mapSettings.tracks ?? {};
 
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => {
+    visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         // Don't iterate through pilots if no need
@@ -292,7 +292,7 @@ watch(() => store.mapSettings.heatmapLayer, async () => {
 });
 
 watch(dataStore.vatsim.updateTimestamp, () => {
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value!.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {

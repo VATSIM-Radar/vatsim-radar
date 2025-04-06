@@ -15,6 +15,7 @@ import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
+import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 initWebsocket();
 initInfluxDB();
@@ -218,6 +219,13 @@ defineCronJob('* * * * * *', async () => {
 
             objectAssign(controller, newerData);
         });
+
+        const localControllers = isDebug() && getLocalText('controllers.json');
+
+        if (localControllers) {
+            radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.concat(JSON.parse(localControllers)).filter(x => !x.callsign.endsWith('ATIS'));
+            radarStorage.vatsim.data.atis = radarStorage.vatsim.data.atis.concat(JSON.parse(localControllers)).filter(x => x.callsign.endsWith('ATIS'));
+        }
 
         /*        radarStorage.vatsim.data.controllers.push({
             callsign: 'MCO_APP',

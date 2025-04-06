@@ -43,6 +43,7 @@
     "adm-zip": "^0.5.16",
     "aws-sdk": "^2.1692.0",
     "chardet": "^2.1.0",
+    "chokidar": "^4.0.3",
     "croner": "^9.0.0",
     "deep-equal": "^2.2.3",
     "discord.js": "^14.18.0",

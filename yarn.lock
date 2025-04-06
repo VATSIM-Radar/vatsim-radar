@@ -16157,6 +16157,7 @@ __metadata:
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
+    chokidar: "npm:^4.0.3"
     croner: "npm:^9.0.0"
     deep-equal: "npm:^2.2.3"
     discord.js: "npm:^14.18.0"

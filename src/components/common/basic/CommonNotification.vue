@@ -38,7 +38,7 @@ defineSlots<{ default: () => any }>();
 const cookie = computed(() => props.cookieName
     ? useCookie<boolean>(props.cookieName, {
         path: '/',
-        sameSite: 'lax',
+        sameSite: 'none',
         secure: true,
         maxAge: props.cookieMaxAge,
     })
