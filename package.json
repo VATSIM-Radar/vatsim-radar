@@ -6,8 +6,8 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "start:next": "docker compose pull ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml",
-    "start:prod": "docker compose pull ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml -f docker-compose.prebuilt-prod.yml",
+    "start:next": "docker pull ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml",
+    "start:prod": "docker pull ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml -f docker-compose.prebuilt-prod.yml",
     "prepare": "nuxt prepare",
     "generate": "nuxt generate",
     "preview": "node .output/server/index.mjs",
