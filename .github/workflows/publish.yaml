@@ -14,33 +14,33 @@ jobs:
         with:
           node-version: 22.x
       - uses: ./.github/actions/codecheck
-  push:
-    runs-on: ubuntu-latest
-    needs:
-      - check
-    permissions:
-      contents: read
-      packages: write
-    environment:
-      name: production
-      url: https://vatsim-radar.com
-    steps:
-      - uses: actions/checkout@v4
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add .env file
-        run: echo "${{ secrets.ENV }}" > .env
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          tags: ghcr.io/vatsim-radar/vatsim-radar/production:latest
-          context: .
-          push: true
-          file: .config/Dockerfile
+#  push:
+#    runs-on: ubuntu-latest
+#    needs:
+#      - check
+#    permissions:
+#      contents: read
+#      packages: write
+#    environment:
+#      name: production
+#      url: https://vatsim-radar.com
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Login to GitHub Container Registry
+#        uses: docker/login-action@v3
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#      - name: Add .env file
+#        run: echo "${{ secrets.ENV }}" > .env
+#      - name: Build and push
+#        uses: docker/build-push-action@v5
+#        with:
+#          tags: ghcr.io/vatsim-radar/vatsim-radar/production:latest
+#          context: .
+#          push: true
+#          file: .config/Dockerfile
 
   push-public:
     runs-on: ubuntu-latest
