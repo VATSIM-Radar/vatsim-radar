@@ -4,6 +4,11 @@ In order to get started with developing VATSIM Radar, please follow those steps.
 
 ## Preliminary preparation
 
+### Node.JS
+
+1. Install Node.JS following this guide: `https://nodejs.org/en/download` (for Windows use Linux instead as platform since you need to be using WSL. You can install it for Windows if you use prebuilt image)
+2. Install Yarn `npm i -g yarn` or `sudo npm i -g yarn`
+
 ### Windows
 
 Using Windows? I am too, very sorry for us all.
