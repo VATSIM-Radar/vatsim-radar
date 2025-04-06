@@ -195,14 +195,20 @@ function patreonTask() {
 
 export async function initWholeBunchOfBackendTasks() {
     try {
+        console.log('init');
         basicTasks();
+        console.log('basic');
         await vatsimTasks();
+        console.log('vatsim');
         patreonTask();
+        console.log('patreon');
         backupTask();
+        console.log('backup');
         clearTask();
+        console.log('clear');
     }
     catch (e) {
-        console.error(e);
+        console.error('Error during initialization', e);
     }
 
     if (isDebug()) {

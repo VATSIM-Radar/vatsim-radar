@@ -1,8 +1,6 @@
 services:
     frontend:
         image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
-        env_file:
-            - ./.env
         container_name: vatsim-radar-prebuilt
         expose:
             - 3000
@@ -29,8 +27,6 @@ services:
 
     worker:
         image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
-        env_file:
-            - ./.env
         container_name: vatsim-radar-prebuilt-worker
         ports:
             - 8880:8880
@@ -51,8 +47,6 @@ services:
 
     vatglasses-worker:
         image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
-        env_file:
-            - ./.env
         container_name: vatsim-radar-prebuilt-vg
         environment:
             - NUXT_PUBLIC_VR_DEBUG=1
