@@ -65,7 +65,7 @@ jobs:
           tags: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
           context: .
           push: true
-          file: .config/Dockerfile
+          file: .config/debug.Dockerfile
 
   deploy-app:
     runs-on: ubuntu-latest
