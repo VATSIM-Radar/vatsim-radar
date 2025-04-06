@@ -20,10 +20,10 @@ features:
   link: /introduction/features
 - icon: 🛠️
   title: Contributing
-  details: Discover how to set up VATSIM Radar locally, as well as some useful tips
+  details: Discover how to set up VATSIM Radar locally, as well as some useful tips for VA and more
   link: /contributing/
 - icon: 🔒
-  title: Non-obvious mechanics
-  details: Find out how to display your VA on map and more
-  link: /contributing/
+  title: Data debugging
+  details: Find out how to debug sector data locally
+  link: /contributing/debug
 ---
