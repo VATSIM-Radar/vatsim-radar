@@ -7,7 +7,9 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
     const cron = new Cron(pattern, {
         // protect: true,
         ...options,
-    }, func);
+    }, async () => {
+        await func().catch(console.error);
+    });
 
     if (options?.runOnInit !== false) {
         return new Promise(async (resolve, reject) => {
@@ -17,7 +19,7 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
                 resolve(cron);
             }
             catch (e) {
-                reject(e);
+                console.error(e);
             }
         });
     }

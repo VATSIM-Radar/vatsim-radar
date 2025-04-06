@@ -1,4 +1,5 @@
 import svgLoader from 'vite-svg-loader';
+import { isDebug } from '~/utils/backend/debug';
 
 let appName = 'VATSIM Radar';
 
@@ -178,6 +179,8 @@ export default defineNuxtConfig({
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
         },
+        injectRegister: isDebug() ? false : 'auto',
+        selfDestroying: isDebug(),
         manifest: {
             name: appName,
             short_name: appName,

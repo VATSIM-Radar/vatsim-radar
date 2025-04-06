@@ -3,7 +3,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.0
+        image: vr-1.1.1
         env_file:
             - ./.env
         container_name: vatsim-radar
@@ -32,7 +32,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.0
+        image: vr-1.1.1
         env_file:
             - ./.env
         container_name: vatsim-radar-worker
@@ -56,7 +56,7 @@ services:
         build:
             context: .
             dockerfile: .config/dev.Dockerfile
-        image: vr-1.1.0
+        image: vr-1.1.1
         env_file:
             - ./.env
         container_name: vatsim-radar-vg-worker
