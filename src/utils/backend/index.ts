@@ -12,15 +12,10 @@ export function defineCronJob(pattern: string, func: () => any, options?: CronOp
     });
 
     if (options?.runOnInit !== false) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await cron.trigger();
+        return new Promise(async resolve => {
+            await cron.trigger();
 
-                resolve(cron);
-            }
-            catch (e) {
-                console.error(e);
-            }
+            resolve(cron);
         });
     }
 

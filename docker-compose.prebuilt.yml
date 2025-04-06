@@ -16,7 +16,7 @@ services:
         volumes:
             - "./src/data:/radar/src/data:rw"
         healthcheck:
-            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/8080'"
+            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
             interval: 1s
             retries: 360
         depends_on:
@@ -87,6 +87,8 @@ services:
             retries: 40
         volumes:
             - .config/db:/var/lib/mysql
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
 
     redis:
         image: redis
@@ -99,3 +101,5 @@ services:
         volumes:
             - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
             - ./.config/redis:/data
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
