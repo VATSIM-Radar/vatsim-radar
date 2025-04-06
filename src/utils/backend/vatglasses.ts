@@ -34,7 +34,7 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
     const combinedData: VatglassesData = {};
     const zipEntries = zip.getEntries();
 
-    const ignoredFiles = ['ulll', 'nodata'];
+    const ignoredFiles = ['nodata'];
 
     zipEntries.forEach(entry => {
         if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
