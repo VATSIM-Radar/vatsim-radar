@@ -83,7 +83,7 @@ function vatsimTasks() {
 let s3: S3 | undefined;
 
 function backupTask() {
-    if (import.meta.dev || !process.env.CF_R2_API) return;
+    if (isDebug() || !process.env.CF_R2_API) return;
 
     s3 ??= new S3({
         endpoint: process.env.CF_R2_API,

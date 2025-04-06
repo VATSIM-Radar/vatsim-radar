@@ -150,7 +150,7 @@ export interface VatsimControllerWithField extends VatsimController {
 
 const getDefaultController = (): VatsimControllerWithField => ({
     cid: Date.now(),
-    name: '',
+    name: Date.now().toString(),
     callsign: '',
     frequency: '123.123',
     facility: 3,

@@ -1,8 +1,8 @@
 import { handleH3Error } from '~/utils/backend/h3';
-import { getLocalText, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/backend/debug';
+import { getLocalText, isDebug, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/backend/debug';
 
 export default defineEventHandler(async event => {
-    if (!import.meta.dev && useRuntimeConfig().VR_DEBUG !== '1') {
+    if (!isDebug()) {
         return handleH3Error({
             event,
             statusCode: 418,

@@ -13,7 +13,7 @@ export function useRadarError(error: AnyError) {
                 ? fetchError?.request?.split('?')[0]
                 : 'unknown' }`;
 
-            if (typeof window === 'undefined' && import.meta.dev) {
+            if (typeof window === 'undefined' && useIsDebug()) {
                 console.error(errorText);
                 return;
             }
@@ -23,7 +23,7 @@ export function useRadarError(error: AnyError) {
         return;
     }
     else {
-        if (typeof window === 'undefined' && import.meta.dev) {
+        if (typeof window === 'undefined' && useIsDebug()) {
             console.error(error);
             return;
         }
