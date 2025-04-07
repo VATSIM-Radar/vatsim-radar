@@ -279,6 +279,7 @@ async function initLayer() {
             'landuse_park',
             'landuse_zoo',
             'address_label',
+            'roads_other',
         ];
 
         const excludedRegex: RegExp[] = [
@@ -299,6 +300,7 @@ async function initLayer() {
                 'places_subplace',
                 'places_locality',
                 'buildings',
+                'water_label_lakes',
             );
 
             excludedRegex.push(
