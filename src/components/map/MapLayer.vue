@@ -311,8 +311,6 @@ async function initLayer() {
 
         glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
 
-        console.log(glStyle.layers.map(x => x.id).join('\n'));
-
         await applyStyle(tileLayer.value, glStyle);
 
         attributionLayer = new TileLayer({
