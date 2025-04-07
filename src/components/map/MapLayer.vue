@@ -270,7 +270,40 @@ async function initLayer() {
             renderMode: 'hybrid',
         });
 
-        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => layer.id !== 'roads_labels_minor' && layer.id !== 'roads_labels_major' && layer.id !== 'water_waterway_label');
+        const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
+
+        const excludedLayers = [
+            'roads_labels_minor',
+            'roads_labels_major',
+            'water_waterway_label',
+            'landuse_park',
+            'landuse_zoo',
+        ];
+
+        const excludedRegex: RegExp[] = [
+            /roads_tunnels/,
+            /roads_bridges/,
+        ];
+
+        if (!isDetailed) {
+            excludedLayers.push(
+                'landuse_urban_green',
+                'landuse_hospital',
+                'landuse_industrial',
+                'landuse_school',
+                'landuse_beach',
+                'water_river',
+                'landuse_pedestrian',
+                'landuse_pier',
+            );
+
+            excludedRegex.push(
+                /roads_minor/,
+                /roads_major/,
+            );
+        }
+
+        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
 
         await applyStyle(tileLayer.value, glStyle);
 
