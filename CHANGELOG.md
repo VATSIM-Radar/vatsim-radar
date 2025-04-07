@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.1.1-final]
+# [1.1.1]
 
 ## Highlights
 
