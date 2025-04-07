@@ -284,7 +284,7 @@ async function initLayer() {
 
         const excludedRegex: RegExp[] = [
             /roads_tunnels/,
-            /roads_bridges/,
+            /roads_bridges_(?!(major|highway))/,
         ];
 
         if (!isDetailed) {
