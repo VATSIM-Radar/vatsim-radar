@@ -278,6 +278,7 @@ async function initLayer() {
             'water_waterway_label',
             'landuse_park',
             'landuse_zoo',
+            'address_label',
         ];
 
         const excludedRegex: RegExp[] = [
@@ -295,6 +296,9 @@ async function initLayer() {
                 'water_river',
                 'landuse_pedestrian',
                 'landuse_pier',
+                'places_subplace',
+                'places_locality',
+                'buildings',
             );
 
             excludedRegex.push(
@@ -304,6 +308,8 @@ async function initLayer() {
         }
 
         glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
+
+        console.log(glStyle.layers.map(x => x.id).join('\n'));
 
         await applyStyle(tileLayer.value, glStyle);
 
