@@ -10,7 +10,7 @@ import { setRedisData } from '~/utils/backend/redis';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 const revisions: Record<string, number> = {
-    'v2410.1': 3,
+    'v2410.1': 4,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
