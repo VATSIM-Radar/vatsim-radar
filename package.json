@@ -50,7 +50,7 @@
     "deep-equal": "^2.2.3",
     "discord.js": "^14.18.0",
     "idb": "^8.0.2",
-    "ioredis": "^5.6.0",
+    "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "kafkajs": "^2.2.4",
