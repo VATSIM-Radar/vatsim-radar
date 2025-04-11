@@ -1,5 +1,5 @@
 <template>
-    <view-map sigmets-mode>
+    <view-map mode="sigmets">
         <common-info-popup
             v-model:collapsed="collapsed"
             class="date"

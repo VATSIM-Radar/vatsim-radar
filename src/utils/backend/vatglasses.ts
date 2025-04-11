@@ -1,9 +1,9 @@
-import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
 import { setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesAirspace, VatglassesData } from '~/utils/backend/storage';
 import { getLocalFile, hasLocalFile, isDebug } from '~/utils/backend/debug';
+import githubRequest from '~/utils/backend/github';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
@@ -11,7 +11,7 @@ let currentSHA: string | null = null;
 
 async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
     if (isDebug() && hasLocalFile('vatglasses.zip')) return Date.now().toString();
-    const commits = await $fetch<{ sha: string }[]>(GITHUB_API_URL);
+    const commits = await githubRequest<{ sha: string }[]>(GITHUB_API_URL);
 
     if (postfix) return `${ commits[0].sha }-${ postfix }`;
     return commits[0].sha;
@@ -25,8 +25,7 @@ async function downloadZip(url: string): Promise<AdmZip> {
     const localZip = isDebug() && getLocalFile('vatglasses.zip');
     if (localZip) return new AdmZip(localZip);
 
-    // @ts-expect-error Types error
-    const zipBuffer = await $fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
+    const zipBuffer = await githubRequest<ArrayBuffer, 'arrayBuffer'>(url, { responseType: 'arrayBuffer' });
     return new AdmZip(Buffer.from(zipBuffer));
 }
 
