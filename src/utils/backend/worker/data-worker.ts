@@ -383,17 +383,26 @@ defineCronJob('* * * * * *', async () => {
                     );
             });
 
-            if (!australiaSectors) continue;
+            const vnasController = radarStorage.vatsim.vnas.find(x => x.cid === controller.cid);
 
-            for (const sector of australiaSectors) {
-                const freq = parseFloat(sector.frequency).toString();
-                if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
+            if (vnasController && vnasController.isActive && !vnasController.isObserver && parseFloat(vnasController.primaryFrequency) < 137) {
+                const positionsToAdd = vnasController.positions?.filter(x => x.frequency !== controller.frequency && x.callsign !== controller.callsign && x.isActive);
 
-                radarStorage.vatsim.data.controllers.push({
-                    ...controller,
-                    callsign: sector.callsign,
-                    frequency: sector.frequency,
-                });
+                if (positionsToAdd.length) {
+                    console.log(controller.cid, positionsToAdd);
+                }
+            }
+            else if (australiaSectors) {
+                for (const sector of australiaSectors) {
+                    const freq = parseFloat(sector.frequency).toString();
+                    if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
+
+                    radarStorage.vatsim.data.controllers.push({
+                        ...controller,
+                        callsign: sector.callsign,
+                        frequency: sector.frequency,
+                    });
+                }
             }
         }
 
