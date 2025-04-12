@@ -582,7 +582,7 @@ onMounted(async () => {
         }
     }
 
-    const vatGlassesActive = isVatGlassesActive();
+    const vatGlassesActive = isVatGlassesActive;
     const vatglassesFallbacks = computed(() => dataStore.vatglassesActivePositions.value['fallback']);
     watch([dataStore.vatsim.updateTimestamp, vatGlassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
         immediate: true,

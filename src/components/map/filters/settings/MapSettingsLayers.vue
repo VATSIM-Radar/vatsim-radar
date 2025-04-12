@@ -61,6 +61,7 @@
                 </template>
             </common-toggle>
         </div>
+        <map-settings-vat-glasses-level/>
         <common-block-title>
             General
         </common-block-title>
@@ -123,8 +124,6 @@
                 @update:modelValue="setUserMapSettings({ defaultAirportZoomLevel: $event as number })"
             />
         </div>
-
-        <map-settings-vat-glasses-level/>
 
         <common-block-title>
             Airports Counters
@@ -233,7 +232,7 @@ const store = useStore();
 const dataStore = useDataStore();
 
 const resetActive = ref(false);
-const vatglassesActive = isVatGlassesActive();
+const vatglassesActive = isVatGlassesActive;
 
 // For type safety
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {

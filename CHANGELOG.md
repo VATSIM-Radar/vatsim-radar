@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.1.2-alpha.1]
+
+- Fixed VATGlasses crashing for anonymous users
+- Fixed "A" button disappearing for VG level
+- Fixed last update counter constantly changing its size and causing vG Level to move
+- Improved performance when VATGlasses is enabled
+
 # [1.1.1]
 
 ## Highlights

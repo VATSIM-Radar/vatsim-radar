@@ -345,7 +345,7 @@ watch(map, val => {
     immediate: true,
 });
 
-const vatglassesEnabled = isVatGlassesActive();
+const vatglassesEnabled = isVatGlassesActive;
 
 watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], initLayer);
 
