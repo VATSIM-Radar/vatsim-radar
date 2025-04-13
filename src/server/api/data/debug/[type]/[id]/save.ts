@@ -68,7 +68,7 @@ export default defineEventHandler(async event => {
             if (!neededFir?.callsign) return [] as VatsimController[];
 
             return {
-                callsign: `${ neededFir.callsign }_CTR`,
+                callsign: `${ neededFir.callsign.replace('-', '_') }_CTR`,
                 cid: Date.now() + Number(Math.random().toFixed(6).toString().replace('.', '')),
                 facility: 2,
                 frequency: '122.122',
