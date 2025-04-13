@@ -1,6 +1,5 @@
 import { handleH3Error } from '~/utils/backend/h3';
 import { getDiffPolygons, getSimAwareData, getVatSpyData } from '~/utils/backend/debug/data-get';
-import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import { vatspyDataToGeojson } from '~/utils/backend/vatsim/vatspy';
 
 export default defineEventHandler(async event => {

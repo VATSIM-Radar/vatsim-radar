@@ -263,6 +263,7 @@ const getFromPr = async (type: Exclude<DataKey, 'vatglasses'>) => {
         refresh();
     }
     catch (e) {
+        console.error(e);
         prs[type] = null;
     }
 };
