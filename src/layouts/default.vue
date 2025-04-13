@@ -70,7 +70,7 @@
             @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
         >
             <template #title>
-                Choose what can VATSIM Radar send to 3rd party
+                Choose privacy policy settings
             </template>
 
             <div class="app_consent_things __info-sections">
@@ -85,7 +85,7 @@
                         Cookies, storage. Learn more:
                         <a
                             class="__link"
-                            href="/privacy-policy.vue"
+                            href="/privacy-policy"
                             target="_blank"
                         >Privacy Policy</a>.
 

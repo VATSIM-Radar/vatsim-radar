@@ -19,7 +19,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const props = defineProps({
     data: {
-        type: String as PropType<'vatspy' | 'simaware' | 'vatglasses' | 'all'>,
+        type: String as PropType<'vatspy' | 'controllers' | 'simaware' | 'vatglasses' | 'all'>,
         required: true,
     },
 });

@@ -14,7 +14,7 @@ You can also setup project using `docker compose up` from guide above, but that 
 
 If you only need data testing, it is recommended to use `yarn start:*` instead of `docker compose up` to use prebuilt image.
 
-## Debugging
+## Raw Data Debugging
 
 First, you should notice new section in map settings dropdown.
 
@@ -49,6 +49,25 @@ To test how controllers are displayed, you can add fake ATC:
 6. ATIS lines: optional
 
 Hit `Save` button - controller will appear on map shortly.
+
+## Pull Requests Debugging
+
+You can debug VATSpy or SimAware TRACON Pull Requests. 
+
+### GEOJSON Debugging
+
+This is available without local setup.
+
+Open:
+
+- VATSpy: `https://vatsim-radar.com/data/vatspy/PULLREQUEST/compare`
+- SimAware TRACON: `https://vatsim-radar.com/data/simaware/PULLREQUEST/compare`
+
+Where PULLREQUEST is Pull Request ID (ex. `https://github.com/vatsimnetwork/vatspy-data-project/pull/123` - ID is 123. 
+
+### Data Debugging
+
+Enter `PR ID` in Debug window mentioned above and click "Save". Wait a few seconds.
 
 ## Some notes
 

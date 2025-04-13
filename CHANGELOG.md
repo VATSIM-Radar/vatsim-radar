@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.2-alpha.2]
+
+- Added VATSpy/SimAware TRACON geojson debug tool
+- Fixed an issue when you could not click on SIGMET if non-VG UIR was active
+- Debug controller add now autofocuses to only required callsign field and can now also be saved by pressing enter. Also ATC list now shows callsign instead of name and can also be cleared separately
+
 # [1.1.2-alpha.1]
 
 - Fixed VATGlasses crashing for anonymous users

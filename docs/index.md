@@ -18,12 +18,12 @@ features:
   title: Features
   details: "Find features list and useful facts about them"
   link: /introduction/features
+- icon: 🤔
+  title: FAQ
+  details: Get answers on frequently asked questions
+  link: /introduction/faq
 - icon: 🛠️
-  title: Contributing
-  details: Discover how to set up VATSIM Radar locally, as well as some useful tips for VA and more
+  title: Contributing and Debugging
+  details: Discover how to set up VATSIM Radar locally, how to debug data - and more
   link: /contributing/
-- icon: 🔒
-  title: Data debugging
-  details: Find out how to debug sector data locally
-  link: /contributing/debug
 ---
