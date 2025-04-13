@@ -9,6 +9,7 @@ import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { useStore } from '~/store';
+import { computed } from 'vue';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -596,7 +597,7 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
     if (callUpdated) updateVatglassesStateLocal();
 }
 
-export const isVatGlassesActive = () => computed(() => {
+const _isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
@@ -615,10 +616,12 @@ export const isVatGlassesActive = () => computed(() => {
     return false;
 });
 
+export const isVatGlassesActive = _isVatGlassesActive();
+
 let vatglassesUpdateInProgress = false;
 export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
-    if (!isVatGlassesActive().value) return;
+    if (!isVatGlassesActive.value) return;
 
     // console.time('updateVatglassesStateLocal');
 

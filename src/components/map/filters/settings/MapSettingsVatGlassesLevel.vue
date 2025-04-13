@@ -30,7 +30,7 @@
                 }"
                 input-type="number"
             />
-            <label v-if="disabledLevel && showAuto">
+            <label v-if="store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? ''] && showAuto">
                 <input
                     :checked="store.mapSettings.vatglasses?.autoLevel !== false"
                     type="checkbox"
@@ -82,8 +82,8 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
     });
 });
 
-const vatglassesActive = isVatGlassesActive();
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
+const vatglassesActive = isVatGlassesActive;
+const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && !!store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
 </script>
 
 <style lang="scss" scoped>

@@ -438,7 +438,7 @@ export interface AirportsList {
     isSimAware: boolean;
 }
 
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();

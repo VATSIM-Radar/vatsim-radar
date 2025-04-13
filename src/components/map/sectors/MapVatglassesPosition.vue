@@ -27,7 +27,7 @@ let sectorFeatures: Feature[] = [];
 
 const init = () => {
     if (!vectorSource.value) return;
-    if (!isVatGlassesActive().value) return;
+    if (!isVatGlassesActive.value) return;
 
     if (sectorFeatures) {
         for (const feature of sectorFeatures) {
@@ -67,7 +67,7 @@ watch(positionLastUpdated, () => {
 });
 
 const vatglassesLevel = computed(() => store.localSettings.vatglassesLevel);
-const vatglassesActive = isVatGlassesActive();
+const vatglassesActive = isVatGlassesActive;
 const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined);
 watch([vatglassesLevel, vatglassesActive, vatglassesCombined], () => {
     init();

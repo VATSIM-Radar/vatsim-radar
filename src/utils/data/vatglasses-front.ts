@@ -9,7 +9,7 @@ export function getAirportRunways(icao: string): VatglassesAirportRunways | null
     const vatglassesData = dataStore?.vatglasses?.value?.data;
     const runways = dataStore?.vatglassesActiveRunways.value[icao];
 
-    if (!vatglassesData || !runways || !isVatGlassesActive().value) return null;
+    if (!vatglassesData || !runways || !isVatGlassesActive.value) return null;
 
     runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
         path: '/',

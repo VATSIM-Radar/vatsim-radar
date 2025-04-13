@@ -1,6 +1,19 @@
 # Changelog
 
-# [1.1.1-final]
+# [1.1.2-alpha.2]
+
+- New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ
+- Improved icon for BCS1
+- Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
+
+# [1.1.2-alpha.1]
+
+- Fixed VATGlasses crashing for anonymous users
+- Fixed "A" button disappearing for VG level
+- Fixed last update counter constantly changing its size and causing vG Level to move
+- Improved performance when VATGlasses is enabled
+
+# [1.1.1]
 
 ## Highlights
 

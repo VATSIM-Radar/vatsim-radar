@@ -270,7 +270,46 @@ async function initLayer() {
             renderMode: 'hybrid',
         });
 
-        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => layer.id !== 'roads_labels_minor' && layer.id !== 'roads_labels_major' && layer.id !== 'water_waterway_label');
+        const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
+
+        const excludedLayers = [
+            'roads_labels_minor',
+            'roads_labels_major',
+            'water_waterway_label',
+            'landuse_park',
+            'landuse_zoo',
+            'address_label',
+            'roads_other',
+        ];
+
+        const excludedRegex: RegExp[] = [
+            /roads_tunnels/,
+            /roads_bridges_(?!(major|highway))/,
+        ];
+
+        if (!isDetailed) {
+            excludedLayers.push(
+                'landuse_urban_green',
+                'landuse_hospital',
+                'landuse_industrial',
+                'landuse_school',
+                'landuse_beach',
+                'water_river',
+                'landuse_pedestrian',
+                'landuse_pier',
+                'places_subplace',
+                'places_locality',
+                'buildings',
+                'water_label_lakes',
+            );
+
+            excludedRegex.push(
+                /roads_minor/,
+                /roads_major/,
+            );
+        }
+
+        glStyle.layers = glStyle.layers.filter((layer: Record<string, any>) => !excludedLayers.includes(layer.id) && !excludedRegex.some(x => x.test(layer.id)));
 
         await applyStyle(tileLayer.value, glStyle);
 
@@ -306,7 +345,7 @@ watch(map, val => {
     immediate: true,
 });
 
-const vatglassesEnabled = isVatGlassesActive();
+const vatglassesEnabled = isVatGlassesActive;
 
 watch([layerUrl, theme, vatglassesEnabled, transparencySettings, isLabels], initLayer);
 
