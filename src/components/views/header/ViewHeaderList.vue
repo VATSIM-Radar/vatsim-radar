@@ -66,7 +66,7 @@
                         <common-input-text
                             :model-value="!newUser.cid ? '' : newUser.cid.toString()"
                             placeholder="CID"
-                            @update:modelValue="newUser.cid = (isNaN(parseInt($event, 10)) || parseInt($event, 10) < 1) ? 0 : +parseInt($event, 10)"
+                            @update:modelValue="newUser.cid = (isNaN(parseInt($event!, 10)) || parseInt($event!, 10) < 1) ? 0 : +parseInt($event!, 10)"
                         />
                         <common-input-text
                             v-model="newUser.name"
@@ -88,7 +88,7 @@
                 <common-input-text
                     :model-value="list.name"
                     @change="list.id !== -1 && editUserList({ id: list.id, name: ($event.target as HTMLInputElement).value })"
-                    @update:modelValue="list.name = $event"
+                    @update:modelValue="list.name = $event!"
                 >
                     Name
                 </common-input-text>
@@ -477,10 +477,6 @@ watch(() => JSON.stringify(props.list), val => {
 
 <style scoped lang="scss">
 .list {
-    &--empty {
-        padding-bottom: 220px;
-    }
-
     &_settings {
         padding-left: 12px;
 

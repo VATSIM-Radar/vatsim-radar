@@ -1,10 +1,15 @@
 # Changelog
 
-# [1.1.2-alpha.2]
-
+# [1.1.2-alpha.3]
 - New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ
 - Improved icon for BCS1
 - Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
+- 
+# [1.1.2-alpha.2]
+
+- Added VATSpy/SimAware TRACON geojson debug tool
+- Fixed an issue when you could not click on SIGMET if non-VG UIR was active
+- Debug controller add now autofocuses to only required callsign field and can now also be saved by pressing enter. Also ATC list now shows callsign instead of name and can also be cleared separately
 
 # [1.1.2-alpha.1]
 

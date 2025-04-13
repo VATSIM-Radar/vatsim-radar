@@ -8,7 +8,7 @@ VATSIM Radar is an online map to show VATSIM traffic and all possible VATSIM-rel
 
 VATSIM Radar beta was opened to public on 17 April 2024. 
 
-##\ What are VATSIM Radar technologies?
+## What are VATSIM Radar technologies?
 
 We are built on Vue and Nuxt. Map is powered by OpenLayers, our backend is Nitro, Prisma and MySQL. 
 

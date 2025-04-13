@@ -352,8 +352,9 @@
                         center-by="start"
                         class="filters_sections_section_content"
                         location="right"
+                        max-height="450px"
                         :model-value="selectedFilter === 'debug'"
-                        width="600px"
+                        width="500px"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>

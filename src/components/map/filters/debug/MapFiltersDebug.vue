@@ -1,14 +1,28 @@
 <template>
     <div class="debug __info-sections">
-        <map-filters-debug-clear data="all">
+        <map-filters-debug-clear
+            data="all"
+            @click="controllers = []"
+        >
             Clear All
         </map-filters-debug-clear>
         <common-block-title remove-margin>
             Fake ATC
         </common-block-title>
-        <common-button @click="activeController = getDefaultController()">
-            Add New
-        </common-button>
+        <common-button-group>
+            <common-button
+                size="S"
+                type="primary"
+                @click="activeController = getDefaultController()"
+            >
+                Add New
+            </common-button>
+            <map-filters-debug-clear
+                data="controllers"
+                type="primary"
+                @click="controllers = []"
+            />
+        </common-button-group>
         <div class="debug_atc">
             <div
                 v-for="(controller, index) in controllers"
@@ -16,7 +30,7 @@
                 class="debug_atc_item"
             >
                 <div class="debug_atc_item_title">
-                    {{controller.name}}
+                    {{controller.callsign}}
                 </div>
                 <div class="debug_atc_item_actions">
                     <common-button
@@ -52,6 +66,7 @@
             <map-filters-debug-controller
                 v-if="activeController"
                 v-model="activeController"
+                @submit="!isDisabledControllerSave && saveController()"
             />
             <template #actions>
                 <common-button
@@ -61,7 +76,7 @@
                     Cancel
                 </common-button>
                 <common-button
-                    :disabled="!activeController!.callsign || !activeController!.name"
+                    :disabled="isDisabledControllerSave"
                     @click="saveController"
                 >
                     Save
@@ -79,6 +94,41 @@
             >
                 <div class="debug_data_title">
                     {{key}}
+                </div>
+                <div
+                    v-if="key !== 'vatglasses'"
+                    class="debug_data_pr __grid-info-sections"
+                >
+                    <div class="__grid-info-sections_title">
+                        Get from PR
+                    </div>
+                    <div class="__section-group">
+                        <common-input-text
+                            height="32px"
+                            :model-value="typeof prs[key] === 'number' ? prs[key].toString() : null"
+                            @update:modelValue="[!isNaN(Number($event)) && (prs[key] = Number($event))]"
+                        >
+                            PR ID
+                        </common-input-text>
+                        <common-button
+                            class="debug__save-button"
+                            :disabled="!prs[key] || prs[key] === 'loading'"
+                            :hover-color="prs[key] === true ? 'success700' : undefined"
+                            :primary-color="prs[key] === true ? 'success500' : undefined"
+                            size="S"
+                            @click="getFromPr(key)"
+                        >
+                            <template v-if="prs[key] === 'loading'">
+                                Saving...
+                            </template>
+                            <template v-else-if="prs[key] !== true">
+                                Save
+                            </template>
+                            <template v-else>
+                                Saved!
+                            </template>
+                        </common-button>
+                    </div>
                 </div>
                 <div class="debug_data_upload __section-group">
                     <template v-if="key === 'vatspy'">
@@ -134,6 +184,8 @@ import type { VatsimController } from '~/types/data/vatsim';
 import MapFiltersDebugController from '~/components/map/filters/debug/MapFiltersDebugController.vue';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 const files = reactive({
     vatspy: {
@@ -142,6 +194,11 @@ const files = reactive({
     },
     simaware: null as File | null,
     vatglasses: null as File | null,
+});
+
+const prs = reactive({
+    vatspy: null as number | null | true | 'loading',
+    simaware: null as number | null | true | 'loading',
 });
 
 export interface VatsimControllerWithField extends VatsimController {
@@ -166,6 +223,10 @@ const getDefaultController = (): VatsimControllerWithField => ({
 const { data: controllers, refresh } = await useAsyncData('debug-controllers', () => $fetch<VatsimControllerWithField[]>('/api/data/custom/controllers'), { deep: true });
 
 const activeController = ref<VatsimControllerWithField | null>(null);
+const isDisabledControllerSave = computed(() => !activeController.value ||
+    !activeController.value.name ||
+    !activeController.value.callsign ||
+    controllers.value?.some(x => x.callsign === activeController.value!.callsign && x.cid !== activeController.value!.cid));
 const saveController = async () => {
     await $fetch('/api/data/custom/controllers', {
         body: [
@@ -188,6 +249,23 @@ const deleteController = async (cid: number) => {
     });
     activeController.value = null;
     await refresh();
+};
+const getFromPr = async (type: Exclude<DataKey, 'vatglasses'>) => {
+    const id = prs[type];
+    prs[type] = 'loading';
+    try {
+        await $fetch(`/api/data/debug/${ type }/${ id }/save`, {
+            method: 'POST',
+        });
+        prs[type] = true;
+        await sleep(2000);
+        prs[type] = null;
+        refresh();
+    }
+    catch (e) {
+        console.error(e);
+        prs[type] = null;
+    }
 };
 
 type DataKey = 'vatspy' | 'simaware' | 'vatglasses';
@@ -233,13 +311,6 @@ const send = async (key: DataKey) => {
         border: 1px solid varToRgba('lightgray125', 0.1);
         border-radius: 8px;
         background: $darkgray950;
-
-        &-container {
-            display: grid;
-            grid-template-areas:
-                "full full"
-                "left right";
-        }
 
         &:first-child {
             grid-area: full;
@@ -290,6 +361,10 @@ const send = async (key: DataKey) => {
                 }
             }
         }
+    }
+
+    &__save-button {
+        align-self: flex-end;
     }
 }
 </style>
