@@ -80,7 +80,10 @@ export async function updateVatSpy() {
         });
 
         if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-        if ((radarStorage.vatspy)?.version === data.current_commit_hash) return;
+        if ((radarStorage.vatspy)?.version === data.current_commit_hash) {
+            await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
+            return;
+        }
 
         const result = await Promise.all([
             ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
