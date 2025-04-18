@@ -89,8 +89,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('runways' in val && typeof val.runways !== 'boolean') return false;
         if ('pilotsInfo' in val && typeof val.pilotsInfo !== 'boolean') return false;
         if ('atcInfo' in val && typeof val.atcInfo !== 'boolean') return false;
+        if ('pilotLabels' in val && typeof val.pilotLabels !== 'boolean') return false;
 
-        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo'])) return false;
+        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels'])) return false;
 
         return true;
     },
@@ -198,6 +199,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     defaultAirportZoomLevel: val => {
         return isNumber(val, 1) && val > 0 && val < 50;
     },
+    pilotLabelLimit: val => {
+        return isNumber(val, 0) && val >= 0 && val <= 1000;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -239,6 +243,7 @@ export interface IUserMapSettings {
         pilotsInfo?: boolean;
         atcInfo?: boolean;
         bookings?: boolean;
+        pilotLabels?: boolean;
     };
     bookingHours: number;
     bookingOverride?: boolean;
@@ -288,6 +293,7 @@ export interface IUserMapSettings {
         turns?: UserMapSettingsTurns;
         turnsTransparency?: number;
     };
+    pilotLabelLimit: number;
 }
 
 export type UserMapSettings = Partial<IUserMapSettings>;
