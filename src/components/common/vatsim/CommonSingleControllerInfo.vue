@@ -78,7 +78,7 @@
             </template>
         </template>
         <template
-            v-if="showAtis && controller.text_atis?.length && !controller.booking"
+            v-if="showAtis && controller.text_atis?.length"
             #bottom
         >
             <ul class="atc__atis">
@@ -94,6 +94,15 @@
                 v-if="controller.logon_time"
                 :controller="controller"
             />
+            <template v-if="controller.booking">
+                Booked
+                <template v-if="store.mapSettings.bookingsLocalTimezone">
+                    {{ controller.booking?.end_local }}
+                </template>
+                <template v-else>
+                    {{ controller.booking?.end_z }}Z
+                </template>
+            </template>
         </template>
         <template
             v-else-if="controller.booking"
