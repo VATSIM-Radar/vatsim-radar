@@ -76,7 +76,7 @@
             :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : -10]"
         />
         <map-overlay
-            v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport"
+            v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
             :settings="{ position: [airport.lon, airport.lat], offset: [0, -7], positioning: 'top-center', stopEvent: !!hoveredFacility }"
