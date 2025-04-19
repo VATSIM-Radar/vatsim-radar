@@ -1,4 +1,5 @@
 import AdmZip from 'adm-zip';
+import type { RedisData } from '~/utils/backend/redis';
 import { setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesAirspace, VatglassesData } from '~/utils/backend/storage';
@@ -135,6 +136,7 @@ export async function updateVatglassesData() {
             radarStorage.vatglasses.data = jsonData;
             await setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
         }
+        else if (radarStorage.vatglasses.data.data) await setRedisData('data-vatglasses', radarStorage.vatglasses.data as RedisData['data-vatglasses'], 1000 * 60 * 60 * 24 * 2);
     }
     catch (error) {
         console.error('Error fetching data, ', error);
