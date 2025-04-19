@@ -89,8 +89,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('runways' in val && typeof val.runways !== 'boolean') return false;
         if ('pilotsInfo' in val && typeof val.pilotsInfo !== 'boolean') return false;
         if ('atcInfo' in val && typeof val.atcInfo !== 'boolean') return false;
+        if ('pilotLabels' in val && typeof val.pilotLabels !== 'boolean') return false;
 
-        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo'])) return false;
+        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels'])) return false;
 
         return true;
     },
@@ -153,6 +154,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportsCounters: val => {
         if (!isObject(val)) return false;
 
+        if ('showCounters' in val && typeof val.show !== 'boolean') return false;
         if ('syncDeparturesArrivals' in val && typeof val.syncDeparturesArrivals !== 'boolean') return false;
         if ('disableTraining' in val && typeof val.disableTraining !== 'boolean') return false;
         if ('syncWithOverlay' in val && typeof val.syncWithOverlay !== 'boolean') return false;
@@ -160,7 +162,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('horizontalCounter' in val && (typeof val.horizontalCounter !== 'string' || !prefilesModeKeys.includes(val.horizontalCounter as any))) return false;
         if ('arrivalsMode' in val && (typeof val.arrivalsMode !== 'string' || !counterModeKeys.includes(val.arrivalsMode as any))) return false;
 
-        if (!validateRandomObjectKeys(val, ['syncDeparturesArrivals', 'disableTraining', 'syncWithOverlay', 'departuresMode', 'arrivalsMode', 'horizontalCounter'])) return false;
+        if (!validateRandomObjectKeys(val, ['showCounters', 'syncDeparturesArrivals', 'disableTraining', 'syncWithOverlay', 'departuresMode', 'arrivalsMode', 'horizontalCounter'])) return false;
 
         return true;
     },
@@ -197,6 +199,12 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     defaultAirportZoomLevel: val => {
         return isNumber(val, 1) && val > 0 && val < 50;
+    },
+    pilotLabelLimit: val => {
+        return isNumber(val, 0) && val >= 0 && val <= 1000;
+    },
+    airportCounterLimit: val => {
+        return isNumber(val, 0) && val >= 0 && val <= 1000;
     },
 };
 
@@ -239,6 +247,7 @@ export interface IUserMapSettings {
         pilotsInfo?: boolean;
         atcInfo?: boolean;
         bookings?: boolean;
+        pilotLabels?: boolean;
     };
     bookingHours: number;
     bookingOverride?: boolean;
@@ -275,6 +284,7 @@ export interface IUserMapSettings {
     };
     hideATISOnly: boolean;
     airportsCounters: {
+        showCounters?: boolean;
         syncDeparturesArrivals?: boolean;
         departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
@@ -288,6 +298,8 @@ export interface IUserMapSettings {
         turns?: UserMapSettingsTurns;
         turnsTransparency?: number;
     };
+    pilotLabelLimit: number;
+    airportCounterLimit: number;
 }
 
 export type UserMapSettings = Partial<IUserMapSettings>;
