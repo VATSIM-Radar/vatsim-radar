@@ -407,7 +407,7 @@ async function handleClick(e: MapBrowserEvent<any>) {
 function handleMoveEnd() {
     setVisiblePilots();
 
-    if (visiblePilots.value.length > 100 || visiblePilots.value.length === 0) {
+    if (store.mapSettings.visibility?.pilotLabels || visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100) || visiblePilots.value.length === 0) {
         if (showAircraftLabel.value.length) {
             showAircraftLabel.value = [];
         }
