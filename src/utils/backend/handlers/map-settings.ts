@@ -277,6 +277,9 @@ export interface IUserMapSettings {
     }>;
     navigraphData: Partial<{
         ndb: boolean;
+        vordme: boolean;
+        waypoints: boolean;
+        holdings: boolean;
         airways: Partial<{
             enabled: boolean;
             showAirwaysLabel: boolean;

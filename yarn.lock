@@ -4951,6 +4951,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/circle@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/circle@npm:7.2.0"
+  dependencies:
+    "@turf/destination": "npm:^7.2.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/0327fd8a73009239d5da7816b75ba4d03c85e1b2fe132578f9d857dd7d5cbb46632b7a34fb80db0d5e2a0007bb31ad34d2e5c22d53822a3520babf79b4054a18
+  languageName: node
+  linkType: hard
+
+"@turf/destination@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/destination@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/64ca7562d081a3bc9000d7b08a417577a9d5431e91b002f39e771df4c0f8b323becbff2bddaadd414069e7fe8704c7ae1880c4d6cb5c140d3333fba2b65bd6e0
+  languageName: node
+  linkType: hard
+
 "@turf/difference@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/difference@npm:7.2.0"
@@ -5029,6 +5053,19 @@ __metadata:
     "@types/geojson": "npm:^7946.0.10"
     tslib: "npm:^2.8.1"
   checksum: 10c0/487cfba3aa015a4195742c261ecc622c5c3dd29cb0aa08b1959f051c23b24a0d1b52f2c38f4ce5c70061de21a60d19c940a472fad9b5c2484ecd0eb82fbf7654
+  languageName: node
+  linkType: hard
+
+"@turf/line-arc@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/line-arc@npm:7.2.0"
+  dependencies:
+    "@turf/circle": "npm:^7.2.0"
+    "@turf/destination": "npm:^7.2.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/e614968c674db5af4088dac44f83a5479a20ee47f4aa3f3e24785fe8b5876d647905fe8558f59adef38bbf1c1da5e33a31acb5d2868bd86533b73b2a04b79626
   languageName: node
   linkType: hard
 
@@ -17633,6 +17670,7 @@ __metadata:
     "@turf/helpers": "npm:^7.2.0"
     "@turf/intersect": "npm:^7.2.0"
     "@turf/kinks": "npm:^7.2.0"
+    "@turf/line-arc": "npm:^7.2.0"
     "@turf/line-intersect": "npm:^7.2.0"
     "@turf/meta": "npm:^7.2.0"
     "@turf/nearest-point-on-line": "npm:^7.2.0"

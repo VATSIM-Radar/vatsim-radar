@@ -3,8 +3,13 @@
         v-if="navigraphSource"
         class="layers"
     >
+        <!--
         <navigraph-ndb/>
         <navigraph-airways/>
+        <navigraph-waypoints/>
+-->
+        <navigraph-waypoints/>
+        <navigraph-holdings/>
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -15,21 +20,17 @@
                 @mouseleave="activeFeature = null"
             >
                 <template #title>
-                    <template v-if="isVHF(activeFeature)">
-                        VORDME
+                    <template v-if="isVHF(activeFeature) || isNDB(activeFeature)">
+                        {{ activeFeature.data.icaoCode }}
                     </template>
-                    <template v-if="isNDB(activeFeature)">
-                        NDB
-                    </template>
-                    <template v-if="isAirway(activeFeature)">
-                        Airway
+                    <template v-else-if="isAirway(activeFeature)">
+                        {{ activeFeature.data.airway.identifier }}
                     </template>
                 </template>
                 <div class="layers_info">
                     <template v-if="isVHF(activeFeature)">
                         <div
                             v-for="field in ([
-                                ['Ident', activeFeature.data.icaoCode],
                                 ['Name', activeFeature.data.navaid.name],
                                 ['Frequency', activeFeature.data.frequency],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
@@ -49,7 +50,6 @@
                     <template v-else-if="isNDB(activeFeature)">
                         <div
                             v-for="field in ([
-                                ['Ident', activeFeature.data.icaoCode],
                                 ['Name', activeFeature.data.navaid.name],
                                 ['Frequency', `${ activeFeature.data.frequency } kHz`],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
@@ -68,11 +68,11 @@
                     <template v-else-if="isAirway(activeFeature)">
                         <div
                             v-for="field in ([
-                                ['Route', activeFeature.data.airway.identifier],
                                 ['Inbound course', activeFeature.additionalData?.waypoint.inbound],
                                 ['Outbound course', activeFeature.additionalData?.waypoint.outbound],
                                 ['Minimum altitude', activeFeature.additionalData?.waypoint.minAlt],
                                 ['Maximum altitude', activeFeature.additionalData?.waypoint.maxAlt],
+                                ['Level', activeFeature.additionalData?.waypoint.flightLevel === 'H' ? 'High' : activeFeature.additionalData?.waypoint.flightLevel === 'L' ? 'Low' : 'Both'],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--vertical"
@@ -99,13 +99,18 @@ import { Fill, Style, Text, Icon, Stroke, Circle } from 'ol/style';
 import { getCurrentThemeRgbColor } from '~/composables';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate';
-import VectorLayer from 'ol/layer/Vector';
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata';
 import { useStore } from '~/store';
 import NavigraphAirways from '~/components/map/navigraph/NavigraphAirways.vue';
+import VectorImageLayer from 'ol/layer/VectorImage';
+import CircleStyle from 'ol/style/Circle';
+import type { FeatureLike } from 'ol/Feature';
+import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
+import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
-let navigraphLayer: VectorLayer<any> | undefined;
+let navigraphLayer: VectorImageLayer<any> | undefined;
+let navigraphFakeLayer: VectorImageLayer<any> | undefined;
 
 const store = useStore();
 
@@ -149,15 +154,20 @@ const vordmeStyle = new Icon({
     opacity: 0.6,
 });
 
+const fakeCircle = new CircleStyle({
+    radius: 1,
+    fill: new Fill({ color: 'rgba(0,0,0,0)' }),
+});
+
 const showAirwaysLabels = computed(() => store.mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
 const showWaypointsLabels = computed(() => store.mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
 
 async function handleMapClick(event: MapBrowserEvent<any>) {
-    const feature = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 5, layerFilter: val => val === navigraphLayer })?.[0];
+    const feature = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 5, layerFilter: val => val === navigraphLayer || val === navigraphFakeLayer })?.[0];
     if (!feature) return activeFeature.value = null;
 
     const properties = feature.getProperties();
-    if (properties.type === 'vhf' || properties.type === 'ndb' || properties.type === 'airways') {
+    if (properties.type === 'vhf' || properties.type === 'ndb' || properties.type === 'airways' || properties.type === 'holdings') {
         activeFeature.value = {
             coords: event.coordinate,
             type: properties.type as keyof NavigraphNavData,
@@ -192,25 +202,30 @@ watch(map, val => {
         });
 
         const waypointStroke = new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
             width: 1,
         });
 
-        navigraphLayer = new VectorLayer<any>({
-            source: navigraphSource.value,
-            zIndex: 6,
-            minZoom: 6,
-            declutter: true,
-            properties: {
-                type: 'navigraph',
-            },
-            style: function(feature) {
-                const properties = feature.getProperties();
+        const holdingStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
+            width: 1,
+        });
 
-                if (properties.type === 'vhf') {
-                    return new Style({
-                        image: vordmeStyle,
+        const waypointBlueStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.3)`,
+            width: 1,
+        });
+
+        function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
+            const properties = feature.getProperties();
+
+            if (properties.type === 'vhf') {
+                return [
+                    new Style({
+                        image: fake ? fakeCircle : vordmeStyle,
                         zIndex: 6,
+                    }),
+                    new Style({
                         text: new Text({
                             font: '8px Montserrat',
                             text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.code }`,
@@ -219,16 +234,21 @@ watch(map, val => {
                             textAlign: 'left',
                             justify: 'center',
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, ${ fake ? 0 : 0.8 })`,
                             }),
                         }),
-                    });
-                }
+                        zIndex: 5,
+                    }),
+                ];
+            }
 
-                if (properties.type === 'ndb') {
-                    return new Style({
-                        image: ndbStyle,
+            if (properties.type === 'ndb') {
+                return [
+                    new Style({
+                        image: fake ? fakeCircle : ndbStyle,
                         zIndex: 6,
+                    }),
+                    new Style({
                         text: new Text({
                             font: '8px Montserrat',
                             text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.code }`,
@@ -237,15 +257,23 @@ watch(map, val => {
                             textAlign: 'left',
                             justify: 'center',
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, ${ fake ? 0 : 0.8 })`,
                             }),
                         }),
-                    });
-                }
+                        zIndex: 4,
+                    }),
+                ];
+            }
 
-                if (properties.type.endsWith('waypoint')) {
-                    return new Style({
+            if (fake) return;
+
+            if (properties.type.endsWith('waypoint')) {
+                return [
+                    new Style({
                         image: waypointCircle,
+                        zIndex: 6,
+                    }),
+                    new Style({
                         text: showWaypointsLabels.value
                             ? new Text({
                                 font: '8px Montserrat',
@@ -254,38 +282,74 @@ watch(map, val => {
                                 offsetY: 2,
                                 textAlign: 'left',
                                 justify: 'center',
-                                padding: [6, 6, 6, 6],
+                                padding: [2, 2, 2, 2],
                                 fill: new Fill({
-                                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 1)`,
+                                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
                                 }),
                             })
                             : undefined,
-                    });
-                }
+                        zIndex: 4,
+                    }),
+                ];
+            }
 
-                if (properties.type === 'airways') {
-                    return new Style({
-                        stroke: waypointStroke,
-                        text: showAirwaysLabels.value
-                            ? new Text({
-                                font: 'bold 10px Montserrat',
-                                text: `${ properties.identifier }`,
-                                placement: 'line',
-                                keepUpright: true,
-                                justify: 'center',
-                                padding: [6, 6, 6, 6],
-                                rotateWithView: false,
-                                fill: new Fill({
-                                    color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 1)`,
-                                }),
-                            })
-                            : undefined,
-                    });
-                }
+            if (properties.type === 'airways') {
+                return new Style({
+                    stroke: properties.flightLevel === 'L' ? waypointStroke : waypointBlueStroke,
+                    zIndex: 5,
+                    text: showAirwaysLabels.value
+                        ? new Text({
+                            font: 'bold 10px Montserrat',
+                            text: `${ properties.identifier }`,
+                            placement: 'line',
+                            keepUpright: true,
+                            justify: 'center',
+                            padding: [6, 6, 6, 6],
+                            rotateWithView: false,
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
+                            }),
+                        })
+                        : undefined,
+                });
+            }
+
+            if (properties.type === 'holdings') {
+                return new Style({
+                    stroke: holdingStroke,
+                    zIndex: 8,
+                });
+            }
+        }
+
+        navigraphFakeLayer = new VectorImageLayer<any>({
+            source: navigraphSource.value,
+            zIndex: 6,
+            minZoom: 5,
+            declutter: false,
+            properties: {
+                type: 'navigraph',
+            },
+            style: function(feature) {
+                return getStyle(feature, true);
+            },
+        });
+
+        navigraphLayer = new VectorImageLayer<any>({
+            source: navigraphSource.value,
+            zIndex: 6,
+            minZoom: 5,
+            declutter: true,
+            properties: {
+                type: 'navigraph',
+            },
+            style: function(feature) {
+                return getStyle(feature, false);
             },
         });
 
         map.value?.addLayer(navigraphLayer);
+        map.value?.addLayer(navigraphFakeLayer);
         map.value?.on('click', handleMapClick);
     }
 }, {
@@ -296,7 +360,9 @@ onBeforeUnmount(() => {
     if (navigraphLayer) {
         map.value?.removeLayer(navigraphLayer);
     }
+    if (navigraphFakeLayer) map.value?.removeLayer(navigraphFakeLayer);
     navigraphLayer?.dispose();
+    navigraphFakeLayer?.dispose();
     map.value?.un('click', handleMapClick);
 });
 </script>

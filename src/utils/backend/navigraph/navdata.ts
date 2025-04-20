@@ -52,12 +52,21 @@ export interface NavigraphNavDataEnrouteWaypoint {
     usage: string;
 }
 
+type FlightLevel = 'H' | 'L' | 'B';
+const flightLevels: FlightLevel[] = ['H', 'L', 'B'];
+
+function getFlightLevel(data: string): FlightLevel {
+    if (flightLevels.includes(data as FlightLevel)) return data as FlightLevel;
+    return 'B';
+}
+
 export type NavigraphNavDataAirwayWaypoint = NavigraphNavDataWaypoint & {
     maxAlt: number;
     minAlt: number;
     inbound: number;
     outbound: number;
     seqno: number;
+    flightLevel: FlightLevel;
 };
 
 export interface NavigraphNavDataAirway {
@@ -107,7 +116,7 @@ export interface NavigraphNavDataControlledAirspace {
     lowerLimit: string | null;
     upperLimit: string | null;
     name: string;
-    flightLevel: 'L' | 'B' | null;
+    flightLevel: FlightLevel;
 }
 
 export interface NavigraphNavDataRestrictedAirspace {
@@ -119,7 +128,7 @@ export interface NavigraphNavDataRestrictedAirspace {
     lowerLimit: string | null;
     upperLimit: string | null;
     name: string;
-    flightLevel: 'L' | 'B' | null;
+    flightLevel: FlightLevel;
 }
 
 export type NavDataProcedure<T extends NavigraphNavDataApproach | NavigraphNavDataStar | NavigraphNavDataSid> = {
@@ -152,15 +161,15 @@ export type NavigraphNavItems = {
 export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
-    holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number]>;
-    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number][]]>;
+    holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string]>;
+    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][]]>;
     parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number]>;
     approaches: NavDataProcedure<NavigraphNavDataApproach>;
     stars: NavDataProcedure<NavigraphNavDataStar>;
     sids: NavDataProcedure<NavigraphNavDataSid>;
-    restrictedAirspace: [type: string, designation: string, low: string, up: string, Coordinate[]][];
-    controlledAirspace: [classification: string, low: string, up: string, Coordinate[]][];
+    restrictedAirspace: [type: string, designation: string, low: string, up: string, Coordinate[], flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][];
+    controlledAirspace: [classification: string, low: string, up: string, Coordinate[], flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][];
 }
 
 export async function processDatabase(db: sqlite3.Database) {
@@ -309,7 +318,7 @@ export async function processDatabase(db: sqlite3.Database) {
     shortData.holdings = {};
 
     for (const item of holdings) {
-        const key = `${ item.icao_code }-${ item.area_code }-${ item.region_code }`;
+        const key = `${ item.icao_code }-${ item.waypoint_identifier }-${ item.area_code }-${ item.region_code }`;
 
         fullData.holdings[key] = {
             name: item.holding_name,
@@ -329,7 +338,7 @@ export async function processDatabase(db: sqlite3.Database) {
             },
         };
 
-        shortData.holdings[key] = [item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude];
+        shortData.holdings[key] = [item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code];
     }
 
     // endregion Holdings
@@ -429,6 +438,8 @@ export async function processDatabase(db: sqlite3.Database) {
             shortData.airways[key] = shortAirway;
         }
 
+        const flightLevel = getFlightLevel(airway.flightlevel);
+
         objectAirway.waypoints.push({
             identifier: airway.waypoint_identifier,
             coordinate: [airway.waypoint_longitude, airway.waypoint_latitude],
@@ -438,8 +449,9 @@ export async function processDatabase(db: sqlite3.Database) {
             inbound: airway.inbound_course,
             outbound: airway.outbound_course,
             seqno: airway.seqno,
+            flightLevel,
         });
-        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude]);
+        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel]);
     }
 
     // endregion airways
@@ -490,6 +502,8 @@ export async function processDatabase(db: sqlite3.Database) {
             nextItem = restricted[k];
         }
 
+        const flightLevel = getFlightLevel(item.flightlevel);
+
         fullData.restrictedAirspace.push({
             type: item.restrictive_type,
             icaoCode: item.icao_code,
@@ -498,11 +512,11 @@ export async function processDatabase(db: sqlite3.Database) {
             lowerLimit: item.lower_limit,
             upperLimit: item.upper_limit,
             name: item.restrictive_airspace_name,
-            flightLevel: item.flightlevel as any,
+            flightLevel,
             coordinates,
         });
 
-        shortData.restrictedAirspace.push([item.restrictive_type, item.restrictive_airspace_designation, item.lower_limit, item.upper_limit, coordinates]);
+        shortData.restrictedAirspace.push([item.restrictive_type, item.restrictive_airspace_designation, item.lower_limit, item.upper_limit, coordinates, flightLevel]);
     }
 
     // endregion Restricted Airspace
@@ -556,6 +570,8 @@ export async function processDatabase(db: sqlite3.Database) {
             nextItem = controlled[k];
         }
 
+        const flightLevel = getFlightLevel(item.flightlevel);
+
         fullData.controlledAirspace.push({
             center: item.airspace_center,
             classification: item.airspace_classification,
@@ -566,11 +582,11 @@ export async function processDatabase(db: sqlite3.Database) {
             lowerLimit: item.lower_limit,
             upperLimit: item.upper_limit,
             name: item.controlled_airspace_name,
-            flightLevel: item.flightlevel as any,
+            flightLevel,
             coordinates,
         });
 
-        shortData.controlledAirspace.push([item.airspace_classification, item.lower_limit, item.upper_limit, coordinates]);
+        shortData.controlledAirspace.push([item.airspace_classification, item.lower_limit, item.upper_limit, coordinates, flightLevel]);
     }
 
     // endregion Controlled Airspace
@@ -581,8 +597,4 @@ export async function processDatabase(db: sqlite3.Database) {
         full: fullData as NavigraphNavData,
         short: shortData as NavigraphNavDataShort,
     };
-}
-
-export async function updateNavigraphNavData() {
-
 }

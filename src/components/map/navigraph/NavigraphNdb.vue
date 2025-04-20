@@ -16,39 +16,49 @@ const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const store = useStore();
 const dataStore = useDataStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.ndb !== false);
-let features: Feature[] = [];
+const isNDBEnabled = computed(() => store.mapSettings.navigraphData?.ndb !== false);
+const isVorEnabled = computed(() => store.mapSettings.navigraphData?.vordme !== false);
+let ndb: Feature[] = [];
+let vordme: Feature[] = [];
 
-watch(isEnabled, val => {
-    if (!val) {
-        source?.value.removeFeatures(features);
-        features = [];
+watch([isNDBEnabled, isVorEnabled], () => {
+    if (!isNDBEnabled.value) {
+        source?.value.removeFeatures(ndb);
+        ndb = [];
     }
-    else {
-        features = [
-            ...Object.entries(dataStore.navigraph.data.value!.vhf).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
-                geometry: new Point([longitude, latitude]),
-                key,
-                name,
-                code,
-                frequency,
-                type: 'vhf',
-            })),
-            ...Object.entries(dataStore.navigraph.data.value!.ndb).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
-                geometry: new Point([longitude, latitude]),
-                key,
-                name,
-                code,
-                frequency,
-                type: 'ndb',
-            })),
-        ];
+    else if (!ndb.length) {
+        ndb = Object.entries(dataStore.navigraph.data.value!.ndb).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
+            geometry: new Point([longitude, latitude]),
+            key,
+            name,
+            code,
+            frequency,
+            type: 'ndb',
+        }));
+        source?.value.addFeatures(ndb);
+    }
 
-        source?.value.addFeatures(features);
+    if (!isVorEnabled.value) {
+        source?.value.removeFeatures(vordme);
+        vordme = [];
+    }
+    else if (!vordme.length) {
+        vordme = Object.entries(dataStore.navigraph.data.value!.vhf).map(([key, [name, code, frequency, longitude, latitude]]) => new Feature({
+            geometry: new Point([longitude, latitude]),
+            key,
+            name,
+            code,
+            frequency,
+            type: 'vhf',
+        }));
+        source?.value.addFeatures(vordme);
     }
 }, {
     immediate: true,
 });
 
-onBeforeUnmount(() => source?.value.removeFeatures(features));
+onBeforeUnmount(() => {
+    source?.value.removeFeatures(vordme);
+    source?.value.removeFeatures(ndb);
+});
 </script>

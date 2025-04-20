@@ -56,6 +56,7 @@ watch(isEnabled, async val => {
                         inbound: waypoint[1],
                         outbound: waypoint[2],
                         waypoint: waypoint[0],
+                        flightLevel: waypoint[5],
                         type: 'airways',
                     }));
                 });

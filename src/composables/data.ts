@@ -354,7 +354,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             (async function() {
                 let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
                 if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated']) {
-                    const fetchedData = await $fetch<NavigraphNavDataShort>('/api/data/navigraph/data');
+                    const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }`);
 
                     fetchedData.parsedAirways = {};
 

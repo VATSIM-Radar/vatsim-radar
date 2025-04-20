@@ -136,8 +136,8 @@ export async function initNavigraph() {
 
     radarStorage.navigraph = cycles;
 
-    const currentFileName = `current-${ currentCycle }.s3db`;
-    const outdatedFileName = `outdated-${ outdatedCycle }.s3db`;
+    const currentFileName = `current-v2-${ currentCycle }.s3db`;
+    const outdatedFileName = `outdated-v2-${ outdatedCycle }.s3db`;
 
     const currentPath = join(cwd, `data/${ currentFileName }`);
     const outdatedPath = join(cwd, `data/${ outdatedFileName }`);

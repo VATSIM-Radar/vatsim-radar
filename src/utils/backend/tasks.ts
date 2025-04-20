@@ -197,7 +197,7 @@ async function patreonTask() {
 async function navigraphTask() {
     const data = (await getRedisData('navigraph-data'));
 
-    if (!data || data.versions.current !== radarStorage.navigraph.current) {
+    if (!data || data.versions.current !== radarStorage.navigraph.current || process.env.NODE_ENV === 'development') {
         const current = await processDatabase(navigraphCurrentDb!);
         const outdated = await processDatabase(navigraphOutdatedDb!);
 
@@ -209,6 +209,9 @@ async function navigraphTask() {
         radarStorage.navigraphData.full.outdated = outdated.full;
         radarStorage.navigraphData.short.outdated = outdated.short;
 
+        await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+    }
+    else {
         await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
     }
 }
@@ -269,7 +272,7 @@ export async function setupRedisDataFetch() {
         await updateRedisData();
 
         while (!await isDataReady()) {
-            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data);
+            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, !!radarStorage.navigraphData?.full.current);
             await sleep(1000 * 60);
             await updateRedisData();
         }
@@ -286,6 +289,9 @@ export async function setupRedisDataFetch() {
             }
             else if (message === 'data-simaware') {
                 radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
+            }
+            else if (message === 'navigraph-data') {
+                radarStorage.navigraphData = (await getRedisData('navigraph-data')) ?? radarStorage.navigraphData;
             }
         }
     });
