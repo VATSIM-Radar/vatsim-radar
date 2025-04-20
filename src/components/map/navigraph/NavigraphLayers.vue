@@ -3,11 +3,9 @@
         v-if="navigraphSource"
         class="layers"
     >
-        <!--
         <navigraph-ndb/>
         <navigraph-airways/>
         <navigraph-waypoints/>
--->
         <navigraph-waypoints/>
         <navigraph-holdings/>
         <map-overlay

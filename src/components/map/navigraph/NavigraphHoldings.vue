@@ -10,7 +10,7 @@ import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
-
+import lineArc from '@turf/line-arc';
 
 defineSlots<{ default: () => any }>();
 
@@ -22,59 +22,116 @@ const dataStore = useDataStore();
 const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings !== false);
 let features: Feature[] = [];
 
-/**
- * @note ChatGPT generated. Feel free to rewrite. I'm trash at this
- */
-function getArcPoints(A: Coordinate, B: Coordinate, polyCenter: Coordinate) {
-    const [ax, ay] = A;
-    const [bx, by] = B;
+// Compute a destination point given start (lat,lon), distance (m), and bearing (° from north)
+function computeOffset(from: Coordinate, dist: number, bearingDeg: number) {
+    const R = 6378137; // Earth radius in m (WGS‑84)
+    const deltaSigma = dist / R;
+    const bearingRadians = bearingDeg * Math.PI / 180;
+    const startLatRadians = from[1] * Math.PI / 180;
+    const startLonRadians = from[0] * Math.PI / 180;
 
-    const cx = (ax + bx) / 2;
-    const cy = (ay + by) / 2;
-    const dx = bx - ax;
-    const dy = by - ay;
-    const d = Math.hypot(dx, dy);
-    const r0 = d / 2;
+    const newLatRadians = Math.asin(
+        (Math.sin(startLatRadians) * Math.cos(deltaSigma)) +
+            (Math.cos(startLatRadians) * Math.sin(deltaSigma) * Math.cos(bearingRadians)),
+    );
+    const newLonRadians = startLonRadians + Math.atan2(
+        Math.sin(bearingRadians) * Math.sin(deltaSigma) * Math.cos(startLatRadians),
+        Math.cos(deltaSigma) - (Math.sin(startLatRadians) * Math.sin(newLatRadians)),
+    );
 
-    const start0 = Math.atan2(ay - cy, ax - cx);
-    const deltas = [Math.PI, -Math.PI];
-    const best = deltas.reduce((best, cand) => {
-        const mid = start0 + (cand / 2);
-        const mx = cx + (r0 * Math.cos(mid));
-        const my = cy + (r0 * Math.sin(mid));
-        const dist2 = ((mx - polyCenter[0]) ** 2) + ((my - polyCenter[1]) ** 2);
-        return dist2 > best.dist2
-            ? { delta: cand, dist2 }
-            : best;
-    }, { delta: Math.PI, dist2: -Infinity });
-    const sign = Math.sign(best.delta);
-
-    const delta = best.delta * 0.5;
-
-    const R = r0 / Math.sin(Math.abs(delta) / 2);
-
-    const h = Math.sqrt((R * R) - (r0 * r0));
-
-    const ux = -dy / d;
-    const uy = dx / d;
-
-    const centerX = cx + (ux * sign * h);
-    const centerY = cy + (uy * sign * h);
-
-    const start = Math.atan2(ay - centerY, ax - centerX);
-
-    const pts = [];
-    const segments = 16;
-    for (let i = 0; i <= segments; i++) {
-        const ang = start + (delta * (i / segments));
-        pts.push([
-            centerX + (R * Math.cos(ang)),
-            centerY + (R * Math.sin(ang)),
-        ]);
-    }
-    return pts;
+    return [
+        newLonRadians * 180 / Math.PI,
+        newLatRadians * 180 / Math.PI,
+    ];
 }
 
+// Compute bearing (° from north) from point A to B
+function computeBearing(A: Coordinate, B: Coordinate) {
+    const a1 = A[1] * Math.PI / 180;
+    const a2 = B[1] * Math.PI / 180;
+    const calc = (B[0] - A[0]) * Math.PI / 180;
+
+    const y = Math.sin(calc) * Math.cos(a2);
+    const x = (Math.cos(a1) * Math.sin(a2)) -
+        (Math.sin(a1) * Math.cos(a2) * Math.cos(calc));
+    const c = Math.atan2(y, x);
+    return (((c * 180) / Math.PI) + 360) % 360;
+}
+
+function generateHoldingPatternGeoJSON(
+    startLatLng: Coordinate,
+    groundSpeedKts: number,
+    startBearingDeg: number,
+    turnDirection = 'R' as 'L' | 'R',
+    distanceInput: number,
+    distanceInMinutes = true,
+    steps = 64,
+) {
+    // 1) Turn radius for standard‐rate turn (3°/s)
+    const gsMs = groundSpeedKts * 0.514444;
+    const turnRateRad = 3 * Math.PI / 180;
+    const Rm = gsMs / turnRateRad; // radius in meters
+
+    // 2) Compute outbound leg distance in meters
+    const distanceMeters = distanceInMinutes
+        ? gsMs * 60 * distanceInput
+        : distanceInput;
+
+    // 3) Sign for turn direction
+    const sign = turnDirection === 'R' ? 1 : -1;
+
+    // 4) Center‑1 of first semicircle: offset from fix by Rm at (startBearing ± 90°)
+    const center1 = computeOffset(
+        startLatLng,
+        Rm,
+        (startBearingDeg + (turnDirection === 'R' ? 90 : -90) + 360) % 360,
+    );
+
+    // 5) Sample the first 180° arc around center1
+    const bearingStart1 = computeBearing(center1, startLatLng);
+    const arc1 = [];
+    for (let i = 0; i <= steps; i++) {
+        const bearing = bearingStart1 + (sign * (Math.PI * (i / steps)) * 180 / Math.PI);
+        const pt = computeOffset(center1, Rm, bearing % 360);
+        arc1.push(pt);
+    }
+
+    // 6) Outbound leg start/end
+    const outboundBearing = (startBearingDeg + 180) % 360;
+    const legStart = [arc1[arc1.length - 1][0], arc1[arc1.length - 1][1]];
+    const legEnd = computeOffset(legStart, distanceMeters, outboundBearing);
+    const legPts = [legStart, legEnd];
+
+    // 7) Center‑2 of second semicircle (at end of leg)
+    const center2 = computeOffset(
+        legEnd,
+        Rm,
+        (outboundBearing + (turnDirection === 'R' ? 90 : -90) + 360) % 360,
+    );
+
+    // 8) Sample the second 180° arc around center2
+    const bearingStart2 = computeBearing(center2, legEnd);
+    const arc2 = [];
+    for (let i = 0; i <= steps; i++) {
+        const bearing = bearingStart2 + (sign * (Math.PI * (i / steps)) * 180 / Math.PI);
+        const pt = computeOffset(center2, Rm, bearing % 360);
+        arc2.push(pt);
+    }
+
+    // 9) Return inbound (straight back to fix)
+    const returnLeg = [
+        [arc2[arc2.length - 1][0], arc2[arc2.length - 1][1]],
+        startLatLng,
+    ];
+
+    // 10) Build the full GeoJSON FeatureCollection
+    return [
+        ...arc1,
+        legPts[1],
+        ...arc2,
+        returnLeg[1],
+    ];
+}
 
 watch(isEnabled, async val => {
     if (!val) {
@@ -85,55 +142,12 @@ watch(isEnabled, async val => {
         const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][6] === 'ENRT');
 
         entries.forEach(([key, [course, time, turns, longitude, latitude, speed]], index) => {
-            time ??= 1;
             speed ??= 240;
-
-            const speedDistance = speed * (time / 60);
-            const degLat = speedDistance / 60;
-
-            const degLon = speedDistance / 60 / Math.cos(toRadians(latitude));
-
-            const latSign = (turns === 'L') ? 1 : -1;
-
-            const L = degLon;
-            const W = degLat;
-
-            const modifier = toRadians(course);
-            const sin = Math.sin(modifier);
-            const cos = Math.cos(modifier);
-
-            const lx = -Math.cos(modifier) * latSign;
-            const ly = Math.sin(modifier) * latSign;
-
-            const corners: [number, number][] = [
-                [0, 0],
-                [-L, 0],
-                [-L, W],
-                [0, W],
-                [0, 0],
-            ];
-
-            const extent = corners.map(([da, dl]) => [
-                longitude + (da * sin) + (dl * lx),
-                latitude + (da * cos) + (dl * ly),
-            ]);
-
-            const points: Coordinate[] = [];
-
-            const polyCenter = [
-                (extent[0][0] + extent[2][0]) / 2,
-                (extent[0][1] + extent[2][1]) / 2,
-            ];
-
-            points.push(extent[0]);
-            points.push(extent[1]);
-            points.push(...getArcPoints(extent[1], extent[2], polyCenter));
-            points.push(extent[3]);
-            points.push(...getArcPoints(extent[3], extent[4], polyCenter));
+            time ??= 0;
 
             features.push(
                 new Feature({
-                    geometry: new LineString(points),
+                    geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time, true, 32)),
                     key,
                     turns,
                     time,
