@@ -180,7 +180,7 @@ const geojson = new GeoJSON({
 function buildStyle(color: ColorsList, type: string) {
     return new Style({
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.15)`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ store.localSettings.filters?.layers?.transparencySettings?.sigmets || '0.15' })`,
         }),
         stroke: new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.4)`,
@@ -198,7 +198,7 @@ function buildStyle(color: ColorsList, type: string) {
     });
 }
 
-const styles = {
+let styles = {
     default: buildStyle('lightgray125', 'SIGMET'),
     WIND: buildStyle('error300', 'WIND'),
     ICE: buildStyle('primary300', 'ICE'),
@@ -208,6 +208,19 @@ const styles = {
     TS: buildStyle('error300', 'TS'),
     VA: buildStyle('lightgray125', 'VA'),
 };
+
+watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
+    styles = {
+        default: buildStyle('lightgray125', 'SIGMET'),
+        WIND: buildStyle('error300', 'WIND'),
+        ICE: buildStyle('primary300', 'ICE'),
+        TURB: buildStyle('warning300', 'TURB'),
+        MTW: buildStyle('warning300', 'MTW'),
+        IFR: buildStyle('info500', 'IFR'),
+        TS: buildStyle('error300', 'TS'),
+        VA: buildStyle('lightgray125', 'VA'),
+    };
+});
 
 function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;

@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.1.2-alpha.4]
+
+- Fixed feature position display when no ATIS is online
+- Removed feature positions if they are booked and not actually online
+- Added SIGMETs transparency settings
+- Filter preset save/reset now actually does it's job
+- Applying filter from presets now fully rewrites it's settings instead of merging them
+
 # [1.1.2-alpha.3]
 
 - New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ

@@ -38,6 +38,7 @@ export interface UserLayersTransparencySettings {
     osm?: number;
     weatherDark?: number;
     weatherLight?: number;
+    sigmets?: number;
 }
 
 export type NotamsSortBy = 'startDesc' | 'startAsc' | 'endAsc' | 'endDesc';
