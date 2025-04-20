@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.2-beta.1]
+
+- You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this contribution!
+
 # [1.1.2-alpha.4]
 
 - Fixed feature position display when no ATIS is online
