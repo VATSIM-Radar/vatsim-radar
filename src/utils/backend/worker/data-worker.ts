@@ -1,4 +1,5 @@
 import { radarStorage } from '../storage';
+import type { BARSShort, BARS } from '../storage';
 import type { VatsimData } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
@@ -14,6 +15,7 @@ import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
+import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 initWebsocket();
 initInfluxDB();
@@ -68,6 +70,23 @@ let dataInProgress = false;
 let dataProcessInProgress = false;
 
 let data: VatsimData | null = null;
+
+let shortBars: BARSShort = {};
+
+await defineCronJob('*/10 * * * * *', async () => {
+    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch();
+    shortBars = {};
+
+    for (const stopbar of data.stopbars ?? []) {
+        try {
+            shortBars[stopbar.airportICAO] ??= [];
+            shortBars[stopbar.airportICAO].push({
+                runway: stopbar.runway, bars: Object.entries(JSON.parse(stopbar.bars)) as [string, boolean][],
+            });
+        }
+        catch { /* empty */ }
+    }
+});
 
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
@@ -201,9 +220,30 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        /* radarStorage.vatsim.data.controllers.push({
-            callsign: 'LZIB_APP',
-            cid: 4,
+        const localControllers = isDebug() && getLocalText('controllers.json');
+
+        if (localControllers) {
+            radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.concat(JSON.parse(localControllers)).filter(x => !x.callsign.endsWith('ATIS'));
+            radarStorage.vatsim.data.atis = radarStorage.vatsim.data.atis.concat(JSON.parse(localControllers)).filter(x => x.callsign.endsWith('ATIS'));
+        }
+
+        /*        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_APP',
+            cid: 6,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.atis.push({
+            callsign: 'MCO_ATIS',
+            cid: 55,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
@@ -216,8 +256,8 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data.controllers.push({
-            callsign: 'MSK_APP',
-            cid: 3,
+            callsign: 'MCO_W_TWR',
+            cid: 4,
             facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
             frequency: '122.122',
             last_updated: '',
@@ -227,7 +267,92 @@ defineCronJob('* * * * * *', async () => {
             server: '',
             text_atis: ['test3', 'Extending OCEAN', 'area'],
             visual_range: 0,
-        });*/
+        });
+
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_W_GND',
+            cid: 44,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_W_GND',
+            cid: 10,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_E1_APP',
+            cid: 11,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'MCO_E2_APP',
+            cid: 11,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().GND,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'PHX_A_APP',
+            cid: 2,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        });
+
+        radarStorage.vatsim.data.controllers.push({
+            callsign: 'A90_APP',
+            cid: 1,
+            facility: (await import('~/utils/data/vatsim')).useFacilitiesIds().APP,
+            frequency: '122.122',
+            last_updated: '',
+            logon_time: '',
+            name: '',
+            rating: 0,
+            server: '',
+            text_atis: ['test3', 'Extending OCEAN', 'area'],
+            visual_range: 0,
+        }); */
 
         const length = radarStorage.vatsim.data!.controllers.length;
 
@@ -445,6 +570,7 @@ defineCronJob('* * * * * *', async () => {
                     arrival: origPilot.flight_plan?.arrival,
                 };
             }),
+            bars: shortBars,
         };
         radarStorage.vatsim.firs = await getATCBounds();
         radarStorage.vatsim.locals = await getLocalATC();

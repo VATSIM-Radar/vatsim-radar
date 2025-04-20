@@ -410,7 +410,7 @@ const displayableColumns: SelectItem<MapAircraftKeys>[] = [
 
 type MapMode = 'default' | 'dashBigMapBig' | 'dashSmallMapBig' | 'dashBigMapSmall' | 'dashOnly' | 'mapOnly';
 const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => null,
 });
@@ -517,13 +517,13 @@ const controllerColumns = computed(() => {
 });
 
 const controllerMode = useCookie<boolean>('controller-mode', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => false,
 });
 
 const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => false,
 });

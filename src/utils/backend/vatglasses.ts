@@ -1,15 +1,18 @@
-import { $fetch } from 'ofetch';
 import AdmZip from 'adm-zip';
+import type { RedisData } from '~/utils/backend/redis';
 import { setRedisData } from '~/utils/backend/redis';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatglassesAirspace, VatglassesData } from '~/utils/backend/storage';
+import { getLocalFile, hasLocalFile, isDebug } from '~/utils/backend/debug';
+import githubRequest from '~/utils/backend/github';
 
 const GITHUB_API_URL = 'https://api.github.com/repos/lennycolton/vatglasses-data/commits';
 const GITHUB_ZIP_URL = 'https://github.com/lennycolton/vatglasses-data/archive/refs/heads/main.zip';
 let currentSHA: string | null = null;
 
 async function fetchLatestCommitSHA(postfix?: string): Promise<string> {
-    const commits = await $fetch<{ sha: string }[]>(GITHUB_API_URL);
+    if (isDebug() && hasLocalFile('vatglasses.zip')) return Date.now().toString();
+    const commits = await githubRequest<{ sha: string }[]>(GITHUB_API_URL);
 
     if (postfix) return `${ commits[0].sha }-${ postfix }`;
     return commits[0].sha;
@@ -20,8 +23,10 @@ async function getStoredSHA(): Promise<string | null> {
 }
 
 async function downloadZip(url: string): Promise<AdmZip> {
-    // @ts-expect-error Types error
-    const zipBuffer = await $fetch<ArrayBuffer>(url, { responseType: 'arrayBuffer' });
+    const localZip = isDebug() && getLocalFile('vatglasses.zip');
+    if (localZip) return new AdmZip(localZip);
+
+    const zipBuffer = await githubRequest<ArrayBuffer, 'arrayBuffer'>(url, { responseType: 'arrayBuffer' });
     return new AdmZip(Buffer.from(zipBuffer));
 }
 
@@ -29,7 +34,7 @@ function combineJsonFiles(zip: AdmZip): VatglassesData {
     const combinedData: VatglassesData = {};
     const zipEntries = zip.getEntries();
 
-    const ignoredFiles = ['ulll'];
+    const ignoredFiles = ['nodata'];
 
     zipEntries.forEach(entry => {
         if (entry.entryName.endsWith('.json') && !ignoredFiles.some(x => entry.entryName.endsWith(`${ x }.json`))) {
@@ -116,7 +121,7 @@ function convertCoords(combinedData: VatglassesData): VatglassesData {
 
 export async function updateVatglassesData() {
     try {
-        const latestSHA = await fetchLatestCommitSHA('300325');
+        const latestSHA = await fetchLatestCommitSHA('060425');
         if (!currentSHA) currentSHA = await getStoredSHA();
 
         if (latestSHA !== currentSHA) {
@@ -131,6 +136,7 @@ export async function updateVatglassesData() {
             radarStorage.vatglasses.data = jsonData;
             await setRedisData('data-vatglasses', jsonData, 1000 * 60 * 60 * 24 * 2);
         }
+        else if (radarStorage.vatglasses.data.data) await setRedisData('data-vatglasses', radarStorage.vatglasses.data as RedisData['data-vatglasses'], 1000 * 60 * 60 * 24 * 2);
     }
     catch (error) {
         console.error('Error fetching data, ', error);

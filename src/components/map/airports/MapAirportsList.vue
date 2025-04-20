@@ -11,7 +11,7 @@
             :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
             :hovered-pixel="hoveredPixel"
             :is-hovered-airport="airport.icao === hoveredAirportName"
-            :is-visible="visibleAirports.length < 100"
+            :is-visible="store.mapSettings.airportsCounters?.showCounters === false ? false : visibleAirports.length < (store.mapSettings.airportCounterLimit ?? 100)"
             :local-atc="localAtc"
             :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
             @manualHide="[isManualHover = false, hoveredArrAirport = null]"
@@ -328,8 +328,6 @@ watch(map, val => {
             wrapX: false,
         });
 
-        const styles = airportLayoutStyles();
-
         gatesLayer = new VectorLayer<any>({
             source: gatesSource.value,
             properties: {
@@ -357,6 +355,11 @@ watch(map, val => {
     val.on('click', handleMapClick);
 }, {
     immediate: true,
+});
+
+watch(dataStore.vatsim.data.bars, val => {
+    if (!Object.keys(val).length) return;
+    airportLayerSource.value?.dispatchEvent('change');
 });
 
 onBeforeUnmount(() => {
@@ -436,7 +439,7 @@ export interface AirportsList {
     isSimAware: boolean;
 }
 
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();

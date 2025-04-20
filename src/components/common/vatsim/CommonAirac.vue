@@ -49,7 +49,7 @@ const store = useStore();
     &--current {
         cursor: default;
         color: $lightgray125;
-        background: linear-gradient(90deg, rgba(184, 42, 20, 0.25) 0%, $darkgray950 75%);
+        background: linear-gradient(90deg, rgb(184, 42, 20, 0.25) 0%, $darkgray950 75%);
     }
 }
 </style>

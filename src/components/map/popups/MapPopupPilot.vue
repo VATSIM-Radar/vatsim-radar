@@ -106,6 +106,12 @@
         <template #arrRunways>
             <map-airport-runway-selector :airport="arrAirport!.icao"/>
         </template>
+        <template #depBars>
+            <map-airport-bars-info :data="depBars!"/>
+        </template>
+        <template #arrBars>
+            <map-airport-bars-info :data="arrBars!"/>
+        </template>
         <template #flightplan>
             <map-popup-flight-plan
                 class="pilot__content __info-sections"
@@ -203,6 +209,7 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 
 const props = defineProps({
     overlay: {
@@ -218,7 +225,7 @@ const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 
 const pilot = computed(() => props.overlay.data.pilot);
 const airportInfo = computed(() => {
@@ -285,6 +292,14 @@ const arrRunways = computed(() => {
     return arrAirport.value && getAirportRunways(arrAirport.value.icao);
 });
 
+const depBars = computed(() => {
+    return depAirport.value && dataStore.vatsim.data.bars.value[depAirport.value.icao];
+});
+
+const arrBars = computed(() => {
+    return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
+});
+
 const sections = computed<InfoPopupSection[]>(() => {
     const sections: InfoPopupSection[] = [
         {
@@ -300,7 +315,7 @@ const sections = computed<InfoPopupSection[]>(() => {
         collapsible: true,
     });
 
-    if (depRunways.value) {
+    if (depRunways.value && props.overlay.data.pilot.status?.startsWith('dep')) {
         sections.push({
             key: 'depRunways',
             title: `${ depAirport.value?.icao } Runways`,
@@ -313,6 +328,26 @@ const sections = computed<InfoPopupSection[]>(() => {
             key: 'arrRunways',
             title: `${ arrAirport.value?.icao } Runways`,
             collapsible: true,
+        });
+    }
+
+    if (depBars.value && props.overlay.data.pilot.status?.startsWith('dep')) {
+        sections.push({
+            key: 'depBars',
+            title: `${ depAirport.value?.icao } BARS`,
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+        });
+    }
+
+    if (arrBars.value && props.overlay.data.pilot.status?.startsWith('arr')) {
+        sections.push({
+            key: 'arrBars',
+            title: `${ arrAirport.value?.icao } BARS`,
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
         });
     }
 

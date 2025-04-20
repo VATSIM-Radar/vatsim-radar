@@ -28,6 +28,7 @@ import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
 import { setRedisData } from '~/utils/backend/redis';
+import { isDebug } from '~/utils/backend/debug';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -381,7 +382,7 @@ function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
 }
 
 export async function updateAirlines() {
-    const data = await $fetch<RadarDataAirlineAll>(process.env.NODE_ENV !== 'development' ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
+    const data = await $fetch<RadarDataAirlineAll>(!isDebug() ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
         retry: 3,
     });
 

@@ -1,0 +1,93 @@
+services:
+    frontend:
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt
+        expose:
+            - 3000
+            - 8080
+        ports:
+            - "8080:3000"
+        environment:
+            - NITRO_HOST=0.0.0.0
+        volumes:
+            - "./src/data:/radar/src/data:rw"
+        healthcheck:
+            test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
+            interval: 1s
+            retries: 360
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    worker:
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt-worker
+        ports:
+            - 8880:8880
+        command: /radar/.config/worker-prod.sh
+        volumes:
+            - "./src/data:/radar/src/data:rw"
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+            frontend:
+                condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    vatglasses-worker:
+        image: ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest
+        container_name: vatsim-radar-prebuilt-vg
+        command: /radar/.config/vatglasses-worker-prod.sh
+        volumes:
+            - "./src/data:/radar/src/data:rw"
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+            frontend:
+                condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    db:
+        image: mysql
+        container_name: vatsim-radar-prebuilt-db
+        cap_add:
+            - SYS_NICE
+        environment:
+            - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+            - MYSQL_DATABASE=radar
+            - MYSQL_ROOT_PASSWORD=localhost
+        ports:
+            - '3306:3306'
+        healthcheck:
+            test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+            timeout: 5s
+            interval: 5s
+            retries: 40
+        volumes:
+            - .config/db:/var/lib/mysql
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
+    redis:
+        image: redis
+        container_name: vatsim-radar-prebuilt-redis
+        command: redis-server /usr/local/etc/redis/redis.conf --requirepass RADAR
+        expose:
+            - 6379
+        environment:
+            - REDIS_APPLICATION_MODE=master
+        volumes:
+            - ./.config/redis.conf:/usr/local/etc/redis/redis.conf
+            - ./.config/redis:/data
+        extra_hosts:
+            - "host.docker.internal:host-gateway"

@@ -33,6 +33,7 @@
 
             <common-popup-block
                 class="atc-popup"
+                @mouseleave="vatglassesPopupIsShown = false"
             >
                 <template #title>
                     Positions
@@ -43,7 +44,6 @@
                 >
                     <div
                         class="atc-popup_list"
-                        @mouseleave="vatglassesPopupIsShown = false"
                     >
                         <template v-if="vatGlassesCombinedActive">
                             <template v-if="index === 0 || sector.max !== sectorsAtClick[index - 1].min">
@@ -91,7 +91,7 @@ import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
 
-let vectorLayer: VectorImageLayer<any>;
+let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
@@ -111,7 +111,7 @@ const firs = computed(() => {
 const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
 function getPositionLevel(_level: number) {
@@ -146,10 +146,15 @@ async function handleClick(e: MapBrowserEvent<any>) {
         sectors.push(properties);
     });
 
-    sectorsAtClick.value = sectors.filter((x, index) => x.atc && !sectors.some((y, yIndex) => y.atc?.cid === x.atc.cid && yIndex < index)).sort((a, b) => b.min - a.min).map(x => ({
+    sectorsAtClick.value = sectors.filter((x, index) => x.atc).sort((a, b) => b.min - a.min).map(x => ({
         ...x,
         atc: findAtcByCallsign(x.atc.callsign) ?? x.atc,
     }));
+
+    if (!vatGlassesCombinedActive.value) {
+        // Apply the second filter to remove duplicates based on `cid`
+        sectorsAtClick.value = sectorsAtClick.value.filter((x, index) => !sectorsAtClick.value.some((y, yIndex) => y.atc?.cid === x.atc.cid && yIndex < index));
+    }
 
     getCoordinates.value = e.coordinate;
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
@@ -166,12 +171,10 @@ attachMoveEnd(() => {
 watch(map, val => {
     if (!val) return;
 
-    let hasLayer = false;
-    val.getLayers().forEach(layer => {
-        if (hasLayer) return;
-        hasLayer = layer.getProperties().type === 'sectors';
-    });
-    if (hasLayer) return;
+    if (vectorLayer) {
+        val.removeLayer(vectorLayer);
+        vectorLayer = undefined;
+    }
 
     if (!vectorLayer) {
         vectorSource.value = new VectorSource<any>({
@@ -205,7 +208,7 @@ watch(map, val => {
                 color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
             }),
-            zIndex: 123,
+            zIndex: 3,
         });
 
         const rootStyle = new Style({

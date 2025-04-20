@@ -10,6 +10,8 @@ import {
 
 export async function initKafka() {
     try {
+        if (!process.env.VATSIM_KAFKA_BROKER) return;
+
         const kafka = new Kafka({
             brokers: [process.env.VATSIM_KAFKA_BROKER!],
             connectionTimeout: 10000,

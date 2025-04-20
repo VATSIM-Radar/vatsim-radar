@@ -180,25 +180,25 @@ const geojson = new GeoJSON({
 function buildStyle(color: ColorsList, type: string) {
     return new Style({
         fill: new Fill({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.2)`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ store.localSettings.filters?.layers?.transparencySettings?.sigmets || '0.15' })`,
         }),
         stroke: new Stroke({
-            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
+            color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.4)`,
             width: 1,
-            lineDash: [12, 2],
+            lineDash: [12, 6],
         }),
         text: new Text({
             text: `${ type }`,
             font: 'bold 14px Montserrat',
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.6)`,
+                color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.5)`,
             }),
         }),
         zIndex: 1,
     });
 }
 
-const styles = {
+let styles = {
     default: buildStyle('lightgray125', 'SIGMET'),
     WIND: buildStyle('error300', 'WIND'),
     ICE: buildStyle('primary300', 'ICE'),
@@ -209,10 +209,23 @@ const styles = {
     VA: buildStyle('lightgray125', 'VA'),
 };
 
+watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
+    styles = {
+        default: buildStyle('lightgray125', 'SIGMET'),
+        WIND: buildStyle('error300', 'WIND'),
+        ICE: buildStyle('primary300', 'ICE'),
+        TURB: buildStyle('warning300', 'TURB'),
+        MTW: buildStyle('warning300', 'MTW'),
+        IFR: buildStyle('info500', 'IFR'),
+        TS: buildStyle('error300', 'TS'),
+        VA: buildStyle('lightgray125', 'VA'),
+    };
+});
+
 function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local')) return;
+    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local' || x.getProperties().type === 'root')) return;
 
     const sigmets = features.filter(x => x.getProperties()?.dataType);
     if (!sigmets.length) return;
@@ -242,7 +255,7 @@ watch([jsonFeatures, map, localDisabled], () => {
                 type: 'sigmets',
             },
             declutter: true,
-            zIndex: 6,
+            zIndex: 2,
             style: function(_feature) {
                 const properties = _feature.getProperties() as Sigmet['properties'];
 

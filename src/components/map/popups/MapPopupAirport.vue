@@ -26,6 +26,11 @@
                 :airport="props.overlay.data.icao"
             />
         </template>
+        <template
+            #bars
+        >
+            <map-airport-bars-info :data="dataStore.vatsim.data.bars.value[airport.icao] ?? []"/>
+        </template>
         <template #action-sticky>
             <map-popup-pin-icon :overlay="overlay"/>
         </template>
@@ -311,6 +316,7 @@ import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import { useRadarError } from '~/composables/errors';
+import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 
 const props = defineProps({
     overlay: {
@@ -411,6 +417,16 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'Active Runways',
             collapsible: true,
             key: 'runways',
+        });
+    }
+
+    if (dataStore.vatsim.data.bars.value[airport.value!.icao]) {
+        list.info.sections.push({
+            title: 'BARS is in use',
+            collapsible: true,
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+            key: 'bars',
         });
     }
 

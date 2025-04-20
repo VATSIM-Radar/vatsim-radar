@@ -25,7 +25,10 @@
             >
                 <common-logo/>
             </nuxt-link>
-            <div class="header__sections __from-tablet">
+            <div
+                v-if="store.viewport.width > 1000"
+                class="header__sections"
+            >
                 <div class="header__sections_section header__buttons">
                     <div
                         v-for="button in headerMenu"
@@ -313,7 +316,7 @@ const store = useStore();
 const config = useRuntimeConfig();
 const notamCookie = useCookie<boolean>('notam-closed', {
     path: '/',
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 7,
 });

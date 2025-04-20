@@ -168,6 +168,30 @@ export type Sigmet = Feature<Geometry, SigmetCombined>;
 
 export type Sigmets<T = Sigmet['properties']> = FeatureCollection<Geometry, T> & { validUntil?: number };
 
+export interface BARS {
+    runways: {
+        airportICAO: string;
+        runway: string;
+        controller: string;
+        callsign: string;
+        lastUpdate: string;
+        expiresAt: string;
+    }[];
+    stopbars: {
+        airportICAO: string;
+        runway: string;
+        bars: string;
+        lastUpdate: string;
+    }[];
+}
+
+export interface BARSShortItem {
+    runway: string;
+    bars: [string, boolean][];
+}
+
+export type BARSShort = Record<string, BARSShortItem[]>;
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -299,9 +323,9 @@ export async function isDataReady() {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 
-    if (!process.env.NAVIGRAPH_CLIENT_ID) return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware;
+    if (!process.env.NAVIGRAPH_CLIENT_ID) return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data;
 
-    return !!radarStorage.vatspy && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware && !!radarStorage.navigraphData.short.current;
+    return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data && !!radarStorage.navigraphData.short.current;
 }
 
 export function getDataVersions(): VatDataVersions {
@@ -336,6 +360,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         ratings: storage.vatsim.regularData!.ratings,
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
+        bars: radarStorage.vatsim.regularData!.bars,
     };
 }
 
@@ -347,5 +372,6 @@ export function getServerVatsimLiveShortData() {
         locals: radarStorage.vatsim.locals,
         prefiles: radarStorage.vatsim.regularData!.prefiles,
         airports: radarStorage.vatsim.airports,
+        bars: radarStorage.vatsim.regularData!.bars,
     } satisfies VatsimLiveDataShort;
 }

@@ -39,7 +39,7 @@ async function getFlightRows(query: string) {
     const result = await influxDBQuery.collectRows<{ _time: string; _value: any; _field: keyof InfluxFlight; cid: string }>(query);
 
     for (const item of result) {
-        let row = rows[item._time];
+        let row = rows[`${ item._time }_${ item.cid }`];
         if (!row) {
             row = {
                 _time: item._time,
@@ -47,7 +47,7 @@ async function getFlightRows(query: string) {
                 cid: item.cid,
             } as InfluxFlight;
 
-            rows[row._time] = row;
+            rows[`${ item._time }_${ item.cid }`] = row;
         }
 
         row[item._field] = item._value as never;

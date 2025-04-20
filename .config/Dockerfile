@@ -1,4 +1,4 @@
-FROM node:22
+FROM node:22-slim
 WORKDIR /radar
 
 COPY package.json package.json
@@ -9,7 +9,7 @@ COPY .yarnrc.yml .yarnrc.yml
 ENV NODE_ENV=production
 
 RUN apt-get update
-RUN apt-get install -y default-mysql-client
+RUN apt-get install -y default-mysql-client git
 
 RUN yarn
 

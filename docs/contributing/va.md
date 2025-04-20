@@ -6,7 +6,7 @@ Do you want to receive Virtual Airline badge in Pilot Overlay? Follow these step
 
 Add it to GNG: https://gng.aero-nav.com/AERONAV/icao_request_fhairlines
 
-Failed to do so? Add it here: https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json: Data from here applies within 7 days since released.
+Failed to do so? Add it here: [https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json) Data from here applies within 7 days since released.
 
 ## My airline has real-world airline
 

@@ -60,8 +60,9 @@ export async function getRedisData<K extends keyof RedisData, D extends RedisDat
     return defaults || data || null;
 }
 
-export function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
-    return setRedisSync(key, JSON.stringify(data), expireIn);
+export async function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
+    await setRedisSync(key, JSON.stringify(data), expireIn);
+    await defaultRedis.publish('update', key);
 }
 
 export function setRedisSync(key: string, data: string, expireIn: number) {

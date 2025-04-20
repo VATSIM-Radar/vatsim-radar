@@ -70,7 +70,7 @@
             @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
         >
             <template #title>
-                Choose what can VATSIM Radar send to 3rd party
+                Choose privacy policy settings
             </template>
 
             <div class="app_consent_things __info-sections">
@@ -85,7 +85,7 @@
                         Cookies, storage. Learn more:
                         <a
                             class="__link"
-                            href="/privacy-policy.vue"
+                            href="/privacy-policy"
                             target="_blank"
                         >Privacy Policy</a>.
 
@@ -194,7 +194,7 @@ const reload = () => {
 
 const theme = useCookie<ThemesList>('theme', {
     path: '/',
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 360,
 });
@@ -238,11 +238,10 @@ onMounted(() => {
 });
 
 const policy = cookiePolicyStatus();
-policy.value ??= { rum: true, sentry: true, accepted: false };
 
 watch(() => policy.value.sentry, val => {
     if (store.user && policy.value.accepted && val) {
-        Sentry.setUser({ id: store.user.id });
+        Sentry.setUser({ id: store.user.cid });
     }
     else {
         Sentry.setUser(null);

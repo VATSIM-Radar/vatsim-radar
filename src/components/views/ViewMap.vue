@@ -5,7 +5,7 @@
             class="map_container"
         />
 
-        <template v-if="!sigmetsMode">
+        <template v-if="mode === 'all'">
             <div
                 v-if="ready && !isMobile"
                 v-show="!store.config.hideOverlays"
@@ -139,10 +139,11 @@
                 </template>
             </common-popup>
         </template>
-        <client-only v-else-if="ready">
+        <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
             <map-sigmets/>
         </client-only>
+        <map-layer v-else/>
         <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
@@ -179,9 +180,9 @@ import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 
 defineProps({
-    sigmetsMode: {
-        type: Boolean,
-        default: false,
+    mode: {
+        type: String as PropType<'map' | 'sigmets' | 'all'>,
+        default: 'all',
     },
 });
 const emit = defineEmits({
@@ -233,7 +234,7 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const aircraft = dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString()];
     if (!aircraft) {
         initialOwnCheck = true;
         return;
@@ -453,7 +454,7 @@ watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
-    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
     if (!user) return;
 
     setUserLocalSettings({
@@ -607,9 +608,9 @@ await setupDataFetch({
         let projectionExtent = view.getProjection().getExtent().slice();
 
         projectionExtent[0] *= 2.5;
-        projectionExtent[1] *= 1.4;
+        projectionExtent[1] *= 2;
         projectionExtent[2] *= 2.5;
-        projectionExtent[3] *= 1.4;
+        projectionExtent[3] *= 2;
 
         let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;
@@ -719,7 +720,7 @@ await setupDataFetch({
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
             if (event.button === 1) {
-                const center = map.value!.getView().getCenter() as Coordinate;
+                const center = fromLonLat(map.value!.getView().getCenter() as Coordinate);
                 const resolution = map.value!.getView().getResolution();
                 let increaseX = window.innerWidth / 2;
                 let increaseY = window.innerHeight / 2;
@@ -743,7 +744,7 @@ await setupDataFetch({
 
                 if (center.some(x => isNaN(x))) return;
 
-                map.value!.getView().animate({ center, duration: 300 });
+                map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
             }
         });
 

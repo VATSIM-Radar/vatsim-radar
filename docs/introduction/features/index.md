@@ -1,32 +1,39 @@
 # Features
 
-Get to know all VATSIM Radar features!
+Explore the VATSIM Radar Features!
 
 [[toc]]
 
-## User Settings
 
-Located in top right corner of website.
+Access the settings menu by clicking on the cogwheel in top right corner of website.
 
-### Settings
+## User settings:
 
-#### Account
+::: info :question: How to Access the Settings Menu
+*Access the settings menu by clicking on the cogwheel in top right corner of website!*
 
-1. Change displayed header name
-2. Delete your account
-3. Logout
+![settings-icon.png](/settings-icon.png)
+:::
+
+#### VATSIM Account
+
+![VATSIM Account menu options](/settings-menu_1.png)
+> 1. Customize header name 
+> 2. View VATSIM Statistics 
+> 3. Log out 
+> 4. Delete your account
 
 #### Navigraph & Preferences
+![VATSIM Navigraph options](/settings-menu_2.png)
+> 1. Link/unlink Navigraph Account
+> 2. Auto-Follow me. Enabled by default. Auto moves to your flight when you come online
+> 3. Auto-Zoom to me. Enabled by default. Also zooms to you when you come online
+> 4. Fast open multiple aircraft. Allows you to open aircraft on click without closing previous aircraft
+> 5. Auto-show airport tracks. Auto shows arrival/departure tracks for airport when you open it
 
-1. Link/unlink Navigraph Account
-2. Auto-Follow me. Enabled by default. Auto moves to your flight when you come online
-3. Auto-Zoom to me. Enabled by default. Also zooms to you when you come online
-4. Fast open multiple aircraft. Allows you to open aircraft on click without closing previous aircraft
-5. Auto-show airport tracks. Auto shows arrival/departure tracks for airport when you open it
+## Favorite Lists
 
-### Favorite Lists
-
-Here is where your friends are located. Friends are separated by lists. You can sort lists users via Sort option menu.
+Here is where you can add and view friends. Friends are sorted into 'lists'. You can sort the list users via Sort Option-menu.
 
 You can open Settings to:
 - Import users from VATSpy, file or clipboard
@@ -37,7 +44,7 @@ You can open Settings to:
 - Hide list from Favorite menu
 - Delete list (except for Friends default list)
 
-You can also create more list at the bottom of this page. 
+**At the bottom you will find a dropdown where you can create new lists!**
 
 ## Calendar
 
@@ -57,7 +64,7 @@ View planned and active VATSIM Events.
 - View description, participated airports and suggested routes
 - Open on separate page to share for friends or social networks. Example: https://vatsim-radar.com/events/14572
 
-## Stats
+## Statistics
 
 View online VATSIM Data. Click on sorting icons to sort things. Click until they become white to reset sorting. Filter map by some of the data - that will not affect your saved filter.
 
@@ -67,11 +74,15 @@ View online VATSIM Data. Click on sorting icons to sort things. Click until they
 
 You can customize map by clicking on top left icon and clicking on various buttons inside.
 
-Docs WIP
+::: tip 🛠 Work In Progress!
+We are working on the documentation for this part. Check back later!
+:::
 
 ### Overlays
 
-Docs WIP
+::: tip 🛠 Work In Progress!
+We are working on the documentation for this part. Check back later!
+:::
 
 ### SIGMETs
 

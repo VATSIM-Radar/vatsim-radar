@@ -1,27 +1,74 @@
 # Changelog
 
-# [1.1.1-beta.3]
+# [1.1.2-beta.2]
 
-- Fixed VATSpy friends import if you only had a single preset
-- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+- Fixed an issue when VG Combined Mode could get stuck (by Felix)
 
-# [1.1.1-beta.2]
+# [1.1.2-beta.1]
+
+- You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this contribution!
+
+# [1.1.2-alpha.4]
+
+- Fixed feature position display when no ATIS is online
+- Removed feature positions if they are booked and not actually online
+- Added SIGMETs transparency settings
+- Filter preset save/reset now actually does it's job
+- Applying filter from presets now fully rewrites it's settings instead of merging them
+
+# [1.1.2-alpha.3]
+
+- New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ
+- Improved icon for BCS1
+- Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
+
+# [1.1.2-alpha.2]
+
+- Added VATSpy/SimAware TRACON geojson debug tool
+- Fixed an issue when you could not click on SIGMET if non-VG UIR was active
+- Debug controller add now autofocuses to only required callsign field and can now also be saved by pressing enter. Also ATC list now shows callsign instead of name and can also be cleared separately
+
+# [1.1.2-alpha.1]
+
+- Fixed VATGlasses crashing for anonymous users
+- Fixed "A" button disappearing for VG level
+- Fixed last update counter constantly changing its size and causing vG Level to move
+- Improved performance when VATGlasses is enabled
+
+# [1.1.1]
+
+## Highlights
 
 - Added VATGlasses dynamic sectors support
-- Fixed small memory leak when leaving the map and going back again at the same tab
+- Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
+- Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
-# [1.1.1-beta.1]
+## Features and Improvements 
 
 - Added separate VATSIM General Discord link
 - Added "Install App" button to header
 - Added Sentry error reporting
 - Added Data Policy Popup for GDPR and other compliance
 - Updated Privacy Policy with little changes mentioning Data Policy Popup
+- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+- Improved sigmets visibility so they get less confused with normal sectors
+- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+- Minor performance improvements on each update
+- Removed estimate time for aircraft taxiing on ground
+- Max users per favorite list increased to 200
+
+## Bug Fixes
+
 - Fixed scale being above menu on mobile
 - Fixed rare issue when overlays were not showing up
 - Improved mobile friends layout
 - Fixed significant performance issues on Favorite Lists settings open
-- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+- Fixed small memory leak when leaving the map and going back again at the same tab
+- Fixed some oceanic VATGlasses sectors not displaying
+- Fixed VATSpy friends import if you only had a single preset
+- Fixed VATGlasses combined positions not showing controllers correctly on click
+- Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
+- Fixed traffic heatmap. Why did no one tell me it's broken?
 
 # [1.1.0]
 
