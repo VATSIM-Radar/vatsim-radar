@@ -567,8 +567,8 @@ async function waitForRunningVatglassesUpdate() {
 
 // Call this function when a runway was changed at the frontend
 // TODO: Idea, we could watch the active value of dataStore.vatglassesActiveRunways, then we would not have to call this function somewhere else when a runway was changed
-export async function activeRunwayChanged(icao: string | string[], callUpdated = true) {
-    await waitForRunningVatglassesUpdate();
+export async function activeRunwayChanged(icao: string | string[], isCombineInit = true) {
+    if (isCombineInit) await waitForRunningVatglassesUpdate();
     if (typeof icao === 'string') icao = [icao];
 
     for (const countryGroupId in vatglassesActiveAirspaces) {
@@ -594,7 +594,7 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
         }
     }
 
-    if (callUpdated) updateVatglassesStateLocal();
+    if (isCombineInit) updateVatglassesStateLocal();
 }
 
 const _isVatGlassesActive = () => computed(() => {
@@ -661,6 +661,7 @@ export async function updateVatglassesStateServer() {
 // This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
 let combineDataInitialized = false;
 async function initVatglassesCombined() {
+    await waitForRunningVatglassesUpdate();
     vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
     dataStore.vatglassesCombiningInProgress.value = true;
@@ -711,6 +712,7 @@ async function initVatglassesCombined() {
         // Optionally, you can handle the error further, such as displaying a user-friendly message
 
         vatglassesUpdateInProgress = false;
+        dataStore.vatglassesCombiningInProgress.value = false;
         // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
         updateVatglassesStateLocal();
     }
