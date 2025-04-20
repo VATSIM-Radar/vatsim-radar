@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.2-beta.2]
+
+- Fixed an issue when VG Combined Mode could get stuck (by Felix)
+
 # [1.1.2-beta.1]
 
 - You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this contribution!
