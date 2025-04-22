@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.1.2-beta.3]
+
+- Added multiple organisers to event page
+
 # [1.1.2-beta.2]
 
 - Fixed an issue when VG Combined Mode could get stuck (by Felix)
