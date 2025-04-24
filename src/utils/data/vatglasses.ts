@@ -410,7 +410,7 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
         let colour: string | undefined = '';
         const colours = vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.filter(x => x.hex) ?? [];
         if (colours?.length) {
-            colour = colours?.find(x => x.online?.length && x.online.some(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
+            colour = colours?.find(x => x.online?.length && x.online.every(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
                 colours.find(x => !x.online?.length)?.hex ??
                 colours[0].hex;
         }
