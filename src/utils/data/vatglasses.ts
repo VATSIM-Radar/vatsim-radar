@@ -314,7 +314,7 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc)).filter(sector => sector !== false) || [];
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
             }
         }
     }
@@ -393,8 +393,9 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 
 // Converts from vatglasses sector format to geojson format
-function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
+function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController, positions: VatglassesActivePositions) {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
+
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -406,12 +407,15 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
 
         const convertedPoints: Position[] = sector.points.map(point => point.map(Number)); // convert from string to Position type
 
-        let colour = '';
-        if (vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex) {
-            colour = vatglassesData[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex;
+        let colour: string | undefined = '';
+        const colours = vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.filter(x => x.hex) ?? [];
+        if (colours?.length) {
+            colour = colours?.find(x => x.online?.length && x.online.some(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
+                colours.find(x => !x.online?.length)?.hex ??
+                colours[0].hex;
         }
 
-        else {
+        if (!colour) {
             if (mode === 'local') {
                 const [r, g, b] = getCurrentThemeRgbColor('success500');
                 colour = rgbToHex(r, g, b);
@@ -420,6 +424,7 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
                 colour = '#008856';
             }
         }
+
         const geoJsonPolygon: TurfFeature<TurfPolygon> = polygon([convertedPoints], {
             // id: airspace.id,
             min: sector.min ?? 0,

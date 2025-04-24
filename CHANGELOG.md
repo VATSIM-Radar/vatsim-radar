@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.2-rc.1]
+
+- Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new altitude
+- Added VATGlasses online-only color support
+- Added diverted flight filter
+
 # [1.1.2-beta.3]
 
 - Added multiple organisers to event page

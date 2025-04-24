@@ -63,6 +63,8 @@ services:
         command: /radar/.config/vatglasses-worker.sh
         volumes:
             - ".:/radar:rw"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         depends_on:
             db:
                 condition: service_healthy
