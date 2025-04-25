@@ -5283,7 +5283,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.15.1":
+"@types/node@npm:*, @types/node@npm:^22.15.2":
   version: 22.15.2
   resolution: "@types/node@npm:22.15.2"
   dependencies:
@@ -17619,7 +17619,7 @@ __metadata:
     "@types/geojson": "npm:^7946.0.16"
     "@types/jsonwebtoken": "npm:^9.0.9"
     "@types/merge-ranges": "npm:^1.0.2"
-    "@types/node": "npm:^22.15.1"
+    "@types/node": "npm:^22.15.2"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.0.0"
     adm-zip: "npm:^0.5.16"
