@@ -15,7 +15,7 @@
                 :disabled="disabledLevel && !showAuto"
                 max="430"
                 min="0"
-                step="10"
+                step="5"
                 type="range"
             >
             <common-input-text
@@ -25,12 +25,12 @@
                 :input-attrs="{
                     max: 430,
                     min: 0,
-                    step: 10,
+                    step: 5,
                     disabled: disabledLevel && !showAuto,
                 }"
                 input-type="number"
             />
-            <label v-if="disabledLevel && showAuto">
+            <label v-if="store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? ''] && showAuto">
                 <input
                     :checked="store.mapSettings.vatglasses?.autoLevel !== false"
                     type="checkbox"
@@ -47,6 +47,7 @@ import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
     hideIfDisabled: {
@@ -78,12 +79,12 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 });
 
-const vatglassesActive = isVatGlassesActive();
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
+const vatglassesActive = isVatGlassesActive;
+const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && !!store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
 </script>
 
 <style lang="scss" scoped>

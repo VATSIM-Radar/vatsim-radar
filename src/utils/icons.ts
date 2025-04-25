@@ -1,6 +1,25 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'vipj'
+    | 'twen'
+    | 'su27'
+    | 'savg'
+    | 'pa38'
+    | 'pa18'
+    | 'm20p'
+    | 'l39'
+    | 'husk'
+    | 'hdjt'
+    | 'hawk'
+    | 'f100'
+    | 'f70'
+    | 'f27'
+    | 'e290'
+    | 'be36'
+    | 'be35'
+    | 'bcs3'
+    | 'bcs1'
     | 'visc'
     | 'vc10'
     | 'sira'
@@ -133,7 +152,6 @@ export type AircraftIcon =
     | 'c208'
     | 'c172'
     | 'c152'
-    | 'bcs1'
     | 'ship'
     | 'glid'
     | 'ball'
@@ -244,6 +262,78 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    vipj: {
+        icon: 'vipj',
+        width: getAircraftSizeByCoef(0.14),
+    },
+    twen: {
+        icon: 'twen',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    su27: {
+        icon: 'su27',
+        width: getAircraftSizeByCoef(0.25),
+    },
+    savg: {
+        icon: 'savg',
+        width: getAircraftSizeByCoef(0.16),
+    },
+    pa38: {
+        icon: 'pa38',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    pa18: {
+        icon: 'pa18',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    m20p: {
+        icon: 'm20p',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    l39: {
+        icon: 'l39',
+        width: getAircraftSizeByCoef(0.16),
+    },
+    husk: {
+        icon: 'husk',
+        width: getAircraftSizeByCoef(0.18),
+    },
+    hdjt: {
+        icon: 'hdjt',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    hawk: {
+        icon: 'hawk',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    f100: {
+        icon: 'f100',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    f70: {
+        icon: 'f70',
+        width: getAircraftSizeByCoef(0.47),
+    },
+    f27: {
+        icon: 'f27',
+        width: getAircraftSizeByCoef(0.48),
+    },
+    e290: {
+        icon: 'e290',
+        width: getAircraftSizeByCoef(0.56),
+    },
+    be36: {
+        icon: 'be36',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    be35: {
+        icon: 'be35',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    bcs3: {
+        icon: 'bcs3',
+        width: getAircraftSizeByCoef(0.59),
+    },
     visc: {
         icon: 'visc',
         width: getAircraftSizeByCoef(0.48),
@@ -1140,6 +1230,22 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'FH27':
+            return aircraftIcons.f27;
+        case 'M20T':
+        case 'M20':
+            return aircraftIcons.m20p;
+        case 'CC19':
+            return aircraftIcons.pa18;
+        case 'SU30':
+        case 'SU32':
+        case 'SU33':
+        case 'SU34':
+        case 'SU35':
+        case 'SU37':
+            return aircraftIcons.su27;
+        case 'P208':
+            return aircraftIcons.twen;
         case 'A33E':
         case 'DISC':
         case 'JS3J':
@@ -1153,8 +1259,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
             return aircraftIcons.k35e;
         case 'E3TF':
             return aircraftIcons.e3cf;
-        case 'E290':
-            return aircraftIcons.e295;
         case 'C210':
             return aircraftIcons.c206;
         case 'B3XM':
@@ -1175,8 +1279,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'E755':
         case 'E75L':
             return aircraftIcons.e75s;
-        case 'BCS3':
-            return aircraftIcons.bcs1;
         case 'PITA':
             return aircraftIcons.pite;
         case 'A306':
@@ -1490,7 +1592,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'BALL':
         case 'GLID':
         case 'SHIP':
-        case 'BCS1':
         case 'C152':
         case 'C172':
         case 'C208':
@@ -1617,6 +1718,25 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'SIRA':
         case 'VC10':
         case 'VISC':
+        case 'BCS1':
+        case 'BCS3':
+        case 'BE35':
+        case 'BE36':
+        case 'E290':
+        case 'F27':
+        case 'F70':
+        case 'F100':
+        case 'HAWK':
+        case 'HDJT':
+        case 'HUSK':
+        case 'L39':
+        case 'M20P':
+        case 'PA18':
+        case 'PA38':
+        case 'SAVG':
+        case 'SU27':
+        case 'TWEN':
+        case 'VIPJ':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

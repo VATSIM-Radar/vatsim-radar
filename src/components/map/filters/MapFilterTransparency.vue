@@ -55,6 +55,7 @@ const options = computed<SelectItem[]>(() => {
     const _options: SelectItem[] = [];
 
     for (let i = props.maxOpacity; i <= props.minOpacity; i += 0.1) {
+        if (props.setting === 'sigmets' && i > 0.5) continue;
         _options.unshift({
             value: i,
             text: `${ Math.floor((1 - i) * 100) }%`,

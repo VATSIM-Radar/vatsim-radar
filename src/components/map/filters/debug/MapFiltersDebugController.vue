@@ -1,12 +1,15 @@
 <template>
-    <div class="debug-controller __info-sections">
+    <form
+        class="debug-controller __info-sections"
+        @submit.prevent="$emit('submit')"
+    >
         <map-filter-columns>
             <template #col1>
                 <common-input-text
                     :input-attrs="{ disabled: !controller.default }"
                     :model-value="controller.cid.toString()"
                     type="number"
-                    @update:modelValue="controller.cid = isNaN(+$event) ? Date.now() : +$event"
+                    @update:modelValue="controller.cid = isNaN(+$event!) ? Date.now() : +$event!"
                 >
                     CID
                 </common-input-text>
@@ -19,7 +22,10 @@
         </map-filter-columns>
         <map-filter-columns>
             <template #col1>
-                <common-input-text v-model="controller.callsign">
+                <common-input-text
+                    ref="callsign"
+                    v-model="controller.callsign"
+                >
                     Callsign
                 </common-input-text>
             </template>
@@ -64,7 +70,11 @@
                 ATIS Line 3
             </common-input-text>
         </div>
-    </div>
+        <input
+            v-show="false"
+            type="submit"
+        >
+    </form>
 </template>
 
 <script setup lang="ts">
@@ -74,11 +84,24 @@ import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { VatsimControllerWithField } from '~/components/map/filters/debug/MapFiltersDebug.vue';
 
+defineEmits({
+    submit() {
+        return true;
+    },
+});
+
 const controller = defineModel({
     type: Object as PropType<VatsimControllerWithField>,
     required: true,
 });
 
+const callsign = useTemplateRef('callsign');
+
 const atcPositions: SelectItem[] = Object.entries(useFacilitiesIds()).filter(([key]) => key !== 'OBS').map(([text, value]) => ({ value, text }));
 const atcRatings: SelectItem[] = Object.entries(useRatingsIds()).map(([text, value]) => ({ value, text }));
+
+watch(callsign, val => {
+    if (!val) return;
+    val.$el.querySelector('input')?.focus();
+});
 </script>

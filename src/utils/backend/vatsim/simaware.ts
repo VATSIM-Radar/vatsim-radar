@@ -1,9 +1,9 @@
 import { radarStorage } from '~/utils/backend/storage';
 import type { SimAwareData } from '~/utils/backend/storage';
-import { $fetch } from 'ofetch';
 import type { RedisData } from '~/utils/backend/redis';
 import { setRedisData } from '~/utils/backend/redis';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
+import githubRequest from '~/utils/backend/github';
 
 const revisions: Record<string, number> = {
     'Release v1.1.34': 1,
@@ -20,7 +20,7 @@ export async function updateSimAware() {
         geojson = JSON.parse(local);
     }
     else {
-        const data = await $fetch<{
+        const data = await githubRequest<{
             name: string;
             assets?: {
                 name?: string;
@@ -42,7 +42,7 @@ export async function updateSimAware() {
         const url = data.assets?.find(x => x.name === 'TRACONBoundaries.geojson')?.browser_download_url;
         if (!url) throw new Error('SimAware asset not found');
 
-        geojson = await $fetch<SimAwareData>(url, { responseType: 'json' });
+        geojson = await githubRequest<SimAwareData>(url, { responseType: 'json' });
     }
 
     geojson.features = geojson.features.map(x => {

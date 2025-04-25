@@ -25,6 +25,10 @@ export default defineConfig({
                 link: '/',
             },
             {
+                text: 'FAQ',
+                link: '/introduction/faq',
+            },
+            {
                 text: 'Contributing',
                 link: '/contributing/',
             },
@@ -52,8 +56,12 @@ export default defineConfig({
                 text: 'Introduction',
                 items: [
                     {
-                        text: 'About us & FAQ',
+                        text: 'About Us',
                         link: '/introduction/about',
+                    },
+                    {
+                        text: 'FAQ',
+                        link: '/introduction/faq',
                     },
                     {
                         text: 'Features',

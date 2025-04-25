@@ -225,7 +225,7 @@ const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 
 const pilot = computed(() => props.overlay.data.pilot);
 const airportInfo = computed(() => {

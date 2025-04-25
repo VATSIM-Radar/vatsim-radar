@@ -86,8 +86,26 @@
             <div class="detail-item_header">
                 Organisers:
             </div>
-            <div class="detail-item_content">
-                {{ organisers }}
+            <div class="detail-item_content detail-item__organisers">
+                <div
+                    v-for="(organiser, region) in organisers"
+                    :key="region"
+                    class="detail-item__organisers_item"
+                >
+                    <div
+                        v-if="region !== 'VATSIM' && region !== 'default' && Object.keys(organisers).length > 1"
+                        class="detail-item__organisers_item_region"
+                    >
+                        {{region}}:
+                    </div>
+                    <div
+                        v-for="(item, index) in organiser"
+                        :key="item + index"
+                        class="detail-item__organisers_item_text"
+                    >
+                        {{item}}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -119,13 +137,19 @@ const description = computed(() => parse(props.event.description));
 
 const organisers = computed(() => {
     if (props.event.organisers?.length) {
-        const o = props.event.organisers[0];
-        if (o.organised_by_vatsim) {
-            return 'VATSIM';
-        }
-        else {
-            return `${ o.region } / ${ o.division }`;
-        }
+        const organisers: Record<string, string[]> = {};
+
+        props.event.organisers.forEach(o => {
+            if (o.organised_by_vatsim) {
+                return organisers.vatsim = ['VATSIM'];
+            }
+            else {
+                organisers[o.region ?? 'default'] ??= [];
+                organisers[o.region ?? 'default'].push(o.subdivision ? `${ o.division } / ${ o.subdivision }` : String(o.division));
+            }
+        });
+
+        return organisers;
     }
     return null;
 });
@@ -252,6 +276,30 @@ const organisers = computed(() => {
     @include mobile {
         overflow: auto;
         max-height: 25vh;
+    }
+}
+
+.detail-item__organisers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &_item {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+
+        &_region {
+            margin-right: 4px;
+            font-weight: 600;
+        }
+
+        &_text {
+            padding: 4px;
+            border-radius: 4px;
+            background: $darkgray800;
+        }
     }
 }
 </style>

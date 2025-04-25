@@ -2,7 +2,7 @@ import type { PartialRecord } from '~/types';
 import { ofetch } from 'ofetch';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/backend/storage';
-import type { Feature, MultiPolygon } from 'geojson';
+import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
 import type { RedisData } from '~/utils/backend/redis';
@@ -59,42 +59,7 @@ function parseDatFile<S extends Record<string, { title: string; children: Record
     return result;
 }
 
-export async function updateVatSpy() {
-    const localBoundaries = isDebug() && getLocalText('vatspy.geojson');
-    const localDat = isDebug() && getLocalText('vatspy.dat');
-
-    let version: string;
-    let dat: string;
-    let geo: string;
-
-    if (localBoundaries && localDat) {
-        version = Date.now().toString();
-        dat = localDat;
-        geo = localBoundaries;
-    }
-    else {
-        const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/', {
-            timeout: 1000 * 60,
-            retry: 3,
-            headers: getVATSIMIdentHeaders(),
-        });
-
-        if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-        if ((radarStorage.vatspy)?.version === data.current_commit_hash) {
-            await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
-            return;
-        }
-
-        const result = await Promise.all([
-            ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
-            ofetch(data.fir_boundaries_geojson_url, { responseType: 'text', timeout: 1000 * 60 }),
-        ]);
-
-        version = data.current_commit_hash;
-        dat = result[0];
-        geo = result[1];
-    }
-
+export function compileVatSpy(version: string, dat: string, geo: string, includeProperties = false) {
     const geojson = JSON.parse(geo) as {
         features: Feature<MultiPolygon>[];
     };
@@ -221,14 +186,52 @@ export async function updateVatSpy() {
                         type: boundary.type,
                         id: boundary.properties!.id + index,
                         geometry: boundary.geometry,
-                        properties: {},
+                        properties: includeProperties ? boundary.properties : {},
                     },
                 });
             });
         });
 
+    return result;
+}
+
+export async function updateVatSpy() {
+    const localBoundaries = isDebug() && getLocalText('vatspy.geojson');
+    const localDat = isDebug() && getLocalText('vatspy.dat');
+
+    let version: string;
+    let dat: string;
+    let geo: string;
+
+    if (localBoundaries && localDat) {
+        version = Date.now().toString();
+        dat = localDat;
+        geo = localBoundaries;
+    }
+    else {
+        const data = await ofetch<VatSpyResponse>('https://api.vatsim.net/api/map_data/', {
+            timeout: 1000 * 60,
+            retry: 3,
+            headers: getVATSIMIdentHeaders(),
+        });
+
+        if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
+        if ((radarStorage.vatspy)?.version === data.current_commit_hash) {
+            await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
+            return;
+        }
+        const result = await Promise.all([
+            ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
+            ofetch(data.fir_boundaries_geojson_url, { responseType: 'text', timeout: 1000 * 60 }),
+        ]);
+
+        version = data.current_commit_hash;
+        dat = result[0];
+        geo = result[1];
+    }
+
     radarStorage.vatspy.version = version;
-    radarStorage.vatspy.data = result;
+    radarStorage.vatspy.data = compileVatSpy(version, dat, geo);
     await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
     console.info(`VatSpy Update Complete (${ radarStorage.vatspy.version })`);
 }
@@ -254,4 +257,18 @@ export async function getFirsPolygons() {
     }
 
     return firsPolygons;
+}
+
+export function vatspyDataToGeojson(data: VatSpyData): FeatureCollection<MultiPolygon | Polygon> {
+    const geojson: FeatureCollection<MultiPolygon | Polygon> = {
+        type: 'FeatureCollection',
+        // @ts-expect-error Dynamic name
+        name: 'VATSIM Map',
+        crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:OGC:1.3:CRS84' } },
+        features: [],
+    };
+
+    geojson.features.push(...data.firs.map(x => x.feature));
+
+    return geojson;
 }

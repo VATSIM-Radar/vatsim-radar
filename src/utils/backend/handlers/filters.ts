@@ -44,6 +44,7 @@ export interface IUserFilter {
         squawks: string[];
         ratings: number[];
         altitude: string[];
+        diverted: boolean;
     }>;
     others: 'hide' | IUserFilterOthers;
     invert: boolean;
@@ -124,7 +125,7 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
         },
         flights: val => {
             if (!isObject(val)) return false;
-            if (!validateRandomObjectKeys(val, ['status', 'aircraft', 'type', 'excludeNoFlightPlan', 'squawks', 'ratings', 'altitude'])) return false;
+            if (!validateRandomObjectKeys(val, ['status', 'aircraft', 'type', 'excludeNoFlightPlan', 'squawks', 'ratings', 'altitude', 'diverted'])) return false;
 
             if ('status' in val && val.status !== allowedStatuses) return false;
             if ('aircraft' in val && (!Array.isArray(val.aircraft) || val.aircraft.length > MAX_FILTER_ARRAY_VALUE || !val.aircraft.every(x => typeof x === 'string' && x.length > 0 && x.length < 50))) return false;
@@ -133,6 +134,7 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
             if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
             if ('altitude' in val && (!Array.isArray(val.altitude) || val.altitude.length > MAX_FILTER_ARRAY_VALUE || !val.altitude.every(x => typeof x === 'string' && parseFilterAltitude(x).length > 0))) return false;
             if ('excludeNoFlightPlan' in val && typeof val.excludeNoFlightPlan !== 'boolean') return false;
+            if ('diverted' in val && typeof val.diverted !== 'boolean') return false;
 
             return true;
         },

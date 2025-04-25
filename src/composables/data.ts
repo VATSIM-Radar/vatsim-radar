@@ -147,6 +147,8 @@ const dataStore: UseDataStore = {
     airlines,
 };
 
+export const vgFallbackKeys = computed(() => Object.keys(vatglassesActivePositions.value['fallback']));
+
 export function useDataStore(): UseDataStore {
     return dataStore;
 }
@@ -237,7 +239,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     function startIntervalChecks() {
         getVatglassesDynamic(dataStore);
         vgInterval = setInterval(async () => {
-            if (isVatGlassesActive()) {
+            if (isVatGlassesActive.value) {
                 getVatglassesDynamic(dataStore);
             }
         }, 30000);

@@ -111,7 +111,7 @@ const firs = computed(() => {
 const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
 function getPositionLevel(_level: number) {

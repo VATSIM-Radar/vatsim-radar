@@ -204,6 +204,32 @@
             </div>
 
             <common-block-title>
+                Pilots
+            </common-block-title>
+
+            <common-toggle
+                :disabled="store.mapSettings.visibility?.pilots === true"
+                :model-value="!store.mapSettings.visibility?.pilotLabels"
+                @update:modelValue="setUserMapSettings({ visibility: { pilotLabels: !$event } })"
+            >
+                Labels
+            </common-toggle>
+
+            <div class="__grid-info-sections __grid-info-sections--large-title">
+                <div class="__grid-info-sections_title">
+                    Max Labels to Show
+                </div>
+                <common-select
+                    :disabled="store.mapSettings.visibility?.pilots === true || store.mapSettings.visibility?.pilotLabels === true"
+                    :items="[{ value: 10 }, { value: 25 }, { value: 50 }, { value: 75 }, { value: 100 },
+                             { value: 150 }, { value: 200 }, { value: 300 }, { value: 400 }, { value: 500 }, { value: 1000 }]"
+                    max-dropdown-height="200px"
+                    :model-value="store.mapSettings.pilotLabelLimit ?? 100"
+                    @update:modelValue="setUserMapSettings({ pilotLabelLimit: $event as number })"
+                />
+            </div>
+
+            <common-block-title>
                 Objects
             </common-block-title>
 

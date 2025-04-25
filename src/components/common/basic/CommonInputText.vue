@@ -65,7 +65,7 @@ defineEmits({
 defineSlots<{ default?: () => string; icon?: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
-const model = defineModel({ type: String, default: null });
+const model = defineModel({ type: String as PropType<null | string>, default: null });
 </script>
 
 <style scoped lang="scss">

@@ -322,6 +322,12 @@
                     Altitude allowed values examples: +FL100, -FL100, +10000, -10000, +FL100/-FL100, -10000/+10000
                 </common-notification>
                 <common-toggle
+                    :model-value="!!store.filter.flights?.diverted"
+                    @update:modelValue="setUserFilter({ flights: { diverted: $event } } )"
+                >
+                    Diverted
+                </common-toggle>
+                <common-toggle
                     :model-value="!!store.filter.flights?.excludeNoFlightPlan"
                     @update:modelValue="setUserFilter({ flights: { excludeNoFlightPlan: $event } } )"
                 >
@@ -383,8 +389,8 @@
             :selected-preset="store.filter"
             type="filter"
             @create="createFilterPreset"
-            @reset="resetUserFilter"
-            @save="setUserFilter"
+            @reset="[resetUserFilter(), resetUserActiveFilter()]"
+            @save="[setUserFilter($event, true), setUserActiveFilter($event)]"
         />
         <common-popup v-model="filterReset">
             <template #title>
@@ -423,7 +429,7 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import MapFilterBox from '~/components/map/filters/filters/MapFilterBox.vue';
 import { useStore } from '~/store';
 import { klona } from 'klona/json';
-import { backupUserFilter, setUserFilter } from '~/composables/fetchers/filters';
+import { backupUserFilter, setUserActiveFilter, setUserFilter } from '~/composables/fetchers/filters';
 import type { SelectItem } from '~/types/components/select';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';

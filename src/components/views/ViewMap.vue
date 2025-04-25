@@ -5,7 +5,7 @@
             class="map_container"
         />
 
-        <template v-if="!sigmetsMode">
+        <template v-if="mode === 'all'">
             <div
                 v-if="ready && !isMobile"
                 v-show="!store.config.hideOverlays"
@@ -138,10 +138,11 @@
                 </template>
             </common-popup>
         </template>
-        <client-only v-else-if="ready">
+        <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
             <map-sigmets/>
         </client-only>
+        <map-layer v-else/>
         <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
@@ -175,11 +176,12 @@ import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import { useRadarError } from '~/composables/errors';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
-    sigmetsMode: {
-        type: Boolean,
-        default: false,
+    mode: {
+        type: String as PropType<'map' | 'sigmets' | 'all'>,
+        default: 'all',
     },
 });
 const emit = defineEmits({
@@ -455,7 +457,7 @@ useUpdateInterval(() => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 });
 

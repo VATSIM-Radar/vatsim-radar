@@ -9,6 +9,7 @@ import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { useStore } from '~/store';
+import { computed } from 'vue';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -313,7 +314,7 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc)).filter(sector => sector !== false) || [];
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
             }
         }
     }
@@ -392,8 +393,9 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 
 // Converts from vatglasses sector format to geojson format
-function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
+function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController, positions: VatglassesActivePositions) {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
+
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -405,12 +407,15 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
 
         const convertedPoints: Position[] = sector.points.map(point => point.map(Number)); // convert from string to Position type
 
-        let colour = '';
-        if (vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex) {
-            colour = vatglassesData[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex;
+        let colour: string | undefined = '';
+        const colours = vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.filter(x => x.hex) ?? [];
+        if (colours?.length) {
+            colour = colours?.find(x => x.online?.length && x.online.every(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
+                colours.find(x => !x.online?.length)?.hex ??
+                colours[0].hex;
         }
 
-        else {
+        if (!colour) {
             if (mode === 'local') {
                 const [r, g, b] = getCurrentThemeRgbColor('success500');
                 colour = rgbToHex(r, g, b);
@@ -419,6 +424,7 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
                 colour = '#008856';
             }
         }
+
         const geoJsonPolygon: TurfFeature<TurfPolygon> = polygon([convertedPoints], {
             // id: airspace.id,
             min: sector.min ?? 0,
@@ -566,8 +572,8 @@ async function waitForRunningVatglassesUpdate() {
 
 // Call this function when a runway was changed at the frontend
 // TODO: Idea, we could watch the active value of dataStore.vatglassesActiveRunways, then we would not have to call this function somewhere else when a runway was changed
-export async function activeRunwayChanged(icao: string | string[], callUpdated = true) {
-    await waitForRunningVatglassesUpdate();
+export async function activeRunwayChanged(icao: string | string[], isCombineInit = true) {
+    if (isCombineInit) await waitForRunningVatglassesUpdate();
     if (typeof icao === 'string') icao = [icao];
 
     for (const countryGroupId in vatglassesActiveAirspaces) {
@@ -593,10 +599,10 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
         }
     }
 
-    if (callUpdated) updateVatglassesStateLocal();
+    if (isCombineInit) updateVatglassesStateLocal();
 }
 
-export const isVatGlassesActive = () => computed(() => {
+const _isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
@@ -615,10 +621,12 @@ export const isVatGlassesActive = () => computed(() => {
     return false;
 });
 
+export const isVatGlassesActive = _isVatGlassesActive();
+
 let vatglassesUpdateInProgress = false;
 export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
-    if (!isVatGlassesActive().value) return;
+    if (!isVatGlassesActive.value) return;
 
     // console.time('updateVatglassesStateLocal');
 
@@ -658,6 +666,7 @@ export async function updateVatglassesStateServer() {
 // This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
 let combineDataInitialized = false;
 async function initVatglassesCombined() {
+    await waitForRunningVatglassesUpdate();
     vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
     dataStore.vatglassesCombiningInProgress.value = true;
@@ -708,6 +717,7 @@ async function initVatglassesCombined() {
         // Optionally, you can handle the error further, such as displaying a user-friendly message
 
         vatglassesUpdateInProgress = false;
+        dataStore.vatglassesCombiningInProgress.value = false;
         // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
         updateVatglassesStateLocal();
     }
