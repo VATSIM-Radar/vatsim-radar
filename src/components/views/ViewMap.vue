@@ -456,7 +456,7 @@ useUpdateInterval(() => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(user.altitude / 500) * 5,
     });
 });
 

@@ -70,6 +70,7 @@
                                 Manage friends
                             </common-button>
                             <common-toggle
+                                v-if="store.bookmarks.length"
                                 :model-value="!!store.localSettings.featuredDefaultBookmarks"
                                 @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
                             >

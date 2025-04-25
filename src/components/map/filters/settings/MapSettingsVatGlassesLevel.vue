@@ -15,7 +15,7 @@
                 :disabled="disabledLevel && !showAuto"
                 max="430"
                 min="0"
-                step="10"
+                step="5"
                 type="range"
             >
             <common-input-text
@@ -25,7 +25,7 @@
                 :input-attrs="{
                     max: 430,
                     min: 0,
-                    step: 10,
+                    step: 5,
                     disabled: disabledLevel && !showAuto,
                 }"
                 input-type="number"
@@ -78,7 +78,7 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(user.altitude / 500) * 5,
     });
 });
 
