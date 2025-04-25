@@ -56,134 +56,134 @@
             </small>
 
             <template v-if="presets.length">
-                <draggable
-                    v-model="localPresets"
+                <vue-draggable
                     class="presets__drag-container"
-                    :item-key="(item: any) => item.id"
-                    @change="sortPresets"
+                    handle=".presets__drag"
+                    :model-value="localPresets"
+                    :on-change="sortPresets"
                 >
-                    <template
-                        #item="{ element: preset }"
+                    <div
+                        v-for="preset in localPresets"
+                        :key="preset.id"
+                        class="presets__list __info-sections"
                     >
-                        <div class="presets__list __info-sections">
-                            <common-block-title
-                                class="presets__list-title"
-                                :collapsed="activePreset?.id !== preset.id"
-                                remove-margin
-                                @update:collapsed="!$event ? activePreset = preset : activePreset = null"
-                            >
-                                {{ preset.name }}
+                        <common-block-title
+                            class="presets__list-title"
+                            :collapsed="activePreset?.id !== preset.id"
+                            remove-margin
+                            @update:collapsed="!$event ? activePreset = preset : activePreset = null"
+                        >
+                            {{ preset.name }}
 
-                                <template #append>
-                                    <div class="presets__list-title_append">
-                                        <common-toggle
-                                            :model-value="currentPreset === preset.id"
-                                            @click.stop
-                                            @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
-                                        />
-                                        <drag-icon class="presets__drag"/>
-                                    </div>
-                                </template>
-                            </common-block-title>
-
-                            <template v-if="activePreset?.id === preset.id">
-                                <div
-                                    class="__grid-info-sections"
-                                    :class="{ '__grid-info-sections--large-title': isMobile }"
-                                >
-                                    <div class="__grid-info-sections_title">
-                                        Preset
-                                    </div>
-                                    <div class="presets__row">
-                                        <common-input-text
-                                            v-model="activePreset!.name"
-                                            @change="renamePreset()"
-                                        />
-                                        <div class="presets__row_divider"/>
-                                        <common-tooltip
-                                            v-if="!disableActions"
-                                            location="bottom"
-                                            open-method="mouseOver"
-                                        >
-                                            <template #activator>
-                                                <common-button
-                                                    size="S"
-                                                    type="secondary"
-                                                    @click="exportPreset(activePreset!)"
-                                                >
-                                                    <template #icon>
-                                                        <export-icon/>
-                                                    </template>
-                                                </common-button>
-                                            </template>
-
-                                            Export
-                                        </common-tooltip>
-                                        <common-tooltip
-                                            v-if="shareUrl"
-                                            location="bottom"
-                                            open-method="mouseOver"
-                                        >
-                                            <template #activator>
-                                                <common-button
-                                                    size="S"
-                                                    type="secondary"
-                                                    @click="share.copy(shareUrl)"
-                                                >
-                                                    <template #icon>
-                                                        <check-icon v-if="share.copyState.value"/>
-                                                        <share-icon v-else/>
-                                                    </template>
-                                                </common-button>
-                                            </template>
-
-                                            Share
-                                        </common-tooltip>
-                                        <common-tooltip
-                                            v-if="!disableActions"
-                                            location="left"
-                                            open-method="mouseOver"
-                                        >
-                                            <template #activator>
-                                                <common-button
-                                                    :disabled="isCurrentPreset(activePreset!)"
-                                                    size="S"
-                                                    type="secondary"
-                                                    @click="states.overwrite = true"
-                                                >
-                                                    <template #icon>
-                                                        <edit-icon/>
-                                                    </template>
-                                                </common-button>
-                                            </template>
-
-                                            Overwrite
-                                        </common-tooltip>
-                                    </div>
-                                </div>
-
-                                <slot
-                                    :id="preset.id"
-                                    name="data"
-                                    :preset="preset.json"
-                                />
-
-                                <div class="presets__delete">
-                                    <common-button
-                                        focus-color="error700"
-                                        hover-color="error300"
-                                        link-color="error500"
-                                        theme="red"
-                                        type="link"
-                                        @click="states.delete = true"
-                                    >
-                                        Delete preset
-                                    </common-button>
+                            <template #append>
+                                <div class="presets__list-title_append">
+                                    <common-toggle
+                                        :model-value="currentPreset === preset.id"
+                                        @click.stop
+                                        @update:modelValue="$event ? noConfirm ? emit('save', preset.json) : [states.load = true, activePreset = preset] : emit('reset')"
+                                    />
+                                    <drag-icon class="presets__drag"/>
                                 </div>
                             </template>
-                        </div>
-                    </template>
-                </draggable>
+                        </common-block-title>
+
+                        <template v-if="activePreset?.id === preset.id">
+                            <div
+                                class="__grid-info-sections"
+                                :class="{ '__grid-info-sections--large-title': isMobile }"
+                            >
+                                <div class="__grid-info-sections_title">
+                                    Preset
+                                </div>
+                                <div class="presets__row">
+                                    <common-input-text
+                                        v-model="activePreset!.name"
+                                        @change="renamePreset()"
+                                    />
+                                    <div class="presets__row_divider"/>
+                                    <common-tooltip
+                                        v-if="!disableActions"
+                                        location="bottom"
+                                        open-method="mouseOver"
+                                    >
+                                        <template #activator>
+                                            <common-button
+                                                size="S"
+                                                type="secondary"
+                                                @click="exportPreset(activePreset!)"
+                                            >
+                                                <template #icon>
+                                                    <export-icon/>
+                                                </template>
+                                            </common-button>
+                                        </template>
+
+                                        Export
+                                    </common-tooltip>
+                                    <common-tooltip
+                                        v-if="shareUrl"
+                                        location="bottom"
+                                        open-method="mouseOver"
+                                    >
+                                        <template #activator>
+                                            <common-button
+                                                size="S"
+                                                type="secondary"
+                                                @click="share.copy(shareUrl)"
+                                            >
+                                                <template #icon>
+                                                    <check-icon v-if="share.copyState.value"/>
+                                                    <share-icon v-else/>
+                                                </template>
+                                            </common-button>
+                                        </template>
+
+                                        Share
+                                    </common-tooltip>
+                                    <common-tooltip
+                                        v-if="!disableActions"
+                                        location="left"
+                                        open-method="mouseOver"
+                                    >
+                                        <template #activator>
+                                            <common-button
+                                                :disabled="isCurrentPreset(activePreset!)"
+                                                size="S"
+                                                type="secondary"
+                                                @click="states.overwrite = true"
+                                            >
+                                                <template #icon>
+                                                    <edit-icon/>
+                                                </template>
+                                            </common-button>
+                                        </template>
+
+                                        Overwrite
+                                    </common-tooltip>
+                                </div>
+                            </div>
+
+                            <slot
+                                :id="preset.id"
+                                name="data"
+                                :preset="preset.json"
+                            />
+
+                            <div class="presets__delete">
+                                <common-button
+                                    focus-color="error700"
+                                    hover-color="error300"
+                                    link-color="error500"
+                                    theme="red"
+                                    type="link"
+                                    @click="states.delete = true"
+                                >
+                                    Delete preset
+                                </common-button>
+                            </div>
+                        </template>
+                    </div>
+                </vue-draggable>
             </template>
         </div>
         <common-button
@@ -278,7 +278,7 @@ import type { UserPreset } from '@prisma/client';
 import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import equal from 'deep-equal';
-import draggable from 'vuedraggable';
+import { VueDraggable } from 'vue-draggable-plus';
 
 const props = defineProps({
     presets: {

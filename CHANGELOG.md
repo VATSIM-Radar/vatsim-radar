@@ -29,6 +29,7 @@
 - Fixed an issue when VG Combined Mode could get stuck (by Felix)
 - Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new altitude
 - Fixed incorrect VATGlasses automatic altitude assigment for some cases
+- Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can now only be done via sorting icon, as it should have been from the start
 
 # [1.1.1]
 

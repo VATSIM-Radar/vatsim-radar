@@ -5393,6 +5393,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sortablejs@npm:^1.15.8":
+  version: 1.15.8
+  resolution: "@types/sortablejs@npm:1.15.8"
+  checksum: 10c0/cac9c8279ead93b5fc6b0dde6bf4b1c4fe067d40d7b2b3415880df823f2efe5779616009488f940a003687ace70cb3d52bda168dfad2b5f4242403cd8f4ed500
+  languageName: node
+  linkType: hard
+
 "@types/tedious@npm:^4.0.14":
   version: 4.0.14
   resolution: "@types/tedious@npm:4.0.14"
@@ -15769,13 +15776,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sortablejs@npm:1.14.0":
-  version: 1.14.0
-  resolution: "sortablejs@npm:1.14.0"
-  checksum: 10c0/b792790286d54af5ebb083300d0cb3f96f5cf840e85f4953aa2074a69c1671a3d6a73f8d5fcc948b27c0573575ff98ec32346f7dcfe6230d517d7a81ea7ad314
-  languageName: node
-  linkType: hard
-
 "source-map-js@npm:^1.0.1, source-map-js@npm:^1.2.0, source-map-js@npm:^1.2.1":
   version: 1.2.1
   resolution: "source-map-js@npm:1.2.1"
@@ -17664,9 +17664,9 @@ __metadata:
     vite-svg-loader: "npm:^5.1.0"
     vitepress: "npm:^1.6.3"
     vue: "npm:^3.5.13"
+    vue-draggable-plus: "npm:^0.6.0"
     vue-router: "npm:^4.5.0"
     vue-tsc: "npm:2.2.10"
-    vuedraggable: "npm:^4.1.0"
     ws: "npm:^8.18.1"
   languageName: unknown
   linkType: soft
@@ -18045,6 +18045,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vue-draggable-plus@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "vue-draggable-plus@npm:0.6.0"
+  dependencies:
+    "@types/sortablejs": "npm:^1.15.8"
+  peerDependencies:
+    "@types/sortablejs": ^1.15.0
+  peerDependenciesMeta:
+    "@vue/composition-api":
+      optional: true
+  checksum: 10c0/da6fb3ac591c373381d4607f060d58624fe6ed267fc31edee1247b726df1c8b9661b947a24ca31e7d096351428b8ad4915110e01d2981fe775b52a2329f4ae8f
+  languageName: node
+  linkType: hard
+
 "vue-eslint-parser@npm:^10.1.1":
   version: 10.1.3
   resolution: "vue-eslint-parser@npm:10.1.3"
@@ -18102,17 +18116,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/4bbb5caf3f04fed933b01c100804f3693ff902984a3152ea1359a972264fa3240f6551d32f0163a79c64df3715b4d6691818c9f652cdd41b2473c69e2b0a373d
-  languageName: node
-  linkType: hard
-
-"vuedraggable@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "vuedraggable@npm:4.1.0"
-  dependencies:
-    sortablejs: "npm:1.14.0"
-  peerDependencies:
-    vue: ^3.0.1
-  checksum: 10c0/e5121ca53081e63f6a3e1dc4c3c02ae86fd6b896ccf37d9a0f88abb993fd9da3a1b54635541854a2a85b65e30dae00e545a2c208708e7df73424bd64c2e59cbc
   languageName: node
   linkType: hard
 
