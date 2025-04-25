@@ -47,6 +47,7 @@ import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
+import {getPilotTrueAltitude} from "~/utils/shared/vatsim";
 
 defineProps({
     hideIfDisabled: {
@@ -78,7 +79,7 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 500) * 5,
+        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 });
 

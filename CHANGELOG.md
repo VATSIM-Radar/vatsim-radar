@@ -28,6 +28,7 @@
 - Fixed feature position display when no ATIS is online
 - Fixed an issue when VG Combined Mode could get stuck (by Felix)
 - Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new altitude
+- Fixed incorrect VATGlasses automatic altitude assigment for some cases
 
 # [1.1.1]
 
