@@ -176,7 +176,7 @@ import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import { useRadarError } from '~/composables/errors';
-import {getPilotTrueAltitude} from "~/utils/shared/vatsim";
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
     mode: {

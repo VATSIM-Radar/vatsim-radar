@@ -47,7 +47,7 @@ import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
-import {getPilotTrueAltitude} from "~/utils/shared/vatsim";
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
     hideIfDisabled: {
