@@ -62,7 +62,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2-2
+        doks.digitalocean.com/node-pool: basic-2-2-ctp
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/production
