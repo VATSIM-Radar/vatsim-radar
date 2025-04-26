@@ -771,7 +771,8 @@ await setupDataFetch({
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
             if (filter) {
-                setUserActiveFilter(filter.json);
+                setUserActiveFilter(filter.json, false);
+                setUserFilter(filter.json);
                 store.getVATSIMData(true);
             }
         }
