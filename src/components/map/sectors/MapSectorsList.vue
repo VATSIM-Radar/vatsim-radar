@@ -27,6 +27,7 @@
             :settings="{
                 position: getCoordinates,
                 offset: [15, -15],
+                stopEvent: sectorsAtClick.flatMap(x => x.atc)?.length > 2,
             }"
             :z-index="20"
         >
@@ -51,7 +52,9 @@
                             </template>
 
                             <common-single-controller-info
-                                :controller="sector.atc"
+                                v-for="controller in sector.atc"
+                                :key="controller.cid"
+                                :controller
                             />
                             <template v-if="sector.min === 0">
                                 <span class="atc-popup_level">GND</span>
@@ -62,7 +65,9 @@
                         </template>
                         <template v-else>
                             <common-single-controller-info
-                                :controller="sector.atc"
+                                v-for="controller in sector.atc"
+                                :key="controller.cid"
+                                :controller
                                 show-atis
                                 small
                             />
@@ -148,12 +153,12 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
     sectorsAtClick.value = sectors.filter((x, index) => x.atc).sort((a, b) => b.min - a.min).map(x => ({
         ...x,
-        atc: findAtcByCallsign(x.atc.callsign) ?? x.atc,
+        atc: x.atc.map(x => findAtcByCallsign(x.callsign) ?? x),
     }));
 
     if (!vatGlassesCombinedActive.value) {
         // Apply the second filter to remove duplicates based on `cid`
-        sectorsAtClick.value = sectorsAtClick.value.filter((x, index) => !sectorsAtClick.value.some((y, yIndex) => y.atc?.cid === x.atc.cid && yIndex < index));
+        sectorsAtClick.value = sectorsAtClick.value.filter((x, index) => !sectorsAtClick.value.some((y, yIndex) => y.atc[0].cid === x.atc[0].cid && yIndex < index));
     }
 
     getCoordinates.value = e.coordinate;
@@ -322,6 +327,8 @@ onBeforeUnmount(() => {
         display: flex;
         flex-direction: column;
         gap: 8px;
+
+        max-height: 400px;
     }
 
     &_level {

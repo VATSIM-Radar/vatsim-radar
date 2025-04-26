@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.2-2]
+
+- Added VATGlasses multiple controllers per position support
+- Added admins to stats page
+- Fixed VATGlasses combined not doing anything if automatic VG detection is enabled
+
 # [1.1.2-1]
 
 - Now when you open shared filter it is not saved to active filter when you open page without shared filter in parameters
