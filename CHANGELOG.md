@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.1.2-2]
+# [1.1.2-2-final]
 
 - Added VATGlasses multiple controllers per position support
 - Added admins to stats page
