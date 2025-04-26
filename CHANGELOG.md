@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.1.2-1-final]
+# [1.1.2-1]
 
 - Now when you open shared filter it is not saved to active filter when you open page without shared filter in parameters
 - Now when you open shared filter it is saved into your "draft" filter
