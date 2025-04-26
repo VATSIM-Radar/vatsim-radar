@@ -10,6 +10,7 @@ export interface VatsimGeneral {
     connected_clients: number;
     unique_users: number;
     sups: VatsimController[];
+    adm: VatsimController[];
     supsCount: number;
     admCount: number;
     onlineWSUsers: number;
