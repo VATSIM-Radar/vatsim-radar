@@ -55,7 +55,7 @@
                 <common-control-block
                     v-model="store.menuFriendsOpen"
                     center-by="start"
-                    max-height="360px"
+                    max-height="370px"
                     width="480px"
                 >
                     <template #title>
