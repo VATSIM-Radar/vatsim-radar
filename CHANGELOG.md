@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.1.2-final]
+# [1.1.2]
 
 ## Features and Improvements
 
