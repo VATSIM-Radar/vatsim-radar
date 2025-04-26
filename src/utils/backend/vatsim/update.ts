@@ -45,9 +45,10 @@ export function updateVatsimDataStorage() {
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
-    data.general.supsCount = data.controllers.filter(x => x.rating === 11).length;
     data.general.sups = data.controllers.filter(x => x.rating === 11);
-    data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
+    data.general.adm = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998');
+    data.general.supsCount = data.general.sups.length;
+    data.general.admCount = data.general.adm.length;
     data.general.onlineWSUsers = wss.clients.size;
 
     data.prefiles = data.prefiles.filter((x, index) => x && !data.pilots.some(y => y && x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y && y.cid === x.cid && yIndex > index));

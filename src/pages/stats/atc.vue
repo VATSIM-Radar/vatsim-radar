@@ -93,6 +93,7 @@ const list = computed(() => {
         ...dataStore.vatsim.data.locals.value.map(x => x.atc).filter(x => !x.atis_code),
         ...dataStore.vatsim.data.firs.value.map(x => x.controller),
         ...dataStore.vatsim.data.general.value?.sups ?? [],
+        ...dataStore.vatsim.data.general.value?.adm ?? [],
     ];
 });
 
