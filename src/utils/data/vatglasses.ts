@@ -315,6 +315,16 @@ function updateVatglassesPositionsAndAirspaces() {
                 }
                 newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
             }
+            else {
+                // We check if the controller of the airspace has changed. This is needed for the NAT oceanic sectors, where a sector can have multiple controllers
+                if (
+                    vatglassesActivePositions[countryGroupId]?.[positionId]?.atc?.length !== newVatglassesActivePositions[countryGroupId][positionId].atc.length ||
+                    !vatglassesActivePositions[countryGroupId]?.[positionId]?.atc.every((atc, index) => atc.callsign === newVatglassesActivePositions[countryGroupId][positionId].atc[index].callsign &&
+                        atc.cid === newVatglassesActivePositions[countryGroupId][positionId].atc[index].cid)
+                ) {
+                    addToUpdatedVatglassesPositions(countryGroupId, positionId);
+                }
+            }
         }
     }
 
