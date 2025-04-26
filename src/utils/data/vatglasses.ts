@@ -75,7 +75,6 @@ export interface VatglassesSectorProperties {
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
-
 function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
@@ -156,7 +155,6 @@ function updateVatglassesPositionsAndAirspaces() {
             const sortedKeys = [...matchingKeys, ...nonMatchingKeys];
 
             for (const countryGroupId of sortedKeys) {
-                if (foundMatchingVatglassesController) break;
                 const countryGroup = vatglassesData[countryGroupId];
                 for (const vatglassesPositionId in countryGroup.positions) {
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
@@ -285,7 +283,10 @@ function updateVatglassesPositionsAndAirspaces() {
             if (!newVatglassesActivePositions[countryGroupId]) newVatglassesActivePositions[countryGroupId] = {};
 
             if (vatglassesActivePositions[countryGroupId]?.[positionId]) {
-                newVatglassesActivePositions[countryGroupId][positionId] = vatglassesActivePositions[countryGroupId][positionId];
+                newVatglassesActivePositions[countryGroupId][positionId] = {
+                    ...vatglassesActivePositions[countryGroupId][positionId],
+                    atc: vatglassesActiveControllers[countryGroupId][positionId],
+                };
             }
             else {
                 if (mode === 'server') {
@@ -303,6 +304,10 @@ function updateVatglassesPositionsAndAirspaces() {
                 newVatglassesActivePositions[countryGroupId][positionId].airspaceKeys = Object.keys(vatglassesActiveAirspaces[countryGroupId][positionId]).join(',');
             }
 
+            const atcChanged = vatglassesActivePositions[countryGroupId]?.[positionId]?.atc?.length !== newVatglassesActivePositions[countryGroupId][positionId].atc.length ||
+                !vatglassesActivePositions[countryGroupId]?.[positionId]?.atc.every((atc, index) => atc.callsign === newVatglassesActivePositions[countryGroupId][positionId].atc[index].callsign &&
+                    atc.cid === newVatglassesActivePositions[countryGroupId][positionId].atc[index].cid);
+
             if (newVatglassesActivePositions[countryGroupId][positionId]['sectors'] === null) { // if it is null, it is the signal for us this needs to be (re)calculated
                 // set all active sectors of the position
                 addToUpdatedVatglassesPositions(countryGroupId, positionId);
@@ -315,15 +320,9 @@ function updateVatglassesPositionsAndAirspaces() {
                 }
                 newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
             }
-            else {
-                // We check if the controller of the airspace has changed. This is needed for the NAT oceanic sectors, where a sector can have multiple controllers
-                if (
-                    vatglassesActivePositions[countryGroupId]?.[positionId]?.atc?.length !== newVatglassesActivePositions[countryGroupId][positionId].atc.length ||
-                    !vatglassesActivePositions[countryGroupId]?.[positionId]?.atc.every((atc, index) => atc.callsign === newVatglassesActivePositions[countryGroupId][positionId].atc[index].callsign &&
-                        atc.cid === newVatglassesActivePositions[countryGroupId][positionId].atc[index].cid)
-                ) {
-                    addToUpdatedVatglassesPositions(countryGroupId, positionId);
-                }
+            else if (atcChanged) {
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors']?.forEach(x => x.properties!.atc = newVatglassesActivePositions[countryGroupId][positionId].atc);
+                addToUpdatedVatglassesPositions(countryGroupId, positionId);
             }
         }
     }
