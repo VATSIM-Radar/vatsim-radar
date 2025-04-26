@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.1.2-1-final]
+
+- Now when you open shared filter it is not saved to active filter when you open page without shared filter in parameters
+- Now when you open shared filter it is saved into your "draft" filter
+- If you have active preset it will now show as small dot under filter menu
+- Removed not needed scroll when friends exceed 4. This is definetly the case today!
+
 # [1.1.2-final]
 
 ## Features and Improvements
