@@ -7,7 +7,7 @@
 - If you have active preset it will now show as small dot under filter menu
 - Removed not needed scroll when friends exceed 4. This is definetly the case today!
 
-# [1.1.2-final]
+# [1.1.2]
 
 ## Features and Improvements
 
