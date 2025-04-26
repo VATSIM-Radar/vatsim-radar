@@ -4,6 +4,7 @@
 
 - Added VATGlasses multiple controllers per position support
 - Added admins to stats page
+- Fixed VATGlasses combined not doing anything if automatic VG detection is enabled
 
 # [1.1.2-1]
 

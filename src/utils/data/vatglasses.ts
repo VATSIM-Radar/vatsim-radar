@@ -741,9 +741,9 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
         await updateVatglassesStateLocal(true);
 
-        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
+        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && isVatGlassesActive.value);
 
-        if (unref(vatglassesCombined)) {
+        if (toValue(vatglassesCombined)) {
             await initVatglassesCombined();
         }
 
