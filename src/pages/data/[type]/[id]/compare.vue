@@ -63,15 +63,18 @@ import ViewMap from '~/components/views/ViewMap.vue';
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { ShallowRef } from 'vue';
+import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
 import { GeoJSON } from 'ol/format';
 import type { ColorsList } from '~/utils/backend/styles';
-import { Fill, Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
+import { toRadians } from 'ol/math';
+import { Point } from 'ol/geom';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 
@@ -124,6 +127,11 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
 
     source.value?.clear();
     source.value?.addFeatures(features);
+    source.value?.addFeatures(features.filter(x => x.getProperties().fill).map(x => new Feature({
+        ...x.getProperties(),
+        type: 'text',
+        geometry: new Point([x.getProperties().label_lon, x.getProperties().label_lat]),
+    })));
 }, {
     immediate: true,
 });
@@ -140,7 +148,7 @@ function buildStyle(color: ColorsList, fillOpacity = 0.2, strokeOpacity = 1) {
 
 function handleMapClick(event: MapBrowserEvent<any>) {
     openProps.value = null;
-    const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: mapLayer => mapLayer === layer });
+    const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: mapLayer => mapLayer === layer })?.filter(x => x.getProperties().type !== 'text');
 
     const props = features?.map(x => x.getProperties());
     if (!props?.length) return;
@@ -166,9 +174,31 @@ watch(map, val => {
 
     layer = new VectorImageLayer({
         source: source.value = new VectorSource(),
+        declutter: false,
         style: feature => {
-            if (!feature.getProperties().fill) return themes.default;
-            return themes[feature.getProperties().fill as keyof typeof themes];
+            const properties = feature.getProperties();
+
+            if (properties.type === 'text') {
+                return new Style({
+                    text: new Text({
+                        text: properties.id,
+                        font: 'bold 12px Montserrat',
+                        fill: new Fill({
+                            color: `rgba(${ radarColors[`${ properties.fill as ColorsList }Rgb`].join(',') }, 0.5)`,
+                        }),
+                        backgroundFill: new Fill({
+                            color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
+                        }),
+                        backgroundStroke: new Stroke({
+                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
+                        }),
+                        padding: [2, 0, 2, 2],
+                    }),
+                });
+            }
+
+            if (!properties.fill) return themes.default;
+            return themes[properties.fill as keyof typeof themes];
         },
         zIndex: 2,
     });
