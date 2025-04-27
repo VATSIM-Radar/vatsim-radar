@@ -224,7 +224,7 @@
                 </div>
                 <div
                     class="filters_sections_section"
-                    :class="{ 'filters_sections_section--selected': selectedFilter === 'filters' }"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'filters', 'filters_sections_section--active': hasActivePilotFilter() }"
                     @click="selectFilter('filters')"
                 >
                     <common-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary'">
@@ -637,6 +637,23 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
                 svg {
                     transform-origin: center;
                     transition: 0.3s;
+                }
+            }
+
+            &--active {
+                &::before {
+                    content: '';
+
+                    position: absolute;
+                    top: -4px;
+                    right: -4px;
+
+                    width: 12px;
+                    height: 12px;
+                    border: 2px solid $lightgray125;
+                    border-radius: 100%;
+
+                    background: $primary500;
                 }
             }
 

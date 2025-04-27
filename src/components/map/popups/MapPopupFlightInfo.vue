@@ -343,6 +343,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         }
 
         &_route {
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             gap: 4px;

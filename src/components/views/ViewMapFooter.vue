@@ -55,7 +55,7 @@
                 <common-control-block
                     v-model="store.menuFriendsOpen"
                     center-by="start"
-                    max-height="360px"
+                    max-height="370px"
                     width="480px"
                 >
                     <template #title>
@@ -70,6 +70,7 @@
                                 Manage friends
                             </common-button>
                             <common-toggle
+                                v-if="store.bookmarks.length"
                                 :model-value="!!store.localSettings.featuredDefaultBookmarks"
                                 @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
                             >

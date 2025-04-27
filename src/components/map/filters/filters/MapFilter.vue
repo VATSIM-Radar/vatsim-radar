@@ -322,6 +322,12 @@
                     Altitude allowed values examples: +FL100, -FL100, +10000, -10000, +FL100/-FL100, -10000/+10000
                 </common-notification>
                 <common-toggle
+                    :model-value="!!store.filter.flights?.diverted"
+                    @update:modelValue="setUserFilter({ flights: { diverted: $event } } )"
+                >
+                    Diverted
+                </common-toggle>
+                <common-toggle
                     :model-value="!!store.filter.flights?.excludeNoFlightPlan"
                     @update:modelValue="setUserFilter({ flights: { excludeNoFlightPlan: $event } } )"
                 >

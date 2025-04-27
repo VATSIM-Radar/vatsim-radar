@@ -254,8 +254,8 @@ export async function getNavigraphGates({ user, icao, event }: {
         if (gate.name.endsWith('1') && gate.name !== '01') {
             const similarGates = gates.filter(x => x.name.length === gate.name.length &&
                 x.name.startsWith(gate.name.slice(0, gate.name.length - 1)) &&
-                Math.abs(x.gate_latitude - gate.gate_latitude) < 20 &&
-                Math.abs(x.gate_longitude - gate.gate_longitude) < 20);
+                Math.abs(x.gate_latitude - gate.gate_latitude) < 0.0002 &&
+                Math.abs(x.gate_longitude - gate.gate_longitude) < 0.0002);
 
             if (similarGates.length > 1 && similarGates.length < 9) {
                 if (similarGates.length === 2) {

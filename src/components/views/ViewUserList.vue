@@ -13,7 +13,7 @@
             Management
         </common-button>
         <common-toggle
-            v-if="!list && isMobile"
+            v-if="!list && isMobile && store.bookmarks.length"
             :model-value="!!store.localSettings.featuredDefaultBookmarks"
             @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
         >
