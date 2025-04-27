@@ -1,9 +1,8 @@
 import { defineCronJob } from '~/utils/backend';
-import { initNavigraph, navigraphCurrentDb } from '~/utils/backend/navigraph/db';
+import { initNavigraph } from '~/utils/backend/navigraph/db';
 import { setupRedisDataFetch } from '~/utils/backend/tasks';
 import { radarStorage } from '~/utils/backend/storage';
 import { getRedis } from '~/utils/backend/redis';
-import { processDatabase } from '~/utils/backend/navigraph/navdata';
 
 const redisSubscriber = getRedis();
 

@@ -50,7 +50,7 @@ watch(isEnabled, async val => {
                     if (!nextWaypoint) return;
 
                     features.push(new Feature({
-                        geometry: greatCircleGeometryToOL(greatCircle([waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]])),
+                        geometry: turfGeometryToOl(greatCircle([waypoint[3], waypoint[4]], [nextWaypoint[3], nextWaypoint[4]])),
                         key,
                         identifier,
                         inbound: waypoint[1],

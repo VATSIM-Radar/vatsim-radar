@@ -1,5 +1,12 @@
-import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString, Point as GeoPoint } from 'geojson';
-import { LineString, MultiLineString, Point } from 'ol/geom';
+import type {
+    Feature,
+    LineString as GeoLineString,
+    MultiLineString as GeoMultiLineString,
+    MultiPolygon as GeoMultiPolygon,
+    Polygon as GeoPolygon,
+    Point as GeoPoint,
+} from 'geojson';
+import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import Polygon from 'ol/geom/Polygon';
 
@@ -49,10 +56,12 @@ export function serializeClass<T extends string | null | undefined>(className: T
     return className;
 }
 
-export function greatCircleGeometryToOL(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint>) {
+export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint | GeoPolygon | GeoMultiPolygon>) {
     if (feature.geometry.type === 'LineString') return new LineString(feature.geometry.coordinates);
     if (feature.geometry.type === 'MultiLineString') return new MultiLineString(feature.geometry.coordinates);
     if (feature.geometry.type === 'Point') return new Point(feature.geometry.coordinates);
+    if (feature.geometry.type === 'Polygon') return new Polygon(feature.geometry.coordinates);
+    if (feature.geometry.type === 'MultiPolygon') return new MultiPolygon(feature.geometry.coordinates);
 
     throw new Error('Invalid geometry');
 }

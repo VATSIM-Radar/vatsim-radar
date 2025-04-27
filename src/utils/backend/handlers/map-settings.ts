@@ -280,6 +280,10 @@ export interface IUserMapSettings {
         vordme: boolean;
         waypoints: boolean;
         holdings: boolean;
+        airspaces: {
+            controlled: boolean;
+            restricted: boolean;
+        };
         airways: Partial<{
             enabled: boolean;
             showAirwaysLabel: boolean;

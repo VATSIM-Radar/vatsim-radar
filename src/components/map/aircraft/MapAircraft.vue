@@ -152,7 +152,7 @@ import {
     usePilotRating,
 } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
-import { greatCircleGeometryToOL, sleep } from '~/utils';
+import { turfGeometryToOl, sleep } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
@@ -510,7 +510,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         [props.aircraft.longitude, props.aircraft.latitude],
                     ];
                     const points = coordinates.map(x => point(x));
-                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
                         geometry,
@@ -556,7 +556,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
                     const points = coordinates.map(x => point(x));
-                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
                         geometry,
@@ -640,7 +640,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 const start = point([departureAirport.lon, departureAirport.lat]);
                 const end = point([props.aircraft?.longitude, props.aircraft?.latitude]);
 
-                const geometry = greatCircleGeometryToOL(greatCircle(start, end));
+                const geometry = turfGeometryToOl(greatCircle(start, end));
 
                 if (depLine) {
                     depLine.setGeometry(geometry);
@@ -676,7 +676,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
             const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 
-            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
+            const geometry = turfGeometryToOl(greatCircle(start, end));
 
             if (arrLine) {
                 arrLine.setGeometry(geometry);

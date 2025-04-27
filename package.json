@@ -41,7 +41,6 @@
     "@turf/line-intersect": "^7.2.0",
     "@turf/meta": "^7.2.0",
     "@turf/nearest-point-on-line": "^7.2.0",
-    "@turf/truncate": "^7.2.0",
     "@turf/union": "^7.2.0",
     "@vite-pwa/nuxt": "^1.0.0",
     "adm-zip": "^0.5.16",

@@ -5091,18 +5091,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/truncate@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@turf/truncate@npm:7.2.0"
-  dependencies:
-    "@turf/helpers": "npm:^7.2.0"
-    "@turf/meta": "npm:^7.2.0"
-    "@types/geojson": "npm:^7946.0.10"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/360ea658a0bf1aa736ac08d346f6801dea16126a0da9edc5cce985f1af90089aefff48ecc79a4d1de3c40cccf20d3402fd3d37e371f7f3223a14a9efb479608f
-  languageName: node
-  linkType: hard
-
 "@turf/union@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/union@npm:7.2.0"
@@ -17716,7 +17704,6 @@ __metadata:
     "@turf/line-intersect": "npm:^7.2.0"
     "@turf/meta": "npm:^7.2.0"
     "@turf/nearest-point-on-line": "npm:^7.2.0"
-    "@turf/truncate": "npm:^7.2.0"
     "@turf/union": "npm:^7.2.0"
     "@types/adm-zip": "npm:^0.5.7"
     "@types/deep-equal": "npm:^1.0.4"
