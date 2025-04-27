@@ -73,7 +73,6 @@ import type { ColorsList } from '~/utils/backend/styles';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
-import { toRadians } from 'ol/math';
 import { Point } from 'ol/geom';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
