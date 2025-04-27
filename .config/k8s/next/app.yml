@@ -72,7 +72,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: worker-ctp
+        doks.digitalocean.com/node-pool: basic-2-2
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/next
@@ -84,6 +84,9 @@ spec:
             requests:
               cpu: 600m
               memory: 300Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
           readinessProbe:
             tcpSocket:
               port: 8880
