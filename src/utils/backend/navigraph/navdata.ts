@@ -158,8 +158,8 @@ export type NavigraphNavItems = {
     [K in keyof NavigraphNavData]: NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never
 };
 
-export type AirspaceCoordinateObj = { coordinate: Coordinate; bearing?: number; distance?: number };
-export type AirspaceCoordinate = [coordinate: Coordinate, bearing?: number, distance?: number];
+export type AirspaceCoordinateObj = { coordinate: Coordinate; bearing?: number; distance?: number; boundaryVia: string };
+export type AirspaceCoordinate = [coordinate: Coordinate, boundaryVia: string, bearing?: number, distance?: number];
 
 export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
@@ -498,6 +498,7 @@ export async function processDatabase(db: sqlite3.Database) {
             coordinate: [item.arc_origin_longitude ?? item.longitude, item.arc_origin_latitude ?? item.latitude],
             bearing: item.arc_bearing,
             distance: item.arc_distance,
+            boundaryVia: item.boundary_via,
         }];
 
         let k = i + 1;
@@ -508,6 +509,7 @@ export async function processDatabase(db: sqlite3.Database) {
                 coordinate: [nextItem.arc_origin_longitude ?? nextItem.longitude, nextItem.arc_origin_latitude ?? nextItem.latitude],
                 bearing: nextItem.arc_bearing,
                 distance: nextItem.arc_distance,
+                boundaryVia: nextItem.boundary_via,
             });
             k++;
             nextItem = restricted[k];
@@ -527,7 +529,7 @@ export async function processDatabase(db: sqlite3.Database) {
             coordinates,
         });
 
-        shortData.restrictedAirspace.push([item.restrictive_type, item.restrictive_airspace_designation, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.bearing, x.distance]), flightLevel]);
+        shortData.restrictedAirspace.push([item.restrictive_type, item.restrictive_airspace_designation, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.boundaryVia, x.bearing, x.distance]), flightLevel]);
     }
 
     // endregion Restricted Airspace
@@ -573,6 +575,7 @@ export async function processDatabase(db: sqlite3.Database) {
             coordinate: [item.arc_origin_longitude ?? item.longitude, item.arc_origin_latitude ?? item.latitude],
             bearing: item.arc_bearing,
             distance: item.arc_distance,
+            boundaryVia: item.boundary_via,
         }];
 
         let k = i + 1;
@@ -584,6 +587,7 @@ export async function processDatabase(db: sqlite3.Database) {
                 coordinate: [nextItem.arc_origin_longitude ?? nextItem.longitude, nextItem.arc_origin_latitude ?? nextItem.latitude],
                 bearing: nextItem.arc_bearing,
                 distance: nextItem.arc_distance,
+                boundaryVia: nextItem.boundary_via,
             });
             k++;
             nextItem = controlled[k];
@@ -605,7 +609,7 @@ export async function processDatabase(db: sqlite3.Database) {
             coordinates,
         });
 
-        shortData.controlledAirspace.push([item.airspace_classification, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.bearing, x.distance]), flightLevel]);
+        shortData.controlledAirspace.push([item.airspace_classification, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.boundaryVia, x.bearing, x.distance]), flightLevel]);
     }
 
     // endregion Controlled Airspace

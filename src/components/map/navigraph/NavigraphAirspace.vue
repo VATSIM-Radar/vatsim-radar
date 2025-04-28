@@ -7,7 +7,6 @@ import { useStore } from '~/store';
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
-import Polygon from 'ol/geom/Polygon';
 import type { AirspaceCoordinate } from '~/utils/backend/navigraph/navdata';
 import type SimpleGeometry from 'ol/geom/SimpleGeometry';
 import circle from '@turf/circle';
@@ -15,6 +14,13 @@ import union from '@turf/union';
 import { featureCollection } from '@turf/helpers';
 import { turfGeometryToOl } from '~/utils';
 import difference from '@turf/difference';
+import type { Coordinate } from 'ol/coordinate';
+import type { Feature as TurfFeature, Polygon as TurfPolygon, MultiPolygon as TurfMultiPolygon, LineString as TurfLineString } from 'geojson';
+import greatCircle from '@turf/great-circle';
+import lineToPolygon from '@turf/line-to-polygon';
+import Polygon from 'ol/geom/Polygon';
+import { Point } from 'ol/geom';
+import destination from '@turf/destination';
 
 defineSlots<{ default: () => any }>();
 
@@ -28,8 +34,36 @@ const restrictedAirspace = computed(() => store.mapSettings.navigraphData?.airsp
 let controlled: Feature[] = [];
 let restricted: Feature[] = [];
 
-function getAirspacePolygon(coordinates: AirspaceCoordinate[]): SimpleGeometry {
-    if (!coordinates[0][1] || !coordinates[0][2]) {
+type ICircle = {
+    type: 'circle';
+    rawCoord: Coordinate;
+    coordinate: Coordinate[][];
+    distance: number;
+    bearing: number;
+};
+
+type ICircleExcluded = {
+    type: 'circle-excluded';
+    rawCoord: Coordinate;
+    coordinate: Coordinate[][];
+    distance: number;
+    bearing: number;
+};
+
+type IPoint = {
+    type: 'point';
+    coordinate: Coordinate;
+};
+
+type ILine = {
+    type: 'line';
+    coordinate: Coordinate[];
+};
+
+type IData = ICircle | ICircleExcluded | IPoint | ILine;
+
+function getAirspacePolygon(coordinates: AirspaceCoordinate[], index: number): SimpleGeometry {
+    if (coordinates.every(x => !x[2])) {
         return new Polygon([
             [
                 ...coordinates.map(x => x[0]),
@@ -38,26 +72,125 @@ function getAirspacePolygon(coordinates: AirspaceCoordinate[]): SimpleGeometry {
         ]);
     }
 
-    const circles = coordinates.filter(x => x[1]).map(([coordinate, _, distance]) => {
-        return circle(
-            coordinate,
-            distance,
-            { units: 'nauticalmiles', properties: { distance } },
-        );
-    });
+    const isDebug = index === 743;
 
-    if (circles.length === 1) {
-        return turfGeometryToOl(circles[0]);
+    const data: IData[] = [];
+
+    for (const [coordinate, boundary, bearing, distance] of coordinates) {
+        switch (boundary[0]) {
+            case 'R':
+                data.push({
+                    type: 'circle',
+                    coordinate: circle(
+                        coordinate,
+                        distance!,
+                        { units: 'nauticalmiles', properties: { distance } },
+                    ).geometry.coordinates,
+                    rawCoord: coordinate,
+                    bearing: bearing!,
+                    distance: distance!,
+                });
+                break;
+            case 'L':
+                data.push({
+                    type: 'circle-excluded',
+                    coordinate: circle(
+                        coordinate,
+                        distance!,
+                        { units: 'nauticalmiles', properties: { distance } },
+                    ).geometry.coordinates,
+                    rawCoord: coordinate,
+                    bearing: bearing!,
+                    distance: distance!,
+                });
+                break;
+            case 'G':
+                data.push({
+                    type: 'point',
+                    coordinate,
+                });
+                break;
+        }
     }
 
-    const highestDistance = circles.reduce((sum, x) => x.properties.distance > sum ? x.properties.distance : sum, 0);
-    const smallCircle = circles.filter(c => c.properties.distance < highestDistance);
-    const bigCircles = circles.filter(c => c.properties.distance === highestDistance);
+    if (isDebug) console.log(coordinates);
+
+    const polygons: TurfFeature<TurfPolygon>[] = [];
+    const excluded: TurfFeature<TurfPolygon>[] = [];
+
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        if (item.type === 'point' && isDebug) {
+            const previousFeature = data[i - 1];
+            const nextFeature = data[i + 1];
+
+            if (previousFeature?.type === 'circle' || previousFeature?.type === 'circle-excluded') {
+                if (isDebug) console.log(i - 1, previousFeature);
+
+                const dest = destination(previousFeature.rawCoord, previousFeature.distance, previousFeature.bearing, { units: 'nauticalmiles' });
+
+                data.splice(i, 1, {
+                    type: 'line',
+                    coordinate: ((greatCircle(item.coordinate, dest, { npoints: 8 })) as TurfFeature<TurfLineString>).geometry.coordinates,
+                });
+            }
+            else if (previousFeature?.type === 'line') {
+                previousFeature.coordinate.push(item.coordinate);
+            }
+        }
+    }
+
+    if (isDebug) {
+        console.log(data);
+    }
+
+    if (isDebug) console.log(data);
+
+    for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+
+        /* if (item.type === 'circle') {
+            polygons.push({
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: item.coordinate,
+                },
+            });
+        }
+        else if (item.type === 'circle-excluded') {
+            excluded.push({
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                    type: 'Polygon',
+                    coordinates: item.coordinate,
+                },
+            });
+        }*/
+
+        if (item.type === 'line') {
+            polygons.push(lineToPolygon({ type: 'LineString', coordinates: item.coordinate }) as TurfFeature<TurfPolygon>);
+        }
+    }
+
+    if (isDebug) console.log(polygons);
+
+    if (!polygons.length) {
+        return new Polygon([
+            [
+                ...coordinates.map(x => x[0]),
+                coordinates[0][0],
+            ],
+        ]);
+    }
 
 
-    const mergedBig = bigCircles.length === 1 ? bigCircles[0] : union(featureCollection(bigCircles));
-    if (!smallCircle.length) return turfGeometryToOl(mergedBig);
-    const mergedSmall = smallCircle.length === 1 ? smallCircle[0] : union(featureCollection(smallCircle));
+    const mergedBig = polygons.length === 1 ? polygons[0] : union(featureCollection(polygons));
+    if (!excluded.length) return turfGeometryToOl(mergedBig);
+    const mergedSmall = excluded.length === 1 ? excluded[0] : union(featureCollection(excluded));
 
     // TODO: other geometries, see EYKA
     const withHole = difference(featureCollection([
@@ -74,8 +207,8 @@ watch([controlledAirspace, restrictedAirspace], () => {
         controlled = [];
     }
     else if (!controlled.length) {
-        controlled = Object.entries(dataStore.navigraph.data.value!.controlledAirspace).map(([key, [classification, low, up, coords, flightLevel]]) => new Feature({
-            geometry: getAirspacePolygon(coords),
+        controlled = Object.entries(dataStore.navigraph.data.value!.controlledAirspace).map(([key, [classification, low, up, coords, flightLevel]], index) => new Feature({
+            geometry: getAirspacePolygon(coords, index),
             key,
             classification,
             low,
@@ -91,8 +224,8 @@ watch([controlledAirspace, restrictedAirspace], () => {
         restricted = [];
     }
     else if (!restricted.length) {
-        restricted = Object.entries(dataStore.navigraph.data.value!.restrictedAirspace).map(([key, [type, designation, low, up, coords, flightLevel]]) => new Feature({
-            geometry: getAirspacePolygon(coords),
+        restricted = Object.entries(dataStore.navigraph.data.value!.restrictedAirspace).map(([key, [type, designation, low, up, coords, flightLevel]], index) => new Feature({
+            geometry: getAirspacePolygon(coords, index),
             key,
             airspaceType: type,
             designation,
