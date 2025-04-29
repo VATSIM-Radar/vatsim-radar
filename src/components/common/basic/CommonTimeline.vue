@@ -840,12 +840,12 @@ function stopDrag() {
     &-lightmode {
         .timeline-timeline-time {
             background: $darkgray850;
-            box-shadow: 0 2px 5px rgba(black, 0.3);
+            box-shadow: 0 2px 5px rgb(black, 0.3);
         }
 
         .timeline-timeline-day-txt {
             background: $darkgray850;
-            box-shadow: 0 2px 5px rgba(black, 0.3);
+            box-shadow: 0 2px 5px rgb(black, 0.3);
         }
 
         .header {

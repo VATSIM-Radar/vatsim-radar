@@ -150,7 +150,7 @@ function getSumOffset(index: number): number {
     box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
 
     &-lightmode {
-        background: rgba(var(--primary300), 0.4);
+        background: rgb(var(--primary300), 0.4);
     }
 
     &-tooltip {
