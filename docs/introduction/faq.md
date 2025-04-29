@@ -12,6 +12,11 @@ Is your question not listed here? Ask in the [VATSIM Radar Discord server!](http
 
 <br>
 
+#### How does the `Diverting To` feature detect diversions?
+- If ATC changes your IFR flightplan while airborn
+
+<br>
+
 #### How do I report an issue or suggestion?
 - By [opening a new issue](https://github.com/VATSIM-Radar/vatsim-radar/issues/new/choose) on our Github
 
