@@ -69,6 +69,8 @@ import MapOverlay from '~/components/map/MapOverlay.vue';
 import { getAirportCountry } from '~/composables/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
+import { useRadarError } from '~/composables/errors';
+import { vgFallbackKeys } from '~/composables/data';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
@@ -97,8 +99,6 @@ const isHovered = ref(false);
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
-const vatGlassesActive = isVatGlassesActive();
-
 const store = useStore();
 
 const locals = computed(() => {
@@ -106,18 +106,18 @@ const locals = computed(() => {
 
     let filtered = props.atc.filter(x => !x.icao && x.controller && x.firs.filter(x => x.boundaryId === props.fir.feature.id));
     filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
-    if (!vatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
+    if (!isVatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
 
-    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    const fallbackPositions = vgFallbackKeys.value;
     return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
 const globals = computed(() => {
     let filtered = props.atc.filter(x => x.icao && x.controller);
     filtered = filtered.filter((x, index) => index <= filtered.findIndex(y => y.controller?.cid === x.controller!.cid));
-    if (!vatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
+    if (!isVatGlassesActive.value || !dataStore.vatglassesActivePositions.value['fallback']) return filtered;
 
-    const fallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    const fallbackPositions = vgFallbackKeys.value;
     return filtered.filter(x => fallbackPositions.includes(x.controller?.callsign)); // We filter out all stations which are not in the fallback list, because they are shown with vatglasses sector. We need the vatspy sectors as fallback for positions which are not defined in vatglasses.
 });
 
@@ -192,7 +192,7 @@ const init = () => {
         }
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
     }
 };
 
@@ -238,7 +238,7 @@ onBeforeUnmount(() => {
         z-index: 10;
 
         padding: 4px;
-        border: 1px solid rgba(var(--text-raw, var(--lightgray150)), 0.1);
+        border: 1px solid rgb(var(--text-raw, var(--lightgray150)), 0.1);
         border-radius: 4px;
 
         font-size: 11px;
@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
         background: var(--bg, $darkgray850);
 
         &_sub {
-            color: rgba(var(--text-raw, var(--lightgray150)), 0.5);
+            color: rgb(var(--text-raw, var(--lightgray150)), 0.5);
         }
     }
 

@@ -2,6 +2,7 @@ import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy'
 import type { MapAirport } from '~/types/map';
 import type { AircraftIcon } from '~/utils/icons';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
+import type { BARSShort } from '~/utils/backend/storage';
 
 export interface VatsimGeneral {
     version: number;
@@ -9,6 +10,7 @@ export interface VatsimGeneral {
     connected_clients: number;
     unique_users: number;
     sups: VatsimController[];
+    adm: VatsimController[];
     supsCount: number;
     admCount: number;
     onlineWSUsers: number;
@@ -134,6 +136,8 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
     atc: VatsimShortenedController;
     start_local?: string;
     end_local?: string;
+    start_z?: string;
+    end_z?: string;
 }
 
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;
@@ -175,6 +179,7 @@ export type VatsimShortenedData = {
     controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
     atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
     prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
+    bars: BARSShort;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
 export type VatsimMandatoryData = {
@@ -203,10 +208,10 @@ export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> &
     locals: VatSpyDataLocalATC[];
     firs: VatSpyDataFeature[];
     airports: MapAirport[];
-    keyedPilots?: Record<number, VatsimShortenedData['pilots'][0]>;
+    keyedPilots?: Record<string, VatsimShortenedData['pilots'][0]>;
 };
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports'>;
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars'>;
 
 export interface VatsimDivision {
     id: string;

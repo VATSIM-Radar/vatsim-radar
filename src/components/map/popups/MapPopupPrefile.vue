@@ -86,7 +86,7 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
             if (e.status === 404) {
                 mapStore.overlays = mapStore.overlays.filter(x => x.id !== props.overlay.id);
                 await sleep(0);
-                const pilot = dataStore.vatsim.data.pilots.value.find(x => x.cid === props.overlay?.data.prefile.cid);
+                const pilot = dataStore.vatsim.data.keyedPilots.value[props.overlay?.data.prefile.cid.toString() ?? ''];
                 if (pilot) await mapStore.addPilotOverlay(pilot.cid.toString());
             }
         }

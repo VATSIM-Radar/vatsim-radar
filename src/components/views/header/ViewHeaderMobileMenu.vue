@@ -85,15 +85,6 @@
                     </template>
                 </common-button>
                 <common-button
-                    href="/discord"
-                    target="_blank"
-                    type="secondary"
-                >
-                    <template #icon>
-                        <discord-icon/>
-                    </template>
-                </common-button>
-                <common-button
                     v-if="config.public.IS_DOWN !== 'true'"
                     type="secondary"
                     @click="[!store.user ? store.loginPopup = true : store.settingsPopup = true, model = false]"
@@ -102,6 +93,39 @@
                         <settings-icon/>
                     </template>
                 </common-button>
+                <common-button
+                    v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
+                    type="secondary"
+                    @click="app.$pwa?.install()"
+                >
+                    <template #icon>
+                        <load-on-pc-icon/>
+                    </template>
+                </common-button>
+                <common-button-group>
+                    <common-button
+                        href="https://discord.com/invite/vatsim"
+                        orientation="horizontal"
+                        target="_blank"
+                        type="secondary-875"
+                    >
+                        <template #icon>
+                            <discord-icon/>
+                        </template>
+                        General VATSIM Discord
+                    </common-button>
+                    <common-button
+                        href="/discord"
+                        orientation="horizontal"
+                        target="_blank"
+                        type="secondary"
+                    >
+                        <template #icon>
+                            <discord-icon/>
+                        </template>
+                        VATSIM Radar Development
+                    </common-button>
+                </common-button-group>
                 <common-airac/>
             </div>
             <div class="mobile-menu__stats">
@@ -133,9 +157,12 @@ import { useStore } from '~/store';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 
 const model = defineModel({ type: Boolean, required: true });
 
+const app = useNuxtApp();
 const onlineCounters = useOnlineCounters();
 const store = useStore();
 const headerMenu = useHeaderMenu();
@@ -226,11 +253,6 @@ const counters = computed(() => ([
         flex-direction: column;
         gap: 8px;
 
-        @include tablet {
-            display: grid;
-            grid-template-columns: repeat(2, calc(50% - 8px));
-        }
-
         &--children {
             margin-left: 16px;
         }
@@ -260,6 +282,12 @@ const counters = computed(() => ([
         flex-wrap: wrap;
         gap: 12px;
         align-items: center;
+
+        @include tablet {
+            .button-group {
+                flex-grow: 1;
+            }
+        }
     }
 }
 </style>

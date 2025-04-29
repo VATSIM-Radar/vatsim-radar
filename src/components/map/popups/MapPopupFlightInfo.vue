@@ -203,7 +203,7 @@
 <script setup lang="ts">
 import { parseEncoding } from '~/utils/data';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import { fetchAircraftIcon, getPilotStatus, reColorSvg } from '~/composables/pilots';
+import { fetchAircraftIcon, getPilotStatus, isPilotOnGround, reColorSvg } from '~/composables/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
@@ -218,6 +218,7 @@ import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vu
 import { getAirlineFromCallsign } from '~/composables';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import { useStore } from '~/store';
+import { useRadarError } from '~/composables/errors';
 
 const props = defineProps({
     pilot: {
@@ -270,10 +271,11 @@ const getDistAndTime = computed(() => {
         const goTime = new Date(props.pilot.toGoTime!);
         const date = datetime.format(goTime);
 
+        if (isPilotOnGround(props.pilot)) return `${ dist } NM`;
         return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
         return null;
     }
 });
@@ -341,6 +343,7 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         }
 
         &_route {
+            overflow: hidden;
             display: flex;
             flex-direction: column;
             gap: 4px;

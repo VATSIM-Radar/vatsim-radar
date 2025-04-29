@@ -2,23 +2,30 @@
 
 ## What is VATSIM Radar?
 
-VATSIM Radar is an online map to show VATSIM traffic and all possible VATSIM-related data.
+VATSIM Radar is the go-to VATSIM Flight Tracker. It is a feature-rich tool that supports your flying or controlling experience!
 
 ## When was it created?
 
-VATSIM Radar beta was opened to public on 17 April 2024. 
+VATSIM Radar Beta was opened to the public on `17 April 2024`. That is the same day that Sean Bean turned 66. Coincidence? We think not.
 
-##\ What are VATSIM Radar technologies?
+## How is VATSIM Radar powered?
 
-We are built on Vue and Nuxt. Map is powered by OpenLayers, our backend is Nitro, Prisma and MySQL. 
+VATSIM Radar is built using Vue and Nuxt.
+Our map is powered by OpenLayers, while our backend is Nitro, Prisma and MySQL. 
 
 ## How to support VATSIM Radar?
+VATSIM Radar is funded by generous members of the community!
+In order to keep VATSIM Radar running and support future development, we have set up a Patreon page. 
 
-Visit https://vatsim-radar.com/support-us for more details. Money go to Map Layers, Cloudflare and Servers. In exchange, you will get your name on mentioned page and access to early builds. 
+Funds will be used to pay for map layers, Cloudflare and Server traffic.
 
-## How to contact development team?
+Donators get access to Early-Access branches, dedicated Discord channels to discuss and engage in the development, and their name showcased on our Patreon Appreciation page.
 
-Email us on dan@vatsim-radar.com.
+:point_right: **Visit our [Patreon page](https://vatsim-radar.com/support-us) for more details!** :point_left:
+
+## How to contact the development team?
+
+Don't be a stranger; [Email us!](mailto:dan@vatsim-radar.com)
 
 ## How to contribute to VATSIM Radar?
 
@@ -68,7 +75,7 @@ const contributors = [
 {
     avatar: 'https://avatars.githubusercontent.com/u/79384776?v=4',
     name: 'Mats Edvin Aarø',
-    title: 'VATSIM Assistant to the Vice President - Supervisors. MSFS Discord Moderator. Cardiac Nurse. ICT-advisor and Python novice. VR Discord moderator. A cool guy',
+    title: 'VATSIM Asst. VP Supervisors. Nurse and programming novice. An *extremely* cool guy.',
     desc: 'Made most of aircraft icons',
 links: [
       { icon: 'github', link: 'https://github.com/DotWallop' }

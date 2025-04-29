@@ -34,7 +34,12 @@
             </div>
         </template>
         <div class="entry-tooltip-container">
-            {{ localStart }} - {{ localEnd }}
+            <template v-if="store.mapSettings.bookingsLocalTimezone">
+                {{ localStart }} - {{ localEnd }}
+            </template>
+            <template v-else>
+                {{ localStart }}Z - {{ localEnd }}Z
+            </template>
         </div>
     </common-tooltip>
 </template>
@@ -44,7 +49,7 @@ import type { PropType } from 'vue';
 import type { TimelineEntry } from '~/types/data/timeline';
 import CommonScrollText from './CommonScrollText.vue';
 import CommonTooltip from './CommonTooltip.vue';
-import { makeLocalTime } from '~/composables/bookings';
+import { makeBookingTime } from '~/composables/bookings';
 import { useStore } from '~/store';
 
 const props = defineProps({
@@ -78,11 +83,10 @@ const props = defineProps({
     },
 });
 
-
 const store = useStore();
 
-const localStart = computed(() => makeLocalTime(props.entry.start));
-const localEnd = computed(() => makeLocalTime(props.entry.end));
+const localStart = computed(() => makeBookingTime(props.entry.start, store.mapSettings.bookingsLocalTimezone ?? false));
+const localEnd = computed(() => makeBookingTime(props.entry.end, store.mapSettings.bookingsLocalTimezone ?? false));
 
 function getEntryStyle() {
     const entry = props.entry;
@@ -142,8 +146,8 @@ function getSumOffset(index: number): number {
 
     font-size: 14px;
 
-    background: rgba(var(--primary300), 0.3);
-    box-shadow: 0 3px 4px rgba(0,0,0, 0.3);
+    background: rgb(var(--primary300), 0.3);
+    box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
 
     &-lightmode {
         background: rgba(var(--primary300), 0.4);

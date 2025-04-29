@@ -2,6 +2,7 @@ import type { Sigmets } from '~/utils/backend/storage';
 import { handleH3Error } from '~/utils/backend/h3';
 import { getRedisSync, setRedisSync } from '~/utils/backend/redis';
 import { addLeadingZero } from '~/utils/shared';
+import { isDebug } from '~/utils/backend/debug';
 
 
 export default defineEventHandler(async event => {
@@ -17,7 +18,7 @@ export default defineEventHandler(async event => {
     if (date && new Date(date as string).getTime() < Date.now()) date = undefined;
 
     const key = `sigmet-${ date as string || 'current' }`;
-    const cachedResult = import.meta.dev ? null : await getRedisSync(key);
+    const cachedResult = !isDebug() ? null : await getRedisSync(key);
     if (cachedResult) {
         try {
             return JSON.parse(cachedResult);
@@ -170,10 +171,10 @@ export default defineEventHandler(async event => {
         });
     }
 
-    const validUntil = requestDate?.getTime() ? requestDate.getTime() : Date.now() + (1000 * 60 * 30);
-    sigmets.validUntil = validUntil;
+    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 30;
+    sigmets.validUntil = Date.now() + expireIn;
 
-    await setRedisSync(key, JSON.stringify(sigmets), validUntil);
+    await setRedisSync(key, JSON.stringify(sigmets), expireIn);
 
     return sigmets;
 });

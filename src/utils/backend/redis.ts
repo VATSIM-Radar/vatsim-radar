@@ -2,7 +2,7 @@ import IORedis from 'ioredis';
 import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import type { cycles } from '~/utils/backend/navigraph-db';
 import type { PatreonInfo } from '~/types/data/patreon';
-import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData } from '~/utils/backend/storage';
+import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/backend/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
 
 export function getRedis() {
@@ -41,6 +41,7 @@ export interface RedisData {
         version: string;
         data: VatglassesData;
     };
+    'data-vatglasses-dynamic': VatglassesDynamicAPIData;
     'data-divisions': VatsimDivision[];
     'data-subdivisions': VatsimSubDivision[];
     'data-events': VatsimEvent[];
@@ -58,8 +59,9 @@ export async function getRedisData<K extends keyof RedisData, D extends RedisDat
     return defaults || data || null;
 }
 
-export function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
-    return setRedisSync(key, JSON.stringify(data), expireIn);
+export async function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
+    await setRedisSync(key, JSON.stringify(data), expireIn);
+    await defaultRedis.publish('update', key);
 }
 
 export function setRedisSync(key: string, data: string, expireIn: number) {

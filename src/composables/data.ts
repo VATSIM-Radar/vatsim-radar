@@ -11,6 +11,7 @@ import type {
     RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
     VatglassesAPIData,
+    VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
 import type { IDBAirlinesData } from '~/utils/client-db';
@@ -22,6 +23,8 @@ import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { useRadarError } from '~/composables/errors';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -36,6 +39,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
+const vatglassesDynamicData = shallowRef<VatglassesDynamicAPIData>({ version: null, data: null });
 const vatglassesCombiningInProgress = ref(false);
 const time = ref(Date.now());
 const stats = shallowRef<{
@@ -44,14 +48,16 @@ const stats = shallowRef<{
 }[]>([]);
 
 export type VatsimData = {
-    [K in keyof Required<VatsimLiveData>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : (VatsimLiveData[K] | null)>
+    [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
+} & {
+    keyedPilots: Ref<NonNullable<VatsimLiveData['keyedPilots']>>;
 };
 
 const data: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
-    keyedPilots: shallowRef([]),
+    keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
     locals: shallowRef([]),
@@ -60,13 +66,14 @@ const data: VatsimData = {
     military_ratings: shallowRef([]),
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
+    bars: shallowRef({}),
 };
 
 const rawData: VatsimData = {
     // eslint-disable-next-line vue/require-typed-ref
     general: ref(null),
     pilots: shallowRef([]),
-    keyedPilots: shallowRef([]),
+    keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
     locals: shallowRef([]),
@@ -75,6 +82,7 @@ const rawData: VatsimData = {
     military_ratings: shallowRef([]),
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
+    bars: shallowRef({}),
 };
 
 const vatsim = {
@@ -116,27 +124,33 @@ export interface UseDataStore {
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     vatglassesCombiningInProgress: Ref<boolean>;
+    vatglassesDynamicData: ShallowRef<VatglassesDynamicAPIData | undefined>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
 }
 
+const dataStore: UseDataStore = {
+    versions,
+    vatspy,
+    vatsim,
+    simaware,
+    vatglasses,
+    vatglassesActivePositions,
+    vatglassesActiveRunways,
+    vatglassesCombiningInProgress,
+    vatglassesDynamicData,
+    stats,
+    time,
+    sigmets,
+    airlines,
+};
+
+export const vgFallbackKeys = computed(() => Object.keys(vatglassesActivePositions.value['fallback']));
+
 export function useDataStore(): UseDataStore {
-    return {
-        versions,
-        vatspy,
-        vatsim,
-        simaware,
-        vatglasses,
-        vatglassesActivePositions,
-        vatglassesActiveRunways,
-        vatglassesCombiningInProgress,
-        stats,
-        time,
-        sigmets,
-        airlines,
-    };
+    return dataStore;
 }
 
 export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
@@ -164,7 +178,7 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
         data[key].value = vatsimData[key];
     }
 
-    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid, pilot]));
+    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), pilot]));
 }
 
 export function setVatsimMandatoryData(data: VatsimMandatoryData) {
@@ -213,6 +227,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
+    let vgInterval: NodeJS.Timeout | null = null;
+    let visibilityInterval: NodeJS.Timeout | null = null;
     let mandatoryInProgess = false;
     let ws: (() => void) | null = null;
     const isMounted = ref(false);
@@ -221,6 +237,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
 
     function startIntervalChecks() {
+        getVatglassesDynamic(dataStore);
+        vgInterval = setInterval(async () => {
+            if (isVatGlassesActive.value) {
+                getVatglassesDynamic(dataStore);
+            }
+        }, 30000);
+
         interval = setInterval(async () => {
             if (mandatoryInProgess || !store.isTabVisible) return;
             if (socketsEnabled()) {
@@ -238,13 +261,13 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                     dataStore.vatsim.updateTimestamp.value = mandatoryData.timestamp;
                 }
                 catch (e) {
-                    console.error(e);
+                    useRadarError(e);
                 }
                 mandatoryInProgess = false;
             }
         }, 2000);
 
-        interval = setInterval(async () => {
+        visibilityInterval = setInterval(async () => {
             store.isTabVisible = document.visibilityState === 'visible';
             if (!store.isTabVisible) return;
             await store.getVATSIMData(socketsEnabled());
@@ -360,10 +383,30 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         document.removeEventListener('visibilitychange', setVisibilityState);
         isMounted.value = false;
         ws?.();
-        if (interval) {
-            clearInterval(interval);
-        }
+        if (interval) clearInterval(interval);
+        if (vgInterval) clearInterval(vgInterval);
+        if (visibilityInterval) clearInterval(visibilityInterval);
     });
+}
+
+async function getVatglassesDynamic(dataStore: UseDataStore) {
+    try {
+        const vatglassesDynamicDataVersion = await $fetch<string>(`/api/data/vatsim/data/vatglasses/dynamic-version`, {
+            timeout: 1000 * 60,
+        });
+
+
+        if (vatglassesDynamicDataVersion !== dataStore.vatglassesDynamicData.value?.version) {
+            const vatglassesDynamicData = await $fetch<VatglassesDynamicAPIData>(`/api/data/vatsim/data/vatglasses/dynamic`, {
+                timeout: 1000 * 60,
+            });
+
+            dataStore.vatglassesDynamicData.value = vatglassesDynamicData;
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
 }
 
 export interface ControllerStats {

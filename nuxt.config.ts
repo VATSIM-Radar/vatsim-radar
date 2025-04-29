@@ -1,5 +1,14 @@
 import svgLoader from 'vite-svg-loader';
 
+function isDebug() {
+    return process.env.VR_DEBUG === '1' || import.meta.dev || process.env.NODE_ENV === 'development';
+}
+
+let appName = 'VATSIM Radar';
+
+if (process.env.NODE_ENV === 'development') appName = 'VATSIM Radar Dev';
+if (process.env.DOMAIN?.includes('next')) appName = 'VATSIM Radar Next';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     app: {
@@ -117,6 +126,7 @@ export default defineNuxtConfig({
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
             DISABLE_WEBSOCKETS: process.env.DISABLE_WEBSOCKETS,
+            VR_DEBUG: process.env.VR_DEBUG,
         },
     },
     modules: [
@@ -125,6 +135,7 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
         '@vite-pwa/nuxt',
+        '@sentry/nuxt/module',
     ],
     eslint: {
         checker: {
@@ -171,9 +182,11 @@ export default defineNuxtConfig({
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
         },
+        injectRegister: isDebug() ? false : 'auto',
+        selfDestroying: isDebug(),
         manifest: {
-            name: 'VATSIM Radar',
-            short_name: 'VATSIM Radar',
+            name: appName,
+            short_name: appName,
             description: 'VATSIM Traffic Monitoring Service',
             theme_color: '???',
             display: 'standalone',
@@ -183,6 +196,9 @@ export default defineNuxtConfig({
             dir: 'ltr',
             lang: 'en',
             handle_links: 'not-preferred',
+            edge_side_panel: {
+                preferred_width: 400,
+            },
             icons: [
                 {
                     src: 'android-chrome-192x192.png',

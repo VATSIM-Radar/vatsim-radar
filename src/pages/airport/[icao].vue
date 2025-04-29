@@ -265,6 +265,7 @@ import { useShowPilotStats } from '~/composables/pilots';
 import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import { useRadarError } from '~/composables/errors';
 
 const route = useRoute();
 const router = useRouter();
@@ -409,7 +410,7 @@ const displayableColumns: SelectItem<MapAircraftKeys>[] = [
 
 type MapMode = 'default' | 'dashBigMapBig' | 'dashSmallMapBig' | 'dashBigMapSmall' | 'dashOnly' | 'mapOnly';
 const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => null,
 });
@@ -516,13 +517,13 @@ const controllerColumns = computed(() => {
 });
 
 const controllerMode = useCookie<boolean>('controller-mode', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => false,
 });
 
 const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
-    sameSite: 'strict',
+    sameSite: 'none',
     secure: true,
     default: () => false,
 });
@@ -595,7 +596,7 @@ airportData.value = (await useAsyncData(async () => {
         };
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
         showError({
             statusCode: 404,
         });

@@ -266,7 +266,7 @@ const roadmap = reactive<Roadmap[]>([
         title: 'Stage 3',
         items: [
             {
-                title: 'Pilot/airport mouse right click menu',
+                title: 'Pilot/airport mouse context menu',
             },
             'Proper Github local setup',
             {
@@ -280,7 +280,7 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Friends export/import',
                 description: 'Including VATSpy-like import',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Events/ATC Bookings 2.0',
@@ -288,16 +288,16 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'ATC Bookings',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'SIGMETs/AIRMETs',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Basic Stats',
                 description: 'Popular now etc',
-                status: 'next',
+                status: 'completed',
             },
             'Hoppie integration',
             {
@@ -333,6 +333,7 @@ const roadmap = reactive<Roadmap[]>([
             'METAR request',
             'Proper estimate arrival time',
             'NOTAMs grouping',
+            'Distance measuring tool',
         ],
     },
     {
@@ -350,12 +351,7 @@ const roadmap = reactive<Roadmap[]>([
             'ECFMP integration',
             '3D map view',
             'Twitch/streamers integration',
-            'Distance measuring tool',
             'Aircraft collision prediction',
-            {
-                title: 'Move overlays across the map',
-                description: 'This was moved to "considering" from "Stage 2" because of mixed feedback and high development cost',
-            },
             {
                 title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
@@ -427,7 +423,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
             width: 92%;
             height: 1px;
 
-            background-image: linear-gradient(to right, $darkgray800 33%, rgba(255, 255, 255, 0) 0%);
+            background-image: linear-gradient(to right, $darkgray800 33%, rgb(255, 255, 255, 0) 0%);
             background-repeat: repeat-x;
             background-position: bottom;
             background-size: 25px 1px;

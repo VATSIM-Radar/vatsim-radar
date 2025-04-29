@@ -9,9 +9,14 @@ const redisSubscriber = getRedis();
 export default defineNitroPlugin(app => {
     setupRedisDataFetch();
 
-    redisSubscriber.subscribe('vatglassesActive');
-    redisSubscriber.on('message', (_, message) => {
-        radarStorage.vatglasses.activeData = message;
+    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.on('message', async (channel, message) => {
+        if (channel === 'vatglassesActive') {
+            radarStorage.vatglasses.activeData = message;
+        }
+        else if (channel === 'vatglassesDynamic') {
+            radarStorage.vatglasses.dynamicData = JSON.parse(message);
+        }
     });
 
     defineCronJob('15 */2 * * *', initNavigraph);

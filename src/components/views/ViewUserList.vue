@@ -13,7 +13,7 @@
             Management
         </common-button>
         <common-toggle
-            v-if="!list && isMobile"
+            v-if="!list && isMobile && store.bookmarks.length"
             :model-value="!!store.localSettings.featuredDefaultBookmarks"
             @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
         >
@@ -267,6 +267,7 @@ if (!props.list) {
 
             @include mobileOnly {
                 flex-wrap: wrap;
+                justify-content: flex-start;
             }
         }
 
@@ -281,6 +282,10 @@ if (!props.list) {
 
             background: $darkgray850;
 
+            @include mobileOnly {
+                order: 0;
+            }
+
             &--online {
                 background: $success500;
             }
@@ -290,6 +295,10 @@ if (!props.list) {
             flex-grow: 1;
             font-size: 13px;
             line-height: 125%;
+
+            @include mobileOnly {
+                order: 2;
+            }
 
             &_name {
                 display: flex;
@@ -335,6 +344,11 @@ if (!props.list) {
             .button {
                 width: auto !important;
                 height: auto !important;
+            }
+
+            @include mobileOnly {
+                order: 1;
+                font-size: 12px;
             }
         }
 

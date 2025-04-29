@@ -15,6 +15,7 @@ import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filt
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import { useIsDebug } from '~/composables';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -73,6 +74,7 @@ export const useStore = defineStore('index', {
         updateRequired: false,
         isTabVisible: false,
         updateATCTracons: false,
+        cookieCustomize: false,
 
         loginPopup: false,
         deleteAccountPopup: false,
@@ -223,6 +225,19 @@ export const useStore = defineStore('index', {
 
                 if (versions) {
                     dataStore.vatsim.versions.value = versions;
+                }
+
+                if (useIsDebug()) {
+                    dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
+
+                    if (
+                        dataStore.vatglasses.value?.version && dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
+                        (
+                            dataStore.versions.value.vatglasses !== dataStore.vatglasses.value?.version ||
+                            dataStore.versions.value.simaware !== dataStore.simaware.value?.version ||
+                            dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
+                        )
+                    ) location.reload();
                 }
 
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {

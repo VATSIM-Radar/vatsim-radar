@@ -1,5 +1,6 @@
 <template>
     <div class="sigmets-settings">
+        <map-filter-transparency setting="sigmets"/>
         <div
             v-for="(button, key) in buttons"
             :key="key"
@@ -28,6 +29,7 @@ import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { SigmetType } from '~/types/map';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 
 const store = useStore();
 
@@ -104,7 +106,7 @@ const buttons: Record<SigmetType, Button> = {
 
         @include hover {
             &:hover {
-                background: rgba(var(--color), 0.2);
+                background: rgb(var(--color), 0.2);
             }
         }
 

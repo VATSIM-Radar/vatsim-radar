@@ -11,6 +11,7 @@ import { getColorFromSettings, hexToRgb } from '~/composables/colors';
 import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useRadarError } from '~/composables/errors';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -231,7 +232,7 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
                 resolve(result);
             }
             catch (e) {
-                console.error(e);
+                useRadarError(e);
                 reject();
             }
         });
@@ -356,7 +357,7 @@ export const useShowPilotStats = () => {
     const store = useStore();
 
     store.showPilotStats = useCookie<boolean>('show-pilot-stats', {
-        sameSite: 'strict',
+        sameSite: 'none',
         secure: true,
     }).value ?? false;
 
@@ -366,7 +367,7 @@ export const useShowPilotStats = () => {
         },
         set(value: boolean) {
             useCookie<boolean>('show-pilot-stats', {
-                sameSite: 'strict',
+                sameSite: 'none',
                 secure: true,
             }).value = value;
             store.showPilotStats = value;

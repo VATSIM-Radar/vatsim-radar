@@ -24,6 +24,12 @@
     },
     {
       "matchPackageNames": [
+        "@nuxtjs/stylelint-module"
+      ],
+      "allowedVersions": ">5.2.1"
+    },
+    {
+      "matchPackageNames": [
         "node",
         "arm64v8/node"
       ],

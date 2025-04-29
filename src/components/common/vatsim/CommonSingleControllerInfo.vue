@@ -78,7 +78,7 @@
             </template>
         </template>
         <template
-            v-if="showAtis && controller.text_atis?.length && !controller.booking"
+            v-if="showAtis && controller.text_atis?.length"
             #bottom
         >
             <ul class="atc__atis">
@@ -94,13 +94,28 @@
                 v-if="controller.logon_time"
                 :controller="controller"
             />
+            <template v-if="controller.booking">
+                Booked
+                <template v-if="store.mapSettings.bookingsLocalTimezone">
+                    {{ controller.booking?.end_local }}
+                </template>
+                <template v-else>
+                    {{ controller.booking?.end_z }}Z
+                </template>
+            </template>
         </template>
         <template
             v-else-if="controller.booking"
             #bottom
         >
             <div>
-                Booked from {{ controller.booking?.start_local }} to {{ controller.booking?.end_local }}
+                Booked from
+                <template v-if="store.mapSettings.bookingsLocalTimezone">
+                    {{ controller.booking?.start_local }} to {{ controller.booking?.end_local }}
+                </template>
+                <template v-else>
+                    {{ controller.booking?.start_z }}Z to {{ controller.booking?.end_z }}Z
+                </template>
             </div>
         </template>
     </common-info-block>
@@ -117,6 +132,7 @@ import CommonAtcTimeOnline from '~/components/common/vatsim/CommonAtcTimeOnline.
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import SaveIcon from '@/assets/icons/kit/save.svg?component';
 import { getStringColorFromSettings } from '~/composables/colors';
+import { useStore } from '~/store';
 
 defineProps({
     controller: {
@@ -159,6 +175,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
+const store = useStore();
 
 const controllerColor = (controller: VatsimShortenedController) => {
     const list = getUserList(controller.cid);

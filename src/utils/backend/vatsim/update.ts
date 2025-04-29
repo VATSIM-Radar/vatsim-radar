@@ -28,6 +28,7 @@ import { $fetch } from 'ofetch';
 import { XMLParser } from 'fast-xml-parser';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
 import { setRedisData } from '~/utils/backend/redis';
+import { isDebug } from '~/utils/backend/debug';
 
 export function updateVatsimDataStorage() {
     const data = radarStorage.vatsim.data!;
@@ -44,9 +45,10 @@ export function updateVatsimDataStorage() {
         };
     }).filter((x, index) => x && !data.pilots.some((y, yIndex) => y && y.cid === x.cid && yIndex < index));
 
-    data.general.supsCount = data.controllers.filter(x => x.rating === 11).length;
     data.general.sups = data.controllers.filter(x => x.rating === 11);
-    data.general.admCount = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998').length;
+    data.general.adm = data.controllers.filter(x => x.rating === 12 && x.frequency === '199.998');
+    data.general.supsCount = data.general.sups.length;
+    data.general.admCount = data.general.adm.length;
     data.general.onlineWSUsers = wss.clients.size;
 
     data.prefiles = data.prefiles.filter((x, index) => x && !data.pilots.some(y => y && x.cid === y.cid) && !data.prefiles.some((y, yIndex) => y && y.cid === x.cid && yIndex > index));
@@ -381,7 +383,7 @@ function mapAirlines(airlines: RadarDataAirline[]): RadarDataAirlinesList {
 }
 
 export async function updateAirlines() {
-    const data = await $fetch<RadarDataAirlineAll>(process.env.NODE_ENV !== 'development' ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
+    const data = await $fetch<RadarDataAirlineAll>(!isDebug() ? 'http://data:3000/airlines/all' : 'https://data.vatsim-radar.com/airlines/all', {
         retry: 3,
     });
 

@@ -14,6 +14,7 @@ import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
+import { useRadarError } from '~/composables/errors';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -99,7 +100,7 @@ export function attachPointerMove(callback: (event: any) => unknown) {
             await callback(e);
         }
         catch (e) {
-            console.error(e);
+            useRadarError(e);
         }
         finally {
             await sleep(300);
@@ -340,3 +341,21 @@ export const getSigmetType = (hazard: string | null | undefined): SigmetType | n
 
     return null;
 };
+
+export const cookiePolicyStatus = () => {
+    const cookie = useCookie<{ rum: boolean; sentry: boolean; accepted: false | number }>('cookie-policy', {
+        path: '/',
+        sameSite: 'none',
+        secure: true,
+        maxAge: 60 * 60 * 24 * 30 * 12,
+        default: () => ({ rum: true, sentry: true, accepted: false }),
+    });
+
+    return computed(() => {
+        if (!cookie.value) cookie.value = { rum: true, sentry: true, accepted: false };
+
+        return cookie.value;
+    });
+};
+
+export const useIsDebug = () => import.meta.dev || !!useRuntimeConfig().public.VR_DEBUG;

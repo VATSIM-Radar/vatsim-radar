@@ -35,8 +35,8 @@
             </div>
 
             <div
-                v-if="store.friends.length || store.bookmarks.length"
-                class="map-footer_left_section __from-tablet"
+                v-if="(store.friends.length || store.bookmarks.length) &&  store.viewport.width > 1000"
+                class="map-footer_left_section"
             >
                 <common-button
                     size="S"
@@ -55,7 +55,7 @@
                 <common-control-block
                     v-model="store.menuFriendsOpen"
                     center-by="start"
-                    max-height="360px"
+                    max-height="370px"
                     width="480px"
                 >
                     <template #title>
@@ -70,6 +70,7 @@
                                 Manage friends
                             </common-button>
                             <common-toggle
+                                v-if="store.bookmarks.length"
                                 :model-value="!!store.localSettings.featuredDefaultBookmarks"
                                 @update:modelValue="setUserLocalSettings({ featuredDefaultBookmarks: $event })"
                             >
@@ -133,9 +134,9 @@
         </div>
         <div class="map-footer_right">
             <map-settings-vat-glasses-level
-                v-if="store.viewport.width > (store.friends.length ? 1100 : 900)"
+                v-if="store.viewport.width > (store.friends.length ? 1200 : 1000)"
                 class="map-footer_right_vg"
-                hide-if-disabled
+                show-auto
             />
 
             <div v-if="store.mapSettings.bookingOverride">
@@ -268,7 +269,9 @@ onMounted(() => {
 });
 
 function cancelBookingOverride() {
-    store.mapSettings.bookingOverride = false;
+    setUserMapSettings({
+        bookingOverride: false,
+    });
     delete route.query.start;
     delete route.query.end;
     router.replace({ query: route.query });
@@ -348,7 +351,7 @@ function cancelBookingOverride() {
         align-items: center;
 
         &_vg {
-            width: 280px;
+            min-width: 320px;
 
             :deep(.input) {
                 height: 32px !important;
@@ -360,6 +363,7 @@ function cancelBookingOverride() {
             border-radius: 8px;
 
             font-weight: 300;
+            font-variant-numeric: tabular-nums;
 
             background: $darkgray950;
 

@@ -5,7 +5,7 @@
             class="map_container"
         />
 
-        <template v-if="!sigmetsMode">
+        <template v-if="mode === 'all'">
             <div
                 v-if="ready && !isMobile"
                 v-show="!store.config.hideOverlays"
@@ -138,10 +138,11 @@
                 </template>
             </common-popup>
         </template>
-        <client-only v-else-if="ready">
+        <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
             <map-sigmets/>
         </client-only>
+        <map-layer v-else/>
         <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
@@ -173,12 +174,14 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
-import { fromLonLat, transformExtent } from 'ol/proj';
+import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
+import { useRadarError } from '~/composables/errors';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
-    sigmetsMode: {
-        type: Boolean,
-        default: false,
+    mode: {
+        type: String as PropType<'map' | 'sigmets' | 'all'>,
+        default: 'all',
     },
 });
 const emit = defineEmits({
@@ -188,7 +191,7 @@ const emit = defineEmits({
 });
 defineSlots<{ default: () => any }>();
 const mapContainer = ref<HTMLDivElement | null>(null);
-const popups = ref<HTMLDivElement | null>(null);
+const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
 const ready = ref(false);
@@ -230,7 +233,7 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const aircraft = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const aircraft = dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString()];
     if (!aircraft) {
         initialOwnCheck = true;
         return;
@@ -269,7 +272,7 @@ const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
     const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
-    await checkAndAddOwnAircraft().catch(console.error);
+    await checkAndAddOwnAircraft().catch(useRadarError);
 
     const fetchedList = (await Promise.all(overlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
@@ -325,7 +328,7 @@ const restoreOverlays = async () => {
             if (!('value' in data[0])) return overlay;
 
             (async function() {
-                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`) ?? [];
+                const notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ overlay.key }/notams`).catch(console.error) ?? [];
                 const foundOverlay = mapStore.overlays.find(x => x.key === overlay.key);
                 if (foundOverlay) {
                     (foundOverlay as StoreOverlayAirport).data.notams = notams;
@@ -450,11 +453,11 @@ watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
-    const user = dataStore.vatsim.data.pilots.value.find(x => x.cid === +store.user!.cid);
+    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 });
 
@@ -475,7 +478,13 @@ useLazyAsyncData('bookmarks', async () => {
     server: false,
 });
 
-watch([overlays, popupsHeight], () => {
+watch([isMobile, popups], () => {
+    mapStore.overlays.forEach(x => x._maxHeight = undefined);
+    popupsHeight.value = popups.value?.clientHeight ?? 0;
+});
+
+watch([overlays, popupsHeight, isMobile], async () => {
+    await nextTick();
     if (!popups.value && !isMobile.value) return;
     if (import.meta.server) return;
 
@@ -598,9 +607,9 @@ await setupDataFetch({
         let projectionExtent = view.getProjection().getExtent().slice();
 
         projectionExtent[0] *= 2.5;
-        projectionExtent[1] *= 1.4;
+        projectionExtent[1] *= 2;
         projectionExtent[2] *= 2.5;
-        projectionExtent[3] *= 1.4;
+        projectionExtent[3] *= 2;
 
         let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;
@@ -624,15 +633,15 @@ await setupDataFetch({
             }
         }
         else if (store.config.area) {
-            projectionExtent = buffer(boundingExtent(store.config.area), 200000);
-            center = getCenter(projectionExtent);
+            projectionExtent = buffer(boundingExtent(store.config.area.map(x => fromLonLat(x))), 200000);
+            center = toLonLat(getCenter(projectionExtent));
         }
         else if (store.config.airports && !store.config.center) {
             const airports = dataStore.vatspy.value?.data.airports.filter(x => store.config.airports?.includes(x.icao)) ?? [];
 
             if (airports.length) {
-                projectionExtent = buffer(boundingExtent(airports.map(x => [x.lon, x.lat])), 200000);
-                center = getCenter(projectionExtent);
+                projectionExtent = buffer(boundingExtent(airports.map(x => fromLonLat([x.lon, x.lat]))), 0.5);
+                center = toLonLat(getCenter(projectionExtent));
             }
         }
 
@@ -645,12 +654,15 @@ await setupDataFetch({
         else if (store.config.airports?.length) zoom = 1;
         if (typeof route.query.center === 'string' && route.query.center) {
             const coords = route.query.center.split(',').map(x => +x);
-            if (coords[0] > 300 || isNaN(coords[0])) coords[0] = 37.617633;
+            if (coords[0] > 300 || coords[0] < -300 || isNaN(coords[0])) coords[0] = 37.617633;
             if (isNaN(coords[1])) coords[1] = 55.755820;
             if (coords.length === 2 && !coords.some(x => typeof x !== 'number' || isNaN(x))) {
                 center = coords;
             }
         }
+
+        if (center[0] > 300 || center[0] < -300 || isNaN(center[0])) center[0] = 37.617633;
+        if (isNaN(center[1])) center[1] = 55.755820;
 
         if (typeof route.query.tracks === 'string') {
             mapStore.autoShowTracks = route.query.tracks === '1';
@@ -707,7 +719,7 @@ await setupDataFetch({
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
             if (event.button === 1) {
-                const center = map.value!.getView().getCenter() as Coordinate;
+                const center = fromLonLat(map.value!.getView().getCenter() as Coordinate);
                 const resolution = map.value!.getView().getResolution();
                 let increaseX = window.innerWidth / 2;
                 let increaseY = window.innerHeight / 2;
@@ -731,7 +743,7 @@ await setupDataFetch({
 
                 if (center.some(x => isNaN(x))) return;
 
-                map.value!.getView().animate({ center, duration: 300 });
+                map.value!.getView().animate({ center: toLonLat(center), duration: 300 });
             }
         });
 
@@ -759,7 +771,8 @@ await setupDataFetch({
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
             if (filter) {
-                setUserActiveFilter(filter.json);
+                setUserActiveFilter(filter.json, false);
+                setUserFilter(filter.json);
                 store.getVATSIMData(true);
             }
         }

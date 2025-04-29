@@ -9,6 +9,7 @@ import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { useStore } from '~/store';
+import { computed } from 'vue';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -28,6 +29,7 @@ let facilities: {
 /*
 If we want to get the initial load of the combined sectors, we need sectorsCombined, airspaceKeys and the vatglasses Data version of the server on which base the sectors were combined, to make sure we have the same data version on the client side.
 */
+const VGdebugMode = false;
 
 export interface VatglassesActiveData {
     vatglassesActiveRunways: VatglassesActiveRunways;
@@ -36,7 +38,7 @@ export interface VatglassesActiveData {
 }
 
 export interface VatglassesActivePosition {
-    atc: VatsimShortenedController;
+    atc: VatsimShortenedController[];
     sectors: TurfFeature<TurfPolygon>[] | null;
     sectorsCombined: TurfFeature<TurfPolygon>[] | null;
     airspaceKeys: string | null;
@@ -65,14 +67,13 @@ export interface VatglassesSectorProperties {
     max: number;
     countryGroupId: string;
     vatglassesPositionId: string;
-    atc: VatsimShortenedController;
+    atc: VatsimShortenedController[];
     colour: string;
     type: 'vatglasses';
 }
 
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
-
 
 function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
@@ -81,6 +82,7 @@ function updateVatglassesPositionsAndAirspaces() {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage?.vatglasses?.data.data;
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways.value ?? workerDataStore.vatglassesActiveRunways;
     const vatglassesActivePositions = dataStore?.vatglassesActivePositions.value ?? workerDataStore.vatglassesActivePositions;
+    const vatglassesDynamicData = dataStore?.vatglassesDynamicData?.value ?? radarStorage.vatglasses.dynamicData;
     const vatsimData = dataStore?.vatsim ?? radarStorage.vatsim;
     if (!vatglassesData || !vatsimData) return newVatglassesActivePositions;
 
@@ -98,7 +100,7 @@ function updateVatglassesPositionsAndAirspaces() {
         };
     }
 
-    const vatglassesActiveController: { [countryGroupId: string]: { [vatglassesPositionId: string]: VatsimShortenedController } } = {}; // countryGroupId is the name of the json files which are split into areas
+    const vatglassesActiveControllers: { [countryGroupId: string]: { [vatglassesPositionId: string]: VatsimShortenedController[] } } = {}; // countryGroupId is the name of the json files which are split into areas
     const fallbackPositions: VatsimShortenedController[] = [];
     // Fill the vatglassesActiveStations object with the active stations
     if (vatglassesData) {
@@ -111,7 +113,7 @@ function updateVatglassesPositionsAndAirspaces() {
         }
 
         // TODO: sort firs by the same as EuroScope sorts the positions before assigning logged in stations to a position
-        // let first = 0; // used for debug
+        let first = 0; // used for debug
         const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
             // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
@@ -125,26 +127,26 @@ function updateVatglassesPositionsAndAirspaces() {
             if (!atc) continue;
 
             // // used for debug
-            // if (first === 0) {
-            //     atc.frequency = '135.050';
-            //     atc.callsign = 'AFRE_FSS';
-            //     atc.cid = 1025793;
-            //     first++;
-            // }
-            // else if (first === 1) {
-            //     break;
-            //     if (calls > 3) break;
-            //     atc.frequency = '129.100';
-            //     atc.callsign = 'EDMM_ALB_CTR';
-            //     atc.cid = 1025794;
-            // // first++;
-            // }
-            // else {
-            //     break;
-            // }
+            if (VGdebugMode) {
+                if (first === 0) {
+                    atc.frequency = '121.550';
+                    atc.callsign = 'ENOR_S_CTR';
+                    atc.cid = 1025793;
+                    first++;
+                }
+                else if (first === 1) {
+                    break;
+                    atc.frequency = '127.755';
+                    atc.callsign = 'ESMM_2_CTR';
+                    atc.cid = 1025794;
+                    // first++;
+                }
+                else {
+                    break;
+                }
+            }
 
             let foundMatchingVatglassesController = false;
-            let doublePositionMatch = false;
             // We sort the keys with the first two chars of the callsign, so we can check first the most likely countryGroupIds
             const keys = Object.keys(vatglassesData);
             const searchString = atc.callsign.substring(0, 2);
@@ -153,28 +155,26 @@ function updateVatglassesPositionsAndAirspaces() {
             const sortedKeys = [...matchingKeys, ...nonMatchingKeys];
 
             for (const countryGroupId of sortedKeys) {
-                if (foundMatchingVatglassesController) break;
                 const countryGroup = vatglassesData[countryGroupId];
                 for (const vatglassesPositionId in countryGroup.positions) {
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
-                    if (vatglassesPosition.frequency !== atc.frequency) continue;
+                    if (vatglassesPosition.frequency && vatglassesPosition.frequency !== atc.frequency) continue;
                     if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;
                     if (!vatglassesPosition.pre.some((prefix: string) => atc.callsign.startsWith(prefix))) continue;
-                    if (vatglassesActiveController?.[countryGroupId]?.[vatglassesPositionId] != null) {
-                        doublePositionMatch = true;
-                        continue; // There is already a controller assigned to this vatglasses position
+
+                    if (!vatglassesActiveControllers[countryGroupId]) {
+                        vatglassesActiveControllers[countryGroupId] = {};
                     }
 
-                    if (!vatglassesActiveController[countryGroupId]) {
-                        vatglassesActiveController[countryGroupId] = {};
-                    }
-                    vatglassesActiveController[countryGroupId][vatglassesPositionId] = atc;
+                    vatglassesActiveControllers[countryGroupId][vatglassesPositionId] ??= [];
+
+                    vatglassesActiveControllers[countryGroupId][vatglassesPositionId].push(atc);
                     foundMatchingVatglassesController = true;
                     break;
                 }
             }
 
-            if (!foundMatchingVatglassesController && !doublePositionMatch) {
+            if (!foundMatchingVatglassesController) {
                 fallbackPositions.push(atc);
             }
         }
@@ -182,22 +182,30 @@ function updateVatglassesPositionsAndAirspaces() {
 
     // TODO: We could compare the entries of `vatglassesActiveStations` with `dataStore.vatglassesActivePositions.value[countryGroupId][positionId]`, and if they are equal, no position has changed and we have nothing to do. However, we need to consider if a runway was updated or changed in the frontend and therefore this update cycle was called. Maybe use a parameter in this function like `runwayChanged`, and when we call updateVatglassesState() in the `activeRunwayChanged` function, we pass this parameter.
 
-
     // Fill the vatglassesActiveAirspaces object with the active airspaces
     vatglassesActiveAirspaces = {};
     for (const countryGroupId in vatglassesData) {
         const countryGroup = vatglassesData[countryGroupId];
 
         let activeGroupVatglassesPosition: string[] = [];
-        if (vatglassesActiveController[countryGroupId]) activeGroupVatglassesPosition = Object.keys(vatglassesActiveController[countryGroupId]);
-        for (const [airspaceIndex, airspace] of countryGroup.airspace.entries()) {
-            const vatglassesPositionId = airspace.owner.find((element: string) => {
+        if (vatglassesActiveControllers[countryGroupId]) activeGroupVatglassesPosition = Object.keys(vatglassesActiveControllers[countryGroupId]);
+        for (const airspaceIndex in countryGroup.airspace) {
+            const airspace = countryGroup.airspace[airspaceIndex];
+            let airspaceOwner: string [] = [];
+            if (vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex]) {
+                airspaceOwner = vatglassesDynamicData?.data?.[countryGroupId]?.airspace?.[airspaceIndex];
+            }
+            else if (airspace?.owner) {
+                airspaceOwner = airspace.owner;
+            }
+
+            const vatglassesPositionId = airspaceOwner.find((element: string) => {
                 if (element.includes('/')) { // Covers this cases: Positions from other data files can be referenced in the format country/position, where position is defined in country.json
                     const elementSplit = element.split('/');
                     const otherCountryCode = elementSplit[0];
                     const otherGroupVatglassesPosition = elementSplit[1];
-                    if (vatglassesActiveController[otherCountryCode]) {
-                        const otherGroupVatglassesActivePositions = Object.keys(vatglassesActiveController[otherCountryCode]);
+                    if (vatglassesActiveControllers[otherCountryCode]) {
+                        const otherGroupVatglassesActivePositions = Object.keys(vatglassesActiveControllers[otherCountryCode]);
                         return otherGroupVatglassesActivePositions.includes(otherGroupVatglassesPosition);
                     }
                 }
@@ -226,12 +234,13 @@ function updateVatglassesPositionsAndAirspaces() {
     }
 
     // It is possible that a position is defined in VatGlasses data but no airspaces are defined for it. In this case, it is not added to the fallbackPositions above, because the position exists, but no airspace is defined for it. We have to add it to the fallbackPositions here.
-    for (const countryGroupId in vatglassesActiveController) {
-        for (const positionId in vatglassesActiveController[countryGroupId]) {
+    for (const countryGroupId in vatglassesActiveControllers) {
+        for (const positionId in vatglassesActiveControllers[countryGroupId]) {
             if (!vatglassesActiveAirspaces[countryGroupId] || !vatglassesActiveAirspaces[countryGroupId][positionId] || Object.keys(vatglassesActiveAirspaces[countryGroupId][positionId]).length === 0) {
-                const controller = vatglassesActiveController[countryGroupId][positionId];
-                if (!fallbackPositions.some(fallback => fallback.callsign === controller.callsign)) {
-                    fallbackPositions.push(controller);
+                const controllers = vatglassesActiveControllers[countryGroupId][positionId];
+                const fallback = controllers.filter(x => fallbackPositions.some(fallback => fallback.callsign === x.callsign));
+                if (!fallback.length) {
+                    fallbackPositions.push(...controllers);
                 }
             }
         }
@@ -274,14 +283,17 @@ function updateVatglassesPositionsAndAirspaces() {
             if (!newVatglassesActivePositions[countryGroupId]) newVatglassesActivePositions[countryGroupId] = {};
 
             if (vatglassesActivePositions[countryGroupId]?.[positionId]) {
-                newVatglassesActivePositions[countryGroupId][positionId] = vatglassesActivePositions[countryGroupId][positionId];
+                newVatglassesActivePositions[countryGroupId][positionId] = {
+                    ...vatglassesActivePositions[countryGroupId][positionId],
+                    atc: vatglassesActiveControllers[countryGroupId][positionId],
+                };
             }
             else {
                 if (mode === 'server') {
-                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveController[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null }; // we set null instead of [], because null is the signal for later that we have to recalculate it
+                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveControllers[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null }; // we set null instead of [], because null is the signal for later that we have to recalculate it
                 }
                 else {
-                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveController[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) }; // we set null instead of [], because null is the signal for later that we have to recalculate it
+                    newVatglassesActivePositions[countryGroupId][positionId] = { atc: vatglassesActiveControllers[countryGroupId][positionId], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) }; // we set null instead of [], because null is the signal for later that we have to recalculate it
                 }
             }
 
@@ -291,6 +303,10 @@ function updateVatglassesPositionsAndAirspaces() {
                 resetVatglassesActivePositions(newVatglassesActivePositions[countryGroupId][positionId]); // this will set the sectors to null so they will be recalculated
                 newVatglassesActivePositions[countryGroupId][positionId].airspaceKeys = Object.keys(vatglassesActiveAirspaces[countryGroupId][positionId]).join(',');
             }
+
+            const atcChanged = vatglassesActivePositions[countryGroupId]?.[positionId]?.atc?.length !== newVatglassesActivePositions[countryGroupId][positionId].atc.length ||
+                !vatglassesActivePositions[countryGroupId]?.[positionId]?.atc.every((atc, index) => atc.callsign === newVatglassesActivePositions[countryGroupId][positionId].atc[index].callsign &&
+                    atc.cid === newVatglassesActivePositions[countryGroupId][positionId].atc[index].cid);
 
             if (newVatglassesActivePositions[countryGroupId][positionId]['sectors'] === null) { // if it is null, it is the signal for us this needs to be (re)calculated
                 // set all active sectors of the position
@@ -302,7 +318,11 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc)).filter(sector => sector !== false) || [];
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
+            }
+            else if (atcChanged) {
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors']?.forEach(x => x.properties!.atc = newVatglassesActivePositions[countryGroupId][positionId].atc);
+                addToUpdatedVatglassesPositions(countryGroupId, positionId);
             }
         }
     }
@@ -310,10 +330,10 @@ function updateVatglassesPositionsAndAirspaces() {
     newVatglassesActivePositions['fallback'] = {};
     for (const atc of fallbackPositions) {
         if (mode === 'server') {
-            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null };
+            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: [atc], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: null };
         }
         else {
-            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: atc, sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) };
+            newVatglassesActivePositions['fallback'][atc.callsign] = { atc: [atc], sectors: null, sectorsCombined: null, airspaceKeys: null, lastUpdated: ref<string | null>(null) };
         }
     }
 
@@ -381,8 +401,9 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
 
 
 // Converts from vatglasses sector format to geojson format
-function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController) {
+function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
     const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
+
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -394,12 +415,15 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
 
         const convertedPoints: Position[] = sector.points.map(point => point.map(Number)); // convert from string to Position type
 
-        let colour = '';
-        if (vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex) {
-            colour = vatglassesData[countryGroupId]?.positions?.[positionId]?.colours?.[0]?.hex;
+        let colour: string | undefined = '';
+        const colours = vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.filter(x => x.hex) ?? [];
+        if (colours?.length) {
+            colour = colours?.find(x => x.online?.length && x.online.every(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
+                colours.find(x => !x.online?.length)?.hex ??
+                colours[0].hex;
         }
 
-        else {
+        if (!colour) {
             if (mode === 'local') {
                 const [r, g, b] = getCurrentThemeRgbColor('success500');
                 colour = rgbToHex(r, g, b);
@@ -408,6 +432,7 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
                 colour = '#008856';
             }
         }
+
         const geoJsonPolygon: TurfFeature<TurfPolygon> = polygon([convertedPoints], {
             // id: airspace.id,
             min: sector.min ?? 0,
@@ -555,8 +580,8 @@ async function waitForRunningVatglassesUpdate() {
 
 // Call this function when a runway was changed at the frontend
 // TODO: Idea, we could watch the active value of dataStore.vatglassesActiveRunways, then we would not have to call this function somewhere else when a runway was changed
-export async function activeRunwayChanged(icao: string | string[], callUpdated = true) {
-    await waitForRunningVatglassesUpdate();
+export async function activeRunwayChanged(icao: string | string[], isCombineInit = true) {
+    if (isCombineInit) await waitForRunningVatglassesUpdate();
     if (typeof icao === 'string') icao = [icao];
 
     for (const countryGroupId in vatglassesActiveAirspaces) {
@@ -582,10 +607,10 @@ export async function activeRunwayChanged(icao: string | string[], callUpdated =
         }
     }
 
-    if (callUpdated) updateVatglassesStateLocal();
+    if (isCombineInit) updateVatglassesStateLocal();
 }
 
-export const isVatGlassesActive = () => computed(() => {
+const _isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
@@ -604,10 +629,12 @@ export const isVatGlassesActive = () => computed(() => {
     return false;
 });
 
+export const isVatGlassesActive = _isVatGlassesActive();
+
 let vatglassesUpdateInProgress = false;
 export async function updateVatglassesStateLocal(forceNoCombine = false) {
     if (vatglassesUpdateInProgress) return;
-    if (!isVatGlassesActive().value) return;
+    if (!isVatGlassesActive.value) return;
 
     // console.time('updateVatglassesStateLocal');
 
@@ -647,11 +674,12 @@ export async function updateVatglassesStateServer() {
 // This function is called at the first time combined data is needed. It fetches the combined data from the server and updates the local data. It is meant as an initial load of the combined data. Future updates and calculations are handled locally.
 let combineDataInitialized = false;
 async function initVatglassesCombined() {
+    await waitForRunningVatglassesUpdate();
     vatglassesUpdateInProgress = true;
     combineDataInitialized = true;
     dataStore.vatglassesCombiningInProgress.value = true;
     try {
-        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses-active`));
+        const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses/active`));
         const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
         if (vatglassesDataVersion === data.version) {
             for (const countryGroupId in data.vatglassesActivePositions) {
@@ -684,7 +712,7 @@ async function initVatglassesCombined() {
         const localRunways = dataStore.vatglassesActiveRunways.value;
 
         for (const icao in localRunways) {
-            if (localRunways[icao].active !== serverRunways?.[icao].active) {
+            if (localRunways[icao].active !== serverRunways?.[icao]?.active) {
                 await activeRunwayChanged(icao, false);
             }
         }
@@ -697,6 +725,7 @@ async function initVatglassesCombined() {
         // Optionally, you can handle the error further, such as displaying a user-friendly message
 
         vatglassesUpdateInProgress = false;
+        dataStore.vatglassesCombiningInProgress.value = false;
         // Now call the update function to recalculate all sectors which were not updated by the server data or which had a different runway
         updateVatglassesStateLocal();
     }
@@ -721,13 +750,13 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
 
         await updateVatglassesStateLocal(true);
 
-        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && store.mapSettings.vatglasses?.active);
+        const vatglassesCombined = computed(() => store.mapSettings.vatglasses?.combined && isVatGlassesActive.value);
 
-        if (unref(vatglassesCombined)) {
+        if (toValue(vatglassesCombined)) {
             await initVatglassesCombined();
         }
 
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, vatglassesCombined], async () => {
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, dataStore.vatglassesDynamicData, vatglassesCombined], async () => {
             if (!combineDataInitialized && vatglassesCombined.value) {
                 await updateVatglassesStateLocal(true);
                 await initVatglassesCombined();

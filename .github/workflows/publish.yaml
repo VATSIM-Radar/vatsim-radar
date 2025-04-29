@@ -42,6 +42,31 @@ jobs:
           push: true
           file: .config/Dockerfile
 
+  push-public:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add .env file
+        run: cp .env.example .env
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          tags: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
+          context: .
+          push: true
+          file: .config/debug.Dockerfile
+
   deploy-app:
     runs-on: ubuntu-latest
     needs:
@@ -57,23 +82,18 @@ jobs:
           clusterName: main
       - name: Deploy App
         run: kubectl apply -f .config/k8s/main/app.yml
-      - name: Apply App
-        run: kubectl rollout restart deployment app-prod
       - name: Apply Worker
         run: kubectl rollout restart deployment worker-prod
-      - name: Apply VG
-        run: kubectl rollout restart deployment vatglasses
-      - name: Validate App
-        run: kubectl rollout status deployment app-prod
       - name: Validate Worker
         run: kubectl rollout status deployment worker-prod
+      - name: Apply App
+        run: kubectl rollout restart deployment app-prod
+      - name: Validate App
+        run: kubectl rollout status deployment app-prod
+      - name: Apply VG
+        run: kubectl rollout restart deployment vatglasses
       - name: Validate VG
         run: kubectl rollout status deployment vatglasses
-      - name: Sleep for a minute
-        run: sleep 60s
-        shell: bash
-      - name: Rollback replicas
-        run: "kubectl patch hpa app-prod-hpa -p '{\"spec\":{\"minReplicas\": 1}}'"
 
   deploy-db-redis:
     runs-on: ubuntu-latest

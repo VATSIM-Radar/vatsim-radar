@@ -1,0 +1,9 @@
+services:
+    frontend:
+        image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
+
+    worker:
+        image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest
+
+    vatglasses-worker:
+        image: ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest

@@ -224,7 +224,7 @@
                 </div>
                 <div
                     class="filters_sections_section"
-                    :class="{ 'filters_sections_section--selected': selectedFilter === 'filters' }"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'filters', 'filters_sections_section--active': hasActivePilotFilter() }"
                     @click="selectFilter('filters')"
                 >
                     <common-button :type="selectedFilter === 'filters' ? 'primary' : 'secondary'">
@@ -338,6 +338,32 @@
                     </common-control-block>
                 </div>
                 <div
+                    v-if="isDebug && isPC"
+                    class="filters_sections_section"
+                    :class="{ 'filters_sections_section--selected': selectedFilter === 'debug' }"
+                    @click="selectFilter('debug')"
+                >
+                    <common-button :type="selectedFilter === 'debug' ? 'primary' : 'secondary'">
+                        <template #icon>
+                            <debug-icon/>
+                        </template>
+                    </common-button>
+                    <common-control-block
+                        center-by="start"
+                        class="filters_sections_section_content"
+                        location="right"
+                        max-height="450px"
+                        :model-value="selectedFilter === 'debug'"
+                        width="500px"
+                        @update:modelValue="!$event ? selectedFilter = null : undefined"
+                    >
+                        <template #title>
+                            Debug
+                        </template>
+                        <map-filters-debug/>
+                    </common-control-block>
+                </div>
+                <div
                     v-if="store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid]"
                     class="filters_sections_section filters_sections_section--location"
                     :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
@@ -361,6 +387,7 @@ import MapIcon from '@/assets/icons/kit/map.svg?component';
 import ImportIcon from '@/assets/icons/kit/import.svg?component';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import LayersIcon from '@/assets/icons/kit/layers.svg?component';
+import DebugIcon from '@/assets/icons/kit/debug.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
@@ -392,6 +419,7 @@ import { sigmetDates } from '~/composables';
 import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { Units } from 'ol/control/ScaleLine';
+import { useRadarError } from '~/composables/errors';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -407,10 +435,15 @@ const selectFilter = (filter: string) => {
 const filtersImportMode = ref(null as null | 'settings' | 'filters');
 const filtersImport = useTemplateRef('filtersImport');
 
+const MapFiltersDebug = defineAsyncComponent(() => import('./debug/MapFiltersDebug.vue'));
+
 const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
 const isMobile = useIsMobile();
+const isPC = useIsPC();
 const sigmetDatesList = sigmetDates();
+
+const isDebug = useIsDebug();
 
 let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
@@ -507,7 +540,7 @@ const importPreset = async () => {
         });
     }
     catch (e) {
-        console.error(e);
+        useRadarError(e);
         importedPreset.value = false;
     }
 };
@@ -604,6 +637,23 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
                 svg {
                     transform-origin: center;
                     transition: 0.3s;
+                }
+            }
+
+            &--active {
+                &::before {
+                    content: '';
+
+                    position: absolute;
+                    top: -4px;
+                    right: -4px;
+
+                    width: 12px;
+                    height: 12px;
+                    border: 2px solid $lightgray125;
+                    border-radius: 100%;
+
+                    background: $primary500;
                 }
             }
 

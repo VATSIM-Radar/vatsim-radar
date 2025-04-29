@@ -211,6 +211,7 @@ watch(getSections, sections => {
 .info-popup {
     scrollbar-gutter: stable;
 
+    container-name: info-popup;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -322,7 +323,7 @@ watch(getSections, sections => {
 
         &--collapse {
             &-enter-active, &-leave-active {
-                max-height: 100%;
+                max-height: 100cqh;
                 transition: 0.5s ease-in-out;
             }
 

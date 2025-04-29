@@ -1,103 +1,164 @@
 # Changelog
 
-# [1.1.0-rc.2]
+# [1.1.2-2-final]
 
-- (QA) You can now separately disable airmets
+- Added VATGlasses multiple controllers per position support
+- Added admins to stats page
+- Fixed VATGlasses combined not doing anything if automatic VG detection is enabled
+
+# [1.1.2-1]
+
+- Now when you open shared filter it is not saved to active filter when you open page without shared filter in parameters
+- Now when you open shared filter it is saved into your "draft" filter
+- If you have active preset it will now show as small dot under filter menu
+- Removed not needed scroll when friends exceed 4. This is definetly the case today!
+
+# [1.1.2]
+
+## Features and Improvements
+
+- Improved performance when VATGlasses is enabled
+- Added VATSpy/SimAware TRACON geojson debug tool
+- New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ
+- Improved icon for BCS1
+- Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
+- Removed feature positions if they are booked and not actually online
+- Added SIGMETs transparency settings
+- Filter preset save/reset now actually does it's job
+- Applying filter from presets now fully rewrites it's settings instead of merging them
+- You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this contribution!
+- Added multiple organisers to event page
+- VATGlasses step is now "500" instead of "1000"
+- Added VATGlasses online-only color support
+- Added diverted flight filter
+
+## Bug Fixes
+
+- Fixed VATGlasses crashing for anonymous users
+- Fixed "A" button disappearing for VG level
+- Fixed last update counter constantly changing its size and causing vG Level to move
+- Fixed an issue when you could not click on SIGMET if non-VG UIR was active
+- Fixed feature position display when no ATIS is online
+- Fixed an issue when VG Combined Mode could get stuck (by Felix)
+- Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new altitude
+- Fixed incorrect VATGlasses automatic altitude assigment for some cases
+- Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can now only be done via sorting icon, as it should have been from the start
+
+# [1.1.1]
+
+## Highlights
+
+- Added VATGlasses dynamic sectors support
+- Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
+- Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
+
+## Features and Improvements 
+
+- Added separate VATSIM General Discord link
+- Added "Install App" button to header
+- Added Sentry error reporting
+- Added Data Policy Popup for GDPR and other compliance
+- Updated Privacy Policy with little changes mentioning Data Policy Popup
+- SIGMETs settings are now auto-collapsed on mobile. You can now also collapse them on PC
+- Improved sigmets visibility so they get less confused with normal sectors
+- Bookings on map will now show Zulu time by default with a new settings on both Booking and Map Settings pages
+- Minor performance improvements on each update
+- Removed estimate time for aircraft taxiing on ground
+- Max users per favorite list increased to 200
+
+## Bug Fixes
+
+- Fixed scale being above menu on mobile
+- Fixed rare issue when overlays were not showing up
+- Improved mobile friends layout
+- Fixed significant performance issues on Favorite Lists settings open
+- Fixed small memory leak when leaving the map and going back again at the same tab
+- Fixed some oceanic VATGlasses sectors not displaying
+- Fixed VATSpy friends import if you only had a single preset
+- Fixed VATGlasses combined positions not showing controllers correctly on click
+- Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
+- Fixed traffic heatmap. Why did no one tell me it's broken?
+
+# [1.1.0]
+
+Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.
+
+## Highlights
+
+🌩️ SIGMETs / AIRMETs (US)
+📅 ATC Bookings
+📊 Live Stats
+📥 Friends Import
+📂 Presets Sorting
+✅ UI/UX Improvements and bug fixes
+
+### SIGMETs
+
+Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to show additional details.
+
+AIRMETs are also available for US. You can enable SIGMETs on map in Map Layers menu.
+
+This data was provided by [Aviation Weather Center](https://aviationweather.gov/).
+
+### Bookings (BETA)
+
+Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
+
+On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
+
+They are also displayed on map (TWR and below) 1 hour before they come online. 
+
+This feature should now be considered BETA - more improvements are coming later.
+
+### Live Stats
+
+With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as ATC/Pilots online.
+
+You can also sort by various columns, and filter map by some of the data you choose.
+
+## Features and Improvements
+
 - Favorite count in a single list was increased to 200 from 50
-- Fixed favorite add if it was exceeding max count
 - Updated default map layer data
-
-# [1.1.0-rc.1]
-
-## Bookings
-
-- Fixed a bug where wrong date inputs would show weird bookings page
-- Showing popup of specific time of booking in bookings page
-- Removed bookings from airport view
-
-# [1.1.0-beta.3]
-
-- Renamed ATIS to ATC Information in ATC Overlay
-- Fixed R44 icon size
-- Removed duplicate ATC from VATGlasses popup
-- (next) Added ATC rating and facility to ATC stats 
-- (next) Excluded ATIS from ATC online
-- Added relative scale indicator to map
-- Added Map Setting that prevents VR to update center/zoom in address bar
-- VATGlasses has been moved to the top of general as more frequently used setting
-- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
-
-# [1.1.0-beta.2]
-
-- Added sorting support for all presets
-
-# [1.1.0-beta.1]
-
-- Added ATC Bookings by Noah. Bookings on map seem not to work for now
-- Airport names in destination card will now be limited by 2 lines
-- (QA) Fixed some approach labels not displaying on "next"
-- Added "Z" suffix to time in events page if time is local
-- Added single event page SEO optimization
-- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
-- Fix delay when tracking aircraft
-- Fixed an issue when local timezone was not displayed in VATSIM Events page
-- (QA) You can now edit SIGMETs data displayed
-- (QA) SIGMETs now show labels
-
-# [1.1.0-alpha.8]
-
-- Fixed gates not showing up for some airports when using Navigraph
-
-# [1.1.0-alpha.7]
-
-- Fixed "next" performance and VG combined mode issues
-- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
-- Fixed aircraft popup on mobile version of Airport Dashboard
-- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
-- Based on severe community feedback, changed "atc" in the footer to "ATC"
-- Applied small performance improvements on each map update
-- Disabled zoom to CTR/FSS facilities
-- Fixed the way pilots without flight plans display in Favorite tab
-- Unknown airports ICAO will now be properly displayed in flight plan window
-- Added indication of no flight plan uploaded to pilot popup
-- Added auto-selection of list to "Add to Favorites" popup if you only have one list
-- Removed duplicate runway identifier from thresholds
-- Restored north reset icon for mobile
-- Fixed airport default zoom change to floating number breaking whole map settings save
-- Added 10% opacity as possible for weather/layers opacity
-- Fixed invisible region in popups list
-- Increased emergency color priority over enabled tracks
-
-# [1.1.0-alpha.6]
-
+- Added Where2Fly integration into airports popup
+- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
+- Added diverting flight state by MindCollaps
 - New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)
 - Added model matching (C210 -> C206, E290 -> E295, E3TF -> E3CF, K35R -> K35E)
+- Added 10% opacity as possible for weather/layers opacity
+- Restored north reset icon for mobile
+- Removed duplicate runway identifier from thresholds
+- Added auto-selection of list to "Add to Favorites" popup if you only have one list
+- Added indication of no flight plan uploaded to pilot popup
+- Unknown airports ICAO will now be properly displayed in flight plan window
+- Applied small performance improvements on each map update
+- Based on severe community feedback, changed "atc" in the footer to "ATC"
+- Added "Z" suffix to time in events page if time is local
+- Added single event page SEO optimization
+- Airport names in destination card will now be limited by 2 lines
+- Added sorting support for all presets
+- Added import (even from VatSpy!)/export/copy of Favorite (Friends) in User Settings
+- VATGlasses has been moved to the top of general as more frequently used setting
+- Added relative scale indicator to map
+- Renamed ATIS to ATC Information in ATC Overlay
+- Added Map Setting that prevents VR to update center/zoom in address bar
+- Removed duplicate ATC from VATGlasses popup
 
-# [1.1.0-alpha.5]
+## Bug Fixes
 
-- Diverting flight state by MindCollaps
-
-# [1.1.0-alpha.4]
-
-- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
-
-# [1.1.0-alpha.3]
-
-- Added Where2Fly integration into airports popup
-
-# [1.1.0-alpha.2]
-
-- SIGMETs layer and page have been added
-- (QA) Updates on Stats
-  - Airports tab is put before airlines
-  - Added Aircraft stats
-  - Fixed airports names in routes stats
-  - Added time online to pilots
-  - Removed multiple sort from all tables, excluding airlines and pilots
-
-# [1.1.0-alpha.1]
-
-- Stats tab has been put into operations. View most popular airports, airlines and routes, as well as currently online pilots and ATC
+- Fixed favorite add if it was exceeding max count
+- Increased emergency color priority over enabled tracks
+- Fixed invisible region in popups list
+- Fixed airport default zoom change to floating number breaking whole map settings save
+- Fixed the way pilots without flight plans display in Favorite tab
+- Disabled zoom to CTR/FSS facilities
+- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
+- Fixed aircraft popup on mobile version of Airport Dashboard
+- Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
+- Fixed an issue when local timezone was not displayed in VATSIM Events page
+- Fix delay when tracking aircraft
+- Fixed an issue when controller ATIS was appearing incorrectly in VG mode
+- Fixed R44 icon size
 
 # [1.0.3-2]
 

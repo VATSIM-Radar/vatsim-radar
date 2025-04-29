@@ -582,7 +582,7 @@ onMounted(async () => {
         }
     }
 
-    const vatGlassesActive = isVatGlassesActive();
+    const vatGlassesActive = isVatGlassesActive;
     const vatglassesFallbacks = computed(() => dataStore.vatglassesActivePositions.value['fallback']);
     watch([dataStore.vatsim.updateTimestamp, vatGlassesActive, vatglassesFallbacks], () => initAndUpdateData(), {
         immediate: true,
@@ -719,6 +719,7 @@ onMounted(async () => {
                 feature.setProperties({
                     ...feature.getProperties(),
                     type: key,
+                    airport: props.airport.icao,
                 });
 
                 if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline') {

@@ -19,7 +19,7 @@ export function initDataWebsocket(): () => void {
     // const dataStore = useDataStore();
     clearInterval(interval);
 
-    const url = import.meta.dev ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
+    const url = useIsDebug() ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
     const websocket = new WebSocket(url);
     const localStorageItems = { ...localStorage };
 

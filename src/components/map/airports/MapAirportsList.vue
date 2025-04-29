@@ -11,7 +11,7 @@
             :hovered-id="((airport.iata ? airport.iata === hoveredArrAirport : airport.icao === hoveredArrAirport) && hoveredId) ? hoveredId : null"
             :hovered-pixel="hoveredPixel"
             :is-hovered-airport="airport.icao === hoveredAirportName"
-            :is-visible="visibleAirports.length < 100"
+            :is-visible="store.mapSettings.airportsCounters?.showCounters === false ? false : visibleAirports.length < (store.mapSettings.airportCounterLimit ?? 100)"
             :local-atc="localAtc"
             :navigraph-data="getAirportsData.find(x => x.airport === airport.icao)"
             @manualHide="[isManualHover = false, hoveredArrAirport = null]"
@@ -100,7 +100,9 @@ const url = new URL(location.href);
 if (url.searchParams.has('start') && url.searchParams.has('end')) {
     start.setTime(Number(url.searchParams.get('start')));
     end.setTime(Number(url.searchParams.get('end')));
-    store.mapSettings.bookingOverride = true;
+    setUserMapSettings({
+        bookingOverride: true,
+    });
 }
 
 const { data } = await useAsyncData('bookings', async () => {
@@ -325,8 +327,6 @@ watch(map, val => {
             wrapX: false,
         });
 
-        const styles = airportLayoutStyles();
-
         gatesLayer = new VectorLayer<any>({
             source: gatesSource.value,
             properties: {
@@ -354,6 +354,11 @@ watch(map, val => {
     val.on('click', handleMapClick);
 }, {
     immediate: true,
+});
+
+watch(dataStore.vatsim.data.bars, val => {
+    if (!Object.keys(val).length) return;
+    airportLayerSource.value?.dispatchEvent('change');
 });
 
 onBeforeUnmount(() => {
@@ -433,7 +438,7 @@ export interface AirportsList {
     isSimAware: boolean;
 }
 
-const vatGlassesActive = isVatGlassesActive();
+const vatGlassesActive = isVatGlassesActive;
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
@@ -723,7 +728,7 @@ const vatAirportsList = computed(() => {
     for (const airport of store.config.airport ? [store.config.airport!] : store.config.airports!) {
         if (list.some(x => x.icao === airport)) continue;
 
-        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.realIcao[airport];
+        const vatspyAirport = dataStore.vatspy.value!.data.keyAirports.realIcao[airport] || dataStore.vatspy.value!.data.keyAirports.icao[airport];
         if (!vatspyAirport) continue;
 
         list.push({
@@ -749,7 +754,7 @@ async function setVisibleAirports() {
         extent[3] += 0.9;
 
         airportsList.value = vatAirportsList.value.map(x => {
-            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''];
+            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
             let airport = x.isSimAware ? vatAirport || x : vatAirport;
             if (!x.isSimAware && airport?.icao !== x.icao) {
                 airport = {

@@ -7,7 +7,7 @@ import type {
     PatreonPledgesReward,
     PatreonPledgesUser,
 } from '~/types/data/patreon';
-import { radarStorage } from '~/utils/backend/storage';
+import { isDataReady, radarStorage } from '~/utils/backend/storage';
 import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
@@ -21,6 +21,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { prisma } from '~/utils/backend/prisma';
 import { sleep } from '~/utils';
+import { isDebug } from '~/utils/backend/debug';
+import { watch } from 'chokidar';
 
 const redisSubscriber = getRedis();
 
@@ -30,9 +32,14 @@ function basicTasks() {
     defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
-    redisSubscriber.subscribe('vatglassesActive');
-    redisSubscriber.on('message', (_, message) => {
-        radarStorage.vatglasses.activeData = message;
+    redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
+    redisSubscriber.on('message', (channel, message) => {
+        if (channel === 'vatglassesActive') {
+            radarStorage.vatglasses.activeData = message;
+        }
+        else if (channel === 'vatglassesDynamic') {
+            radarStorage.vatglasses.dynamicData = JSON.parse(message);
+        }
     });
 }
 
@@ -76,7 +83,7 @@ function vatsimTasks() {
 let s3: S3 | undefined;
 
 function backupTask() {
-    if (import.meta.dev || !process.env.CF_R2_API) return;
+    if (isDebug() || !process.env.CF_R2_API) return;
 
     s3 ??= new S3({
         endpoint: process.env.CF_R2_API,
@@ -195,11 +202,35 @@ export async function initWholeBunchOfBackendTasks() {
         clearTask();
     }
     catch (e) {
-        console.error(e);
+        console.error('Error during initialization', e);
+    }
+
+    if (isDebug()) {
+        console.log('Custom data watcher has been set up');
+        const watcher = watch(join(process.cwd(), 'src/data/custom'), {
+            persistent: true,
+            ignoreInitial: true,
+            usePolling: true,
+            interval: 5000,
+            binaryInterval: 5000,
+            ignored: [/controllers/],
+        });
+
+        async function updateTasks() {
+            await updateSimAware();
+            await updateVatglassesData();
+            await updateVatSpy();
+            console.log('Custom data has been updated');
+        }
+
+        watcher
+            .on('add', updateTasks)
+            .on('change', updateTasks)
+            .on('unlink', updateTasks);
     }
 }
 
-async function updateData() {
+export async function updateRedisData() {
     radarStorage.vatglasses.data = (await getRedisData('data-vatglasses')) ?? radarStorage.vatglasses.data;
     radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
     radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
@@ -213,11 +244,27 @@ async function updateData() {
 
 export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
-        await updateData();
+        await updateRedisData();
 
-        while (!radarStorage.vatspy.data) {
+        while (!await isDataReady()) {
+            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data);
             await sleep(1000 * 60);
-            await updateData();
+            await updateRedisData();
+        }
+    });
+
+    redisSubscriber.subscribe('update');
+    redisSubscriber.on('message', async (channel, message) => {
+        if (channel === 'update') {
+            if (message === 'data-vatspy') {
+                radarStorage.vatspy = (await getRedisData('data-vatspy')) ?? radarStorage.vatspy;
+            }
+            else if (message === 'data-vatglasses') {
+                radarStorage.vatglasses.data = (await getRedisData('data-vatglasses')) ?? radarStorage.vatglasses.data;
+            }
+            else if (message === 'data-simaware') {
+                radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
+            }
         }
     });
 
