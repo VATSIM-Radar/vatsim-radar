@@ -116,6 +116,7 @@ const controllers = computed<Controller[]>(() => {
     const list: Controller[] = [];
 
     for (const controller of [...props.airport.localAtc, ...props.airport!.arrAtc]) {
+        if (controller.booking) continue;
         if (list.some(x => controller.isATIS ? x.isATIS : x.facility === controller.facility) || controller.facility === ids.FSS || controller.facility === ids.CTR) continue;
 
         list.push({
@@ -127,27 +128,30 @@ const controllers = computed<Controller[]>(() => {
     }
 
     for (const controller of list) {
+        let length = list.length;
+        if (!list.some(x => x.isATIS)) length++;
+
         if (controller.isATIS) {
-            if (list.length <= 3) controller.text = 'ATIS';
+            if (length <= 3) controller.text = 'ATIS';
             else controller.text = 'A';
             continue;
         }
 
         switch (controller.facility) {
             case ids.TWR:
-                if (list.length <= 3) controller.text = 'TWR';
+                if (length <= 3) controller.text = 'TWR';
                 else controller.text = 'T';
                 break;
             case ids.DEL:
-                if (list.length <= 3) controller.text = 'DEL';
+                if (length <= 3) controller.text = 'DEL';
                 else controller.text = 'D';
                 break;
             case ids.GND:
-                if (list.length <= 3) controller.text = 'GND';
+                if (length <= 3) controller.text = 'GND';
                 else controller.text = 'G';
                 break;
             case ids.APP:
-                if (list.length <= 3) controller.text = 'APP';
+                if (length <= 3) controller.text = 'APP';
                 else controller.text = 'A';
                 break;
         }

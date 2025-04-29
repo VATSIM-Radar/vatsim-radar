@@ -128,11 +128,35 @@
         <common-block-title>
             Airports Counters
         </common-block-title>
+
+        <common-toggle
+            :model-value="store.mapSettings.airportsCounters?.showCounters ?? true"
+            @update:modelValue="setUserMapSettings({ airportsCounters: { showCounters: $event } })"
+        >
+            Show Airports Counters
+        </common-toggle>
+
+        <div class="__grid-info-sections __grid-info-sections--large-title">
+            <div class="__grid-info-sections_title">
+                Max Counters to Show
+            </div>
+            <common-select
+                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
+                :items="[{ value: 10 }, { value: 25 }, { value: 50 }, { value: 75 }, { value: 100 },
+                         { value: 150 }, { value: 200 }, { value: 300 }, { value: 400 }, { value: 500 }, { value: 1000 }]"
+                max-dropdown-height="200px"
+                :model-value="store.mapSettings.airportCounterLimit ?? 100"
+                width="100%"
+                @update:modelValue="setUserMapSettings({ airportCounterLimit: $event as number })"
+            />
+        </div>
+
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Departures Mode
             </div>
             <common-select
+                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
                 :items="countersSelectOptions"
                 max-dropdown-height="200px"
                 :model-value="store.mapSettings.airportsCounters?.departuresMode ?? 'ground'"
@@ -141,6 +165,7 @@
             />
         </div>
         <common-toggle
+            :disabled="store.mapSettings.airportsCounters?.showCounters === false"
             :model-value="store.mapSettings.airportsCounters?.syncDeparturesArrivals"
             @update:modelValue="setUserMapSettings({ airportsCounters: { syncDeparturesArrivals: $event } })"
         >
@@ -151,7 +176,7 @@
                 Arrivals Mode
             </div>
             <common-select
-                :disabled="!!store.mapSettings.airportsCounters?.syncDeparturesArrivals"
+                :disabled="!!store.mapSettings.airportsCounters?.syncDeparturesArrivals || store.mapSettings.airportsCounters?.showCounters === false"
                 :items="countersArrivalSelectOptions"
                 max-dropdown-height="115px"
                 :model-value="store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground'"
@@ -164,6 +189,7 @@
                 Horizontal (prefiles)
             </div>
             <common-select
+                :disabled="store.mapSettings.airportsCounters?.showCounters === false"
                 :items="horizontalSelectOptions"
                 max-dropdown-height="85px"
                 :model-value="store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles'"
@@ -172,6 +198,7 @@
             />
         </div>
         <common-toggle
+            :disabled="store.mapSettings.airportsCounters?.showCounters === false"
             :model-value="!store.mapSettings.airportsCounters?.disableTraining"
             @update:modelValue="setUserMapSettings({ airportsCounters: { disableTraining: !$event } })"
         >

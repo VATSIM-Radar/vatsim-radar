@@ -32,7 +32,10 @@ export async function updateSimAware() {
 
         if (revisions[data.name]) data.name += `-${ revisions[data.name] }`;
 
-        if ((radarStorage.simaware)?.version === data.name) return;
+        if ((radarStorage.simaware)?.version === data.name) {
+            await setRedisData('data-simaware', radarStorage.simaware as RedisData['data-simaware'], 1000 * 60 * 60 * 24 * 2);
+            return;
+        }
 
         version = data.name;
 

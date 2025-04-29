@@ -10,7 +10,7 @@ import { setRedisData } from '~/utils/backend/redis';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 const revisions: Record<string, number> = {
-    'v2410.1': 3,
+    'v2410.1': 4,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -216,8 +216,10 @@ export async function updateVatSpy() {
         });
 
         if (revisions[data.current_commit_hash]) data.current_commit_hash += `-${ revisions[data.current_commit_hash] }`;
-        if ((radarStorage.vatspy)?.version === data.current_commit_hash) return;
-
+        if ((radarStorage.vatspy)?.version === data.current_commit_hash) {
+            await setRedisData('data-vatspy', radarStorage.vatspy as RedisData['data-vatspy'], 1000 * 60 * 60 * 24 * 2);
+            return;
+        }
         const result = await Promise.all([
             ofetch(data.vatspy_dat_url, { responseType: 'text', timeout: 1000 * 60 }),
             ofetch(data.fir_boundaries_geojson_url, { responseType: 'text', timeout: 1000 * 60 }),

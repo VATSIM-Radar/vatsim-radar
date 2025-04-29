@@ -176,6 +176,7 @@ import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import { useRadarError } from '~/composables/errors';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 defineProps({
     mode: {
@@ -456,7 +457,7 @@ useUpdateInterval(() => {
     if (!user) return;
 
     setUserLocalSettings({
-        vatglassesLevel: Math.round(user.altitude / 1000) * 10,
+        vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
 });
 
@@ -770,7 +771,8 @@ await setupDataFetch({
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
             if (filter) {
-                setUserActiveFilter(filter.json);
+                setUserActiveFilter(filter.json, false);
+                setUserFilter(filter.json);
                 store.getVATSIMData(true);
             }
         }

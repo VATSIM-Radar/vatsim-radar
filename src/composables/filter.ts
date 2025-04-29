@@ -15,6 +15,7 @@ export function hasActivePilotFilter() {
         (!store.activeFilter.flights?.type || store.activeFilter.flights?.type === 'all') &&
         (!store.activeFilter.flights?.status || store.activeFilter.flights?.status === 'all') &&
         (!store.activeFilter.flights?.excludeNoFlightPlan) &&
+        (!store.activeFilter.flights?.diverted) &&
         (!Object.values(store.activeFilter.flights ?? {}).some(x => Array.isArray(x) && x.length))
     ) return false;
 
@@ -69,6 +70,7 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 
     let filteredPilots = pilots.filter(pilot => {
         if (store.activeFilter.flights?.excludeNoFlightPlan && !pilot.departure) return false;
+        if (store.activeFilter.flights?.diverted && (!('diverted' in pilot) || !pilot.diverted)) return false;
 
         if (!filterUser(pilot)) return false;
 

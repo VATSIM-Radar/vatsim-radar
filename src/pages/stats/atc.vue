@@ -25,7 +25,7 @@
                 { key: 'actions', name: 'Actions', width: 120 },
             ]"
             item-key="callsign"
-            mobile-width="800px"
+            mobile-width="1000px"
             @click="$event.text_atis && mapStore.addAtcOverlay($event.callsign)"
         >
             <template #data-logon_time="{ item }">
@@ -93,6 +93,7 @@ const list = computed(() => {
         ...dataStore.vatsim.data.locals.value.map(x => x.atc).filter(x => !x.atis_code),
         ...dataStore.vatsim.data.firs.value.map(x => x.controller),
         ...dataStore.vatsim.data.general.value?.sups ?? [],
+        ...dataStore.vatsim.data.general.value?.adm ?? [],
     ];
 });
 

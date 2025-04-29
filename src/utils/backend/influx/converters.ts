@@ -101,7 +101,12 @@ function outputInfluxValue(value: string | number | boolean, isFloat = false) {
 }
 
 let previousPlanData: Record<number, VatsimPilot> = {};
-let previousShortData: Record<number, { previousLogTime: number; pilot: VatsimPilot }> = {};
+
+interface PreviousPilot {
+    previousLogTime: number; previousAltitude: number; pilot: VatsimPilot;
+}
+
+let previousShortData: Record<number, PreviousPilot> = {};
 
 export function getPlanInfluxDataForPilots() {
     const date = `${ Date.now() }000000`;
@@ -145,11 +150,11 @@ export function getPlanInfluxDataForPilots() {
     return data;
 }
 
-function shouldUpdatePilot(pilot: VatsimPilot, previousPilot: VatsimPilot, previousTime: number): boolean {
-    if (previousPilot.heading === pilot.heading && Math.abs(previousPilot.altitude - pilot.altitude) < 50) return false;
+function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousAltitude, previousLogTime }: PreviousPilot): boolean {
+    if (previousPilot.heading === pilot.heading && Math.abs(previousAltitude - pilot.altitude) < 100) return false;
     if (previousPilot.longitude === pilot.longitude && previousPilot.latitude === pilot.latitude) return false;
 
-    const diff = Date.now() - previousTime;
+    const diff = Date.now() - previousLogTime;
     const altitude = pilot.altitude;
     if (altitude > 30000) return diff > 1000 * 30;
     if (altitude > 20000) return diff > 1000 * 20;
@@ -167,10 +172,16 @@ export function getShortInfluxDataForPilots() {
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousShortData[pilot.cid];
 
-        if (previousPilot && !shouldUpdatePilot(pilot, previousPilot.pilot, previousPilot.previousLogTime)) {
+        const previousAltitude = !newPilotsData[pilot.cid]?.previousAltitude ||
+        (Math.abs(newPilotsData[pilot.cid].previousAltitude - pilot.altitude) > 500)
+            ? pilot.altitude
+            : newPilotsData[pilot.cid].previousAltitude;
+
+        if (previousPilot && !shouldUpdatePilot(pilot, previousPilot)) {
             newPilotsData[pilot.cid] = {
                 previousLogTime: previousPilot.previousLogTime,
                 pilot,
+                previousAltitude,
             };
             return;
         }
@@ -209,6 +220,7 @@ export function getShortInfluxDataForPilots() {
         newPilotsData[pilot.cid] = {
             previousLogTime: Date.now(),
             pilot,
+            previousAltitude,
         };
 
         return `data,cid=${ pilot.cid } ${ entries } ${ date }`;

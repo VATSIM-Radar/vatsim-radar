@@ -4,14 +4,14 @@ import { useFileDownload } from '~/composables/settings';
 import { customDefu } from '~/composables';
 
 
-export function setUserFilter(settings?: UserFilter) {
+export function setUserFilter(settings?: UserFilter, force = false) {
     const store = useStore();
 
     const settingsText = localStorage.getItem('filters') ?? '{}';
     if (!settings && JSON.stringify(store.filter) === settingsText) return;
 
     let localSettings = JSON.parse(settingsText) as UserFilter;
-    localSettings = customDefu(settings || {}, localSettings);
+    localSettings = force && settings ? settings : customDefu(settings || {}, localSettings);
 
     store.filter = localSettings;
     localStorage.setItem('filters', JSON.stringify(localSettings));
