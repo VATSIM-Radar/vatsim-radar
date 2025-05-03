@@ -206,6 +206,25 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportCounterLimit: val => {
         return isNumber(val, 0) && val >= 0 && val <= 1000;
     },
+    navigraphData: val => {
+        if (!isObject(val)) return false;
+        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways'])) return false;
+
+        if ('ndb' in val && typeof val.ndb !== 'boolean') return false;
+        if ('vordme' in val && typeof val.vordme !== 'boolean') return false;
+        if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
+        if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
+        if ('airways' in val) {
+            if (!isObject(val.airways)) return false;
+            if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
+
+            if ('enabled' in val.airways && typeof val.airways.enabled !== 'boolean') return false;
+            if ('showAirwaysLabel' in val.airways && typeof val.airways.showAirwaysLabel !== 'boolean') return false;
+            if ('showWaypointsLabel' in val.airways && typeof val.airways.showWaypointsLabel !== 'boolean') return false;
+        }
+
+        return true;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -280,10 +299,6 @@ export interface IUserMapSettings {
         vordme: boolean;
         waypoints: boolean;
         holdings: boolean;
-        airspaces: {
-            controlled: boolean;
-            restricted: boolean;
-        };
         airways: Partial<{
             enabled: boolean;
             showAirwaysLabel: boolean;

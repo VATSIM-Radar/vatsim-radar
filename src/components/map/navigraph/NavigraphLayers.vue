@@ -6,17 +6,15 @@
         <navigraph-ndb/>
         <navigraph-airways/>
         <navigraph-waypoints/>
-        <navigraph-waypoints/>
         <navigraph-holdings/>
-        <navigraph-airspace/>
         <map-overlay
-            v-if="activeFeature || activeAirspaces.length"
+            v-if="activeFeature"
             model-value
-            :settings="{ position: activeAirspaces[0]?.coords ?? activeFeature!.coords, stopEvent: true }"
+            :settings="{ position: activeFeature!.coords, stopEvent: true }"
             :z-index="8"
         >
             <common-popup-block
-                @mouseleave="[activeFeature = null, activeAirspaces = []]"
+                @mouseleave="activeFeature = null"
             >
                 <template #title>
                     <template v-if="activeFeature && (isVHF(activeFeature) || isNDB(activeFeature))">
@@ -27,15 +25,6 @@
                     </template>
                     <template v-else-if="activeFeature && isHolding(activeFeature)">
                         {{ activeFeature.data.name }}
-                    </template>
-                    <template v-else-if="activeAirspaces.length">
-                        <template v-if="activeAirspaces.length === 1">
-                            <!-- @vue-ignore -->
-                            {{ activeAirspaces[0].data.name }}
-                        </template>
-                        <template v-else>
-                            Airspaces
-                        </template>
                     </template>
                 </template>
                 <div class="layers_info">
@@ -119,15 +108,6 @@
                             </span>
                         </div>
                     </template>
-                    <template v-else-if="activeAirspaces.length">
-                        <div
-                            v-for="airspace in activeAirspaces"
-                            :key="airspace.additionalData!.key"
-                            :style="{ '--color': airspace.additionalData!.color.join(',') }"
-                        >
-                            {{airspace.data}}
-                        </div>
-                    </template>
                 </div>
             </common-popup-block>
         </map-overlay>
@@ -150,7 +130,6 @@ import CircleStyle from 'ol/style/Circle';
 import type { FeatureLike } from 'ol/Feature';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
-import NavigraphAirspace from '~/components/map/navigraph/NavigraphAirspace.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
@@ -188,14 +167,6 @@ function isHolding(activeFeature: ActiveFeature<any>): activeFeature is ActiveFe
     return activeFeature.type === 'holdings';
 }
 
-function isControlledAirspace(activeFeature: ActiveFeature<any>): activeFeature is ActiveFeature<'controlledAirspace'> {
-    return activeFeature.type === 'controlledAirspace';
-}
-
-function isRestrictedAirspace(activeFeature: ActiveFeature<any>): activeFeature is ActiveFeature<'restrictedAirspace'> {
-    return activeFeature.type === 'restrictedAirspace';
-}
-
 const ndbStyle = new Icon({
     src: '/icons/ndb.png',
     width: 16,
@@ -218,49 +189,8 @@ const fakeCircle = new CircleStyle({
 const showAirwaysLabels = computed(() => store.mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
 const showWaypointsLabels = computed(() => store.mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
 
-const activeAirspaces = shallowRef([] as ActiveFeature<keyof NavigraphNavData>[]);
-
-const keys = [
-    getCurrentThemeRgbColor('success300'),
-    getCurrentThemeRgbColor('warning300'),
-    getCurrentThemeRgbColor('info300'),
-    getCurrentThemeRgbColor('success500'),
-    getCurrentThemeRgbColor('warning500'),
-    getCurrentThemeRgbColor('info500'),
-    getCurrentThemeRgbColor('success700'),
-    getCurrentThemeRgbColor('warning700'),
-    getCurrentThemeRgbColor('info700'),
-];
-
-watch(activeAirspaces, () => {
-    navigraphLayer?.changed();
-});
-
 async function handleMapClick(event: MapBrowserEvent<any>) {
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 5, layerFilter: val => val === navigraphLayer || val === navigraphFakeLayer });
-
-    if (features?.some(x => x.getProperties().type.endsWith('Airspace'))) {
-        activeAirspaces.value = await Promise.all(features.filter(x => x.getProperties().type.endsWith('Airspace')).map(async (feature, index) => {
-            const properties = feature.getProperties();
-            return {
-                coords: event.coordinate,
-                type: properties.type as keyof NavigraphNavData,
-                data: await getNavigraphData({
-                    data: properties.type,
-                    key: properties.key,
-                }),
-                properties,
-                additionalData: {
-                    key: properties.key,
-                    color: keys[index] ?? getCurrentThemeHexColor('primary300'),
-                },
-            };
-        }));
-
-        return;
-    }
-
-    activeAirspaces.value = [];
 
     if (!features?.length) return activeFeature.value = null;
 
@@ -313,20 +243,6 @@ watch(map, val => {
         const waypointBlueStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.3)`,
             width: 1,
-        });
-
-        const restrictedStyle = new Style({
-            stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.4)`,
-                width: 2,
-            }),
-        });
-
-        const controlledStyle = new Style({
-            stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.2)`,
-                width: 2,
-            }),
         });
 
         function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
@@ -445,28 +361,6 @@ watch(map, val => {
                         }),
                     }),
                 });
-            }
-
-            if (properties.type === 'controlledAirspace') {
-                const activeAirspace = activeAirspaces.value.find(x => x.additionalData!.key === properties.key);
-
-                if (activeAirspace) {
-                    return new Style({
-                        fill: new Fill({
-                            color: `rgba(${ activeAirspace.additionalData!.color }, 0.2)`,
-                        }),
-                        stroke: new Stroke({
-                            color: `rgba(${ activeAirspace.additionalData!.color }, 0.8)`,
-                            width: 1,
-                        }),
-                    });
-                }
-
-                return controlledStyle;
-            }
-
-            if (properties.type === 'restrictedAirspace') {
-                return restrictedStyle;
             }
         }
 

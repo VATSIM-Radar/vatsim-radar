@@ -1,6 +1,10 @@
 import type { Coordinate } from 'ol/coordinate';
 import type sqlite3 from 'sqlite3';
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
+import type { H3Error, H3Event } from 'h3';
+import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
+import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
+import { radarStorage } from '~/utils/backend/storage';
 
 export interface NavigraphNavDataVHF {
     airport: string | null;
@@ -148,8 +152,8 @@ export interface NavigraphNavData {
     approaches: NavDataProcedure<NavigraphNavDataApproach>;
     stars: NavDataProcedure<NavigraphNavDataStar>;
     sids: NavDataProcedure<NavigraphNavDataSid>;
-    restrictedAirspace: NavigraphNavDataRestrictedAirspace[];
-    controlledAirspace: NavigraphNavDataControlledAirspace[];
+    // restrictedAirspace: NavigraphNavDataRestrictedAirspace[];
+    // controlledAirspace: NavigraphNavDataControlledAirspace[];
 }
 
 export type NavigraphGetData<K extends keyof NavigraphNavData> = NavigraphNavData[K] extends Array<any> ? NavigraphNavData[K][0] : NavigraphNavData[K] extends object ? NavigraphNavData[K][keyof NavigraphNavData[K]] : never;
@@ -171,8 +175,6 @@ export interface NavigraphNavDataShort {
     approaches: NavDataProcedure<NavigraphNavDataApproach>;
     stars: NavDataProcedure<NavigraphNavDataStar>;
     sids: NavDataProcedure<NavigraphNavDataSid>;
-    restrictedAirspace: [type: string, designation: string, low: string, up: string, AirspaceCoordinate[], flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][];
-    controlledAirspace: [classification: string, low: string, up: string, AirspaceCoordinate[], flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][];
 }
 
 export async function processDatabase(db: sqlite3.Database) {
@@ -461,7 +463,7 @@ export async function processDatabase(db: sqlite3.Database) {
 
     // region Restricted Airspace
 
-    const restricted = await dbPartialRequest<{
+    /* const restricted = await dbPartialRequest<{
         arc_bearing: number;
         arc_distance: number;
         arc_origin_latitude: number;
@@ -530,13 +532,13 @@ export async function processDatabase(db: sqlite3.Database) {
         });
 
         shortData.restrictedAirspace.push([item.restrictive_type, item.restrictive_airspace_designation, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.boundaryVia, x.bearing, x.distance]), flightLevel]);
-    }
+    }*/
 
     // endregion Restricted Airspace
 
     // region Controlled Airspace
 
-    const controlled = await dbPartialRequest<{
+    /* const controlled = await dbPartialRequest<{
         airspace_center: string;
         airspace_classification: string;
         airspace_type: string;
@@ -610,7 +612,7 @@ export async function processDatabase(db: sqlite3.Database) {
         });
 
         shortData.controlledAirspace.push([item.airspace_classification, item.lower_limit, item.upper_limit, coordinates.map(x => [x.coordinate, x.boundaryVia, x.bearing, x.distance]), flightLevel]);
-    }
+    }*/
 
     // endregion Controlled Airspace
 
@@ -620,4 +622,41 @@ export async function processDatabase(db: sqlite3.Database) {
         full: fullData as NavigraphNavData,
         short: shortData as NavigraphNavDataShort,
     };
+}
+
+
+export async function getShortNavData(event: H3Event, type: 'current' | 'outdated') {
+    if (!await validateDataReady(event)) return;
+
+    if (type === 'current') {
+        const user = await findAndRefreshFullUserByCookie(event);
+
+        if (!user || !user.hasFms) {
+            return handleH3Error({
+                event,
+                statusCode: 403,
+                data: 'You must have Navigraph Data/Unlimited subscription to access this short data',
+            });
+        }
+    }
+
+    const requestedKeys = (getQuery(event).keys as string | undefined)?.split(',');
+    const data = radarStorage.navigraphData?.short[type];
+    if (!data) {
+        return handleH3Error({
+            event,
+            statusCode: 404,
+            data: 'Data not initialized',
+        });
+    }
+
+    if (!requestedKeys?.length) return data;
+
+    const newObj: Partial<NavigraphNavDataShort> = {};
+
+    for (const key in requestedKeys) {
+        // @ts-expect-error dynamic assigment
+        newObj[key] = data[key];
+    }
+    return newObj;
 }
