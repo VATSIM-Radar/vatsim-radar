@@ -91,7 +91,7 @@ links: [
     ]
   },
 {
-    avatar: '/logo.svg',
+    avatar: '/people/noah.jpg',
     name: 'Noah Elijah Till',
     title: 'Developer',
     desc: 'Developed ATC Bookings and other things',
