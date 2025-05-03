@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.0-alpha.1]
+
+- Changed design of booking page - especially in lightmode by MindCollaps
+
 # [1.1.2-2-final]
 
 - Added VATGlasses multiple controllers per position support
