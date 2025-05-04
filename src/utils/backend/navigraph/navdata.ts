@@ -1,7 +1,7 @@
 import type { Coordinate } from 'ol/coordinate';
 import type sqlite3 from 'sqlite3';
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
-import type { H3Error, H3Event } from 'h3';
+import type { H3Event } from 'h3';
 import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { radarStorage } from '~/utils/backend/storage';
@@ -93,18 +93,21 @@ export interface NavigraphNavDataAirportWaypoint extends NavigraphNavDataWaypoin
 
 export interface NavigraphNavDataApproach {
     airport: string;
-    procedure: string;
+    procedureName: string;
+    runway: string;
     transition: string | null;
     waypoints: NavigraphNavDataAirportWaypoint[];
-    turn: 'R' | 'L' | null;
+    missedApproach: NavigraphNavDataAirportWaypoint[];
 }
 
 export interface NavigraphNavDataStar {
     airport: string;
     identifier: string;
-    transition: 'ALL' | string | null;
+    /**
+     * @note null means show for all
+     */
+    runways: Array<string | null> | null;
     waypoints: NavigraphNavDataAirportWaypoint[];
-    turn: 'R' | 'L' | null;
 }
 
 export type NavigraphNavDataSid = NavigraphNavDataStar;
@@ -137,8 +140,21 @@ export interface NavigraphNavDataRestrictedAirspace {
 
 export type NavDataProcedure<T extends NavigraphNavDataApproach | NavigraphNavDataStar | NavigraphNavDataSid> = {
     procedure: Omit<T, 'waypoints'>;
-    waypoints: T['waypoints'][];
-}[];
+    transitions: T extends NavigraphNavDataApproach ? {
+        name: string;
+        waypoints: T['waypoints'];
+    }[] : {
+        runway: {
+            name: string;
+            waypoints: T['waypoints'];
+        }[];
+        enroute: {
+            name: string;
+            waypoints: T['waypoints'];
+        }[];
+    };
+    waypoints: T['waypoints'];
+};
 
 export interface NavigraphNavData {
     vhf: Record<string, NavigraphNavDataVHF>;
@@ -149,9 +165,9 @@ export interface NavigraphNavData {
         waypoints: NavigraphNavDataAirwayWaypoint[];
     }>;
     waypoints: NavigraphNavDataEnrouteWaypoint[];
-    approaches: NavDataProcedure<NavigraphNavDataApproach>;
-    stars: NavDataProcedure<NavigraphNavDataStar>;
-    sids: NavDataProcedure<NavigraphNavDataSid>;
+    approaches: Record<string, NavDataProcedure<NavigraphNavDataApproach>[]>;
+    stars: Record<string, NavDataProcedure<NavigraphNavDataStar>[]>;
+    sids: Record<string, NavDataProcedure<NavigraphNavDataSid>[]>;
     // restrictedAirspace: NavigraphNavDataRestrictedAirspace[];
     // controlledAirspace: NavigraphNavDataControlledAirspace[];
 }
@@ -172,9 +188,6 @@ export interface NavigraphNavDataShort {
     airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][]]>;
     parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number]>;
-    approaches: NavDataProcedure<NavigraphNavDataApproach>;
-    stars: NavDataProcedure<NavigraphNavDataStar>;
-    sids: NavDataProcedure<NavigraphNavDataSid>;
 }
 
 export async function processDatabase(db: sqlite3.Database) {
@@ -615,6 +628,470 @@ export async function processDatabase(db: sqlite3.Database) {
     }*/
 
     // endregion Controlled Airspace
+
+    // God forgive me for code duplicates below
+
+    // region SIDs
+
+    const sids = await dbPartialRequest<{
+        airport_identifier: string;
+        altitude_description: string;
+        altitude1: number;
+        altitude2: number;
+        arc_radius: number;
+        area_code: string;
+        authorization_required: string;
+        center_waypoint_icao_code: string;
+        center_waypoint_latitude: number;
+        center_waypoint_longitude: number;
+        center_waypoint_ref_table: string;
+        center_waypoint: string;
+        course_flag: string;
+        course: number;
+        distance_time: number;
+        path_termination: string;
+        procedure_identifier: string;
+        recommended_navaid_icao_code: string;
+        recommended_navaid_latitude: number;
+        recommended_navaid_longitude: number;
+        recommended_navaid_ref_table: string;
+        recommended_navaid: string;
+        rho: number;
+        rnp: number;
+        route_distance_holding_distance_time: string;
+        route_type: string;
+        seqno: number;
+        speed_limit_description: string;
+        speed_limit: number;
+        theta: number;
+        transition_altitude: number;
+        transition_identifier: string;
+        turn_direction: string;
+        vertical_angle: number;
+        waypoint_description_code: string;
+        waypoint_icao_code: string;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_ref_table: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_pd_sids',
+        table: 'tbl_pd_sids',
+    });
+
+    fullData.sids = {};
+
+    function buildWaypoint(item: typeof sids[0]): NavigraphNavDataAirportWaypoint {
+        const waypoint: NavigraphNavDataAirportWaypoint = {
+            identifier: item.waypoint_identifier,
+            coordinate: [item.waypoint_longitude, item.waypoint_latitude],
+            ref: item.waypoint_ref_table,
+            altitude: null,
+            altitude1: null,
+            altitude2: null,
+            speed: null,
+            speedLimit: item.speed_limit ?? null,
+        };
+
+        switch (item.altitude_description) {
+            case '+':
+                waypoint.altitude = 'above';
+                waypoint.altitude1 = item.altitude1;
+                break;
+            case '-':
+                waypoint.altitude = 'below';
+                waypoint.altitude1 = item.altitude1;
+                break;
+            case '@':
+                waypoint.altitude = 'equals';
+                waypoint.altitude1 = item.altitude1;
+                break;
+            case 'B':
+                waypoint.altitude = 'between';
+                waypoint.altitude1 = item.altitude1 > item.altitude2 ? item.altitude1 : item.altitude2;
+                waypoint.altitude2 = item.altitude1 > item.altitude2 ? item.altitude2 : item.altitude1;
+                break;
+            case 'C':
+                waypoint.altitude = 'above';
+                waypoint.altitude1 = item.altitude2;
+                break;
+            case 'G':
+            case 'I':
+            case 'X':
+                waypoint.altitude = 'equals';
+                waypoint.altitude1 = item.altitude1;
+                break;
+            case 'H':
+            case 'J':
+            case 'V':
+                waypoint.altitude = 'above';
+                waypoint.altitude1 = item.altitude1;
+                break;
+            case 'Y':
+                waypoint.altitude = 'below';
+                waypoint.altitude1 = item.altitude1;
+                break;
+        }
+
+        switch (item.speed_limit_description) {
+            case '@':
+                waypoint.speed = 'equals';
+                break;
+            case '+':
+                waypoint.speed = 'above';
+                break;
+            case '-':
+                waypoint.speed = 'below';
+                break;
+        }
+
+        return waypoint;
+    }
+
+    const allowedRoutes = ['1', '2', '3', '4', '5', '6'];
+
+    // key is airport-procedure here
+    const sidsList: Record<string, NavDataProcedure<NavigraphNavDataSid>> = {};
+
+    for (let i = 0; i < sids.length; i++) {
+        const item = sids[i];
+        const previousItem = sids[i - 1];
+        if ((previousItem && previousItem.seqno < item.seqno) || !allowedRoutes.includes(item.route_type)) continue;
+
+        const isRunwayTransition = item.route_type === '1' || item.route_type === '4';
+        const isDeparture = item.route_type === '2' || item.route_type === '5';
+        const isEnroute = item.route_type === '3' || item.route_type === '6';
+
+        let waypoints: NavigraphNavDataAirportWaypoint[] = [buildWaypoint(item)];
+
+        let k = i + 1;
+        let seqno = item.seqno;
+        let nextItem = sids[k];
+
+        while (nextItem && nextItem.seqno > seqno) {
+            waypoints.push(buildWaypoint(nextItem));
+            k++;
+            seqno = nextItem.seqno;
+            nextItem = sids[k];
+        }
+
+        waypoints = waypoints.filter(x => x.coordinate[0]);
+
+        let procedure = sidsList[`${ item.airport_identifier }-${ item.procedure_identifier }`];
+        if (!procedure) {
+            procedure = sidsList[`${ item.airport_identifier }-${ item.procedure_identifier }`] = { procedure: { runways: [] }, transitions: { runway: [], enroute: [] }, waypoints: [] } as unknown as NavDataProcedure<NavigraphNavDataSid>;
+        }
+
+        const transition = item.transition_identifier?.replace('RW', '');
+
+        if (item.transition_identifier?.startsWith('RW')) {
+            if (procedure.procedure.runways === null) procedure.procedure.runways = [null];
+
+            if (!procedure.procedure.runways.includes(transition)) procedure.procedure.runways.push(transition);
+        }
+
+        if (isRunwayTransition) {
+            procedure.transitions.runway.push({
+                name: transition ?? '',
+                waypoints,
+            });
+        }
+        else if (isEnroute) {
+            procedure.transitions.runway.push({
+                name: transition ?? waypoints[waypoints.length - 1].identifier,
+                waypoints,
+            });
+        }
+        else if (isDeparture) {
+            procedure.waypoints = waypoints;
+        }
+
+        procedure.procedure.airport ||= item.airport_identifier;
+        procedure.procedure.identifier ||= item.procedure_identifier;
+    }
+
+    for (const [key, value] of Object.entries(sidsList)) {
+        fullData.sids[key.split('-')[0]] ||= [];
+        fullData.sids[key.split('-')[0]].push(value);
+    }
+
+    // endregion SIDs
+
+    // region STARs
+
+    const stars = await dbPartialRequest<{
+        airport_identifier: string;
+        altitude_description: string;
+        altitude1: number;
+        altitude2: number;
+        arc_radius: number;
+        area_code: string;
+        authorization_required: string;
+        center_waypoint_icao_code: string;
+        center_waypoint_latitude: number;
+        center_waypoint_longitude: number;
+        center_waypoint_ref_table: string;
+        center_waypoint: string;
+        course_flag: string;
+        course: number;
+        distance_time: number;
+        path_termination: string;
+        procedure_identifier: string;
+        recommended_navaid_icao_code: string;
+        recommended_navaid_latitude: number;
+        recommended_navaid_longitude: number;
+        recommended_navaid_ref_table: string;
+        recommended_navaid: string;
+        rho: number;
+        rnp: number;
+        route_distance_holding_distance_time: string;
+        route_type: string;
+        seqno: number;
+        speed_limit_description: string;
+        speed_limit: number;
+        theta: number;
+        transition_altitude: number;
+        transition_identifier: string;
+        turn_direction: string;
+        vertical_angle: number;
+        waypoint_description_code: string;
+        waypoint_icao_code: string;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_ref_table: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_pe_stars',
+        table: 'tbl_pe_stars',
+    });
+
+    fullData.stars = {};
+
+    const starAllowedRoutes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    // key is airport-procedure here
+    const starsList: Record<string, NavDataProcedure<NavigraphNavDataStar>> = {};
+
+    for (let i = 0; i < stars.length; i++) {
+        const item = stars[i];
+        const previousItem = stars[i - 1];
+        if ((previousItem && previousItem.seqno < item.seqno) || !starAllowedRoutes.includes(item.route_type)) continue;
+
+        const isRunwayTransition = item.route_type === '3' || item.route_type === '6' || item.route_type === '9';
+        const isStar = item.route_type === '2' || item.route_type === '5' || item.route_type === '8';
+        const isEnroute = item.route_type === '1' || item.route_type === '4' || item.route_type === '7';
+
+        let waypoints: NavigraphNavDataAirportWaypoint[] = [buildWaypoint(item)];
+
+        let k = i + 1;
+        let seqno = item.seqno;
+        let nextItem = stars[k];
+
+        while (nextItem && nextItem.seqno > seqno) {
+            waypoints.push(buildWaypoint(nextItem));
+            k++;
+            seqno = nextItem.seqno;
+            nextItem = stars[k];
+        }
+
+        waypoints = waypoints.filter(x => x.coordinate[0]);
+
+        let procedure = starsList[`${ item.airport_identifier }-${ item.procedure_identifier }`];
+        if (!procedure) {
+            procedure = starsList[`${ item.airport_identifier }-${ item.procedure_identifier }`] = { procedure: { runways: [] }, transitions: { runway: [], enroute: [] }, waypoints: [] } as unknown as NavDataProcedure<NavigraphNavDataStar>;
+        }
+
+        const transition = item.transition_identifier?.replace('RW', '');
+
+        if (item.transition_identifier?.startsWith('RW')) {
+            if (procedure.procedure.runways === null) procedure.procedure.runways = [null];
+
+            if (!procedure.procedure.runways.includes(transition)) procedure.procedure.runways.push(transition);
+        }
+
+        if (isRunwayTransition) {
+            procedure.transitions.runway.push({
+                name: transition ?? '',
+                waypoints,
+            });
+        }
+        else if (isEnroute) {
+            procedure.transitions.runway.push({
+                name: transition ?? waypoints[waypoints.length - 1].identifier,
+                waypoints,
+            });
+        }
+        else if (isStar) {
+            procedure.waypoints = waypoints;
+        }
+
+        procedure.procedure.airport ||= item.airport_identifier;
+        procedure.procedure.identifier ||= item.procedure_identifier;
+    }
+
+    for (const [key, value] of Object.entries(starsList)) {
+        fullData.stars[key.split('-')[0]] ||= [];
+        fullData.stars[key.split('-')[0]].push(value);
+    }
+
+    // endregion STARs
+
+    // region IAPs
+
+    const iaps = await dbPartialRequest<{
+        airport_identifier: string;
+        altitude_description: string;
+        altitude1: number;
+        altitude2: number;
+        arc_radius: number;
+        area_code: string;
+        authorization_required: string;
+        center_waypoint_icao_code: string;
+        center_waypoint_latitude: number;
+        center_waypoint_longitude: number;
+        center_waypoint_ref_table: string;
+        center_waypoint: string;
+        course_flag: string;
+        course: number;
+        distance_time: number;
+        gnss_fms_indication: string;
+        lnav_authorized_sbas: string;
+        lnav_level_service_name: string;
+        lnav_vnav_authorized_sbas: string;
+        lnav_vnav_level_service_name: string;
+        path_termination: string;
+        procedure_identifier: string;
+        recommended_navaid_icao_code: string;
+        recommended_navaid_latitude: number;
+        recommended_navaid_longitude: number;
+        recommended_navaid_ref_table: string;
+        recommended_navaid: string;
+        rho: number;
+        rnp: number;
+        route_distance_holding_distance_time: string;
+        route_type: string;
+        seqno: number;
+        speed_limit_description: string;
+        speed_limit: number;
+        theta: number;
+        transition_altitude: number;
+        transition_identifier: string;
+        turn_direction: string;
+        vertical_angle: number;
+        waypoint_description_code: string;
+        waypoint_icao_code: string;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_ref_table: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_pf_iaps',
+        table: 'tbl_pf_iaps',
+    });
+
+    fullData.approaches = {};
+
+    const approachNames: Record<string, string> = {
+        B: 'LOC (Back crs)',
+        D: 'VOR DME',
+        F: 'FMS',
+        G: 'IGS',
+        I: 'ILS',
+        J: 'GLS',
+        L: 'LOC',
+        M: 'MLS',
+        N: 'NDB',
+        P: 'GPS',
+        Q: 'NDB DME',
+        R: 'RNAV',
+        S: 'VOR (DME/TAC)',
+        T: 'TACAN',
+        U: 'SDF',
+        V: 'VOR',
+        W: 'MLS Type A',
+        X: 'LDA',
+        Y: 'MLS Type B/C',
+    };
+
+    const runwayRegex = /(?<runway>[0-9]{2}([RLC])?)(?<suffix>[A-Z]+)?/;
+
+    // key is airport-approach here
+    const approachList: Record<string, NavDataProcedure<NavigraphNavDataApproach>> = {};
+
+    for (let i = 0; i < iaps.length; i++) {
+        const item = iaps[i];
+        const previousItem = iaps[i - 1];
+        if ((previousItem && previousItem.seqno < item.seqno) || item.route_type === 'Z') continue;
+
+        let waypoints: NavigraphNavDataAirportWaypoint[] = [buildWaypoint(item)];
+        let missedApproach: NavigraphNavDataAirportWaypoint[] = [];
+
+        const isTransition = item.route_type === 'A';
+
+        let k = i + 1;
+        let seqno = item.seqno;
+        let nextItem = iaps[k];
+        let isMissedApproach = false;
+
+        while (nextItem && nextItem.seqno > seqno) {
+            if (!isMissedApproach && nextItem.waypoint_description_code && (nextItem.waypoint_description_code[3] === 'M' || nextItem.waypoint_description_code[4] === 'M')) {
+                isMissedApproach = true;
+            }
+
+            if (isMissedApproach) {
+                missedApproach.push(buildWaypoint(nextItem));
+            }
+            else {
+                waypoints.push(buildWaypoint(nextItem));
+            }
+
+            k++;
+            seqno = nextItem.seqno;
+            nextItem = iaps[k];
+        }
+
+        waypoints = waypoints.filter(x => x.coordinate[0]);
+        missedApproach = missedApproach.filter(x => x.coordinate[0]);
+
+        const regex = runwayRegex.exec(item.procedure_identifier)?.groups;
+        const runway = regex?.runway;
+        const suffix = regex?.suffix;
+        if (!runway) continue;
+
+        let procedure = approachList[`${ item.airport_identifier }-${ item.procedure_identifier }`];
+        if (!procedure) {
+            procedure = approachList[`${ item.airport_identifier }-${ item.procedure_identifier }`] = { procedure: { missedApproach: [] }, transitions: [], waypoints: [] } as unknown as NavDataProcedure<NavigraphNavDataApproach>;
+        }
+
+        if (isTransition) {
+            procedure.transitions.push({
+                name: item.transition_identifier,
+                waypoints,
+            });
+        }
+        else {
+            procedure.waypoints = waypoints;
+            procedure.procedure.missedApproach = missedApproach;
+
+            procedure.procedure = {
+                airport: item.airport_identifier,
+                procedureName: `${ approachNames[item.route_type] ?? 'Unknown' }${ suffix ? ` ${ suffix }` : '' }`,
+                runway,
+                transition: item.transition_identifier ?? null,
+                missedApproach,
+            };
+        }
+    }
+
+    for (const [key, value] of Object.entries(approachList)) {
+        fullData.approaches[key.split('-')[0]] ||= [];
+        fullData.approaches[key.split('-')[0]].push(value);
+    }
+
+    // endregion IAPs
 
     console.timeEnd('navigraph get');
 

@@ -197,7 +197,7 @@ async function patreonTask() {
 async function navigraphTask() {
     const data = (await getRedisData('navigraph-data'));
 
-    if (!data || data.versions.current !== radarStorage.navigraph.current || process.env.NODE_ENV === 'development') {
+    if (!data || data.versions.current !== radarStorage.navigraph.current || data.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
         const current = await processDatabase(navigraphCurrentDb!);
         const outdated = await processDatabase(navigraphOutdatedDb!);
 
