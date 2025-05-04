@@ -15,7 +15,7 @@ export default defineEventHandler(async event => {
             features.push({
                 type: 'Feature',
                 properties: {
-                    stroke: 'blue',
+                    stroke: 'purple',
                     name: x.procedure.procedureName,
                     runway: x.procedure.runway,
                 },

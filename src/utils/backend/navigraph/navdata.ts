@@ -631,6 +631,35 @@ export async function processDatabase(db: sqlite3.Database) {
 
     // God forgive me for code duplicates below
 
+    const runways = await dbPartialRequest<{
+        airport_identifier: string;
+        runway_identifier: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_pg_runways',
+        table: 'tbl_pg_runways',
+    });
+
+    const runwaysByAirport: Record<string, string[]> = {};
+
+    // TODO: use for start/end of every approach/sid
+    for (const runway of runways) {
+        runwaysByAirport[runway.airport_identifier] ||= [];
+        runwaysByAirport[runway.airport_identifier].push(runway.runway_identifier.replace('RW', ''));
+    }
+
+    function addRunwaysBasedOnData(airport: string, runway: string, runways: any[]) {
+        if (!runwaysByAirport[airport]) runways.push(runway);
+        else if (runway === 'ALL') {
+            runways.push(...runwaysByAirport[airport]);
+        }
+        else if (!runway.endsWith('B')) runways.push(runway);
+        else {
+            const list = runwaysByAirport[airport].filter(x => runway.startsWith(x.slice(0, 2)));
+            runways.push(...list);
+        }
+    }
+
     // region SIDs
 
     const sids = await dbPartialRequest<{
@@ -785,10 +814,10 @@ export async function processDatabase(db: sqlite3.Database) {
 
         const transition = item.transition_identifier?.replace('RW', '');
 
-        if (item.transition_identifier?.startsWith('RW')) {
+        if (item.transition_identifier?.startsWith('RW') || item.transition_identifier === 'ALL') {
             if (procedure.procedure.runways === null) procedure.procedure.runways = [null];
 
-            if (!procedure.procedure.runways.includes(transition)) procedure.procedure.runways.push(transition);
+            addRunwaysBasedOnData(item.airport_identifier, transition, procedure.procedure.runways);
         }
 
         if (isRunwayTransition) {
@@ -905,10 +934,10 @@ export async function processDatabase(db: sqlite3.Database) {
 
         const transition = item.transition_identifier?.replace('RW', '');
 
-        if (item.transition_identifier?.startsWith('RW')) {
+        if (item.transition_identifier?.startsWith('RW') || item.transition_identifier === 'ALL') {
             if (procedure.procedure.runways === null) procedure.procedure.runways = [null];
 
-            if (!procedure.procedure.runways.includes(transition)) procedure.procedure.runways.push(transition);
+            addRunwaysBasedOnData(item.airport_identifier, transition, procedure.procedure.runways);
         }
 
         if (isRunwayTransition) {
