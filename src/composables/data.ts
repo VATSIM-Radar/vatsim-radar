@@ -25,7 +25,8 @@ import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } fro
 import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
-import type { NavigraphGetData, NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
+
+import type { NavigraphGetData, NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();

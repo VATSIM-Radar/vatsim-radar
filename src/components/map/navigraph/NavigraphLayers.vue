@@ -122,7 +122,6 @@ import { Fill, Style, Text, Icon, Stroke, Circle } from 'ol/style';
 import { getCurrentThemeRgbColor } from '~/composables';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate';
-import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata';
 import { useStore } from '~/store';
 import NavigraphAirways from '~/components/map/navigraph/NavigraphAirways.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
@@ -130,6 +129,7 @@ import CircleStyle from 'ol/style/Circle';
 import type { FeatureLike } from 'ol/Feature';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
+import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;

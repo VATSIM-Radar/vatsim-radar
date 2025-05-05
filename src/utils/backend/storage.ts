@@ -13,7 +13,8 @@ import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
 import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
-import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
+
+import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {

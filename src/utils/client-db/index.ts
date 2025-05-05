@@ -6,7 +6,8 @@ import type {
     SimAwareAPIData,
     VatglassesAPIData,
 } from '~/utils/backend/storage';
-import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata';
+
+import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
 
 interface VatSpyData {
     key: 'vatspy';

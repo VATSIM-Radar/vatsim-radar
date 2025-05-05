@@ -1,7 +1,8 @@
 import { radarStorage } from '~/utils/backend/storage';
 import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
-import type { NavigraphNavData } from '~/utils/backend/navigraph/navdata';
+
+import type { NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
 
 export default defineEventHandler(async event => {
     if (!await validateDataReady(event)) return;
