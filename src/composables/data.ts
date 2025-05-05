@@ -14,7 +14,7 @@ import type {
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import type { IDBAirlinesData } from '~/utils/client-db';
+import type { ClientNavigraphData, IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import { useMapStore } from '~/store/map';
 import { checkForWSData } from '~/composables/ws';
@@ -26,8 +26,12 @@ import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
 
+import type { NavigraphGetData, NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
+const navigraph = shallowRef<UseDataStore['navigraph']['data'] | null>(null);
+const navigraphVersion = ref<string | null>(null);
 const airlines = shallowRef<RadarDataAirlinesAllList>({
     airlines: {},
     virtual: {},
@@ -129,6 +133,10 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
+    navigraph: {
+        version: Ref<string | null>;
+        data: ShallowRef<ClientNavigraphData | null>;
+    };
 }
 
 const dataStore: UseDataStore = {
@@ -145,6 +153,10 @@ const dataStore: UseDataStore = {
     time,
     sigmets,
     airlines,
+    navigraph: {
+        version: navigraphVersion,
+        data: navigraph,
+    },
 };
 
 export const vgFallbackKeys = computed(() => Object.keys(vatglassesActivePositions.value['fallback']));
@@ -341,6 +353,29 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 dataStore.vatspy.value = vatspy;
             }()),
             (async function() {
+                let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
+                if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated']) {
+                    const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }`);
+
+                    fetchedData.parsedAirways = {};
+
+                    for (const [airway, data] of Object.entries(fetchedData.airways)) {
+                        const identifier = data[0];
+                        if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
+                        fetchedData.parsedAirways[identifier][airway] = data;
+                    }
+
+                    navigraph = {
+                        version: dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated'] ?? '',
+                        data: fetchedData as ClientNavigraphData,
+                    };
+                    await clientDB.put('data', navigraph, 'navigraph');
+                }
+
+                dataStore.navigraph.version.value = navigraph.version;
+                dataStore.navigraph.data.value = navigraph.data;
+            }()),
+            (async function() {
                 let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
                 if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
                     const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
@@ -441,4 +476,12 @@ export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | Vatsi
 
     if (type === 'atc') return getAtcStats(data as VatsimShortenedController, stats);
     return Math.floor(stats.pilot ?? 0);
+}
+
+export async function getNavigraphData<T extends keyof NavigraphNavData>({ data, key }: {
+    data: T;
+    key: string;
+}): Promise<NavigraphGetData<T>> {
+    const store = useStore();
+    return $fetch<NavigraphGetData<T>>(`/api/data/navigraph/item/${ store.user?.hasFms && store.user.hasCharts ? 'current' : 'outdated' }/${ data }/${ key }`);
 }

@@ -1,0 +1,170 @@
+import { dbPartialRequest } from '~/utils/backend/navigraph/db';
+import type { NavDataFlightLevel, NavdataProcessFunction } from '~/utils/backend/navigraph/navdata/types';
+
+export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData, shortData, db }) => {
+    const holdings = await dbPartialRequest<{
+        area_code: string;
+        duplicate_identifier: number;
+        holding_name: string;
+        holding_speed: number;
+        icao_code: string;
+        inbound_holding_course: number;
+        leg_length: number;
+        leg_time: number;
+        maximum_altitude: number;
+        minimum_altitude: number;
+        region_code: string;
+        turn_direction: string;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_ref_table: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_ep_holdings',
+        table: 'tbl_ep_holdings',
+    });
+
+    fullData.holdings = {};
+    shortData.holdings = {};
+
+    for (const item of holdings) {
+        const key = `${ item.icao_code }-${ item.waypoint_identifier }-${ item.area_code }-${ item.region_code }`;
+
+        fullData.holdings[key] = {
+            name: item.holding_name,
+            speed: item.holding_speed,
+            icaoCode: item.icao_code,
+            inboundCourse: item.inbound_holding_course,
+            legLength: item.leg_length,
+            legTime: item.leg_time,
+            maxAlt: item.maximum_altitude,
+            minAlt: item.minimum_altitude,
+            region: item.region_code,
+            turns: item.turn_direction as 'R' | 'L',
+            waypoint: {
+                identifier: item.waypoint_identifier,
+                coordinate: [item.waypoint_longitude, item.waypoint_latitude],
+                ref: item.waypoint_ref_table,
+            },
+        };
+
+        shortData.holdings[key] = [item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code];
+    }
+};
+
+export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData, shortData, db }) => {
+    const waypoints = await dbPartialRequest<{
+        area_code: string;
+        continent: string;
+        country: string;
+        datum_code: string;
+        icao_code: string;
+        magnetic_variation: number;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_name: string;
+        waypoint_type: string;
+        waypoint_usage: string;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_ea_enroute_waypoints',
+        table: 'tbl_ea_enroute_waypoints',
+    });
+
+    fullData.waypoints = [];
+    shortData.waypoints = {};
+
+    for (const item of waypoints) {
+        fullData.waypoints.push({
+            identifier: item.waypoint_identifier,
+            coordinate: [item.waypoint_longitude, item.waypoint_latitude],
+            type: item.waypoint_type,
+            usage: item.waypoint_usage,
+        });
+
+        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude];
+    }
+};
+
+const flightLevels: NavDataFlightLevel[] = ['H', 'L', 'B'];
+
+function getFlightLevel(data: string): NavDataFlightLevel {
+    if (flightLevels.includes(data as NavDataFlightLevel)) return data as NavDataFlightLevel;
+    return 'B';
+}
+
+export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, shortData, db }) => {
+    const airways = await dbPartialRequest<{
+        area_code: string;
+        // crusing_table_identifier: string;
+        // direction_restriction: string;
+        flightlevel: string;
+        icao_code: string;
+        inbound_course: number;
+        inbound_distance: number;
+        maximum_altitude: number;
+        minimum_altitude1: number;
+        minimum_altitude2: number;
+        outbound_course: number;
+        // route_identifier_postfix: string;
+        route_identifier: string;
+        route_type: string;
+        seqno: number;
+        waypoint_description_code: string;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_ref_table: string;
+    }>({
+        db,
+        sql: 'SELECT area_code, flightlevel, icao_code, inbound_course, inbound_distance, maximum_altitude, minimum_altitude1, minimum_altitude2, outbound_course, route_identifier, route_type, seqno, waypoint_description_code, waypoint_identifier, waypoint_latitude, waypoint_longitude, waypoint_ref_table FROM tbl_er_enroute_airways',
+        table: 'tbl_er_enroute_airways',
+    });
+
+    fullData.airways = {};
+    shortData.airways = {};
+
+    for (const airway of airways) {
+        const key = `${ airway.route_identifier }-${ airway.area_code }-${ airway.route_type }`;
+        let objectAirway = fullData.airways[key];
+        let shortAirway = shortData.airways[key];
+
+        if (Math.abs(objectAirway?.waypoints[objectAirway?.waypoints.length - 1].seqno - airway.seqno) > 20) continue;
+
+        if (!objectAirway) {
+            objectAirway = {
+                airway: {
+                    icaoCode: airway.icao_code,
+                    areaCode: airway.area_code,
+                    identifier: airway.route_identifier,
+                    type: airway.route_type,
+                },
+                waypoints: [],
+            };
+
+            fullData.airways[key] = objectAirway;
+        }
+
+        if (!shortAirway) {
+            shortAirway = [airway.route_identifier, airway.route_type, []];
+            shortData.airways[key] = shortAirway;
+        }
+
+        const flightLevel = getFlightLevel(airway.flightlevel);
+
+        objectAirway.waypoints.push({
+            identifier: airway.waypoint_identifier,
+            coordinate: [airway.waypoint_longitude, airway.waypoint_latitude],
+            ref: airway.waypoint_ref_table,
+            minAlt: airway.minimum_altitude1,
+            maxAlt: airway.maximum_altitude,
+            inbound: airway.inbound_course,
+            outbound: airway.outbound_course,
+            seqno: airway.seqno,
+            flightLevel,
+        });
+        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel]);
+    }
+};

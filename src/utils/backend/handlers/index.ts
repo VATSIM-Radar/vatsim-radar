@@ -1,5 +1,6 @@
 import { colorsList } from '~/utils/backend/styles';
 import { hexColorRegex, isObject } from '~/utils/shared';
+import type { PartialRecord } from '~/types';
 
 const colors = Object.keys(colorsList);
 
@@ -33,8 +34,9 @@ export function validateColor(color: unknown, asString = false): boolean {
     return true;
 }
 
-export function validateRandomObjectKeys(object: Record<string, unknown>, allowedKeys: string[]): boolean {
+export function validateRandomObjectKeys<T extends string>(object: Record<string, unknown>, allowedKeys: T[]): object is PartialRecord<T, unknown> {
     for (const key in object) {
+        // @ts-expect-error dynamic check
         if (!allowedKeys.includes(key)) return false;
     }
 

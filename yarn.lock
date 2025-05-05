@@ -5,6 +5,22 @@ __metadata:
   version: 8
   cacheKey: 10c0
 
+"7zip-bin@npm:5.1.1":
+  version: 5.1.1
+  resolution: "7zip-bin@npm:5.1.1"
+  checksum: 10c0/528db0d93d8a1de62e12624570f49c733e707606602a48be211b2186b6453903b61c659bcc919bfbb021029157af06f43d5017b628fff2a1e66d0190b26eea0e
+  languageName: node
+  linkType: hard
+
+"7zip-min@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "7zip-min@npm:2.0.0"
+  dependencies:
+    7zip-bin: "npm:5.1.1"
+  checksum: 10c0/e65ec8955240651fa0b4730df469112f1554a431bd947732140a11ea408a9cc63246a339c1e426ec7cf7a99def04e27728c11ae46b13f36d5f8c73f6c9253741
+  languageName: node
+  linkType: hard
+
 "@algolia/autocomplete-core@npm:1.17.7":
   version: 1.17.7
   resolution: "@algolia/autocomplete-core@npm:1.17.7"
@@ -4914,6 +4930,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/circle@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/circle@npm:7.2.0"
+  dependencies:
+    "@turf/destination": "npm:^7.2.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/0327fd8a73009239d5da7816b75ba4d03c85e1b2fe132578f9d857dd7d5cbb46632b7a34fb80db0d5e2a0007bb31ad34d2e5c22d53822a3520babf79b4054a18
+  languageName: node
+  linkType: hard
+
+"@turf/destination@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/destination@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/64ca7562d081a3bc9000d7b08a417577a9d5431e91b002f39e771df4c0f8b323becbff2bddaadd414069e7fe8704c7ae1880c4d6cb5c140d3333fba2b65bd6e0
+  languageName: node
+  linkType: hard
+
 "@turf/difference@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/difference@npm:7.2.0"
@@ -4995,6 +5035,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/line-arc@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/line-arc@npm:7.2.0"
+  dependencies:
+    "@turf/circle": "npm:^7.2.0"
+    "@turf/destination": "npm:^7.2.0"
+    "@turf/helpers": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/e614968c674db5af4088dac44f83a5479a20ee47f4aa3f3e24785fe8b5876d647905fe8558f59adef38bbf1c1da5e33a31acb5d2868bd86533b73b2a04b79626
+  languageName: node
+  linkType: hard
+
 "@turf/line-intersect@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/line-intersect@npm:7.2.0"
@@ -5028,18 +5081,6 @@ __metadata:
     "@types/geojson": "npm:^7946.0.10"
     tslib: "npm:^2.8.1"
   checksum: 10c0/2a2236612db6adbd75337fa35ee89a2acad2897f18f34a55a736bcf313c3d2d1887aa17390580945985e6bc302dce772fd1ed2ce36b1cc299ca48a80ddc2de6e
-  languageName: node
-  linkType: hard
-
-"@turf/truncate@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "@turf/truncate@npm:7.2.0"
-  dependencies:
-    "@turf/helpers": "npm:^7.2.0"
-    "@turf/meta": "npm:^7.2.0"
-    "@types/geojson": "npm:^7946.0.10"
-    tslib: "npm:^2.8.1"
-  checksum: 10c0/360ea658a0bf1aa736ac08d346f6801dea16126a0da9edc5cce985f1af90089aefff48ecc79a4d1de3c40cccf20d3402fd3d37e371f7f3223a14a9efb479608f
   languageName: node
   linkType: hard
 
@@ -17849,6 +17890,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vatsim-radar@workspace:."
   dependencies:
+    7zip-min: "npm:^2.0.0"
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
@@ -17866,10 +17908,10 @@ __metadata:
     "@turf/helpers": "npm:^7.2.0"
     "@turf/intersect": "npm:^7.2.0"
     "@turf/kinks": "npm:^7.2.0"
+    "@turf/line-arc": "npm:^7.2.0"
     "@turf/line-intersect": "npm:^7.2.0"
     "@turf/meta": "npm:^7.2.0"
     "@turf/nearest-point-on-line": "npm:^7.2.0"
-    "@turf/truncate": "npm:^7.2.0"
     "@turf/union": "npm:^7.2.0"
     "@types/adm-zip": "npm:^0.5.7"
     "@types/deep-equal": "npm:^1.0.4"

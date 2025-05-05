@@ -10,7 +10,7 @@ import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/bac
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { initWebsocket, wss } from '~/utils/backend/vatsim/ws';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { initNavigraph } from '~/utils/backend/navigraph/db';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
@@ -74,8 +74,10 @@ let data: VatsimData | null = null;
 let shortBars: BARSShort = {};
 
 await defineCronJob('*/10 * * * * *', async () => {
-    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch();
+    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch(() => {});
     shortBars = {};
+
+    if (!data) return;
 
     for (const stopbar of data.stopbars ?? []) {
         try {
