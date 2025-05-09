@@ -23,6 +23,7 @@ import { prisma } from '~/utils/backend/prisma';
 import { sleep } from '~/utils';
 import { isDebug } from '~/utils/backend/debug';
 import { watch } from 'chokidar';
+import { getHzFrequency } from '~/utils/backend/vatsim';
 
 const redisSubscriber = getRedis();
 
@@ -78,6 +79,24 @@ function vatsimTasks() {
     defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
     defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
     defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
+    defineCronJob('*/15 * * * * *', async () => {
+        const vnasData = await $fetch<Record<string, any>>('https://live.env.vnas.vatsim.net/data-feed/controllers.json');
+
+        radarStorage.vatsim.vnas = vnasData.controllers.map((x: any) => ({
+            cid: +x.vatsimData.cid,
+            primaryPosition: x.vatsimData.callsign,
+            primaryFrequency: getHzFrequency(x.vatsimData.primaryFrequency),
+            isActive: x.isActive,
+            isObserver: x.isObserver,
+            positions: x.positions.map((x: any) => ({
+                name: x.radioName,
+                callsign: x.defaultCallsign,
+                frequency: getHzFrequency(x.frequency),
+                isPrimary: x.isPrimary,
+                isActive: x.isActive,
+            })),
+        }));
+    }).catch(console.error);
 }
 
 let s3: S3 | undefined;

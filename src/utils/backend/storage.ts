@@ -191,6 +191,22 @@ export interface BARSShortItem {
 
 export type BARSShort = Record<string, BARSShortItem[]>;
 
+export interface VNASController {
+    cid: number;
+    primaryPosition: string;
+    // Expressed in Hz. Set to 199998000 if inactive.
+    primaryFrequency: string;
+    isActive: boolean;
+    isObserver: boolean;
+    positions?: {
+        name: string;
+        callsign: string;
+        frequency: string;
+        isPrimary: boolean;
+        isActive: boolean;
+    }[];
+}
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -206,6 +222,7 @@ export interface VatsimStorage {
         atc: Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>;
         prefiles: Array<Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
     };
+    vnas: VNASController[];
 }
 
 export interface RadarStorage {
@@ -279,6 +296,7 @@ export const radarStorage: RadarStorage = {
             atc: [],
             prefiles: [],
         },
+        vnas: [],
     },
     navigraph: {
         current: '',
