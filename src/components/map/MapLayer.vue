@@ -83,7 +83,15 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
 
 const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
+const route = useRoute();
+
 const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
+    if (route.path.startsWith('/data') && route.path.endsWith('/compare')) {
+        return {
+            url: 'basic',
+        };
+    }
+
     let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
