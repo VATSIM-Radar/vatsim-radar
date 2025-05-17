@@ -235,6 +235,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
@@ -276,6 +277,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';

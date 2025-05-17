@@ -7,6 +7,8 @@ import type {
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 
+import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+
 interface VatSpyData {
     key: 'vatspy';
     value: VatSpyAPIData;
@@ -30,8 +32,18 @@ export interface IDBAirlinesData {
     };
 }
 
+export type ClientNavigraphData = Omit<Required<NavigraphNavDataShort>, 'stars' | 'sids' | 'approaches'>;
+
+export interface IDBNavigraphData {
+    key: 'navigraph';
+    value: {
+        version: string;
+        data: ClientNavigraphData;
+    };
+}
+
 interface ClientDB extends DBSchema {
-    data: VatSpyData | SimAwareData | VatglassesData | IDBAirlinesData;
+    data: VatSpyData | SimAwareData | VatglassesData | IDBAirlinesData | IDBNavigraphData;
 }
 
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
