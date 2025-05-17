@@ -196,6 +196,9 @@ export default defineNuxtConfig({
             dir: 'ltr',
             lang: 'en',
             handle_links: 'not-preferred',
+            edge_side_panel: {
+                preferred_width: 400,
+            },
             icons: [
                 {
                     src: 'android-chrome-192x192.png',
