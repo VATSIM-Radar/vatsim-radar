@@ -60,7 +60,7 @@
     "metar-taf-parser": "^9.1.2",
     "nuxt": "3.17.2",
     "ol": "^10.5.0",
-    "ol-mapbox-style": "^12.6.1",
+    "ol-mapbox-style": "^13.0.1",
     "pinia": "^3.0.2",
     "prisma": "^6.8.2",
     "sharp": "^0.34.1",
