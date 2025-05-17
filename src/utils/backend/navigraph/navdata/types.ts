@@ -176,9 +176,9 @@ export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string]>;
-    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel']][]]>;
+    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavigraphNavDataAirwayWaypoint['flightLevel'], type?: string][]]>;
     parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
-    waypoints: Record<string, [identifier: string, longitude: number, latitude: number]>;
+    waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string]>;
 }
 
 export type NavdataProcessFunction = (settings: {

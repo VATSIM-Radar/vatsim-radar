@@ -54,6 +54,9 @@ export async function processDatabase(db: sqlite3.Database) {
 
     console.timeLog('navigraph get', 'runways');
 
+    await processNavdataWaypoints(settings);
+    console.timeLog('navigraph get', 'waypoints');
+
     await processNavdataVHF(settings);
     console.timeLog('navigraph get', 'vhf');
 
@@ -62,9 +65,6 @@ export async function processDatabase(db: sqlite3.Database) {
 
     await processNavdataHoldings(settings);
     console.timeLog('navigraph get', 'holdings');
-
-    await processNavdataWaypoints(settings);
-    console.timeLog('navigraph get', 'waypoints');
 
     await processNavdataAirways(settings);
     console.timeLog('navigraph get', 'airways');
@@ -116,7 +116,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
 
     const newObj: Partial<NavigraphNavDataShort> = {};
 
-    for (const key in requestedKeys) {
+    for (const key of requestedKeys) {
         // @ts-expect-error dynamic assigment
         newObj[key] = data[key];
     }

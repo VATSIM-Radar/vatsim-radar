@@ -8,6 +8,7 @@
         <div class="app_content">
             <client-only>
                 <view-update-popup v-if="!hasObs()"/>
+                <view-init-popup v-if="store.initStatus.status"/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
@@ -174,6 +175,7 @@ import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
 import * as Sentry from '@sentry/nuxt';
 import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
+import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 
 defineSlots<{ default: () => any }>();
 

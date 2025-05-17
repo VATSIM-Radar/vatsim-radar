@@ -88,7 +88,7 @@
                     <template v-else-if="activeFeature && isHolding(activeFeature)">
                         <div
                             v-for="field in ([
-                                ['Speed', activeFeature.data.speed],
+                                ['Max Speed', activeFeature.data.speed],
                                 ['Inbound Course', activeFeature.data.inboundCourse],
                                 ['Leg length', activeFeature.data.legLength],
                                 ['Leg time', activeFeature.data.legTime],

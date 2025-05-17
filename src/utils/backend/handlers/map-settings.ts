@@ -208,12 +208,14 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     navigraphData: val => {
         if (!isObject(val)) return false;
-        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways'])) return false;
+        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
 
         if ('ndb' in val && typeof val.ndb !== 'boolean') return false;
         if ('vordme' in val && typeof val.vordme !== 'boolean') return false;
         if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
         if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
+        if ('isModeAuto' in val && typeof val.isModeAuto !== 'boolean') return false;
+        if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr') return false;
         if ('airways' in val) {
             if (!isObject(val.airways)) return false;
             if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
@@ -299,6 +301,8 @@ export interface IUserMapSettings {
         vordme: boolean;
         waypoints: boolean;
         holdings: boolean;
+        mode: 'ifr' | 'vfr';
+        isModeAuto: boolean;
         airways: Partial<{
             enabled: boolean;
             showAirwaysLabel: boolean;

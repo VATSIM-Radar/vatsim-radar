@@ -8,9 +8,7 @@ import { Feature } from 'ol';
 import { LineString } from 'ol/geom';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
-import { toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
-import lineArc from '@turf/line-arc';
 
 defineSlots<{ default: () => any }>();
 

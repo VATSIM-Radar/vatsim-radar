@@ -84,7 +84,7 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
             usage: item.waypoint_usage,
         });
 
-        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude];
+        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type];
     }
 };
 
@@ -165,6 +165,9 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
             seqno: airway.seqno,
             flightLevel,
         });
-        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel]);
+
+        const waypoint = shortData.waypoints?.[`${ airway.waypoint_identifier }-${ airway.area_code }`];
+
+        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel, waypoint?.[3]]);
     }
 };

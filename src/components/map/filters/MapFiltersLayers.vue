@@ -138,6 +138,46 @@
                 </span>
             </div>
         </template>
+        <template v-else-if="tab === 'navigraph'">
+            <div class="__section-group __section-group--even">
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.ndb"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { ndb: $event } })"
+                >
+                    NDB
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.vordme"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { vordme: $event } })"
+                >
+                    VORDME
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.waypoints"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { waypoints: $event } })"
+                >
+                    Waypoints
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.holdings"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { holdings: $event } })"
+                >
+                    Holdings
+                </common-toggle>
+                <common-toggle
+                    v-if="store.user"
+                    :model-value="store.mapSettings.navigraphData?.isModeAuto ?? true"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { isModeAuto: $event } })"
+                >
+                    Automatic IFR/VFR detection
+                </common-toggle>
+            </div>
+            <common-radio-group
+                :items="[{ value: 'ifr', text: 'IFR' }, { value: 'vfr', text: 'VFR' }]"
+                :model-value="store.mapSettings.navigraphData?.mode ?? 'ifr'"
+                @update:modelValue="setUserMapSettings({ navigraphData: { mode: $event as any } })"
+            />
+        </template>
     </div>
 </template>
 

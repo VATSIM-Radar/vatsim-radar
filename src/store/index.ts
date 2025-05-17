@@ -42,6 +42,8 @@ export interface SiteConfig {
     showCornerLogo?: boolean;
 }
 
+export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', boolean | 'scheduled' | 'notRequred' | 'loading' | 'failed'>;
+
 export const useStore = defineStore('index', {
     state: () => ({
         user: null as null | FullUser,
@@ -95,6 +97,17 @@ export const useStore = defineStore('index', {
         scrollbarWidth: 0,
         device: 'desktop' as 'desktop' | 'mobile' | 'tablet',
         engine: '' as IEngine['name'],
+
+        initStatus: {
+            vatspy: false,
+            simaware: false,
+            navigraph: false,
+            airlines: false,
+            vatglasses: false,
+            updatesCheck: false,
+            dataGet: false,
+            status: true,
+        } as VRInitStatus,
     }),
     getters: {
         fullAirportsUpdate(): boolean {
