@@ -20,9 +20,9 @@ import { getLocalText, isDebug } from '~/utils/backend/debug';
 initWebsocket();
 initInfluxDB();
 initKafka();
-initNavigraph().catch(console.error);
 
-initWholeBunchOfBackendTasks();
+await initNavigraph().catch(console.error);
+await initWholeBunchOfBackendTasks();
 
 const redisPublisher = getRedis();
 
