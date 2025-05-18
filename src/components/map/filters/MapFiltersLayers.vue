@@ -31,6 +31,13 @@
             </common-block-title>
 
             <common-toggle
+                :model-value="store.localSettings.disableNavigraph"
+                @update:modelValue="setUserLocalSettings({ disableNavigraph: $event })"
+            >
+                Disable Navigraph layers
+            </common-toggle>
+
+            <common-toggle
                 :disabled="!radarIsDefault"
                 :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
                 @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
@@ -139,6 +146,12 @@
             </div>
         </template>
         <template v-else-if="tab === 'navigraph'">
+            <common-toggle
+                :model-value="store.localSettings.disableNavigraph"
+                @update:modelValue="setUserLocalSettings({ disableNavigraph: $event })"
+            >
+                Disable all layers
+            </common-toggle>
             <common-block-title remove-margin>
                 Airways
             </common-block-title>

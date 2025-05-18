@@ -60,6 +60,7 @@ interface IUserLocalSettings {
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
     eventsLocalTimezone: boolean;
+    disableNavigraph: boolean;
 
     filters: {
         opened?: boolean;

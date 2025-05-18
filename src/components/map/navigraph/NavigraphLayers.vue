@@ -17,8 +17,11 @@
                 @mouseleave="activeFeature = null"
             >
                 <template #title>
-                    <template v-if="activeFeature && (isVHF(activeFeature) || isNDB(activeFeature))">
-                        {{ activeFeature.data.icaoCode }}
+                    <template v-if="activeFeature && isNDB(activeFeature)">
+                        {{ activeFeature.data.navaid.ident }}
+                    </template>
+                    <template v-if="activeFeature && isVHF(activeFeature)">
+                        {{ activeFeature.data.navaid.ident ?? activeFeature.data.ident }}
                     </template>
                     <template v-else-if="activeFeature && isAirway(activeFeature)">
                         {{ activeFeature.data.airway.identifier }}
@@ -260,7 +263,7 @@ watch(map, val => {
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.code }`,
+                            text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.ident }`,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',
@@ -283,7 +286,7 @@ watch(map, val => {
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.code }`,
+                            text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.ident }`,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',

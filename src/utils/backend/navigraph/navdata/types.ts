@@ -176,9 +176,9 @@ export type AirspaceCoordinateObj = {
 export type AirspaceCoordinate = [coordinate: Coordinate, boundaryVia: string, bearing?: number, distance?: number];
 
 export interface NavigraphNavDataShort {
-    vhf: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
-    ndb: Record<string, [name: string, code: string, frequency: number, longitude: number, latitude: number]>;
-    holdings: Record<string, [course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null]>;
+    vhf: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
+    ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
+    holdings: Record<string, [waypoint: string, course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null]>;
     airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavDataFlightLevel, type?: string][]]>;
     parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string]>;

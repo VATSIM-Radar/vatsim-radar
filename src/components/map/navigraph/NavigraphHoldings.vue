@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
-import { LineString } from 'ol/geom';
+import { LineString, Point } from 'ol/geom';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import type { Coordinate } from 'ol/coordinate';
@@ -144,9 +144,9 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
 
     if (!enabled) return;
 
-    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][6] === 'ENRT');
+    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][7] === 'ENRT');
 
-    entries.forEach(([key, [course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
+    entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';
 
         if (maxLat && maxLat < 18000) flightLevel = 'L';
@@ -165,6 +165,14 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
                 course,
                 dataType: 'navdata',
                 type: 'holdings',
+            }),
+            new Feature({
+                geometry: new Point([longitude, latitude]),
+                key,
+                waypoint,
+                flightLevel,
+                dataType: 'navdata',
+                type: 'holding-waypoint',
             }),
         );
     });

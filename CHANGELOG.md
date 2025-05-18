@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.0-alpha.3]
+
+- (QA) Added waypoints to holdings
+- (QA) Added toggle to disable Navigraph Layers with quick access from Map Layers
+- (QA) Changed NDB/VORDME shown ident instead of icao code
+- (QA) Fixed some NDB/VORDME missing because of same frequency in same region
+
 # [1.2.0-alpha.2]
 
 Added Navigraph Data. You can enable it via Map Layers menu. 

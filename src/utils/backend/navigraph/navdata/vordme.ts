@@ -33,7 +33,7 @@ export const processNavdataVHF: NavdataProcessFunction = async ({ fullData, shor
     });
 
     for (const item of vhf) {
-        const key = `${ item.icao_code }-${ item.navaid_frequency }`;
+        const key = `${ item.icao_code }-${ item.navaid_frequency }-${ item.navaid_identifier }`;
 
         fullData.vhf[key] = {
             airport: null,
@@ -56,7 +56,7 @@ export const processNavdataVHF: NavdataProcessFunction = async ({ fullData, shor
             coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
-        shortData.vhf[key] = [item.navaid_name, item.icao_code, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
+        shortData.vhf[key] = [item.navaid_name, item.dme_ident || item.navaid_identifier, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
     }
 };
 
@@ -85,7 +85,7 @@ export const processNavdataNDB: NavdataProcessFunction = async ({ fullData, shor
     shortData.ndb = {};
 
     for (const item of ndb) {
-        const key = `${ item.icao_code }-${ item.navaid_frequency }`;
+        const key = `${ item.icao_code }-${ item.navaid_frequency }-${ item.navaid_identifier }`;
 
         fullData.ndb[key] = {
             airport: null,
@@ -104,6 +104,6 @@ export const processNavdataNDB: NavdataProcessFunction = async ({ fullData, shor
             coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
-        shortData.ndb[key] = [item.navaid_name, item.icao_code, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
+        shortData.ndb[key] = [item.navaid_name, item.navaid_identifier, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
     }
 };

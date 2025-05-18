@@ -159,7 +159,7 @@ export function checkForNavigraph() {
 
         // TODO: delete STARSID data
         if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || !keys.every(x => navigraph?.data[x])) {
-            const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }`);
+            const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
 
             if (keys.includes('airways')) {
                 fetchedData.parsedAirways = {};

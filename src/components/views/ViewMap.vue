@@ -48,7 +48,7 @@
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-airports-list v-if="!store.config.hideAirports"/>
-                    <navigraph-layers v-if="dataStore.navigraph.data"/>
+                    <navigraph-layers v-if="dataStore.navigraph.data && !store.localSettings.disableNavigraph"/>
                     <map-weather v-if="!store.config.hideHeader"/>
                     <a
                         v-if="store.config.showCornerLogo"
