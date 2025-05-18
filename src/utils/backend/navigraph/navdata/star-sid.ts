@@ -5,6 +5,7 @@ import type {
     NavigraphNavDataAirportWaypoint, NavigraphNavDataApproach, NavigraphNavDataSid, NavigraphNavDataStar,
 } from '~/utils/backend/navigraph/navdata/types';
 import { addNavDataRunways, buildNavDataWaypoint } from '~/utils/backend/navigraph/navdata/utils';
+import { sleep } from '~/utils';
 
 export const processNavdataSid: NavdataProcessFunction = async ({ fullData, db, runwaysByAirport }) => {
     const sids = await dbPartialRequest<{
@@ -347,6 +348,8 @@ export const processNavdataIap: NavdataProcessFunction = async ({ fullData, db, 
     const approachList: Record<string, NavDataProcedure<NavigraphNavDataApproach>> = {};
 
     for (let i = 0; i < iaps.length; i++) {
+        if (i % 1000 === 0) await sleep(0);
+
         const item = iaps[i];
         const previousItem = iaps[i - 1];
         if ((previousItem && previousItem.seqno < item.seqno) || item.route_type === 'Z') continue;
