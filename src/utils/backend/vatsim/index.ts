@@ -168,7 +168,23 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
     };
 }
 
-export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
+export function getHzFrequency(freq: number): string {
+    let frequency = parseFloat((freq / 1000000).toFixed(3)).toString();
+
+    if (!frequency.includes('.')) {
+        if (frequency.length < 3) {
+            for (let i = 0; i < 3 - frequency.length; i++) {
+                frequency += '0';
+            }
+        }
+
+        frequency += '.';
+    }
+
+    return `${ (`${ frequency }000`).slice(0, 7) }`;
+}
+
+export function getTransceiverData(callsign: string): IVatsimTransceiver {
     const transceiver = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
 
     if (!transceiver || transceiver?.transceivers.length === 0) {
@@ -177,21 +193,7 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
         };
     }
 
-    const frequencies = transceiver.transceivers.map(x => {
-        let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
-
-        if (!frequency.includes('.')) {
-            if (frequency.length < 3) {
-                for (let i = 0; i < 3 - frequency.length; i++) {
-                    frequency += '0';
-                }
-            }
-
-            frequency += '.';
-        }
-
-        return `${ (`${ frequency }000`).slice(0, 7) }`;
-    });
+    const frequencies = transceiver.transceivers.map(x => getHzFrequency(x.frequency));
 
     return {
         frequencies: [...new Set(frequencies)],
