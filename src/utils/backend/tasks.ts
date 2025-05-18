@@ -194,25 +194,33 @@ async function patreonTask() {
     }).catch(() => {});
 }
 
+export let navigraphUpdating = false;
+
 async function navigraphTask() {
     const data = (await getRedisData('navigraph-data'));
 
-    if (!data || data.versions.current !== radarStorage.navigraph.current || data.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
-        const current = await processDatabase(navigraphCurrentDb!);
-        const outdated = await processDatabase(navigraphOutdatedDb!);
+    try {
+        if (!data || data.versions.current !== radarStorage.navigraph.current || data.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
+            navigraphUpdating = true;
+            const current = await processDatabase(navigraphCurrentDb!);
+            const outdated = await processDatabase(navigraphOutdatedDb!);
 
-        radarStorage.navigraphData.versions = radarStorage.navigraph;
+            radarStorage.navigraphData.versions = radarStorage.navigraph;
 
-        radarStorage.navigraphData.full.current = current.full;
-        radarStorage.navigraphData.short.current = current.short;
+            radarStorage.navigraphData.full.current = current.full;
+            radarStorage.navigraphData.short.current = current.short;
 
-        radarStorage.navigraphData.full.outdated = outdated.full;
-        radarStorage.navigraphData.short.outdated = outdated.short;
+            radarStorage.navigraphData.full.outdated = outdated.full;
+            radarStorage.navigraphData.short.outdated = outdated.short;
 
-        await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+            await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+        }
+        else {
+            await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+        }
     }
-    else {
-        await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
+    finally {
+        navigraphUpdating = false;
     }
 }
 

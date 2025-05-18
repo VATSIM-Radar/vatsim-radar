@@ -13,14 +13,14 @@ import { initWebsocket, wss } from '~/utils/backend/vatsim/ws';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
-import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
+import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/backend/tasks';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 initWebsocket();
 initInfluxDB();
-initKafka();
 
 await initWholeBunchOfBackendTasks();
+initKafka();
 
 const redisPublisher = getRedis();
 
@@ -91,7 +91,7 @@ await defineCronJob('*/10 * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
+    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000 || navigraphUpdating) return;
 
     try {
         dataInProgress = true;
@@ -159,7 +159,7 @@ defineCronJob('* * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataProcessInProgress || !data) return;
+    if (!vatspy?.data || dataProcessInProgress || !data || navigraphUpdating) return;
 
     try {
         dataProcessInProgress = true;
