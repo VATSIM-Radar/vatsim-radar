@@ -18,12 +18,12 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: navigraph
+        doks.digitalocean.com/node-pool: navigraph-4
       containers:
         - name: navigraph
           image: ghcr.io/vatsim-radar/vatsim-radar/next
           imagePullPolicy: Always
-          command: ["/radar/.config/navigraph.sh"]
+          command: ["/radar/.config/navigraph-prod.sh"]
           ports:
             - containerPort: 3000
           readinessProbe:
