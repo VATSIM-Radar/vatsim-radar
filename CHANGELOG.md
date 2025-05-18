@@ -2,6 +2,14 @@
 
 # [1.2.0-alpha.2]
 
+Added Navigraph Data. You can enable it via Map Layers menu. 
+
+You can enable to display on map: Airways (Low/High IFR), NDB, VORDME, Waypoints, Holdings.
+
+Waypoints shape is placeholder for now. Oceanic tracks, STARs/SIDs/Approaches and Aircraft path features are WIP
+
+Other changes:
+
 - Added initialization screen to get a clear view on what is happening with VATSIM Radar
 - Unloaded VATGlasses from memory when not used, excluded from initial setup as well
 - Free Navigraph AIRAC Cycle has been upgraded to 2404
