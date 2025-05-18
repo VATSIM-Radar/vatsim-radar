@@ -320,7 +320,7 @@ export const radarStorage: RadarStorage = {
     extendedPilotsMap: {},
 };
 
-export async function isDataReady() {
+export function isDataReady(): boolean {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 

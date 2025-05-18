@@ -329,7 +329,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             }
         });
 
-        store.initStatus.status = 'loading';
+        store.initStatus.status = true;
 
         await checkForUpdates();
 
@@ -342,6 +342,14 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
         await checkForVG();
         await checkForNavigraph();
+
+        await new Promise<void>(resolve => {
+            const interval = setInterval(async () => {
+                if (Object.values(store.initStatus).some(x => x === 'loading' || x === 'failed')) return;
+                clearInterval(interval);
+                resolve();
+            }, 1000);
+        });
 
         store.initStatus.status = false;
 

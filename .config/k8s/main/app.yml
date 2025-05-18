@@ -74,9 +74,6 @@ spec:
             requests:
               cpu: 600m
               memory: 300Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
           readinessProbe:
             tcpSocket:
               port: 8880
