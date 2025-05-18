@@ -32,7 +32,6 @@ import {
     checkForVATSpy, checkForVG,
     getVatglassesDynamic,
 } from '~/composables/init';
-import type { NavigraphSettingsLevel } from '~/utils/backend/handlers/map-settings';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();

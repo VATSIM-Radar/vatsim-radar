@@ -124,6 +124,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full') {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { type, procedure, airport, index } = getRouterParams(event);
 
     if (type !== 'outdated') {

@@ -281,9 +281,3 @@ watch(() => store.mapSettings.navigraphData, () => {
 
 const sigmetDatesList = sigmetDates();
 </script>
-
-<style scoped lang="scss">
-.layers {
-
-}
-</style>
