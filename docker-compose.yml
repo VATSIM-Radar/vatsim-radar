@@ -51,6 +51,30 @@ services:
         extra_hosts:
             - "host.docker.internal:host-gateway"
 
+    navigraph:
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: .config/dev.Dockerfile
+        image: vr-1.1.1
+        env_file:
+            - ./.env
+        container_name: vatsim-radar-navigraph
+        command: /radar/.config/navigraph.sh
+        ports:
+            - 3000:3000
+        volumes:
+            - ".:/radar:rw"
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_started
+            frontend:
+                condition: service_healthy
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+
     vatglasses-worker:
         restart: unless-stopped
         build:

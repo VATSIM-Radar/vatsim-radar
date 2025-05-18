@@ -1,8 +1,5 @@
-import { radarStorage } from '~/utils/backend/storage';
 import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
-
-import type { NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
 
 export default defineEventHandler(async event => {
     if (!await validateDataReady(event)) return;
@@ -21,27 +18,5 @@ export default defineEventHandler(async event => {
         }
     }
 
-    const object = radarStorage.navigraphData.full[type as 'current' | 'outdated']?.[data as keyof NavigraphNavData];
-    if (!object) {
-        return handleH3Error({
-            event,
-            statusCode: 404,
-            data: 'Data object not found',
-        });
-    }
-
-    const item = object[key as keyof typeof object];
-    if (!item) {
-        return handleH3Error({
-            event,
-            statusCode: 404,
-            data: 'Item not found for this key',
-        });
-    }
-
-    if (type !== 'outdated' && !import.meta.dev) {
-        setResponseHeader(event, 'Cache-Control', 'private, max-age=604800, stale-while-revalidate=86400, immutable');
-    }
-
-    return item as Record<string, any>;
+    return $fetch<Record<string, any>>(`http://navigraph:3000/item/${ type }/${ data }/${ key }`);
 });

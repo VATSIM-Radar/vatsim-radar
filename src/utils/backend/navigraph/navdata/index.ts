@@ -3,7 +3,6 @@ import { dbPartialRequest } from '~/utils/backend/navigraph/db';
 import type { H3Event } from 'h3';
 import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
-import { radarStorage } from '~/utils/backend/storage';
 import { processNavdataNDB, processNavdataVHF } from '~/utils/backend/navigraph/navdata/vordme';
 import {
     processNavdataAirways,
@@ -13,7 +12,7 @@ import {
 import type {
     NavdataProcessFunction,
     NavdataRunwaysByAirport,
-    NavigraphNavData, NavigraphNavDataApproachShort,
+    NavigraphNavData,
     NavigraphNavDataShort,
 } from '~/utils/backend/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/backend/navigraph/navdata/star-sid';
@@ -102,25 +101,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
         }
     }
 
-    const requestedKeys = (getQuery(event).keys as string | undefined)?.split(',');
-    const data = radarStorage.navigraphData?.short[type];
-    if (!data) {
-        return handleH3Error({
-            event,
-            statusCode: 404,
-            data: 'Data not initialized',
-        });
-    }
-
-    if (!requestedKeys?.length) return data;
-
-    const newObj: Partial<NavigraphNavDataShort> = {};
-
-    for (const key of requestedKeys) {
-        // @ts-expect-error dynamic assigment
-        newObj[key] = data[key];
-    }
-    return newObj;
+    return $fetch<Record<string, any>>(`http://navigraph:3000/data/${ type }`);
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full') {
@@ -139,10 +120,10 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
         }
     }
 
-    const isShort = request === 'short';
-    const key = type === 'outdated' ? type : 'current';
+    /* const isShort = request === 'short';
+    const key = type === 'outdated' ? type : 'current';*/
 
-    if (procedure === 'approach') {
+    /* if (procedure === 'approach') {
         const procedure = radarStorage.navigraphData.full[key]?.approaches[airport];
         if (isShort) {
             return procedure?.map(x => ({
@@ -164,5 +145,5 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
                 statusCode: 404,
             });
         }
-    }
+    }*/
 }

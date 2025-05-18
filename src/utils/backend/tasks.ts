@@ -8,10 +8,10 @@ import type {
     PatreonPledgesUser,
 } from '~/types/data/patreon';
 import { isDataReady, radarStorage } from '~/utils/backend/storage';
-import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
+import { initNavigraph } from '~/utils/backend/navigraph/db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
-import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
+import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/backend/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import { updateAirlines, updateAustraliaData, updateBookings, updateTransceivers } from '~/utils/backend/vatsim/update';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
@@ -23,7 +23,6 @@ import { prisma } from '~/utils/backend/prisma';
 import { sleep } from '~/utils';
 import { isDebug } from '~/utils/backend/debug';
 import { watch } from 'chokidar';
-import { processDatabase } from '~/utils/backend/navigraph/navdata';
 
 const redisSubscriber = getRedis();
 
@@ -194,34 +193,10 @@ async function patreonTask() {
     }).catch(() => {});
 }
 
-export let navigraphUpdating = false;
+export const navigraphUpdating = false;
 
 async function navigraphTask() {
-    const data = (await getRedisData('navigraph-data'));
-
-    try {
-        if (!data || data.versions.current !== radarStorage.navigraph.current || data.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
-            navigraphUpdating = true;
-            const current = await processDatabase(navigraphCurrentDb!);
-            const outdated = await processDatabase(navigraphOutdatedDb!);
-
-            radarStorage.navigraphData.versions = radarStorage.navigraph;
-
-            radarStorage.navigraphData.full.current = current.full;
-            radarStorage.navigraphData.short.current = current.short;
-
-            radarStorage.navigraphData.full.outdated = outdated.full;
-            radarStorage.navigraphData.short.outdated = outdated.short;
-
-            await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
-        }
-        else {
-            await setRedisData('navigraph-data', radarStorage.navigraphData, 1000 * 60 * 60 * 24 * 7);
-        }
-    }
-    finally {
-        navigraphUpdating = false;
-    }
+    if (await getRedisSync('navigraph-ready')) radarStorage.navigraphSetUp = true;
 }
 
 export async function initWholeBunchOfBackendTasks() {
@@ -272,7 +247,7 @@ export async function updateRedisData() {
     radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
     radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
     radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
-    radarStorage.navigraphData = (await getRedisData('navigraph-data')) ?? radarStorage.navigraphData;
+    radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
 }
 
 export async function setupRedisDataFetch() {
@@ -280,13 +255,14 @@ export async function setupRedisDataFetch() {
         await updateRedisData();
 
         while (!await isDataReady()) {
-            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, !!radarStorage.navigraphData?.full.current);
+            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
             await sleep(1000 * 60);
             await updateRedisData();
         }
     });
 
     redisSubscriber.subscribe('update');
+
     redisSubscriber.on('message', async (channel, message) => {
         if (channel === 'update') {
             if (message === 'data-vatspy') {
@@ -299,7 +275,7 @@ export async function setupRedisDataFetch() {
                 radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
             }
             else if (message === 'navigraph-data') {
-                radarStorage.navigraphData = (await getRedisData('navigraph-data')) ?? radarStorage.navigraphData;
+                radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
             }
         }
     });

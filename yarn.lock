@@ -14850,6 +14850,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"rou3@npm:^0.6.1":
+  version: 0.6.1
+  resolution: "rou3@npm:0.6.1"
+  checksum: 10c0/8c24e1b7cf04c2cb0308d6909ab80016054e6f950b0f3b38c9ae5d175114df7858491c69de9f1515d3df4264b981d66093011b8958bd8a3440e5d5d696e375fe
+  languageName: node
+  linkType: hard
+
 "run-applescript@npm:^7.0.0":
   version: 7.0.0
   resolution: "run-applescript@npm:7.0.0"
@@ -15769,6 +15776,15 @@ __metadata:
     node-gyp:
       optional: true
   checksum: 10c0/10daab5d7854bd0ec3c7690c00359cd3444eabc869b68c68dcb61374a8fa5e2f4be06cf0aba78f7a16336d49e83e4631e8af98f8bd33c772fe8d60b45fa60bc1
+  languageName: node
+  linkType: hard
+
+"srvx@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "srvx@npm:0.7.1"
+  dependencies:
+    cookie-es: "npm:^2.0.0"
+  checksum: 10c0/3a7964dd955990bb15b3b0f0e71db14205f452881ff3c3de7cde182d9379e7f36bb8c3f4d11963b7856dfef720bd2c171ff34067fcee1e75f96edd172a7e96e5
   languageName: node
   linkType: hard
 
@@ -17464,9 +17480,11 @@ __metadata:
     postcss: "npm:^8.5.3"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.8.2"
+    rou3: "npm:^0.6.1"
     sass-embedded: "npm:^1.89.0"
     sharp: "npm:^0.34.1"
     sqlite3: "npm:^5.1.7"
+    srvx: "npm:^0.7.1"
     stylelint: "npm:^16.19.1"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^15.0.0"

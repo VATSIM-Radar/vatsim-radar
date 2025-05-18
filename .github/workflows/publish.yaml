@@ -108,6 +108,10 @@ jobs:
         with:
           personalAccessToken: ${{ secrets.DIGITALOCEAN_TOKEN }}
           clusterName: main
+      - name: Deploy Navigraph
+        run: kubectl apply -f .config/k8s/navigraph.yml
+      - name: Validate Navigraph
+        run: kubectl rollout status deployment navigraph
       - name: Deploy Volume
         run: kubectl apply -f .config/k8s/main/volume.yml
       - name: Deploy Redis

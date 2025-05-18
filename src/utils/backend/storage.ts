@@ -14,8 +14,6 @@ import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from
 import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 
-import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
-
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
     version: string;
@@ -235,17 +233,7 @@ export interface RadarStorage {
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
-    navigraphData: {
-        versions: typeof cycles;
-        full: {
-            current: NavigraphNavData | null;
-            outdated: NavigraphNavData | null;
-        };
-        short: {
-            current: NavigraphNavDataShort | null;
-            outdated: NavigraphNavDataShort | null;
-        };
-    };
+    navigraphSetUp: boolean;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
@@ -297,20 +285,7 @@ export const radarStorage: RadarStorage = {
         current: '',
         outdated: '',
     },
-    navigraphData: {
-        versions: {
-            current: '',
-            outdated: '',
-        },
-        full: {
-            current: null,
-            outdated: null,
-        },
-        short: {
-            current: null,
-            outdated: null,
-        },
-    },
+    navigraphSetUp: false,
     patreonInfo: null,
     airlines: {
         airlines: {},
@@ -326,7 +301,7 @@ export function isDataReady(): boolean {
 
     if (!process.env.NAVIGRAPH_CLIENT_ID) return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data;
 
-    return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data && !!radarStorage.navigraphData.short.current;
+    return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data && radarStorage.navigraphSetUp;
 }
 
 export function getDataVersions(): VatDataVersions {
