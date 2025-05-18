@@ -42,7 +42,8 @@ export interface SiteConfig {
     showCornerLogo?: boolean;
 }
 
-export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', boolean | 'scheduled' | 'notRequred' | 'loading' | 'failed'>;
+export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
+export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
 
 export const useStore = defineStore('index', {
     state: () => ({
@@ -106,7 +107,7 @@ export const useStore = defineStore('index', {
             vatglasses: false,
             updatesCheck: false,
             dataGet: false,
-            status: true,
+            status: false,
         } as VRInitStatus,
     }),
     getters: {
@@ -256,7 +257,7 @@ export const useStore = defineStore('index', {
                 if (force || !dataStore.vatsim._mandatoryData.value || (!versions || versions.data !== dataStore.vatsim.updateTimestamp.value)) {
                     if (!dataStore.vatsim.data) dataStore.vatsim.data = {} as any;
 
-                    const data = await $fetch<VatsimLiveData | VatsimLiveDataShort>(`/api/data/vatsim/data${ dataStore.vatsim.data.general.value ? '/short' : '' }`, {
+                    const data = await $fetch<VatsimLiveData | VatsimLiveDataShort>(`/api/data/vatsim/data${ dataStore.vatsim.data.general.value?.connected_clients ? '/short' : '' }`, {
                         timeout: 1000 * 60,
                     });
                     await setVatsimDataStore(data);
@@ -266,7 +267,9 @@ export const useStore = defineStore('index', {
                             timeout: 1000 * 60,
                         });
                         if (mandatoryData) setVatsimMandatoryData(mandatoryData);
-                        dataStore.vatsim.data.general.value!.update_timestamp = data.general.update_timestamp;
+                        if (dataStore.vatsim.data.general.value) {
+                            dataStore.vatsim.data.general.value.update_timestamp = data.general.update_timestamp;
+                        }
                         dataStore.vatsim.updateTimestamp.value = data.general.update_timestamp;
                     }
 

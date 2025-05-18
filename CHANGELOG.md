@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.0-alpha.2]
+
+- Added initialization screen to get a clear view on what is happening with VATSIM Radar
+- Unloaded VATGlasses from memory when not used, excluded from initial setup as well
+- Free Navigraph AIRAC Cycle has been upgraded to 2404
+
 # [1.2.0-alpha.1]
 
 - Changed design of booking page - especially in lightmode by MindCollaps

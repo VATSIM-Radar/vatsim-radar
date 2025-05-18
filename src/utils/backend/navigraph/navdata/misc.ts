@@ -49,7 +49,7 @@ export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData,
             },
         };
 
-        shortData.holdings[key] = [item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code];
+        shortData.holdings[key] = [item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code, item.minimum_altitude, item.maximum_altitude];
     }
 };
 
@@ -99,7 +99,7 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
     const airways = await dbPartialRequest<{
         area_code: string;
         // crusing_table_identifier: string;
-        // direction_restriction: string;
+        direction_restriction: string;
         flightlevel: string;
         icao_code: string;
         inbound_course: number;
@@ -119,7 +119,7 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
         waypoint_ref_table: string;
     }>({
         db,
-        sql: 'SELECT area_code, flightlevel, icao_code, inbound_course, inbound_distance, maximum_altitude, minimum_altitude1, minimum_altitude2, outbound_course, route_identifier, route_type, seqno, waypoint_description_code, waypoint_identifier, waypoint_latitude, waypoint_longitude, waypoint_ref_table FROM tbl_er_enroute_airways',
+        sql: 'SELECT area_code, flightlevel, icao_code, direction_restriction, inbound_course, inbound_distance, maximum_altitude, minimum_altitude1, minimum_altitude2, outbound_course, route_identifier, route_type, seqno, waypoint_description_code, waypoint_identifier, waypoint_latitude, waypoint_longitude, waypoint_ref_table FROM tbl_er_enroute_airways',
         table: 'tbl_er_enroute_airways',
     });
 
@@ -164,6 +164,7 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
             outbound: airway.outbound_course,
             seqno: airway.seqno,
             flightLevel,
+            direction: airway.direction_restriction as any,
         });
 
         const waypoint = shortData.waypoints?.[`${ airway.waypoint_identifier }-${ airway.area_code }`];

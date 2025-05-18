@@ -4911,6 +4911,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/boolean-point-in-polygon@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/boolean-point-in-polygon@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    point-in-polygon-hao: "npm:^1.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/eeb431f70175e466205b27076dbc331b862d3e6867d43730ac4099ecd7e6d6f0fed9e3301fd29f6375f340e379f477489f09060e6aec9fc0f7afa01ac58d5c09
+  languageName: node
+  linkType: hard
+
 "@turf/circle@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/circle@npm:7.2.0"
@@ -13714,6 +13727,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"point-in-polygon-hao@npm:^1.1.0":
+  version: 1.2.4
+  resolution: "point-in-polygon-hao@npm:1.2.4"
+  dependencies:
+    robust-predicates: "npm:^3.0.2"
+  checksum: 10c0/12badef8b15216acdae7d609a8aca1b916d6a9cac2f53ace2928e3b521bee57224489ea8fba41d001c0c05c50e64152c175e3d6583d8cad6fe7af929f082b49a
+  languageName: node
+  linkType: hard
+
 "polyclip-ts@npm:^0.16.8":
   version: 0.16.8
   resolution: "polyclip-ts@npm:0.16.8"
@@ -14906,6 +14928,13 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 10c0/9cb7757acb489bd83757ba1a274ab545eafd75598a9d817e0c3f8b164238dd90eba50d6b848bd4dcc5f3040912e882dc7ba71653e35af660d77b25c381d402e8
+  languageName: node
+  linkType: hard
+
+"robust-predicates@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "robust-predicates@npm:3.0.2"
+  checksum: 10c0/4ecd53649f1c2d49529c85518f2fa69ffb2f7a4453f7fd19c042421c7b4d76c3efb48bc1c740c8f7049346d7cb58cf08ee0c9adaae595cc23564d360adb1fde4
   languageName: node
   linkType: hard
 
@@ -17610,6 +17639,7 @@ __metadata:
     "@sentry/nuxt": "npm:^9.19.0"
     "@stylistic/eslint-plugin": "npm:^4.2.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.2"
+    "@turf/boolean-point-in-polygon": "npm:^7.2.0"
     "@turf/difference": "npm:^7.2.0"
     "@turf/great-circle": "npm:^7.2.0"
     "@turf/helpers": "npm:^7.2.0"

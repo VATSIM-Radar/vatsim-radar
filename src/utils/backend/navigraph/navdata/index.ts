@@ -13,7 +13,7 @@ import {
 import type {
     NavdataProcessFunction,
     NavdataRunwaysByAirport,
-    NavigraphNavData,
+    NavigraphNavData, NavigraphNavDataApproachShort,
     NavigraphNavDataShort,
 } from '~/utils/backend/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/backend/navigraph/navdata/star-sid';
@@ -123,3 +123,45 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
     return newObj;
 }
 
+export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full') {
+    const { type, procedure, airport, index } = getRouterParams(event);
+
+    if (type !== 'outdated') {
+        const user = await findAndRefreshFullUserByCookie(event);
+
+        if (!user || !user.hasFms) {
+            return handleH3Error({
+                event,
+                statusCode: 403,
+                data: 'You must have Navigraph Data/Unlimited subscription to access this short data',
+            });
+        }
+    }
+
+    const isShort = request === 'short';
+    const key = type === 'outdated' ? type : 'current';
+
+    if (procedure === 'approach') {
+        const procedure = radarStorage.navigraphData.full[key]?.approaches[airport];
+        if (isShort) {
+            return procedure?.map(x => ({
+                procedureName: x.procedure.procedureName,
+                runway: x.procedure.runway,
+                transition: x.procedure.transition,
+            } satisfies NavigraphNavDataApproachShort)) ?? handleH3Error({
+                event,
+                statusCode: 404,
+            });
+        }
+        else {
+            return procedure?.map(x => ({
+                procedureName: x.procedure.procedureName,
+                runway: x.procedure.runway,
+                transition: x.procedure.transition,
+            } satisfies NavigraphNavDataApproachShort)) ?? handleH3Error({
+                event,
+                statusCode: 404,
+            });
+        }
+    }
+}

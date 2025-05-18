@@ -215,7 +215,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
         if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
         if ('isModeAuto' in val && typeof val.isModeAuto !== 'boolean') return false;
-        if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr') return false;
+        if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr' && val.mode !== 'ifrHigh' && val.mode !== 'ifrLow') return false;
         if ('airways' in val) {
             if (!isObject(val.airways)) return false;
             if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
@@ -256,6 +256,7 @@ export interface UserMapSettingsVisibilityATC {
 }
 
 export type UserMapSettingsTurns = 'magma' | 'inferno' | 'rainbow' | 'viridis';
+export type NavigraphSettingsLevel = 'ifrHigh' | 'ifrLow' | 'vfr';
 
 export interface IUserMapSettings {
     visibility: {
@@ -301,7 +302,7 @@ export interface IUserMapSettings {
         vordme: boolean;
         waypoints: boolean;
         holdings: boolean;
-        mode: 'ifr' | 'vfr';
+        mode: NavigraphSettingsLevel;
         isModeAuto: boolean;
         airways: Partial<{
             enabled: boolean;

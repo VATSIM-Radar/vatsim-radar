@@ -9,17 +9,21 @@ import { LineString } from 'ol/geom';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import type { Coordinate } from 'ol/coordinate';
+import { useMapStore } from '~/store/map';
+import type { NavDataFlightLevel } from '~/utils/backend/navigraph/navdata/types';
 
 defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings !== false);
 let features: Feature[] = [];
 
+// Dark magic from ChatGPT
 // Compute a destination point given start (lat,lon), distance (m), and bearing (° from north)
 function computeOffset(from: Coordinate, dist: number, bearingDeg: number) {
     const R = 6378137; // Earth radius in m (WGS‑84)
@@ -131,32 +135,41 @@ function generateHoldingPatternGeoJSON(
     ];
 }
 
-watch(isEnabled, async val => {
-    if (!val) {
-        source?.value.removeFeatures(features);
-        features = [];
-    }
-    else {
-        const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][6] === 'ENRT');
+const extent = computed(() => mapStore.extent);
+const level = computed(() => store.mapSettings.navigraphData?.mode);
 
-        entries.forEach(([key, [course, time, turns, longitude, latitude, speed]], index) => {
-            speed ??= 240;
-            time ??= 0;
+watch([isEnabled, extent, level], async ([enabled, extent]) => {
+    source?.value.removeFeatures(features);
+    features = [];
 
-            features.push(
-                new Feature({
-                    geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time, true, 32)),
-                    key,
-                    turns,
-                    time,
-                    course,
-                    type: 'holdings',
-                }),
-            );
-        });
+    if (!enabled) return;
 
-        source?.value.addFeatures(features);
-    }
+    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][6] === 'ENRT');
+
+    entries.forEach(([key, [course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
+        let flightLevel: NavDataFlightLevel = 'B';
+
+        if (maxLat && maxLat < 18000) flightLevel = 'L';
+        if (minLat && minLat >= 18000) flightLevel = 'H';
+
+        if (!isPointInExtent([longitude, latitude], extent) || !checkFlightLevel(flightLevel)) return;
+        speed ??= 240;
+        time ??= 0;
+
+        features.push(
+            new Feature({
+                geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time, true, 32)),
+                key,
+                turns,
+                time,
+                course,
+                dataType: 'navdata',
+                type: 'holdings',
+            }),
+        );
+    });
+
+    source?.value.addFeatures(features);
 }, {
     immediate: true,
 });

@@ -14,9 +14,7 @@ import type {
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
-import type { ClientNavigraphData, IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
-import { clientDB } from '~/utils/client-db';
-import { useMapStore } from '~/store/map';
+import type { ClientNavigraphData } from '~/utils/client-db';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
@@ -26,7 +24,15 @@ import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
 
-import type { NavigraphGetData, NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+import type { NavDataFlightLevel, NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
+import {
+    checkForAirlines,
+    checkForData,
+    checkForUpdates,
+    checkForVATSpy, checkForVG,
+    getVatglassesDynamic,
+} from '~/composables/init';
+import type { NavigraphSettingsLevel } from '~/utils/backend/handlers/map-settings';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -40,6 +46,10 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
 const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef<VatglassesAPIData>();
+
+export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
+
+const waypoints = shallowRef<DataWaypoint[]>([]);
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -133,6 +143,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
+    navigraphWaypoints: ShallowRef<DataWaypoint[]>;
     navigraph: {
         version: Ref<string | null>;
         data: ShallowRef<ClientNavigraphData | null>;
@@ -153,6 +164,7 @@ const dataStore: UseDataStore = {
     time,
     sigmets,
     airlines,
+    navigraphWaypoints: waypoints,
     navigraph: {
         version: navigraphVersion,
         data: navigraph,
@@ -235,7 +247,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     onSuccessCallback?: () => any;
 } = {}) {
     if (!getCurrentInstance()) throw new Error('setupDataFetch has been called outside setup');
-    const mapStore = useMapStore();
     const store = useStore();
     const dataStore = useDataStore();
     let interval: NodeJS.Timeout | null = null;
@@ -249,7 +260,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
 
     function startIntervalChecks() {
-        getVatglassesDynamic(dataStore);
         vgInterval = setInterval(async () => {
             if (isVatGlassesActive.value) {
                 getVatglassesDynamic(dataStore);
@@ -301,7 +311,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         isMounted.value = true;
         let watcher: WatchStopHandle | undefined;
         const config = useRuntimeConfig();
-        startIntervalChecks();
 
         document.addEventListener('visibilitychange', setVisibilityState);
 
@@ -315,26 +324,27 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             immediate: true,
         });
 
-        // Data is not yet ready
-        if (!mapStore.dataReady) {
-            await new Promise<void>(resolve => {
-                const interval = setInterval(async () => {
-                    const { ready } = await $fetch('/api/data/status');
-                    if (ready) {
-                        resolve();
-                        clearInterval(interval);
-                    }
-                }, 1000);
-            });
-        }
+        watch(isVatGlassesActive, val => {
+            if (val) {
+                checkForVG();
+            }
+        });
 
-        if (!dataStore.versions.value) {
-            dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
-            dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
-        }
+        store.initStatus.status = 'loading';
 
-        dataStore.vatsim.versions.value = dataStore.versions.value!.vatsim;
-        dataStore.vatsim.updateTimestamp.value = dataStore.versions.value!.vatsim.data;
+        await checkForUpdates();
+
+        await Promise.all([
+            checkForData(),
+            checkForVATSpy(),
+            checkForSimAware(),
+            checkForAirlines(),
+        ]);
+
+        await checkForVG();
+        await checkForNavigraph();
+
+        store.initStatus.status = false;
 
         new View({
             center: [37.617633, 55.755820],
@@ -342,75 +352,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             multiWorld: false,
         });
 
-        await Promise.all([
-            (async function() {
-                let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
-                if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
-                    vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
-                    await clientDB.put('data', vatspy, 'vatspy');
-                }
-
-                dataStore.vatspy.value = vatspy;
-            }()),
-            (async function() {
-                let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
-                if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated']) {
-                    const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }`);
-
-                    fetchedData.parsedAirways = {};
-
-                    for (const [airway, data] of Object.entries(fetchedData.airways)) {
-                        const identifier = data[0];
-                        if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
-                        fetchedData.parsedAirways[identifier][airway] = data;
-                    }
-
-                    navigraph = {
-                        version: dataStore.versions.value?.navigraph?.[store.user?.hasFms ? 'current' : 'outdated'] ?? '',
-                        data: fetchedData as ClientNavigraphData,
-                    };
-                    await clientDB.put('data', navigraph, 'navigraph');
-                }
-
-                dataStore.navigraph.version.value = navigraph.version;
-                dataStore.navigraph.data.value = navigraph.data;
-            }()),
-            (async function() {
-                let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
-                if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
-                    const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
-                    airlines = {
-                        expireDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
-                        airlines: data,
-                    };
-                    await clientDB.put('data', airlines, 'airlines');
-                }
-
-                dataStore.airlines.value = airlines.airlines;
-            }()),
-            (async function() {
-                let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
-                if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
-                    simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
-                    await clientDB.put('data', simaware, 'simaware');
-                }
-
-                dataStore.simaware.value = simaware;
-            }()),
-            (async function() {
-                let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
-                if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
-                    vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
-                    await clientDB.put('data', vatglasses, 'vatglasses');
-                }
-
-                dataStore.vatglasses.value = vatglasses;
-            }()),
-            (async function() {
-                await store.getVATSIMData();
-            }()),
-        ]);
-
+        startIntervalChecks();
         onSuccessCallback?.();
     });
 
@@ -422,26 +364,6 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         if (vgInterval) clearInterval(vgInterval);
         if (visibilityInterval) clearInterval(visibilityInterval);
     });
-}
-
-async function getVatglassesDynamic(dataStore: UseDataStore) {
-    try {
-        const vatglassesDynamicDataVersion = await $fetch<string>(`/api/data/vatsim/data/vatglasses/dynamic-version`, {
-            timeout: 1000 * 60,
-        });
-
-
-        if (vatglassesDynamicDataVersion !== dataStore.vatglassesDynamicData.value?.version) {
-            const vatglassesDynamicData = await $fetch<VatglassesDynamicAPIData>(`/api/data/vatsim/data/vatglasses/dynamic`, {
-                timeout: 1000 * 60,
-            });
-
-            dataStore.vatglassesDynamicData.value = vatglassesDynamicData;
-        }
-    }
-    catch (e) {
-        console.error(e);
-    }
 }
 
 export interface ControllerStats {
@@ -484,4 +406,14 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }): Promise<NavigraphGetData<T>> {
     const store = useStore();
     return $fetch<NavigraphGetData<T>>(`/api/data/navigraph/item/${ store.user?.hasFms && store.user.hasCharts ? 'current' : 'outdated' }/${ data }/${ key }`);
+}
+
+export function checkFlightLevel(level: NavDataFlightLevel) {
+    if (level === 'B' || level === null) return true;
+
+    const store = useStore();
+    if (store.mapSettings.navigraphData?.mode && store.mapSettings.navigraphData?.mode !== 'ifrHigh') {
+        return level === 'L';
+    }
+    else return level === 'H';
 }

@@ -461,6 +461,14 @@ useUpdateInterval(() => {
     setUserLocalSettings({
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
+
+    if (store.mapSettings.navigraphData?.isModeAuto !== false) {
+        setUserMapSettings({
+            navigraphData: {
+                mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
+            },
+        });
+    }
 });
 
 const overlays = computed(() => mapStore.overlays);

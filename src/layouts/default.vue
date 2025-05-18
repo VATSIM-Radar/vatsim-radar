@@ -8,7 +8,7 @@
         <div class="app_content">
             <client-only>
                 <view-update-popup v-if="!hasObs()"/>
-                <view-init-popup v-if="store.initStatus.status"/>
+                <view-init-popup/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>

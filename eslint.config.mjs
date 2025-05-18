@@ -382,6 +382,7 @@ export default withNuxt([
                     'ts-nocheck': false,
                 },
             ],
+            '@typescript-eslint/no-invalid-void-type': 'off',
         },
     },
     {

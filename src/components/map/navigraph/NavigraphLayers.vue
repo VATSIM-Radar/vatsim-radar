@@ -3,10 +3,10 @@
         v-if="navigraphSource"
         class="layers"
     >
-        <navigraph-ndb/>
-        <navigraph-airways/>
-        <navigraph-waypoints/>
-        <navigraph-holdings/>
+        <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
+        <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
+        <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
+        <navigraph-holdings v-if="store.mapSettings.navigraphData?.holdings"/>
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -72,6 +72,7 @@
                                 ['Outbound course', activeFeature.additionalData?.waypoint.outbound],
                                 ['Minimum altitude', activeFeature.additionalData?.waypoint.minAlt],
                                 ['Maximum altitude', activeFeature.additionalData?.waypoint.maxAlt],
+                                ['Direction restriction', activeFeature.additionalData?.waypoint.direction === 'F' ? 'Forward' : activeFeature.additionalData?.waypoint.direction === 'B' ? 'Backwards' : null],
                                 ['Level', activeFeature.additionalData?.waypoint.flightLevel === 'H' ? 'High' : activeFeature.additionalData?.waypoint.flightLevel === 'L' ? 'Low' : 'Both'],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
@@ -189,6 +190,8 @@ const fakeCircle = new CircleStyle({
 const showAirwaysLabels = computed(() => store.mapSettings.navigraphData?.airways?.showAirwaysLabel !== false);
 const showWaypointsLabels = computed(() => store.mapSettings.navigraphData?.airways?.showWaypointsLabel !== false);
 
+watch([showAirwaysLabels, showWaypointsLabels], () => navigraphSource.value?.changed());
+
 async function handleMapClick(event: MapBrowserEvent<any>) {
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 5, layerFilter: val => val === navigraphLayer || val === navigraphFakeLayer });
 
@@ -303,7 +306,7 @@ watch(map, val => {
                         zIndex: 6,
                     }),
                     new Style({
-                        text: showWaypointsLabels.value
+                        text: showWaypointsLabels.value || properties.type === 'waypoint'
                             ? new Text({
                                 font: '8px Montserrat',
                                 text: `${ properties.waypoint }`,

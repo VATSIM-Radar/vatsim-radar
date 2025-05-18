@@ -139,6 +139,30 @@
             </div>
         </template>
         <template v-else-if="tab === 'navigraph'">
+            <common-block-title remove-margin>
+                Airways
+            </common-block-title>
+            <div class="__section-group __section-group--even">
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.airways?.enabled"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { airways: { enabled: $event } } })"
+                >
+                    Airways
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.airways?.showAirwaysLabel ?? true"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { airways: { showAirwaysLabel: $event } } })"
+                >
+                    Airways labels
+                </common-toggle>
+                <common-toggle
+                    :model-value="store.mapSettings.navigraphData?.airways?.showWaypointsLabel ?? true"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { airways: { showWaypointsLabel: $event } } })"
+                >
+                    Airway waypoints labels
+                </common-toggle>
+            </div>
+            <common-block-title remove-margin/>
             <div class="__section-group __section-group--even">
                 <common-toggle
                     :model-value="store.mapSettings.navigraphData?.ndb"
@@ -166,15 +190,21 @@
                 </common-toggle>
                 <common-toggle
                     v-if="store.user"
-                    :model-value="store.mapSettings.navigraphData?.isModeAuto ?? true"
-                    @update:modelValue="setUserMapSettings({ navigraphData: { isModeAuto: $event } })"
+                    :model-value="store.mapSettings.navigraphData?.mode === 'vfr' ? false : store.mapSettings.navigraphData?.isModeAuto ?? true"
+                    @update:modelValue="[setUserMapSettings({ navigraphData: { isModeAuto: $event } }), store.mapSettings.navigraphData?.mode === 'vfr' && setUserMapSettings({ navigraphData: { mode: 'ifrHigh' } })]"
                 >
-                    Automatic IFR/VFR detection
+                    Automatic IFR level
                 </common-toggle>
             </div>
+            <common-notification
+                cookie-name="ifr-tutorial"
+                type="info"
+            >
+                Affects airways and holdings
+            </common-notification>
             <common-radio-group
-                :items="[{ value: 'ifr', text: 'IFR' }, { value: 'vfr', text: 'VFR' }]"
-                :model-value="store.mapSettings.navigraphData?.mode ?? 'ifr'"
+                :items="[{ value: 'ifrHigh', text: 'IFR High' }, { value: 'ifrLow', text: 'IFR Low' }]"
+                :model-value="store.mapSettings.navigraphData?.mode ?? 'ifrHigh'"
                 @update:modelValue="setUserMapSettings({ navigraphData: { mode: $event as any } })"
             />
         </template>
@@ -242,6 +272,12 @@ const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.loc
 const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
+
+watch(() => store.mapSettings.navigraphData, () => {
+    checkForNavigraph();
+}, {
+    deep: true,
+});
 
 const sigmetDatesList = sigmetDates();
 </script>
