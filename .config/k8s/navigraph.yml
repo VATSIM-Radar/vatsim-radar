@@ -26,10 +26,6 @@ spec:
           command: ["/radar/.config/navigraph.sh"]
           ports:
             - containerPort: 3000
-          resources:
-            requests:
-              cpu: 600m
-              memory: 300Mi
           readinessProbe:
             tcpSocket:
               port: 3000

@@ -255,6 +255,7 @@ export async function setupRedisDataFetch() {
         await updateRedisData();
 
         while (!await isDataReady()) {
+            console.log(await getRedisSync('navigraph-ready'));
             console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
             await sleep(1000 * 60);
             await updateRedisData();
