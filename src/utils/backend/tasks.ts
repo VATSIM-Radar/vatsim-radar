@@ -254,6 +254,12 @@ export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateRedisData();
 
+        while (!radarStorage.navigraphSetUp) {
+            await sleep(1000 * 15);
+            radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
+            console.log('Waiting for navigraph');
+        }
+
         while (!await isDataReady()) {
             console.log(await getRedisSync('navigraph-ready'));
             console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
