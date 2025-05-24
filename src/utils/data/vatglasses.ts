@@ -399,6 +399,11 @@ function getActiveSectorsOfAirspace(airspace: VatglassesAirspace) {
     return result;
 }
 
+function stringToArray<T>(item: T | T[] | undefined): T[] {
+    if (!item) return [];
+    if (!Array.isArray(item)) return [item];
+    return item;
+}
 
 // Converts from vatglasses sector format to geojson format
 function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
@@ -418,8 +423,14 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
         let colour: string | undefined = '';
         const colours = vatglassesData?.[countryGroupId]?.positions?.[positionId]?.colours?.filter(x => x.hex) ?? [];
         if (colours?.length) {
-            colour = colours?.find(x => x.online?.length && x.online.every(x => positions[countryGroupId]?.[x]?.atc))?.hex ??
-                colours.find(x => !x.online?.length)?.hex ??
+            colour = colours?.find(x => {
+                const online = stringToArray(x.online);
+                return online?.length && online.every(x => positions[countryGroupId]?.[x]?.atc);
+            })?.hex ??
+                colours.find(x => {
+                    const online = stringToArray(x.online);
+                    return !online?.length;
+                })?.hex ??
                 colours[0].hex;
         }
 
@@ -445,8 +456,9 @@ function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string
         } as VatglassesSectorProperties);
         return geoJsonPolygon;
     }
-    catch {
-        console.error('Convert failed');
+    catch (e) {
+        console.error(e);
+        console.error('Convert failed', countryGroupId, positionId);
     }
 
     return false;
