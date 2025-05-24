@@ -5,7 +5,12 @@ import { radarStorage } from '~/utils/backend/storage';
 import { processDatabase } from '~/utils/backend/navigraph/navdata';
 import { initNavigraph, navigraphCurrentDb, navigraphOutdatedDb } from '~/utils/backend/navigraph/db';
 import type { cycles } from '~/utils/backend/navigraph/db';
-import type { NavigraphNavData, NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+import type {
+    NavDataProcedure,
+    NavigraphNavData, NavigraphNavDataApproach,
+    NavigraphNavDataShort,
+    NavigraphNavDataStar,
+} from '~/utils/backend/navigraph/navdata/types';
 import { defineCronJob } from '~/utils/backend';
 
 const navigraphData: {
@@ -66,6 +71,8 @@ const router = createRouter<{ type: string }>();
 
 addRoute(router, 'GET', '/item/:type/:data/:key', { type: 'item' });
 addRoute(router, 'GET', '/data/:type', { type: 'data' });
+addRoute(router, 'GET', '/airport/:type/:airport/:group', { type: 'procedures' });
+addRoute(router, 'GET', '/airport/:type/:airport/:group/:index', { type: 'procedure' });
 
 function handleError(message: string, statusCode = 404) {
     return new Response(message, {
@@ -133,6 +140,68 @@ serve({
             }
 
             return new Response(JSON.stringify(newObj), {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+        }
+
+        if (route.data.type === 'procedures') {
+            const { type, airport, group } = route.params!;
+
+            const data = navigraphData?.full[type as 'current' | 'outdated'];
+            if (!data) {
+                return handleError('Data not initialized');
+            }
+
+            const _procedures = data[group as 'stars' | 'sids' | 'approaches'][airport];
+
+            if (!_procedures) return handleError('Not found');
+
+            if (group !== 'approaches') {
+                const procedures = _procedures as NavDataProcedure<NavigraphNavDataStar>[];
+
+                return new Response(JSON.stringify(procedures.map(x => ({
+                    identifier: x.procedure.identifier,
+                    runways: x.procedure.runways,
+                    transitions: {
+                        runway: x.transitions.runway.map(x => x.name),
+                        enroute: x.transitions.enroute.map(x => x.name),
+                    },
+                }))), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+            }
+            else {
+                const procedures = _procedures as NavDataProcedure<NavigraphNavDataApproach>[];
+
+                return new Response(JSON.stringify(procedures.map(x => ({
+                    name: x.procedure.procedureName,
+                    runway: x.procedure.runway,
+                    transitions: x.transitions.map(x => x.name),
+                }))), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+            }
+        }
+
+        if (route.data.type === 'procedure') {
+            const { type, airport, group, index } = route.params!;
+
+            const data = navigraphData?.full[type as 'current' | 'outdated'];
+            if (!data) {
+                return handleError('Data not initialized');
+            }
+
+            const procedure = data[group as 'stars' | 'sids' | 'approaches'][airport][+index];
+
+            if (!procedure) return handleError('Not found');
+
+            return new Response(JSON.stringify(procedure), {
                 headers: {
                     'Content-Type': 'application/json',
                 },

@@ -67,7 +67,7 @@ export interface VatglassesData {
         positions: {
             [key: string]: {
                 colours?: {
-                    online?: string[];
+                    online?: string[] | string;
                     hex: string;
                 }[];
                 pre: string[];

@@ -132,56 +132,65 @@ export function checkForVG() {
 
 export function checkForNavigraph() {
     return initCheck('navigraph', async ({ store, dataStore }) => {
-        let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
+        try {
+            let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
 
-        const type = store.user?.hasFms ? 'current' : 'outdated';
-        let notRequired = true;
+            const type = store.user?.hasFms ? 'current' : 'outdated';
+            let notRequired = true;
 
-        let keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints'];
+            let keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints'];
 
-        if (store.mapSettings.navigraphData?.vordme) {
-            keys.push('vhf');
-        }
-
-        if (store.mapSettings.navigraphData?.ndb) {
-            keys.push('ndb');
-        }
-
-        if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type]) {
-            keys = keys.filter(x => !navigraph?.data[x]);
-        }
-
-        if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type] && !keys.length) {
-            dataStore.navigraph.version.value = navigraph.version;
-            dataStore.navigraph.data.value = navigraph.data;
-            return 'notRequired';
-        }
-
-        // TODO: delete STARSID data
-        if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || !keys.every(x => navigraph?.data[x])) {
-            const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
-
-            if (keys.includes('airways')) {
-                fetchedData.parsedAirways = {};
-
-                for (const [airway, data] of Object.entries(fetchedData.airways)) {
-                    const identifier = data[0];
-                    if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
-                    fetchedData.parsedAirways[identifier][airway] = data;
-                }
+            if (store.mapSettings.navigraphData?.vordme) {
+                keys.push('vhf');
             }
 
-            navigraph = {
-                version: dataStore.versions.value?.navigraph?.[type] ?? '',
-                data: Object.assign(navigraph?.data ?? {}, fetchedData) as ClientNavigraphData,
-            };
-            await clientDB.put('data', navigraph, 'navigraph');
-            notRequired = false;
-        }
+            if (store.mapSettings.navigraphData?.ndb) {
+                keys.push('ndb');
+            }
 
-        dataStore.navigraph.version.value = navigraph.version;
-        dataStore.navigraph.data.value = navigraph.data;
-        if (notRequired) return 'notRequired';
+            if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type]) {
+                keys = keys.filter(x => !navigraph?.data[x]);
+            }
+
+            if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type] && !keys.length) {
+                dataStore.navigraph.version.value = navigraph.version;
+                dataStore.navigraph.data.value = navigraph.data;
+                return 'notRequired';
+            }
+
+            // TODO: delete STARSID data
+            if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || !keys.every(x => navigraph?.data[x])) {
+                const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
+
+                if (keys.includes('airways')) {
+                    fetchedData.parsedAirways = {};
+
+                    for (const [airway, data] of Object.entries(fetchedData.airways)) {
+                        const identifier = data[0];
+                        if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
+                        fetchedData.parsedAirways[identifier][airway] = data;
+                    }
+                }
+
+                navigraph = {
+                    version: dataStore.versions.value?.navigraph?.[type] ?? '',
+                    data: Object.assign(navigraph?.data ?? {}, fetchedData) as ClientNavigraphData,
+                };
+                await clientDB.put('data', navigraph, 'navigraph');
+                notRequired = false;
+            }
+
+            dataStore.navigraph.version.value = navigraph.version;
+            dataStore.navigraph.data.value = navigraph.data;
+            if (notRequired) return 'notRequired';
+        }
+        catch (e) {
+            if (useIsDebug()) {
+                console.error('navigraph', e);
+                return 'notRequired';
+            }
+            else throw e;
+        }
     });
 }
 

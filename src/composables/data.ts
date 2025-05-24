@@ -331,25 +331,27 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
         store.initStatus.status = true;
 
-        await checkForUpdates();
+        if (!store.initStatus.dataGet) {
+            await checkForUpdates();
 
-        await Promise.all([
-            checkForData(),
-            checkForVATSpy(),
-            checkForSimAware(),
-            checkForAirlines(),
-        ]);
+            await Promise.all([
+                checkForData(),
+                checkForVATSpy(),
+                checkForSimAware(),
+                checkForAirlines(),
+            ]);
 
-        await checkForVG();
-        await checkForNavigraph();
+            await checkForVG();
+            await checkForNavigraph();
 
-        await new Promise<void>(resolve => {
-            const interval = setInterval(async () => {
-                if (Object.values(store.initStatus).some(x => x === 'loading' || x === 'failed')) return;
-                clearInterval(interval);
-                resolve();
-            }, 1000);
-        });
+            await new Promise<void>(resolve => {
+                const interval = setInterval(async () => {
+                    if (Object.values(store.initStatus).some(x => x === 'loading' || x === 'failed')) return;
+                    clearInterval(interval);
+                    resolve();
+                }, 1000);
+            });
+        }
 
         store.initStatus.status = false;
 

@@ -105,8 +105,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full') {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { type, procedure, airport, index } = getRouterParams(event);
+    const { type, airport, group, index } = getRouterParams(event);
 
     if (type !== 'outdated') {
         const user = await findAndRefreshFullUserByCookie(event);
@@ -120,30 +119,9 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
         }
     }
 
-    /* const isShort = request === 'short';
-    const key = type === 'outdated' ? type : 'current';*/
+    const isShort = request === 'short';
+    const key = type === 'outdated' ? type : 'current';
 
-    /* if (procedure === 'approach') {
-        const procedure = radarStorage.navigraphData.full[key]?.approaches[airport];
-        if (isShort) {
-            return procedure?.map(x => ({
-                procedureName: x.procedure.procedureName,
-                runway: x.procedure.runway,
-                transition: x.procedure.transition,
-            } satisfies NavigraphNavDataApproachShort)) ?? handleH3Error({
-                event,
-                statusCode: 404,
-            });
-        }
-        else {
-            return procedure?.map(x => ({
-                procedureName: x.procedure.procedureName,
-                runway: x.procedure.runway,
-                transition: x.procedure.transition,
-            } satisfies NavigraphNavDataApproachShort)) ?? handleH3Error({
-                event,
-                statusCode: 404,
-            });
-        }
-    }*/
+    if (isShort) return $fetch<Record<string, any>>(`http://navigraph:3000/airport/${ key }/${ airport }/${ group }`);
+    else return $fetch<Record<string, any>>(`http://navigraph:3000/airport/${ key }/${ airport }/${ group }/${ index }`);
 }

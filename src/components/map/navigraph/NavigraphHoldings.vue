@@ -142,9 +142,13 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
     source?.value.removeFeatures(features);
     features = [];
 
+    console.log(enabled);
+
     if (!enabled) return;
 
     const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][7] === 'ENRT');
+
+    console.log(entries.length);
 
     entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';
@@ -176,6 +180,8 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
             }),
         );
     });
+
+    console.log(features);
 
     source?.value.addFeatures(features);
 }, {
