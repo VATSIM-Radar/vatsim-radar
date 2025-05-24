@@ -60,7 +60,7 @@
     "marked": "^15.0.11",
     "merge-ranges": "^1.0.2",
     "metar-taf-parser": "^9.1.2",
-    "nuxt": "3.17.3",
+    "nuxt": "3.17.4",
     "ol": "^10.5.0",
     "ol-mapbox-style": "^13.0.1",
     "pinia": "^3.0.2",
