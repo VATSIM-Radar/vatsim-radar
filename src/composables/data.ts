@@ -24,7 +24,12 @@ import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
 
-import type { NavDataFlightLevel, NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
+import type {
+    NavDataFlightLevel,
+    NavDataProcedure,
+    NavigraphGetData,
+    NavigraphNavData, NavigraphNavDataStar,
+} from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
     checkForData,
@@ -49,6 +54,12 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
 const waypoints = shallowRef<DataWaypoint[]>([]);
+
+const navigraphProcedures: DataStoreNavigraphProcedures = {
+    sids: ref({}),
+    stars: ref({}),
+    approaches: ref({}),
+};
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -119,6 +130,25 @@ const vatsim = {
     localUpdateTime: ref(0),
 };
 
+export type DataStoreNavigraphProcedures = {
+    stars: Ref<Record<string, {
+        constraints: boolean;
+        transition: string | null;
+        runway: string | null;
+        procedure: NavDataProcedure<NavigraphNavDataStar>;
+    }>>;
+    sids: Ref<Record<string, {
+        constraints: boolean;
+        transition: string | null;
+        runway: string | null;
+        procedure: NavDataProcedure<NavigraphNavDataStar>;
+    }>>;
+    approaches: Ref<Record<string, {
+        constraints: boolean;
+        procedure: NavDataProcedure<NavigraphNavDataStar>;
+    }>>;
+};
+
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
     vatspy: ShallowRef<VatSpyAPIData | undefined>;
@@ -143,6 +173,7 @@ export interface UseDataStore {
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: ShallowRef<DataWaypoint[]>;
+    navigraphProcedures: DataStoreNavigraphProcedures;
     navigraph: {
         version: Ref<string | null>;
         data: ShallowRef<ClientNavigraphData | null>;
@@ -164,6 +195,7 @@ const dataStore: UseDataStore = {
     sigmets,
     airlines,
     navigraphWaypoints: waypoints,
+    navigraphProcedures,
     navigraph: {
         version: navigraphVersion,
         data: navigraph,

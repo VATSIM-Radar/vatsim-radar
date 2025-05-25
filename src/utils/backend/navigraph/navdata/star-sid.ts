@@ -108,7 +108,7 @@ export const processNavdataSid: NavdataProcessFunction = async ({ fullData, db, 
             });
         }
         else if (isEnroute) {
-            procedure.transitions.runway.push({
+            procedure.transitions.enroute.push({
                 name: transition ?? waypoints[waypoints.length - 1].identifier,
                 waypoints,
             });
@@ -246,7 +246,7 @@ export const processNavdataStar: NavdataProcessFunction = async ({ fullData, db,
             });
         }
         else if (isEnroute) {
-            procedure.transitions.runway.push({
+            procedure.transitions.enroute.push({
                 name: transition ?? waypoints[waypoints.length - 1].identifier,
                 waypoints,
             });
@@ -415,6 +415,7 @@ export const processNavdataIap: NavdataProcessFunction = async ({ fullData, db, 
     }
 
     for (const [key, value] of Object.entries(approachList)) {
+        if (!value.procedure.runway) continue;
         fullData.approaches[key.split('-')[0]] ||= [];
         fullData.approaches[key.split('-')[0]].push(value);
 

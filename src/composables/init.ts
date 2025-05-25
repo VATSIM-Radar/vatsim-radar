@@ -162,6 +162,8 @@ export function checkForNavigraph() {
             if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || !keys.every(x => navigraph?.data[x])) {
                 const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
 
+                clientDB.clear('navigraphAirports');
+
                 if (keys.includes('airways')) {
                     fetchedData.parsedAirways = {};
 

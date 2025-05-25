@@ -89,7 +89,26 @@ export interface NavigraphNavDataApproach {
     missedApproach: NavigraphNavDataAirportWaypoint[];
 }
 
-export type NavigraphNavDataApproachShort = Pick<NavigraphNavDataApproach, 'procedureName' | 'runway' | 'transition'>;
+export type NavigraphNavDataStarShort = {
+    identifier: string;
+    runways: Array<string | null> | null;
+    transitions: {
+        runway: string[];
+        enroute: string[];
+    };
+};
+
+export type NavigraphNavDataApproachShort = {
+    name: string;
+    runway: string;
+    transitions: string[];
+};
+
+export type NavigraphNavDataShortProcedures = {
+    stars: NavigraphNavDataStarShort[];
+    sids: NavigraphNavDataStarShort[];
+    approaches: NavigraphNavDataApproachShort[];
+};
 
 export interface NavigraphNavDataStar {
     airport: string;

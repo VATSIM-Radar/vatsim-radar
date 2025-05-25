@@ -3,10 +3,13 @@
         v-if="navigraphSource"
         class="layers"
     >
-        <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
-        <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
-        <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
-        <navigraph-holdings v-if="store.mapSettings.navigraphData?.holdings"/>
+        <template v-if="mapStore.zoom > 5">
+            <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
+            <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
+            <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
+            <navigraph-holdings v-if="store.mapSettings.navigraphData?.holdings"/>
+        </template>
+        <navigraph-procedures/>
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -134,6 +137,8 @@ import type { FeatureLike } from 'ol/Feature';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
+import { useMapStore } from '~/store/map';
+import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
@@ -144,6 +149,7 @@ const store = useStore();
 provide('navigraph-source', navigraphSource);
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const mapStore = useMapStore();
 
 type ActiveFeature<T extends keyof NavigraphNavData> = {
     coords: Coordinate;
@@ -366,6 +372,16 @@ watch(map, val => {
                             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
                         }),
                     }),
+                });
+            }
+
+            if (properties.type === 'enroute') {
+                return new Style({
+                    stroke: new Stroke({
+                        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+                        width: 4,
+                    }),
+                    zIndex: 3,
                 });
             }
         }
