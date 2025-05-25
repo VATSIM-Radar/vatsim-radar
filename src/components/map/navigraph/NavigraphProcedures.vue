@@ -11,6 +11,7 @@ import { useMapStore } from '~/store/map';
 import { LineString, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import greatCircle from '@turf/great-circle';
+import type { NavigraphNavDataAirportWaypoint } from '~/utils/backend/navigraph/navdata/types';
 
 defineSlots<{ default: () => any }>();
 
@@ -38,15 +39,29 @@ function constructWaypointGeometries(coordinates: Coordinate[]): Coordinate[] {
     return result;
 }
 
-watch([dataStore.navigraphProcedures.sids], () => {
-    const newFeatures: Feature[] = [];
+function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirportWaypoint[], constraints: boolean, procedure: string) {
+    for (let i = 0; i < waypoints.length; i++) {
+        const waypoint = waypoints[i];
+        const nextWaypoint = waypoints[i + 1];
+        if (!nextWaypoint) continue;
 
-    for (const { procedure: { procedure, waypoints, transitions: { enroute, runway } }, constraints, transition } of Object.values({ ...dataStore.navigraphProcedures.sids.value, ...dataStore.navigraphProcedures.stars.value })) {
+        let coords: Coordinate[];
+
+        const circle = greatCircle(waypoint.coordinate, nextWaypoint.coordinate, { npoints: 2 });
+        if (circle.geometry.type === 'LineString') coords = circle.geometry.coordinates;
+        else coords = circle.geometry.coordinates.flatMap(x => x);
+
         newFeatures.push(new Feature({
-            geometry: new LineString(constructWaypointGeometries(waypoints.map(x => x.coordinate))),
+            geometry: new LineString(coords),
             dataType: 'navdata',
-            procedure: 'sid',
+            procedure,
             type: 'enroute',
+
+            altitude: nextWaypoint.altitude,
+            altitude1: nextWaypoint.altitude1,
+            altitude2: nextWaypoint.altitude2,
+            speed: nextWaypoint.speed,
+            speedLimit: nextWaypoint.speedLimit,
         }));
 
         if (constraints) {
@@ -55,9 +70,28 @@ watch([dataStore.navigraphProcedures.sids], () => {
                 dataType: 'navdata',
                 key: x.identifier,
                 waypoint: x.identifier,
+                ref: x.ref,
                 type: 'enroute-waypoint',
             })));
         }
+    }
+}
+
+watch([dataStore.navigraphProcedures.sids], () => {
+    const newFeatures: Feature[] = [];
+
+    for (const { procedure: { waypoints, transitions: { enroute, runway } }, constraints, runway: activeRunway, transition } of Object.values({ ...dataStore.navigraphProcedures.sids.value, ...dataStore.navigraphProcedures.stars.value })) {
+        addWaypoints(newFeatures, waypoints, constraints, 'sid');
+
+        const runwayTransitions = !activeRunway ? runway : runway.filter(x => x.name === activeRunway);
+
+        if (runwayTransitions.length) {
+            addWaypoints(newFeatures, runwayTransitions.flatMap(x => x.waypoints), constraints, 'sid');
+        }
+
+        const enrouteTransition = transition && enroute.find(x => x.name === transition);
+        if (enrouteTransition) addWaypoints(newFeatures, enrouteTransition.waypoints, constraints, 'sid');
+        else if (enroute.length) addWaypoints(newFeatures, enroute.flatMap(x => x.waypoints), constraints, 'sid');
     }
 
     source?.value.removeFeatures(features);

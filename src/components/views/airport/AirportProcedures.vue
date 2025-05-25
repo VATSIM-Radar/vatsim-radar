@@ -121,11 +121,11 @@ watch(() => selections.sid, async (val, oldVal) => {
 });
 
 watch(() => selections.sidTransition, val => {
-    if (selections.sid && dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier]) dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier].transition = val;
+    if (selections.sid !== null && dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier]) dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier].transition = val;
 });
 
 watch(() => selections.runway, val => {
-    if (selections.sid && dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier]) dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier].runway = val;
+    if (selections.sid !== null && dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier]) dataStore.navigraphProcedures.sids.value[selectedSid.value.identifier].runway = val;
 });
 </script>
 
