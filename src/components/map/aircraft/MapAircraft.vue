@@ -173,6 +173,7 @@ import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestin
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
 import { fromLonLat } from 'ol/proj';
+import { getFlightPlanWaypoints } from '~/composables/navigraph';
 
 const props = defineProps({
     aircraft: {

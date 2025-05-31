@@ -51,6 +51,18 @@ export interface NavigraphNavDataEnrouteWaypoint {
     usage: string;
 }
 
+export interface NavigraphNavDataEnrouteWaypointPartial {
+    identifier: string;
+    coordinate?: Coordinate;
+    type?: string;
+    usage?: string;
+    kind: 'sids' | 'stars' | 'approaches' | 'airway' | 'enroute' | 'vhf' | 'ndb';
+    airway?: {
+        key: string;
+        value: ShortAirway;
+    };
+}
+
 export type NavDataFlightLevel = 'H' | 'L' | 'B' | null;
 export type NavigraphNavDataAirwayWaypoint = NavigraphNavDataWaypoint & {
     maxAlt: number | null;
@@ -89,7 +101,26 @@ export interface NavigraphNavDataApproach {
     missedApproach: NavigraphNavDataAirportWaypoint[];
 }
 
-export type NavigraphNavDataApproachShort = Pick<NavigraphNavDataApproach, 'procedureName' | 'runway' | 'transition'>;
+export type NavigraphNavDataStarShort = {
+    identifier: string;
+    runways: Array<string | null> | null;
+    transitions: {
+        runway: string[];
+        enroute: string[];
+    };
+};
+
+export type NavigraphNavDataApproachShort = {
+    name: string;
+    runway: string;
+    transitions: string[];
+};
+
+export type NavigraphNavDataShortProcedures = {
+    stars: NavigraphNavDataStarShort[];
+    sids: NavigraphNavDataStarShort[];
+    approaches: NavigraphNavDataApproachShort[];
+};
 
 export interface NavigraphNavDataStar {
     airport: string;
@@ -174,14 +205,19 @@ export type AirspaceCoordinateObj = {
     boundaryVia: string;
 };
 export type AirspaceCoordinate = [coordinate: Coordinate, boundaryVia: string, bearing?: number, distance?: number];
+export type ShortAirway = [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavDataFlightLevel, type?: string][]];
 
 export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [waypoint: string, course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null]>;
-    airways: Record<string, [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavDataFlightLevel, type?: string][]]>;
-    parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
+    airways: Record<string, ShortAirway>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string]>;
+
+    parsedVHF?: Record<string, NavigraphNavDataShort['vhf']>;
+    parsedNDB?: Record<string, NavigraphNavDataShort['ndb']>;
+    parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
+    parsedWaypoints?: Record<string, NavigraphNavDataShort['waypoints']>;
 }
 
 export type NavdataProcessFunction = (settings: {

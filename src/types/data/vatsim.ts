@@ -140,6 +140,17 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
     end_z?: string;
 }
 
+export interface VatsimNattrak {
+    identifier: string;
+    active: boolean;
+    last_routein: string;
+    valid_from: string;
+    valid_to: string;
+    last_active: string;
+    condorde: number;
+    flight_levels: number[];
+}
+
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;
 
 export interface VatsimData {

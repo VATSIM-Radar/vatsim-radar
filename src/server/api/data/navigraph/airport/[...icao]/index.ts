@@ -130,7 +130,6 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             else {
                 value.features.forEach(feature => {
                     for (const i in feature.properties) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         if (!property.includes(i)) delete feature.properties[i];
                     }
                 });

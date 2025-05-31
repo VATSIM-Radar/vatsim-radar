@@ -442,7 +442,6 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserMapSettings, unknown][]) {
                     if (!(key in validators)) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;

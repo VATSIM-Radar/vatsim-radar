@@ -6,7 +6,7 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
-    VatsimBooking,
+    VatsimBooking, VatsimNattrak,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
@@ -67,7 +67,7 @@ export interface VatglassesData {
         positions: {
             [key: string]: {
                 colours?: {
-                    online?: string[];
+                    online?: string[] | string;
                     hex: string;
                 }[];
                 pre: string[];
@@ -230,6 +230,7 @@ export interface RadarStorage {
         subDivisions: VatsimSubDivision[];
         events: VatsimEvent[];
         bookings: VatsimBooking[];
+        tracks: VatsimNattrak[];
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
@@ -264,6 +265,7 @@ export const radarStorage: RadarStorage = {
         subDivisions: [],
         events: [],
         bookings: [],
+        tracks: [],
     },
     vatsim: {
         data: null,

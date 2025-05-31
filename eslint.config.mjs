@@ -383,6 +383,7 @@ export default withNuxt([
                 },
             ],
             '@typescript-eslint/no-invalid-void-type': 'off',
+            '@typescript-eslint/no-dynamic-delete': 'off',
         },
     },
     {

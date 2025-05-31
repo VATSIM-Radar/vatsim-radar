@@ -7,7 +7,11 @@ import type {
     VatglassesAPIData,
 } from '~/utils/backend/storage';
 
-import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+import type {
+    NavDataProcedure, NavigraphNavDataApproach, NavigraphNavDataApproachShort,
+    NavigraphNavDataShort, NavigraphNavDataStar,
+    NavigraphNavDataStarShort,
+} from '~/utils/backend/navigraph/navdata/types';
 
 interface VatSpyData {
     key: 'vatspy';
@@ -42,17 +46,33 @@ export interface IDBNavigraphData {
     };
 }
 
+export type IDBNavigraphProcedures = {
+    sids: Array<(NavigraphNavDataStarShort & { procedure?: NavDataProcedure<NavigraphNavDataStar> })>;
+    stars: Array<(NavigraphNavDataStarShort & { procedure?: NavDataProcedure<NavigraphNavDataStar> })>;
+    approaches: Array<(NavigraphNavDataApproachShort & { procedure?: NavDataProcedure<NavigraphNavDataApproach> })>;
+};
+
 interface ClientDB extends DBSchema {
     data: VatSpyData | SimAwareData | VatglassesData | IDBAirlinesData | IDBNavigraphData;
+    navigraphAirports: {
+        key: string;
+        value: IDBNavigraphProcedures;
+    };
 }
 
 export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
 
 export async function initClientDB() {
     if (clientDB) return;
-    clientDB = await openDB<ClientDB>('vatsim-radar', 2, {
+    clientDB = await openDB<ClientDB>('vatsim-radar', 3, {
         upgrade(db) {
-            db.createObjectStore('data');
+            if (!db.objectStoreNames.contains('data')) {
+                db.createObjectStore('data');
+            }
+
+            if (!db.objectStoreNames.contains('navigraphAirports')) {
+                db.createObjectStore('navigraphAirports');
+            }
 
             // @ts-expect-error Legacy db version
             if (db.objectStoreNames.contains('vatspy')) {
