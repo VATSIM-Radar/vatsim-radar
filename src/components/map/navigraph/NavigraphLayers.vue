@@ -6,6 +6,7 @@
         <template v-if="mapStore.zoom > 5">
             <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
+            <navigraph-route/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
         </template>
@@ -139,6 +140,7 @@ import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue'
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
 import { useMapStore } from '~/store/map';
 import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
+import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;

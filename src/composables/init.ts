@@ -138,15 +138,7 @@ export function checkForNavigraph() {
             const type = store.user?.hasFms ? 'current' : 'outdated';
             let notRequired = true;
 
-            let keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints'];
-
-            if (store.mapSettings.navigraphData?.vordme) {
-                keys.push('vhf');
-            }
-
-            if (store.mapSettings.navigraphData?.ndb) {
-                keys.push('ndb');
-            }
+            let keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints', 'vhf', 'ndb'];
 
             if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type]) {
                 keys = keys.filter(x => !navigraph?.data[x]);
@@ -159,7 +151,7 @@ export function checkForNavigraph() {
             }
 
             // TODO: delete STARSID data
-            if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || !keys.every(x => navigraph?.data[x])) {
+            if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || (keys.length && !keys.every(x => navigraph?.data[x]))) {
                 const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
 
                 clientDB.clear('navigraphAirports');
@@ -171,6 +163,36 @@ export function checkForNavigraph() {
                         const identifier = data[0];
                         if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
                         fetchedData.parsedAirways[identifier][airway] = data;
+                    }
+                }
+
+                if (keys.includes('waypoints')) {
+                    fetchedData.parsedWaypoints = {};
+
+                    for (const [waypoint, data] of Object.entries(fetchedData.waypoints)) {
+                        const identifier = data[0];
+                        if (!fetchedData.parsedWaypoints[identifier]) fetchedData.parsedWaypoints[identifier] = {};
+                        fetchedData.parsedWaypoints[identifier][waypoint] = data;
+                    }
+                }
+
+                if (keys.includes('vhf')) {
+                    fetchedData.parsedVHF = {};
+
+                    for (const [vhf, data] of Object.entries(fetchedData.vhf)) {
+                        const identifier = data[1];
+                        if (!fetchedData.parsedVHF[identifier]) fetchedData.parsedVHF[identifier] = {};
+                        fetchedData.parsedVHF[identifier][vhf] = data;
+                    }
+                }
+
+                if (keys.includes('waypoints')) {
+                    fetchedData.parsedNDB = {};
+
+                    for (const [ndb, data] of Object.entries(fetchedData.ndb)) {
+                        const identifier = data[1];
+                        if (!fetchedData.parsedNDB[identifier]) fetchedData.parsedNDB[identifier] = {};
+                        fetchedData.parsedNDB[identifier][ndb] = data;
                     }
                 }
 

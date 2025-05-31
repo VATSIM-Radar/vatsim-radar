@@ -6,7 +6,7 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
-    VatsimBooking,
+    VatsimBooking, VatsimNattrak,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
@@ -265,6 +265,7 @@ export const radarStorage: RadarStorage = {
         subDivisions: [],
         events: [],
         bookings: [],
+        tracks: [],
     },
     vatsim: {
         data: null,

@@ -28,7 +28,7 @@ import type {
     NavDataFlightLevel,
     NavDataProcedure,
     NavigraphGetData,
-    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataStar,
+    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataStar,
 } from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
@@ -54,7 +54,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
-const waypoints = shallowRef<DataWaypoint[]>([]);
+const waypoints = ref<Record<string, NavigraphNavDataEnrouteWaypointPartial[]>>({});
 
 const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
 
@@ -166,7 +166,7 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
-    navigraphWaypoints: ShallowRef<DataWaypoint[]>;
+    navigraphWaypoints: Ref<Record<string, NavigraphNavDataEnrouteWaypointPartial[]>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraph: {
         version: Ref<string | null>;
