@@ -5881,9 +5881,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@vite-pwa/nuxt@npm:1.0.1"
+"@vite-pwa/nuxt@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@vite-pwa/nuxt@npm:1.0.3"
   dependencies:
     "@nuxt/kit": "npm:^3.9.0"
     pathe: "npm:^1.1.1"
@@ -5894,7 +5894,7 @@ __metadata:
   peerDependenciesMeta:
     "@vite-pwa/assets-generator":
       optional: true
-  checksum: 10c0/d60dd5328d820cd1d7d7383f6d44c401a4076b4b7d4bc22fd4275ff43fff2391a32774db3390556069cb772edab2bc1fc2dd88f9be0f05f385c32e9877f665b0
+  checksum: 10c0/a8db4ad521ceed5ba7430a2a4d6637b65906d651c84c91a071d9b072a8013d4ff4d1ae35c79688bbfe3bf9590b97d09ac27b8d851fa568baf6538c77ad087ca6
   languageName: node
   linkType: hard
 
@@ -17508,7 +17508,7 @@ __metadata:
     "@types/merge-ranges": "npm:^1.0.2"
     "@types/node": "npm:^22.15.29"
     "@types/ws": "npm:^8.18.1"
-    "@vite-pwa/nuxt": "npm:^1.0.1"
+    "@vite-pwa/nuxt": "npm:^1.0.3"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
