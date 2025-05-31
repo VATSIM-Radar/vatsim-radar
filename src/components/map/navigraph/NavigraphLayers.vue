@@ -7,7 +7,7 @@
             <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
-            <navigraph-holdings v-if="store.mapSettings.navigraphData?.holdings"/>
+            <navigraph-holdings/>
         </template>
         <navigraph-procedures/>
         <map-overlay
@@ -244,17 +244,39 @@ watch(map, val => {
 
         const waypointStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
-            width: 1,
+            width: 2,
         });
 
         const holdingStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
-            width: 1,
+            width: 2,
         });
 
         const waypointBlueStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.3)`,
-            width: 1,
+            width: 2,
+        });
+
+        const sidStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+            width: 6,
+        });
+
+        const starStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+            width: 6,
+        });
+
+        const approachStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+            width: 6,
+        });
+
+        const missApproachStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+            width: 3,
+            lineJoin: 'round',
+            lineDash: [6, 12],
         });
 
         function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
@@ -309,7 +331,46 @@ watch(map, val => {
             if (fake) return;
 
             if (properties.type.endsWith('waypoint')) {
-                return [
+                let text = `${ properties.waypoint }`;
+
+                if (properties.altitude || properties.speedLimit) {
+                    if (properties.altitude) {
+                        text += '\n';
+
+                        switch (properties.altitude) {
+                            case 'between':
+                                text += `–${ properties.altitude1 } / +${ properties.altitude2 }`;
+                                break;
+                            case 'equals':
+                                text += `${ properties.altitude1 }`;
+                                break;
+                            case 'above':
+                                text += `+${ properties.altitude1 }`;
+                                break;
+                            case 'below':
+                                text += `-${ properties.altitude1 }`;
+                                break;
+                        }
+                    }
+
+                    if (properties.speed) {
+                        text += '\n';
+
+                        switch (properties.speed) {
+                            case 'equals':
+                                text += `AT ${ properties.speedLimit } KT`;
+                                break;
+                            case 'above':
+                                text += `MIN ${ properties.speedLimit } KT`;
+                                break;
+                            case 'below':
+                                text += `MAX ${ properties.speedLimit } KT`;
+                                break;
+                        }
+                    }
+                }
+
+                const styles = [
                     new Style({
                         image: waypointCircle,
                         zIndex: 6,
@@ -318,11 +379,11 @@ watch(map, val => {
                         text: showWaypointsLabels.value || properties.type === 'waypoint'
                             ? new Text({
                                 font: '8px Montserrat',
-                                text: `${ properties.waypoint }`,
+                                text,
                                 offsetX: 15,
-                                offsetY: 2,
+                                textBaseline: 'top',
                                 textAlign: 'left',
-                                justify: 'center',
+                                justify: 'left',
                                 padding: [2, 2, 2, 2],
                                 fill: new Fill({
                                     color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
@@ -332,6 +393,8 @@ watch(map, val => {
                         zIndex: 4,
                     }),
                 ];
+
+                return styles;
             }
 
             if (properties.type === 'airways') {
@@ -376,13 +439,57 @@ watch(map, val => {
             }
 
             if (properties.type === 'enroute') {
-                return new Style({
-                    stroke: new Stroke({
-                        color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
-                        width: 4,
-                    }),
-                    zIndex: 3,
-                });
+                if (properties.procedure === 'sid') {
+                    return new Style({
+                        text: properties.name && new Text({
+                            font: '7px Montserrat',
+                            text: `${ properties.name }`,
+                            textBaseline: 'middle',
+                            padding: [2, 2, 2, 2],
+                            textAlign: 'center',
+                            placement: 'line',
+                            justify: 'center',
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, ${ fake ? 0 : 0.8 })`,
+                            }),
+                        }),
+                        stroke: sidStroke,
+                        zIndex: 3,
+                    });
+                }
+
+                if (properties.procedure === 'star') {
+                    return new Style({
+                        text: properties.name && new Text({
+                            font: '7px Montserrat',
+                            text: `${ properties.name }`,
+                            textBaseline: 'middle',
+                            padding: [2, 2, 2, 2],
+                            textAlign: 'center',
+                            placement: 'line',
+                            justify: 'center',
+                            fill: new Fill({
+                                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, ${ fake ? 0 : 0.8 })`,
+                            }),
+                        }),
+                        stroke: starStroke,
+                        zIndex: 3,
+                    });
+                }
+
+                if (properties.procedure === 'approaches') {
+                    return new Style({
+                        stroke: approachStroke,
+                        zIndex: 3,
+                    });
+                }
+
+                if (properties.procedure === 'missedApproach') {
+                    return new Style({
+                        stroke: missApproachStroke,
+                        zIndex: 3,
+                    });
+                }
             }
         }
 

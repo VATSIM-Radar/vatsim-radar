@@ -179,7 +179,7 @@
         >
             <airport-procedures
                 :airport="props.overlay.key"
-                :procedures
+                from="airportOverlay"
             />
         </template>
         <template #bookmark>

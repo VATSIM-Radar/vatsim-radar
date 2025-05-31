@@ -12,8 +12,6 @@ import type {
     NavigraphNavDataShort, NavigraphNavDataStar,
     NavigraphNavDataStarShort,
 } from '~/utils/backend/navigraph/navdata/types';
-import type { PartialRecord } from '~/types';
-import type { NavigraphDataAirportKeys } from '~/composables/navigraph';
 
 interface VatSpyData {
     key: 'vatspy';

@@ -28,7 +28,7 @@ import type {
     NavDataFlightLevel,
     NavDataProcedure,
     NavigraphGetData,
-    NavigraphNavData, NavigraphNavDataStar,
+    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataStar,
 } from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
@@ -37,6 +37,7 @@ import {
     checkForVATSpy, checkForVG,
     getVatglassesDynamic,
 } from '~/composables/init';
+import type { PartialRecord } from '~/types';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -55,11 +56,7 @@ export type DataWaypoint = [identifier: string, longitude: number, latitude: num
 
 const waypoints = shallowRef<DataWaypoint[]>([]);
 
-const navigraphProcedures: DataStoreNavigraphProcedures = {
-    sids: ref({}),
-    stars: ref({}),
-    approaches: ref({}),
-};
+const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -130,24 +127,21 @@ const vatsim = {
     localUpdateTime: ref(0),
 };
 
-export type DataStoreNavigraphProcedures = {
-    stars: Ref<Record<string, {
-        constraints: boolean;
-        transition: string | null;
-        runway: string | null;
-        procedure: NavDataProcedure<NavigraphNavDataStar>;
-    }>>;
-    sids: Ref<Record<string, {
-        constraints: boolean;
-        transition: string | null;
-        runway: string | null;
-        procedure: NavDataProcedure<NavigraphNavDataStar>;
-    }>>;
-    approaches: Ref<Record<string, {
-        constraints: boolean;
-        procedure: NavDataProcedure<NavigraphNavDataStar>;
-    }>>;
-};
+export interface DataStoreNavigraphProcedure<T extends NavigraphNavDataStar | NavigraphNavDataApproach = NavigraphNavDataStar> {
+    constraints: boolean;
+    transitions: string[];
+    procedure: NavDataProcedure<T>;
+}
+
+export interface DataStoreNavigraphProceduresAirport {
+    setBy: 'airportOverlay' | 'pilotOverlay';
+    runways: string[];
+    stars: Record<string, DataStoreNavigraphProcedure>;
+    sids: Record<string, DataStoreNavigraphProcedure>;
+    approaches: Record<string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>>;
+}
+
+export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
 
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;

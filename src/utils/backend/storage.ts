@@ -230,6 +230,7 @@ export interface RadarStorage {
         subDivisions: VatsimSubDivision[];
         events: VatsimEvent[];
         bookings: VatsimBooking[];
+        tracks: VatsimNattrak[];
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;

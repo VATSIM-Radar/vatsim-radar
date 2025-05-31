@@ -200,7 +200,7 @@ serve({
                 return handleError('Data not initialized');
             }
 
-            const _procedures = data[group as 'stars' | 'sids' | 'approaches'][airport];
+            const _procedures = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
 
             if (!_procedures) return handleError('Not found');
 
@@ -232,7 +232,7 @@ serve({
                 return handleError('Data not initialized');
             }
 
-            const procedure = data[group as 'stars' | 'sids' | 'approaches'][airport]?.[+index];
+            const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport]?.[+index];
 
             if (!procedure) return handleError('Not found');
 

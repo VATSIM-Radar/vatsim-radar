@@ -4,6 +4,8 @@
 
 - (QA) Removed setup popup if was already initialized at some point
 - (QA) Improved performance when using airways
+- Added SID/STAR/Approach selection to each airport
+- (QA) Added STAR holdings
 
 # [1.2.0-alpha.3]
 
