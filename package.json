@@ -35,6 +35,7 @@
     "@turf/bearing": "^7.2.0",
     "@turf/boolean-point-in-polygon": "^7.2.0",
     "@turf/difference": "^7.2.0",
+    "@turf/distance": "^7.2.0",
     "@turf/great-circle": "^7.2.0",
     "@turf/helpers": "^7.2.0",
     "@turf/intersect": "^7.2.0",

@@ -20,6 +20,10 @@ const dataStore = useDataStore();
 
 let features: Feature[] = [];
 
+function angularDiff(a: number, b: number): number {
+    return Math.abs(((((a - b + 180) % 360) + 360) % 360) - 180);
+}
+
 watch(dataStore.navigraphWaypoints, val => {
     const newFeatures: Feature[] = [];
 
@@ -37,20 +41,11 @@ watch(dataStore.navigraphWaypoints, val => {
             rawWaypoints = rawWaypoints.slice(0, 4);
 
             rawWaypoints.sort((a, b) => {
-                const aBearing = turfBearing(coordinate, a[1], { final: true });
-                const bBearing = turfBearing(coordinate, b[1], { final: true });
+                const aBearing = (turfBearing(coordinate, a[1]) + 360) % 360;
+                const bBearing = (turfBearing(coordinate, b[1]) + 360) % 360;
 
-                const diffA = Math.min(
-                    Math.abs(aBearing - bearing),
-                    360 - Math.abs(aBearing - bearing),
-                );
-
-                const diffB = Math.min(
-                    Math.abs(bBearing - bearing),
-                    360 - Math.abs(bBearing - bearing),
-                );
-
-                console.log(a[0], b[0], bearing, diffA, diffB, diffA - diffB);
+                const diffA = angularDiff(aBearing, bearing);
+                const diffB = angularDiff(bBearing, bearing);
 
                 return diffA - diffB;
             });

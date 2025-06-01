@@ -12,6 +12,7 @@ import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
+import distance from '@turf/distance';
 
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
@@ -134,7 +135,6 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 }
 
 const replacementRegex = /[^a-zA-Z0-9\/]+/;
-const numberRegex = /[0-9]/;
 const latRegex = /^(\d{2,4})([NS])/;
 const sidstarRegex = /(?<start>[A-Z]{4})([A-Z]?)(?<end>[0-9][A-Z])/;
 
@@ -184,9 +184,7 @@ export interface FlightPlanInputWaypoint {
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
-    const dx = coordinate[0] - compare[0]!;
-    const dy = coordinate[1] - compare[1]!;
-    return (dx * dx) + (dy * dy);
+    return distance(compare, coordinate);
 }
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
@@ -195,7 +193,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
     const entries = flightPlan.split(' ').map(x => x.replace(replacementRegex, '')).filter(x => x && x !== 'DCT');
 
     let sidInit = false;
-    const starInit = false;
+    let starInit = false;
     let depRunway = null as string | null;
 
     try {
@@ -252,16 +250,23 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
             }
 
             // STARs/Approaches
-            if (!starInit && numberRegex.test(entry)) {
+            if (!starInit && sidstarRegex.test(entry)) {
                 const stars = await getNavigraphAirportShortProceduresForKey('stars', arrival);
                 const [splitRunway] = split;
                 const arrRunway = entries[entries.length - 1].split('/')[1] || splitRunway;
                 const tested = sidstarRegex.exec(search);
                 const star = stars.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
 
+                const nextEntry = entries[i + 1];
+                const nextEntryTest = nextEntry && sidstarRegex.exec(nextEntry);
+
+                if (nextEntryTest && stars.some(x => x.identifier === `${ nextEntryTest.groups?.start }${ nextEntryTest.groups?.end }`)) continue;
+
                 if (star !== -1) {
                     // We already have it fully drawn
                     if (dataStore.navigraphProcedures[arrival]?.stars[stars[star].identifier]) continue;
+
+                    starInit = true;
 
                     const procedure = await getNavigraphAirportProcedure('stars', arrival, star);
                     const arrivalProcedures = arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival);

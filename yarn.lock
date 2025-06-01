@@ -17505,6 +17505,7 @@ __metadata:
     "@turf/bearing": "npm:^7.2.0"
     "@turf/boolean-point-in-polygon": "npm:^7.2.0"
     "@turf/difference": "npm:^7.2.0"
+    "@turf/distance": "npm:^7.2.0"
     "@turf/great-circle": "npm:^7.2.0"
     "@turf/helpers": "npm:^7.2.0"
     "@turf/intersect": "npm:^7.2.0"
