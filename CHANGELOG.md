@@ -1,5 +1,19 @@
 # Changelog
 
+# [1.2.0-alpha.5]
+
+All notes here are for QA release.
+
+- Added missed approach when we were able to parse approach for planned track
+- Remove dashed line to destination in favor of connecting aircraft to predicted route (if not pass last waypoint)
+- Predicted route is now drawn on hover
+- Airways labels are now correct
+- Added labels for predicted SIDs/STARs
+- Updated nearest waypoint algo
+- Fixed an issue when holdings activated randomly
+- Added a toggle to show full route to pilot popup + user settings
+- Airport SID/STAR config is now saved for one browser session
+
 # [1.2.0-alpha.4]
 
 - (QA) Removed setup popup if was already initialized at some point

@@ -28,6 +28,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
         pilot: VatsimExtendedPilot;
         airport?: VatsimAirportInfo;
         tracked?: boolean;
+        fullRoute?: boolean;
     };
 }
 

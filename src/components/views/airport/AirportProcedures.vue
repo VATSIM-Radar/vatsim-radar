@@ -41,58 +41,60 @@
             v-for="(type, key) in proceduresTypes"
             :key
         >
-            <div
-                v-if="procedures[key]?.length"
-                class="procedures_group __info-sections"
-            >
-                <common-block-title remove-margin>
-                    {{type.title}}
-                </common-block-title>
-                <div class="procedures__items">
-                    <div
-                        v-for="(item, index) in procedures[key]"
-                        :key="type.key(item as any)"
-                        class="procedures__items_item"
-                        :class="{
-                            'procedures__items_item--blurred': type.isBlurred(item as any),
-                            'procedures__items_item--active': selectedAirport[key][type.key(item as any)],
-                        }"
-                        @click="selectItem(key, index)"
-                    >
-                        <template v-if="isApproach(item)">
-                            {{item.name}} RWY {{item.runway}}
+            <template v-if="!flightType || (flightType === 'departure' ? key === 'sids' : key !== 'sids')">
+                <div
+                    v-if="procedures[key]?.length"
+                    class="procedures_group __info-sections"
+                >
+                    <common-block-title remove-margin>
+                        {{type.title}}
+                    </common-block-title>
+                    <div class="procedures__items">
+                        <div
+                            v-for="(item, index) in procedures[key]"
+                            :key="type.key(item as any)"
+                            class="procedures__items_item"
+                            :class="{
+                                'procedures__items_item--blurred': type.isBlurred(item as any),
+                                'procedures__items_item--active': selectedAirport[key][type.key(item as any)],
+                            }"
+                            @click="selectItem(key, index)"
+                        >
+                            <template v-if="isApproach(item)">
+                                {{item.name}} RWY {{item.runway}}
+                            </template>
+                            <template v-else>
+                                {{item.identifier}}
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    v-for="(selection, index) in transitionsList[key]"
+                    :key="index"
+                    class="procedures_group __info-sections"
+                >
+                    <common-block-title remove-margin>
+                        <template v-if="multiple">
+                            {{ 'procedureName' in selection.procedure.procedure ? `${ selection.procedure.procedure.procedureName } ${ selection.procedure.procedure.runway }` : selection.procedure.procedure.identifier }} Transitions
                         </template>
                         <template v-else>
-                            {{item.identifier}}
+                            {{ type.title }} Transition
                         </template>
+                    </common-block-title>
+                    <div class="procedures__items">
+                        <div
+                            v-for="item in ('enroute' in selection.procedure.transitions ? selection.procedure.transitions.enroute : selection.procedure.transitions)"
+                            :key="item.name"
+                            class="procedures__items_item"
+                            :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
+                            @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions.push(item.name) : selection.transitions = [item.name])"
+                        >
+                            {{item.name}}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div
-                v-for="(selection, index) in transitionsList[key]"
-                :key="index"
-                class="procedures_group __info-sections"
-            >
-                <common-block-title remove-margin>
-                    <template v-if="multiple">
-                        {{ 'procedureName' in selection.procedure.procedure ? `${ selection.procedure.procedure.procedureName } ${ selection.procedure.procedure.runway }` : selection.procedure.procedure.identifier }} Transitions
-                    </template>
-                    <template v-else>
-                        {{ type.title }} Transition
-                    </template>
-                </common-block-title>
-                <div class="procedures__items">
-                    <div
-                        v-for="item in ('enroute' in selection.procedure.transitions ? selection.procedure.transitions.enroute : selection.procedure.transitions)"
-                        :key="item.name"
-                        class="procedures__items_item"
-                        :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
-                        @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions.push(item.name) : selection.transitions = [item.name])"
-                    >
-                        {{item.name}}
-                    </div>
-                </div>
-            </div>
+            </template>
         </template>
     </div>
 </template>
@@ -102,13 +104,14 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import {
     getNavigraphAirportProceduresForKey,
     getNavigraphAirportProcedure,
-    getNavigraphAirportProcedures,
+    getNavigraphAirportProcedures, enroutePath,
 } from '#imports';
-import type { DataStoreNavigraphProceduresAirport } from '#imports';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '#imports';
 import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import type { NavigraphNavDataApproach } from '~/utils/backend/navigraph/navdata/types';
 
 const props = defineProps({
     airport: {
@@ -118,6 +121,10 @@ const props = defineProps({
     from: {
         type: String as PropType<DataStoreNavigraphProceduresAirport['setBy']>,
         required: true,
+    },
+    flightType: {
+        type: String as PropType<'departure' | 'arrival' | null>,
+        default: null,
     },
 });
 
@@ -299,8 +306,88 @@ async function selectAll() {
     transitionsList.value.stars.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
 }
 
-watch(selectedAirport, setAirport, {
+watch(selectedAirport, () => {
+    setAirport();
+    dataStore.navigraphWaypoints.value = {};
+
+    if (selectedAirport.value) {
+        enroutePath.value ||= {};
+
+        enroutePath.value[props.airport] = {
+            runways: selectedAirport.value.runways,
+            sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            approaches: Object.fromEntries(Object.entries(selectedAirport.value.approaches).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            setBy: selectedAirport.value.setBy,
+        };
+
+        triggerRef(enroutePath);
+    }
+}, {
     immediate: true,
+    deep: 4,
+});
+
+onMounted(async () => {
+    setAirport();
+    if (!selectedAirport.value) return;
+    const cachedAirport = enroutePath.value?.[props.airport];
+
+    if (cachedAirport) {
+        selectedAirport.value.runways = cachedAirport.runways;
+        selectedAirport.value.setBy = cachedAirport.setBy;
+
+        selectedAirport.value.sids = Object.fromEntries(
+            await Promise.all(Object.entries(cachedAirport.sids)
+                .map(async ([key, value]) => {
+                    const procedure = procedures.value?.sids.findIndex(x => x.procedure?.procedure.identifier === key);
+                    if (procedure && procedure !== -1) {
+                        return [
+                            key, {
+                                ...value,
+                                procedure: (await getNavigraphAirportProcedure('sids', props.airport, procedure))!,
+                            },
+                        ] satisfies [string, DataStoreNavigraphProcedure];
+                    }
+                    return null as unknown as [string, DataStoreNavigraphProcedure][];
+                })
+                .filter(x => x)),
+        );
+
+        selectedAirport.value.stars = Object.fromEntries(
+            await Promise.all(Object.entries(cachedAirport.stars)
+                .map(async ([key, value]) => {
+                    const procedure = procedures.value?.stars.findIndex(x => x.procedure?.procedure.identifier === key);
+                    if (procedure && procedure !== -1) {
+                        return [
+                            key, {
+                                ...value,
+                                procedure: (await getNavigraphAirportProcedure('stars', props.airport, procedure))!,
+                            },
+                        ] satisfies [string, DataStoreNavigraphProcedure];
+                    }
+                    return null as unknown as [string, DataStoreNavigraphProcedure][];
+                })
+                .filter(x => x)),
+        );
+
+        selectedAirport.value.approaches = Object.fromEntries(
+            await Promise.all(Object.entries(cachedAirport.approaches)
+                .map(async ([key, value]) => {
+                    const procedure = procedures.value?.approaches.findIndex(x => `${ x.procedure?.procedure.procedureName }-${ x.procedure?.procedure.runway }` === key);
+                    if (procedure && procedure !== -1) {
+                        return [
+                            key, {
+                                ...value,
+                                procedure: (await getNavigraphAirportProcedure('approaches', props.airport, procedure))!,
+                            },
+                        ] satisfies [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>];
+                    }
+                    return null as unknown as [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>][];
+                })
+                .filter(x => x)),
+        );
+    }
 });
 
 onBeforeUnmount(() => {

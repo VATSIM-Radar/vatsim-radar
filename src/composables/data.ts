@@ -170,6 +170,9 @@ export interface UseDataStore {
     navigraphWaypoints: Ref<Record<string, {
         coordinate: Coordinate;
         bearing: number;
+        speed: number;
+        arrival: string;
+        full: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

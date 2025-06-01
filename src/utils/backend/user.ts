@@ -65,6 +65,7 @@ export interface UserSettings {
     autoZoom?: boolean;
     autoShowAirportTracks?: boolean;
     toggleAircraftOverlays?: boolean;
+    showFullRoute?: boolean;
     headerName?: string;
     seenVersion?: string;
     favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';

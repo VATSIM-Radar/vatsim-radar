@@ -20,7 +20,7 @@ const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings !== false);
+const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings);
 let features: Feature[] = [];
 
 // Dark magic from ChatGPT
