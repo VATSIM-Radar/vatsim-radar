@@ -6,6 +6,12 @@
 - (QA) Improved performance when using airways
 - Added SID/STAR/Approach selection to each airport
 - (QA) Added STAR holdings
+- Added aircraft predicted flight plan route when you click on it (EXPERIMENTAL)
+  - Route is NOT updated in real time
+  - Route is NOT shown on hover
+  - All waypoints are placeholders, including their and airways namings
+  - Aircraft nose is not connected to nearest waypoint
+  - Flight plan parse should be compared to how Navigraph displays it
 
 # [1.2.0-alpha.3]
 

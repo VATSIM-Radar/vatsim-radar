@@ -6,10 +6,10 @@
         <template v-if="mapStore.zoom > 5">
             <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
-            <navigraph-route/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
         </template>
+        <navigraph-route/>
         <navigraph-procedures/>
         <map-overlay
             v-if="activeFeature"
@@ -498,7 +498,7 @@ watch(map, val => {
         navigraphFakeLayer = new VectorImageLayer<any>({
             source: navigraphSource.value,
             zIndex: 6,
-            minZoom: 5,
+            // minZoom: 5,
             declutter: false,
             properties: {
                 type: 'navigraph',
@@ -511,7 +511,7 @@ watch(map, val => {
         navigraphLayer = new VectorImageLayer<any>({
             source: navigraphSource.value,
             zIndex: 6,
-            minZoom: 5,
+            // minZoom: 5,
             declutter: true,
             properties: {
                 type: 'navigraph',

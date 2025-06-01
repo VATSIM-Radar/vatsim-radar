@@ -38,6 +38,7 @@ import {
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
+import type { Coordinate } from 'ol/coordinate';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -54,7 +55,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
-const waypoints = ref<Record<string, NavigraphNavDataEnrouteWaypointPartial[]>>({});
+const waypoints = ref<Record<string, any>>({});
 
 const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
 
@@ -166,7 +167,11 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
-    navigraphWaypoints: Ref<Record<string, NavigraphNavDataEnrouteWaypointPartial[]>>;
+    navigraphWaypoints: Ref<Record<string, {
+        coordinate: Coordinate;
+        bearing: number;
+        waypoints: NavigraphNavDataEnrouteWaypointPartial[];
+    }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
     navigraph: {
         version: Ref<string | null>;

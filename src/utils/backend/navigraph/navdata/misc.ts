@@ -1,5 +1,6 @@
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
 import type { NavDataFlightLevel, NavdataProcessFunction } from '~/utils/backend/navigraph/navdata/types';
+import { buildNavDataWaypoint } from '~/utils/backend/navigraph/navdata/utils';
 
 export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData, shortData, db }) => {
     const holdings = await dbPartialRequest<{
@@ -126,12 +127,27 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
     fullData.airways = {};
     shortData.airways = {};
 
-    for (const airway of airways) {
-        const key = `${ airway.route_identifier }-${ airway.area_code }-${ airway.route_type }`;
+    for (let i = 0; i < airways.length; i++) {
+        const airway = airways[i];
+        const key = `${ airway.route_identifier }-${ airway.area_code }-${ airway.route_type }-${ airway.icao_code }`;
+        const previousAirway = airways[i - 1];
         let objectAirway = fullData.airways[key];
         let shortAirway = shortData.airways[key];
 
-        if (Math.abs(objectAirway?.waypoints[objectAirway?.waypoints.length - 1].seqno - airway.seqno) > 20) continue;
+        if (previousAirway && previousAirway.seqno < airway.seqno && airway.route_identifier === previousAirway.route_identifier) continue;
+
+        const nextAirways: typeof airways = [airway];
+
+        let k = i + 1;
+        let seqno = airway.seqno;
+        let nextItem = airways[k];
+
+        while (nextItem && nextItem.seqno > seqno && airway.route_identifier === nextItem.route_identifier) {
+            nextAirways.push(nextItem);
+            k++;
+            seqno = nextItem.seqno;
+            nextItem = airways[k];
+        }
 
         if (!objectAirway) {
             objectAirway = {
@@ -152,23 +168,25 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
             shortData.airways[key] = shortAirway;
         }
 
-        const flightLevel = getFlightLevel(airway.flightlevel);
+        for (const airway of nextAirways) {
+            const flightLevel = getFlightLevel(airway.flightlevel);
 
-        objectAirway.waypoints.push({
-            identifier: airway.waypoint_identifier,
-            coordinate: [airway.waypoint_longitude, airway.waypoint_latitude],
-            ref: airway.waypoint_ref_table,
-            minAlt: airway.minimum_altitude1,
-            maxAlt: airway.maximum_altitude,
-            inbound: airway.inbound_course,
-            outbound: airway.outbound_course,
-            seqno: airway.seqno,
-            flightLevel,
-            direction: airway.direction_restriction as any,
-        });
+            objectAirway.waypoints.push({
+                identifier: airway.waypoint_identifier,
+                coordinate: [airway.waypoint_longitude, airway.waypoint_latitude],
+                ref: airway.waypoint_ref_table,
+                minAlt: airway.minimum_altitude1,
+                maxAlt: airway.maximum_altitude,
+                inbound: airway.inbound_course,
+                outbound: airway.outbound_course,
+                seqno: airway.seqno,
+                flightLevel,
+                direction: airway.direction_restriction as any,
+            });
 
-        const waypoint = shortData.waypoints?.[`${ airway.waypoint_identifier }-${ airway.area_code }`];
+            const waypoint = shortData.waypoints?.[`${ airway.waypoint_identifier }-${ airway.area_code }`];
 
-        shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel, waypoint?.[3]]);
+            shortAirway[2].push([airway.waypoint_identifier, airway.inbound_course, airway.outbound_course, airway.waypoint_longitude, airway.waypoint_latitude, flightLevel, waypoint?.[3]]);
+        }
     }
 };

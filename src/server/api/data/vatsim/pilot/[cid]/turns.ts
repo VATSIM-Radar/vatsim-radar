@@ -30,26 +30,34 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
 
         const start = getQuery(event).start;
 
-        const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined);
+        try {
+            const geojson = await getInfluxOnlineFlightTurnsGeojson(cid, typeof start === 'string' ? start : undefined);
 
-        if (geojson) return geojson;
+            if (geojson) {
+                return Object.assign(geojson, {
+                    flightPlan: pilot.flight_plan?.route,
+                });
+            }
 
-        handleH3Error({
-            event,
-            statusCode: 404,
-            data: `This pilot is not online or doesn't have flight plan`,
-        });
+            handleH3Error({
+                event,
+                statusCode: 404,
+                data: `This pilot is not online or doesn't have flight plan`,
+            });
+        }
+        catch (e) {
+            return {
+                flightPlan: pilot.flight_plan?.route,
+            };
+
+            throw e;
+        }
     }
     catch (e) {
         if ((e as any).message?.includes('REFUSED')) {
-            handleH3Error({
-                event,
-                statusCode: 500,
-            });
-
             return;
         }
 
-        handleH3Exception(event, e);
+        console.error(e);
     }
 });

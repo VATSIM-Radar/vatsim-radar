@@ -492,11 +492,16 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
         isOffline.value = false;
 
         if (pilot.value.flight_plan) {
-            dataStore.navigraphWaypoints.value[pilot.value.cid.toString()] = await getFlightPlanWaypoints({
-                flightPlan: pilot.value.flight_plan.route!,
-                departure: pilot.value.flight_plan.departure!,
-                arrival: pilot.value.flight_plan.arrival!,
-            });
+            dataStore.navigraphWaypoints.value[pilot.value.cid.toString()] = {
+                coordinate: [pilot.value.longitude, pilot.value.latitude],
+                bearing: pilot.value.heading,
+                // TODO: fpln change
+                waypoints: dataStore.navigraphWaypoints.value[pilot.value.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
+                    flightPlan: pilot.value.flight_plan.route!,
+                    departure: pilot.value.flight_plan.departure!,
+                    arrival: pilot.value.flight_plan.arrival!,
+                }),
+            };
         }
     }
     catch (e: IFetchError | any) {

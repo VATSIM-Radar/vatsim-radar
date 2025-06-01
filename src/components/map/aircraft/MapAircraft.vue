@@ -167,13 +167,12 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
-import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson, InfluxGeojsonFeature } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
 import { fromLonLat } from 'ol/proj';
-import { getFlightPlanWaypoints } from '~/composables/navigraph';
 
 const props = defineProps({
     aircraft: {
@@ -225,7 +224,7 @@ const turnsStart = ref('');
 const turnsTimestamp = ref(0);
 const turnsFirstGroupTimestamp = ref('');
 const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
-const turnsFirstGroup = shallowRef<InfluxGeojson['features'][0] | null>(null);
+const turnsFirstGroup = shallowRef<InfluxGeojsonFeature | null>(null);
 const linesUpdateInProgress = ref(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 
@@ -431,7 +430,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 }
             }
 
-            if (turns?.features?.[0]?.features.length) {
+            if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {
                 turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp;
                 turnsStart.value = turns.flightPlanTime;
             }
@@ -455,7 +454,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             return;
         }
 
-        if (turns?.features.length && airportOverlayTracks.value !== 'short') {
+        if (turns?.features?.length && airportOverlayTracks.value !== 'short') {
             if (depLine) {
                 depLine.dispose();
                 linesSource.value?.removeFeature(depLine);
