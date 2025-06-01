@@ -138,7 +138,7 @@ jobs:
       - name: Deploy Navigraph
         run: kubectl apply -f .config/k8s/navigraph.yml
       - name: Apply Navigraph
-        run: kubectl rollout restart deployment worker-next
+        run: kubectl rollout restart deployment navigraph
       - name: Validate Navigraph
         run: kubectl rollout status deployment navigraph
       - name: Deploy Volume
