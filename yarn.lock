@@ -4975,6 +4975,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/bearing@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "@turf/bearing@npm:7.2.0"
+  dependencies:
+    "@turf/helpers": "npm:^7.2.0"
+    "@turf/invariant": "npm:^7.2.0"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/970f1a87f9489f8ca812e6f3193dd4da6b7f89a93dfb46e5c4b11b1064db99e56a04917f0e46ea443aff28e30392da529d7db08315c2bcd2d492b9350070b6e5
+  languageName: node
+  linkType: hard
+
 "@turf/boolean-point-in-polygon@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/boolean-point-in-polygon@npm:7.2.0"
@@ -17490,6 +17502,7 @@ __metadata:
     "@sentry/nuxt": "npm:^9.24.0"
     "@stylistic/eslint-plugin": "npm:^4.4.0"
     "@stylistic/stylelint-plugin": "npm:^3.1.2"
+    "@turf/bearing": "npm:^7.2.0"
     "@turf/boolean-point-in-polygon": "npm:^7.2.0"
     "@turf/difference": "npm:^7.2.0"
     "@turf/great-circle": "npm:^7.2.0"

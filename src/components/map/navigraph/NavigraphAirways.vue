@@ -84,16 +84,40 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
         }
     }
 
-    const newFeatures = [
-        ...geometries.filter(x => checkFlightLevel(x.flightLevel) && x.rawCoords.some((x: Coordinate) => isPointInExtent(x, extent))).map(x => new Feature({
-            ...x,
-            geometry: turfGeometryToOl(greatCircle(x.rawCoords[0], x.rawCoords[1], { npoints: 3 })),
-        })),
-        ...waypointGeometries.filter(x => checkFlightLevel(x.flightLevel) && isPointInExtent(x.rawCoords, extent)).map(x => new Feature({
-            ...x,
-            geometry: new Point(x.rawCoords),
-        })),
-    ];
+    const newFeatures: Feature[] = [];
+
+    for (let i = 0; i < geometries.length; i += 10000) {
+        for (let k = i; k < i + 10000; k++) {
+            const entry = geometries[k];
+            if (!entry) continue;
+
+            if (checkFlightLevel(entry.flightLevel) && entry.rawCoords.some((x: Coordinate) => isPointInExtent(x, extent))) {
+                newFeatures.push(new Feature({
+                    ...entry,
+                    geometry: turfGeometryToOl(greatCircle(entry.rawCoords[0], entry.rawCoords[1], { npoints: 2 })),
+                }));
+            }
+        }
+
+        await sleep(0);
+    }
+
+    for (let i = 0; i < waypointGeometries.length; i += 10000) {
+        for (let k = i; k < i + 10000; k++) {
+            const entry = waypointGeometries[k];
+            if (!entry) continue;
+
+            if (checkFlightLevel(entry.flightLevel) && isPointInExtent(entry.rawCoords, extent)) {
+                newFeatures.push(new Feature({
+                    ...entry,
+                    geometry: new Point(entry.rawCoords),
+                }));
+            }
+        }
+
+        await sleep(0);
+    }
+
 
     source?.value.removeFeatures(features);
     features = newFeatures;

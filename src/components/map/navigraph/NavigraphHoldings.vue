@@ -138,13 +138,23 @@ function generateHoldingPatternGeoJSON(
 const extent = computed(() => mapStore.extent);
 const level = computed(() => store.mapSettings.navigraphData?.mode);
 
-watch([isEnabled, extent, level], async ([enabled, extent]) => {
+const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataStore.navigraphProcedures).flatMap(x => Object.values(x!.stars)).flatMap(x => [
+    x.procedure.waypoints.map(x => x.identifier),
+    x.procedure.transitions.enroute.flatMap(x => x.waypoints.map(x => x.identifier)),
+    x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
+]))));
+
+watch([isEnabled, extent, level, starWaypoints], async ([enabled, extent]) => {
     source?.value.removeFeatures(features);
     features = [];
 
-    if (!enabled) return;
+    console.log(enabled);
 
-    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => x[1][7] === 'ENRT');
+    if (!enabled && !starWaypoints.value.length) return;
+
+    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]));
+
+    console.log(entries.length);
 
     entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';
@@ -176,6 +186,8 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
             }),
         );
     });
+
+    console.log(features);
 
     source?.value.addFeatures(features);
 }, {

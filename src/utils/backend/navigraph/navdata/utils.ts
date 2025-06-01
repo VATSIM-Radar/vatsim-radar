@@ -3,11 +3,11 @@ import type { NavdataRunwaysByAirport, NavigraphNavDataAirportWaypoint } from '~
 export function addNavDataRunways(airport: string, runway: string, runways: any[], runwaysByAirport: NavdataRunwaysByAirport) {
     if (!runwaysByAirport[airport]) runways.push(runway);
     else if (runway === 'ALL') {
-        runways.push(...runwaysByAirport[airport]);
+        runways.push(...runwaysByAirport[airport].map(x => x.identifier));
     }
     else if (!runway.endsWith('B')) runways.push(runway);
     else {
-        const list = runwaysByAirport[airport].filter(x => runway.startsWith(x.identifier.slice(0, 2)));
+        const list = runwaysByAirport[airport].filter(x => runway.startsWith(x.identifier.slice(0, 2))).map(x => x.identifier);
         runways.push(...list);
     }
 }

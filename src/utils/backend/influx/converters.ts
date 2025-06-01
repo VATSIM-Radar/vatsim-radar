@@ -16,9 +16,12 @@ export interface VatsimPilotConnection {
     server: string;
 }
 
+export type InfluxGeojsonFeature = FeatureCollection<Point>;
+
 export type InfluxGeojson = {
-    flightPlanTime: string;
-    features: FeatureCollection<Point>[];
+    flightPlan?: string;
+    flightPlanTime?: string;
+    features?: InfluxGeojsonFeature[];
 };
 
 export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {

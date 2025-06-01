@@ -24,7 +24,12 @@ import { useGeographic } from 'ol/proj';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
 
-import type { NavDataFlightLevel, NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
+import type {
+    NavDataFlightLevel,
+    NavDataProcedure,
+    NavigraphGetData,
+    NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataStar,
+} from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
     checkForData,
@@ -32,6 +37,8 @@ import {
     checkForVATSpy, checkForVG,
     getVatglassesDynamic,
 } from '~/composables/init';
+import type { PartialRecord } from '~/types';
+import type { Coordinate } from 'ol/coordinate';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -48,7 +55,9 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
-const waypoints = shallowRef<DataWaypoint[]>([]);
+const waypoints = ref<Record<string, any>>({});
+
+const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -119,6 +128,22 @@ const vatsim = {
     localUpdateTime: ref(0),
 };
 
+export interface DataStoreNavigraphProcedure<T extends NavigraphNavDataStar | NavigraphNavDataApproach = NavigraphNavDataStar> {
+    constraints: boolean;
+    transitions: string[];
+    procedure: NavDataProcedure<T>;
+}
+
+export interface DataStoreNavigraphProceduresAirport {
+    setBy: 'airportOverlay' | 'pilotOverlay';
+    runways: string[];
+    stars: Record<string, DataStoreNavigraphProcedure>;
+    sids: Record<string, DataStoreNavigraphProcedure>;
+    approaches: Record<string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>>;
+}
+
+export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
+
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
     vatspy: ShallowRef<VatSpyAPIData | undefined>;
@@ -142,7 +167,12 @@ export interface UseDataStore {
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
-    navigraphWaypoints: ShallowRef<DataWaypoint[]>;
+    navigraphWaypoints: Ref<Record<string, {
+        coordinate: Coordinate;
+        bearing: number;
+        waypoints: NavigraphNavDataEnrouteWaypointPartial[];
+    }>>;
+    navigraphProcedures: DataStoreNavigraphProcedures;
     navigraph: {
         version: Ref<string | null>;
         data: ShallowRef<ClientNavigraphData | null>;
@@ -164,6 +194,7 @@ const dataStore: UseDataStore = {
     sigmets,
     airlines,
     navigraphWaypoints: waypoints,
+    navigraphProcedures,
     navigraph: {
         version: navigraphVersion,
         data: navigraph,
@@ -331,25 +362,27 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
         store.initStatus.status = true;
 
-        await checkForUpdates();
+        if (!store.initStatus.dataGet) {
+            await checkForUpdates();
 
-        await Promise.all([
-            checkForData(),
-            checkForVATSpy(),
-            checkForSimAware(),
-            checkForAirlines(),
-        ]);
+            await Promise.all([
+                checkForData(),
+                checkForVATSpy(),
+                checkForSimAware(),
+                checkForAirlines(),
+            ]);
 
-        await checkForVG();
-        await checkForNavigraph();
+            await checkForVG();
+            await checkForNavigraph();
 
-        await new Promise<void>(resolve => {
-            const interval = setInterval(async () => {
-                if (Object.values(store.initStatus).some(x => x === 'loading' || x === 'failed')) return;
-                clearInterval(interval);
-                resolve();
-            }, 1000);
-        });
+            await new Promise<void>(resolve => {
+                const interval = setInterval(async () => {
+                    if (Object.values(store.initStatus).some(x => x === 'loading' || x === 'failed')) return;
+                    clearInterval(interval);
+                    resolve();
+                }, 1000);
+            });
+        }
 
         store.initStatus.status = false;
 
