@@ -1,4 +1,4 @@
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
+import { handleH3Error } from '~/utils/backend/h3';
 
 import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import { radarStorage } from '~/utils/backend/storage';

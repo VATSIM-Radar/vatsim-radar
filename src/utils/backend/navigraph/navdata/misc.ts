@@ -1,6 +1,5 @@
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
 import type { NavDataFlightLevel, NavdataProcessFunction } from '~/utils/backend/navigraph/navdata/types';
-import { buildNavDataWaypoint } from '~/utils/backend/navigraph/navdata/utils';
 
 export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData, shortData, db }) => {
     const holdings = await dbPartialRequest<{
