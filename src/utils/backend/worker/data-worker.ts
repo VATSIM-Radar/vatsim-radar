@@ -77,7 +77,7 @@ await defineCronJob('*/10 * * * * *', async () => {
 
     if (!data) return;
 
-    for (const stopbar of data.stopbars ?? []) {
+    for (const stopbar of data?.stopbars ?? []) {
         try {
             shortBars[stopbar.airportICAO] ??= [];
             shortBars[stopbar.airportICAO].push({

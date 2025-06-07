@@ -268,23 +268,22 @@ const roadmap = reactive<Roadmap[]>([
             {
                 title: 'Pilot/airport mouse context menu',
             },
-            'Proper Github local setup',
             {
                 title: 'Oceanic Tracks integration',
                 status: 'in-progress',
             },
             {
-                title: 'Waypoints on map (including aircraft submitted route)',
+                title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
                 status: 'in-progress',
+            },
+            {
+                title: 'Waypoints on map (including aircraft submitted route)',
+                status: 'todo',
             },
             {
                 title: 'Friends export/import',
                 description: 'Including VATSpy-like import',
                 status: 'completed',
-            },
-            {
-                title: 'Events/ATC Bookings 2.0',
-                description: 'More complex integration than current events',
             },
             {
                 title: 'ATC Bookings',
@@ -316,8 +315,11 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Name of aircraft operating company',
                 status: 'completed',
             },
-            'Friends list UX improvements',
             'Lock North button',
+            'Distance measuring tool',
+            'NOTAMs grouping',
+            'METAR request',
+            'Settings Page',
         ],
     },
     {
@@ -330,10 +332,15 @@ const roadmap = reactive<Roadmap[]>([
             'Images or aircraft type, airline + operator',
             'Flights/atc sessions history, VATSIM user page',
             'History of events / events traffic',
-            'METAR request',
-            'Proper estimate arrival time',
-            'NOTAMs grouping',
-            'Distance measuring tool',
+            {
+                title: 'Proper Github local setup',
+                description: 'This includes the ability to view tracks, Navigraph data etc locally via token. Basic local setup is available right now!',
+            },
+            {
+                title: 'Events/ATC Bookings 2.0',
+                description: 'More complex integration than current events',
+            },
+            'Friends list UX improvements',
         ],
     },
     {
@@ -356,6 +363,7 @@ const roadmap = reactive<Roadmap[]>([
                 title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
             },
+            'Proper estimate arrival time',
         ],
     },
 ]);

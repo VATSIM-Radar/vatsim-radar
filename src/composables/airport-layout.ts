@@ -147,6 +147,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.1)`,
             }),
+            zIndex: 4,
         }),
         deicingarea: feature => {
             const options: StyleOptions = {
@@ -175,6 +176,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             fill: new Fill({
                 color: `rgba(${ themeStyles.apron1000 }, 0.2)`,
             }),
+            zIndex: 2,
         }),
         standguidanceline: new Style({
             stroke: new Stroke({
@@ -186,6 +188,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             fill: new Fill({
                 color: `rgba(${ themeStyles.taxiwayElement[theme] }, 1)`,
             }),
+            zIndex: 3,
         }),
         taxiwayintersectionmarking: feature => {
             const style = new Style({
