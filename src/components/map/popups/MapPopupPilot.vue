@@ -224,7 +224,7 @@ import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { getFlightPlanWaypoints, sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { sortControllersByPosition, useFacilitiesIds } from '#imports';
 import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';

@@ -15,7 +15,6 @@ import { useStore } from '~/store';
 const map = inject<ShallowRef<Map | null>>('map')!;
 const container = useTemplateRef('scale');
 const store = useStore();
-const isMobile = useIsMobile();
 
 let scaleLine: ScaleLine | undefined;
 
