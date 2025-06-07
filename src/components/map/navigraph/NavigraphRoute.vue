@@ -105,7 +105,7 @@ function update() {
                     if (typeof nextCoordinate[0] !== 'number') continue;
 
                     newFeatures.push(new Feature({
-                        geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 2 })),
+                        geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         identifier: waypoint.title ?? '',
                         type: 'airways',
