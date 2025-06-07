@@ -6,12 +6,12 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
-    VatsimBooking,
+    VatsimBooking, VatsimNattrak,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
 import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from 'geojson';
-import type { cycles } from '~/utils/backend/navigraph-db';
+import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
@@ -67,7 +67,7 @@ export interface VatglassesData {
         positions: {
             [key: string]: {
                 colours?: {
-                    online?: string[];
+                    online?: string[] | string;
                     hex: string;
                 }[];
                 pre: string[];
@@ -230,9 +230,11 @@ export interface RadarStorage {
         subDivisions: VatsimSubDivision[];
         events: VatsimEvent[];
         bookings: VatsimBooking[];
+        tracks: VatsimNattrak[];
     };
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
+    navigraphSetUp: boolean;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
     extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
@@ -263,6 +265,7 @@ export const radarStorage: RadarStorage = {
         subDivisions: [],
         events: [],
         bookings: [],
+        tracks: [],
     },
     vatsim: {
         data: null,
@@ -284,6 +287,7 @@ export const radarStorage: RadarStorage = {
         current: '',
         outdated: '',
     },
+    navigraphSetUp: false,
     patreonInfo: null,
     airlines: {
         airlines: {},
@@ -293,11 +297,13 @@ export const radarStorage: RadarStorage = {
     extendedPilotsMap: {},
 };
 
-export async function isDataReady() {
+export function isDataReady(): boolean {
     const event = typeof tryUseNuxtApp !== 'undefined' && tryUseNuxtApp() && useRequestEvent();
     if (event) return event.context.radarStorageReady;
 
-    return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data;
+    if (!process.env.NAVIGRAPH_CLIENT_ID) return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data;
+
+    return !!radarStorage.vatspy?.data && !!radarStorage.vatglasses.data && !!radarStorage.vatsim.data && !!radarStorage.simaware?.data && radarStorage.navigraphSetUp;
 }
 
 export function getDataVersions(): VatDataVersions {

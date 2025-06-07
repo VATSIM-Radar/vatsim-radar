@@ -48,6 +48,7 @@
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-airports-list v-if="!store.config.hideAirports"/>
+                    <navigraph-layers v-if="dataStore.navigraph.data && !store.localSettings.disableNavigraph"/>
                     <map-weather v-if="!store.config.hideHeader"/>
                     <a
                         v-if="store.config.showCornerLogo"
@@ -175,6 +176,7 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
+import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
@@ -465,6 +467,14 @@ useUpdateInterval(() => {
     setUserLocalSettings({
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
+
+    if (store.mapSettings.navigraphData?.isModeAuto !== false) {
+        setUserMapSettings({
+            navigraphData: {
+                mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
+            },
+        });
+    }
 });
 
 const overlays = computed(() => mapStore.overlays);

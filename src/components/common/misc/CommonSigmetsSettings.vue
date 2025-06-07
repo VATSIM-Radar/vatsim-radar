@@ -1,6 +1,9 @@
 <template>
     <div class="sigmets-settings">
-        <map-filter-transparency setting="sigmets"/>
+        <map-filter-transparency
+            class="sigmets-settings_transparency"
+            setting="sigmets"
+        />
         <div
             v-for="(button, key) in buttons"
             :key="key"
@@ -87,6 +90,10 @@ const buttons: Record<SigmetType, Button> = {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+
+    &_transparency {
+        width: 100%;
+    }
 
     &_btn {
         cursor: pointer;

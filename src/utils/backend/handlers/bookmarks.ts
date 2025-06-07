@@ -192,7 +192,6 @@ export async function handleBookmarksEvent(event: H3Event) {
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserBookmark, unknown][]) {
                     if (!(key in initValidators)) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;

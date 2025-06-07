@@ -10,19 +10,17 @@ import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/bac
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { initWebsocket, wss } from '~/utils/backend/vatsim/ws';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
-import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
+import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/backend/tasks';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 initWebsocket();
 initInfluxDB();
-initKafka();
-initNavigraph().catch(console.error);
 
-initWholeBunchOfBackendTasks();
+await initWholeBunchOfBackendTasks();
+initKafka();
 
 const redisPublisher = getRedis();
 
@@ -74,10 +72,12 @@ let data: VatsimData | null = null;
 let shortBars: BARSShort = {};
 
 await defineCronJob('*/10 * * * * *', async () => {
-    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch();
+    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch(() => {});
     shortBars = {};
 
-    for (const stopbar of data.stopbars ?? []) {
+    if (!data) return;
+
+    for (const stopbar of data?.stopbars ?? []) {
         try {
             shortBars[stopbar.airportICAO] ??= [];
             shortBars[stopbar.airportICAO].push({
@@ -91,7 +91,7 @@ await defineCronJob('*/10 * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
+    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000 || navigraphUpdating) return;
 
     try {
         dataInProgress = true;
@@ -159,7 +159,7 @@ defineCronJob('* * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataProcessInProgress || !data) return;
+    if (!vatspy?.data || dataProcessInProgress || !data || navigraphUpdating) return;
 
     try {
         dataProcessInProgress = true;

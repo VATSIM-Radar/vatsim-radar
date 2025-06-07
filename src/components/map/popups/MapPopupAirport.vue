@@ -173,6 +173,15 @@
         >
             <airport-notams/>
         </template>
+        <template
+            v-if="procedures"
+            #procedures
+        >
+            <airport-procedures
+                :airport="props.overlay.key"
+                from="airportOverlay"
+            />
+        </template>
         <template #bookmark>
             <div class="__info-sections">
                 <common-input-text v-model="bookmarkName">
@@ -281,7 +290,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
-import { sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
+import { getNavigraphAirportProcedures, sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
@@ -317,6 +326,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
+import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 
 const props = defineProps({
     overlay: {
@@ -343,6 +353,9 @@ const data = computed(() => props.overlay.data.airport);
 const notams = computed(() => props.overlay.data.notams);
 const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
+
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures`, () => getNavigraphAirportProcedures(props.overlay.key));
 
 const bookings = computed(() => {
     const atcs: VatsimShortenedController[] = [];
@@ -381,6 +394,15 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'ATC',
             disabled: !atc.value.length && !bookings.value.length,
             sections: [],
+        },
+        procedures: {
+            title: 'Proc',
+            disabled: !procedures.value?.sids.length && !procedures.value?.stars.length && !procedures.value?.approaches.length,
+            sections: [
+                {
+                    key: 'procedures',
+                },
+            ],
         },
         info: {
             title: 'Info',

@@ -8,6 +8,7 @@
         <div class="app_content">
             <client-only>
                 <view-update-popup v-if="!hasObs()"/>
+                <view-init-popup/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
@@ -41,30 +42,32 @@
                 </div>
             </div>
         </div>
-        <div
-            v-if="!policy.accepted || policy.accepted <= 0"
-            class="app_consent"
-        >
-            <div class="app_consent_introduction __info-sections">
-                <div class="app_consent_title">
-                    Data Policy
+        <client-only>
+            <div
+                v-if="!policy.accepted || policy.accepted <= 0"
+                class="app_consent"
+            >
+                <div class="app_consent_introduction __info-sections">
+                    <div class="app_consent_title">
+                        Data Policy
+                    </div>
+                    <div class="app_consent_description">
+                        Uh oh! VATSIM Radar wants to share some little data with 3rd party. What do we do?
+                    </div>
                 </div>
-                <div class="app_consent_description">
-                    Uh oh! VATSIM Radar wants to share some little data with 3rd party. What do we do?
+                <div class="app_consent_actions">
+                    <common-button
+                        type="secondary-875"
+                        @click="consentChoose = true"
+                    >
+                        Customize
+                    </common-button>
+                    <common-button @click="policy.accepted = 1">
+                        Accept All
+                    </common-button>
                 </div>
             </div>
-            <div class="app_consent_actions">
-                <common-button
-                    type="secondary-875"
-                    @click="consentChoose = true"
-                >
-                    Customize
-                </common-button>
-                <common-button @click="policy.accepted = 1">
-                    Accept All
-                </common-button>
-            </div>
-        </div>
+        </client-only>
         <common-popup
             :model-value="consentChoose || store.cookieCustomize"
             @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
@@ -174,6 +177,7 @@ import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
 import * as Sentry from '@sentry/nuxt';
 import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
+import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 
 defineSlots<{ default: () => any }>();
 
@@ -617,6 +621,12 @@ img {
         flex-direction: column;
         gap: 8px;
         align-items: stretch;
+    }
+
+    &--flex {
+        display: flex;
+        gap: 8px;
+        align-items: center;
     }
 }
 

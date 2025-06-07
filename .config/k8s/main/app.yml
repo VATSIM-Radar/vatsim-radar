@@ -74,16 +74,13 @@ spec:
             requests:
               cpu: 600m
               memory: 300Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
           readinessProbe:
             tcpSocket:
               port: 8880
             initialDelaySeconds: 5
             periodSeconds: 15
             successThreshold: 1
-            failureThreshold: 10
+            failureThreshold: 30
             timeoutSeconds: 15
 ---
 apiVersion: v1

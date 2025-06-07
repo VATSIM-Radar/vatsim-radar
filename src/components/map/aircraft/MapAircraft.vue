@@ -152,7 +152,7 @@ import {
     usePilotRating,
 } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
-import { greatCircleGeometryToOL, sleep } from '~/utils';
+import { turfGeometryToOl, sleep } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
@@ -167,7 +167,7 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
-import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson, InfluxGeojsonFeature } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
@@ -224,7 +224,7 @@ const turnsStart = ref('');
 const turnsTimestamp = ref(0);
 const turnsFirstGroupTimestamp = ref('');
 const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
-const turnsFirstGroup = shallowRef<InfluxGeojson['features'][0] | null>(null);
+const turnsFirstGroup = shallowRef<InfluxGeojsonFeature | null>(null);
 const linesUpdateInProgress = ref(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 
@@ -430,7 +430,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 }
             }
 
-            if (turns?.features?.[0]?.features.length) {
+            if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {
                 turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp;
                 turnsStart.value = turns.flightPlanTime;
             }
@@ -454,7 +454,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             return;
         }
 
-        if (turns?.features.length && airportOverlayTracks.value !== 'short') {
+        if (turns?.features?.length && airportOverlayTracks.value !== 'short') {
             if (depLine) {
                 depLine.dispose();
                 linesSource.value?.removeFeature(depLine);
@@ -510,7 +510,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         [props.aircraft.longitude, props.aircraft.latitude],
                     ];
                     const points = coordinates.map(x => point(x));
-                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
                         geometry,
@@ -556,7 +556,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         collection.features[collection.features.length - 1].geometry.coordinates.slice(),
                     ];
                     const points = coordinates.map(x => point(x));
-                    const geometry = greatCircleGeometryToOL(greatCircle(points[0], points[1]));
+                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
 
                     const lineFeature = new Feature({
                         geometry,
@@ -640,7 +640,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 const start = point([departureAirport.lon, departureAirport.lat]);
                 const end = point([props.aircraft?.longitude, props.aircraft?.latitude]);
 
-                const geometry = greatCircleGeometryToOL(greatCircle(start, end));
+                const geometry = turfGeometryToOl(greatCircle(start, end));
 
                 if (depLine) {
                     depLine.setGeometry(geometry);
@@ -676,7 +676,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
             const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 
-            const geometry = greatCircleGeometryToOL(greatCircle(start, end));
+            const geometry = turfGeometryToOl(greatCircle(start, end));
 
             if (arrLine) {
                 arrLine.setGeometry(geometry);

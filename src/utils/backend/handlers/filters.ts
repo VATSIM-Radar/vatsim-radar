@@ -303,7 +303,6 @@ export async function handleFiltersEvent(event: H3Event) {
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserFilter, unknown][]) {
                     if (!(key in validators)) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;

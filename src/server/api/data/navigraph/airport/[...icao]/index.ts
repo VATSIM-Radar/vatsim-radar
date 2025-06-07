@@ -51,6 +51,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
 
     if (isLayout || dataFromLayout) {
         layout = await getNavigraphLayout({ icao }).catch(() => undefined);
+        if (layout && Object.values(layout).every(x => !x?.features?.length)) layout = undefined;
     }
 
     if (!dataFromLayout || !isLayout || !layout || !layout.standguidanceline?.features.length || !layout.parkingstandarea?.features.length) {
@@ -130,7 +131,6 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
             else {
                 value.features.forEach(feature => {
                     for (const i in feature.properties) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         if (!property.includes(i)) delete feature.properties[i];
                     }
                 });

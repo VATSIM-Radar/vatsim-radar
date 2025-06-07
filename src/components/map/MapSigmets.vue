@@ -225,7 +225,7 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
 function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local' || x.getProperties().type === 'root')) return;
+    if (!features?.every(x => x.getProperties().dataType !== 'navdata' && (x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local' || x.getProperties().type === 'root'))) return;
 
     const sigmets = features.filter(x => x.getProperties()?.dataType);
     if (!sigmets.length) return;

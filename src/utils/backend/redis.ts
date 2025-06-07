@@ -1,6 +1,6 @@
 import IORedis from 'ioredis';
 import type { VatsimBooking, VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
-import type { cycles } from '~/utils/backend/navigraph-db';
+import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 import type { RadarDataAirlinesAllList, SimAwareData, VatglassesData, VatglassesDynamicAPIData } from '~/utils/backend/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
@@ -66,6 +66,13 @@ export async function setRedisData<K extends keyof RedisData>(key: K, data: Redi
 
 export function setRedisSync(key: string, data: string, expireIn: number) {
     return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expireIn, (err, result) => {
+        if (err) return reject(err);
+        resolve();
+    }));
+}
+
+export function unsetRedisSync(key: string) {
+    return new Promise<void>((resolve, reject) => defaultRedis.del(key, (err, result) => {
         if (err) return reject(err);
         resolve();
     }));

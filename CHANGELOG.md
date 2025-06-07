@@ -1,5 +1,49 @@
 # Changelog
 
+# [1.2.0-alpha.4]
+
+- (QA) Removed setup popup if was already initialized at some point
+- (QA) Improved performance when using airways
+- Added SID/STAR/Approach selection to each airport
+- (QA) Added STAR holdings
+- Added aircraft predicted flight plan route when you click on it (EXPERIMENTAL)
+  - Route is NOT updated in real time
+  - Route is NOT shown on hover
+  - All waypoints are placeholders, including their and airways namings
+  - Aircraft nose is not connected to nearest waypoint
+  - Flight plan parse should be compared to how Navigraph displays it
+
+# [1.2.0-alpha.3]
+
+- (QA) Added waypoints to holdings
+- (QA) Added toggle to disable Navigraph Layers with quick access from Map Layers
+- (QA) Changed NDB/VORDME shown ident instead of icao code
+- (QA) Fixed some NDB/VORDME missing because of same frequency in same region
+
+# [1.2.0-alpha.2]
+
+Added Navigraph Data. You can enable it via Map Layers menu. 
+
+You can enable to display on map: Airways (Low/High IFR), NDB, VORDME, Waypoints, Holdings.
+
+Waypoints shape is placeholder for now. Oceanic tracks, STARs/SIDs/Approaches and Aircraft path features are WIP
+
+Other changes:
+
+- Added initialization screen to get a clear view on what is happening with VATSIM Radar
+- Unloaded VATGlasses from memory when not used, excluded from initial setup as well
+- Free Navigraph AIRAC Cycle has been upgraded to 2404
+
+# [1.2.0-alpha.1]
+
+- Changed design of booking page - especially in lightmode by MindCollaps
+
+# [1.1.2-4]
+
+- When Navigraph has some issues with AMDB, gates will no longer disappear from map
+- Reset Navigraph cache for airports: some airports were not showing Airport Layout on map
+- Fixed colors sometimes shifting for airports layouts
+
 # [1.1.2-2-final]
 
 - Added VATGlasses multiple controllers per position support

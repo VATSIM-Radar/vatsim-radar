@@ -9,7 +9,7 @@ import {
     navigraphAccessKey,
     navigraphCurrentDb,
     navigraphOutdatedDb,
-} from '~/utils/backend/navigraph-db';
+} from '~/utils/backend/navigraph/db';
 import { handleH3Exception } from '~/utils/backend/h3';
 import type { FullUser } from '~/utils/backend/user';
 import type { NavigraphGate, NavigraphRunway } from '~/types/data/navigraph';
@@ -131,7 +131,7 @@ export async function getNavigraphRunways({ user, icao, event }: {
 
         await new Promise<void>((resolve, reject) => {
             (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
-                `SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_runways WHERE airport_identifier = :icao ORDER BY runway_identifier ASC`,
+                `SELECT runway_identifier, runway_latitude, runway_longitude, landing_threshold_elevation, runway_length, runway_width, runway_magnetic_bearing, runway_true_bearing, airport_identifier FROM tbl_pg_runways WHERE airport_identifier = :icao ORDER BY runway_identifier ASC`,
                 { ':icao': icao },
                 (err, row: any) => {
                     if (err) return reject(err);
@@ -177,7 +177,7 @@ export async function getNavigraphGates({ user, icao, event }: {
             const timeout = setTimeout(() => reject(new Error('Navigraph Failed by timeout')), 15000);
 
             (user?.hasFms ? navigraphCurrentDb : navigraphOutdatedDb)?.each(
-                `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_gate WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,
+                `SELECT gate_identifier, gate_latitude, gate_longitude, name, airport_identifier FROM tbl_pb_gates WHERE airport_identifier = :icao ORDER BY gate_identifier ASC`,
                 { ':icao': icao },
                 (err, row: any) => {
                     if (err) return reject(err);
@@ -186,6 +186,7 @@ export async function getNavigraphGates({ user, icao, event }: {
 
                     gates.push({
                         ...row,
+                        name: row.name ?? row.gate_identifier,
                         gate_longitude: coords[0],
                         gate_latitude: coords[1],
                     });
@@ -284,6 +285,7 @@ export async function getNavigraphLayout({
     const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
     url.searchParams.set('projection', 'EPSG:4326');
     url.searchParams.set('format', 'geojson');
+    url.searchParams.set('v', '1');
     if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
     else if (include.length) url.searchParams.set('include', include.join(','));
 

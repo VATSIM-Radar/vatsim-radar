@@ -203,6 +203,27 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportCounterLimit: val => {
         return isNumber(val, 0) && val >= 0 && val <= 1000;
     },
+    navigraphData: val => {
+        if (!isObject(val)) return false;
+        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
+
+        if ('ndb' in val && typeof val.ndb !== 'boolean') return false;
+        if ('vordme' in val && typeof val.vordme !== 'boolean') return false;
+        if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
+        if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
+        if ('isModeAuto' in val && typeof val.isModeAuto !== 'boolean') return false;
+        if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr' && val.mode !== 'ifrHigh' && val.mode !== 'ifrLow') return false;
+        if ('airways' in val) {
+            if (!isObject(val.airways)) return false;
+            if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
+
+            if ('enabled' in val.airways && typeof val.airways.enabled !== 'boolean') return false;
+            if ('showAirwaysLabel' in val.airways && typeof val.airways.showAirwaysLabel !== 'boolean') return false;
+            if ('showWaypointsLabel' in val.airways && typeof val.airways.showWaypointsLabel !== 'boolean') return false;
+        }
+
+        return true;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -232,6 +253,7 @@ export interface UserMapSettingsVisibilityATC {
 }
 
 export type UserMapSettingsTurns = 'magma' | 'inferno' | 'rainbow' | 'viridis';
+export type NavigraphSettingsLevel = 'ifrHigh' | 'ifrLow' | 'vfr';
 
 export interface IUserMapSettings {
     visibility: {
@@ -270,6 +292,19 @@ export interface IUserMapSettings {
         hideGateGuidance?: boolean;
         hideRunwayExit?: boolean;
         hideDeicing?: boolean;
+    }>;
+    navigraphData: Partial<{
+        ndb: boolean;
+        vordme: boolean;
+        waypoints: boolean;
+        holdings: boolean;
+        mode: NavigraphSettingsLevel;
+        isModeAuto: boolean;
+        airways: Partial<{
+            enabled: boolean;
+            showAirwaysLabel: boolean;
+            showWaypointsLabel: boolean;
+        }>;
     }>;
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
@@ -403,7 +438,6 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserMapSettings, unknown][]) {
                     if (!(key in validators)) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;

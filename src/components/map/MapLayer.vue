@@ -83,7 +83,15 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
 
 const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
+const route = useRoute();
+
 const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
+    if (route.path.startsWith('/data') && route.path.endsWith('/compare')) {
+        return {
+            url: 'basic',
+        };
+    }
+
     let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
@@ -227,6 +235,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
@@ -268,6 +277,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';

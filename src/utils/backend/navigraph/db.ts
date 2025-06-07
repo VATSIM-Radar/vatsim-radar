@@ -1,13 +1,18 @@
 import sqlite3 from 'sqlite3';
-import AdmZip from 'adm-zip';
 import { join } from 'path';
 import { readdirSync } from 'fs';
-import { existsSync, unlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, renameSync, unlinkSync, writeFileSync } from 'node:fs';
 import { $fetch } from 'ofetch';
 import { radarStorage } from '~/utils/backend/storage';
+import { unpack } from '7zip-min';
 
 export let navigraphCurrentDb: sqlite3.Database | null = null;
 export let navigraphOutdatedDb: sqlite3.Database | null = null;
+
+const cwd = join(process.cwd(), 'src');
+const dirPath = join(cwd, 'data');
+const tempDir = join(dirPath, 'temp');
+const tempPath = join(dirPath, 'navigraph-temp.7z');
 
 export function initNavigraphDB({ type, file }: { type: 'current' | 'outdated'; file: string }) {
     closeNavigraphDB(type);
@@ -62,8 +67,22 @@ interface File {
 async function downloadNavigraphFile({ fileUrl, path, filename }: { fileUrl: string; path: string; filename: string }) {
     // @ts-expect-error Types error
     const zip = await $fetch<ArrayBuffer>(fileUrl, { responseType: 'arrayBuffer' });
-    const admZip = new AdmZip(Buffer.from(zip));
-    admZip.extractEntryTo(admZip.getEntries()[0].entryName, path, undefined, true, undefined, filename);
+    writeFileSync(tempPath, Buffer.from(zip));
+
+    try {
+        if (!existsSync(tempDir)) {
+            mkdirSync(tempDir);
+        }
+
+        await unpack(tempPath, tempDir);
+        const dirList = readdirSync(tempDir);
+        renameSync(join(tempDir, dirList[0]), join(path, filename));
+    }
+    finally {
+        if (existsSync(tempPath)) {
+            unlinkSync(tempPath);
+        }
+    }
 }
 
 export async function checkNavigraphToken() {
@@ -107,8 +126,8 @@ export async function initNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ current.cycle }-${ current.revision }`;
-    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-3`;
+    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-3`;
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 
@@ -117,12 +136,9 @@ export async function initNavigraph() {
 
     radarStorage.navigraph = cycles;
 
-    const cwd = join(process.cwd(), 'src');
+    const currentFileName = `current-v2-${ currentCycle }.s3db`;
+    const outdatedFileName = `outdated-v2-${ outdatedCycle }.s3db`;
 
-    const currentFileName = `current-${ currentCycle }.s3db`;
-    const outdatedFileName = `outdated-${ outdatedCycle }.s3db`;
-
-    const dirPath = join(cwd, 'data');
     const currentPath = join(cwd, `data/${ currentFileName }`);
     const outdatedPath = join(cwd, `data/${ outdatedFileName }`);
 
@@ -153,4 +169,53 @@ export async function initNavigraph() {
     }
 
     if (!navigraphOutdatedDb) initNavigraphDB({ type: 'outdated', file: outdatedPath });
+}
+
+interface RequestSettings {
+    db: sqlite3.Database;
+    sql: string;
+    params?: Record<string, any>;
+}
+
+export function dbRequest<T extends Record<string, any>>({
+    db,
+    sql,
+    params = {},
+}: RequestSettings) {
+    return new Promise<T[]>((resolve, reject) => {
+        const rows: T[] = [];
+
+        db.each(
+            sql,
+            params,
+            (err, row: any) => {
+                if (err) return reject(err);
+
+                rows.push(row);
+            },
+            err => {
+                if (err) return reject(err);
+                resolve(rows);
+            },
+        );
+    });
+}
+
+export async function dbPartialRequest<T extends Record<string, any>>({ db, sql, params, table, count = 5000 }: RequestSettings & { table: string; count?: number }) {
+    const [{ count: totalCount }] = await dbRequest<{ count: number }>({
+        db: db,
+        sql: `SELECT COUNT(*) as count FROM ${ table }`,
+    });
+
+    const rows: T[] = [];
+
+    for (let i = 0; i < totalCount; i += count) {
+        rows.push(...await dbRequest<T>({
+            db,
+            sql: `${ sql } LIMIT ${ count } OFFSET ${ i }`,
+            params,
+        }));
+    }
+
+    return rows;
 }

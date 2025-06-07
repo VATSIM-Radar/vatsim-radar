@@ -191,7 +191,7 @@ import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { getFlightPlanWaypoints, sortControllersByPosition, useFacilitiesIds } from '#imports';
 import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
@@ -490,6 +490,19 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
             timeout: 1000 * 15,
         });
         isOffline.value = false;
+
+        if (pilot.value.flight_plan) {
+            dataStore.navigraphWaypoints.value[pilot.value.cid.toString()] = {
+                coordinate: [pilot.value.longitude, pilot.value.latitude],
+                bearing: pilot.value.heading,
+                // TODO: fpln change
+                waypoints: dataStore.navigraphWaypoints.value[pilot.value.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
+                    flightPlan: pilot.value.flight_plan.route!,
+                    departure: pilot.value.flight_plan.departure!,
+                    arrival: pilot.value.flight_plan.arrival!,
+                }),
+            };
+        }
     }
     catch (e: IFetchError | any) {
         if (e) {
@@ -543,6 +556,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+    delete dataStore.navigraphWaypoints.value[pilot.value.cid.toString()];
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
 });
