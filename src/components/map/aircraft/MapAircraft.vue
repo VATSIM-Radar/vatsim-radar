@@ -220,6 +220,7 @@ const lineFeatures = shallowRef<Feature[]>([]);
 const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
+const flightPlan = ref('');
 const turnsStart = ref('');
 const turnsTimestamp = ref(0);
 const turnsFirstGroupTimestamp = ref('');
@@ -377,6 +378,48 @@ watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLay
 const depAirport = computed(() => pilot.value?.departure && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.departure]);
 const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value?.arrival]);
 
+let previousFlightPlan = '';
+
+async function setPilotRoute(enabled: boolean) {
+    if (!flightPlan.value || !enabled) {
+        delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+
+        return;
+    }
+
+    if (!previousFlightPlan) previousFlightPlan = flightPlan.value;
+
+    if (previousFlightPlan !== flightPlan.value) {
+        delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+        previousFlightPlan = flightPlan.value;
+    }
+
+    if (arrLine) {
+        arrLine.dispose();
+        linesSource.value?.removeFeature(arrLine);
+        arrLine = undefined;
+    }
+
+    dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
+        coordinate: [pilot.value.longitude, pilot.value.latitude],
+        bearing: pilot.value.heading,
+        speed: pilot.value.groundspeed,
+        arrival: pilot.value.arrival!,
+        full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
+        waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
+            flightPlan: flightPlan.value,
+            departure: pilot.value.departure!,
+            arrival: pilot.value.arrival!,
+        }),
+    };
+}
+
+const canShowRoute = computed(() => canShowLines.value && !!arrAirport.value && props.isVisible && (isPropsHovered.value || !!activeCurrentOverlay.value));
+
+watch(canShowRoute, val => {
+    setPilotRoute(val);
+});
+
 async function toggleAirportLines(value = canShowLines.value) {
     if (linesUpdateInProgress.value) return;
 
@@ -419,6 +462,8 @@ async function toggleAirportLines(value = canShowLines.value) {
                 }).catch(console.error) ?? null
                 : null;
 
+            flightPlan.value = turns?.flightPlan ?? '';
+
             if (turnsStart.value) {
                 if (turns?.flightPlanTime === turnsStart.value) {
                     firstUpdate = false;
@@ -450,6 +495,8 @@ async function toggleAirportLines(value = canShowLines.value) {
                 linesSource.value?.removeFeature(arrLine);
                 arrLine = undefined;
             }
+
+            setPilotRoute(false);
 
             return;
         }
@@ -672,7 +719,9 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
         }
 
-        if (arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
+        setPilotRoute(canShowRoute.value);
+
+        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
             const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 
@@ -725,6 +774,7 @@ function clearLines() {
 function clearAll() {
     if (mapStore.openPilotOverlay) mapStore.openPilotOverlay = false;
     if (feature) vectorSource.value?.removeFeature(feature);
+    setPilotRoute(false);
     clearLines();
 }
 

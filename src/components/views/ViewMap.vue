@@ -42,6 +42,7 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
+                    <view-selected-procedures/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sectors-list
                         v-if="!store.config.hideSectors"
@@ -144,7 +145,7 @@
             <map-sigmets/>
         </client-only>
         <map-layer v-else/>
-        <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+        <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
 </template>
@@ -179,6 +180,7 @@ import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
 
 defineProps({
     mode: {

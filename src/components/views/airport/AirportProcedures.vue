@@ -9,6 +9,14 @@
         >
             Multiple
         </common-toggle>
+        <common-button
+            v-if="multiple"
+            size="S"
+            type="secondary-875"
+            @click="delete dataStore.navigraphProcedures[props.airport]"
+        >
+            Reset all
+        </common-button>
         <div class="procedures_runways">
             <common-block-title>
                 Runway selection
@@ -25,74 +33,72 @@
                 </div>
             </div>
         </div>
-        <common-button-group v-if="multiple">
-            <common-button
-                :disabled="!selectedAirport.runways.length"
-                size="S"
-                @click="selectAll"
-            >
-                Select all sids/stars
-            </common-button>
-            <common-button @click="delete dataStore.navigraphProcedures[props.airport]">
-                Reset all
-            </common-button>
-        </common-button-group>
         <template
             v-for="(type, key) in proceduresTypes"
             :key
         >
-            <div
-                v-if="procedures[key]?.length"
-                class="procedures_group __info-sections"
-            >
-                <common-block-title remove-margin>
-                    {{type.title}}
-                </common-block-title>
-                <div class="procedures__items">
-                    <div
-                        v-for="(item, index) in procedures[key]"
-                        :key="type.key(item as any)"
-                        class="procedures__items_item"
-                        :class="{
-                            'procedures__items_item--blurred': type.isBlurred(item as any),
-                            'procedures__items_item--active': selectedAirport[key][type.key(item as any)],
-                        }"
-                        @click="selectItem(key, index)"
-                    >
-                        <template v-if="isApproach(item)">
-                            {{item.name}} RWY {{item.runway}}
+            <template v-if="!flightType || (flightType === 'departure' ? key === 'sids' : key !== 'sids')">
+                <common-button
+                    v-if="key !== 'approaches'"
+                    :disabled="!selectedAirport.runways.length"
+                    size="S"
+                    @click="selectAll(key)"
+                >
+                    Select all {{type.title}}
+                </common-button>
+                <div
+                    v-if="procedures[key]?.length"
+                    class="procedures_group __info-sections"
+                >
+                    <common-block-title remove-margin>
+                        {{type.title}}
+                    </common-block-title>
+                    <div class="procedures__items">
+                        <div
+                            v-for="(item, index) in procedures[key]"
+                            :key="type.key(item as any)"
+                            class="procedures__items_item"
+                            :class="{
+                                'procedures__items_item--blurred': type.isBlurred(item as any),
+                                'procedures__items_item--active': selectedAirport[key][type.key(item as any)],
+                            }"
+                            @click="selectItem(key, index)"
+                        >
+                            <template v-if="isApproach(item)">
+                                {{item.name}} RWY {{item.runway}}
+                            </template>
+                            <template v-else>
+                                {{item.identifier}}
+                            </template>
+                        </div>
+                    </div>
+                </div>
+                <div
+                    v-for="(selection, index) in transitionsList[key]"
+                    :key="index"
+                    class="procedures_group __info-sections"
+                >
+                    <common-block-title remove-margin>
+                        <template v-if="multiple">
+                            {{ 'procedureName' in selection.procedure.procedure ? `${ selection.procedure.procedure.procedureName } ${ selection.procedure.procedure.runway }` : selection.procedure.procedure.identifier }} Transitions
                         </template>
                         <template v-else>
-                            {{item.identifier}}
+                            {{ type.title }} Transition
                         </template>
+                    </common-block-title>
+                    <div class="procedures__items">
+                        <div
+                            v-for="item in ('enroute' in selection.procedure.transitions ? selection.procedure.transitions.enroute : selection.procedure.transitions)"
+                            :key="item.name"
+                            class="procedures__items_item"
+                            :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
+                            @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions = [...selection.transitions, item.name] : selection.transitions = [item.name])"
+                        >
+                            {{item.name}}
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div
-                v-for="(selection, index) in transitionsList[key]"
-                :key="index"
-                class="procedures_group __info-sections"
-            >
-                <common-block-title remove-margin>
-                    <template v-if="multiple">
-                        {{ 'procedureName' in selection.procedure.procedure ? `${ selection.procedure.procedure.procedureName } ${ selection.procedure.procedure.runway }` : selection.procedure.procedure.identifier }} Transitions
-                    </template>
-                    <template v-else>
-                        {{ type.title }} Transition
-                    </template>
-                </common-block-title>
-                <div class="procedures__items">
-                    <div
-                        v-for="item in ('enroute' in selection.procedure.transitions ? selection.procedure.transitions.enroute : selection.procedure.transitions)"
-                        :key="item.name"
-                        class="procedures__items_item"
-                        :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
-                        @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions.push(item.name) : selection.transitions = [item.name])"
-                    >
-                        {{item.name}}
-                    </div>
-                </div>
-            </div>
+            </template>
         </template>
     </div>
 </template>
@@ -102,13 +108,12 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import {
     getNavigraphAirportProceduresForKey,
     getNavigraphAirportProcedure,
-    getNavigraphAirportProcedures,
+    getNavigraphAirportProcedures, enroutePath,
 } from '#imports';
 import type { DataStoreNavigraphProceduresAirport } from '#imports';
 import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 
 const props = defineProps({
     airport: {
@@ -118,6 +123,10 @@ const props = defineProps({
     from: {
         type: String as PropType<DataStoreNavigraphProceduresAirport['setBy']>,
         required: true,
+    },
+    flightType: {
+        type: String as PropType<'departure' | 'arrival' | null>,
+        default: null,
     },
 });
 
@@ -273,40 +282,61 @@ function setAirport() {
     }
 }
 
-async function selectAll() {
-    const sids = await getNavigraphAirportProceduresForKey('sids', props.airport);
-    const stars = await getNavigraphAirportProceduresForKey('stars', props.airport);
+async function selectAll(key: 'sids' | 'stars') {
+    if (key === 'sids') {
+        const sids = await getNavigraphAirportProceduresForKey('sids', props.airport);
 
-    selectedAirport.value!.sids = {
-        ...selectedAirport.value!.sids,
-        ...Object.fromEntries(Object.values(procedures.value!.sids).filter(x => !proceduresTypes.sids.isBlurred(x)).map(item => [item.identifier, {
-            constraints: true,
-            transitions: [],
-            procedure: sids.find(x => x.procedure.identifier === item.identifier)!,
-        }])),
-    };
+        selectedAirport.value!.sids = {
+            ...selectedAirport.value!.sids,
+            ...Object.fromEntries(Object.values(procedures.value!.sids).filter(x => !proceduresTypes.sids.isBlurred(x)).map(item => [item.identifier, {
+                constraints: true,
+                transitions: [],
+                procedure: sids.find(x => x.procedure.identifier === item.identifier)!,
+            }])),
+        };
 
-    selectedAirport.value!.stars = {
-        ...selectedAirport.value!.stars,
-        ...Object.fromEntries(Object.values(procedures.value!.stars).filter(x => !proceduresTypes.stars.isBlurred(x)).map(item => [item.identifier, {
-            constraints: true,
-            transitions: [],
-            procedure: stars.find(x => x.procedure.identifier === item.identifier)!,
-        }])),
-    };
+        transitionsList.value.sids.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
+    }
+    else {
+        const stars = await getNavigraphAirportProceduresForKey('stars', props.airport);
 
-    transitionsList.value.sids.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
-    transitionsList.value.stars.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
+        selectedAirport.value!.stars = {
+            ...selectedAirport.value!.stars,
+            ...Object.fromEntries(Object.values(procedures.value!.stars).filter(x => !proceduresTypes.stars.isBlurred(x)).map(item => [item.identifier, {
+                constraints: true,
+                transitions: [],
+                procedure: stars.find(x => x.procedure.identifier === item.identifier)!,
+            }])),
+        };
+
+        transitionsList.value.stars.forEach(x => x.transitions = x.procedure.transitions.enroute.map(x => x.name));
+    }
 }
 
-watch(selectedAirport, setAirport, {
+watch(selectedAirport, () => {
+    setAirport();
+    dataStore.navigraphWaypoints.value = {};
+
+    if (selectedAirport.value) {
+        enroutePath.value ||= {};
+
+        enroutePath.value[props.airport] = {
+            runways: selectedAirport.value.runways,
+            sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            approaches: Object.fromEntries(Object.entries(selectedAirport.value.approaches).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+            setBy: selectedAirport.value.setBy,
+        };
+
+        triggerRef(enroutePath);
+    }
+}, {
     immediate: true,
+    deep: 4,
 });
 
-onBeforeUnmount(() => {
-    if (selectedAirport.value?.setBy === props.from) {
-        delete dataStore.navigraphProcedures[props.airport];
-    }
+onMounted(async () => {
+    setAirport();
 });
 </script>
 
@@ -321,8 +351,7 @@ onBeforeUnmount(() => {
         gap: 8px;
         align-items: flex-start;
 
-        height: 80px;
-        min-height: 120px;
+        max-height: 120px;
 
         &_item {
             cursor: pointer;
