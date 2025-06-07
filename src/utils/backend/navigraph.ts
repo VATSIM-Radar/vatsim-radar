@@ -284,6 +284,7 @@ export async function getNavigraphLayout({
     const url = new URL(`https://amdb.api.navigraph.com/v1/${ icao }`);
     url.searchParams.set('projection', 'EPSG:4326');
     url.searchParams.set('format', 'geojson');
+    url.searchParams.set('v', '1');
     if (exclude.length) url.searchParams.set('exclude', exclude.join(','));
     else if (include.length) url.searchParams.set('include', include.join(','));
 

@@ -74,10 +74,10 @@ let data: VatsimData | null = null;
 let shortBars: BARSShort = {};
 
 await defineCronJob('*/10 * * * * *', async () => {
-    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch();
+    const data = await $fetch<BARS>('https://api.stopbars.com/all').catch(() => {});
     shortBars = {};
 
-    for (const stopbar of data.stopbars ?? []) {
+    for (const stopbar of data?.stopbars ?? []) {
         try {
             shortBars[stopbar.airportICAO] ??= [];
             shortBars[stopbar.airportICAO].push({
