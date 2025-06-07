@@ -42,7 +42,7 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
-                    <map-aircraft-list/>
+                    <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sectors-list
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
@@ -221,6 +221,12 @@ let initialSpawn = false;
 let initialOwnCheck = false;
 
 useIframeHeader();
+
+if (route.query.start !== undefined && route.query.end !== undefined) {
+    store.bookingsStartTime.setTime(Number(route.query.start));
+    store.bookingsEndTime.setTime(Number(route.query.end));
+    store.bookingOverride = true;
+}
 
 async function checkAndAddOwnAircraft() {
     if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {

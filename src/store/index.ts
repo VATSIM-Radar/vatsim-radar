@@ -57,6 +57,10 @@ export const useStore = defineStore('index', {
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
 
+        bookingsStartTime: new Date(),
+        bookingsEndTime: new Date(Date.now() + (5 * 60 * 60 * 1000)),
+        bookingOverride: false,
+
         presetImport: {
             preset: null as UserMapSettings | false | null,
             name: '',

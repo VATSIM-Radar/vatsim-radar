@@ -92,22 +92,9 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
-const start = new Date(Date.now());
-const end = new Date(start.getTime() + (5 * 60 * 60 * 1000));
-
-const url = new URL(location.href);
-
-if (url.searchParams.has('start') && url.searchParams.has('end')) {
-    start.setTime(Number(url.searchParams.get('start')));
-    end.setTime(Number(url.searchParams.get('end')));
-    setUserMapSettings({
-        bookingOverride: true,
-    });
-}
-
 const { data } = await useAsyncData('bookings', async () => {
     return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: start.getTime(), ending: end.getTime() },
+        query: { starting: store.bookingsStartTime, ending: store.bookingsEndTime },
     });
 }, {
     server: false,
@@ -513,7 +500,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if (!store.mapSettings.bookingOverride) {
+    if (!store.bookingOverride) {
         for (const atc of dataStore.vatsim.data.locals.value) {
             const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
             const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
@@ -551,7 +538,7 @@ const getAirportsList = computed(() => {
         bookingsData.forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
 
-            if (!store.mapSettings.bookingOverride) {
+            if (!store.bookingOverride) {
                 const start = new Date(booking.start);
                 const end = new Date(booking.end);
 

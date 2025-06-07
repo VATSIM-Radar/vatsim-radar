@@ -139,7 +139,7 @@
                 show-auto
             />
 
-            <div v-if="store.mapSettings.bookingOverride">
+            <div v-if="store.bookingOverride">
                 <common-button
                     primary-color="error700"
                     size="S"
@@ -269,9 +269,7 @@ onMounted(() => {
 });
 
 function cancelBookingOverride() {
-    setUserMapSettings({
-        bookingOverride: false,
-    });
+    store.bookingOverride = false;
     delete route.query.start;
     delete route.query.end;
     router.replace({ query: route.query });
