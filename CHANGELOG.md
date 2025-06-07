@@ -52,6 +52,12 @@ Other changes:
 
 - Changed design of booking page - especially in lightmode by MindCollaps
 
+# [1.1.2-4]
+
+- When Navigraph has some issues with AMDB, gates will no longer disappear from map
+- Reset Navigraph cache for airports: some airports were not showing Airport Layout on map
+- Fixed colors sometimes shifting for airports layouts
+
 # [1.1.2-2-final]
 
 - Added VATGlasses multiple controllers per position support
