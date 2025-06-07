@@ -10,6 +10,7 @@ const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     autoZoom: val => typeof val === 'boolean',
     autoShowAirportTracks: val => typeof val === 'boolean',
     toggleAircraftOverlays: val => typeof val === 'boolean',
+    showFullRoute: val => typeof val === 'boolean',
     headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,
     seenVersion: val => (typeof val === 'string' && val.length <= 15) || val === null,
     favoriteSort: val => (typeof val === 'string' && sortOptions.includes(val as any)) || val === null,

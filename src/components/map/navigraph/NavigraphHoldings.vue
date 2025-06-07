@@ -20,7 +20,7 @@ const store = useStore();
 const mapStore = useMapStore();
 const dataStore = useDataStore();
 
-const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings !== false);
+const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings);
 let features: Feature[] = [];
 
 // Dark magic from ChatGPT
@@ -148,13 +148,9 @@ watch([isEnabled, extent, level, starWaypoints], async ([enabled, extent]) => {
     source?.value.removeFeatures(features);
     features = [];
 
-    console.log(enabled);
-
     if (!enabled && !starWaypoints.value.length) return;
 
     const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]));
-
-    console.log(entries.length);
 
     entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';
@@ -186,8 +182,6 @@ watch([isEnabled, extent, level, starWaypoints], async ([enabled, extent]) => {
             }),
         );
     });
-
-    console.log(features);
 
     source?.value.addFeatures(features);
 }, {

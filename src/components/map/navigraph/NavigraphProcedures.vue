@@ -69,7 +69,7 @@ function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, tran
     }
 
     const enrouteTransitions = enroute.filter(x => !transitions.length || transitions.some(y => y === x.name));
-    addWaypoints(newFeatures, enrouteTransitions.flatMap(x => x.waypoints), constraints, type);
+    enrouteTransitions.forEach(x => addWaypoints(newFeatures, x.waypoints, constraints, type));
 }
 
 watch(() => dataStore.navigraphProcedures, () => {

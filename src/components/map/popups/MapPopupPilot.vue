@@ -13,6 +13,14 @@
                 title: 'Info',
                 sections,
             },
+            proc: {
+                title: 'Proc',
+                sections: [{
+                    key: 'procedures',
+                    title: `${ pilot.status?.includes('dep') ? depAirport?.icao : arrAirport?.icao } procedures`,
+                }],
+                disabled: !depAirport,
+            },
             atc: {
                 title: 'ATC',
                 sections: atcSections,
@@ -98,6 +106,31 @@
                 :is-offline="isOffline"
                 :pilot
                 @viewRoute="viewRoute()"
+            />
+        </template>
+        <template
+            v-if="depAirport"
+            #procedures
+        >
+            <common-notification
+                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
+                cookie-name="full-route-tip"
+                type="info"
+            >
+                Want to always show full route? Visit <a
+                    class="__link"
+                    href="#"
+                    @click.prevent="store.settingsPopup = true"
+                >settings</a>.
+            </common-notification>
+            <common-toggle v-model="overlay.data.fullRoute">
+                Show full route
+            </common-toggle>
+            <br>
+            <airport-procedures
+                :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
+                :flight-type="pilot.status?.includes('dep') ? 'departure' : 'arrival'"
+                from="pilotOverlay"
             />
         </template>
         <template #depRunways>
@@ -191,7 +224,7 @@ import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { getFlightPlanWaypoints, sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { sortControllersByPosition, useFacilitiesIds } from '#imports';
 import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
@@ -210,6 +243,8 @@ import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 
 const props = defineProps({
     overlay: {
@@ -490,19 +525,6 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
             timeout: 1000 * 15,
         });
         isOffline.value = false;
-
-        if (pilot.value.flight_plan) {
-            dataStore.navigraphWaypoints.value[pilot.value.cid.toString()] = {
-                coordinate: [pilot.value.longitude, pilot.value.latitude],
-                bearing: pilot.value.heading,
-                // TODO: fpln change
-                waypoints: dataStore.navigraphWaypoints.value[pilot.value.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
-                    flightPlan: pilot.value.flight_plan.route!,
-                    departure: pilot.value.flight_plan.departure!,
-                    arrival: pilot.value.flight_plan.arrival!,
-                }),
-            };
-        }
     }
     catch (e: IFetchError | any) {
         if (e) {
@@ -556,7 +578,6 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    delete dataStore.navigraphWaypoints.value[pilot.value.cid.toString()];
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
 });

@@ -239,7 +239,7 @@ watch(map, val => {
         const waypointCircle = new Circle({
             radius: 4,
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.1)`,
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
                 width: 2,
             }),
         });
@@ -248,6 +248,7 @@ watch(map, val => {
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
             width: 2,
         });
+
 
         const holdingStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
@@ -259,14 +260,34 @@ watch(map, val => {
             width: 2,
         });
 
+        const enrouteStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.5)`,
+            width: 4,
+        });
+
+        const enrouteSidStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
+            width: 4,
+        });
+
         const sidStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
             width: 6,
         });
 
+        const enrouteStarStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
+            width: 4,
+        });
+
         const starStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
             width: 6,
+        });
+
+        const enrouteApproachStroke = new Stroke({
+            color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
+            width: 4,
         });
 
         const approachStroke = new Stroke({
@@ -400,8 +421,27 @@ watch(map, val => {
             }
 
             if (properties.type === 'airways') {
+                let stroke = properties.flightLevel === 'L' ? waypointStroke : waypointBlueStroke;
+
+                if (properties.kind) {
+                    stroke = enrouteStroke;
+                    if (properties.kind === 'sids') stroke = enrouteSidStroke;
+                    if (properties.kind === 'stars') stroke = enrouteStarStroke;
+                    if (properties.kind === 'approaches') stroke = enrouteApproachStroke;
+                    if (properties.kind === 'missedApproach') stroke = missApproachStroke;
+
+                    if (properties.self) {
+                        stroke = new Stroke({
+                            color: stroke.getColor(),
+                            width: stroke.getWidth(),
+                            lineDash: [4, 8],
+                            lineJoin: 'round',
+                        });
+                    }
+                }
+
                 return new Style({
-                    stroke: properties.flightLevel === 'L' ? waypointStroke : waypointBlueStroke,
+                    stroke,
                     zIndex: 5,
                     text: showAirwaysLabels.value
                         ? new Text({

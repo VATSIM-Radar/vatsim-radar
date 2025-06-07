@@ -104,6 +104,9 @@
                         By default it will use last saved position
                     </template>
                 </common-toggle>
+                <common-toggle v-model="settings.showFullRoute">
+                    Default to full route instead of remaining
+                </common-toggle>
                 <common-toggle v-model="settings.toggleAircraftOverlays">
                     Fast open multiple aircraft
 
@@ -302,6 +305,10 @@ async function addList() {
     &__block {
         display: flex;
         flex-direction: column;
+
+        >* {
+            width: 100%;
+        }
 
         &--short-gap {
             gap: 8px;

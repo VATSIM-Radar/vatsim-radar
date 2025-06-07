@@ -1,5 +1,30 @@
 # Changelog
 
+# [1.2.0-beta.1]
+
+All notes here are for QA release.
+
+- Added missed approach when we were able to parse approach for planned track
+- Remove dashed line to destination in favor of connecting aircraft to predicted route (if not pass last waypoint)
+- Predicted route is now drawn on hover
+- Airways labels are now correct
+- Added labels for predicted SIDs/STARs
+- Updated nearest waypoint algo
+- Fixed an issue when holdings activated randomly
+- Added a toggle to show full route to pilot popup + user settings
+- Airport SID/STAR config is now saved for one browser session
+- You can now separately toggle all SIDs/STARs
+- Procedures are no longer removed after they are opened - instead, they are pinned in screen bottom area, as well as persist when reloading page
+- Fixed multiple transitions display
+- Added procedures to airport dashboard
+- Improved map loading
+
+## Public release
+
+- Removed scale indicator on mobile to save space
+- Improved supports for screens that are small on screen height - for example, in horisontal view mode
+- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
+
 # [1.2.0-alpha.4]
 
 - (QA) Removed setup popup if was already initialized at some point

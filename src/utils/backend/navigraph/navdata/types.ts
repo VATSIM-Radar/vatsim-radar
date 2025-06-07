@@ -54,6 +54,7 @@ export interface NavigraphNavDataEnrouteWaypoint {
 export interface NavigraphNavDataEnrouteWaypointPartial {
     identifier: string;
     coordinate?: Coordinate;
+    title?: string;
     type?: string;
     usage?: string;
     kind: 'sids' | 'stars' | 'approaches' | 'airway' | 'enroute' | 'vhf' | 'ndb';
