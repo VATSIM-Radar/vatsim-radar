@@ -66,7 +66,7 @@ function update() {
                 if (firstWaypoint) return;
 
                 newFeatures.push(new Feature({
-                    geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 2 })),
+                    geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
                     key: '',
                     identifier: '',
                     type: 'airways',

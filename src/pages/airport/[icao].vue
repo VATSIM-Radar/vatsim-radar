@@ -97,9 +97,17 @@
                     class="airport_column_data"
                 >
                     <div class="airport_column__title">
-                        VATSIM Airport Info
+                        <common-tabs
+                            v-model="airportTab"
+                            :tabs="{ info: { title: 'Airport Info' }, proc: { title: 'Procedures' } }"
+                        />
                     </div>
-                    <airport-info/>
+                    <airport-info v-if="airportTab === 'info'"/>
+                    <airport-procedures
+                        v-else-if="ready && airportTab === 'proc'"
+                        :airport="airportData.icao"
+                        from="dashboard"
+                    />
                 </div>
                 <div
                     v-if="airportData?.airport?.metar || airportData?.airport?.taf"
@@ -266,6 +274,8 @@ import AirportPilot from '~/components/views/airport/AirportPilot.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import { useRadarError } from '~/composables/errors';
+import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
+import { updateCachedProcedures } from '~/composables/navigraph';
 
 const route = useRoute();
 const router = useRouter();
@@ -294,6 +304,7 @@ useHead(() => ({
     ],
 }));
 
+const airportTab = ref('info');
 const weatherTab = ref('metar');
 
 const selectedPilot = ref<number | null>(null);
@@ -328,7 +339,7 @@ onBeforeUnmount(() => {
     window.removeEventListener('message', receiveMessage);
 });
 
-watch(selectedPilot, () => {
+watch(selectedPilot, async () => {
     if (skipSelectedPilotWatch) {
         skipSelectedPilotWatch = false;
         return;
@@ -384,6 +395,18 @@ const displayedColumns = ref<MapAircraftKeys[]>(['prefiles', 'groundDep', 'depar
 //     secure: true,
 //     default: () => ['prefiles', 'groundDep', 'departures', 'arrivals', 'groundArr'],
 // });
+
+watch(() => dataStore.navigraphProcedures[airportData.value?.icao ?? ''], async () => {
+    if (airportMapFrame.value) {
+        await sleep(1000);
+        const iframeWindow = airportMapFrame.value.contentWindow;
+        const message = { proceduresUpdate: true };
+        const targetOrigin = config.public.DOMAIN;
+        iframeWindow?.postMessage(message, targetOrigin);
+    }
+}, {
+    deep: 3,
+});
 
 const displayableColumns: SelectItem<MapAircraftKeys>[] = [
     {
@@ -533,6 +556,7 @@ const showPilotStats = useShowPilotStats();
 const settings = computed(() => ({
     zoom: mapQuery.value?.zoom,
     aircraft: aircraftMode.value,
+    info: airportTab.value,
     weather: weatherTab.value,
     columns: displayedColumns.value.join(','),
     mode: mapMode.value,
@@ -554,6 +578,9 @@ onMounted(() => {
         switch (setting) {
             case 'aircraft':
                 if (aircraftModes.some(x => x.value === query)) aircraftMode.value = query as any;
+                break;
+            case 'info':
+                if (query === 'info' || query === 'proc') airportTab.value = query as any;
                 break;
             case 'weather':
                 if (query === 'metar' || query === 'taf') weatherTab.value = query as any;
@@ -611,7 +638,7 @@ useLazyAsyncData(async () => {
 });
 
 await setupDataFetch({
-    onSuccessCallback() {
+    async onSuccessCallback() {
         if (!airport.value) {
             showError({
                 statusCode: 404,
@@ -619,6 +646,7 @@ await setupDataFetch({
             return;
         }
 
+        await updateCachedProcedures();
         ready.value = true;
     },
 });

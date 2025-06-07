@@ -47,6 +47,7 @@ export interface StoreOverlayAirport extends StoreOverlayDefault {
         notams?: VatsimAirportDataNotam[];
         showTracks?: boolean;
         aircraftTab?: 'departed' | 'ground' | 'arriving';
+        tab?: 'aircraft' | 'atc' | 'procedures' | 'info';
     };
 }
 
@@ -216,8 +217,9 @@ export const useMapStore = defineStore('map', {
                 this.openingOverlay = false;
             }
         },
-        async addAirportOverlay(airport: string, { aircraftTab }: {
+        async addAirportOverlay(airport: string, { aircraftTab, tab }: {
             aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
+            tab?: StoreOverlayAirport['data']['tab'];
         } = {}) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
@@ -226,7 +228,12 @@ export const useMapStore = defineStore('map', {
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === airport);
-                if (existingOverlay) return;
+                if (existingOverlay) {
+                    if (store.isMobile) this.overlays.forEach(x => x.collapsed = true);
+                    existingOverlay.collapsed = false;
+                    this.activeMobileOverlay = existingOverlay.id;
+                    return;
+                }
 
                 const vatSpyAirport = useDataStore().vatspy.value?.data.keyAirports.realIcao[airport];
                 if (!vatSpyAirport) return;
@@ -239,6 +246,7 @@ export const useMapStore = defineStore('map', {
                         icao: airport,
                         showTracks: this.autoShowTracks ?? store.user?.settings.autoShowAirportTracks,
                         aircraftTab,
+                        tab,
                     },
                     type: 'airport',
                     sticky: false,

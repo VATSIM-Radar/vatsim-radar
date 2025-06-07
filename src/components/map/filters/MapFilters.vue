@@ -388,7 +388,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 <style scoped lang="scss">
 .filters {
     position: absolute;
-    z-index: 8;
+    z-index: 5;
     top: 16px;
     left: 16px;
 
@@ -473,6 +473,14 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
             &--tracked svg {
                 transform: rotate(-45deg) translate(-2px, 2px);
+            }
+        }
+
+        @media(max-height: 630px) {
+            flex-direction: row;
+
+            .control-block {
+                max-width: calc(100dvw - 200px - 48px) !important;
             }
         }
     }

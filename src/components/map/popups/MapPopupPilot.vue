@@ -112,6 +112,17 @@
             v-if="depAirport"
             #procedures
         >
+            <common-notification
+                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
+                cookie-name="full-route-tip"
+                type="info"
+            >
+                Want to always show full route? Visit <a
+                    class="__link"
+                    href="#"
+                    @click.prevent="store.settingsPopup = true"
+                >settings</a>.
+            </common-notification>
             <common-toggle v-model="overlay.data.fullRoute">
                 Show full route
             </common-toggle>

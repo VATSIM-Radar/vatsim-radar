@@ -384,10 +384,6 @@ async function setPilotRoute(enabled: boolean) {
     if (!flightPlan.value || !enabled) {
         delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
 
-        if (props.aircraft?.cid === 1433887) {
-            console.log(dataStore.navigraphWaypoints.value);
-        }
-
         return;
     }
 

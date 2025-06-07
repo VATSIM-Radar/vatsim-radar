@@ -2,6 +2,7 @@
     <common-info-popup
         v-if="airport"
         v-model:collapsed="overlay.collapsed"
+        v-model:tab="tab"
         class="airport"
         collapsible
         :disabled="store.config.airport === props.overlay.data.icao"
@@ -382,6 +383,13 @@ const createBookmark = async () => {
     await sendUserPreset(bookmarkName.value, bookmark.value, 'bookmarks', createBookmark);
     await store.fetchBookmarks();
 };
+
+const tab = ref<StoreOverlayAirport['data']['tab']>('aircraft');
+
+watch(() => props.overlay?.data.tab, changedTab => {
+    if (!changedTab) return;
+    tab.value = changedTab;
+});
 
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
