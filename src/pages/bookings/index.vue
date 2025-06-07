@@ -17,6 +17,14 @@
                 Bookings local time
             </common-toggle>
         </div>
+        <common-input-text
+            v-model="searchString"
+            class="booking-search"
+        >
+            <template #icon>
+                <search-icon width="16"/>
+            </template>
+        </common-input-text>
         <common-timeline
             v-if="bookingsData"
             collapsed
@@ -30,6 +38,7 @@
 </template>
 
 <script setup lang="ts">
+import SearchIcon from '@/assets/icons/kit/search.svg?component';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { TimelineEntry, TimelineIdentifier } from '~/types/data/timeline';
@@ -40,6 +49,7 @@ import { useStore } from '~/store';
 import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
 import type { Reactive } from 'vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -57,6 +67,8 @@ const dateRange: Reactive<DateRange> = reactive({
     to: new Date(initialEnd),
 });
 
+const searchString = ref('');
+
 const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
     query: { starting: initialStart.getTime(), ending: initialEnd.getTime() },
 }), {
@@ -71,14 +83,26 @@ const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     server: false,
 });
 
-const sortedData = computed(() => {
-    return (data.value ?? [])
-        .slice(0)
-        .sort((a, b) => b.atc.facility - a.atc.facility)
-        .sort((a, b) => a.start - b.start);
+const sortedData: Ref<VatsimBooking[]> = computed(sortData);
+
+const bookingTimelineIdentifiers = computed(makeBookingTimlineIdentifiers);
+
+const bookingTimelineEntries = computed(makeBookingTimelineEntries);
+
+watch(dateRange, async () => {
+    if (fetchStart.value > dateRange.from || fetchEnd.value < dateRange.to) {
+        await refresh();
+
+        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
+        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
+    }
 });
 
-const bookingTimelineIdentifiers = computed(() => {
+function viewOnMap() {
+    location.href = `/?start=${ dateRange.from.getTime() }&end=${ dateRange.to.getTime() }`;
+}
+
+function makeBookingTimlineIdentifiers() {
     const groups = new Map<string, Set<string>>();
 
     if (!sortedData.value) return [[]];
@@ -103,8 +127,9 @@ const bookingTimelineIdentifiers = computed(() => {
     );
 
     return [groupIds, facilityIds];
-});
-const bookingTimelineEntries = computed(() => {
+}
+
+function makeBookingTimelineEntries() {
     const entries: TimelineEntry[] = [];
     const groupMap = new Map<string, { groupIndex: number; subgroupIndex: number }>();
 
@@ -132,19 +157,19 @@ const bookingTimelineEntries = computed(() => {
     });
 
     return entries;
-});
+}
 
-watch(dateRange, async () => {
-    if (fetchStart.value > dateRange.from || fetchEnd.value < dateRange.to) {
-        await refresh();
+function sortData() {
+    return (data.value ?? [])
+        .filter(x => {
+            if (searchString.value.length === 0) {
+                return true;
+            }
 
-        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
-        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
-    }
-});
-
-function viewOnMap() {
-    location.href = `/?start=${ dateRange.from.getTime() }&end=${ dateRange.to.getTime() }`;
+            return x.atc.callsign.toLowerCase().startsWith(searchString.value.toLowerCase());
+        })
+        .sort((a, b) => b.atc.facility - a.atc.facility)
+        .sort((a, b) => a.start - b.start);
 }
 
 useHead({
@@ -160,5 +185,12 @@ useHead({
 
     width: 100%;
     margin-bottom: 10px;
+}
+
+.booking {
+    &-search{
+        margin-top: 32px;
+        margin-bottom: 32px;
+    }
 }
 </style>

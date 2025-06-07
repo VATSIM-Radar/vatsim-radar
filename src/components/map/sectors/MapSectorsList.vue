@@ -267,10 +267,10 @@ function updateMap(map: Map | null) {
 
         const hoveredStyle = new Style({
             fill: new Fill({
-                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.2)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray100' : 'success300').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray100' : 'success300').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,

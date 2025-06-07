@@ -68,7 +68,7 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if="'lon' in airport && !isPseudoAirport"
+            v-if="'lon' in airport && !isPseudoAirport && !store.bookingOverride"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
