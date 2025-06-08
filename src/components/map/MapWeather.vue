@@ -43,6 +43,19 @@ function getLayer(id: MapWeatherLayer): Layer {
         };
     }
 
+    if (id === 'PR0') {
+        const now = new Date();
+        const roundedMinutes = Math.floor(now.getMinutes() / 10) * 10;
+        now.setMinutes(roundedMinutes - 10, 0, 0);
+
+        return {
+            attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/radar/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb&tm=${ now.getTime() / 1000 }`,
+        };
+    }
+
+    if (id === 'PR0C') id = 'PR0';
+
     let url = `https://maps.openweathermap.org/maps/2.0/weather/{op}/{z}/{x}/{y}?appid=a1d03b5fa17676270ee45e3b2b29bebb&opacity=1`;
     if (id === 'CL' && store.theme === 'light') {
         url += `&palette=0:00000000; 10:00000019; 20:00000026; 30:00000033; 40:0000004C; 50:00000066; 60:0000008C; 70:000000BF; 80:000000CC; 90:000000D8; 100:000000FF; 200:000000FF`;
@@ -109,7 +122,7 @@ onMounted(async () => {
     const interval = setInterval(() => {
         if (weather.value !== 'rainViewer') return;
         initLayer();
-    }, 1000 * 60);
+    }, 1000 * 60 * 5);
 
     onBeforeUnmount(() => clearInterval(interval));
 });

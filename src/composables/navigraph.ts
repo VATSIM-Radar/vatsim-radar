@@ -334,6 +334,14 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                 coordinate: x.coordinate,
                                 kind: 'approaches',
                             } satisfies NavigraphNavDataEnrouteWaypointPartial)));
+
+                            if (procedure.procedure.missedApproach) {
+                                waypoints.push(...procedure.procedure.missedApproach.map(x => ({
+                                    identifier: x.identifier,
+                                    coordinate: x.coordinate,
+                                    kind: 'missedApproach',
+                                } satisfies NavigraphNavDataEnrouteWaypointPartial)));
+                            }
                         }
                     }
 

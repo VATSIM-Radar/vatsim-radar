@@ -370,7 +370,11 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     },
     {
         value: 'PR0',
-        text: 'Precipitation',
+        text: 'Precipitation Radar',
+    },
+    {
+        value: 'PR0C',
+        text: 'Precipitation Intensity',
     },
     {
         value: 'rainViewer',
