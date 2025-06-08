@@ -177,12 +177,12 @@ export default defineNuxtConfig({
         typeCheck: true,
     },
     pwa: {
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         client: {
             periodicSyncForUpdates: 1000 * 60 * 5,
             installPrompt: true,
         },
-        injectRegister: isDebug() ? false : 'auto',
+        injectRegister: isDebug() ? 'inline' : 'auto',
         selfDestroying: isDebug(),
         manifest: {
             name: appName,

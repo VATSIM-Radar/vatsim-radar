@@ -57,7 +57,7 @@ export interface NavigraphNavDataEnrouteWaypointPartial {
     title?: string;
     type?: string;
     usage?: string;
-    kind: 'sids' | 'stars' | 'approaches' | 'airway' | 'enroute' | 'vhf' | 'ndb';
+    kind: 'sids' | 'stars' | 'approaches' | 'missedApproach' | 'airway' | 'enroute' | 'vhf' | 'ndb';
     airway?: {
         key: string;
         value: ShortAirway;

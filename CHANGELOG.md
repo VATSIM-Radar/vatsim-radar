@@ -1,5 +1,17 @@
 # Changelog
 
+# [1.2.0-beta.2]
+
+## QA
+
+- Re-added missed approach to predicted route
+
+## Public release
+
+- Removed random VATSIM Radar restarts when you open it
+- Fixed random website reloads when you open it
+- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
+
 # [1.2.0-beta.1]
 
 All notes here are for QA release.
@@ -23,7 +35,6 @@ All notes here are for QA release.
 
 - Removed scale indicator on mobile to save space
 - Improved supports for screens that are small on screen height - for example, in horisontal view mode
-- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
 
 # [1.2.0-alpha.4]
 
