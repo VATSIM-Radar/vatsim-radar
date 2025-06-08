@@ -6,14 +6,17 @@
             >
                 <div class="picker-presets">
                     <common-button
+                        :disabled="currentDateRange === 'today'"
                         primary-color="primary600"
                         @click="changeRange('today')"
                     >Today</common-button>
                     <common-button
+                        :disabled="currentDateRange === 'todayTomorrow'"
                         primary-color="primary600"
                         @click="changeRange('todayTomorrow')"
                     >Today + Tomorrow</common-button>
                     <common-button
+                        :disabled="currentDateRange === 'today7Days'"
                         primary-color="primary600"
                         @click="changeRange('today7Days')"
                     >Today + 7 Days</common-button>
@@ -32,7 +35,10 @@
 
 
                 <div class="picker-picker">
-                    <common-date-picker v-model="dateRange"/>
+                    <common-date-picker
+                        v-model="dateRange"
+                        @change="currentDateRange = 'custom'"
+                    />
                     <common-button
                         primary-color="primary600"
                         type="primary"
@@ -112,6 +118,7 @@ initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
 const sortMode: Ref<'airport' | 'date'> = ref('date');
 const presetHours = ref('4');
+const currentDateRange: Ref<'today' | 'todayTomorrow' | 'today7Days' | 'custom'> = ref('custom');
 
 const fetchStart = ref(initialStart);
 const fetchEnd = ref(initialEnd);
@@ -240,6 +247,7 @@ function sortData() {
 }
 
 function changeRange(type: 'today' | 'todayTomorrow' | 'today7Days' | 'custom') {
+    currentDateRange.value = type;
     const now = new Date();
     const from = new Date(now);
     const to = new Date(now);

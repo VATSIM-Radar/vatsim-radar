@@ -530,11 +530,11 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
+    if (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
-        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL]);
+        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
         bookingsData.forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
@@ -583,16 +583,35 @@ const getAirportsList = computed(() => {
     }
 
     function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
-        const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
+        if (booking.atc.facility === facilities.APP) {
+            const existingLocal = airport.arrAtc.find(x => booking.atc.callsign === x.callsign);
 
-        if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
-            if (existingLocal) {
-                airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.arrAtc.push(booking.atc);
             }
+        }
+        else {
+            const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
 
-            booking.atc.booking = booking;
-            airport.bookings.push(booking);
-            airport.localAtc.push(booking.atc);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.localAtc.push(booking.atc);
+            }
         }
     }
 
