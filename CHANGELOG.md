@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.0-beta.3]
+
+- New icons from DotWallop: B105, BE20, BR23, BT7, C2, C25B, C414, E2, F4, F104, G91, H60, H64, HUNT, IL96, LANC, ME09, ME62, MIR2, S92, SB39, STAR
+- Improved icon for FA8X
+- Added model matching for C207, C30J and VF35
+
 # [1.2.0-beta.2]
 
 ## QA
@@ -11,6 +17,7 @@
 - Removed random VATSIM Radar restarts when you open it
 - Fixed random website reloads when you open it
 - Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
+
 
 # [1.2.0-beta.1]
 
