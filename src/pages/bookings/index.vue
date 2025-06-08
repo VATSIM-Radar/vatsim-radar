@@ -1,30 +1,81 @@
 <template>
     <common-page-block>
         <div class="picker">
-            <template v-if="!isMobile && !collapsed">
-                <common-date-picker v-model="dateRange"/>
-                <common-button
-                    type="primary"
-                    @click="viewOnMap()"
-                >
-                    View on Map
-                </common-button>
-            </template>
-            <common-toggle
-                :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
-                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+            <template
+                v-if="!isMobile && !collapsed"
             >
-                Bookings local time
-            </common-toggle>
-        </div>
-        <common-input-text
-            v-model="searchString"
-            class="booking-search"
-        >
-            <template #icon>
-                <search-icon width="16"/>
+                <div class="picker-presets">
+                    <common-button
+                        primary-color="primary600"
+                        @click="changeRange('today')"
+                    >Today</common-button>
+                    <common-button
+                        primary-color="primary600"
+                        @click="changeRange('todayTomorrow')"
+                    >Today + Tomorrow</common-button>
+                    <common-button
+                        primary-color="primary600"
+                        @click="changeRange('today7Days')"
+                    >Today + 7 Days</common-button>
+                    <div class="picker-presets-custom">
+                        <div>Now</div> + <common-input-text
+                            v-model="presetHours"
+                            input-type="number"
+                            placeholder="4"
+                        /> Hours <common-button
+                            hover-color="success700"
+                            primary-color="success400"
+                            @click="changeRange('custom')"
+                        >Apply</common-button>
+                    </div>
+                </div>
+
+
+                <div class="picker-picker">
+                    <common-date-picker v-model="dateRange"/>
+                    <common-button
+                        primary-color="primary600"
+                        type="primary"
+                        @click="viewOnMap()"
+                    >
+                        View on Map
+                    </common-button>
+                    <common-toggle
+                        class="picker-localtime"
+                        :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
+                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                    >
+                        Bookings local time
+                    </common-toggle>
+                </div>
             </template>
-        </common-input-text>
+        </div>
+        <div class="booking-sort-container">
+            <common-button
+                :disabled="sortMode === 'airport'"
+                hover-color="info700"
+                primary-color="info500"
+                @click="sortMode = 'airport'"
+            >
+                Sort by Airport
+            </common-button>
+            <common-button
+                :disabled="sortMode === 'date'"
+                hover-color="info700"
+                primary-color="info500"
+                @click="sortMode = 'date'"
+            >
+                Sort by Date
+            </common-button>
+            <common-input-text
+                v-model="searchString"
+                class="booking-sort-search"
+            >
+                <template #icon>
+                    <search-icon width="16"/>
+                </template>
+            </common-input-text>
+        </div>
         <common-timeline
             v-if="bookingsData"
             collapsed
@@ -58,6 +109,9 @@ initialStart.setMinutes(0);
 const initialEnd = new Date(initialStart.getTime());
 initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
+
+const sortMode: Ref<'airport' | 'date'> = ref('date');
+const presetHours = ref('4');
 
 const fetchStart = ref(initialStart);
 const fetchEnd = ref(initialEnd);
@@ -162,14 +216,62 @@ function makeBookingTimelineEntries() {
 function sortData() {
     return (data.value ?? [])
         .filter(x => {
-            if (searchString.value.length === 0) {
-                return true;
-            }
-
-            return x.atc.callsign.toLowerCase().startsWith(searchString.value.toLowerCase());
+            if (searchString.value.length === 0) return true;
+            const lowerSearch = searchString.value.toLowerCase();
+            const callsign = x.atc.callsign.toLowerCase();
+            return callsign.includes(lowerSearch);
         })
-        .sort((a, b) => b.atc.facility - a.atc.facility)
-        .sort((a, b) => a.start - b.start);
+        .sort((a, b) => {
+            return b.atc.facility - a.atc.facility;
+        }).sort((a, b) => {
+            switch (sortMode.value) {
+                case 'airport': {
+                    const aCountry = a.atc.callsign.split('_')[0] || '';
+                    const bCountry = b.atc.callsign.split('_')[0] || '';
+                    return aCountry.localeCompare(bCountry);
+                }
+                case 'date':
+                    return a.start - b.start;
+
+                default:
+                    return 0;
+            }
+        });
+}
+
+function changeRange(type: 'today' | 'todayTomorrow' | 'today7Days' | 'custom') {
+    const now = new Date();
+    const from = new Date(now);
+    const to = new Date(now);
+
+    switch (type) {
+        case 'today':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(23, 59, 59, 999);
+            break;
+
+        case 'todayTomorrow':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(23, 59, 59, 999);
+            to.setDate(to.getDate() + 1);
+            break;
+
+        case 'today7Days':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(0, 0, 0, 0);
+            to.setDate(to.getDate() + 7);
+            to.setHours(23, 59, 59, 999);
+            break;
+
+        case 'custom': {
+            const hours = parseInt(presetHours.value, 10) || 0;
+            to.setTime(to.getTime() + (hours * 60 * 60 * 1000));
+            break;
+        }
+    }
+
+    dateRange.from = from;
+    dateRange.to = to;
 }
 
 useHead({
@@ -185,12 +287,48 @@ useHead({
 
     width: 100%;
     margin-bottom: 10px;
+
+    &-presets {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: start;
+
+        width: 100%;
+        margin-bottom: 16px;
+
+        &-custom {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+    }
+
+    &-picker {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    &-localtime {
+        margin-top: 16px;
+    }
 }
 
 .booking {
-    &-search{
-        margin-top: 32px;
-        margin-bottom: 32px;
+    &-sort {
+        &-container {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
     }
 }
 </style>

@@ -103,8 +103,6 @@ const adjustTime = (isStart: boolean, minutes: number) => {
         align-items: center;
         justify-content: center;
 
-        width: 100%;
-
         &-container {
             display: flex;
             gap: 5px;
