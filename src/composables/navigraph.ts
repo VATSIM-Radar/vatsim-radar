@@ -137,6 +137,7 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 
 const replacementRegex = /[^a-zA-Z0-9\/]+/;
 const latRegex = /^(\d{2,4})([NS])/;
+const lonRegex = /^(\d{3,5})([EW])/;
 const sidstarRegex = /(?<start>[A-Z]{4})([A-Z]?)(?<end>[0-9][A-Z])/;
 
 export interface EnroutePath {
@@ -162,7 +163,7 @@ function getPreciseCoord(input: string): [Coordinate, string] | null {
 
     const remainder = input.slice(latMatch[0].length);
 
-    const lonMatch = remainder.match(/^(\d{3,5})([EW])/);
+    const lonMatch = remainder.match(lonRegex);
     if (!lonMatch) return null;
 
     const lonDigits = lonMatch[1];
@@ -211,6 +212,8 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
             let split = entry.split('/');
+            if (split.length > 2) split = split.slice(split.length - 2, split.length);
+            if (split[1] && latRegex.test(split[1])) split.reverse();
             const search = split[0];
 
             if (split[1] && entry.startsWith(departure)) depRunway = split[1];

@@ -28,7 +28,7 @@ function update() {
         for (let { waypoints, bearing, coordinate, speed, arrival, full } of Object.values(dataStore.navigraphWaypoints.value)) {
             if (!waypoints.length) continue;
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !dataStore.navigraphProcedures[arrival]?.stars && !dataStore.navigraphProcedures[arrival]?.approaches) {
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.stars ?? {}).length && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
                 waypoints = [
                     ...waypoints,
                     {
