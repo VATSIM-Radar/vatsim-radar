@@ -1,5 +1,16 @@
 # Changelog
 
+# [1.2.0-beta.3]
+
+- Revered random reloads fix
+- Fixed full route shown for some reason when you enable star for aircraft
+- Fixed duplicate waypoints display
+- Added constraints to predicted star/sid/approach
+- Removed line to airport from predicted missed approach
+- Improved aircraft predicted route update speed
+- Added holdings to enroute waypoints
+- Implemented route for all airport aircraft
+
 # [1.2.0-beta.2]
 
 ## QA
@@ -8,8 +19,6 @@
 
 ## Public release
 
-- Removed random VATSIM Radar restarts when you open it
-- Fixed random website reloads when you open it
 - Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
 
 # [1.2.0-beta.1]

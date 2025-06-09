@@ -122,12 +122,15 @@ export function addLeadingZero(str: string | number) {
 }
 
 export function debounce<T extends (...args: any) => any>(func: T, delay: number | Ref<number>): (...args: any[]) => void {
-    let timeoutId: ReturnType<typeof setTimeout>;
+    let executed = true;
 
     return function(this: any, ...args: any[]): void {
-        clearTimeout(timeoutId);
+        if (!executed) return;
 
-        timeoutId = setTimeout(() => {
+        executed = false;
+
+        setTimeout(() => {
+            executed = true;
             func.apply(this, args);
         }, toValue(delay));
     };

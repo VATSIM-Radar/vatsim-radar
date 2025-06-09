@@ -228,9 +228,6 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                 const sid = sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
 
                 if (sid !== -1) {
-                    // We already have it fully drawn
-                    if (dataStore.navigraphProcedures[departure]?.sids[sids[sid].identifier]) continue;
-
                     const procedure = await getNavigraphAirportProcedure('sids', departure, sid);
 
                     if (depRunway) {
@@ -241,6 +238,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                 title: procedure?.procedure.identifier,
                                 coordinate: x.coordinate,
                                 kind: 'sids',
+
+                                altitude: x.altitude,
+                                altitude1: x.altitude1,
+                                altitude2: x.altitude2,
+                                speed: x.speed,
+                                speedLimit: x.speedLimit,
                             } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                         }
                     }
@@ -250,6 +253,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                         identifier: x.identifier,
                         coordinate: x.coordinate,
                         kind: 'sids',
+
+                        altitude: x.altitude,
+                        altitude1: x.altitude1,
+                        altitude2: x.altitude2,
+                        speed: x.speed,
+                        speedLimit: x.speedLimit,
                     } satisfies NavigraphNavDataEnrouteWaypointPartial)) ?? []);
 
                     const enrouteTransition = procedure?.transitions.enroute.find(x => x.name === entries[1] || x.name === entries[2]);
@@ -259,6 +268,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                             identifier: x.identifier,
                             coordinate: x.coordinate,
                             kind: 'sids',
+
+                            altitude: x.altitude,
+                            altitude1: x.altitude1,
+                            altitude2: x.altitude2,
+                            speed: x.speed,
+                            speedLimit: x.speedLimit,
                         } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                     }
 
@@ -282,9 +297,6 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                 if (nextEntryTest && stars.some(x => x.identifier === `${ nextEntryTest.groups?.start }${ nextEntryTest.groups?.end }`)) continue;
 
                 if (star !== -1) {
-                    // We already have it fully drawn
-                    if (dataStore.navigraphProcedures[arrival]?.stars[stars[star].identifier]) continue;
-
                     starInit = true;
 
                     const procedure = await getNavigraphAirportProcedure('stars', arrival, star);
@@ -297,6 +309,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                             identifier: x.identifier,
                             coordinate: x.coordinate,
                             kind: 'stars',
+
+                            altitude: x.altitude,
+                            altitude1: x.altitude1,
+                            altitude2: x.altitude2,
+                            speed: x.speed,
+                            speedLimit: x.speedLimit,
                         } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                     }
 
@@ -305,6 +323,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                         identifier: x.identifier,
                         coordinate: x.coordinate,
                         kind: 'stars',
+
+                        altitude: x.altitude,
+                        altitude1: x.altitude1,
+                        altitude2: x.altitude2,
+                        speed: x.speed,
+                        speedLimit: x.speedLimit,
                     } satisfies NavigraphNavDataEnrouteWaypointPartial)) ?? []);
 
                     if (arrRunway) {
@@ -315,6 +339,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
                                 kind: 'stars',
+
+                                altitude: x.altitude,
+                                altitude1: x.altitude1,
+                                altitude2: x.altitude2,
+                                speed: x.speed,
+                                speedLimit: x.speedLimit,
                             } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                         }
                     }
@@ -329,6 +359,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'approaches',
+
+                                    altitude: x.altitude,
+                                    altitude1: x.altitude1,
+                                    altitude2: x.altitude2,
+                                    speed: x.speed,
+                                    speedLimit: x.speedLimit,
                                 } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                             }
 
@@ -336,6 +372,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
                                 kind: 'approaches',
+
+                                altitude: x.altitude,
+                                altitude1: x.altitude1,
+                                altitude2: x.altitude2,
+                                speed: x.speed,
+                                speedLimit: x.speedLimit,
                             } satisfies NavigraphNavDataEnrouteWaypointPartial)));
 
                             if (procedure.procedure.missedApproach) {
@@ -343,6 +385,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'missedApproach',
+
+                                    altitude: x.altitude,
+                                    altitude1: x.altitude1,
+                                    altitude2: x.altitude2,
+                                    speed: x.speed,
+                                    speedLimit: x.speedLimit,
                                 } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                             }
                         }
