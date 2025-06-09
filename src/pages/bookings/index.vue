@@ -5,21 +5,6 @@
                 v-if="!isMobile && !collapsed"
             >
                 <div class="picker-presets">
-                    <common-button
-                        :disabled="currentDateRange === 'today'"
-                        primary-color="primary600"
-                        @click="changeRange('today')"
-                    >Today</common-button>
-                    <common-button
-                        :disabled="currentDateRange === 'todayTomorrow'"
-                        primary-color="primary600"
-                        @click="changeRange('todayTomorrow')"
-                    >Today + Tomorrow</common-button>
-                    <common-button
-                        :disabled="currentDateRange === 'today7Days'"
-                        primary-color="primary600"
-                        @click="changeRange('today7Days')"
-                    >Today + 7 Days</common-button>
                     <div class="picker-presets-custom">
                         <div>Now</div> + <common-input-text
                             v-model="presetHours"
@@ -30,6 +15,23 @@
                             primary-color="success400"
                             @click="changeRange('custom')"
                         >Apply</common-button>
+                    </div>
+                    <div class="picker-presets-fixed">
+                        <common-button
+                            :disabled="currentDateRange === 'today'"
+                            primary-color="primary600"
+                            @click="changeRange('today')"
+                        >Today</common-button>
+                        <common-button
+                            :disabled="currentDateRange === 'todayTomorrow'"
+                            primary-color="primary600"
+                            @click="changeRange('todayTomorrow')"
+                        >Today + Tomorrow</common-button>
+                        <common-button
+                            :disabled="currentDateRange === 'today7Days'"
+                            primary-color="primary600"
+                            @click="changeRange('today7Days')"
+                        >Today + 7 Days</common-button>
                     </div>
                 </div>
 
@@ -49,7 +51,7 @@
                     <common-toggle
                         class="picker-localtime"
                         :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
-                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event }), timelineUtc = !$event"
                     >
                         Bookings local time
                     </common-toggle>
@@ -90,6 +92,7 @@
             :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
             :identifiers="bookingTimelineIdentifiers"
             :start="dateRange.from"
+            :utc="timelineUtc"
         />
     </common-page-block>
 </template>
@@ -116,6 +119,7 @@ const initialEnd = new Date(initialStart.getTime());
 initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
+const timelineUtc = ref(true);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
 const presetHours = ref('4');
 const currentDateRange: Ref<'today' | 'todayTomorrow' | 'today7Days' | 'custom'> = ref('custom');
@@ -294,16 +298,24 @@ useHead({
     align-items: center;
 
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 64px;
 
     &-presets {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 32px;
         align-items: start;
+        align-self: flex-start;
 
-        width: 100%;
-        margin-bottom: 16px;
+        width: max-content;
+        padding-left: 64px;
+
+        &-fixed {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+        }
 
         &-custom {
             display: flex;
