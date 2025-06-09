@@ -2,6 +2,8 @@
 
 # [1.2.0-beta.3]
 
+## QA
+
 - Revered random reloads fix
 - Fixed full route shown for some reason when you enable star for aircraft
 - Fixed duplicate waypoints display
@@ -10,6 +12,12 @@
 - Improved aircraft predicted route update speed
 - Added holdings to enroute waypoints
 - Implemented route for all airport aircraft
+
+## Public Release
+
+- New icons from DotWallop: B105, BE20, BR23, BT7, C2, C25B, C414, E2, F4, F104, G91, H60, H64, HUNT, IL96, LANC, ME09, ME62, MIR2, S92, SB39, STAR
+- Improved icon for FA8X
+- Added model matching for C207, C30J and VF35
 
 # [1.2.0-beta.2]
 
@@ -20,6 +28,7 @@
 ## Public release
 
 - Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
+
 
 # [1.2.0-beta.1]
 
