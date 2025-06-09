@@ -144,13 +144,15 @@ const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataSto
     x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
 ]))));
 
-watch([isEnabled, extent, level, starWaypoints], async ([enabled, extent]) => {
+const aircraftWaypoints = computed(() => Array.from(new Set(...Object.values(dataStore.navigraphWaypoints.value).map(x => x.waypoints.flatMap(x => x.identifier).filter(x => !!x)))));
+
+watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
     source?.value.removeFeatures(features);
     features = [];
 
-    if (!enabled && !starWaypoints.value.length) return;
+    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) return;
 
-    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]));
+    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
 
     entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';

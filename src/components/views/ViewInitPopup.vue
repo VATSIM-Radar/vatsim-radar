@@ -57,7 +57,7 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
     method: () => PromiseLike<any>;
 }> = {
     updatesCheck: {
-        title: 'Checking for updates...',
+        title: 'Initialization...',
         method: checkForUpdates,
     },
     dataGet: {
