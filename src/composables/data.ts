@@ -55,7 +55,7 @@ const vatglasses = shallowRef<VatglassesAPIData>();
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
-const waypoints = ref<Record<string, any>>({});
+const waypoints = shallowRef<Record<string, any>>({});
 
 const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
 
@@ -172,7 +172,9 @@ export interface UseDataStore {
         bearing: number;
         speed: number;
         arrival: string;
+        arrived: boolean;
         full: boolean;
+        callsign: string;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

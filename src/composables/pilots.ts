@@ -326,7 +326,7 @@ const lineStyles: {
     width: number;
 }[] = [];
 
-export function getAircraftLineStyle(color: string | number | null, width = 1.5, lineDash?: number[]): Style {
+export function getAircraftLineStyle(color: string | number | null, width = 2, lineDash?: number[]): Style {
     const store = useStore();
 
     let hex = typeof color === 'string' ? color : getFlightRowColor(color);

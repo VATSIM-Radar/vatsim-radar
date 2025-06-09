@@ -316,6 +316,8 @@ const init = async () => {
         return;
     }
 
+    setPilotRoute(canShowRoute.value);
+
     if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
 
     if (!feature) {
@@ -380,6 +382,17 @@ const arrAirport = computed(() => pilot.value?.arrival && dataStore.vatspy.value
 
 let previousFlightPlan = '';
 
+const distance = computed(() => {
+    const arrivalAirport = arrAirport.value;
+
+    if (!arrivalAirport) return null;
+    return calculateDistanceInNauticalMiles(
+        [arrivalAirport.lon, arrivalAirport.lat],
+        [props.aircraft.longitude, props.aircraft.latitude],
+    );
+});
+
+
 async function setPilotRoute(enabled: boolean) {
     if (!flightPlan.value || !enabled) {
         delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
@@ -401,10 +414,12 @@ async function setPilotRoute(enabled: boolean) {
     }
 
     dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
-        coordinate: [pilot.value.longitude, pilot.value.latitude],
+        coordinate: getCoordinates.value,
         bearing: pilot.value.heading,
         speed: pilot.value.groundspeed,
+        callsign: pilot.value.callsign,
         arrival: pilot.value.arrival!,
+        arrived: pilot.value.status === 'arrTaxi' || pilot.value.status === 'arrGate',
         full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
         waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
             flightPlan: flightPlan.value,
@@ -412,9 +427,11 @@ async function setPilotRoute(enabled: boolean) {
             arrival: pilot.value.arrival!,
         }),
     };
+
+    triggerRef(dataStore.navigraphWaypoints);
 }
 
-const canShowRoute = computed(() => canShowLines.value && !!arrAirport.value && props.isVisible && (isPropsHovered.value || !!activeCurrentOverlay.value));
+const canShowRoute = computed(() => canShowLines.value && !!arrAirport.value && props.isVisible);
 
 watch(canShowRoute, val => {
     setPilotRoute(val);
@@ -428,14 +445,6 @@ async function toggleAirportLines(value = canShowLines.value) {
     try {
         const departureAirport = value && depAirport.value;
         const arrivalAirport = value && arrAirport.value;
-
-        const distance = () => {
-            if (!arrivalAirport) return null;
-            return calculateDistanceInNauticalMiles(
-                [arrivalAirport.lon, arrivalAirport.lat],
-                [props.aircraft.longitude, props.aircraft.latitude],
-            );
-        };
 
         let color = getAircraftStatusColor(getStatus.value, props.aircraft.cid);
 
@@ -721,7 +730,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         setPilotRoute(canShowRoute.value);
 
-        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance() ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
+        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
             const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
             const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 

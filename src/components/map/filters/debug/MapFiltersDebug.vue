@@ -86,7 +86,7 @@
         <common-block-title remove-margin>
             Data
         </common-block-title>
-        <div  class="debug_data-container __info-sections">
+        <div class="debug_data-container __info-sections">
             <div
                 v-for="key in ['vatspy', 'simaware', 'vatglasses'] as DataKey[]"
                 :key
@@ -174,6 +174,26 @@
                 </div>
             </div>
         </div>
+        <common-block-title remove-margin>
+            Flight plan
+        </common-block-title>
+        <div class="__section-group">
+            <common-input-text v-model="flightPlan.departure">
+                Departure
+            </common-input-text>
+            <common-input-text v-model="flightPlan.arrival">
+                Arrival
+            </common-input-text>
+            <common-input-text v-model="flightPlan.plan">
+                Flight plan
+            </common-input-text>
+        </div>
+        <common-button
+            :disabled="!flightPlan.departure || !flightPlan.arrival || !flightPlan.plan"
+            @click="parse"
+        >
+            Parse
+        </common-button>
     </div>
 </template>
 
@@ -186,6 +206,8 @@ import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import type { ShallowRef } from 'vue';
+import type { Map } from 'ol';
 
 const files = reactive({
     vatspy: {
@@ -199,6 +221,12 @@ const files = reactive({
 const prs = reactive({
     vatspy: null as number | null | true | 'loading',
     simaware: null as number | null | true | 'loading',
+});
+
+const flightPlan = reactive({
+    departure: '',
+    arrival: '',
+    plan: '',
 });
 
 export interface VatsimControllerWithField extends VatsimController {
@@ -221,6 +249,26 @@ const getDefaultController = (): VatsimControllerWithField => ({
 });
 
 const { data: controllers, refresh } = await useAsyncData('debug-controllers', () => $fetch<VatsimControllerWithField[]>('/api/data/custom/controllers'), { deep: true });
+
+const dataStore = useDataStore();
+const map = inject<ShallowRef<Map | null>>('map')!;
+
+async function parse() {
+    dataStore.navigraphWaypoints.value.test = {
+        coordinate: map.value!.getView().getCenter()!,
+        bearing: 0,
+        speed: 0,
+        arrival: flightPlan.arrival,
+        callsign: 'test',
+        full: true,
+        waypoints: await getFlightPlanWaypoints({
+            flightPlan: flightPlan.plan,
+            departure: flightPlan.departure,
+            arrival: flightPlan.arrival,
+        }),
+        arrived: false,
+    };
+}
 
 const activeController = ref<VatsimControllerWithField | null>(null);
 const isDisabledControllerSave = computed(() => !activeController.value ||

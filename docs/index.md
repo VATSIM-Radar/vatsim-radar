@@ -6,7 +6,6 @@ hero:
   name: VATSIM Radar
   tagline: The Premiere Flight Tracker for the VATSIM Network
   actions:
-    
     - theme: brand
       text: Website
       link: https://vatsim-radar.com

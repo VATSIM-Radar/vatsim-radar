@@ -51,7 +51,7 @@ export interface NavigraphNavDataEnrouteWaypoint {
     usage: string;
 }
 
-export interface NavigraphNavDataEnrouteWaypointPartial {
+export interface NavigraphNavDataEnrouteWaypointPartial extends Partial<NavigraphNavDataAirportWaypointConstraints> {
     identifier: string;
     coordinate?: Coordinate;
     title?: string;
@@ -84,13 +84,17 @@ export interface NavigraphNavDataAirway {
     areaCode: string;
 }
 
-export interface NavigraphNavDataAirportWaypoint extends NavigraphNavDataWaypoint {
+export interface NavigraphNavDataAirportWaypointConstraints {
     altitude: 'between' | 'equals' | 'above' | 'below' | null;
     altitude1: number | null;
     altitude2: number | null;
 
     speed: NavigraphNavDataAirportWaypoint['altitude'] | null;
     speedLimit: number | null;
+}
+
+export interface NavigraphNavDataAirportWaypoint extends NavigraphNavDataWaypoint, NavigraphNavDataAirportWaypointConstraints {
+
 }
 
 export interface NavigraphNavDataApproach {

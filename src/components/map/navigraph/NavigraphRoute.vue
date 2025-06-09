@@ -22,26 +22,35 @@ const dataStore = useDataStore();
 let features: Feature[] = [];
 
 function update() {
-    const newFeatures: Feature[] = [];
+    let newFeatures: Feature[] = [];
 
     try {
-        for (let { waypoints, bearing, coordinate, speed, arrival, full } of Object.values(dataStore.navigraphWaypoints.value)) {
-            if (!waypoints.length) continue;
+        for (const { waypoints, bearing, coordinate, speed, arrival, arrived, callsign, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+            if (!waypoints.length || arrived) continue;
 
-            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !dataStore.navigraphProcedures[arrival]?.stars && !dataStore.navigraphProcedures[arrival]?.approaches) {
-                waypoints = [
-                    ...waypoints,
-                    {
-                        identifier: arrival,
-                        coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lat],
-                        kind: 'enroute',
-                    },
-                ];
+            if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
+                const lastIndex = waypoints.findIndex(x => x.kind === 'missedApproach');
+                const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
+
+                waypoints.splice(index + 1, 0, {
+                    identifier: arrival,
+                    coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lat],
+                    kind: 'enroute',
+                });
             }
+
             let rawWaypoints: [string, Coordinate, number][] = [];
             waypoints.forEach(x => x.coordinate
                 ? rawWaypoints.push([x.identifier, x.coordinate, turfBearing(coordinate, x.coordinate, { final: true })])
                 : x.airway!.value[2].forEach(x => rawWaypoints.push([x[0], [x[3], x[4]], turfBearing(coordinate, [x[3], x[4]], { final: true })])));
+
+            rawWaypoints.sort((a, b) => {
+                return waypointDiff(coordinate, a[1]) - waypointDiff(coordinate, b[1]);
+            });
+
+            rawWaypoints = rawWaypoints.slice(0, 5);
+
+            const backupWaypoints = rawWaypoints.slice(0);
 
             rawWaypoints = rawWaypoints.filter((x, xIndex) => {
                 if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
@@ -52,13 +61,11 @@ function update() {
                 return diff <= 90;
             });
 
-            rawWaypoints.sort((a, b) => {
-                return waypointDiff(coordinate, a[1]) - waypointDiff(coordinate, b[1]);
-            });
+            if (!rawWaypoints.length) rawWaypoints = backupWaypoints;
 
             rawWaypoints = rawWaypoints.slice(0, 1);
 
-            let foundWaypoint = speed < 50;
+            let foundWaypoint = false;
 
             let firstWaypoint = false;
 
@@ -73,6 +80,7 @@ function update() {
                     dataType: 'navdata',
                     self: true,
                     kind,
+                    id: callsign,
                 }));
 
                 firstWaypoint = true;
@@ -86,16 +94,23 @@ function update() {
                 if (waypoint.kind !== 'airway') {
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
-                    if (!foundWaypoint && !full) continue;
+                    if (!foundWaypoint && speed >= 50 && !full) continue;
 
                     newFeatures.push(new Feature({
                         geometry: new Point(waypoint.coordinate!),
                         usage: waypoint.usage,
                         identifier: waypoint.identifier,
+                        id: waypoint.identifier,
                         waypoint: waypoint.identifier,
                         kind: waypoint.kind,
                         type: 'enroute-waypoint',
                         dataType: 'navdata',
+
+                        altitude: waypoint.altitude,
+                        altitude1: waypoint.altitude1,
+                        altitude2: waypoint.altitude2,
+                        speed: waypoint.speed,
+                        speedLimit: waypoint.speedLimit,
                     }));
 
                     if (foundWaypoint) {
@@ -107,6 +122,7 @@ function update() {
                     newFeatures.push(new Feature({
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
+                        id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                         identifier: waypoint.title ?? '',
                         type: 'airways',
                         dataType: 'navdata',
@@ -120,7 +136,7 @@ function update() {
 
                         if (currWaypoint[0] === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
-                        if (!foundWaypoint && !full) continue;
+                        if (!foundWaypoint && speed >= 50 && !full) continue;
 
                         if (foundWaypoint) {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
@@ -131,8 +147,15 @@ function update() {
                             identifier: currWaypoint[0],
                             flightLevel: currWaypoint[5],
                             waypoint: currWaypoint[0],
+                            id: currWaypoint[0],
                             type: 'airway-waypoint',
                             dataType: 'navdata',
+
+                            altitude: waypoint.altitude,
+                            altitude1: waypoint.altitude1,
+                            altitude2: waypoint.altitude2,
+                            speed: waypoint.speed,
+                            speedLimit: waypoint.speedLimit,
                         }));
 
                         if (!nextWaypoint) {
@@ -141,6 +164,7 @@ function update() {
                                 newFeatures.push(new Feature({
                                     geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
                                     key: '',
+                                    id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
                                     identifier: '',
                                     type: 'airways',
                                     dataType: 'navdata',
@@ -153,6 +177,7 @@ function update() {
                         newFeatures.push(new Feature({
                             geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
+                            id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
                             identifier: waypoint.airway!.value[0],
                             inbound: currWaypoint[1],
                             outbound: currWaypoint[2],
@@ -168,6 +193,8 @@ function update() {
         }
 
         source?.value.removeFeatures(features);
+        newFeatures = newFeatures.filter((x, xIndex) => !newFeatures.some((y, yIndex) => x.getProperties().id === y.getProperties().id && yIndex > xIndex));
+
         features = newFeatures;
         source?.value.addFeatures(features);
     }
@@ -182,7 +209,6 @@ watch(dataStore.navigraphWaypoints, () => {
     debouncedUpdate();
 }, {
     immediate: true,
-    deep: true,
 });
 
 onBeforeUnmount(() => {
