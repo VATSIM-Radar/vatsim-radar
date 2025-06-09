@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.1.2-6]
+
+- New icons from DotWallop: B105, BE20, BR23, BT7, C2, C25B, C414, E2, F4, F104, G91, H60, H64, HUNT, IL96, LANC, ME09, ME62, MIR2, S92, SB39, STAR
+- Improved icon for FA8X
+- Added model matching for C207, C30J and VF35
+
 # [1.1.2-4]
 
 - When Navigraph has some issues with AMDB, gates will no longer disappear from map
