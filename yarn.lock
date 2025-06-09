@@ -3959,14 +3959,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protomaps/basemaps@npm:^5.4.0":
-  version: 5.4.0
-  resolution: "@protomaps/basemaps@npm:5.4.0"
+"@protomaps/basemaps@npm:^5.4.1":
+  version: 5.4.1
+  resolution: "@protomaps/basemaps@npm:5.4.1"
   dependencies:
     tsx: "npm:^4.19.4"
   bin:
     generate_style: src/cli.ts
-  checksum: 10c0/f2522e0947631154cc6a9382e028f9c1de50a339326465272abdfae8f67ea56d33e9b5c7708c02af535ea9a03850f36c81a620f8b69d2153dadb11c6362b25dd
+  checksum: 10c0/69f85d81cb6cb6d4d66efe511aa63b3ea26329c70efe077b57119fb2e11bed131ea3e99a5a47df23763135b75fe25c559eb3b0e0546665294fc1e6956ce57da7
   languageName: node
   linkType: hard
 
@@ -5711,9 +5711,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vite-pwa/nuxt@npm:^1.0.3":
-  version: 1.0.3
-  resolution: "@vite-pwa/nuxt@npm:1.0.3"
+"@vite-pwa/nuxt@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "@vite-pwa/nuxt@npm:1.0.4"
   dependencies:
     "@nuxt/kit": "npm:^3.9.0"
     pathe: "npm:^1.1.1"
@@ -5724,7 +5724,7 @@ __metadata:
   peerDependenciesMeta:
     "@vite-pwa/assets-generator":
       optional: true
-  checksum: 10c0/a8db4ad521ceed5ba7430a2a4d6637b65906d651c84c91a071d9b072a8013d4ff4d1ae35c79688bbfe3bf9590b97d09ac27b8d851fa568baf6538c77ad087ca6
+  checksum: 10c0/46de44f30893196c2cdf717d793ed8a59c918092f89d3891d79c284b5fa89c49003e17a4e8744a831f971f6b650a54923957e7b3ba878a2cf483a45716e20888
   languageName: node
   linkType: hard
 
@@ -9185,14 +9185,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.2.4":
-  version: 5.2.4
-  resolution: "fast-xml-parser@npm:5.2.4"
+"fast-xml-parser@npm:^5.2.5":
+  version: 5.2.5
+  resolution: "fast-xml-parser@npm:5.2.5"
   dependencies:
     strnum: "npm:^2.1.0"
   bin:
     fxparser: src/cli/cli.js
-  checksum: 10c0/a7ba613606dfdd9906a0f64293eea32e5ae38a798cc463d11ff514d0a303a07a5beef8d4ade9e73499e1376f86aa179c1c5f698c647824b4527c847b98fb415b
+  checksum: 10c0/d1057d2e790c327ccfc42b872b91786a4912a152d44f9507bf053f800102dfb07ece3da0a86b33ff6a0caa5a5cad86da3326744f6ae5efb0c6c571d754fe48cd
   languageName: node
   linkType: hard
 
@@ -17177,7 +17177,7 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.1"
     "@prisma/client": "npm:^6.9.0"
-    "@protomaps/basemaps": "npm:^5.4.0"
+    "@protomaps/basemaps": "npm:^5.4.1"
     "@sentry/nuxt": "npm:^9.27.0"
     "@stylistic/eslint-plugin": "npm:^4.4.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.2"
@@ -17201,7 +17201,7 @@ __metadata:
     "@types/merge-ranges": "npm:^1.0.2"
     "@types/node": "npm:^22.15.30"
     "@types/ws": "npm:^8.18.1"
-    "@vite-pwa/nuxt": "npm:^1.0.3"
+    "@vite-pwa/nuxt": "npm:^1.0.4"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
@@ -17210,7 +17210,7 @@ __metadata:
     deep-equal: "npm:^2.2.3"
     discord.js: "npm:^14.19.3"
     eslint: "npm:^9.28.0"
-    fast-xml-parser: "npm:^5.2.4"
+    fast-xml-parser: "npm:^5.2.5"
     idb: "npm:^8.0.3"
     ioredis: "npm:^5.6.1"
     jsonwebtoken: "npm:^9.0.2"
