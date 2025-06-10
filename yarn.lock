@@ -15519,12 +15519,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:^0.7.5":
-  version: 0.7.5
-  resolution: "srvx@npm:0.7.5"
+"srvx@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "srvx@npm:0.8.0"
   dependencies:
     cookie-es: "npm:^2.0.0"
-  checksum: 10c0/e40eaf365d287a450fa945af0fbcc2754d3d7d174bce637f6552e21af4ddb4cced89e6a0c714241e37725abbfaeda41d96349ed1370e5bf6175c77e87eb61e90
+  checksum: 10c0/d5cd5720480e9afe1ee42559682876760314cfc4c7bfcbeece17ef7047ebc88892edfe91a356e05e4109b09e04b1b96b8397bdeb384f709fa33d67169de0c02b
   languageName: node
   linkType: hard
 
@@ -17231,7 +17231,7 @@ __metadata:
     sass-embedded: "npm:^1.89.1"
     sharp: "npm:^0.34.2"
     sqlite3: "npm:^5.1.7"
-    srvx: "npm:^0.7.5"
+    srvx: "npm:^0.8.0"
     stylelint: "npm:^16.20.0"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^15.0.1"
