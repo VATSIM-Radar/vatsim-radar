@@ -13772,6 +13772,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:^8.5.5":
+  version: 8.5.5
+  resolution: "postcss@npm:8.5.5"
+  dependencies:
+    nanoid: "npm:^3.3.11"
+    picocolors: "npm:^1.1.1"
+    source-map-js: "npm:^1.2.1"
+  checksum: 10c0/6415873fab84de05c2d8fd18f72ea6654bca437bb4b9f02ca819c438501e4b3a450023e575e17587c6eaa5bedddaaa4dad3af210f5cf166e30cec09cac58baf8
+  languageName: node
+  linkType: hard
+
 "postgres-array@npm:~2.0.0":
   version: 2.0.0
   resolution: "postgres-array@npm:2.0.0"
@@ -17233,7 +17244,7 @@ __metadata:
     ol: "npm:^10.5.0"
     ol-mapbox-style: "npm:^13.0.1"
     pinia: "npm:^3.0.3"
-    postcss: "npm:^8.5.4"
+    postcss: "npm:^8.5.5"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.9.0"
     rou3: "npm:^0.6.3"
