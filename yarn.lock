@@ -1370,7 +1370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bufbuild/protobuf@npm:^2.0.0":
+"@bufbuild/protobuf@npm:^2.5.0":
   version: 2.5.2
   resolution: "@bufbuild/protobuf@npm:2.5.2"
   checksum: 10c0/30f0ede04b5318eda502759044329f44af27e0bebd9853d7d9baf5bcb4f4b17f813eb8904d98718d991bd56d33565ed18f8c9c65067626c3d4e55a4e039fe9b6
@@ -4335,41 +4335,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry-internal/browser-utils@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry-internal/browser-utils@npm:9.27.0"
+"@sentry-internal/browser-utils@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry-internal/browser-utils@npm:9.28.1"
   dependencies:
-    "@sentry/core": "npm:9.27.0"
-  checksum: 10c0/e963da0d77e5ca4f2bd6d7d253ac13eb2d26710895fa66d46101078a2426a718e4da93889a0b87e34a4b446695e1940323ed0af3aaaf749283089c1eda37ae01
+    "@sentry/core": "npm:9.28.1"
+  checksum: 10c0/92e2285d1041a1c1142516a768f6af729fbd8822a0c374100767030be0b346a441c8795083c26fa7d5905210f4b93f90373847a71cd89fd26e50e91c4f6d1049
   languageName: node
   linkType: hard
 
-"@sentry-internal/feedback@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry-internal/feedback@npm:9.27.0"
+"@sentry-internal/feedback@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry-internal/feedback@npm:9.28.1"
   dependencies:
-    "@sentry/core": "npm:9.27.0"
-  checksum: 10c0/d423ba1539903b13bbc57762388b1d0e6af86181ee8552e933731822891dfb2611b7aec61181a2abcb515a43f27265eaec088fee6469fa99acb287d15432b2a2
+    "@sentry/core": "npm:9.28.1"
+  checksum: 10c0/ba5240834a94850e224dd1090b570a919519d64080ea07bf614c5de445553d0d36385bcae99e3f30d01033a8db4fab3f9239d5afe8c93f1a43352b4d216842ca
   languageName: node
   linkType: hard
 
-"@sentry-internal/replay-canvas@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry-internal/replay-canvas@npm:9.27.0"
+"@sentry-internal/replay-canvas@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry-internal/replay-canvas@npm:9.28.1"
   dependencies:
-    "@sentry-internal/replay": "npm:9.27.0"
-    "@sentry/core": "npm:9.27.0"
-  checksum: 10c0/d5106ccdfdf0391c41cdeced09f2aa1a5d654c1581bd8d10504e5c40217dffc52fec6b763305a57f2a0da39e1c2f6819e171267967cf2f8aa079b9607a4c38f5
+    "@sentry-internal/replay": "npm:9.28.1"
+    "@sentry/core": "npm:9.28.1"
+  checksum: 10c0/cf5ef359451b0f9ba85b2b8af9c36e549afbb03a8d76140bb1271cb94d077b68bed5b70fba8cbb463bd5cb6bb94c69d05aa31cb263d1a09e0da400d4418bcf02
   languageName: node
   linkType: hard
 
-"@sentry-internal/replay@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry-internal/replay@npm:9.27.0"
+"@sentry-internal/replay@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry-internal/replay@npm:9.28.1"
   dependencies:
-    "@sentry-internal/browser-utils": "npm:9.27.0"
-    "@sentry/core": "npm:9.27.0"
-  checksum: 10c0/642ae511f4364e560f28d4fcd364d8364690462ffafd39d9e7ecc8d3886e9e377746c7e61e5c897f98e5420db347edbf240171dc3a8d99cc24b6d64f7572bc51
+    "@sentry-internal/browser-utils": "npm:9.28.1"
+    "@sentry/core": "npm:9.28.1"
+  checksum: 10c0/361aa447a7975ce242abee18d4ac5b023d005e67288e92450af8ffa7c9e4ce6cee583e479b3a62c92dd42e608c98cbf65b63f0ceea36cbd80e1e4bf183ab5a5e
   languageName: node
   linkType: hard
 
@@ -4387,16 +4387,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/browser@npm:9.27.0"
+"@sentry/browser@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/browser@npm:9.28.1"
   dependencies:
-    "@sentry-internal/browser-utils": "npm:9.27.0"
-    "@sentry-internal/feedback": "npm:9.27.0"
-    "@sentry-internal/replay": "npm:9.27.0"
-    "@sentry-internal/replay-canvas": "npm:9.27.0"
-    "@sentry/core": "npm:9.27.0"
-  checksum: 10c0/f8dc8f4e52b786ad3a392e25e6efb4b1fafb26398e65e75537786a81953fd4f96fd5461a696959d69a8d4bbcd9160c7920d885a318f81907de5941b40766d008
+    "@sentry-internal/browser-utils": "npm:9.28.1"
+    "@sentry-internal/feedback": "npm:9.28.1"
+    "@sentry-internal/replay": "npm:9.28.1"
+    "@sentry-internal/replay-canvas": "npm:9.28.1"
+    "@sentry/core": "npm:9.28.1"
+  checksum: 10c0/764b9d6b5cdf174575f142b15baa09413e357ec068acf62c3bfa7f1198d42dc9f7a872d19cde727c93bc605ebb53598114a53d8ea39613bb17f55f602467065f
   languageName: node
   linkType: hard
 
@@ -4518,16 +4518,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/core@npm:9.27.0"
-  checksum: 10c0/c5a629b9dd3b83593adb9bc4fd2da761545188c37fe4239cf7646a8b847d62c698a368f25fd78e630fc92ae4e20976a574c7d4775f59749cd26bb7123d1a8f6a
+"@sentry/core@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/core@npm:9.28.1"
+  checksum: 10c0/8be43eb3cd680980df6a0c323306cb822193666f563bcd7b79d3162d833f6d6076effa320bdbac88e45ab84f761f584b7d6fdd9dc960eaf182e0f10306c465d1
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/node@npm:9.27.0"
+"@sentry/node@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/node@npm:9.28.1"
   dependencies:
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/context-async-hooks": "npm:^1.30.1"
@@ -4559,37 +4559,37 @@ __metadata:
     "@opentelemetry/sdk-trace-base": "npm:^1.30.1"
     "@opentelemetry/semantic-conventions": "npm:^1.34.0"
     "@prisma/instrumentation": "npm:6.8.2"
-    "@sentry/core": "npm:9.27.0"
-    "@sentry/opentelemetry": "npm:9.27.0"
+    "@sentry/core": "npm:9.28.1"
+    "@sentry/opentelemetry": "npm:9.28.1"
     import-in-the-middle: "npm:^1.13.1"
     minimatch: "npm:^9.0.0"
-  checksum: 10c0/e603ec766a75ffd7b2376c413b6028500de8cdd6a4764af10d70330009519fb4ca753bd5da5165394896092e527193abf4d8678f98ecd2814ce9b6e1931fedab
+  checksum: 10c0/e5e9dab0e42fa4017f4cf76f2c1450942656ed39cc7ff10f409a98d7b73c8d9407c82973d50d711c7942bddbe24986ca5e5024d875fbdfefc8daf5c2dcd8005e
   languageName: node
   linkType: hard
 
-"@sentry/nuxt@npm:^9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/nuxt@npm:9.27.0"
+"@sentry/nuxt@npm:^9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/nuxt@npm:9.28.1"
   dependencies:
     "@nuxt/kit": "npm:^3.13.2"
-    "@sentry/browser": "npm:9.27.0"
-    "@sentry/core": "npm:9.27.0"
-    "@sentry/node": "npm:9.27.0"
-    "@sentry/opentelemetry": "npm:9.27.0"
+    "@sentry/browser": "npm:9.28.1"
+    "@sentry/core": "npm:9.28.1"
+    "@sentry/node": "npm:9.28.1"
+    "@sentry/opentelemetry": "npm:9.28.1"
     "@sentry/rollup-plugin": "npm:3.4.0"
     "@sentry/vite-plugin": "npm:3.2.4"
-    "@sentry/vue": "npm:9.27.0"
+    "@sentry/vue": "npm:9.28.1"
   peerDependencies:
     nuxt: ">=3.7.0 || 4.x"
-  checksum: 10c0/032757d18ac898657354a684c2c488a405590c5ad49ea905948dee6c81717f896ffa5286ba5fe73a643a4ab1ab4deebc7c4efce64233aa4c97f9c0cf1e42e328
+  checksum: 10c0/3748b23542654b431212e92153cc5a6d936cedb4924f6741365c8f36c6969e66df656b9778b2265d0507495986c1a032dcb1d99fc44cc5a8b7fd5c1aa628e332
   languageName: node
   linkType: hard
 
-"@sentry/opentelemetry@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/opentelemetry@npm:9.27.0"
+"@sentry/opentelemetry@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/opentelemetry@npm:9.28.1"
   dependencies:
-    "@sentry/core": "npm:9.27.0"
+    "@sentry/core": "npm:9.28.1"
   peerDependencies:
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/context-async-hooks": ^1.30.1 || ^2.0.0
@@ -4597,7 +4597,7 @@ __metadata:
     "@opentelemetry/instrumentation": ^0.57.1 || ^0.200.0
     "@opentelemetry/sdk-trace-base": ^1.30.1 || ^2.0.0
     "@opentelemetry/semantic-conventions": ^1.34.0
-  checksum: 10c0/ecf9404e83749e8174ee77d51d2ecd7686d46b2661a2532fcecdc6b5957ce7aeda15db68bb1cad0741b02599abfa0417140f8f0b67fd5cf0d7741395e72f55b4
+  checksum: 10c0/078154023ad5e446b6fb291ac5bbf3f99ad39e799f00db6fddafdd244fdaa9c844e9d3f7fb1c1ed021022c9ef52639586569750af783cf4f2d8fc30bf725ae97
   languageName: node
   linkType: hard
 
@@ -4623,19 +4623,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/vue@npm:9.27.0":
-  version: 9.27.0
-  resolution: "@sentry/vue@npm:9.27.0"
+"@sentry/vue@npm:9.28.1":
+  version: 9.28.1
+  resolution: "@sentry/vue@npm:9.28.1"
   dependencies:
-    "@sentry/browser": "npm:9.27.0"
-    "@sentry/core": "npm:9.27.0"
+    "@sentry/browser": "npm:9.28.1"
+    "@sentry/core": "npm:9.28.1"
   peerDependencies:
     pinia: 2.x || 3.x
     vue: 2.x || 3.x
   peerDependenciesMeta:
     pinia:
       optional: true
-  checksum: 10c0/8be97cf041749b58208f871e0aa1ed0360d5ded2c86b8f911322a2b85d54f8f7a508371f0754384cfd02e16db745868fb2be23ce3f1dfa8bb732d9dd5313f8df
+  checksum: 10c0/e8291b92442f3ce6f7d8b6b7dc59b01f3d2538ddda757a464c49c7c5cbc5e806b26c71db614567e33e4dda32455de4f15eaf378cf2da10aaf41a4a8da36d3072
   languageName: node
   linkType: hard
 
@@ -5225,12 +5225,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^22.15.30":
+"@types/node@npm:*":
   version: 22.15.30
   resolution: "@types/node@npm:22.15.30"
   dependencies:
     undici-types: "npm:~6.21.0"
   checksum: 10c0/ca330ac0e7fd502686d6df115fcc606aba46fd334220f749bbba2f639accdadcb23f7900603ceccdc8240be736739cad5c0b87c0fa92c9255a4dff245f07d664
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.15.31":
+  version: 22.15.31
+  resolution: "@types/node@npm:22.15.31"
+  dependencies:
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/ef7d5dc890da41cfd554d35ab8998bc18be9e3a0caa642e720599ac4410a94a4879766e52b3c9cafa06c66b7b8aebdc51f322cf67df23a6489927890196a316d
   languageName: node
   linkType: hard
 
@@ -14728,143 +14737,143 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-android-arm64@npm:1.89.1"
+"sass-embedded-android-arm64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-android-arm64@npm:1.89.2"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-android-arm@npm:1.89.1"
+"sass-embedded-android-arm@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-android-arm@npm:1.89.2"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-android-riscv64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-android-riscv64@npm:1.89.1"
+"sass-embedded-android-riscv64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-android-riscv64@npm:1.89.2"
   conditions: os=android & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-x64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-android-x64@npm:1.89.1"
+"sass-embedded-android-x64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-android-x64@npm:1.89.2"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-arm64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-darwin-arm64@npm:1.89.1"
+"sass-embedded-darwin-arm64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-darwin-arm64@npm:1.89.2"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-x64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-darwin-x64@npm:1.89.1"
+"sass-embedded-darwin-x64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-darwin-x64@npm:1.89.2"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-arm64@npm:1.89.1"
+"sass-embedded-linux-arm64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-arm64@npm:1.89.2"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-arm@npm:1.89.1"
+"sass-embedded-linux-arm@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-arm@npm:1.89.2"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-musl-arm64@npm:1.89.1"
+"sass-embedded-linux-musl-arm64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-musl-arm64@npm:1.89.2"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-musl-arm@npm:1.89.1"
+"sass-embedded-linux-musl-arm@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-musl-arm@npm:1.89.2"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-riscv64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-musl-riscv64@npm:1.89.1"
+"sass-embedded-linux-musl-riscv64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-musl-riscv64@npm:1.89.2"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-x64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-musl-x64@npm:1.89.1"
+"sass-embedded-linux-musl-x64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-musl-x64@npm:1.89.2"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-riscv64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-riscv64@npm:1.89.1"
+"sass-embedded-linux-riscv64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-riscv64@npm:1.89.2"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-x64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-linux-x64@npm:1.89.1"
+"sass-embedded-linux-x64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-linux-x64@npm:1.89.2"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-arm64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-win32-arm64@npm:1.89.1"
+"sass-embedded-win32-arm64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-win32-arm64@npm:1.89.2"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-x64@npm:1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded-win32-x64@npm:1.89.1"
+"sass-embedded-win32-x64@npm:1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded-win32-x64@npm:1.89.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.89.1":
-  version: 1.89.1
-  resolution: "sass-embedded@npm:1.89.1"
+"sass-embedded@npm:^1.89.2":
+  version: 1.89.2
+  resolution: "sass-embedded@npm:1.89.2"
   dependencies:
-    "@bufbuild/protobuf": "npm:^2.0.0"
+    "@bufbuild/protobuf": "npm:^2.5.0"
     buffer-builder: "npm:^0.2.0"
     colorjs.io: "npm:^0.5.0"
     immutable: "npm:^5.0.2"
     rxjs: "npm:^7.4.0"
-    sass-embedded-android-arm: "npm:1.89.1"
-    sass-embedded-android-arm64: "npm:1.89.1"
-    sass-embedded-android-riscv64: "npm:1.89.1"
-    sass-embedded-android-x64: "npm:1.89.1"
-    sass-embedded-darwin-arm64: "npm:1.89.1"
-    sass-embedded-darwin-x64: "npm:1.89.1"
-    sass-embedded-linux-arm: "npm:1.89.1"
-    sass-embedded-linux-arm64: "npm:1.89.1"
-    sass-embedded-linux-musl-arm: "npm:1.89.1"
-    sass-embedded-linux-musl-arm64: "npm:1.89.1"
-    sass-embedded-linux-musl-riscv64: "npm:1.89.1"
-    sass-embedded-linux-musl-x64: "npm:1.89.1"
-    sass-embedded-linux-riscv64: "npm:1.89.1"
-    sass-embedded-linux-x64: "npm:1.89.1"
-    sass-embedded-win32-arm64: "npm:1.89.1"
-    sass-embedded-win32-x64: "npm:1.89.1"
+    sass-embedded-android-arm: "npm:1.89.2"
+    sass-embedded-android-arm64: "npm:1.89.2"
+    sass-embedded-android-riscv64: "npm:1.89.2"
+    sass-embedded-android-x64: "npm:1.89.2"
+    sass-embedded-darwin-arm64: "npm:1.89.2"
+    sass-embedded-darwin-x64: "npm:1.89.2"
+    sass-embedded-linux-arm: "npm:1.89.2"
+    sass-embedded-linux-arm64: "npm:1.89.2"
+    sass-embedded-linux-musl-arm: "npm:1.89.2"
+    sass-embedded-linux-musl-arm64: "npm:1.89.2"
+    sass-embedded-linux-musl-riscv64: "npm:1.89.2"
+    sass-embedded-linux-musl-x64: "npm:1.89.2"
+    sass-embedded-linux-riscv64: "npm:1.89.2"
+    sass-embedded-linux-x64: "npm:1.89.2"
+    sass-embedded-win32-arm64: "npm:1.89.2"
+    sass-embedded-win32-x64: "npm:1.89.2"
     supports-color: "npm:^8.1.1"
     sync-child-process: "npm:^1.0.2"
     varint: "npm:^6.0.0"
@@ -14903,7 +14912,7 @@ __metadata:
       optional: true
   bin:
     sass: dist/bin/sass.js
-  checksum: 10c0/feebf7b1be0b8cf13cebfc3b109e882298ace815ce4823cb7c0929bf526cdb847a2b4413efe037ef5f8860659674c5e2f7f74ccd72335c971de340f2100a3f59
+  checksum: 10c0/01cbfc9f88f1f60e1e049160204a7e0d84e7c1222346aec4cd94d52fb11f09e7c351a21e33d18dbe712259b210aaf0e1c9215e46d256700d1f42ef1c1a6196d1
   languageName: node
   linkType: hard
 
@@ -17178,7 +17187,7 @@ __metadata:
     "@pinia/nuxt": "npm:^0.11.1"
     "@prisma/client": "npm:^6.9.0"
     "@protomaps/basemaps": "npm:^5.4.1"
-    "@sentry/nuxt": "npm:^9.27.0"
+    "@sentry/nuxt": "npm:^9.28.1"
     "@stylistic/eslint-plugin": "npm:^4.4.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.2"
     "@turf/bearing": "npm:^7.2.0"
@@ -17199,7 +17208,7 @@ __metadata:
     "@types/geojson": "npm:^7946.0.16"
     "@types/jsonwebtoken": "npm:^9.0.9"
     "@types/merge-ranges": "npm:^1.0.2"
-    "@types/node": "npm:^22.15.30"
+    "@types/node": "npm:^22.15.31"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.0.4"
     adm-zip: "npm:^0.5.16"
@@ -17228,7 +17237,7 @@ __metadata:
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.9.0"
     rou3: "npm:^0.6.3"
-    sass-embedded: "npm:^1.89.1"
+    sass-embedded: "npm:^1.89.2"
     sharp: "npm:^0.34.2"
     sqlite3: "npm:^5.1.7"
     srvx: "npm:^0.7.5"
