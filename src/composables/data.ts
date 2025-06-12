@@ -38,7 +38,6 @@ import {
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
-import type { Coordinate } from 'ol/coordinate';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();

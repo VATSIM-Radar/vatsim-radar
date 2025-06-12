@@ -9,6 +9,7 @@
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
             <navigraph-procedures/>
+            <navigraph-route/>
         </template>
         <map-overlay
             v-if="activeFeature"
