@@ -206,7 +206,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
 
     let sidInit = false;
     let starInit = false;
-    let depRunway = null as string | null;
+    let depRunway = depRunway = dataStore.navigraphProcedures[departure]?.runways[0] as string | null;
+
+    let depRunway = dataStore.navigraphProcedures[departure]?.runways[0];
+    const depSid = Object.values(dataStore.navigraphProcedures[departure]?.sids ?? {})[0];
+    const arrStar = dataStore.navigraphProcedures[arrival]?.stars;
+    const arrRunway = dataStore.navigraphProcedures[arrival]?.runways[0];
+    const arrApproach = dataStore.navigraphProcedures[arrival]?.approaches;
 
     try {
         for (let i = 0; i < entries.length; i++) {
@@ -220,15 +226,20 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
 
             if (routeRegex.test(entry)) split = split.slice(0, 1);
 
+            const sidTest = sidstarRegex.test(search);
+
             // SIDs
-            if (sidstarRegex.test(search) && !sidInit) {
-                depRunway ??= split[1];
+            if ((sidTest || depSid) && !sidInit) {
+                if (sidTest) {
+                    depRunway ??= split[1];
+                }
+                else depRunway ??= dataStore.navigraphProcedures[departure]?.runways[0];
                 const tested = sidstarRegex.exec(search);
                 const sids = await getNavigraphAirportShortProceduresForKey('sids', departure);
-                const sid = sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
+                const sid = !depSid && sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
 
-                if (sid !== -1) {
-                    const procedure = await getNavigraphAirportProcedure('sids', departure, sid);
+                if (depSid || sid !== -1) {
+                    const procedure = depSid?.procedure ?? await getNavigraphAirportProcedure('sids', departure, sid);
 
                     if (depRunway) {
                         const runwayTransition = procedure?.transitions.runway.find(x => x.name === depRunway);

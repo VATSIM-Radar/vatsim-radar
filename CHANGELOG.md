@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.0-beta.4]
+
+- Fixed some routes not clearing up
+
 # [1.2.0-beta.3]
 
 ## QA

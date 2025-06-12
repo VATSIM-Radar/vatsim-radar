@@ -144,7 +144,7 @@ const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataSto
     x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
 ]))));
 
-const aircraftWaypoints = computed(() => Array.from(new Set(...Object.values(dataStore.navigraphWaypoints.value).map(x => x.waypoints.flatMap(x => x.identifier).filter(x => !!x)))));
+const aircraftWaypoints = computed(() => Array.from(new Set(...Object.values(dataStore.navigraphWaypoints.value).filter(x => x.canShowHold).map(x => x.waypoints.flatMap(x => x.identifier).filter(x => !!x)))));
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
     source?.value.removeFeatures(features);

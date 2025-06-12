@@ -25,7 +25,7 @@ function update() {
     let newFeatures: Feature[] = [];
 
     try {
-        for (const { waypoints, bearing, coordinate, speed, arrival, arrived, callsign, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+        for (const { waypoints, bearing, coordinate, speed, arrival, arrived, cid, callsign, full } of Object.values(dataStore.navigraphWaypoints.value)) {
             if (!waypoints.length || arrived) continue;
 
             if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
@@ -96,6 +96,8 @@ function update() {
 
                     if (!foundWaypoint && speed >= 50 && !full) continue;
 
+                    dataStore.navigraphWaypoints.value[callsign].canShowHold = foundWaypoint;
+
                     newFeatures.push(new Feature({
                         geometry: new Point(waypoint.coordinate!),
                         usage: waypoint.usage,
@@ -137,6 +139,8 @@ function update() {
                         if (currWaypoint[0] === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
                         if (!foundWaypoint && speed >= 50 && !full) continue;
+
+                        dataStore.navigraphWaypoints.value[callsign].canShowHold = foundWaypoint;
 
                         if (foundWaypoint) {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);

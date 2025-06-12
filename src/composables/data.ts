@@ -174,7 +174,9 @@ export interface UseDataStore {
         arrival: string;
         arrived: boolean;
         full: boolean;
+        canShowHold?: boolean;
         callsign: string;
+        cid: number;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

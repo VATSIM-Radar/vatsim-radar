@@ -260,6 +260,7 @@ async function parse() {
         speed: 0,
         arrival: flightPlan.arrival,
         callsign: 'test',
+        cid: 1,
         full: true,
         waypoints: await getFlightPlanWaypoints({
             flightPlan: flightPlan.plan,
