@@ -153,6 +153,7 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
+import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -181,6 +182,8 @@ import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
+import { DblClickDragZoom, defaults } from 'ol/interaction';
+import PointerInteraction from 'ol/interaction/Pointer';
 
 defineProps({
     mode: {
@@ -579,6 +582,34 @@ async function handleMoveEnd() {
     mapStore.moving = false;
 }
 
+let lastClickTime = 0;
+let holdActive = false;
+
+function handleUpEvent() {
+    holdActive = false;
+    return false;
+}
+
+function handleDownEvent(event: MapBrowserEvent) {
+    const now = Date.now();
+
+    if (now - lastClickTime < 500) {
+        holdActive = true;
+
+        setTimeout(() => {
+            if (holdActive) {
+                mapStore.distance.pixel = map.value!.getCoordinateFromPixel(event.pixel);
+            }
+        }, 300);
+
+        return true;
+    }
+
+    lastClickTime = now;
+
+    return false;
+}
+
 await setupDataFetch({
     onMount() {
         if (typeof route.query.airline === 'string') {
@@ -684,6 +715,15 @@ await setupDataFetch({
 
         if (routeZoom) zoom = routeZoom;
 
+        class DoubleClick extends PointerInteraction {
+            constructor() {
+                super({
+                    handleUpEvent,
+                    handleDownEvent,
+                });
+            }
+        }
+
         map.value = new Map({
             target: mapContainer.value!,
             controls: [
@@ -692,6 +732,11 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            interactions: defaults({
+                doubleClickZoom: false,
+            }).extend([
+                new DoubleClick(),
+            ]),
             maxTilesLoading: 128,
             view: new View({
                 center,
