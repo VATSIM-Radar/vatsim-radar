@@ -49,9 +49,9 @@
                         View on Map
                     </common-button>
                     <common-toggle
+                        v-model="timelineUtc"
                         class="picker-localtime"
-                        :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
-                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event }), timelineUtc = !$event"
+                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
                     >
                         Bookings local time
                     </common-toggle>
@@ -92,7 +92,7 @@
             :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
             :identifiers="bookingTimelineIdentifiers"
             :start="dateRange.from"
-            :utc="timelineUtc"
+            :utc="!timelineUtc"
         />
     </common-page-block>
 </template>
@@ -119,7 +119,9 @@ const initialEnd = new Date(initialStart.getTime());
 initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
-const timelineUtc = ref(true);
+const store = useStore();
+
+const timelineUtc = ref(false);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
 const presetHours = ref('4');
 const currentDateRange: Ref<'today' | 'todayTomorrow' | 'today7Days' | 'custom'> = ref('custom');
@@ -140,7 +142,6 @@ const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBook
     server: false,
 });
 
-const store = useStore();
 const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     await store.getVATSIMData();
     return true;
@@ -161,6 +162,10 @@ watch(dateRange, async () => {
         fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
         fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
     }
+});
+
+onMounted(() => {
+    timelineUtc.value = store.mapSettings.bookingsLocalTimezone ?? false;
 });
 
 function viewOnMap() {

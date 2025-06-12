@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="!isHideAtcType('firs') && vatGlassesActive">
+    <template v-if="!isHideAtcType('firs') && vatGlassesActive && !store.bookingOverride">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
