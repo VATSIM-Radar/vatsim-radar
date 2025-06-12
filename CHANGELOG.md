@@ -3,6 +3,8 @@
 # [1.2.0-beta.4]
 
 - Fixed some routes not clearing up
+- Procedure selected in "procedures" of aircraft tab now modify aircraft procedure
+- Removed select all unless multiple enabled
 
 # [1.2.0-beta.3]
 

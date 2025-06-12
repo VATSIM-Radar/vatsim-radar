@@ -141,6 +141,7 @@ const lonRegex = /^(\d{3,5})([EW])/;
 const sidstarRegex = /(?<start>[A-Z]{4})([A-Z]?)(?<end>[0-9][A-Z])/;
 
 export interface EnroutePath {
+    icao?: string;
     runways: string[];
     sids: Record<string, Omit<DataStoreNavigraphProcedure, 'procedure'>>;
     stars: Record<string, Omit<DataStoreNavigraphProcedure, 'procedure'>>;
@@ -149,6 +150,12 @@ export interface EnroutePath {
 }
 
 export const enroutePath = useCookie<Record<string, EnroutePath> | null>('enroute-path', {
+    path: '/',
+    secure: true,
+    sameSite: 'none',
+});
+
+export const enrouteAircraftPath = useCookie<Record<string, { departure: EnroutePath; arrival: EnroutePath }> | null>('enroute-aircraft-path', {
     path: '/',
     secure: true,
     sameSite: 'none',
@@ -191,6 +198,7 @@ export interface FlightPlanInputWaypoint {
     flightPlan: string;
     departure: string;
     arrival: string;
+    cid: number;
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
@@ -199,20 +207,23 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
 
-export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
+export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];
     const dataStore = useDataStore();
     const entries = flightPlan.split(' ').map(x => x.replace(replacementRegex, '')).filter(x => x && x !== 'DCT');
 
     let sidInit = false;
     let starInit = false;
-    let depRunway = depRunway = dataStore.navigraphProcedures[departure]?.runways[0] as string | null;
 
-    let depRunway = dataStore.navigraphProcedures[departure]?.runways[0];
-    const depSid = Object.values(dataStore.navigraphProcedures[departure]?.sids ?? {})[0];
-    const arrStar = dataStore.navigraphProcedures[arrival]?.stars;
-    const arrRunway = dataStore.navigraphProcedures[arrival]?.runways[0];
-    const arrApproach = dataStore.navigraphProcedures[arrival]?.approaches;
+    const selectedDeparture = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.departure;
+    const selectedArrival = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.arrival;
+
+    let depRunway = selectedDeparture?.runways[0];
+    let arrRunway = selectedArrival?.runways[0];
+
+    const depSid = Object.values(selectedDeparture?.sids ?? {})[0];
+    const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
+    const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
 
     try {
         for (let i = 0; i < entries.length; i++) {
@@ -233,12 +244,16 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                 if (sidTest) {
                     depRunway ??= split[1];
                 }
-                else depRunway ??= dataStore.navigraphProcedures[departure]?.runways[0];
-                const tested = sidstarRegex.exec(search);
-                const sids = await getNavigraphAirportShortProceduresForKey('sids', departure);
-                const sid = !depSid && sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
 
-                if (depSid || sid !== -1) {
+                let sid = -1;
+
+                if (!depSid) {
+                    const tested = sidstarRegex.exec(search);
+                    const sids = await getNavigraphAirportShortProceduresForKey('sids', departure);
+                    sid = sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
+                }
+
+                if (depSid || (sid !== -1)) {
                     const procedure = depSid?.procedure ?? await getNavigraphAirportProcedure('sids', departure, sid);
 
                     if (depRunway) {
@@ -294,24 +309,33 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                 }
             }
 
+            const starTest = sidstarRegex.test(entry);
+
             // STARs/Approaches
-            if (!starInit && sidstarRegex.test(entry)) {
-                const stars = await getNavigraphAirportShortProceduresForKey('stars', arrival);
-                const [splitRunway] = split;
-                const arrRunway = entries[entries.length - 1].split('/')[1] || splitRunway;
-                const tested = sidstarRegex.exec(search);
-                const star = stars.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
+            if (!starInit && (arrStar || arrApproach || starTest)) {
+                let star = -1;
 
-                const nextEntry = entries[i + 1];
-                const nextEntryTest = nextEntry && sidstarRegex.exec(nextEntry);
+                if (!arrRunway) {
+                    const [splitRunway] = split;
+                    arrRunway = entries[entries.length - 1].split('/')[1] || splitRunway;
+                }
 
-                if (nextEntryTest && stars.some(x => x.identifier === `${ nextEntryTest.groups?.start }${ nextEntryTest.groups?.end }`)) continue;
+                if (!arrStar) {
+                    const stars = await getNavigraphAirportShortProceduresForKey('stars', arrival);
+                    const tested = sidstarRegex.exec(search);
+                    star = stars.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
 
-                if (star !== -1) {
+                    const nextEntry = entries[i + 1];
+                    const nextEntryTest = nextEntry && sidstarRegex.exec(nextEntry);
+
+                    if (nextEntryTest && stars.some(x => x.identifier === `${ nextEntryTest.groups?.start }${ nextEntryTest.groups?.end }`)) continue;
+                }
+
+                if (arrStar || star !== -1) {
                     starInit = true;
 
-                    const procedure = await getNavigraphAirportProcedure('stars', arrival, star);
-                    const arrivalProcedures = arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival);
+                    const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
+                    const arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
 
                     const enrouteTransition = procedure?.transitions.enroute.find(x => x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
@@ -360,9 +384,9 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
                         }
                     }
 
-                    if (arrivalProcedures && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
+                    if (arrivalProcedures) {
                         const forRunway = arrivalProcedures.filter(x => x.procedure.runway === arrRunway);
-                        const procedure = forRunway.find(x => x.procedure.procedureName.startsWith('ILS')) ?? forRunway[0];
+                        const procedure = arrApproach ? arrApproach.procedure : forRunway.find(x => x.procedure.procedureName.startsWith('ILS')) ?? forRunway[0];
                         if (procedure) {
                             const transition = procedure?.transitions.find(x => x.name === entries[entries.length - 2]);
                             if (transition) {
@@ -552,8 +576,63 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival }:
     return waypoints;
 }
 
+async function getCachedSids(procedures: IDBNavigraphProcedures, airport: string, value: EnroutePath['sids']) {
+    return Object.fromEntries(
+        (await Promise.all(Object.entries(value)
+            .map(async ([key, value]) => {
+                const procedure = procedures.sids.findIndex(x => x.identifier === key);
+                if (typeof procedure === 'number' && procedure !== -1) {
+                    return [
+                        key, {
+                            ...value,
+                            procedure: (await getNavigraphAirportProcedure('sids', airport, procedure))!,
+                        },
+                    ] satisfies [string, DataStoreNavigraphProcedure];
+                }
+                return null as unknown as [string, DataStoreNavigraphProcedure][];
+            }))).filter(x => !!x),
+    );
+}
+
+async function getCachedStars(procedures: IDBNavigraphProcedures, airport: string, value: EnroutePath['stars']) {
+    return Object.fromEntries(
+        (await Promise.all(Object.entries(value)
+            .map(async ([key, value]) => {
+                const procedure = procedures.stars.findIndex(x => x.identifier === key);
+                if (typeof procedure === 'number' && procedure !== -1) {
+                    return [
+                        key, {
+                            ...value,
+                            procedure: (await getNavigraphAirportProcedure('sids', airport, procedure))!,
+                        },
+                    ] satisfies [string, DataStoreNavigraphProcedure];
+                }
+                return null as unknown as [string, DataStoreNavigraphProcedure][];
+            }))).filter(x => !!x),
+    );
+}
+
+async function getCachedApproaches(procedures: IDBNavigraphProcedures, airport: string, value: EnroutePath['approaches']) {
+    return Object.fromEntries(
+        (await Promise.all(Object.entries(value)
+            .map(async ([key, value]) => {
+                const procedure = procedures.approaches.findIndex(x => `${ x.name }-${ x.runway }` === key);
+                if (typeof procedure === 'number' && procedure !== -1) {
+                    return [
+                        key, {
+                            ...value,
+                            procedure: (await getNavigraphAirportProcedure('approaches', airport, procedure))!,
+                        },
+                    ] satisfies [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>];
+                }
+                return null as unknown as [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>][];
+            }))).filter(x => !!x),
+    );
+}
+
 export async function updateCachedProcedures() {
     const values = enroutePath.value;
+    const aircraftValues = enrouteAircraftPath.value;
     const dataStore = useDataStore();
 
     if (values) {
@@ -572,57 +651,72 @@ export async function updateCachedProcedures() {
             selectedAirport.runways = value.runways;
             selectedAirport.setBy = value.setBy;
 
-            selectedAirport.sids = Object.fromEntries(
-                (await Promise.all(Object.entries(value.sids)
-                    .map(async ([key, value]) => {
-                        const procedure = procedures.value?.sids.findIndex(x => x.identifier === key);
-                        if (typeof procedure === 'number' && procedure !== -1) {
-                            return [
-                                key, {
-                                    ...value,
-                                    procedure: (await getNavigraphAirportProcedure('sids', airport, procedure))!,
-                                },
-                            ] satisfies [string, DataStoreNavigraphProcedure];
-                        }
-                        return null as unknown as [string, DataStoreNavigraphProcedure][];
-                    }))).filter(x => !!x),
-            );
-
-            selectedAirport.stars = Object.fromEntries(
-                (await Promise.all(Object.entries(value.stars)
-                    .map(async ([key, value]) => {
-                        const procedure = procedures.value?.stars.findIndex(x => x.identifier === key);
-                        if (typeof procedure === 'number' && procedure !== -1) {
-                            return [
-                                key, {
-                                    ...value,
-                                    procedure: (await getNavigraphAirportProcedure('stars', airport, procedure))!,
-                                },
-                            ] satisfies [string, DataStoreNavigraphProcedure];
-                        }
-                        return null as unknown as [string, DataStoreNavigraphProcedure][];
-                    }))).filter(x => !!x),
-            );
-
-            selectedAirport.approaches = Object.fromEntries(
-                (await Promise.all(Object.entries(value.approaches)
-                    .map(async ([key, value]) => {
-                        const procedure = procedures.value?.approaches.findIndex(x => `${ x.name }-${ x.runway }` === key);
-                        if (typeof procedure === 'number' && procedure !== -1) {
-                            return [
-                                key, {
-                                    ...value,
-                                    procedure: (await getNavigraphAirportProcedure('approaches', airport, procedure))!,
-                                },
-                            ] satisfies [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>];
-                        }
-                        return null as unknown as [string, DataStoreNavigraphProcedure<NavigraphNavDataApproach>][];
-                    }))).filter(x => !!x),
-            );
+            selectedAirport.sids = await getCachedSids(procedures.value!, airport, value.sids);
+            selectedAirport.stars = await getCachedStars(procedures.value!, airport, value.stars);
+            selectedAirport.approaches = await getCachedApproaches(procedures.value!, airport, value.approaches);
 
             if (!Object.keys(selectedAirport.sids).length && !Object.keys(selectedAirport.stars).length && !Object.keys(selectedAirport.approaches).length) {
                 delete enroutePath.value![airport];
                 delete dataStore.navigraphProcedures[airport];
+            }
+        }
+    }
+
+    if (aircraftValues) {
+        for (const [cid, value] of Object.entries(aircraftValues)) {
+            dataStore.navigraphAircraftProcedures.value[cid] ??= {
+                departure: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: value.departure.setBy,
+                },
+                arrival: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: value.arrival.setBy,
+                },
+            };
+
+            if (value.departure.icao) {
+                const selectedAirport = dataStore.navigraphAircraftProcedures.value[cid].departure;
+
+                const { data: procedures } = await useAsyncData(computed(() => `${ value.departure.icao }-aircraft-procedures-selected`), () => getNavigraphAirportProcedures(value.departure.icao!));
+
+                selectedAirport.runways = value.departure.runways;
+                selectedAirport.setBy = value.departure.setBy;
+
+                selectedAirport.sids = await getCachedSids(procedures.value!, value.departure.icao!, value.departure.sids);
+                selectedAirport.stars = await getCachedStars(procedures.value!, value.departure.icao!, value.departure.stars);
+                selectedAirport.approaches = await getCachedApproaches(procedures.value!, value.departure.icao!, value.departure.approaches);
+            }
+
+            if (value.arrival.icao) {
+                const selectedAirport = dataStore.navigraphAircraftProcedures.value[cid].arrival;
+
+                const { data: procedures } = await useAsyncData(computed(() => `${ value.departure.icao }-aircraft-procedures-selected`), () => getNavigraphAirportProcedures(value.arrival.icao!));
+
+                selectedAirport.runways = value.arrival.runways;
+                selectedAirport.setBy = value.arrival.setBy;
+
+                selectedAirport.sids = await getCachedSids(procedures.value!, value.arrival.icao!, value.arrival.sids);
+                selectedAirport.stars = await getCachedStars(procedures.value!, value.arrival.icao!, value.arrival.stars);
+                selectedAirport.approaches = await getCachedApproaches(procedures.value!, value.arrival.icao!, value.arrival.approaches);
+            }
+
+            if (
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.sids).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.stars).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.approaches).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.sids).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.stars).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.approaches).length
+            ) {
+                delete dataStore.navigraphAircraftProcedures.value[cid];
+                delete dataStore.navigraphAircraftProcedures.value[cid];
             }
         }
     }

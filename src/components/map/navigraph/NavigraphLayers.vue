@@ -8,9 +8,8 @@
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
+            <navigraph-procedures/>
         </template>
-        <navigraph-route/>
-        <navigraph-procedures/>
         <map-overlay
             v-if="activeFeature"
             model-value
