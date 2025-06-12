@@ -36,23 +36,15 @@ export const processNavdataVHF: NavdataProcessFunction = async ({ fullData, shor
         const key = `${ item.icao_code }-${ item.navaid_frequency }-${ item.navaid_identifier }`;
 
         fullData.vhf[key] = {
-            airport: null,
-            country: item.country,
-            datum: item.datum_code,
-            icaoCode: item.icao_code,
             magneticVariation: item.magnetic_variation,
-            class: item.navaid_class,
             frequency: item.navaid_frequency,
             navaid: {
                 ident: item.navaid_identifier,
-                coordinates: [item.navaid_longitude, item.navaid_latitude],
                 name: item.navaid_name,
             },
             range: item.range,
             elevation: item.dme_elevation,
             ident: item.dme_ident,
-            bias: item.ilsdme_bias,
-            declination: item.station_declination,
             coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
@@ -88,16 +80,10 @@ export const processNavdataNDB: NavdataProcessFunction = async ({ fullData, shor
         const key = `${ item.icao_code }-${ item.navaid_frequency }-${ item.navaid_identifier }`;
 
         fullData.ndb[key] = {
-            airport: null,
-            country: item.country,
-            datum: item.datum_code,
-            icaoCode: item.icao_code,
             magneticVariation: item.magnetic_variation,
-            class: item.navaid_class,
             frequency: item.navaid_frequency,
             navaid: {
                 ident: item.navaid_identifier,
-                coordinates: [item.navaid_longitude, item.navaid_latitude],
                 name: item.navaid_name,
             },
             range: item.range,

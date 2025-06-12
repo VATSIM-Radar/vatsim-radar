@@ -42,6 +42,7 @@
                                 ['Frequency', activeFeature.data.frequency],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
                                 ['Elevation', `${ activeFeature.data.elevation } ft`],
+                                ['Range', activeFeature.data.range],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--flex"
@@ -60,6 +61,7 @@
                                 ['Name', activeFeature.data.navaid.name],
                                 ['Frequency', `${ activeFeature.data.frequency } kHz`],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
+                                ['Range', activeFeature.data.range],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--flex"

@@ -2,38 +2,28 @@ import type { Coordinate } from 'ol/coordinate';
 import type sqlite3 from 'sqlite3';
 
 export interface NavigraphNavDataVHF {
-    airport: string | null;
-    country: string;
-    datum: string;
     elevation: number;
     ident: string | null;
     coordinates: Coordinate;
-    icaoCode: string;
-    bias: number | null;
     magneticVariation: number;
-    class: string;
     frequency: number;
     navaid: {
-        ident: string;
-        coordinates: Coordinate;
         name: string;
+        ident: string;
     };
     range: number;
-    declination: number;
 }
 
-export type NavigraphNavDataNDB = Pick<NavigraphNavDataVHF, 'country' | 'datum' | 'icaoCode' | 'magneticVariation' | 'class' | 'frequency' | 'navaid' | 'range' | 'airport' | 'coordinates'>;
+export type NavigraphNavDataNDB = Pick<NavigraphNavDataVHF, 'magneticVariation' | 'navaid' | 'frequency' | 'range' | 'coordinates'>;
 
 export interface NavigraphNavDataHolding {
     name: string;
     speed: number;
-    icaoCode: string;
     inboundCourse: number;
     legLength: number | null;
     legTime: number | null;
     maxAlt: number | null;
     minAlt: number | null;
-    region: string;
     turns: 'R' | 'L';
     waypoint: NavigraphNavDataWaypoint;
 }

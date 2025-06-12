@@ -118,7 +118,6 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
         await sleep(0);
     }
 
-
     source?.value.removeFeatures(features);
     features = newFeatures;
     source?.value.addFeatures(features);
