@@ -245,9 +245,9 @@ export const useStore = defineStore('index', {
                     dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
 
                     if (
-                        dataStore.vatglasses.value?.version && dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
+                        dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
                         (
-                            dataStore.versions.value.vatglasses !== dataStore.vatglasses.value?.version ||
+                            (dataStore.vatglasses.value?.version && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value?.version) ||
                             dataStore.versions.value.simaware !== dataStore.simaware.value?.version ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
