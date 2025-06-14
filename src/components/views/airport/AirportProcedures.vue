@@ -92,7 +92,7 @@
                             :key="item.name"
                             class="procedures__items_item"
                             :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
-                            @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions = [...selection.transitions, item.name] : selection.transitions = [item.name])"
+                            @click="selectTransition(selection, item.name)"
                         >
                             {{item.name}}
                         </div>
@@ -110,11 +110,12 @@ import {
     getNavigraphAirportProcedure,
     getNavigraphAirportProcedures, enroutePath,
 } from '#imports';
-import type { DataStoreNavigraphProceduresAirport } from '#imports';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '#imports';
 import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { NavigraphNavDataApproach, NavigraphNavDataStar } from '~/utils/backend/navigraph/navdata/types';
 
 const props = defineProps({
     airport: {
@@ -244,6 +245,22 @@ const selectedAirport = computed({
     },
 });
 
+function selectTransition(selection: DataStoreNavigraphProcedure<NavigraphNavDataStar> | DataStoreNavigraphProcedure<NavigraphNavDataApproach>, name: string) {
+    if (selection.transitions.includes(name)) {
+        selection.transitions = selection.transitions.filter(x => x !== name);
+    }
+    else {
+        if (multiple.value) {
+            selection.transitions = [...selection.transitions, name];
+        }
+        else {
+            selection.transitions = [name];
+        }
+    }
+
+    triggerRef(selectedAirport);
+}
+
 async function selectItem(type: 'runway', value: string | null): Promise<void>;
 async function selectItem(type: keyof IDBNavigraphProcedures, value: number | null): Promise<void>;
 async function selectItem(type: 'runway' | keyof IDBNavigraphProcedures, value: string | number | null): Promise<void> {
@@ -303,6 +320,8 @@ async function selectItem(type: 'runway' | keyof IDBNavigraphProcedures, value: 
             }
         }
     }
+
+    triggerRef(selectedAirport);
 }
 
 const transitionsList = computed(() => {

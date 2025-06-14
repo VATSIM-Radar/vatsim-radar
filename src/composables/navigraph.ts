@@ -138,7 +138,7 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 const replacementRegex = /[^a-zA-Z0-9\/]+/;
 const latRegex = /^(\d{2,4})([NS])/;
 const lonRegex = /^(\d{3,5})([EW])/;
-const sidstarRegex = /(?<start>[A-Z]{4})([A-Z]?)(?<end>[0-9][A-Z])/;
+const sidstarRegex = /((?<start>[A-Z]{3,5})(?<end>[0-9]([A-Z])?))/;
 
 export interface EnroutePath {
     icao?: string;
@@ -219,14 +219,20 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     const selectedArrival = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.arrival;
 
     let depRunway = selectedDeparture?.runways[0];
-    let arrRunway = selectedArrival?.runways[0];
+    let arrRunway = null as string | null;
 
     const depSid = Object.values(selectedDeparture?.sids ?? {})[0];
-    const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
-    const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
+    let arrStar = null as null | DataStoreNavigraphProcedure;
+    let arrApproach = null as null | DataStoreNavigraphProcedure<NavigraphNavDataApproach>;
 
     try {
         for (let i = 0; i < entries.length; i++) {
+            if (i === entries.length - 1) {
+                arrRunway ||= selectedArrival?.runways[0];
+                arrStar = Object.values(selectedArrival?.stars ?? {})[0];
+                arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
+            }
+
             const entry = entries[i];
             let split = entry.split('/');
             if (split.length > 2) split = split.slice(split.length - 2, split.length);
@@ -311,12 +317,14 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             const starTest = sidstarRegex.test(entry);
 
+            console.log(starTest, entry);
+
             // STARs/Approaches
             if (!starInit && (arrStar || arrApproach || starTest)) {
                 let star = -1;
 
                 if (!arrRunway) {
-                    const [splitRunway] = split;
+                    const [, splitRunway] = split;
                     arrRunway = entries[entries.length - 1].split('/')[1] || splitRunway;
                 }
 
@@ -337,7 +345,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
                     const arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
 
-                    const enrouteTransition = procedure?.transitions.enroute.find(x => x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
+                    const enrouteTransition = procedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
                         waypoints.push(...enrouteTransition.waypoints.map(x => ({
                             title: procedure?.procedure.identifier,

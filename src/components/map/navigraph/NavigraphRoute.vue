@@ -25,7 +25,7 @@ function update() {
     let newFeatures: Feature[] = [];
 
     try {
-        for (const { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+        for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
 
             const arrival = _arrival!;
@@ -33,6 +33,8 @@ function update() {
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
 
             const coordinate = [pilot.longitude, pilot.latitude];
+
+            waypoints = waypoints.slice(0);
 
             if (!waypoints.length || arrived) continue;
 
