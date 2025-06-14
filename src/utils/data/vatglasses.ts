@@ -626,6 +626,7 @@ const _isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
+    if (store.bookingOverride) return false;
     dataStore ??= useDataStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
