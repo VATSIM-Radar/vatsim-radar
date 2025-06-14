@@ -1,7 +1,7 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
-    VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData,
+    VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats,
     VatsimShortenedAircraft,
     VatsimShortenedController,
@@ -51,6 +51,7 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
 const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef<VatglassesAPIData>();
+const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
@@ -165,6 +166,7 @@ export interface UseDataStore {
     vatglassesCombiningInProgress: Ref<boolean>;
     vatglassesDynamicData: ShallowRef<VatglassesDynamicAPIData | undefined>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
+    visiblePilots: ShallowRef<VatsimMandatoryPilot[]>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
@@ -194,6 +196,7 @@ const dataStore: UseDataStore = {
     vatglassesDynamicData,
     stats,
     time,
+    visiblePilots,
     sigmets,
     airlines,
     navigraphWaypoints: waypoints,
@@ -239,17 +242,24 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
     data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), pilot]));
 }
 
-export function setVatsimMandatoryData(data: VatsimMandatoryData) {
-    time.value = data.serverTime;
-    if (vatsim.updateTime.value !== data.timestampNum) {
+export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
+    time.value = mandatoryData.serverTime;
+    if (vatsim.updateTime.value !== mandatoryData.timestampNum) {
         vatsim.localUpdateTime.value = Date.now();
     }
-    vatsim.updateTime.value = data.timestampNum;
+    vatsim.updateTime.value = mandatoryData.timestampNum;
 
-    if (hasActivePilotFilter()) data.pilots = data.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
+    if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
 
     vatsim.mandatoryData.value = {
-        pilots: data.pilots.map(([cid, lon, lat, icon, heading]) => {
+        pilots: mandatoryData.pilots.map(([cid, lon, lat, icon, heading]) => {
+            const cidString = cid.toString();
+            if (data.keyedPilots.value?.[cidString]) {
+                data.keyedPilots.value[cidString].longitude = lon;
+                data.keyedPilots.value[cidString].latitude = lat;
+                data.keyedPilots.value[cidString].heading = heading;
+            }
+
             return {
                 cid,
                 longitude: lon,
@@ -258,13 +268,13 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
                 heading,
             };
         }),
-        controllers: data.controllers.map(([cid, callsign, frequency, facility]) => ({
+        controllers: mandatoryData.controllers.map(([cid, callsign, frequency, facility]) => ({
             cid,
             callsign,
             frequency,
             facility,
         })),
-        atis: data.atis.map(([cid, callsign, frequency, facility]) => ({
+        atis: mandatoryData.atis.map(([cid, callsign, frequency, facility]) => ({
             cid,
             callsign,
             frequency,
@@ -272,6 +282,7 @@ export function setVatsimMandatoryData(data: VatsimMandatoryData) {
         })),
     };
 
+    triggerRef(data.keyedPilots);
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 }
 
