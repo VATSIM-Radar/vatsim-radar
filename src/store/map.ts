@@ -85,12 +85,22 @@ export const useMapStore = defineStore('map', {
 
         distance: {
             pixel: null as Coordinate | null,
-            aircraft: null as null | number,
+            initAircraft: null as null | number,
+            targetAircraft: null as null | number,
+            overlayOpenCheck: false,
+            tutorial: false,
+            items: [] as {
+                date: number;
+                length: string;
+                coordinates: Coordinate[];
+                initAircraft: null | number;
+                targetAircraft: null | number;
+            }[],
         },
     }),
     getters: {
         canShowOverlay(): boolean {
-            return !this.moving;
+            return !this.moving && !this.distance.pixel;
         },
     },
     actions: {
@@ -154,6 +164,11 @@ export const useMapStore = defineStore('map', {
                 await nextTick();
 
                 this.sendSelectedPilotToDashboard(+cid);
+
+                if (this.distance.overlayOpenCheck) {
+                    this.distance.overlayOpenCheck = false;
+                    return;
+                }
 
                 return this.addOverlay<StoreOverlayPilot>({
                     key: cid,

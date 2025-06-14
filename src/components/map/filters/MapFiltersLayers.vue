@@ -66,43 +66,92 @@
                 @update:modelValue="changeLayer($event as MapLayoutLayer)"
             />
 
-            <common-block-title remove-margin>
-                Relative Distance Indicator
-            </common-block-title>
-            <common-toggle
-                :model-value="store.localSettings.filters?.layers?.relativeIndicator !== false"
-                @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event } } })"
-            >
-                Relative distance indicator
-            </common-toggle>
-            <common-select
-                v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
-                :items="[
-                    {
-                        value: 'degrees',
-                        text: 'Degrees',
-                    },
-                    {
-                        value: 'imperial',
-                        text: 'Imperial (mi)',
-                    },
-                    {
-                        value: 'nautical',
-                        text: 'Nautical (NM)',
-                    },
-                    {
-                        value: 'metric',
-                        text: 'Metric (km)',
-                    },
-                ]"
-                :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
-                @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
-            >
-                <template #label>
-                    Distance unit
-                    Distance unit
-                </template>
-            </common-select>
+            <template v-if="!isMobile">
+                <common-block-title remove-margin>
+                    Relative Distance Indicator
+                </common-block-title>
+                <common-toggle
+                    :model-value="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event } } })"
+                >
+                    Relative distance indicator
+                </common-toggle>
+                <common-select
+                    v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                    :items="[
+                        {
+                            value: 'degrees',
+                            text: 'Degrees',
+                        },
+                        {
+                            value: 'imperial',
+                            text: 'Imperial (mi)',
+                        },
+                        {
+                            value: 'nautical',
+                            text: 'Nautical (NM)',
+                        },
+                        {
+                            value: 'metric',
+                            text: 'Metric (km)',
+                        },
+                    ]"
+                    :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
+                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
+                >
+                    <template #label>
+                        Distance unit
+                    </template>
+                </common-select>
+                <common-block-title remove-margin>
+                    Distance tool
+                </common-block-title>
+                <common-button
+                    size="S"
+                    type="secondary"
+                    @click="mapStore.distance.tutorial = true"
+                >
+                    Click to read tutorial and disclaimers
+                </common-button>
+                <common-toggle
+                    :model-value="!!store.localSettings.distance?.enabled"
+                    @update:modelValue="setUserLocalSettings({ distance: { enabled: $event } })"
+                >
+                    Enable
+                </common-toggle>
+                <common-select
+                    v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
+                    :items="[
+                        {
+                            value: 'imperial',
+                            text: 'Imperial (mi)',
+                        },
+                        {
+                            value: 'nautical',
+                            text: 'Nautical (NM)',
+                        },
+                        {
+                            value: 'metric',
+                            text: 'Metric (km)',
+                        },
+                    ]"
+                    :model-value="store.localSettings.distance?.units ?? 'nautical'"
+                    @update:modelValue="setUserLocalSettings({ distance: { units: $event as Units } })"
+                >
+                    <template #label>
+                        Distance unit
+                    </template>
+                </common-select>
+                <common-toggle
+                    :model-value="!!store.localSettings.distance?.ctrlClick"
+                    @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
+                >
+                    Control click
+                    <template #description>
+                        Use CTRL+Click instead of Double Click.<br> Re-enables double-click-to-zoom
+                    </template>
+                </common-toggle>
+            </template>
         </template>
         <template v-else-if="tab === 'sigmets'">
             <common-toggle
@@ -240,10 +289,13 @@ import { isProductionMode } from '~/utils/shared';
 import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { sigmetDates } from '~/composables';
+import { useMapStore } from '~/store/map';
 
 defineProps({});
 const store = useStore();
+const mapStore = useMapStore();
 const tab = ref('layers');
+const isMobile = useIsMobile();
 
 let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
     {
