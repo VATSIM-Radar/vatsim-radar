@@ -8,9 +8,9 @@
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
+            <navigraph-procedures/>
+            <navigraph-route/>
         </template>
-        <navigraph-route/>
-        <navigraph-procedures/>
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -42,6 +42,7 @@
                                 ['Frequency', activeFeature.data.frequency],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
                                 ['Elevation', `${ activeFeature.data.elevation } ft`],
+                                ['Range', activeFeature.data.range],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--flex"
@@ -60,6 +61,7 @@
                                 ['Name', activeFeature.data.navaid.name],
                                 ['Frequency', `${ activeFeature.data.frequency } kHz`],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
+                                ['Range', activeFeature.data.range],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--flex"

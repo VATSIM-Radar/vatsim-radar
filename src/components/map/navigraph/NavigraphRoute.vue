@@ -25,7 +25,17 @@ function update() {
     let newFeatures: Feature[] = [];
 
     try {
-        for (const { waypoints, bearing, coordinate, speed, arrival, arrived, callsign, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+        for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+            const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
+
+            const arrival = _arrival!;
+
+            const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
+
+            const coordinate = [pilot.longitude, pilot.latitude];
+
+            waypoints = waypoints.slice(0);
+
             if (!waypoints.length || arrived) continue;
 
             if (dataStore.vatspy.value?.data.keyAirports.realIcao[arrival] && !Object.keys(dataStore.navigraphProcedures[arrival]?.approaches ?? {}).length) {
@@ -69,6 +79,8 @@ function update() {
 
             let firstWaypoint = false;
 
+            const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
+
             const onFirstWaypoint = (newCoordinate: Coordinate, kind: string) => {
                 if (firstWaypoint) return;
 
@@ -95,6 +107,10 @@ function update() {
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
                     if (!foundWaypoint && speed >= 50 && !full) continue;
+
+                    if (waypointForCid) {
+                        waypointForCid.canShowHold = foundWaypoint;
+                    }
 
                     newFeatures.push(new Feature({
                         geometry: new Point(waypoint.coordinate!),
@@ -137,6 +153,10 @@ function update() {
                         if (currWaypoint[0] === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
                         if (!foundWaypoint && speed >= 50 && !full) continue;
+
+                        if (waypointForCid) {
+                            waypointForCid.canShowHold = foundWaypoint;
+                        }
 
                         if (foundWaypoint) {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);

@@ -34,13 +34,11 @@ export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData,
         fullData.holdings[key] = {
             name: item.holding_name,
             speed: item.holding_speed,
-            icaoCode: item.icao_code,
             inboundCourse: item.inbound_holding_course,
             legLength: item.leg_length,
             legTime: item.leg_time,
             maxAlt: item.maximum_altitude,
             minAlt: item.minimum_altitude,
-            region: item.region_code,
             turns: item.turn_direction as 'R' | 'L',
             waypoint: {
                 identifier: item.waypoint_identifier,

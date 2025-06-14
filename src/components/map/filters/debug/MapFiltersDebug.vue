@@ -254,17 +254,26 @@ const dataStore = useDataStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
 
 async function parse() {
+    const mapCenter = map.value?.getView().getCenter();
+
     dataStore.navigraphWaypoints.value.test = {
-        coordinate: map.value!.getView().getCenter()!,
-        bearing: 0,
-        speed: 0,
-        arrival: flightPlan.arrival,
-        callsign: 'test',
+        // @ts-expect-error this data is ok enough
+        pilot: {
+            callsign: 'test',
+            cid: 1,
+            heading: 0,
+            groundspeed: 0,
+            arrival: flightPlan.arrival,
+            departure: flightPlan.departure,
+            longitude: mapCenter![0],
+            latitude: mapCenter![1],
+        },
         full: true,
         waypoints: await getFlightPlanWaypoints({
             flightPlan: flightPlan.plan,
             departure: flightPlan.departure,
             arrival: flightPlan.arrival,
+            cid: 1,
         }),
         arrived: false,
     };

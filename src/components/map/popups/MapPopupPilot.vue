@@ -128,6 +128,7 @@
             </common-toggle>
             <br>
             <airport-procedures
+                :aircraft="pilot"
                 :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
                 :flight-type="pilot.status?.includes('dep') ? 'departure' : 'arrival'"
                 from="pilotOverlay"

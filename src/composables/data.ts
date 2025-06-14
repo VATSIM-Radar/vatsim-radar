@@ -38,7 +38,6 @@ import {
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
-import type { Coordinate } from 'ol/coordinate';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -59,6 +58,7 @@ export type DataWaypoint = [identifier: string, longitude: number, latitude: num
 const waypoints = shallowRef<Record<string, any>>({});
 
 const navigraphProcedures: DataStoreNavigraphProcedures = reactive({});
+const navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures = shallowRef({});
 
 const vatglassesActivePositions = shallowRef<VatglassesActivePositions>({});
 const vatglassesActiveRunways = shallowRef<VatglassesActiveRunways>({});
@@ -144,6 +144,7 @@ export interface DataStoreNavigraphProceduresAirport {
 }
 
 export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
+export type DataStoreNavigraphAircraftProcedures = Ref<Record<string, { departure: DataStoreNavigraphProceduresAirport; arrival: DataStoreNavigraphProceduresAirport }>>;
 
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
@@ -170,16 +171,13 @@ export interface UseDataStore {
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: Ref<Record<string, {
-        coordinate: Coordinate;
-        bearing: number;
-        speed: number;
-        arrival: string;
-        arrived: boolean;
+        pilot: VatsimShortenedAircraft;
         full: boolean;
-        callsign: string;
+        canShowHold?: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;
+    navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
     navigraph: {
         version: Ref<string | null>;
         data: ShallowRef<ClientNavigraphData | null>;
@@ -203,6 +201,7 @@ const dataStore: UseDataStore = {
     airlines,
     navigraphWaypoints: waypoints,
     navigraphProcedures,
+    navigraphAircraftProcedures,
     navigraph: {
         version: navigraphVersion,
         data: navigraph,

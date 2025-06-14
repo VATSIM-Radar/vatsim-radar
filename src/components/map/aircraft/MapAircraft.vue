@@ -395,7 +395,11 @@ const distance = computed(() => {
 
 async function setPilotRoute(enabled: boolean) {
     if (!flightPlan.value || !enabled) {
+        const had = dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
         delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+        if (had) {
+            triggerRef(dataStore.navigraphWaypoints);
+        }
 
         return;
     }
@@ -414,17 +418,13 @@ async function setPilotRoute(enabled: boolean) {
     }
 
     dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
-        coordinate: getCoordinates.value,
-        bearing: pilot.value.heading,
-        speed: pilot.value.groundspeed,
-        callsign: pilot.value.callsign,
-        arrival: pilot.value.arrival!,
-        arrived: pilot.value.status === 'arrTaxi' || pilot.value.status === 'arrGate',
+        pilot: pilot.value,
         full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
         waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
             flightPlan: flightPlan.value,
             departure: pilot.value.departure!,
             arrival: pilot.value.arrival!,
+            cid: pilot.value.cid,
         }),
     };
 

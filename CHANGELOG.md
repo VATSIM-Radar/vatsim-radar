@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.0-beta.5]
+
+- Fixed some routes not clearing up
+- Procedure selected in "procedures" of aircraft tab now modify aircraft procedure
+- Removed select all unless multiple enabled
+- Fixed some stars not parsed from flight plan
+
 # [1.2.0-beta.4]
 
 - Added distance measurement tool

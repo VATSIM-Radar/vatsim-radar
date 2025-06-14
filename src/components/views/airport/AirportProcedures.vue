@@ -39,7 +39,7 @@
         >
             <template v-if="!flightType || (flightType === 'departure' ? key === 'sids' : key !== 'sids')">
                 <common-button
-                    v-if="key !== 'approaches'"
+                    v-if="multiple && key !== 'approaches'"
                     :disabled="!selectedAirport.runways.length"
                     size="S"
                     @click="selectAll(key)"
@@ -92,7 +92,7 @@
                             :key="item.name"
                             class="procedures__items_item"
                             :class="{ 'procedures__items_item--active': selection.transitions.includes(item.name) }"
-                            @click="selection.transitions.includes(item.name) ? selection.transitions = selection.transitions.filter(x => x !== item.name) : (multiple ? selection.transitions = [...selection.transitions, item.name] : selection.transitions = [item.name])"
+                            @click="selectTransition(selection, item.name)"
                         >
                             {{item.name}}
                         </div>
@@ -110,10 +110,12 @@ import {
     getNavigraphAirportProcedure,
     getNavigraphAirportProcedures, enroutePath,
 } from '#imports';
-import type { DataStoreNavigraphProceduresAirport } from '#imports';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '#imports';
 import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { NavigraphNavDataApproach, NavigraphNavDataStar } from '~/utils/backend/navigraph/navdata/types';
 
 const props = defineProps({
     airport: {
@@ -123,6 +125,10 @@ const props = defineProps({
     from: {
         type: String as PropType<DataStoreNavigraphProceduresAirport['setBy']>,
         required: true,
+    },
+    aircraft: {
+        type: Object as PropType<VatsimShortenedAircraft | null>,
+        default: null,
     },
     flightType: {
         type: String as PropType<'departure' | 'arrival' | null>,
@@ -193,9 +199,67 @@ const runways = computed(() => {
 });
 
 const selectedAirport = computed({
-    get: () => dataStore.navigraphProcedures[props.airport],
-    set: val => dataStore.navigraphProcedures[props.airport] = val,
+    get: () => {
+        if (props.from === 'pilotOverlay') {
+            if (props.flightType === 'departure') return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.departure;
+            else return dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]?.arrival;
+        }
+
+        return dataStore.navigraphProcedures[props.airport];
+    },
+    set: val => {
+        if (!val) return;
+
+        if (props.from === 'pilotOverlay') {
+            dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()] ||= {
+                departure: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: props.from,
+                },
+                arrival: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: props.from,
+                },
+            };
+
+            if (props.flightType === 'departure') {
+                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()].departure = val;
+            }
+            else {
+                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()].arrival = val;
+            }
+
+            dataStore.navigraphWaypoints.value = {};
+            triggerRef(dataStore.navigraphAircraftProcedures);
+
+            return;
+        }
+
+        dataStore.navigraphProcedures[props.airport] = val;
+    },
 });
+
+function selectTransition(selection: DataStoreNavigraphProcedure<NavigraphNavDataStar> | DataStoreNavigraphProcedure<NavigraphNavDataApproach>, name: string) {
+    if (selection.transitions.includes(name)) {
+        selection.transitions = selection.transitions.filter(x => x !== name);
+    }
+    else {
+        if (multiple.value) {
+            selection.transitions = [...selection.transitions, name];
+        }
+        else {
+            selection.transitions = [name];
+        }
+    }
+
+    triggerRef(selectedAirport);
+}
 
 async function selectItem(type: 'runway', value: string | null): Promise<void>;
 async function selectItem(type: keyof IDBNavigraphProcedures, value: number | null): Promise<void>;
@@ -256,6 +320,8 @@ async function selectItem(type: 'runway' | keyof IDBNavigraphProcedures, value: 
             }
         }
     }
+
+    triggerRef(selectedAirport);
 }
 
 const transitionsList = computed(() => {
@@ -318,17 +384,48 @@ watch(selectedAirport, () => {
     dataStore.navigraphWaypoints.value = {};
 
     if (selectedAirport.value) {
-        enroutePath.value ||= {};
+        if (props.from === 'pilotOverlay') {
+            enrouteAircraftPath.value ||= {};
+            enrouteAircraftPath.value[props.aircraft!.cid] ||= {
+                departure: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: props.from,
+                },
+                arrival: {
+                    sids: {},
+                    stars: {},
+                    approaches: {},
+                    runways: [],
+                    setBy: props.from,
+                },
+            };
 
-        enroutePath.value[props.airport] = {
-            runways: selectedAirport.value.runways,
-            sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
-            stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
-            approaches: Object.fromEntries(Object.entries(selectedAirport.value.approaches).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
-            setBy: selectedAirport.value.setBy,
-        };
+            enrouteAircraftPath.value[props.aircraft!.cid][props.flightType === 'departure' ? 'departure' : 'arrival'] = {
+                runways: selectedAirport.value.runways,
+                sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                approaches: Object.fromEntries(Object.entries(selectedAirport.value.approaches).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                setBy: selectedAirport.value.setBy,
+            };
 
-        triggerRef(enroutePath);
+            triggerRef(enrouteAircraftPath);
+        }
+        else {
+            enroutePath.value ||= {};
+
+            enroutePath.value[props.airport] = {
+                runways: selectedAirport.value.runways,
+                sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                approaches: Object.fromEntries(Object.entries(selectedAirport.value.approaches).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
+                setBy: selectedAirport.value.setBy,
+            };
+
+            triggerRef(enroutePath);
+        }
     }
 }, {
     immediate: true,
