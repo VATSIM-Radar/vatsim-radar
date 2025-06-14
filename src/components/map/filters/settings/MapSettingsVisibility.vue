@@ -164,7 +164,7 @@
             </div>
 
             <common-notification
-                v-if="store.mapSettings.bookingOverride"
+                v-if="store.bookingOverride"
                 type="error"
             >
                 Booking override is active!

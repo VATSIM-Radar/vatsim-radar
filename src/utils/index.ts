@@ -9,6 +9,8 @@ import type {
 import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import Polygon from 'ol/geom/Polygon';
+import type { VatsimBooking, VatsimBookingAtc, VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatSpyDataFeature } from '~/types/data/vatspy';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -85,3 +87,25 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
     return new Polygon([coords]);
 }
 
+export function makeFakeAtcFeatureFromBooking(atc: VatsimShortenedController, booking: VatsimBookingAtc): VatSpyDataFeature[] {
+    atc.booking = booking;
+    makeBookingLocalTime(booking);
+    return [{
+        controller: atc,
+        firs: [],
+    }];
+}
+
+export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
+    return {
+        cid: booking.atc.cid,
+        name: booking.atc.name,
+        callsign: booking.atc.callsign,
+        frequency: booking.atc.frequency,
+        facility: booking.atc.facility,
+        rating: booking.atc.rating,
+        visual_range: booking.atc.visual_range,
+        logon_time: booking.atc.logon_time,
+        text_atis: booking.atc.text_atis,
+    };
+}

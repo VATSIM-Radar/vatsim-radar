@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel)"
+        v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
         class="__grid-info-sections"
     >
         <div class="__grid-info-sections_title">

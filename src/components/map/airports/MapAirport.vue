@@ -68,7 +68,7 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if="'lon' in airport && !isPseudoAirport"
+            v-if="'lon' in airport && !isPseudoAirport && !store.bookingOverride"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
@@ -142,7 +142,6 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { createCircle } from '~/utils';
-import { makeBookingLocalTime } from '~/composables/bookings';
 
 const props = defineProps({
     airport: {
@@ -287,10 +286,6 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
         atc: [],
     };
 
-    if (booking) {
-        makeBookingLocalTime(booking);
-    }
-
     return facility;
 }
 
@@ -369,7 +364,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`,
+                color: store.bookingOverride ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -382,7 +377,7 @@ watch(hoveredFeature, val => {
 function setBorderFeatureStyle(feature: Feature) {
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+            color: store.bookingOverride ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
         }),
     }));
@@ -397,14 +392,14 @@ function setLabelFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
+                    color: store.bookingOverride ? radarColors.lightgray125Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
+                    color: store.bookingOverride ? radarColors.info300Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 padding: [3, 1, 2, 3],
             }),

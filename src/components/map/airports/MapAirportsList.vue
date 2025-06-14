@@ -92,22 +92,9 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
-const start = new Date(Date.now());
-const end = new Date(start.getTime() + (5 * 60 * 60 * 1000));
-
-const url = new URL(location.href);
-
-if (url.searchParams.has('start') && url.searchParams.has('end')) {
-    start.setTime(Number(url.searchParams.get('start')));
-    end.setTime(Number(url.searchParams.get('end')));
-    setUserMapSettings({
-        bookingOverride: true,
-    });
-}
-
 const { data } = await useAsyncData('bookings', async () => {
     return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: start.getTime(), ending: end.getTime() },
+        query: { starting: store.bookingsStartTime, ending: store.bookingsEndTime },
     });
 }, {
     server: false,
@@ -514,7 +501,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if (!store.mapSettings.bookingOverride) {
+    if (!store.bookingOverride) {
         for (const atc of dataStore.vatsim.data.locals.value) {
             const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
             const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
@@ -543,16 +530,16 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
+    if (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
-        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL]);
+        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
         bookingsData.forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
 
-            if (!store.mapSettings.bookingOverride) {
+            if (!store.bookingOverride) {
                 const start = new Date(booking.start);
                 const end = new Date(booking.end);
 
@@ -596,16 +583,35 @@ const getAirportsList = computed(() => {
     }
 
     function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
-        const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
+        if (booking.atc.facility === facilities.APP) {
+            const existingLocal = airport.arrAtc.find(x => booking.atc.callsign === x.callsign);
 
-        if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
-            if (existingLocal) {
-                airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.arrAtc.push(booking.atc);
             }
+        }
+        else {
+            const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
 
-            booking.atc.booking = booking;
-            airport.bookings.push(booking);
-            airport.localAtc.push(booking.atc);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.localAtc.push(booking.atc);
+            }
         }
     }
 

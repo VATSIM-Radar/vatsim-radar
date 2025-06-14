@@ -1,21 +1,88 @@
 <template>
     <common-page-block>
         <div class="picker">
-            <template v-if="!isMobile && !collapsed">
-                <common-date-picker v-model="dateRange"/>
-                <common-button
-                    type="primary"
-                    @click="viewOnMap()"
-                >
-                    View on Map
-                </common-button>
-            </template>
-            <common-toggle
-                :model-value="store.mapSettings.bookingsLocalTimezone ?? false"
-                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+            <template
+                v-if="!isMobile && !collapsed"
             >
-                Bookings local time
-            </common-toggle>
+                <div class="picker-presets">
+                    <div class="picker-presets-custom">
+                        <div>Now</div> + <common-input-text
+                            v-model="presetHours"
+                            input-type="number"
+                            placeholder="4"
+                        /> Hours <common-button
+                            hover-color="success700"
+                            primary-color="success400"
+                            @click="changeRange('custom')"
+                        >Apply</common-button>
+                    </div>
+                    <div class="picker-presets-fixed">
+                        <common-button
+                            :disabled="currentDateRange === 'today'"
+                            primary-color="primary600"
+                            @click="changeRange('today')"
+                        >Today</common-button>
+                        <common-button
+                            :disabled="currentDateRange === 'todayTomorrow'"
+                            primary-color="primary600"
+                            @click="changeRange('todayTomorrow')"
+                        >Today + Tomorrow</common-button>
+                        <common-button
+                            :disabled="currentDateRange === 'today7Days'"
+                            primary-color="primary600"
+                            @click="changeRange('today7Days')"
+                        >Today + 7 Days</common-button>
+                    </div>
+                </div>
+
+
+                <div class="picker-picker">
+                    <common-date-picker
+                        v-model="dateRange"
+                        @change="currentDateRange = 'custom'"
+                    />
+                    <common-button
+                        primary-color="primary600"
+                        type="primary"
+                        @click="viewOnMap()"
+                    >
+                        View on Map
+                    </common-button>
+                    <common-toggle
+                        v-model="timelineUtc"
+                        class="picker-localtime"
+                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                    >
+                        Bookings local time
+                    </common-toggle>
+                </div>
+            </template>
+        </div>
+        <div class="booking-sort-container">
+            <common-button
+                :disabled="sortMode === 'airport'"
+                hover-color="info700"
+                primary-color="info500"
+                @click="sortMode = 'airport'"
+            >
+                Sort by Airport
+            </common-button>
+            <common-button
+                :disabled="sortMode === 'date'"
+                hover-color="info700"
+                primary-color="info500"
+                @click="sortMode = 'date'"
+            >
+                Sort by Date
+            </common-button>
+            <common-input-text
+                v-model="searchString"
+                class="booking-sort-search"
+            >
+                <template #icon>
+                    <search-icon width="16"/>
+                </template>
+            </common-input-text>
         </div>
         <common-timeline
             v-if="bookingsData"
@@ -25,11 +92,13 @@
             :headers="[{ name: 'Airport' }, { name: 'Facility' }]"
             :identifiers="bookingTimelineIdentifiers"
             :start="dateRange.from"
+            :utc="!timelineUtc"
         />
     </common-page-block>
 </template>
 
 <script setup lang="ts">
+import SearchIcon from '@/assets/icons/kit/search.svg?component';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { TimelineEntry, TimelineIdentifier } from '~/types/data/timeline';
@@ -40,6 +109,7 @@ import { useStore } from '~/store';
 import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
 import type { Reactive } from 'vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -49,6 +119,13 @@ const initialEnd = new Date(initialStart.getTime());
 initialStart.setMinutes(-60 * (isMobile.value ? 2 : 4));
 initialEnd.setMinutes((60 * 24 * 2) + (60 * (isMobile.value ? 2 : 4)));
 
+const store = useStore();
+
+const timelineUtc = ref(false);
+const sortMode: Ref<'airport' | 'date'> = ref('date');
+const presetHours = ref('4');
+const currentDateRange: Ref<'today' | 'todayTomorrow' | 'today7Days' | 'custom'> = ref('custom');
+
 const fetchStart = ref(initialStart);
 const fetchEnd = ref(initialEnd);
 
@@ -57,13 +134,14 @@ const dateRange: Reactive<DateRange> = reactive({
     to: new Date(initialEnd),
 });
 
+const searchString = ref('');
+
 const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
     query: { starting: initialStart.getTime(), ending: initialEnd.getTime() },
 }), {
     server: false,
 });
 
-const store = useStore();
 const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     await store.getVATSIMData();
     return true;
@@ -71,14 +149,30 @@ const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     server: false,
 });
 
-const sortedData = computed(() => {
-    return (data.value ?? [])
-        .slice(0)
-        .sort((a, b) => b.atc.facility - a.atc.facility)
-        .sort((a, b) => a.start - b.start);
+const sortedData: Ref<VatsimBooking[]> = computed(sortData);
+
+const bookingTimelineIdentifiers = computed(makeBookingTimlineIdentifiers);
+
+const bookingTimelineEntries = computed(makeBookingTimelineEntries);
+
+watch(dateRange, async () => {
+    if (fetchStart.value > dateRange.from || fetchEnd.value < dateRange.to) {
+        await refresh();
+
+        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
+        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
+    }
 });
 
-const bookingTimelineIdentifiers = computed(() => {
+onMounted(() => {
+    timelineUtc.value = store.mapSettings.bookingsLocalTimezone ?? false;
+});
+
+function viewOnMap() {
+    location.href = `/?start=${ dateRange.from.getTime() }&end=${ dateRange.to.getTime() }`;
+}
+
+function makeBookingTimlineIdentifiers() {
     const groups = new Map<string, Set<string>>();
 
     if (!sortedData.value) return [[]];
@@ -103,8 +197,9 @@ const bookingTimelineIdentifiers = computed(() => {
     );
 
     return [groupIds, facilityIds];
-});
-const bookingTimelineEntries = computed(() => {
+}
+
+function makeBookingTimelineEntries() {
     const entries: TimelineEntry[] = [];
     const groupMap = new Map<string, { groupIndex: number; subgroupIndex: number }>();
 
@@ -132,19 +227,68 @@ const bookingTimelineEntries = computed(() => {
     });
 
     return entries;
-});
+}
 
-watch(dateRange, async () => {
-    if (fetchStart.value > dateRange.from || fetchEnd.value < dateRange.to) {
-        await refresh();
+function sortData() {
+    return (data.value ?? [])
+        .filter(x => {
+            if (searchString.value.length === 0) return true;
+            const lowerSearch = searchString.value.toLowerCase();
+            const callsign = x.atc.callsign.toLowerCase();
+            return callsign.includes(lowerSearch);
+        })
+        .sort((a, b) => {
+            return b.atc.facility - a.atc.facility;
+        }).sort((a, b) => {
+            switch (sortMode.value) {
+                case 'airport': {
+                    const aCountry = a.atc.callsign.split('_')[0] || '';
+                    const bCountry = b.atc.callsign.split('_')[0] || '';
+                    return aCountry.localeCompare(bCountry);
+                }
+                case 'date':
+                    return a.start - b.start;
 
-        fetchStart.value = new Date(Math.min(fetchStart.value.getTime(), dateRange.from.getTime()));
-        fetchEnd.value = new Date(Math.max(fetchEnd.value.getTime(), dateRange.to.getTime()));
+                default:
+                    return 0;
+            }
+        });
+}
+
+function changeRange(type: 'today' | 'todayTomorrow' | 'today7Days' | 'custom') {
+    currentDateRange.value = type;
+    const now = new Date();
+    const from = new Date(now);
+    const to = new Date(now);
+
+    switch (type) {
+        case 'today':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(23, 59, 59, 999);
+            break;
+
+        case 'todayTomorrow':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(23, 59, 59, 999);
+            to.setDate(to.getDate() + 1);
+            break;
+
+        case 'today7Days':
+            from.setHours(0, 0, 0, 0);
+            to.setHours(0, 0, 0, 0);
+            to.setDate(to.getDate() + 7);
+            to.setHours(23, 59, 59, 999);
+            break;
+
+        case 'custom': {
+            const hours = parseInt(presetHours.value, 10) || 0;
+            to.setTime(to.getTime() + (hours * 60 * 60 * 1000));
+            break;
+        }
     }
-});
 
-function viewOnMap() {
-    location.href = `/?start=${ dateRange.from.getTime() }&end=${ dateRange.to.getTime() }`;
+    dateRange.from = from;
+    dateRange.to = to;
 }
 
 useHead({
@@ -159,6 +303,57 @@ useHead({
     align-items: center;
 
     width: 100%;
-    margin-bottom: 10px;
+    margin-bottom: 64px;
+
+    &-presets {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        align-items: start;
+        align-self: flex-start;
+
+        width: max-content;
+        padding-left: 64px;
+
+        &-fixed {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        &-custom {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+        }
+    }
+
+    &-picker {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    &-localtime {
+        margin-top: 16px;
+    }
+}
+
+.booking {
+    &-sort {
+        &-container {
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
+    }
 }
 </style>
