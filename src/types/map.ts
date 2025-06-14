@@ -62,6 +62,12 @@ interface IUserLocalSettings {
     eventsLocalTimezone: boolean;
     disableNavigraph: boolean;
 
+    distance: {
+        enabled?: boolean;
+        units?: Units;
+        ctrlClick?: boolean;
+    };
+
     filters: {
         opened?: boolean;
         layers?: {

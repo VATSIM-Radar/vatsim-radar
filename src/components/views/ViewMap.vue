@@ -48,6 +48,7 @@
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
+                    <map-distance v-if="store.localSettings.distance?.enabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
                     <navigraph-layers v-if="dataStore.navigraph.data && !store.localSettings.disableNavigraph"/>
                     <map-weather v-if="!store.config.hideHeader"/>
@@ -139,6 +140,44 @@
                     </common-button>
                 </template>
             </common-popup>
+            <common-popup
+                v-model="mapStore.distance.tutorial"
+                width="600px"
+            >
+                <template #title>
+                    Distance Tool
+                </template>
+
+                You have just enabled Distance Tool for the first time.<br> This is a message to give you a little understanding on how it works.
+
+                <ol class="__info-sections">
+                    <li>
+                        <strong>This is not a tool for supervising</strong>.
+                        <br>VATSIM Radar has delays.
+                        <br> Each airspace has it's own separation rules.
+                        <br> Please, do not .wallop for separation issues.<br> If you think that separation was bad - submit a controller feedback instead.
+                    </li>
+                    <li>
+                        To activate tool, press twice on the map
+                    </li>
+                    <li>
+                        To pin point to aircraft, double click on it
+                    </li>
+                    <li>
+                        This tool disables double click to zoom. Need to use both Distance Tool and click to zoom? Enable CTRL+Click!
+
+                        <common-toggle
+                            :model-value="!!store.localSettings.distance?.ctrlClick"
+                            @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
+                        >
+                            CTRL+Click instead of double click
+                        </common-toggle>
+                    </li>
+                    <li>
+                        You can change CTRL+Click action and displayed units in Map layer settings (second icon on left filters screen)
+                    </li>
+                </ol>
+            </common-popup>
         </template>
         <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
@@ -153,6 +192,7 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
+import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -181,6 +221,9 @@ import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
+import { defaults } from 'ol/interaction';
+import PointerInteraction from 'ol/interaction/Pointer';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 defineProps({
     mode: {
@@ -460,6 +503,15 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
+watch(() => store.localSettings.distance?.enabled, val => {
+    if (!val) return;
+
+    if (!localStorage.getItem('distance-tool-tutorial-seen')) {
+        mapStore.distance.tutorial = true;
+        localStorage.setItem('distance-tool-tutorial-seen', '1');
+    }
+});
+
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
@@ -585,6 +637,79 @@ async function handleMoveEnd() {
     mapStore.moving = false;
 }
 
+let lastClickTime = 0;
+
+async function initDistance(event: MapBrowserEvent) {
+    const pilots = getPilotsForPixel(map.value!, event.pixel);
+    if (pilots.length === 1) {
+        mapStore.distance.initAircraft = pilots[0].cid;
+    }
+
+    mapStore.distance.pixel = map.value!.getCoordinateFromPixel(event.pixel);
+    mapStore.distance.overlayOpenCheck = true;
+}
+
+function handleDownEvent(event: MapBrowserEvent) {
+    const now = Date.now();
+
+    if (store.localSettings.distance?.ctrlClick) {
+        if (event.originalEvent.ctrlKey) {
+            initDistance(event);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    if (now - lastClickTime < 300) {
+        initDistance(event);
+        lastClickTime = 0;
+
+        return true;
+    }
+
+    lastClickTime = now;
+
+    return false;
+}
+
+class DoubleClick extends PointerInteraction {
+    constructor() {
+        super({
+            handleDownEvent,
+        });
+    }
+}
+
+const doubleClick = new DoubleClick();
+
+function setMapInteractions() {
+    if (!map.value) return;
+    const withDistance = store.localSettings.distance?.enabled;
+    const ctrl = store.localSettings.distance?.ctrlClick;
+
+    map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
+
+    if (withDistance) {
+        const interactions = defaults({
+            doubleClickZoom: !!ctrl,
+        }).extend([
+            doubleClick,
+        ]);
+
+        interactions.forEach(x => map.value?.addInteraction(x));
+    }
+    else {
+        const interactions = defaults();
+
+        interactions.forEach(x => map.value?.addInteraction(x));
+    }
+}
+
+watch(() => store.localSettings.distance?.enabled, setMapInteractions);
+watch(() => store.localSettings.distance?.ctrlClick, setMapInteractions);
+
 await setupDataFetch({
     onMount() {
         if (typeof route.query.airline === 'string') {
@@ -698,6 +823,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            interactions: [],
             maxTilesLoading: 128,
             view: new View({
                 center,
@@ -709,6 +835,8 @@ await setupDataFetch({
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
         });
+
+        setMapInteractions();
 
         const mapView = map.value.getView();
         mapStore.zoom = mapView.getZoom() ?? 0;

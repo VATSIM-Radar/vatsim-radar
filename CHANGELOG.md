@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.0-beta.4]
+
+- Added distance measurement tool
+
 # [1.2.0-beta.3]
 
 ## QA

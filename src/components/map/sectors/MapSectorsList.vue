@@ -97,6 +97,7 @@ import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
+import { useMapStore } from '~/store/map';
 
 let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -145,7 +146,17 @@ const firs = computed(() => {
     }
 });
 
-console.log(firs);
+
+const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
+const getCoordinates = ref([0, 0]);
+const vatglassesPopupIsShown = ref(false);
+const vatGlassesActive = isVatGlassesActive;
+const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+const mapStore = useMapStore();
+
+watch(() => mapStore.distance.pixel, val => {
+    if (val) vatglassesPopupIsShown.value = false;
+});
 
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');

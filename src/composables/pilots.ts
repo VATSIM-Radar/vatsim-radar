@@ -12,6 +12,9 @@ import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
+import type { Pixel } from 'ol/pixel';
+import { isHideMapObject } from '~/composables/settings';
+import { collapsingWithOverlay } from '~/composables/index';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();
@@ -395,4 +398,27 @@ export function getTimeRemains(eta: Date): string | null {
 
     const minutes = timeRemains / (1000 * 60);
     return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
+}
+
+export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
+    if (!pixel || isHideMapObject('pilots')) return [];
+
+    const mapStore = useMapStore();
+    const dataStore = useDataStore();
+
+    if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
+
+    if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
+
+    return dataStore.visiblePilots.value.filter(x => {
+        const pilotPixel = aircraftCoordsToPixel(map, x);
+        if (!pilotPixel) return false;
+
+        return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
+            Math.abs(pilotPixel[1] - pixel[1]) < tolerance;
+    }) ?? [];
+}
+
+export function aircraftCoordsToPixel(map: Map, aircraft: VatsimMandatoryPilot): Pixel | null {
+    return map.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
 }

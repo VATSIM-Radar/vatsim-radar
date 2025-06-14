@@ -5,6 +5,17 @@
     >
         <template v-if="!isMobile">
             <common-button
+                v-if="!isMobile"
+                class="controls_item"
+                size="S"
+                :type="store.localSettings.distance?.enabled ? 'primary' : 'secondary-flat'"
+                @click="setUserLocalSettings({ distance: { enabled: !store.localSettings.distance?.enabled } })"
+            >
+                <template #icon>
+                    <ruler-icon/>
+                </template>
+            </common-button>
+            <common-button
                 class="controls_item"
                 :disabled="mapStore.zoom >= view.getMaxZoom()"
                 size="S"
@@ -73,9 +84,12 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import { toDegrees, toRadians } from 'ol/math';
+import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import { useStore } from '~/store';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
+const store = useStore();
 const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
 const isMobile = useIsMobile();

@@ -7,6 +7,7 @@ import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]'
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
+import type { Coordinate } from 'ol/coordinate';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -81,10 +82,25 @@ export const useMapStore = defineStore('map', {
 
         activeMobileOverlay: null as null | string,
         autoShowTracks: null as null | boolean,
+
+        distance: {
+            pixel: null as Coordinate | null,
+            initAircraft: null as null | number,
+            targetAircraft: null as null | number,
+            overlayOpenCheck: false,
+            tutorial: false,
+            items: [] as {
+                date: number;
+                length: string;
+                coordinates: Coordinate[];
+                initAircraft: null | number;
+                targetAircraft: null | number;
+            }[],
+        },
     }),
     getters: {
         canShowOverlay(): boolean {
-            return !this.moving;
+            return !this.moving && !this.distance.pixel;
         },
     },
     actions: {
@@ -148,6 +164,11 @@ export const useMapStore = defineStore('map', {
                 await nextTick();
 
                 this.sendSelectedPilotToDashboard(+cid);
+
+                if (this.distance.overlayOpenCheck) {
+                    this.distance.overlayOpenCheck = false;
+                    return;
+                }
 
                 return this.addOverlay<StoreOverlayPilot>({
                     key: cid,
