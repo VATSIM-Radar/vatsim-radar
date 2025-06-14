@@ -1,7 +1,7 @@
 <template>
     <map-overlay
         v-if="openSigmet"
-        :settings="{ position: openSigmet.pixel, stopEvent: true }"
+        :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
         :z-index="5"
         @update:modelValue="openSigmet = null"
     >
