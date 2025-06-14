@@ -3,6 +3,9 @@
 # [1.2.0-beta.4]
 
 - Added distance measurement tool
+- Added search bar and sorting to bookings page by MindCollaps
+- Added shortcut for bookings dates by MindCollaps
+- Added support for approach/center bookings by MindCollaps
 
 # [1.2.0-beta.3]
 
