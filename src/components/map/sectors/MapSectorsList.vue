@@ -146,12 +146,6 @@ const firs = computed(() => {
     }
 });
 
-
-const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
-const getCoordinates = ref([0, 0]);
-const vatglassesPopupIsShown = ref(false);
-const vatGlassesActive = isVatGlassesActive;
-const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 const mapStore = useMapStore();
 
 watch(() => mapStore.distance.pixel, val => {
