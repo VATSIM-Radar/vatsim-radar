@@ -60,7 +60,7 @@
                             :style="widthStyle"
                         >
                             <span>
-                                {{ time.formattedTime }}
+                                {{ String(time.formattedTime) + (utc ? 'z' : '')  }}
                             </span>
                         </div>
                     </div>
@@ -645,7 +645,7 @@ function generateTimeline(): TimelineTime[] {
         i < endCalculated.value;
         i.setMinutes(i.getMinutes() + scaleInMinutes)
     ) {
-        if (i.getDay() !== before.getDay()) {
+        if (props.utc ? i.getUTCDay() !== before.getUTCDay() : i.getDay() !== before.getDay()) {
             day++;
             before = new Date(i);
         }
