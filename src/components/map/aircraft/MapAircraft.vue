@@ -885,7 +885,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === ownFlight.value?.cid.toString())) && !store.mapSettings.heatmapLayer);
+const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && !!ownFlight.value && activeCurrentOverlay.value?.key === ownFlight.value?.cid.toString())) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
