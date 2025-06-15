@@ -31,7 +31,7 @@ watch([isEnabled, extent], async ([enabled, extent]) => {
 
     source?.value.removeFeatures(features);
     features = [];
-    const entries = Object.entries(dataStore.navigraph.data.value!.waypoints);
+    const entries = Object.entries(await dataStore.navigraph.data('waypoints') ?? {});
 
     entries.forEach(([key, waypoint]) => {
         const coordinate = [waypoint[1], waypoint[2]];

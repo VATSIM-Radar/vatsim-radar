@@ -40,7 +40,6 @@
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Sigmet, Sigmets } from '~/utils/backend/storage';
-import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style';
@@ -167,15 +166,10 @@ const jsonFeatures = computed(() => {
 
     geoData.features = geoData.features.filter(x => x.properties.hazard && (store.localSettings.filters?.layers?.sigmets?.showAirmets !== false || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
 
-    return geojson.readFeatures(geoData, {
+    return geoJson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',
         dataProjection: 'EPSG:4326',
     });
-});
-
-const geojson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
 });
 
 function buildStyle(color: ColorsList, type: string) {

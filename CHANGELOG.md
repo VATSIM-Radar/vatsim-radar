@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.0-beta.7]
+
+- Significantly reduced memory consumption by navdata when not used
+- Reduced VATSpy data memory consumption
+- Landed minor memory usage improvements for geojson generation
+
 # [1.2.0-beta.6]
 
 - Navigraph procedures and routes are now displayed on any zoom level

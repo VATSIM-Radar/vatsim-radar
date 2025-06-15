@@ -134,7 +134,6 @@ import type { AirportTraconFeature } from '~/components/map/airports/MapAirports
 import { useStore } from '~/store';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { getSelectedColorFromSettings } from '~/composables/colors';
@@ -346,11 +345,6 @@ watch(getAirportColor, () => {
     }));
 });
 
-const geojson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
-});
-
 watch(hoveredFeature, val => {
     if (!val?.traconFeature && hoverFeature) {
         vectorSource.value?.removeFeature(hoverFeature);
@@ -358,7 +352,7 @@ watch(hoveredFeature, val => {
         hoverFeature = null;
     }
     else if (val?.traconFeature && !hoverFeature) {
-        hoverFeature = geojson.readFeature(val.traconFeature) as Feature<any>;
+        hoverFeature = geoJson.readFeature(val.traconFeature) as Feature<any>;
         hoverFeature?.setProperties({
             ...hoverFeature?.getProperties(),
             type: 'background',
@@ -513,7 +507,7 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const borderFeature = geojson.readFeature(traconFeature) as Feature<any>;
+                const borderFeature = geoJson.readFeature(traconFeature) as Feature<any>;
 
                 borderFeature.setProperties({
                     ...(borderFeature?.getProperties() ?? {}),
@@ -706,7 +700,7 @@ onMounted(async () => {
             const key = _key as AmdbLayerName;
             if (!supportedLayouts.value.includes(key)) continue;
 
-            const features = geojson.readFeatures(value, {
+            const features = geoJson.readFeatures(value, {
                 dataProjection: 'EPSG:4326',
                 featureProjection: 'EPSG:4326',
             });

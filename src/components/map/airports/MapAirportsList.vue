@@ -41,7 +41,6 @@ import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyAirport, VatSpyData, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { intersects } from 'ol/extent';
-import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
@@ -719,11 +718,6 @@ const getAirportsList = computed(() => {
     dataStore.vatsim.parsedAirports.value = list;
 
     return list;
-});
-
-const geoJson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
 });
 
 const vatAirportsList = computed(() => {

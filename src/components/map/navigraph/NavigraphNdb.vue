@@ -25,15 +25,15 @@ let vordme: Feature[] = [];
 
 const extent = computed(() => mapStore.extent);
 
-watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.data], () => {
+watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.data], async () => {
     source?.value.removeFeatures(ndb);
     ndb = [];
 
     source?.value.removeFeatures(vordme);
     vordme = [];
 
-    if (isNDBEnabled.value && dataStore.navigraph.data.value?.ndb) {
-        ndb = Object.entries(dataStore.navigraph.data.value.ndb).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
+    if (isNDBEnabled.value) {
+        ndb = Object.entries(await dataStore.navigraph.data('ndb') ?? {}).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
             geometry: new Point([longitude, latitude]),
             key,
             ident,
@@ -45,8 +45,8 @@ watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.data], () => {
         source?.value.addFeatures(ndb);
     }
 
-    if (isVorEnabled.value && dataStore.navigraph.data.value?.vhf) {
-        vordme = Object.entries(dataStore.navigraph.data.value.vhf).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
+    if (isVorEnabled.value) {
+        vordme = Object.entries(await dataStore.navigraph.data('vhf') ?? {}).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
             geometry: new Point([longitude, latitude]),
             ident,
             key,

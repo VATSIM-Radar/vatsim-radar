@@ -68,7 +68,6 @@ import type { Map, MapBrowserEvent } from 'ol';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
-import { GeoJSON } from 'ol/format';
 import type { ColorsList } from '~/utils/backend/styles';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
@@ -95,10 +94,6 @@ const source = shallowRef<VectorSource | undefined>();
 
 const type = computed(() => route.params.type as string);
 const id = computed(() => +route.params.id);
-const geoJSON = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
-});
 
 const { data: geojson } = useAsyncData(() => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
     watch: [type, id],
@@ -108,7 +103,7 @@ const { data: geojson } = useAsyncData(() => $fetch<FeatureCollection>(`/api/dat
 watch([showConfig, geojson, source, hideUnchanged], () => {
     if (!geojson.value || !source.value) return;
 
-    const features = geoJSON.readFeatures({
+    const features = geoJson.readFeatures({
         ...geojson.value,
         features: geojson.value.features.filter(x => {
             if (hideUnchanged.value && !x.properties!.fill) return false;

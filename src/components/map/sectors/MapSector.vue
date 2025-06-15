@@ -61,7 +61,6 @@ import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
-import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
@@ -139,11 +138,6 @@ const getATCFullName = computed(() => {
 
     if ('isOceanic' in prop && prop.isOceanic && !country.callsign) return `${ prop.name } Radio`;
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
-});
-
-const geoJson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
 });
 
 const init = () => {

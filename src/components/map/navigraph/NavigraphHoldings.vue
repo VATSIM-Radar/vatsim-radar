@@ -152,7 +152,7 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
 
     if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) return;
 
-    const entries = Object.entries(dataStore.navigraph.data.value!.holdings).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
+    const entries = Object.entries(await dataStore.navigraph.data('holdings') ?? {}).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
 
     entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';

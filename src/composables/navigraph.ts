@@ -8,7 +8,7 @@ import type {
     NavigraphNavDataStarShort, ShortAirway,
 } from '~/utils/backend/navigraph/navdata/types';
 import { clientDB } from '~/utils/client-db';
-import type { IDBNavigraphProcedures } from '~/utils/client-db';
+import type { ClientNavigraphData, IDBNavigraphProcedures } from '~/utils/client-db';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
@@ -223,6 +223,36 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
 
+type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
+
+let previousRequest = 0;
+let interval: NodeJS.Timeout | null = null;
+let data: NeededNavigraphData | null = null;
+
+async function getFullData(): Promise<NeededNavigraphData> {
+    previousRequest = Date.now();
+
+    if (!interval) {
+        interval = setInterval(() => {
+            // For GC
+            if (data && Date.now() - previousRequest > 1000 * 15) {
+                data = null;
+            }
+        }, 1000);
+    }
+
+    if (data) return data;
+
+    data = {
+        parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+        parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+        parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+        parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+    };
+
+    return data;
+}
+
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];
     const dataStore = useDataStore();
@@ -240,6 +270,8 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     const depSid = Object.values(selectedDeparture?.sids ?? {})[0];
     let arrStar = null as null | DataStoreNavigraphProcedure;
     let arrApproach = null as null | DataStoreNavigraphProcedure<NavigraphNavDataApproach>;
+
+    const navigraphData = await getFullData();
 
     try {
         for (let i = 0; i < entries.length; i++) {
@@ -481,16 +513,16 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             const previousWaypoint = previousWaypointCoordinate(waypoints[waypoints.length - 1]);
 
             const prevEntry = entries[i - 1]?.split('/')[0];
-            if (prevEntry && waypoints[waypoints.length - 1]?.airway && dataStore.navigraph.data.value?.parsedAirways[prevEntry]) {
+            if (prevEntry && waypoints[waypoints.length - 1]?.airway && navigraphData.parsedAirways[prevEntry]) {
                 continue;
             }
 
             const nextEntry = entries[i + 1]?.split('/')[0];
-            if (nextEntry && dataStore.navigraph.data.value?.parsedAirways[nextEntry]) {
+            if (nextEntry && navigraphData.parsedAirways[nextEntry]) {
                 continue;
             }
 
-            const airways = dataStore.navigraph.data.value?.parsedAirways[search];
+            const airways = navigraphData.parsedAirways[search];
             if (airways) {
                 const list = Object.entries(airways);
                 let neededAirway = list.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) && x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
@@ -533,9 +565,9 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 continue;
             }
 
-            const vhfs = dataStore.navigraph.data.value?.parsedVHF[search];
-            const ndbs = dataStore.navigraph.data.value?.parsedNDB[search];
-            const waypointsList = dataStore.navigraph.data.value?.parsedWaypoints[search];
+            const vhfs = navigraphData.parsedVHF[search];
+            const ndbs = navigraphData.parsedNDB[search];
+            const waypointsList = navigraphData.parsedWaypoints[search];
 
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {

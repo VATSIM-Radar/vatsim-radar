@@ -572,13 +572,13 @@ async function combineAllVatglassesActiveSectors(newVatglassesActiveSectors: Vat
     }
 }
 
+const format = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 // Function to convert GeoJSON back to OpenLayers features
 export function convertToOpenLayersFeatures(geoJSONPolygons: TurfFeature<TurfPolygon>[]): Feature<Polygon>[] {
-    const format = new GeoJSON({
-        featureProjection: 'EPSG:4326',
-        dataProjection: 'EPSG:4326',
-    });
     return geoJSONPolygons.map(polygon => format.readFeature(polygon) as Feature<Polygon>);
 }
 

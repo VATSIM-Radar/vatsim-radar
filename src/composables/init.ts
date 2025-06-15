@@ -2,7 +2,7 @@ import { useMapStore } from '~/store/map';
 import type { VatDataVersions } from '~/types/data';
 import type { VRInitStatus, VRInitStatusResult } from '~/store';
 import { useStore } from '~/store';
-import type { ClientNavigraphData, IDBAirlinesData, IDBNavigraphData } from '~/utils/client-db';
+import type { IDBAirlinesData } from '~/utils/client-db';
 import { clientDB } from '~/utils/client-db';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
@@ -73,8 +73,27 @@ export function checkForVATSpy() {
         let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
         if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
             vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
+
             await clientDB.put('data', vatspy, 'vatspy');
             notRequired = false;
+        }
+
+        console.log('iteration');
+
+        for (const airport of vatspy.data.airports) {
+            vatspy.data.keyAirports.icao[airport.icao] = airport;
+
+            if (airport.iata) {
+                vatspy.data.keyAirports.iata[airport.iata] = airport;
+            }
+
+            if (!airport.isPseudo) {
+                vatspy.data.keyAirports.realIcao[airport.icao] = airport;
+
+                if (airport.iata) {
+                    vatspy.data.keyAirports.realIata[airport.iata] = airport;
+                }
+            }
         }
 
         dataStore.vatspy.value = vatspy;
@@ -134,28 +153,23 @@ export function checkForVG() {
 export function checkForNavigraph() {
     return initCheck('navigraph', async ({ store, dataStore }) => {
         try {
-            let navigraph = await clientDB.get('data', 'navigraph') as IDBNavigraphData['value'] | undefined;
+            const navigraph = await dataStore.navigraph.data('version');
 
             const type = store.user?.hasFms ? 'current' : 'outdated';
             let notRequired = true;
 
-            let keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints', 'vhf', 'ndb'];
+            const keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints', 'vhf', 'ndb'];
 
-            if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type]) {
-                keys = keys.filter(x => !navigraph?.data[x]);
-            }
-
-            if (navigraph && navigraph.version === dataStore.versions.value?.navigraph?.[type] && !keys.length) {
-                dataStore.navigraph.version.value = navigraph.version;
-                dataStore.navigraph.data.value = navigraph.data;
+            if (navigraph && navigraph === dataStore.versions.value?.navigraph?.[type] && !keys.length) {
+                dataStore.navigraph.version.value = navigraph;
                 return 'notRequired';
             }
 
-            // TODO: delete STARSID data
-            if (!navigraph || navigraph.version !== dataStore.versions.value?.navigraph?.[type] || (keys.length && !keys.every(x => navigraph?.data[x]))) {
+            if (!navigraph || navigraph !== dataStore.versions.value?.navigraph?.[type]) {
                 const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
 
-                clientDB.clear('navigraphAirports');
+                await clientDB.clear('navigraphData');
+                await clientDB.clear('navigraphAirports');
 
                 if (keys.includes('airways')) {
                     fetchedData.parsedAirways = {};
@@ -197,16 +211,16 @@ export function checkForNavigraph() {
                     }
                 }
 
-                navigraph = {
-                    version: dataStore.versions.value?.navigraph?.[type] ?? '',
-                    data: Object.assign(navigraph?.data ?? {}, fetchedData) as ClientNavigraphData,
-                };
-                await clientDB.put('data', navigraph, 'navigraph');
+                for (const key in fetchedData) {
+                    await clientDB.put('navigraphData', fetchedData[key as keyof typeof fetchedData] as any, key as any);
+                }
+
+                await clientDB.put('navigraphData', dataStore.versions.value?.navigraph?.[type] ?? '' as any, 'version');
+
                 notRequired = false;
             }
 
-            dataStore.navigraph.version.value = navigraph.version;
-            dataStore.navigraph.data.value = navigraph.data;
+            dataStore.navigraph.version.value = dataStore.versions.value?.navigraph?.[type] ?? '';
             if (notRequired) return 'notRequired';
         }
         catch (e) {

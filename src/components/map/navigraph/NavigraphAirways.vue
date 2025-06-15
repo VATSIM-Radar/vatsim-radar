@@ -39,7 +39,7 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
         return;
     }
 
-    const entries = Object.entries(dataStore.navigraph.data.value!.airways);
+    const entries = Object.entries(await dataStore.navigraph.data('airways') ?? {});
     const len = entries.length;
 
     if (!geometries.length) {

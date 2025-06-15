@@ -14,7 +14,6 @@ import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
-import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
@@ -185,8 +184,6 @@ useHead(() => ({
 }));
 
 const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
-
-const geoJson = new GeoJSON();
 
 let mapSource: VectorSource | undefined;
 let mapLayer: VectorImageLayer | undefined;

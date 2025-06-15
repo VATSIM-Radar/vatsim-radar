@@ -14,6 +14,7 @@ import type {
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
+import { clientDB } from '~/utils/client-db';
 import type { ClientNavigraphData } from '~/utils/client-db';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
@@ -45,7 +46,6 @@ import type { PartialRecord } from '~/types';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
-const navigraph = shallowRef<UseDataStore['navigraph']['data'] | null>(null);
 const navigraphVersion = ref<string | null>(null);
 const airlines = shallowRef<RadarDataAirlinesAllList>({
     airlines: {},
@@ -152,6 +152,12 @@ export interface DataStoreNavigraphProceduresAirport {
 export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
 export type DataStoreNavigraphAircraftProcedures = Ref<Record<string, { departure: DataStoreNavigraphProceduresAirport; arrival: DataStoreNavigraphProceduresAirport }>>;
 
+async function getNavigraphIDBData(key: 'version'): Promise<string | null>;
+async function getNavigraphIDBData<T extends keyof ClientNavigraphData>(key: T): Promise<ClientNavigraphData[T] | null>;
+async function getNavigraphIDBData(key: any) {
+    return (await clientDB.get('navigraphData', 'version')) ?? null;
+}
+
 export interface UseDataStore {
     versions: Ref<null | VatDataVersions>;
     vatspy: ShallowRef<VatSpyAPIData | undefined>;
@@ -185,7 +191,7 @@ export interface UseDataStore {
     navigraphAircraftProcedures: DataStoreNavigraphAircraftProcedures;
     navigraph: {
         version: Ref<string | null>;
-        data: ShallowRef<ClientNavigraphData | null>;
+        data: typeof getNavigraphIDBData;
     };
 }
 
@@ -209,7 +215,7 @@ const dataStore: UseDataStore = {
     navigraphAircraftProcedures,
     navigraph: {
         version: navigraphVersion,
-        data: navigraph,
+        data: getNavigraphIDBData,
     },
 };
 
