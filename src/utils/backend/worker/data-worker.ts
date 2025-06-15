@@ -535,14 +535,26 @@ defineCronJob('* * * * * *', async () => {
                 last_updated: true,
             },
             controllers: {
+                visual_range: true,
                 server: true,
                 last_updated: true,
             },
             atis: {
+                visual_range: true,
                 server: true,
                 last_updated: true,
             },
             prefiles: {
+                flight_plan: true,
+                last_updated: true,
+            },
+            observers: {
+                frequency: true,
+                facility: true,
+                rating: true,
+                text_atis: true,
+                server: true,
+                visual_range: true,
                 flight_plan: true,
                 last_updated: true,
             },
@@ -558,6 +570,7 @@ defineCronJob('* * * * * *', async () => {
                     aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                     departure: origPilot.flight_plan?.departure,
                     arrival: origPilot.flight_plan?.arrival,
+                    flight_rules: origPilot.flight_plan?.flight_rules,
                 };
             }),
             prefiles: regularData.prefiles.map(x => {
@@ -568,6 +581,7 @@ defineCronJob('* * * * * *', async () => {
                     aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                     departure: origPilot.flight_plan?.departure,
                     arrival: origPilot.flight_plan?.arrival,
+                    flight_rules: origPilot.flight_plan?.flight_rules,
                 };
             }),
             bars: shortBars,

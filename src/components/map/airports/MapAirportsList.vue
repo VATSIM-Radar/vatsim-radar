@@ -48,8 +48,9 @@ import VectorLayer from 'ol/layer/Vector';
 import type { FeatureLike } from 'ol/Feature';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { airportLayoutStyles } from '~/composables/airport-layout';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { AmdbLayerName } from '@navigraph/amdb';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;

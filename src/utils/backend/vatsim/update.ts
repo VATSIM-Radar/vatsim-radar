@@ -12,7 +12,7 @@ import type {
     VatsimBooking,
     VatsimDivision,
     VatsimSubDivision,
-    VatsimShortenedController,
+    VatsimShortenedController, VatsimController,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -55,14 +55,21 @@ export function updateVatsimDataStorage() {
 
     const positions = useFacilitiesIds();
 
+    const observers: VatsimController[] = [];
+
     data.controllers = data.controllers.filter(controller => {
-        if (controller.facility === positions.OBS) return;
+        if (controller.facility === positions.OBS) {
+            observers.push(controller);
+            return false;
+        }
         let postfix = controller.callsign.split('_').slice(-1)[0];
         if (postfix === 'DEP') postfix = 'APP';
         if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
         return controller.facility !== -1 && controller.facility !== positions.OBS;
     });
+
+    data.observers = observers;
 }
 
 export function updateVatsimMandatoryDataStorage() {
@@ -494,7 +501,6 @@ function makeFakeAtc(booking: VatsimBookingData): VatsimShortenedController {
         frequency: '',
         facility: getFacilityByCallsign(booking.callsign),
         rating: -1,
-        visual_range: 0,
         logon_time: '',
         text_atis: [],
     };

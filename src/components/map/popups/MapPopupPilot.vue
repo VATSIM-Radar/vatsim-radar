@@ -27,7 +27,7 @@
                 disabled: !atcSections.length,
             },
         }"
-        @update:modelValue="!$event ? [store.user && pilot.cid === +store.user.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
+        @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
@@ -225,7 +225,7 @@ import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { ownFlight, sortControllersByPosition, useFacilitiesIds } from '#imports';
 import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
@@ -239,13 +239,13 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     overlay: {
@@ -581,6 +581,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
+
+    if (enrouteAircraftPath.value) {
+        delete enrouteAircraftPath.value[props.overlay.key];
+    }
 });
 </script>
 

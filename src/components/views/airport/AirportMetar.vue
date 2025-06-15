@@ -1,14 +1,14 @@
 <template>
     <div
-        v-if="metar"
+        v-if="metarData"
         class="__info-sections"
     >
         <common-copy-info-block
             auto-expand
-            :text="data.airport?.metar"
+            :text="metar || data.airport?.metar"
         />
         <div
-            v-if="metar.hour"
+            v-if="metarData.hour"
             class="__grid-info-sections"
         >
             <div class="__grid-info-sections_title">
@@ -16,12 +16,12 @@
             </div>
             <common-info-block class="__grid-info-sections_content">
                 <template #top>
-                    {{ `0${ metar.hour }`.slice(-2) }}:{{ `0${ metar.minute }`.slice(-2) }}Z
+                    {{ `0${ metarData.hour }`.slice(-2) }}:{{ `0${ metarData.minute }`.slice(-2) }}Z
                 </template>
             </common-info-block>
         </div>
         <div
-            v-if="typeof metar.temperature === 'number'"
+            v-if="typeof metarData.temperature === 'number'"
             class="__grid-info-sections"
         >
             <div class="__grid-info-sections_title">
@@ -29,11 +29,11 @@
             </div>
             <common-info-block class="__grid-info-sections_content">
                 <template #top>
-                    {{ metar.temperature }}° C / Dew Point {{ metar.dewPoint }}° C
+                    {{ metarData.temperature }}° C / Dew Point {{ metarData.dewPoint }}° C
                 </template>
             </common-info-block>
         </div>
-        <airport-metar-blocks :metar/>
+        <airport-metar-blocks :metar="metarData"/>
     </div>
 </template>
 
@@ -44,11 +44,18 @@ import { parseMetar } from 'metar-taf-parser';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 
+const props = defineProps({
+    metar: {
+        type: String,
+        default: null,
+    },
+});
+
 const data = injectAirport();
 
-const metar = computed(() => {
-    if (!data.value?.airport?.metar) return;
-    return parseMetar(data.value.airport.metar, {
+const metarData = computed(() => {
+    if (!props.metar && !data.value?.airport?.metar) return;
+    return parseMetar(props.metar || data.value.airport!.metar!, {
         issued: new Date(),
     });
 });

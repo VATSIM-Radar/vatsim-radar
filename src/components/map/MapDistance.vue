@@ -112,7 +112,7 @@ function updateItems() {
         }
 
         let coordinate1 = item.coordinates[0];
-        let coordinate2 = item.coordinates[2];
+        let coordinate2 = item.coordinates[1];
 
         if (item.initAircraft && dataStore.vatsim.data.keyedPilots.value[item.initAircraft]) {
             coordinate1 = [dataStore.vatsim.data.keyedPilots.value[item.initAircraft].longitude, dataStore.vatsim.data.keyedPilots.value[item.initAircraft].latitude];

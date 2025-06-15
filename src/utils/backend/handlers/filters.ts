@@ -40,6 +40,7 @@ export interface IUserFilter {
         status: 'all' | 'departing' | 'airborne' | 'arrived';
         aircraft: string[];
         type: 'all' | 'domestic' | 'international';
+        plan: 'all' | 'ifr' | 'trueVfr' | 'allVfr' | 'none';
         excludeNoFlightPlan: boolean;
         squawks: string[];
         ratings: number[];
@@ -58,6 +59,7 @@ export type UserFilterPreset = UserPreset & {
 
 const allowedStatuses: IUserFilter['flights']['status'][] = ['all', 'departing', 'airborne', 'arrived'];
 const allowedTypes: IUserFilter['flights']['type'][] = ['all', 'domestic', 'international'];
+const allowedPlans: IUserFilter['flights']['plan'][] = ['all', 'ifr', 'trueVfr', 'allVfr', 'none'];
 
 function validateCallsignFilter(val: unknown): boolean {
     if (!isObject(val)) return false;
@@ -125,11 +127,12 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
         },
         flights: val => {
             if (!isObject(val)) return false;
-            if (!validateRandomObjectKeys(val, ['status', 'aircraft', 'type', 'excludeNoFlightPlan', 'squawks', 'ratings', 'altitude', 'diverted'])) return false;
+            if (!validateRandomObjectKeys(val, ['status', 'aircraft', 'type', 'excludeNoFlightPlan', 'squawks', 'ratings', 'altitude', 'diverted', 'plan'])) return false;
 
             if ('status' in val && val.status !== allowedStatuses) return false;
             if ('aircraft' in val && (!Array.isArray(val.aircraft) || val.aircraft.length > MAX_FILTER_ARRAY_VALUE || !val.aircraft.every(x => typeof x === 'string' && x.length > 0 && x.length < 50))) return false;
-            if ('type' in val && val.type !== allowedTypes) return false;
+            if ('type' in val && (typeof val.plan !== 'string' || !allowedTypes.includes(val.type as any))) return false;
+            if ('plan' in val && (typeof val.plan !== 'string' || !allowedPlans.includes(val.plan as any))) return false;
             if ('squawks' in val && (!Array.isArray(val.squawks) || val.squawks.length > MAX_FILTER_ARRAY_VALUE || !val.squawks.every(x => typeof x === 'string' && x.length === 4))) return false;
             if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
             if ('altitude' in val && (!Array.isArray(val.altitude) || val.altitude.length > MAX_FILTER_ARRAY_VALUE || !val.altitude.every(x => typeof x === 'string' && parseFilterAltitude(x).length > 0))) return false;
@@ -216,37 +219,39 @@ export async function handleFiltersEvent(event: H3Event) {
             };
         }
 
-        if (!user) {
+        if (!user && !isValidate) {
             return handleH3Error({
                 event,
                 statusCode: 401,
             });
         }
 
-        const filters = (await prisma.userPreset.findMany({
-            where: {
-                userId: user.id,
-                type: UserPresetType.FILTER,
-            },
-            include: {
-                lists: true,
-            },
-            orderBy: [
-                {
-                    order: 'asc',
+        const filters = (isValidate && !user)
+            ? []
+            : (await prisma.userPreset.findMany({
+                where: {
+                    userId: user!.id,
+                    type: UserPresetType.FILTER,
                 },
-                {
-                    id: 'desc',
+                include: {
+                    lists: true,
                 },
-            ],
-        })).map(x => {
-            const json = x.json as UserFilter;
-            if (json.users?.lists) {
-                json.users.lists = x.lists.map(x => x.listId);
-            }
+                orderBy: [
+                    {
+                        order: 'asc',
+                    },
+                    {
+                        id: 'desc',
+                    },
+                ],
+            })).map(x => {
+                const json = x.json as UserFilter;
+                if (json.users?.lists) {
+                    json.users.lists = x.lists.map(x => x.listId);
+                }
 
-            return x;
-        });
+                return x;
+            });
 
         let filter: typeof filters[0] | null = null;
 
@@ -299,7 +304,7 @@ export async function handleFiltersEvent(event: H3Event) {
             if (body.json) {
                 body.json = body.json as Record<string, any>;
 
-                const validators = await initValidators(user.lists);
+                const validators = await initValidators(user?.lists);
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserFilter, unknown][]) {
                     if (!(key in validators)) {
@@ -394,7 +399,7 @@ export async function handleFiltersEvent(event: H3Event) {
             else {
                 const userPresets = await prisma.userPreset.count({
                     where: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.FILTER,
                     },
                 });
@@ -409,7 +414,7 @@ export async function handleFiltersEvent(event: H3Event) {
 
                 const result = await prisma.userPreset.create({
                     data: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.FILTER,
                         name: body.name as string,
                         json: body.json!,

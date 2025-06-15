@@ -18,9 +18,10 @@ import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 defineSlots<{ default: () => any }>();
 

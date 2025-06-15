@@ -61,6 +61,7 @@ interface IUserLocalSettings {
     skipBookmarkAnimation: boolean;
     eventsLocalTimezone: boolean;
     disableNavigraph: boolean;
+    disableNavigraphRoute: boolean;
 
     distance: {
         enabled?: boolean;

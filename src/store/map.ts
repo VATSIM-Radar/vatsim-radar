@@ -8,6 +8,7 @@ import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[i
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 import type { Coordinate } from 'ol/coordinate';
+import { ownFlight } from '~/composables/pilots';
 
 export interface StoreOverlayDefault {
     id: string;
@@ -79,6 +80,7 @@ export const useMapStore = defineStore('map', {
 
         localTurns: new Set<number>(),
         turnsResponse: [] as TurnsBulkReturn[],
+        selectedCid: null as number | false | null,
 
         activeMobileOverlay: null as null | string,
         autoShowTracks: null as null | boolean,
@@ -143,8 +145,9 @@ export const useMapStore = defineStore('map', {
             const targetOrigin = useRuntimeConfig().public.DOMAIN;
             window.parent.postMessage(message, targetOrigin);
         },
-        async addPilotOverlay(cid: string, tracked = false) {
+        async addPilotOverlay(cid: string | number, tracked = false) {
             if (this.openingOverlay) return;
+            if (typeof cid === 'number') cid = cid.toString();
             this.openingOverlay = true;
             const store = useStore();
 
@@ -178,7 +181,7 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'pilot',
                     collapsed: store.user?.settings.toggleAircraftOverlays && this.overlays.some(x => x.type === 'pilot'),
-                    sticky: cid === store.user?.cid,
+                    sticky: cid === ownFlight.value?.cid.toString(),
                 });
             }
             finally {
@@ -188,7 +191,6 @@ export const useMapStore = defineStore('map', {
         async addPrefileOverlay(cid: string) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
-            const store = useStore();
 
             try {
                 const existingOverlay = this.overlays.find(x => x.key === cid);
@@ -204,7 +206,7 @@ export const useMapStore = defineStore('map', {
                         prefile,
                     },
                     type: 'prefile',
-                    sticky: cid === store.user?.cid,
+                    sticky: cid === ownFlight.value?.cid.toString(),
                 });
             }
             finally {

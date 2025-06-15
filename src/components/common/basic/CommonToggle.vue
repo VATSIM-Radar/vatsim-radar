@@ -1,7 +1,7 @@
 <template>
     <div
         class="toggle"
-        :class="{ 'toggle--toggled': model, 'toggle--disabled': disabled }"
+        :class="{ 'toggle--toggled': model, 'toggle--disabled': disabled, 'toggle--align-left': alignLeft }"
         @click="model = !model"
     >
         <div
@@ -25,6 +25,10 @@
 <script setup lang="ts">
 defineProps({
     disabled: {
+        type: Boolean,
+        default: false,
+    },
+    alignLeft: {
         type: Boolean,
         default: false,
     },
@@ -72,6 +76,10 @@ const model = defineModel({
             font-size: 10px;
             opacity: 0.8;
         }
+    }
+
+    &--align-left .toggle_label {
+        width: auto;
     }
 
     &_toggler {

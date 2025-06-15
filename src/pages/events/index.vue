@@ -5,6 +5,7 @@
         <client-only>
             <common-toggle
                 v-if="offset"
+                align-left
                 :model-value="!!store.localSettings.eventsLocalTimezone"
                 @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
             >

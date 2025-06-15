@@ -3,20 +3,23 @@
         class="filters"
         :class="{ 'filters--collapsed': !isOpened }"
     >
-        <common-button
-            class="filters_toggle"
-            @click="setUserLocalSettings({ filters: { opened: !isOpened } })"
-        >
-            <template #icon>
-                <filter-icon/>
-            </template>
-        </common-button>
+        <div class="filters_top">
+            <common-button
+                class="filters_toggle"
+                @click="setUserLocalSettings({ filters: { opened: !isOpened } })"
+            >
+                <template #icon>
+                    <filter-icon/>
+                </template>
+            </common-button>
+            <div class="filters_sections"/>
+        </div>
 
         <transition name="filters_sections--appear">
             <div
                 v-if="isOpened"
                 class="filters_sections"
-                :class="{ 'filters_sections--has-pilot': store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid] }"
+                :class="{ 'filters_sections--has-pilot': store.user && !!ownFlight }"
             >
                 <div
                     class="filters_sections_section"
@@ -62,28 +65,39 @@
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
-                            Weather on map
+                            Weather
                         </template>
-                        <a
-                            class="filters__open-weather"
-                            href="https://openweathermap.org/"
-                            target="_blank"
-                        >
-                            <div class="filters__open-weather_text">
-                                Data provided by
-                            </div>
-                            <img
-                                alt="OpenWeather"
-                                class="filters__open-weather_image"
-                                src="@/assets/images/openweather.png"
+                        <div class="__info-sections">
+                            <common-button
+                                size="S"
+                                @click="store.metarRequest = true"
                             >
-                        </a>
-                        <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
-                        <common-radio-group
-                            :items="weatherLayers"
-                            :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
-                        />
+                                Weather Request
+                            </common-button>
+                            <common-block-title remove-margin>
+                                Weather on map
+                            </common-block-title>
+                            <a
+                                class="filters__open-weather"
+                                href="https://openweathermap.org/"
+                                target="_blank"
+                            >
+                                <div class="filters__open-weather_text">
+                                    Data provided by
+                                </div>
+                                <img
+                                    alt="OpenWeather"
+                                    class="filters__open-weather_image"
+                                    src="@/assets/images/openweather.png"
+                                >
+                            </a>
+                            <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
+                            <common-radio-group
+                                :items="weatherLayers"
+                                :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
+                                @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
+                            />
+                        </div>
                     </common-control-block>
                 </div>
                 <div
@@ -228,7 +242,7 @@
                     </common-control-block>
                 </div>
                 <div
-                    v-if="store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid]"
+                    v-if="store.user && (ownFlight || observerFlight)"
                     class="filters_sections_section filters_sections_section--location"
                     :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
                     @click="handleUserTrack"
@@ -276,9 +290,10 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import MapFiltersLayers from '~/components/map/filters/MapFiltersLayers.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import { observerFlight, ownFlight, skipObserver } from '~/composables/pilots';
 
 const store = useStore();
-const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);
@@ -320,12 +335,18 @@ const createPreset = async () => {
 };
 
 const myOverlay = computed(() => {
-    return mapStore.overlays.find(x => x.type === 'pilot' && x.key === store.user?.cid) as StoreOverlayPilot | undefined;
+    return mapStore.overlays.find(x => x.type === 'pilot' && x.key === ownFlight.value?.cid.toString()) as StoreOverlayPilot | undefined;
 });
 
 const handleUserTrack = () => {
+    if (observerFlight.value && !ownFlight.value) {
+        mapStore.selectedCid = null;
+        skipObserver.value.value = false;
+        return;
+    }
+
     const overlay = myOverlay.value;
-    if (!overlay) mapStore.addPilotOverlay(store.user!.cid, true);
+    if (!overlay) mapStore.addPilotOverlay(ownFlight.value!.cid, true);
     else overlay.data.tracked = !overlay.data.tracked;
 };
 
@@ -449,6 +470,10 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
             position: relative;
             display: flex;
 
+            @include mobileOnly {
+                position: unset;
+            }
+
             &--location {
                 margin-top: 8px;
 
@@ -477,6 +502,12 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
             &--tracked svg {
                 transform: rotate(-45deg) translate(-2px, 2px);
+            }
+
+            &_content {
+                @include mobileOnly {
+                    top: 0;
+                }
             }
         }
 

@@ -1,6 +1,6 @@
 import type { CookieRef } from '#app';
+import { isVatGlassesActive, activeRunwayChanged } from '~/utils/data/vatglasses';
 import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
-import { activeRunwayChanged, isVatGlassesActive } from '~/utils/data/vatglasses';
 
 let runwayCookie: CookieRef<Record<string, string>> | undefined;
 

@@ -18,10 +18,14 @@ import type { ClientNavigraphData } from '~/utils/client-db';
 import { checkForWSData } from '~/composables/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
+import {
+    isVatGlassesActive,
+
+
+} from '~/utils/data/vatglasses';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
 import { useGeographic } from 'ol/proj';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useRadarError } from '~/composables/errors';
 
 import type {
@@ -83,6 +87,7 @@ const data: VatsimData = {
     keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
+    observers: shallowRef([]),
     locals: shallowRef([]),
     firs: shallowRef([]),
     facilities: shallowRef([]),
@@ -99,6 +104,7 @@ const rawData: VatsimData = {
     keyedPilots: shallowRef({}),
     airports: shallowRef([]),
     prefiles: shallowRef([]),
+    observers: shallowRef([]),
     locals: shallowRef([]),
     firs: shallowRef([]),
     facilities: shallowRef([]),
@@ -173,7 +179,6 @@ export interface UseDataStore {
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
         full: boolean;
-        canShowHold?: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

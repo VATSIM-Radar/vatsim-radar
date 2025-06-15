@@ -22,8 +22,8 @@
 
 
         <map-overlay
+            v-model="vatglassesPopupIsShown"
             class="vatglasses-overlay"
-            :model-value="vatglassesPopupIsShown"
             :settings="{
                 position: getCoordinates,
                 offset: [15, -15],

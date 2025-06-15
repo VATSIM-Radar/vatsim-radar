@@ -122,13 +122,13 @@ export function attachPointerMove(callback: (event: any) => unknown) {
     });
 }
 
-export function useCopyText() {
+export function useCopyText({ delay = 3000 }: { delay?: number } = {}) {
     const copied = ref(false);
 
     const copy = async (text: string) => {
         copied.value = true;
         await copyText(text);
-        await sleep(3000);
+        await sleep(delay);
         copied.value = false;
     };
 

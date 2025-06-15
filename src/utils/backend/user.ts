@@ -63,6 +63,7 @@ export interface FullUser {
 export interface UserSettings {
     autoFollow?: boolean;
     autoZoom?: boolean;
+    timeFormat?: '24h' | '12h';
     autoShowAirportTracks?: boolean;
     toggleAircraftOverlays?: boolean;
     showFullRoute?: boolean;

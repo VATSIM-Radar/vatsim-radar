@@ -277,7 +277,40 @@ async function parse() {
         }),
         arrived: false,
     };
+
+    triggerRef(dataStore.navigraphWaypoints);
 }
+
+onMounted(() => {
+    // @ts-expect-error debug only
+    window.debugWaypoints = async (departure: string, arrival: string, flightPlan: string) => {
+        const mapCenter = map.value?.getView().getCenter();
+
+        dataStore.navigraphWaypoints.value.test = {
+            // @ts-expect-error this data is ok enough
+            pilot: {
+                callsign: 'test',
+                cid: 1,
+                heading: 0,
+                groundspeed: 0,
+                arrival,
+                departure,
+                longitude: mapCenter![0],
+                latitude: mapCenter![1],
+            },
+            full: true,
+            waypoints: await getFlightPlanWaypoints({
+                flightPlan,
+                departure,
+                arrival,
+                cid: 1,
+            }),
+            arrived: false,
+        };
+
+        triggerRef(dataStore.navigraphWaypoints);
+    };
+});
 
 const activeController = ref<VatsimControllerWithField | null>(null);
 const isDisabledControllerSave = computed(() => !activeController.value ||

@@ -8,14 +8,19 @@
             <common-info-block
                 :bottom-items="[...usePilotRating(pilot), stats ? `${ stats }h total time` : undefined]"
                 class="flight-info__card"
-                :top-items="[parseEncoding(pilot.name), pilot.cid]"
+                :top-items="[parseEncoding(pilot.name), pilot.cid, friend?.comment]"
             >
                 <template #top="{ item, index }">
                     <common-spoiler
                         :is-cid="index === 1"
                         type="pilot"
                     >
-                        {{ item }}
+                        <template v-if="index === 0 && !isNaN(Number(item)) && friend">
+                            {{friend.name}}
+                        </template>
+                        <template v-else>
+                            {{ item }}
+                        </template>
                     </common-spoiler>
                 </template>
             </common-info-block>
@@ -256,12 +261,14 @@ const arrAirport = computed(() => {
 });
 
 const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks));
+const friend = computed(() => store.friends.find(x => x.cid === props.pilot.cid));
 
-const datetime = new Intl.DateTimeFormat('en-GB', {
+const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     timeZone: 'UTC',
     hour: '2-digit',
     minute: '2-digit',
-});
+}));
 
 const getDistAndTime = computed(() => {
     try {
@@ -269,7 +276,8 @@ const getDistAndTime = computed(() => {
 
         const dist = Math.round(props.pilot.toGoDist);
         const goTime = new Date(props.pilot.toGoTime!);
-        const date = datetime.format(goTime);
+        let date = datetime.value.format(goTime).toUpperCase();
+        if (store.user?.settings.timeFormat === '12h') date += ' ';
 
         if (isPilotOnGround(props.pilot)) return `${ dist } NM`;
         return `${ dist } NM at ${ date }Z in ${ getTimeRemains(goTime) }`;
@@ -343,10 +351,10 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
         }
 
         &_route {
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             gap: 4px;
+            padding: 0 8px;
 
             &_header {
                 display: flex;

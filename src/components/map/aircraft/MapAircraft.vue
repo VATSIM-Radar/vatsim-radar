@@ -19,17 +19,20 @@
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"
             >
-                <template #title>
+                <template
+                    v-if="!isShortInfo"
+                    #title
+                >
                     {{ pilot.callsign }}
                 </template>
                 <template
-                    v-if="pilot.aircraft_faa"
+                    v-if="pilot.aircraft_faa && !isShortInfo"
                     #additionalTitle
                 >
                     {{ pilot.aircraft_faa }}
                 </template>
                 <template
-                    v-if="pilot.frequencies.length >= 1"
+                    v-if="pilot.frequencies.length >= 1 && !isShortInfo"
                     #titleAppend
                 >
                     <common-bubble
@@ -54,30 +57,64 @@
                     </common-bubble>
                 </template>
                 <div class="aircraft-hover_body">
+                    <common-info-block v-if="isShortInfo">
+                        <template #top>
+                            {{pilot.callsign}}
+                            <template v-if="pilot.aircraft_faa">
+                                - {{pilot.aircraft_faa}}
+                            </template>
+                            <template v-if="pilot.frequencies.length >= 1 && isShortInfo">
+                                - <common-bubble
+                                    class="aircraft-hover__frequency"
+                                    type="primary-flat"
+                                >
+                                    {{ pilot.frequencies[0] }}
+                                </common-bubble>
+                            </template>
+                        </template>
+                    </common-info-block>
                     <common-info-block
                         class="aircraft-hover__pilot"
                         is-button
+                        :top-items="[pilot.name, friend?.comment]"
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
-                        <template #top>
-                            <common-spoiler type="pilot">
-                                {{ parseEncoding(pilot.name) }}
+                        <template #top="{ index,item }">
+                            <common-spoiler
+                                v-if="index === 0"
+                                type="pilot"
+                            >
+                                <template v-if="!isNaN(Number(pilot.name)) && friend">
+                                    {{friend.name}}
+                                </template>
+                                <template v-else>
+                                    {{ parseEncoding(pilot.name) }}
+                                </template>
                             </common-spoiler>
+                            <template v-else>
+                                {{item}}
+                            </template>
                         </template>
                         <template
-                            v-if="pilot.pilot_rating !== 0 || pilot.military_rating"
+                            v-if="(pilot.pilot_rating !== 0 || pilot.military_rating) && !isShortInfo"
                             #bottom
                         >
                             {{ usePilotRating(pilot).join(' | ') }}
                         </template>
                     </common-info-block>
-                    <common-pilot-destination :pilot/>
+                    <common-pilot-destination
+                        :pilot
+                        :short="isShortInfo"
+                    />
                     <div class="aircraft-hover_sections">
                         <common-info-block
                             v-if="typeof pilot.groundspeed === 'number'"
                             text-align="center"
                         >
-                            <template #top>
+                            <template
+                                v-if="!isShortInfo"
+                                #top
+                            >
                                 GS
                             </template>
                             <template #bottom>
@@ -88,7 +125,10 @@
                             v-if="typeof pilot.altitude === 'number'"
                             text-align="center"
                         >
-                            <template #top>
+                            <template
+                                v-if="!isShortInfo"
+                                #top
+                            >
                                 Altitude
                             </template>
                             <template #bottom>
@@ -96,10 +136,12 @@
                             </template>
                         </common-info-block>
                         <common-info-block
-                            v-if="typeof pilot.heading === 'number'"
+                            v-if="typeof pilot.heading === 'number' && !isShortInfo"
                             text-align="center"
                         >
-                            <template #top>
+                            <template
+                                #top
+                            >
                                 Heading
                             </template>
                             <template #bottom>
@@ -148,7 +190,7 @@ import { LineString, MultiLineString, Point } from 'ol/geom';
 import {
     getAircraftStatusColor,
     isPilotOnGround,
-    loadAircraftIcon,
+    loadAircraftIcon, ownFlight,
     usePilotRating,
 } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
@@ -228,10 +270,13 @@ const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
 const turnsFirstGroup = shallowRef<InfluxGeojsonFeature | null>(null);
 const linesUpdateInProgress = ref(false);
 const isMobileOrTablet = useIsMobileOrTablet();
+const friend = computed(() => store.friends.find(x => x.cid === props.aircraft.cid));
 
 function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
 }
+
+const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 
 const getCoordinates = computed(() => {
     const coords = [props.aircraft.longitude, props.aircraft.latitude];
@@ -239,7 +284,7 @@ const getCoordinates = computed(() => {
     return coords;
 });
 const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
-const isSelfFlight = computed(() => props.aircraft?.cid.toString() === store.user?.cid);
+const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
 
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircraft.cid.toString()]);
 
@@ -295,38 +340,56 @@ const setStyle = async (iconFeature = feature, force = false) => {
     iconFeature.changed();
 };
 
+let initActive = false;
+
 const init = async () => {
-    if (!vectorSource.value) return;
+    if (!vectorSource.value || initActive) return;
 
-    await sleep(0);
+    initActive = true;
 
-    const iconFeature = feature || new Feature({
-        id: props.aircraft.cid,
-        type: 'aircraft',
-        geometry: new Point(getCoordinates.value),
-        status: getStatus.value,
-        icon: icon.value.icon,
-        rotation: degreesToRadians(props.aircraft.heading ?? 0),
-    });
+    try {
+        await sleep(0);
 
-    const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
+        const iconFeature = feature || new Feature({
+            id: props.aircraft.cid,
+            type: 'aircraft',
+            geometry: new Point(getCoordinates.value),
+            status: getStatus.value,
+            icon: icon.value.icon,
+            rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        });
 
-    if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) {
+        const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
+
+        if (oldCoords && oldCoords[0] === getCoordinates.value[0] && oldCoords[1] === getCoordinates.value[1]) {
+            setState();
+            return;
+        }
+
+        setPilotRoute(canShowRoute.value);
+
+        if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
+
+        if (!feature) {
+            const foundFeature = vectorSource.value?.getFeatures().find(x => x.getProperties().id === props.aircraft.cid);
+
+            if (foundFeature) {
+                vectorSource.value?.removeFeature(foundFeature);
+            }
+
+            vectorSource.value.addFeature(iconFeature);
+        }
+
+        feature = iconFeature;
+        isInit.value = true;
         setState();
-        return;
     }
-
-    setPilotRoute(canShowRoute.value);
-
-    if (feature) (feature.getGeometry() as Point).setCoordinates(getCoordinates.value);
-
-    if (!feature) {
-        vectorSource.value.addFeature(iconFeature);
+    catch (e) {
+        useRadarError(e);
     }
-
-    feature = iconFeature;
-    isInit.value = true;
-    setState();
+    finally {
+        initActive = false;
+    }
 };
 
 const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && x.key === props.aircraft.cid.toString()) as StoreOverlayPilot | undefined);
@@ -431,7 +494,12 @@ async function setPilotRoute(enabled: boolean) {
     triggerRef(dataStore.navigraphWaypoints);
 }
 
-const canShowRoute = computed(() => canShowLines.value && !!arrAirport.value && props.isVisible);
+const canShowRoute = computed(() => canShowLines.value &&
+    !!arrAirport.value &&
+    props.isVisible &&
+    (pilot.value.groundspeed > 50 || !!activeCurrentOverlay.value || isPropsHovered.value) &&
+    !store.localSettings.disableNavigraphRoute &&
+    !!dataStore.navigraph.data);
 
 watch(canShowRoute, val => {
     setPilotRoute(val);
@@ -783,6 +851,13 @@ function clearLines() {
 function clearAll() {
     if (mapStore.openPilotOverlay) mapStore.openPilotOverlay = false;
     if (feature) vectorSource.value?.removeFeature(feature);
+    else {
+        const feature = vectorSource.value?.getFeatures().find(x => x.getProperties().id === props.aircraft.cid);
+
+        if (feature) {
+            vectorSource.value?.removeFeature(feature);
+        }
+    }
     setPilotRoute(false);
     clearLines();
 }
@@ -810,7 +885,7 @@ watch([hovered, hoveredOverlay], async () => {
     }
 });
 
-const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === store.user?.cid)) && !store.mapSettings.heatmapLayer);
+const isShowLabel = computed<boolean>(() => (props.showLabel || (!!store.user?.cid && activeCurrentOverlay.value?.key === ownFlight.value?.cid.toString())) && !store.mapSettings.heatmapLayer);
 
 watch(isShowLabel, val => {
     if (!val) {
@@ -818,9 +893,10 @@ watch(isShowLabel, val => {
     }
 });
 
-watch(dataStore.vatsim.updateTimestamp, init);
+const watcher = watch(dataStore.vatsim.updateTimestamp, init);
 
-onUnmounted(() => {
+onBeforeUnmount(() => {
+    watcher();
     canShowLines.value = false;
     clearAll();
     delayedLinesDestroy();

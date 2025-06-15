@@ -54,29 +54,31 @@ const details = ref(false);
 const store = useStore();
 const timeZone = store.localSettings.eventsLocalTimezone ? 'UTC' : undefined;
 
-const formatter = new Intl.DateTimeFormat(['en-DE'], {
+const formatter = computed(() => new Intl.DateTimeFormat(['en-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
     timeZone,
-});
+}));
 
-const formatterWithDate = new Intl.DateTimeFormat(['de-DE'], {
+const formatterWithDate = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     day: '2-digit',
     month: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
     timeZone,
-});
+}));
 
-const formattedStart = computed(() => formatter.format(new Date(props.event.start_time)));
+const formattedStart = computed(() => formatter.value.format(new Date(props.event.start_time)));
 const formattedEnd = computed(() => {
     const date = new Date(props.event.end_time);
 
     const method = store.localSettings.eventsLocalTimezone ? 'getUTCDate' : 'getDate';
 
-    if (date[method]() !== new Date(props.event.start_time)[method]()) return formatterWithDate.format(date);
+    if (date[method]() !== new Date(props.event.start_time)[method]()) return formatterWithDate.value.format(date);
 
-    return formatter.format(date);
+    return formatter.value.format(date);
 });
 const active = computed(() => new Date(props.event.start_time) < new Date());
 </script>
@@ -112,6 +114,10 @@ const active = computed(() => new Date(props.event.start_time) < new Date());
         &:hover {
             background: $darkgray875;
         }
+    }
+
+    &_start {
+        text-transform: uppercase;
     }
 
     &_name {

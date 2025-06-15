@@ -12,8 +12,9 @@ import type {
     VatglassesAPIData,
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { UseDataStore } from '~/composables/data';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
     store: ReturnType<typeof useStore>;

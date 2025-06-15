@@ -2,15 +2,16 @@ import type { VatsimExtendedPilot, VatsimMandatoryPilot, VatsimShortenedAircraft
 import type { VatSpyData } from '~/types/data/vatspy';
 import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
+import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
-import { Style, Icon, Stroke } from 'ol/style';
+import { Icon, Stroke, Style } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings, hexToRgb } from '~/composables/colors';
 import { getUserList } from '~/composables/fetchers/lists';
-import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
+import { useMapStore } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import type { Pixel } from 'ol/pixel';
 import { isHideMapObject } from '~/composables/settings';
@@ -294,7 +295,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
                 status,
-                color: filterColor ? hexToRgb(filterColor) : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
+                color: filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
                 opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
             }));
         }
@@ -422,3 +423,36 @@ export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 25, exitOn
 export function aircraftCoordsToPixel(map: Map, aircraft: VatsimMandatoryPilot): Pixel | null {
     return map.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
 }
+
+export const skipObserver = computed(() => useCookie<boolean>('observer-skip', {
+    path: '/',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 365,
+}));
+
+export const observerFlight = computed(() => {
+    const dataStore = useDataStore();
+    const store = useStore();
+
+    const obs = store.user && dataStore.vatsim.data.observers.value.find(x => x.cid === +store.user!.cid);
+    if (!obs) return null;
+
+    const similar = dataStore.vatsim.data.pilots.value.find(x => x.callsign === obs.callsign.slice(0, obs.callsign.length - 1));
+
+    return similar ?? null;
+});
+
+export const ownFlight = computed(() => {
+    const store = useStore();
+    const mapStore = useMapStore();
+    const dataStore = useDataStore();
+
+    if (!store.user) return null;
+    if (mapStore.selectedCid && dataStore.vatsim.data.observers.value.some(x => x.cid === +store.user!.cid)) {
+        return dataStore.vatsim.data.keyedPilots.value[mapStore.selectedCid.toString()] ??
+        dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ??
+        null;
+    }
+    return dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ?? null;
+});
+

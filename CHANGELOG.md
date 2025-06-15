@@ -1,5 +1,51 @@
 # Changelog
 
+# [1.2.0-beta.6]
+
+- Navigraph procedures and routes are now displayed on any zoom level
+- Route is no longer displayed for aircraft standing on ground, except for hover / pilot overlay
+- Aircraft manual route is now preserved between restarts
+- Once again fixed random holdings displayed
+- Updated quick settings in map layers
+- Allowed to disable new route parsing separately from navigraph layers
+- Fixed a rare issue with distance tool crashing
+- Fixed overlays closing when trying to measure distance from selected aircraft
+- Fixed first route waypoint drawn incorrectly in rare cases
+- Improved navdata click hitbox
+- Fixed some VORDME such as TACANs missing
+- VORDME/NDB during the route are now properly displayed and could even be clicked
+- Fixed routes such as DIPOP3F not parsed as DIPO3F automatically
+- Fixed holdings degress displayed from space
+
+## Public release
+
+## New Features
+
+- You can now toggle short aircraft hover view in map settings
+- You can now switch to 12 hours time display in user settings
+- You can now filter by flight plan type: IFR, VFR, VFR + no flight plan, no flight plan
+- VFR traffic will now show within 40 miles from airport when inside airport dashboard
+- Added Weather request to weather filters and pilot overlay
+- Added observers page
+- Added shared cockpit support
+
+## Improvements
+
+- Mobile settings will now always open on top for spacing’s sake
+- VATGlasses level can now be controlled using mouse wheel
+- SIGMETs hitbox has been improved to be opened even inside VATGlasses
+- Map settings and filters can now be imported even by guest users
+- You will now see friend's comment next to his name in short info and pilot overlay
+- You will now see friend's name instead of CID in short info and pilot overlay if friend only specified CID when connected to network
+
+## Bug Fixes
+
+- Fixed filtered aircraft settings sometimes being reset
+- Fixed filtered aircraft color not displaying correctly
+- Fixed an issue when flight plan type filter option could not be saved
+- Fixed very old and rare issue with "ghost" aircraft
+- Fixed minor visual issue with aircraft icon inside flight progress in pilot overlay
+
 # [1.2.0-beta.5]
 
 - Fixed some routes not clearing up

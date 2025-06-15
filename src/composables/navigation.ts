@@ -86,6 +86,10 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                     text: 'ATC',
                     path: '/stats/atc',
                 },
+                {
+                    text: 'Observers',
+                    path: '/stats/observers',
+                },
             ],
         },
         {
@@ -146,16 +150,40 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
     });
 });
 
-const datetime = new Intl.DateTimeFormat(['en-GB'], {
-    timeZone: 'UTC',
-    localeMatcher: 'best fit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-});
+let datetime: Intl.DateTimeFormat | undefined;
 
 export const useOnlineCounters = () => computed(() => {
     const dataStore = useDataStore();
+    const store = useStore();
+
+    datetime ||= new Intl.DateTimeFormat(['en-GB'], {
+        hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+        timeZone: 'UTC',
+        localeMatcher: 'best fit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    });
+
+    if (datetime.resolvedOptions().hourCycle === 'h12' && store.user?.settings.timeFormat === '24h') {
+        datetime = new Intl.DateTimeFormat(['en-GB'], {
+            timeZone: 'UTC',
+            localeMatcher: 'best fit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    }
+    else if (datetime.resolvedOptions().hourCycle === 'h23' && store.user?.settings.timeFormat === '12h') {
+        datetime = new Intl.DateTimeFormat(['en-GB'], {
+            hourCycle: 'h12',
+            timeZone: 'UTC',
+            localeMatcher: 'best fit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        });
+    }
 
     const [atc, atis] = dataStore.vatsim.data.locals.value.reduce((acc, atc) => {
         if (atc.isATIS) acc[0]++;
@@ -176,6 +204,6 @@ export const useOnlineCounters = () => computed(() => {
         pilots: dataStore.vatsim.data.pilots.value.length,
         sups: dataStore.vatsim.data.general.value?.supsCount,
         adm: dataStore.vatsim.data.general.value?.admCount,
-        lastUpdated: date && `${ datetime.format(date) } Z`,
+        lastUpdated: date && `${ datetime.format(date).toUpperCase() } Z`,
     };
 });

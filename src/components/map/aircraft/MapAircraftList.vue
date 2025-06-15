@@ -30,6 +30,9 @@ import type { MapAircraftKeys } from '~/types/map';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isHideMapObject } from '~/composables/settings';
 import { Heatmap } from 'ol/layer';
+import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import type { Coordinate } from 'ol/coordinate';
+import { ownFlight } from '~/composables/pilots';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -78,7 +81,7 @@ const getShownPilots = computed(() => {
     if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return dataStore.visiblePilots.value;
 
     const pilots = dataStore.visiblePilots.value;
-    const me = dataStore.vatsim.data.keyedPilots.value[store.user?.cid.toString() ?? ''];
+    const me = ownFlight.value;
 
     let arrivalAirport = '';
 
@@ -99,6 +102,7 @@ const getShownPilots = computed(() => {
         allOnGround.push(...airport.aircraft.groundDep ?? []);
         allOnGround.push(...airport.aircraft.groundArr ?? []);
     }
+
 
     return pilots.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || !allOnGround.includes(x.cid));
 });
@@ -227,8 +231,14 @@ function setVisiblePilots() {
     if (store.config.airport && store.config.onlyAirportAircraft) {
         const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (airport) {
+            const coords = [dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lat];
             const aircraft = Object.values(airport.aircraft).flatMap(x => x);
-            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.includes(x.cid));
+
+            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => {
+                const fullPilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
+
+                return aircraft.includes(x.cid) || (fullPilot && fullPilot.flight_rules !== 'I' && coords[0] && calculateDistanceInNauticalMiles(coords as Coordinate, [x.longitude, x.latitude]) <= 40);
+            });
 
             if (store.config.airportMode && store.config.airportMode !== 'all') {
                 if (store.config.airportMode === 'ground') {

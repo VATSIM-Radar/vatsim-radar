@@ -404,6 +404,7 @@ watch(selectedAirport, () => {
             };
 
             enrouteAircraftPath.value[props.aircraft!.cid][props.flightType === 'departure' ? 'departure' : 'arrival'] = {
+                icao: props.airport,
                 runways: selectedAirport.value.runways,
                 sids: Object.fromEntries(Object.entries(selectedAirport.value.sids).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),
                 stars: Object.fromEntries(Object.entries(selectedAirport.value.stars).map(([key, value]) => [key, { constraints: value.constraints, transitions: value.transitions }])),

@@ -41,7 +41,6 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
                     name: '',
                     logon_time: '',
                     rating: 0,
-                    visual_range: 0,
                     frequency: data.value.airport?.vatInfo?.ctafFreq,
                 },
             ];

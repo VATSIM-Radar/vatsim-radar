@@ -71,6 +71,8 @@ import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { vgFallbackKeys } from '~/composables/data';
+
+
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({

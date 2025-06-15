@@ -65,6 +65,9 @@ export default defineNuxtConfig({
         client: process.env.NODE_ENV === 'development',
         server: true,
     },
+    pinia: {
+        storesDirs: ['./src/store/**'],
+    },
     compatibilityDate: '2024-12-12',
     experimental: {
         appManifest: true,

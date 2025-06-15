@@ -4,11 +4,13 @@ import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 
 const sortOptions: UserSettings['favoriteSort'][] = ['newest', 'oldest', 'abcAsc', 'abcDesc', 'cidAsc', 'cidDesc'];
+const timeOptions: UserSettings['timeFormat'][] = ['24h', '12h'];
 
 const validators: Record<keyof UserSettings, (val: unknown) => boolean> = {
     autoFollow: val => typeof val === 'boolean',
     autoZoom: val => typeof val === 'boolean',
     autoShowAirportTracks: val => typeof val === 'boolean',
+    timeFormat: val => typeof val === 'string' && timeOptions.includes(val as UserSettings['timeFormat']),
     toggleAircraftOverlays: val => typeof val === 'boolean',
     showFullRoute: val => typeof val === 'boolean',
     headerName: val => (typeof val === 'string' && val.length <= 30) || val === null,

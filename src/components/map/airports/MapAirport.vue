@@ -138,10 +138,11 @@ import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { getSelectedColorFromSettings } from '~/composables/colors';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { createCircle } from '~/utils';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     airport: {

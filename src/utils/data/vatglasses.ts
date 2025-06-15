@@ -8,13 +8,13 @@ import type { RadarStorage, VatglassesAirspace, VatglassesSector } from '~/utils
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import type { useStore } from '~/store';
 import { computed } from 'vue';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
 let radarStorage: RadarStorage;
 let store: ReturnType<typeof useStore>;
+let mapStore: ReturnType<typeof useMapStore>;
 let mode: 'local' | 'server';
 let facilities: {
     ATIS: number;
@@ -628,6 +628,7 @@ const _isVatGlassesActive = () => computed(() => {
     const store = useNuxtApp().$pinia.state.value.index;
     if (store.bookingOverride) return false;
     dataStore ??= useDataStore();
+    mapStore ??= useMapStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
 
@@ -635,7 +636,7 @@ const _isVatGlassesActive = () => computed(() => {
 
     if (isAuto) {
         if (store.user) {
-            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
+            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid || x.cid === mapStore.selectedCid);
         }
     }
 
@@ -753,8 +754,6 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         }
     }
     else {
-        const { useStore } = await import('~/store');
-
         mode = 'local';
         dataStore = useDataStore();
         store = useStore();

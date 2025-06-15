@@ -46,12 +46,13 @@ import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Coordinate } from 'ol/coordinate';
-import RenderFeature from 'ol/render/Feature';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
+import { useMapStore } from '~/store/map';
 
 const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 let initialCall = false;
 
@@ -222,13 +223,17 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
     };
 });
 
-function handleMapClick(event: MapBrowserEvent<any>) {
+async function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (!features?.every(x => x.getProperties().dataType !== 'navdata' && (x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local' || x.getProperties().type === 'root'))) return;
+    if (features?.some(x => x.getProperties().type === 'aircraft')) return;
 
-    const sigmets = features.filter(x => x.getProperties()?.dataType);
-    if (!sigmets.length) return;
+    const sigmets = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: x => x === layer });
+    if (!sigmets?.length) return;
+
+    await sleep(0);
+    mapStore.openOverlayId = null;
+    await nextTick();
 
     openSigmet.value = {
         pixel: event.coordinate,

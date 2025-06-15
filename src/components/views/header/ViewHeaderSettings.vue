@@ -121,6 +121,15 @@
                         Enabling this will auto-show aircraft tracks for any airport overlay you open.
                     </template>
                 </common-toggle>
+                <common-select
+                    :items="[{ value: '12h' }, { value: '24h' }]"
+                    :model-value="settings.timeFormat ?? '24h'"
+                    @update:modelValue="settings.timeFormat = $event as any"
+                >
+                    <template #label>
+                        Time format
+                    </template>
+                </common-select>
             </div>
         </template>
         <template #tab-favorite>

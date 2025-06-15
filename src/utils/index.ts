@@ -104,7 +104,6 @@ export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
         frequency: booking.atc.frequency,
         facility: booking.atc.facility,
         rating: booking.atc.rating,
-        visual_range: booking.atc.visual_range,
         logon_time: booking.atc.logon_time,
         text_atis: booking.atc.text_atis,
     };

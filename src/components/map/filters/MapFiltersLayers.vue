@@ -31,10 +31,24 @@
             </common-block-title>
 
             <common-toggle
-                :model-value="store.localSettings.disableNavigraph"
-                @update:modelValue="setUserLocalSettings({ disableNavigraph: $event })"
+                :model-value="store.localSettings.disableNavigraph !== true"
+                @update:modelValue="setUserLocalSettings({ disableNavigraph: !$event })"
             >
-                Disable Navigraph layers
+                Enable Navigraph layers
+            </common-toggle>
+
+            <common-toggle
+                :model-value="store.localSettings.disableNavigraphRoute !== true"
+                @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
+            >
+                Enable route parsing
+            </common-toggle>
+
+            <common-toggle
+                :model-value="!!store.localSettings.filters?.layers?.sigmets?.enabled"
+                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { enabled: $event } } } })"
+            >
+                Enable SIGMETs
             </common-toggle>
 
             <common-toggle
@@ -196,10 +210,16 @@
         </template>
         <template v-else-if="tab === 'navigraph'">
             <common-toggle
-                :model-value="store.localSettings.disableNavigraph"
-                @update:modelValue="setUserLocalSettings({ disableNavigraph: $event })"
+                :model-value="store.localSettings.disableNavigraph !== true"
+                @update:modelValue="setUserLocalSettings({ disableNavigraph: !$event })"
             >
-                Disable all layers
+                Enabled
+            </common-toggle>
+            <common-toggle
+                :model-value="store.localSettings.disableNavigraphRoute !== true"
+                @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
+            >
+                Route parsing
             </common-toggle>
             <common-block-title remove-margin>
                 Airways

@@ -330,6 +330,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
     return {
         general: storage.vatsim.regularData!.general,
         pilots: storage.vatsim.regularData!.pilots,
+        observers: storage.vatsim.regularData!.observers,
         firs: storage.vatsim.firs,
         locals: storage.vatsim.locals,
         airports: storage.vatsim.airports,
@@ -346,6 +347,7 @@ export function getServerVatsimLiveShortData() {
     return {
         general: radarStorage.vatsim.data!.general,
         pilots: radarStorage.vatsim.regularData!.pilots,
+        observers: radarStorage.vatsim.regularData!.observers,
         firs: radarStorage.vatsim.firs,
         locals: radarStorage.vatsim.locals,
         prefiles: radarStorage.vatsim.regularData!.prefiles,

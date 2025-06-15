@@ -5,14 +5,17 @@
     >
         <div class="destination">
             <common-info-block
-                :bottom-items="[depAirport?.name]"
+                :bottom-items="short ? [] : [depAirport?.name]"
                 class="destination_card"
                 :is-button="!!depAirport"
                 text-align="center"
                 :top-items="[props.pilot.departure]"
                 @click="mapStore.addAirportOverlay(depAirport?.icao ?? '')"
             >
-                <template #bottom="{ item }">
+                <template
+                    v-if="!short"
+                    #bottom="{ item }"
+                >
                     <span :title="String(item)">
                         {{ item }}
                     </span>
@@ -31,14 +34,17 @@
             </div>
             <common-info-block
                 v-if="!pilot.diverted"
-                :bottom-items="[arrAirport?.name]"
+                :bottom-items="short ? [] : [arrAirport?.name]"
                 class='destination_card'
                 :is-button="!!arrAirport"
                 text-align="center"
                 :top-items="[props.pilot.arrival]"
                 @click="mapStore.addAirportOverlay(arrAirport?.icao ?? '')"
             >
-                <template #bottom="{ item }">
+                <template
+                    v-if="!short"
+                    #bottom="{ item }"
+                >
                     <span :title="String(item)">
                         {{ item }}
                     </span>
@@ -46,14 +52,17 @@
             </common-info-block>
             <common-info-block
                 v-if="pilot.diverted"
-                :bottom-items="[divOrgAirport?.name]"
+                :bottom-items="short ? [] : [divOrgAirport?.name]"
                 class='destination_diverted'
                 :is-button="!!divOrgAirport"
                 text-align="center"
                 :top-items="[props.pilot.diverted_origin]"
                 @click="mapStore.addAirportOverlay(divOrgAirport?.icao ?? '')"
             >
-                <template #bottom="{ item }">
+                <template
+                    v-if="!short"
+                    #bottom="{ item }"
+                >
                     <span :title="String(item)">
                         {{ item }}
                     </span>
@@ -62,14 +71,17 @@
         </div>
         <common-info-block
             v-if="pilot.diverted"
-            :bottom-items="['Diverting to ' + divArrAirport?.name]"
+            :bottom-items="short ? [] : ['Diverting to ' + divArrAirport?.name]"
             class="diverted"
             :is-button="!!divArrAirport"
             text-align="center"
             :top-items="[props.pilot.diverted_arrival]"
             @click="mapStore.addAirportOverlay(divArrAirport?.icao ?? '')"
         >
-            <template #bottom="{ item }">
+            <template
+                v-if="!short"
+                #bottom="{ item }"
+            >
                 <span :title="String(item)">
                     {{ item }}
                 </span>
@@ -89,6 +101,10 @@ const props = defineProps({
     pilot: {
         type: Object as PropType<Partial<VatsimShortenedAircraft> & Pick<VatsimShortenedAircraft, 'arrival' | 'departure'>>,
         required: true,
+    },
+    short: {
+        type: Boolean,
+        default: false,
     },
 });
 

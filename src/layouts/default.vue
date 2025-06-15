@@ -9,6 +9,7 @@
             <client-only>
                 <view-update-popup v-if="!hasObs()"/>
                 <view-init-popup/>
+                <view-metar v-if="store.metarRequest"/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
@@ -178,6 +179,7 @@ import type { ResolvableScript } from '@unhead/vue';
 import * as Sentry from '@sentry/nuxt';
 import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
+import ViewMetar from '~/components/views/ViewMetar.vue';
 
 defineSlots<{ default: () => any }>();
 

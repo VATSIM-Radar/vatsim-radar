@@ -62,5 +62,6 @@ export const backupMapSettings = () => {
 
 export const saveMapSettings = async (preset: UserMapSettings) => {
     await resetUserMapSettings();
+    await nextTick();
     setUserMapSettings(preset);
 };

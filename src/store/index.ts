@@ -90,6 +90,7 @@ export const useStore = defineStore('index', {
         settingsPopupTab: 'main' as 'main' | 'favorite',
         airacPopup: false,
         searchActive: false,
+        metarRequest: false as boolean | string[],
 
         viewport: {
             width: 0,

@@ -104,6 +104,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     disableQueryUpdate: val => {
         return typeof val === 'boolean';
     },
+    shortAircraftView: val => {
+        return typeof val === 'boolean';
+    },
     heatmapLayer: val => {
         return typeof val === 'boolean';
     },
@@ -271,6 +274,7 @@ export interface IUserMapSettings {
     bookingHours: number;
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
+    shortAircraftView?: boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;
@@ -343,15 +347,15 @@ export async function handleMapSettingsEvent(event: H3Event) {
     try {
         const user = await findUserByCookie(event);
 
-        if (!user) {
+        if (!user && !isValidate) {
             return handleH3Error({
                 event,
                 statusCode: 401,
             });
         }
 
-        userId = user.id;
-        if (await freezeH3Request(event, user.id) !== true) return;
+        userId = user?.id;
+        if (user && await freezeH3Request(event, user.id) !== true) return;
 
         const id = getRouterParam(event, 'id');
 
@@ -370,20 +374,22 @@ export async function handleMapSettingsEvent(event: H3Event) {
             });
         }
 
-        const presets = await prisma.userPreset.findMany({
-            where: {
-                userId: user.id,
-                type: UserPresetType.MAP_SETTINGS,
-            },
-            orderBy: [
-                {
-                    order: 'asc',
+        const presets = (!user && isValidate)
+            ? []
+            : await prisma.userPreset.findMany({
+                where: {
+                    userId: user!.id,
+                    type: UserPresetType.MAP_SETTINGS,
                 },
-                {
-                    id: 'desc',
-                },
-            ],
-        });
+                orderBy: [
+                    {
+                        order: 'asc',
+                    },
+                    {
+                        id: 'desc',
+                    },
+                ],
+            });
 
         let settings: UserPreset | null = null;
 
@@ -494,7 +500,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
             else {
                 const userPresets = await prisma.userPreset.count({
                     where: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.MAP_SETTINGS,
                     },
                 });
@@ -509,7 +515,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
                 await prisma.userPreset.create({
                     data: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.MAP_SETTINGS,
                         name: body.name as string,
                         json: body.json!,

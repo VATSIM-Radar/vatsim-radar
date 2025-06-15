@@ -140,6 +140,22 @@ const latRegex = /^(\d{2,4})([NS])/;
 const lonRegex = /^(\d{3,5})([EW])/;
 const sidstarRegex = /((?<start>[A-Z]{3,5})(?<end>[0-9]([A-Z])?))/;
 
+function getSidStarResult(route: string) {
+    const result = sidstarRegex.exec(route);
+    if (!result) return null;
+
+    const start = result.groups?.start;
+    const end = result.groups?.end;
+
+    if (!start || !end) return null;
+
+    if (start.length === 5 && end.length === 2) {
+        return `${ start.slice(0, 4) }${ end }`;
+    }
+
+    return `${ start }${ end }`;
+}
+
 export interface EnroutePath {
     icao?: string;
     runways: string[];
@@ -254,9 +270,9 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 let sid = -1;
 
                 if (!depSid) {
-                    const tested = sidstarRegex.exec(search);
+                    const tested = getSidStarResult(search);
                     const sids = await getNavigraphAirportShortProceduresForKey('sids', departure);
-                    sid = sids.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
+                    sid = sids.findIndex(x => x.identifier === tested);
                 }
 
                 if (depSid || (sid !== -1)) {
@@ -317,8 +333,6 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             const starTest = sidstarRegex.test(entry);
 
-            console.log(starTest, entry);
-
             // STARs/Approaches
             if (!starInit && (arrStar || arrApproach || starTest)) {
                 let star = -1;
@@ -330,13 +344,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
                 if (!arrStar) {
                     const stars = await getNavigraphAirportShortProceduresForKey('stars', arrival);
-                    const tested = sidstarRegex.exec(search);
-                    star = stars.findIndex(x => x.identifier === `${ tested?.groups?.start }${ tested?.groups?.end }`);
+                    const tested = getSidStarResult(search);
+                    star = stars.findIndex(x => x.identifier === tested);
 
                     const nextEntry = entries[i + 1];
-                    const nextEntryTest = nextEntry && sidstarRegex.exec(nextEntry);
+                    const nextEntryTest = nextEntry && getSidStarResult(nextEntry);
 
-                    if (nextEntryTest && stars.some(x => x.identifier === `${ nextEntryTest.groups?.start }${ nextEntryTest.groups?.end }`)) continue;
+                    if (nextEntryTest && stars.some(x => x.identifier === nextEntryTest)) continue;
                 }
 
                 if (arrStar || star !== -1) {
@@ -454,7 +468,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 continue;
             }
 
-            function previousWaypointCoordinate(waypoint: NavigraphNavDataEnrouteWaypointPartial) {
+            function previousWaypointCoordinate(waypoint: NavigraphNavDataEnrouteWaypointPartial): Coordinate | null {
+                if (!waypoint) {
+                    if (!dataStore.vatspy.value?.data.keyAirports.realIcao[departure]) return null;
+
+                    return [dataStore.vatspy.value?.data.keyAirports.realIcao[departure].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[departure].lat];
+                }
+
                 return waypoint?.coordinate || [waypoint?.airway?.value[2][0]?.[3], waypoint?.airway?.value[2][0]?.[4]] as Coordinate;
             }
 
@@ -541,6 +561,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
                 let kind: NavigraphNavDataEnrouteWaypointPartial['kind'] = 'enroute';
                 let identifier = '';
+                let key = '';
                 let coordinate: Coordinate = [0, 0];
 
                 const smallestCoordinates = [
@@ -558,13 +579,16 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
                     if (smallest[1] === 'waypoint') {
                         identifier = regularWaypoint[1][0];
+                        key = regularWaypoint[0];
                     }
                     else if (smallest[1] === 'vhf') {
                         identifier = vhfWaypoint[1][1];
+                        key = vhfWaypoint[0];
                         kind = 'vhf';
                     }
                     else if (smallest[1] === 'ndb') {
                         identifier = ndbWaypoint[1][1];
+                        key = ndbWaypoint[0];
                         kind = 'ndb';
                     }
 
@@ -572,6 +596,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         identifier,
                         coordinate,
                         kind,
+                        key,
                     });
                 }
             }
@@ -611,7 +636,7 @@ async function getCachedStars(procedures: IDBNavigraphProcedures, airport: strin
                     return [
                         key, {
                             ...value,
-                            procedure: (await getNavigraphAirportProcedure('sids', airport, procedure))!,
+                            procedure: (await getNavigraphAirportProcedure('stars', airport, procedure))!,
                         },
                     ] satisfies [string, DataStoreNavigraphProcedure];
                 }

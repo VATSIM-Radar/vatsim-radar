@@ -304,6 +304,7 @@ const currentMinute = ref(new Date());
 const timeZone = computed(() => props.utc ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
     timeZone: timeZone.value,

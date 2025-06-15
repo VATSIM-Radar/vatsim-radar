@@ -21,6 +21,8 @@ const dataStore = useDataStore();
 
 let features: Feature[] = [];
 
+let skipUpdate = false;
+
 function update() {
     let newFeatures: Feature[] = [];
 
@@ -106,11 +108,11 @@ function update() {
                 if (waypoint.kind !== 'airway') {
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
-                    if (!foundWaypoint && speed >= 50 && !full) continue;
-
-                    if (waypointForCid) {
-                        waypointForCid.canShowHold = foundWaypoint;
+                    if (waypointForCid && waypointForCid.waypoints[i]) {
+                        waypointForCid.waypoints[i].canShowHold = foundWaypoint;
                     }
+
+                    if (!foundWaypoint && speed >= 50 && !full) continue;
 
                     newFeatures.push(new Feature({
                         geometry: new Point(waypoint.coordinate!),
@@ -119,7 +121,8 @@ function update() {
                         id: waypoint.identifier,
                         waypoint: waypoint.identifier,
                         kind: waypoint.kind,
-                        type: 'enroute-waypoint',
+                        key: waypoint.key,
+                        type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? waypoint.kind : 'enroute-waypoint',
                         dataType: 'navdata',
 
                         altitude: waypoint.altitude,
@@ -152,11 +155,11 @@ function update() {
 
                         if (currWaypoint[0] === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
-                        if (!foundWaypoint && speed >= 50 && !full) continue;
-
-                        if (waypointForCid) {
-                            waypointForCid.canShowHold = foundWaypoint;
+                        if (waypointForCid && waypointForCid.waypoints[i]) {
+                            waypointForCid.waypoints[i].canShowHold = foundWaypoint;
                         }
+
+                        if (!foundWaypoint && speed >= 50 && !full) continue;
 
                         if (foundWaypoint) {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
@@ -217,6 +220,9 @@ function update() {
 
         features = newFeatures;
         source?.value.addFeatures(features);
+
+        skipUpdate = true;
+        triggerRef(dataStore.navigraphWaypoints);
     }
     catch (e) {
         console.error(e);
@@ -226,6 +232,10 @@ function update() {
 const debouncedUpdate = debounce(update, 500);
 
 watch(dataStore.navigraphWaypoints, () => {
+    if (skipUpdate) {
+        skipUpdate = false;
+        return;
+    }
     debouncedUpdate();
 }, {
     immediate: true,

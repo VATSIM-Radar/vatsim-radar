@@ -3,19 +3,20 @@
         v-if="navigraphSource"
         class="layers"
     >
-        <template v-if="mapStore.zoom > 5">
+        <template v-if="mapStore.zoom > 5 && !store.localSettings.disableNavigraph">
             <navigraph-ndb v-if="store.mapSettings.navigraphData?.ndb || store.mapSettings.navigraphData?.vordme"/>
             <navigraph-airways v-if="store.mapSettings.navigraphData?.airways?.enabled"/>
             <navigraph-waypoints v-if="store.mapSettings.navigraphData?.waypoints"/>
             <navigraph-holdings/>
-            <navigraph-procedures/>
-            <navigraph-route/>
         </template>
+        <navigraph-procedures/>
+        <navigraph-route v-if="!store.localSettings.disableNavigraphRoute"/>
         <map-overlay
             v-if="activeFeature"
             model-value
             :settings="{ position: activeFeature!.coords, stopEvent: true }"
             :z-index="8"
+            @update:modelValue="activeFeature = null"
         >
             <common-popup-block
                 @mouseleave="activeFeature = null"
@@ -212,14 +213,19 @@ async function handleMapClick(event: MapBrowserEvent<any>) {
 
     const feature = features[0];
     const properties = feature.getProperties();
-    if (!properties.type.endsWith('waypoint')) {
+    if (!properties.type.endsWith('waypoint') && properties.key) {
+        activeFeature.value = null;
+        await sleep(0);
+        const data = await getNavigraphData({
+            data: properties.type,
+            key: properties.key,
+        });
+        mapStore.openOverlayId = null;
+        await nextTick();
         activeFeature.value = {
             coords: event.coordinate,
             type: properties.type as keyof NavigraphNavData,
-            data: await getNavigraphData({
-                data: properties.type,
-                key: properties.key,
-            }),
+            data,
             properties,
         };
 
@@ -311,12 +317,12 @@ watch(map, val => {
                 return [
                     new Style({
                         image: fake ? fakeCircle : vordmeStyle,
-                        zIndex: 6,
+                        zIndex: 7,
                     }),
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.ident }`,
+                            text: properties.name ? `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.ident }` : properties.identifier,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',
@@ -334,12 +340,12 @@ watch(map, val => {
                 return [
                     new Style({
                         image: fake ? fakeCircle : ndbStyle,
-                        zIndex: 6,
+                        zIndex: 7,
                     }),
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: `${ properties.name }\nNDB ${ properties.frequency } ${ properties.ident }`,
+                            text: properties.name ? `${ properties.name }\nNDB ${ properties.frequency } ${ properties.ident }` : properties.identifier,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',
@@ -473,7 +479,6 @@ watch(map, val => {
                         placement: 'line',
                         textBaseline: 'bottom',
                         keepUpright: true,
-                        overflow: true,
                         padding: [2, 2, 2, 2],
                         fill: new Fill({
                             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
