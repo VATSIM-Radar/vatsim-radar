@@ -92,13 +92,29 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
-const { data } = await useAsyncData('bookings', async () => {
-    return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: store.bookingsStartTime, ending: store.bookingsEndTime },
-    });
-}, {
-    server: false,
-});
+const now = new Date();
+const end = new Date();
+end.setTime(now.getTime() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+
+const queryParams = computed(() => ({
+    starting: store.bookingOverride
+        ? store.bookingsStartTime.getTime()
+        : now.getTime(),
+    ending: store.bookingOverride
+        ? store.bookingsEndTime.getTime()
+        : end.getTime(),
+}));
+
+const { data } = await useAsyncData(
+    'bookings',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        watch: [queryParams],
+        server: false,
+    },
+);
 
 const bookingsData = data.value ? data.value : [];
 
@@ -588,7 +604,7 @@ const getAirportsList = computed(() => {
 
             if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
                 if (existingLocal) {
-                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility);
                 }
 
                 makeBookingLocalTime(booking);

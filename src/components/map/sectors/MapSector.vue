@@ -83,6 +83,10 @@ const props = defineProps({
         type: Array as PropType<VatSpyDataFeature[]>,
         required: true,
     },
+    booking: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 defineSlots<{ default: () => any }>();
@@ -144,7 +148,7 @@ const init = () => {
     if (!vectorSource.value) return;
 
     try {
-        const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+        const localFeatureType = makeLocalFeatureType();
         const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
         if (!localFeature) {
@@ -206,6 +210,30 @@ onBeforeUnmount(() => {
         rootFeature.dispose();
     }
 });
+
+function makeLocalFeatureType() {
+    if (isHovered.value && locals.value.length) {
+        if (store.bookingOverride || props.booking) {
+            return 'hovered-booking';
+        }
+        else {
+            return 'hovered';
+        }
+    }
+    else {
+        if (locals.value.length) {
+            if (store.bookingOverride || props.booking) {
+                return 'local-booking';
+            }
+            else {
+                return 'local';
+            }
+        }
+        else {
+            return 'default';
+        }
+    }
+}
 </script>
 
 <style lang="scss">
