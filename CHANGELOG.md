@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.0-beta.8]
+
+- Added ability to control aicraft tracks route parsing: disable, disable auto-sid and star parsing
+
 # [1.2.0-beta.7]
 
 - Significantly reduced memory consumption by navdata when not used

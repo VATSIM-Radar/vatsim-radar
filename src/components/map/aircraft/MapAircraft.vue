@@ -488,18 +488,26 @@ async function setPilotRoute(enabled: boolean) {
             departure: pilot.value.departure!,
             arrival: pilot.value.arrival!,
             cid: pilot.value.cid,
+            disableSidParsing: store.localSettings.navigraphRouteAirportOverlay?.sid === false,
+            disableStarParsing: store.localSettings.navigraphRouteAirportOverlay?.star === false,
         }),
     };
 
     triggerRef(dataStore.navigraphWaypoints);
 }
 
-const canShowRoute = computed(() => canShowLines.value &&
-    !!arrAirport.value &&
-    props.isVisible &&
-    (pilot.value.groundspeed > 50 || !!activeCurrentOverlay.value || isPropsHovered.value) &&
-    !store.localSettings.disableNavigraphRoute &&
-    !!dataStore.navigraph.data);
+const canShowRoute = computed(() => {
+    const airportOnly = !activeCurrentOverlay.value && !isPropsHovered.value;
+
+    if (airportOnly && store.localSettings.navigraphRouteAirportOverlay?.enabled === false) return false;
+
+    return canShowLines.value &&
+        !!arrAirport.value &&
+        props.isVisible &&
+        (pilot.value.groundspeed > 50 || !!activeCurrentOverlay.value || isPropsHovered.value) &&
+        !store.localSettings.disableNavigraphRoute &&
+        !!dataStore.navigraph.data;
+});
 
 watch(canShowRoute, val => {
     setPilotRoute(val);
