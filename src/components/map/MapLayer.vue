@@ -218,6 +218,8 @@ async function initLayer() {
             style,
             zIndex: 0,
             imageRatio: store.isTouch ? 1 : 2,
+            renderBuffer: 0,
+            declutter: false,
         });
 
         mapSource.addFeatures(geoJson.readFeatures(continents));
@@ -234,6 +236,8 @@ async function initLayer() {
             updateWhileInteracting: false,
             renderMode: 'hybrid',
             zIndex: 0,
+            renderBuffer: 0,
+            cacheSize: 0,
         });
 
         const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
@@ -276,6 +280,8 @@ async function initLayer() {
             updateWhileInteracting: false,
             renderMode: 'hybrid',
             zIndex: 0,
+            renderBuffer: 0,
+            cacheSize: 0,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
@@ -339,6 +345,7 @@ async function initLayer() {
             wrapX: true,
             tileSize: layer.value.size ?? 256,
         }),
+        cacheSize: 0,
         opacity: opacity.value,
         zIndex: 0,
     });
