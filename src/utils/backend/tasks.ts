@@ -254,7 +254,7 @@ export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateRedisData();
 
-        while (!radarStorage.navigraphSetUp && process.env.NAVIGRAPH_CLIENT_ID) {
+        while (!radarStorage.navigraphSetUp) {
             await sleep(1000 * 15);
             radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
             console.log('Waiting for navigraph');
