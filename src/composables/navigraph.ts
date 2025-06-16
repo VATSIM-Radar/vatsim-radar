@@ -215,6 +215,8 @@ export interface FlightPlanInputWaypoint {
     departure: string;
     arrival: string;
     cid: number;
+    disableSidParsing?: boolean;
+    disableStarParsing?: boolean;
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
@@ -253,7 +255,7 @@ async function getFullData(): Promise<NeededNavigraphData> {
     return data;
 }
 
-export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
+export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];
     const dataStore = useDataStore();
     const entries = flightPlan.split(' ').map(x => x.replace(replacementRegex, '')).filter(x => x && x !== 'DCT');
@@ -291,7 +293,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             if (routeRegex.test(entry)) split = split.slice(0, 1);
 
-            const sidTest = sidstarRegex.test(search);
+            const sidTest = disableSidParsing ? false : sidstarRegex.test(search);
 
             // SIDs
             if ((sidTest || depSid) && !sidInit) {
@@ -363,7 +365,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 }
             }
 
-            const starTest = sidstarRegex.test(entry);
+            const starTest = disableStarParsing ? false : sidstarRegex.test(entry);
 
             // STARs/Approaches
             if (!starInit && (arrStar || arrApproach || starTest)) {
