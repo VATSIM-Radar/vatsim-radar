@@ -62,6 +62,11 @@ interface IUserLocalSettings {
     eventsLocalTimezone: boolean;
     disableNavigraph: boolean;
     disableNavigraphRoute: boolean;
+    navigraphRouteAirportOverlay: {
+        enabled?: boolean;
+        sid?: boolean;
+        star?: boolean;
+    };
 
     distance: {
         enabled?: boolean;

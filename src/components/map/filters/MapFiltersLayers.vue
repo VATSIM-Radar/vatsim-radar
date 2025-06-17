@@ -215,12 +215,36 @@
             >
                 Enabled
             </common-toggle>
+            <common-block-title remove-margin>
+                Route parsing
+            </common-block-title>
             <common-toggle
                 :model-value="store.localSettings.disableNavigraphRoute !== true"
                 @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
             >
-                Route parsing
+                Enabled
             </common-toggle>
+            <common-toggle
+                :model-value="store.localSettings.navigraphRouteAirportOverlay?.enabled !== false"
+                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { enabled: $event } })"
+            >
+                Enable for airport tracks
+            </common-toggle>
+            <common-toggle
+                :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                :model-value="store.localSettings.navigraphRouteAirportOverlay?.sid !== false"
+                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { sid: $event } })"
+            >
+                Auto-SID parsing for airport tracks
+            </common-toggle>
+            <common-toggle
+                :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                :model-value="store.localSettings.navigraphRouteAirportOverlay?.star !== false"
+                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { star: $event } })"
+            >
+                Auto-STAR parsing for airport tracks
+            </common-toggle>
+
             <common-block-title remove-margin>
                 Airways
             </common-block-title>
@@ -357,6 +381,10 @@ const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.loc
 const changeLayer = (layer: MapLayoutLayer) => {
     setUserLocalSettings({ filters: { layers: { layer } } });
 };
+
+watch(() => String(store.localSettings.navigraphRouteAirportOverlay?.sid) + String(store.localSettings.navigraphRouteAirportOverlay?.star), () => {
+    useDataStore().navigraphWaypoints.value = {};
+});
 
 watch(() => store.mapSettings.navigraphData, () => {
     checkForNavigraph();
