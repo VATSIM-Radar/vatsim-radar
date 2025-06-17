@@ -115,8 +115,15 @@ const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
 const now = new Date();
-const end = new Date();
-end.setTime(now.getTime() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+const end = ref(new Date());
+
+const { mapSettings } = storeToRefs(store);
+
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, {immediate: true});
 
 const queryParams = computed(() => ({
     starting: store.bookingOverride
@@ -124,7 +131,7 @@ const queryParams = computed(() => ({
         : now.getTime(),
     ending: store.bookingOverride
         ? store.bookingsEndTime.getTime()
-        : end.getTime(),
+        : end.value.getTime(),
 }));
 
 const { data } = await useAsyncData(
@@ -138,7 +145,7 @@ const { data } = await useAsyncData(
     },
 );
 
-const bookingsData = data.value ? data.value : [];
+const bookingsData = computed(() => data.value ? data.value : []);
 
 function isFirDefined<T extends { fir?: any }>(item: T): item is T & { fir: Exclude<T['fir'], undefined> } {
     return item.fir !== undefined;
@@ -164,7 +171,7 @@ const firs = computed(() => {
     }
 
     const facilities = useFacilitiesIds();
-    const bookedFirs: Fir[] = bookingsData.filter(x => x.atc.facility === facilities.CTR).map(booking => ({
+    const bookedFirs: Fir[] = bookingsData.value.filter(x => x.atc.facility === facilities.CTR).map(booking => ({
         booking,
         fir: dataStore.vatspy.value!.data.firs.find(x => x.callsign + '_CTR' === booking.atc.callsign),
         atc: makeFakeAtcFeatureFromBooking(booking.atc, booking),

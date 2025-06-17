@@ -20,7 +20,7 @@
                 <input
                     v-bind="inputAttrs"
                     v-model="model"
-                    :placeholder
+                    :placeholder="placeholder?.toString()"
                     :type="inputType"
                     @blur="focused = false"
                     @change="$emit('change', $event)"
@@ -49,7 +49,7 @@ defineProps({
         type: String,
     },
     placeholder: {
-        type: String,
+        type: [String, Number] as PropType<string | number>,
     },
 });
 
@@ -65,7 +65,10 @@ defineEmits({
 defineSlots<{ default?: () => string; icon?: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
-const model = defineModel({ type: String as PropType<null | string>, default: null });
+const model = defineModel({
+    type: [String, Number] as import('vue').PropType<string | number | null>,
+    default: null,
+});
 </script>
 
 <style scoped lang="scss">

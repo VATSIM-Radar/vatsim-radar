@@ -93,8 +93,15 @@ const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
 const now = new Date();
-const end = new Date();
-end.setTime(now.getTime() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+const end = ref(new Date());
+
+const { mapSettings } = storeToRefs(store);
+
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, {immediate: true});
 
 const queryParams = computed(() => ({
     starting: store.bookingOverride
@@ -102,7 +109,7 @@ const queryParams = computed(() => ({
         : now.getTime(),
     ending: store.bookingOverride
         ? store.bookingsEndTime.getTime()
-        : end.getTime(),
+        : end.value.getTime(),
 }));
 
 const { data } = await useAsyncData(
@@ -116,7 +123,7 @@ const { data } = await useAsyncData(
     },
 );
 
-const bookingsData = data.value ? data.value : [];
+const bookingsData = computed(() => data.value ? data.value : []);
 
 const getShownAirports = computed(() => {
     let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
@@ -552,7 +559,7 @@ const getAirportsList = computed(() => {
 
         const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
-        bookingsData.forEach((booking: VatsimBooking) => {
+        bookingsData.value.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao))).forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
 
             if (!store.bookingOverride) {

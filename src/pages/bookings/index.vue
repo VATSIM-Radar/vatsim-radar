@@ -10,6 +10,7 @@
                             v-model="presetHours"
                             input-type="number"
                             placeholder="4"
+                            @keyup.enter="changeRange('custom')"
                         /> Hours <common-button
                             hover-color="success700"
                             primary-color="success400"
@@ -136,11 +137,21 @@ const dateRange: Reactive<DateRange> = reactive({
 
 const searchString = ref('');
 
-const { data, refresh } = await useAsyncData('bookings', () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-    query: { starting: initialStart.getTime(), ending: initialEnd.getTime() },
-}), {
-    server: false,
-});
+const queryParams = computed(() => ({
+    starting: initialStart.getTime(),
+    ending: initialEnd.getTime(),
+}));
+
+const { data, refresh } = await useAsyncData(
+    'bookings-page',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        server: false,
+    },
+);
+
 
 const { data: bookingsData } = await useAsyncData('bookings-data', async () => {
     await store.getVATSIMData();
@@ -166,6 +177,7 @@ watch(dateRange, async () => {
 
 onMounted(() => {
     timelineUtc.value = store.mapSettings.bookingsLocalTimezone ?? false;
+    refresh();
 });
 
 function viewOnMap() {
