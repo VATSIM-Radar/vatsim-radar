@@ -123,7 +123,7 @@ watch(mapSettings, val => {
     const d = new Date();
     d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
     end.value = d;
-}, {immediate: true});
+}, { immediate: true });
 
 const queryParams = computed(() => ({
     starting: store.bookingOverride
