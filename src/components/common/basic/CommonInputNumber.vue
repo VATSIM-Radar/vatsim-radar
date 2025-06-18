@@ -18,10 +18,9 @@
                     <slot name="icon"/>
                 </div>
                 <input
-                    v-bind="inputAttrs"
-                    v-model="model"
-                    :placeholder
-                    :type="inputType"
+                    v-model="inputValue"
+                    :placeholder="placeholder"
+                    type="number"
                     @blur="focused = false"
                     @change="$emit('change', $event)"
                     @focus="focused = true"
@@ -37,14 +36,6 @@
 import type { PropType } from 'vue';
 
 defineProps({
-    inputAttrs: {
-        type: Object as PropType<Record<string, any>>,
-        default: () => {},
-    },
-    inputType: {
-        type: String,
-        default: 'text',
-    },
     height: {
         type: String,
     },
@@ -65,7 +56,14 @@ defineEmits({
 defineSlots<{ default?: () => string; icon?: () => any }>();
 
 const focused = defineModel('focused', { type: Boolean });
-const model = defineModel({ type: String as PropType<null | string>, default: null });
+const model = defineModel({ type: Number as PropType<null | number>, default: null });
+
+const inputValue = computed({
+    get: () => model.value === null ? '' : String(model.value),
+    set: (value: string) => {
+        model.value = value === '' ? null : Number(value);
+    },
+});
 </script>
 
 <style scoped lang="scss">

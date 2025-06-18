@@ -6,9 +6,8 @@
             >
                 <div class="picker-presets">
                     <div class="picker-presets-custom">
-                        <div>Now</div> + <common-input-text
+                        <div>Now</div> + <common-input-number
                             v-model="presetHours"
-                            input-type="number"
                             placeholder="4"
                             @keyup.enter="changeRange('custom')"
                         /> Hours <common-button
@@ -111,6 +110,7 @@ import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
 import type { Reactive } from 'vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonInputNumber from '~/components/common/basic/CommonInputNumber.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();
@@ -124,7 +124,7 @@ const store = useStore();
 
 const timelineUtc = ref(false);
 const sortMode: Ref<'airport' | 'date'> = ref('date');
-const presetHours = ref('4');
+const presetHours = ref(4);
 const currentDateRange: Ref<'today' | 'todayTomorrow' | 'today7Days' | 'custom'> = ref('custom');
 
 const fetchStart = ref(initialStart);
@@ -293,7 +293,7 @@ function changeRange(type: 'today' | 'todayTomorrow' | 'today7Days' | 'custom') 
             break;
 
         case 'custom': {
-            const hours = parseInt(presetHours.value, 10) || 0;
+            const hours = presetHours.value || 0;
             to.setTime(to.getTime() + (hours * 60 * 60 * 1000));
             break;
         }
