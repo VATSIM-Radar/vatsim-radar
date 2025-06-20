@@ -14675,10 +14675,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rou3@npm:^0.7.1":
-  version: 0.7.1
-  resolution: "rou3@npm:0.7.1"
-  checksum: 10c0/76567a2643a63725c61b5c456091bde5d72e1206217451f03ab49a56795cdfad6ece0d11ebec55dc674fbd4b16730d9f2e6df57ec3bbd3cf298bf5ea3e086dcc
+"rou3@npm:^0.7.2":
+  version: 0.7.2
+  resolution: "rou3@npm:0.7.2"
+  checksum: 10c0/801572e220200d2ec721b4ddccc0b9584c57bd800626c34f2cd0da2e367f3ece25b59b6b358877aa3ab50c289020a1e606a3f4415018503444c00207b8330580
   languageName: node
   linkType: hard
 
@@ -17288,7 +17288,7 @@ __metadata:
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.10.1"
-    rou3: "npm:^0.7.1"
+    rou3: "npm:^0.7.2"
     sass-embedded: "npm:^1.89.2"
     sharp: "npm:^0.34.2"
     sqlite3: "npm:^5.1.7"
