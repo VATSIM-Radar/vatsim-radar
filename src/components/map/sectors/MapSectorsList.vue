@@ -93,6 +93,7 @@ import { makeFakeAtcFeatureFromBooking } from '~/utils';
 
 import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
+import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 
 import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
@@ -112,38 +113,79 @@ const vatglassesPopupIsShown = ref(false);
 const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
-const { data } = await useAsyncData('bookings', async () => {
-    return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: store.bookingsStartTime, ending: store.bookingsEndTime },
-    });
-}, {
-    server: false,
-});
+const now = new Date();
+const end = ref(new Date());
 
-const bookingsData = data.value ? data.value : [];
+const { mapSettings } = storeToRefs(store);
+
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, { immediate: true });
+
+const queryParams = computed(() => ({
+    starting: store.bookingOverride
+        ? store.bookingsStartTime.getTime()
+        : now.getTime(),
+    ending: store.bookingOverride
+        ? store.bookingsEndTime.getTime()
+        : end.value.getTime(),
+}));
+
+const { data } = await useAsyncData(
+    'bookings',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        watch: [queryParams],
+        server: false,
+    },
+);
+
+const bookingsData = computed(() => data.value ? data.value : []);
 
 function isFirDefined<T extends { fir?: any }>(item: T): item is T & { fir: Exclude<T['fir'], undefined> } {
     return item.fir !== undefined;
 }
 
 const firs = computed(() => {
-    if (store.bookingOverride) {
-        const facilities = useFacilitiesIds();
-        const firs = bookingsData.filter(x => x.atc.facility === facilities.CTR).map(booking => ({
-            booking,
-            fir: dataStore.vatspy.value!.data.firs.find(x => x.callsign + '_CTR' === booking.atc.callsign),
-            atc: makeFakeAtcFeatureFromBooking(booking.atc, booking),
-        })).filter(isFirDefined);
-        return firs;
+    interface Fir {
+        booking?: VatsimBooking;
+        fir: VatSpyData['firs'][number];
+        atc: VatSpyDataFeature[];
     }
-    else {
+
+    const allFirs: Fir[] = [];
+
+    if (!store.bookingOverride) {
         const list = dataStore.vatspy.value!.data.firs;
-        const firs = list.map(fir => ({
+        const firs: Fir[] = list.map(fir => ({
             fir,
             atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || (fir.callsign && fir.callsign === x.callsign)))) ?? [],
         }));
-        return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex));
+
+        allFirs.push(...(firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex))));
     }
+
+    const facilities = useFacilitiesIds();
+
+    for (const fir of dataStore.vatspy.value!.data.firs) {
+        const booking = bookingsData.value.find(
+            b => b.atc.facility === facilities.CTR &&
+                b.atc.callsign === fir.callsign + '_CTR',
+        );
+        if (booking) {
+            const atc = makeFakeAtcFeatureFromBooking(booking.atc, booking);
+            const item = { booking, fir, atc };
+            if (isFirDefined(item)) {
+                allFirs.push(item);
+            }
+        }
+    }
+
+    return allFirs;
 });
 
 const mapStore = useMapStore();
@@ -250,10 +292,21 @@ function updateMap(map: Map | null) {
 
         const localStyle = new Style({
             fill: new Fill({
-                color: firColor || `rgba(${ getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray125' : 'success500').join(',') }, 0.07)`,
+                color: firColor || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray125' : 'success500').join(',') }, 0.5)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
+                width: 1,
+            }),
+            zIndex: 3,
+        });
+
+        const localBookingStyle = new Style({
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.07)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 3,
@@ -272,10 +325,21 @@ function updateMap(map: Map | null) {
 
         const hoveredStyle = new Style({
             fill: new Fill({
-                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray100' : 'success300').join(',') }, 0.2)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor(store.bookingOverride ? 'lightgray100' : 'success300').join(',') }, 0.6)`,
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
+                width: 1,
+            }),
+            zIndex: 5,
+        });
+
+        const hoveredBookingStyle = new Style({
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.2)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,
@@ -329,10 +393,14 @@ function updateMap(map: Map | null) {
                         return defaultStyle;
                     case 'local':
                         return localStyle;
+                    case 'local-booking':
+                        return localBookingStyle;
                     case 'root':
                         return rootStyle;
                     case 'hovered':
                         return hoveredStyle;
+                    case 'hovered-booking':
+                        return hoveredBookingStyle;
                     case 'hovered-root':
                         return hoveredRootStyle;
                     case 'vatglasses':

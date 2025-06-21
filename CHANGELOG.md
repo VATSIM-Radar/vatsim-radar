@@ -9,6 +9,19 @@
 - Waypoint text is now prioritized over airway/sidstar name
 - Departing and arrived aircraft are now sorted by groundspeed
 
+# [1.2.0-beta.9]
+
+## Bookings changes by MindCollaps
+
+- Bookings in normal view have separate colors for sectors and approach now
+- Default "Hours in advance" setting is 30 min now instead of 1h
+- Fixed display of "show on map" or the "booking view" now actually uses correct time
+- Bookings will be refetched once booking override is disabled
+- Separate VectorImageLayer styles for bookings
+- Map settings for updated hours now works correctly
+- Only visible airport bookings will be displayed on the map
+- You can press enter the booking page to confirm a custom Now + Hours value
+
 # [1.2.0-beta.8]
 
 - Added ability to control aicraft tracks route parsing: disable, disable auto-sid and star parsing
