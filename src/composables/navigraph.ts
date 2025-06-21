@@ -14,6 +14,7 @@ import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
 import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
@@ -177,37 +178,62 @@ export const enrouteAircraftPath = useCookie<Record<string, { departure: Enroute
     sameSite: 'none',
 });
 
-function getPreciseCoord(input: string): [Coordinate, string] | null {
+export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const latMatch = input.match(latRegex);
-    if (!latMatch) return null;
+    if (latMatch) {
+        const latDigits = latMatch[1];
+        const latDir = latMatch[2];
+        const remainder = input.slice(latMatch[0].length);
+        const lonMatch = remainder.match(lonRegex);
 
-    const latDigits = latMatch[1];
-    const latDir = latMatch[2];
+        if (!lonMatch) return null;
 
-    const remainder = input.slice(latMatch[0].length);
+        const lonDigits = lonMatch[1];
+        const lonDir = lonMatch[2];
 
-    const lonMatch = remainder.match(lonRegex);
-    if (!lonMatch) return null;
+        function toDecimal(degMin: string) {
+            if (degMin.length <= 3) {
+                return parseInt(degMin, 10);
+            }
 
-    const lonDigits = lonMatch[1];
-    const lonDir = lonMatch[2];
-
-    function toDecimal(degMin: string) {
-        if (degMin.length <= 3) {
-            return parseInt(degMin, 10);
+            const len = degMin.length;
+            const deg = parseInt(degMin.slice(0, len - 2), 10);
+            const min = parseInt(degMin.slice(len - 2), 10);
+            return deg + (min / 60);
         }
 
-        const len = degMin.length;
-        const deg = parseInt(degMin.slice(0, len - 2), 10);
-        const min = parseInt(degMin.slice(len - 2), 10);
-        return deg + (min / 60);
+        const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
+        const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+
+        return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
     }
 
-    const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
-    const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+    const parts = input.split('/');
+    if (parts.length === 2) {
+        const latPart = parts[0];
+        const lonDeg = parseFloat(parts[1]);
 
+        if (isNaN(lonDeg)) return null;
 
-    return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
+        let lat: number;
+
+        if (latPart.length === 4) {
+            // ddmm → 49°30′ = 49 + 30 / 60
+            const deg = parseInt(latPart.slice(0, 2), 10);
+            const min = parseInt(latPart.slice(2, 4), 10);
+            lat = deg + (min / 60);
+        }
+        else if (latPart.length <= 2) {
+            lat = parseFloat(latPart);
+        }
+        else {
+            return null;
+        }
+
+        return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
+    }
+
+    return null;
 }
 
 export interface FlightPlanInputWaypoint {
@@ -224,14 +250,26 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
+const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
 let previousRequest = 0;
 let interval: NodeJS.Timeout | null = null;
 let data: NeededNavigraphData | null = null;
+let gettingData = false;
 
 async function getFullData(): Promise<NeededNavigraphData> {
+    if (gettingData) {
+        return new Promise<NeededNavigraphData>((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (gettingData) return;
+                resolve(data!);
+                clearInterval(interval);
+            }, 1000);
+        });
+    }
+
     previousRequest = Date.now();
 
     if (!interval) {
@@ -245,14 +283,25 @@ async function getFullData(): Promise<NeededNavigraphData> {
 
     if (data) return data;
 
-    data = {
-        parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-        parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-        parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-        parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-    };
+    gettingData = true;
 
-    return data;
+    try {
+        data = {
+            parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+            parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+            parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+            parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+        };
+
+        gettingData = false;
+
+        return data;
+    }
+    catch (e) {
+        gettingData = false;
+
+        throw e;
+    }
 }
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
@@ -292,6 +341,17 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             if (split[1] && entry.startsWith(departure)) depRunway = split[1];
 
             if (routeRegex.test(entry)) split = split.slice(0, 1);
+
+            const nat = NATRegex.exec(entry);
+
+            if (nat?.groups?.letter) {
+                const natRoute = dataStore.vatsim.tracks.value.find(x => x.identifier === nat?.groups?.letter);
+                if (natRoute) {
+                    waypoints.push(...await buildNATWaypoints(natRoute));
+                }
+
+                continue;
+            }
 
             const sidTest = disableSidParsing ? false : sidstarRegex.test(search);
 
@@ -787,4 +847,47 @@ export async function updateCachedProcedures() {
             }
         }
     }
+}
+
+export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak) {
+    const result: NavigraphNavDataEnrouteWaypointPartial[] = [];
+
+    const navigraphData = await getFullData();
+    const waypoints = nat.last_routeing.split(' ');
+
+    const parsedWaypoints: {
+        identifier: string;
+        coordinate: Coordinate | null;
+    }[] = waypoints.map(x => ({ identifier: x, coordinate: getPreciseCoord(x)?.[0] ?? null }));
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (waypoint.coordinate) continue;
+
+        const refCoordinate = parsedWaypoints.find((x, xIndex) => (xIndex === i + 1 || xIndex === i - 1) && x.coordinate)?.coordinate;
+        if (!refCoordinate) continue;
+
+        const foundWaypoint = Object.entries(navigraphData.parsedWaypoints?.[waypoint.identifier] ?? {}).sort((a, b) => {
+            const aCoord = [a[1][1], a[1][2]];
+            const bCoord = [b[1][1], b[1][2]];
+
+            return waypointDiff(refCoordinate, aCoord) - waypointDiff(refCoordinate, bCoord);
+        })[0];
+
+        if (foundWaypoint) waypoint.coordinate = [foundWaypoint[1][1], foundWaypoint[1][2]];
+    }
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (!waypoint.coordinate) continue;
+
+        result.push({
+            coordinate: waypoint.coordinate,
+            identifier: waypoint.identifier,
+            key: waypoint.identifier,
+            kind: 'nat-waypoint',
+        });
+    }
+
+    return result;
 }

@@ -51,9 +51,11 @@ import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue'
 import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
+import distance from '@turf/distance';
 
 const featuredTab = ref('popular');
 const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const popularAirports = computed(() => {
@@ -65,10 +67,22 @@ const quietAirports = computed(() => {
         .filter(x => !x.airport.isPseudo && (x.aircraftCids.length || x.localAtc.some(x => x.isATIS)) && (x.arrAtc.length || x.localAtc.some(x => !x.isATIS)))
         .slice()
         .sort((a, b) => {
-            const aSum = (a.aircraftList.arrivals?.length ?? 0) + (a.aircraftList.groundDep?.length ?? 0);
-            const bSum = (b.aircraftList.arrivals?.length ?? 0) + (b.aircraftList.groundDep?.length ?? 0);
+            const aArrivals = (a.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
+            const bArrivals = (b.aircraftList.arrivals ?? []).map(x => dataStore.vatsim.data.keyedPilots.value[x.toString()]).filter(x => x?.toGoDist && x.toGoDist < 200);
 
-            return aSum - bSum;
+            const aSum = aArrivals.length + (a.aircraftList.groundDep?.length ?? 0);
+            const bSum = bArrivals.length + (b.aircraftList.groundDep?.length ?? 0);
+
+            const diff = aSum - bSum;
+
+            if (diff === 0) {
+                const aCoord = [a.airport.lon, a.airport.lat];
+                const bCoord = [b.airport.lon, b.airport.lat];
+
+                return distance(mapStore.center, aCoord) - distance(mapStore.center, bCoord);
+            }
+
+            return diff;
         })
         .slice(0, 25);
 });

@@ -1,8 +1,9 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
+    VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
-    VatsimMemberStats,
+    VatsimMemberStats, VatsimNattrakClient,
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
@@ -37,7 +38,7 @@ import type {
 } from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
-    checkForData,
+    checkForData, checkForTracks,
     checkForUpdates,
     checkForVATSpy, checkForVG,
     getVatglassesDynamic,
@@ -117,6 +118,7 @@ const rawData: VatsimData = {
 const vatsim = {
     data,
     rawData,
+    tracks: shallowRef([]),
     parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
@@ -164,6 +166,7 @@ export interface UseDataStore {
     vatsim: {
         data: VatsimData;
         parsedAirports: ShallowRef<AirportsList[]>;
+        tracks: ShallowRef<VatsimNattrakClient[]>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;
@@ -184,6 +187,7 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
+        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
         full: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
@@ -320,6 +324,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             if (isVatGlassesActive.value) {
                 getVatglassesDynamic(dataStore);
             }
+
+            checkForTracks();
         }, 30000);
 
         interval = setInterval(async () => {
@@ -394,6 +400,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             await Promise.all([
                 checkForData(),
                 checkForVATSpy(),
+                checkForTracks(),
                 checkForSimAware(),
                 checkForAirlines(),
             ]);
@@ -477,9 +484,10 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }
 
 export function checkFlightLevel(level: NavDataFlightLevel) {
-    if (level === 'B' || level === null) return true;
-
     const store = useStore();
+
+    if (level === 'B' || level === null || !store.mapSettings.navigraphData?.mode || store.mapSettings.navigraphData.mode === 'both') return true;
+
     if (store.mapSettings.navigraphData?.mode && store.mapSettings.navigraphData?.mode !== 'ifrHigh') {
         return level === 'L';
     }
