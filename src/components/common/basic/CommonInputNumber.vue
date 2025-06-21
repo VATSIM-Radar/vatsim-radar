@@ -1,41 +1,33 @@
 <template>
-    <div
-        class="input"
-        :class="{ 'input--focused': focused }"
+    <common-input-text
+        v-model="inputValue"
+        v-model:focused="focused"
+        :height
+        :input-attrs
+        input-type="number"
+        :placeholder
+        @change="$emit('change', $event)"
+        @input="$emit('input', $event)"
     >
-        <div
-            v-if="$slots.default"
-            class="input_label"
+        <slot/>
+        <template
+            v-if="$slots.icon"
+            #icon
         >
-            <slot/>
-        </div>
-        <div class="input_container">
-            <label class="input__input">
-                <div
-                    v-if="$slots.icon"
-                    class="input__input_icon"
-                >
-                    <slot name="icon"/>
-                </div>
-                <input
-                    v-model="inputValue"
-                    :placeholder="placeholder"
-                    type="number"
-                    @blur="focused = false"
-                    @change="$emit('change', $event)"
-                    @focus="focused = true"
-                    @focusout="focused = false"
-                    @input="$emit('input', $event)"
-                >
-            </label>
-        </div>
-    </div>
+            <slot name="icon"/>
+        </template>
+    </common-input-text>
 </template>
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 defineProps({
+    inputAttrs: {
+        type: Object as PropType<Record<string, any>>,
+        default: () => {},
+    },
     height: {
         type: String,
     },
@@ -65,73 +57,3 @@ const inputValue = computed({
     },
 });
 </script>
-
-<style scoped lang="scss">
-.input {
-    width: 100%;
-
-    &_label {
-        margin-bottom: 8px;
-        font-size: 13px;
-        font-weight: 600;
-    }
-
-    &_container {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-
-        width: 100%;
-        height: v-bind(height);
-        padding: 0 16px;
-        border: 2px solid transparent;
-        border-radius: 8px;
-
-        background: $darkgray900;
-
-        transition: 0.3s;
-
-        @include hover {
-            &:hover {
-                border-color: $darkgray800;
-            }
-        }
-    }
-
-    &--focused .input_container {
-        border-color: $primary500
-    }
-
-    &__input {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        width: 100%;
-
-        input {
-            width: 100%;
-            padding: 12px 0;
-            border: none;
-
-            font-family: $defaultFont;
-            font-size: 13px;
-            font-weight: 600;
-            color:$lightgray150;
-
-            appearance: none;
-            background: none;
-            outline: none;
-            box-shadow: none;
-
-            &::placeholder {
-                color: varToRgba('lightgray150', 0.5);
-                opacity: 1
-            }
-
-            @include mobileSafariOnly {
-                font-size: 16px;
-            }
-        }
-    }
-}
-</style>
