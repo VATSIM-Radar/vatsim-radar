@@ -432,28 +432,35 @@ export async function updateBookings() {
             };
         }) as VatsimBooking[];
 
-        /* const start = new Date();
+        /*
+        const start = new Date();
         const end = new Date();
         start.setMinutes(start.getMinutes() + 60);
         end.setMinutes((end.getMinutes() + 60) * 3);
 
-        bookings.push({
-            atc: {
-                callsign: 'ETNW_TWR',
-                cid: 10000,
-                facility: getFacilityByCallsign('ETNW_TWR'),
-                frequency: '122.800',
-                logon_time: '',
-                name: 'Test dummy',
-                rating: 1,
-                text_atis: [],
-                visual_range: 1,
-            },
+        const fakeBooking: VatsimBookingData = {
+            callsign: 'EDDV_APP',
+            cid: 10000,
             start: start.getTime(),
             end: end.getTime(),
             id: 0,
             type: 'booking',
-        });*/
+            division: '',
+            subdivision: '',
+        };
+
+        const atc = makeFakeAtc(fakeBooking);
+
+        bookings.push({
+            ...fakeBooking,
+            atc,
+            start: start.getTime(),
+            end: end.getTime(),
+            division: undefined,
+            subdivision: undefined,
+        } as VatsimBooking);
+        */
+
 
         setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
     }

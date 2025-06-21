@@ -97,6 +97,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
+const booking = computed(() => props.atc.some(x => x.controller.booking !== undefined && x.controller.booking !== null));
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
@@ -144,7 +145,7 @@ const init = () => {
     if (!vectorSource.value) return;
 
     try {
-        const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+        const localFeatureType = makeLocalFeatureType();
         const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
         if (!localFeature) {
@@ -206,6 +207,30 @@ onBeforeUnmount(() => {
         rootFeature.dispose();
     }
 });
+
+function makeLocalFeatureType() {
+    if (isHovered.value && locals.value.length) {
+        if (store.bookingOverride || booking.value) {
+            return 'hovered-booking';
+        }
+        else {
+            return 'hovered';
+        }
+    }
+    else {
+        if (locals.value.length) {
+            if (store.bookingOverride || booking.value) {
+                return 'local-booking';
+            }
+            else {
+                return 'local';
+            }
+        }
+        else {
+            return 'default';
+        }
+    }
+}
 </script>
 
 <style lang="scss">

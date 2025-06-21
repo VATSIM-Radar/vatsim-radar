@@ -92,15 +92,38 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
-const { data } = await useAsyncData('bookings', async () => {
-    return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: store.bookingsStartTime, ending: store.bookingsEndTime },
-    });
-}, {
-    server: false,
-});
+const now = new Date();
+const end = ref(new Date());
 
-const bookingsData = data.value ? data.value : [];
+const { mapSettings } = storeToRefs(store);
+
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, { immediate: true });
+
+const queryParams = computed(() => ({
+    starting: store.bookingOverride
+        ? store.bookingsStartTime.getTime()
+        : now.getTime(),
+    ending: store.bookingOverride
+        ? store.bookingsEndTime.getTime()
+        : end.value.getTime(),
+}));
+
+const { data } = await useAsyncData(
+    'bookings',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        watch: [queryParams],
+        server: false,
+    },
+);
+
+const bookingsData = computed(() => data.value ? data.value : []);
 
 const getShownAirports = computed(() => {
     let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
@@ -536,7 +559,7 @@ const getAirportsList = computed(() => {
 
         const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
-        bookingsData.forEach((booking: VatsimBooking) => {
+        bookingsData.value.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao))).forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility)) return;
 
             if (!store.bookingOverride) {
@@ -588,7 +611,7 @@ const getAirportsList = computed(() => {
 
             if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
                 if (existingLocal) {
-                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility);
                 }
 
                 makeBookingLocalTime(booking);
