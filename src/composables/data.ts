@@ -324,6 +324,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             if (isVatGlassesActive.value) {
                 getVatglassesDynamic(dataStore);
             }
+
+            checkForTracks();
         }, 30000);
 
         interval = setInterval(async () => {
