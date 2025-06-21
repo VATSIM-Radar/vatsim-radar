@@ -15,7 +15,7 @@
 - Fixed an issue, that when loading many aircraft, memory, instead of going down immediately, for a brief moment, went up significantly
 - Improved many aircraft add performance
 - Fixed booked FIRs showing above staffed
-- Added NatTrak oceanic tracks support
+- Added natTrak oceanic tracks support
 
 ## Public release
 

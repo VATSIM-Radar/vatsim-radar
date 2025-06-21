@@ -206,8 +206,6 @@ import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
 
 const files = reactive({
     vatspy: {

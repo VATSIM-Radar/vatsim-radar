@@ -14,6 +14,7 @@ import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
 import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
@@ -249,6 +250,7 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
+const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
@@ -339,6 +341,17 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             if (split[1] && entry.startsWith(departure)) depRunway = split[1];
 
             if (routeRegex.test(entry)) split = split.slice(0, 1);
+
+            const nat = NATRegex.exec(entry);
+
+            if (nat?.groups?.letter) {
+                const natRoute = dataStore.vatsim.tracks.value.find(x => x.identifier === nat?.groups?.letter);
+                if (natRoute) {
+                    waypoints.push(...await buildNATWaypoints(natRoute));
+                }
+
+                continue;
+            }
 
             const sidTest = disableSidParsing ? false : sidstarRegex.test(search);
 
@@ -834,4 +847,47 @@ export async function updateCachedProcedures() {
             }
         }
     }
+}
+
+export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak) {
+    const result: NavigraphNavDataEnrouteWaypointPartial[] = [];
+
+    const navigraphData = await getFullData();
+    const waypoints = nat.last_routeing.split(' ');
+
+    const parsedWaypoints: {
+        identifier: string;
+        coordinate: Coordinate | null;
+    }[] = waypoints.map(x => ({ identifier: x, coordinate: getPreciseCoord(x)?.[0] ?? null }));
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (waypoint.coordinate) continue;
+
+        const refCoordinate = parsedWaypoints.find((x, xIndex) => (xIndex === i + 1 || xIndex === i - 1) && x.coordinate)?.coordinate;
+        if (!refCoordinate) continue;
+
+        const foundWaypoint = Object.entries(navigraphData.parsedWaypoints?.[waypoint.identifier] ?? {}).sort((a, b) => {
+            const aCoord = [a[1][1], a[1][2]];
+            const bCoord = [b[1][1], b[1][2]];
+
+            return waypointDiff(refCoordinate, aCoord) - waypointDiff(refCoordinate, bCoord);
+        })[0];
+
+        if (foundWaypoint) waypoint.coordinate = [foundWaypoint[1][1], foundWaypoint[1][2]];
+    }
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (!waypoint.coordinate) continue;
+
+        result.push({
+            coordinate: waypoint.coordinate,
+            identifier: waypoint.identifier,
+            key: waypoint.identifier,
+            kind: 'nat-waypoint',
+        });
+    }
+
+    return result;
 }

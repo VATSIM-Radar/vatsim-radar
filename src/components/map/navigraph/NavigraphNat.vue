@@ -6,8 +6,7 @@
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
-import type { Coordinate } from 'ol/coordinate';
-import { waypointDiff } from '~/composables/navigraph';
+import { buildNATWaypoints } from '~/composables/navigraph';
 import greatCircle from '@turf/great-circle';
 import { Point } from 'ol/geom';
 
@@ -21,37 +20,14 @@ watch(dataStore.vatsim.tracks, async () => {
     source?.value.removeFeatures(features);
     features = [];
 
-    const keyWaypoints = await dataStore.navigraph.data('parsedWaypoints');
-
     for (const track of dataStore.vatsim.tracks.value) {
         if (!store.localSettings.natTrak?.showConcorde && track.concorde) continue;
-        const waypoints = track.last_routeing.split(' ');
+        if (store.localSettings.natTrak?.showConcorde && !track.concorde) continue;
+        const waypoints = await buildNATWaypoints(track);
 
-        const parsedWaypoints: {
-            identifier: string;
-            coordinate: Coordinate | null;
-        }[] = waypoints.map(x => ({ identifier: x, coordinate: getPreciseCoord(x)?.[0] ?? null }));
-
-        for (let i = 0; i < parsedWaypoints.length; i++) {
-            const waypoint = parsedWaypoints[i];
-            if (waypoint.coordinate) continue;
-
-            const refCoordinate = parsedWaypoints.find((x, xIndex) => (xIndex === i + 1 || xIndex === i - 1) && x.coordinate)?.coordinate;
-            if (!refCoordinate) continue;
-
-            const foundWaypoint = Object.entries(keyWaypoints?.[waypoint.identifier] ?? {}).sort((a, b) => {
-                const aCoord = [a[1][1], a[1][2]];
-                const bCoord = [b[1][1], b[1][2]];
-
-                return waypointDiff(refCoordinate, aCoord) - waypointDiff(refCoordinate, bCoord);
-            })[0];
-
-            if (foundWaypoint) waypoint.coordinate = [foundWaypoint[1][1], foundWaypoint[1][2]];
-        }
-
-        for (let i = 0; i < parsedWaypoints.length; i++) {
-            const waypoint = parsedWaypoints[i];
-            const nextWaypoint = parsedWaypoints[i + 1];
+        for (let i = 0; i < waypoints.length; i++) {
+            const waypoint = waypoints[i];
+            const nextWaypoint = waypoints[i + 1];
             if (!waypoint.coordinate) continue;
 
             features.push(new Feature({
