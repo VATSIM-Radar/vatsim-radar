@@ -280,7 +280,7 @@ const localsFacilities = computed(() => {
 });
 
 const isAppOnlyBooking = computed(() => {
-    return props.arrAtc.filter(x => x.booking === undefined || x.booking === null).length === 0;
+    return props.arrAtc.filter(x => !x.booking).length === 0;
 });
 
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
