@@ -49,7 +49,7 @@ export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData,
             },
         };
 
-        shortData.holdings[key] = [item.waypoint_identifier, item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code, item.minimum_altitude, item.maximum_altitude, waypoint?.[3]];
+        shortData.holdings[key] = [item.waypoint_identifier, item.inbound_holding_course, item.leg_time, item.leg_length, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code, item.minimum_altitude, item.maximum_altitude, waypoint?.[3]];
     }
 };
 
