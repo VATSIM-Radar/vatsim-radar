@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.0-beta.9]
+# [1.2.0-beta.10]
 
 - Fixed Navigraph layers partially not working after beta.7
 - Fixed route sometimes showing waypoint that is already passed
