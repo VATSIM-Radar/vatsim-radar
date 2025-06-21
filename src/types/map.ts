@@ -68,6 +68,11 @@ interface IUserLocalSettings {
         star?: boolean;
     };
 
+    natTrak: {
+        enabled?: boolean;
+        showConcorde?: boolean;
+    };
+
     distance: {
         enabled?: boolean;
         units?: Units;

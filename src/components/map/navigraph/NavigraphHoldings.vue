@@ -147,10 +147,13 @@ const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataSto
 const aircraftWaypoints = computed(() => Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.waypoints.filter(x => x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x))));
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
-    source?.value.removeFeatures(features);
-    features = [];
+    const newFeatures: Feature[] = [];
 
-    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) return;
+    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) {
+        source?.value.removeFeatures(features);
+        features = [];
+        return;
+    }
 
     const entries = Object.entries(await dataStore.navigraph.data('holdings') ?? {}).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
 
@@ -161,10 +164,17 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
         if (!isPointInExtent([longitude, latitude], extent) || !checkFlightLevel(flightLevel)) return;
+
+        const existingFeatures = features.filter(x => x.getProperties().key === key);
+        if (existingFeatures.length) {
+            newFeatures.push(...existingFeatures);
+            return;
+        }
+
         speed ??= 240;
         time ??= 0;
 
-        features.push(
+        newFeatures.push(
             new Feature({
                 geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time, true, 32)),
                 key,
@@ -185,6 +195,8 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
         );
     });
 
+    source?.value.removeFeatures(features);
+    features = newFeatures;
     source?.value.addFeatures(features);
 }, {
     immediate: true,

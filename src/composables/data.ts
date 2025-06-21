@@ -3,7 +3,7 @@ import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
     VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
-    VatsimMemberStats,
+    VatsimMemberStats, VatsimNattrak, VatsimNattrakClient,
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
@@ -38,7 +38,7 @@ import type {
 } from '~/utils/backend/navigraph/navdata/types';
 import {
     checkForAirlines,
-    checkForData,
+    checkForData, checkForTracks,
     checkForUpdates,
     checkForVATSpy, checkForVG,
     getVatglassesDynamic,
@@ -118,6 +118,7 @@ const rawData: VatsimData = {
 const vatsim = {
     data,
     rawData,
+    tracks: shallowRef([]),
     parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
     /* _mandatoryData: computed<VatsimMandatoryConvertedData | null>(() => {
@@ -165,6 +166,7 @@ export interface UseDataStore {
     vatsim: {
         data: VatsimData;
         parsedAirports: ShallowRef<AirportsList[]>;
+        tracks: ShallowRef<VatsimNattrakClient[]>;
         _mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         mandatoryData: ShallowRef<VatsimMandatoryConvertedData | null>;
         versions: Ref<VatDataVersions['vatsim'] | null>;
@@ -185,7 +187,7 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
-        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs'>;
+        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
         full: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
@@ -396,6 +398,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             await Promise.all([
                 checkForData(),
                 checkForVATSpy(),
+                checkForTracks(),
                 checkForSimAware(),
                 checkForAirlines(),
             ]);

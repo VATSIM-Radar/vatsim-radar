@@ -30,26 +30,50 @@
                 Map Layers
             </common-block-title>
 
-            <common-toggle
-                :model-value="store.localSettings.disableNavigraph !== true"
-                @update:modelValue="setUserLocalSettings({ disableNavigraph: !$event })"
-            >
-                Enable Navigraph layers
-            </common-toggle>
+            <map-filter-columns>
+                <template #col1>
+                    <common-toggle
+                        :model-value="store.localSettings.disableNavigraph !== true"
+                        @update:modelValue="setUserLocalSettings({ disableNavigraph: !$event })"
+                    >
+                        Navigraph Layers
+                    </common-toggle>
+                </template>
+                <template #col2>
+                    <common-toggle
+                        :model-value="store.localSettings.disableNavigraphRoute !== true"
+                        @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
+                    >
+                        Route parsing
+                    </common-toggle>
+                </template>
+            </map-filter-columns>
 
-            <common-toggle
-                :model-value="store.localSettings.disableNavigraphRoute !== true"
-                @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
-            >
-                Enable route parsing
-            </common-toggle>
-
-            <common-toggle
-                :model-value="!!store.localSettings.filters?.layers?.sigmets?.enabled"
-                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { enabled: $event } } } })"
-            >
-                Enable SIGMETs
-            </common-toggle>
+            <map-filter-columns align-items="flex-start">
+                <template #col1>
+                    <common-toggle
+                        :model-value="!!store.localSettings.filters?.layers?.sigmets?.enabled"
+                        @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { enabled: $event } } } })"
+                    >
+                        SIGMETs
+                    </common-toggle>
+                </template>
+                <template #col2>
+                    <common-toggle
+                        :model-value="!!store.localSettings.natTrak?.enabled"
+                        @update:modelValue="setUserLocalSettings({ natTrak: { enabled: $event } })"
+                    >
+                        NAT Tracks
+                    </common-toggle>
+                    <common-toggle
+                        v-if="!!store.localSettings.natTrak?.enabled"
+                        :model-value="!!store.localSettings.natTrak?.showConcorde"
+                        @update:modelValue="setUserLocalSettings({ natTrak: { showConcorde: $event } })"
+                    >
+                        Concorde tracks
+                    </common-toggle>
+                </template>
+            </map-filter-columns>
 
             <common-toggle
                 :disabled="!radarIsDefault"
@@ -334,6 +358,7 @@ import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSetting
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { sigmetDates } from '~/composables';
 import { useMapStore } from '~/store/map';
+import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
 
 defineProps({});
 const store = useStore();

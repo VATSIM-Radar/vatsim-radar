@@ -11,6 +11,10 @@
         </template>
         <navigraph-procedures/>
         <navigraph-route v-if="!store.localSettings.disableNavigraphRoute"/>
+        <navigraph-nat
+            v-if="store.localSettings.natTrak?.enabled"
+            :key="String(store.localSettings.natTrak?.showConcorde)"
+        />
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -144,6 +148,7 @@ import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigra
 import { useMapStore } from '~/store/map';
 import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
 import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
+import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;

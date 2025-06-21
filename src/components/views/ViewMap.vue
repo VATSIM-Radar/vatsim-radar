@@ -663,11 +663,12 @@ async function handleMoveEnd() {
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
     mapStore.extent = view.calculateExtent(map.value!.getSize());
+    mapStore.center = view.getCenter()!;
 
     const query = {
         ...route.query,
-        center: view.getCenter()!.map(x => x.toFixed(5))?.join(','),
-        zoom: view.getZoom()?.toFixed(2),
+        center: mapStore.center.map(x => x.toFixed(5))?.join(','),
+        zoom: mapStore.zoom.toFixed(2),
     };
 
     if (initialOwnCheck && !store.mapSettings.disableQueryUpdate) {
@@ -683,8 +684,8 @@ async function handleMoveEnd() {
     }, targetOrigin);
 
     setUserLocalSettings({
-        location: view.getCenter(),
-        zoom: view.getZoom(),
+        location: mapStore.center,
+        zoom: mapStore.zoom,
     });
 
     await sleep(300);
@@ -908,6 +909,7 @@ await setupDataFetch({
         mapStore.zoom = mapView.getZoom() ?? 0;
         mapStore.rotation = toDegrees(mapView.getRotation() ?? 0);
         mapStore.extent = mapView.calculateExtent(map.value!.getSize());
+        mapStore.center = mapView.getCenter()!;
         ready.value = true;
 
         map.value.getTargetElement().style.cursor = 'grab';
@@ -917,6 +919,7 @@ await setupDataFetch({
         map.value.on('pointermove', updateMapCursor);
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+        mapStore.center = map.value!.getView().getCenter()!;
 
         map.value.getTargetElement().addEventListener('mousedown', event => {
             const target = event.target as HTMLCanvasElement;

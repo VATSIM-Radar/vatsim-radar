@@ -251,10 +251,10 @@ const getDefaultController = (): VatsimControllerWithField => ({
 const { data: controllers, refresh } = await useAsyncData('debug-controllers', () => $fetch<VatsimControllerWithField[]>('/api/data/custom/controllers'), { deep: true });
 
 const dataStore = useDataStore();
-const map = inject<ShallowRef<Map | null>>('map')!;
+const mapStore = useMapStore();
 
 async function parse() {
-    const mapCenter = map.value?.getView().getCenter();
+    const mapCenter = mapStore.center;
 
     dataStore.navigraphWaypoints.value.test = {
         // @ts-expect-error this data is ok enough
@@ -284,7 +284,7 @@ async function parse() {
 onMounted(() => {
     // @ts-expect-error debug only
     window.debugWaypoints = async (departure: string, arrival: string, flightPlan: string) => {
-        const mapCenter = map.value?.getView().getCenter();
+        const mapCenter = mapStore.center;
 
         dataStore.navigraphWaypoints.value.test = {
             // @ts-expect-error this data is ok enough

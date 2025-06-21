@@ -12,27 +12,37 @@ import { waypointDiff } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate';
 import turfBearing from '@turf/bearing';
 import { debounce } from '~/utils/shared';
+import type { VatsimExtendedPilot } from '~/types/data/vatsim';
+import type { StoreOverlayPilot } from '~/store/map';
+import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import type { ObjectWithGeometry } from 'ol/Feature';
 
 defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 
 let features: Feature[] = [];
 
 let skipUpdate = false;
 
 function update() {
-    let newFeatures: Feature[] = [];
+    let newFeatures: ObjectWithGeometry[] = [];
 
     try {
         for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
+            const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
-            dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival ??= {};
-
-            const calculatedArrival = dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival!;
+            const calculatedArrival = {
+                toGoPercent: 0,
+                toGoTime: 0,
+                toGoDist: 0,
+                depDist: 0,
+                stepclimbs: extendedPilot?.stepclimbs ?? [],
+            } satisfies Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
 
             const arrival = _arrival!;
 
@@ -95,12 +105,29 @@ function update() {
 
             let firstWaypoint = false;
 
+            function checkAircraftStepclimb(waypoint: string) {
+                if (!foundWaypoint && calculatedArrival.stepclimbs.length) calculatedArrival.stepclimbs = calculatedArrival.stepclimbs.filter(x => x.waypoint !== waypoint);
+            }
+
+            function applyAircraftDistance(coord1: Coordinate, coord2: Coordinate) {
+                const distance = calculateDistanceInNauticalMiles(coord1, coord2);
+
+                if (foundWaypoint) {
+                    calculatedArrival.toGoDist += distance;
+                    calculatedArrival.toGoTime += (distance / pilot.groundspeed) * 60 * 60 * 1000;
+                }
+                else {
+                    calculatedArrival.depDist += distance;
+                }
+            }
+
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
 
             const onFirstWaypoint = (newCoordinate: Coordinate, kind: string) => {
                 if (firstWaypoint) return;
 
-                newFeatures.push(new Feature({
+                applyAircraftDistance(coordinate, newCoordinate);
+                newFeatures.push({
                     geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
                     key: '',
                     identifier: '',
@@ -109,7 +136,7 @@ function update() {
                     self: true,
                     kind,
                     id: callsign,
-                }));
+                });
 
                 firstWaypoint = true;
             };
@@ -120,15 +147,20 @@ function update() {
                 const nextCoordinate = nextWaypoint?.coordinate ?? [nextWaypoint?.airway?.value?.[2][0]?.[3], nextWaypoint?.airway?.value?.[2][0]?.[4]];
 
                 if (waypoint.kind !== 'airway') {
+                    checkAircraftStepclimb(waypoint.identifier);
                     if (waypoint.identifier === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
-                    if (waypointForCid && waypointForCid.waypoints[i]) {
+                    if (waypointForCid && waypointForCid.waypoints[i] && waypoint.kind !== 'missedApproach') {
                         waypointForCid.waypoints[i].canShowHold = foundWaypoint;
                     }
 
-                    if (!foundWaypoint && speed >= 50 && !full) continue;
+                    if (!foundWaypoint && speed >= 50 && !full) {
+                        if (typeof nextCoordinate[0] === 'number') applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
 
-                    newFeatures.push(new Feature({
+                        continue;
+                    }
+
+                    newFeatures.push({
                         geometry: new Point(waypoint.coordinate!),
                         usage: waypoint.usage,
                         identifier: waypoint.identifier,
@@ -144,7 +176,7 @@ function update() {
                         altitude2: waypoint.altitude2,
                         speed: waypoint.speed,
                         speedLimit: waypoint.speedLimit,
-                    }));
+                    });
 
                     if (foundWaypoint) {
                         onFirstWaypoint(waypoint.coordinate!, waypoint.kind);
@@ -152,7 +184,11 @@ function update() {
 
                     if (typeof nextCoordinate[0] !== 'number') continue;
 
-                    newFeatures.push(new Feature({
+                    if (waypoint.kind !== 'missedApproach') {
+                        applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
+                    }
+
+                    newFeatures.push({
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
@@ -160,12 +196,14 @@ function update() {
                         type: 'airways',
                         dataType: 'navdata',
                         kind: waypoint.kind,
-                    }));
+                    });
                 }
                 else {
                     for (let k = 0; k < waypoint.airway!.value[2].length; k++) {
                         const currWaypoint = waypoint.airway!.value[2][k];
                         const nextWaypoint = waypoint.airway!.value[2][k + 1];
+
+                        checkAircraftStepclimb(currWaypoint[0]);
 
                         if (currWaypoint[0] === rawWaypoints[0]?.[0] || waypoint.identifier === rawWaypoints[1]?.[0]) foundWaypoint = true;
 
@@ -173,13 +211,22 @@ function update() {
                             waypointForCid.waypoints[i].canShowHold = foundWaypoint;
                         }
 
-                        if (!foundWaypoint && speed >= 50 && !full) continue;
+                        if (!foundWaypoint && speed >= 50 && !full) {
+                            if (!nextWaypoint && nextCoordinate?.[0]) {
+                                applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
+                            }
+                            else if (nextWaypoint) {
+                                applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]]);
+                            }
+
+                            continue;
+                        }
 
                         if (foundWaypoint) {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
                         }
 
-                        newFeatures.push(new Feature({
+                        newFeatures.push({
                             geometry: new Point([currWaypoint[3], currWaypoint[4]]),
                             identifier: currWaypoint[0],
                             flightLevel: currWaypoint[5],
@@ -193,12 +240,14 @@ function update() {
                             altitude2: waypoint.altitude2,
                             speed: waypoint.speed,
                             speedLimit: waypoint.speedLimit,
-                        }));
+                        });
 
                         if (!nextWaypoint) {
                             // Last one
                             if (nextCoordinate?.[0]) {
-                                newFeatures.push(new Feature({
+                                applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
+
+                                newFeatures.push({
                                     geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
                                     key: '',
                                     id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
@@ -206,12 +255,14 @@ function update() {
                                     type: 'airways',
                                     dataType: 'navdata',
                                     kind: waypoint.kind,
-                                }));
+                                });
                             }
                             continue;
                         }
 
-                        newFeatures.push(new Feature({
+                        applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]]);
+
+                        newFeatures.push({
                             geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
                             id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
@@ -223,16 +274,27 @@ function update() {
                             type: 'airways',
                             dataType: 'navdata',
                             kind: waypoint.kind,
-                        }));
+                        });
                     }
                 }
+            }
+
+            if (calculatedArrival.toGoDist > 0) {
+                dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival = {
+                    depDist: calculatedArrival.depDist,
+                    toGoDist: calculatedArrival.toGoDist,
+                    toGoTime: Date.now() + calculatedArrival.toGoTime,
+                    toGoPercent: (calculatedArrival.depDist / (calculatedArrival.depDist + calculatedArrival.toGoDist)) * 100,
+                    stepclimbs: calculatedArrival.stepclimbs,
+                };
             }
         }
 
         source?.value.removeFeatures(features);
-        newFeatures = newFeatures.filter((x, xIndex) => !newFeatures.some((y, yIndex) => x.getProperties().id === y.getProperties().id && yIndex > xIndex));
+        features.forEach(x => x.dispose());
+        newFeatures = newFeatures.filter((x, xIndex) => !newFeatures.some((y, yIndex) => x.id === y.id && yIndex > xIndex));
 
-        features = newFeatures;
+        features = newFeatures.map(x => new Feature(x));
         source?.value.addFeatures(features);
 
         skipUpdate = true;

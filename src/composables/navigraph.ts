@@ -177,37 +177,62 @@ export const enrouteAircraftPath = useCookie<Record<string, { departure: Enroute
     sameSite: 'none',
 });
 
-function getPreciseCoord(input: string): [Coordinate, string] | null {
+export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const latMatch = input.match(latRegex);
-    if (!latMatch) return null;
+    if (latMatch) {
+        const latDigits = latMatch[1];
+        const latDir = latMatch[2];
+        const remainder = input.slice(latMatch[0].length);
+        const lonMatch = remainder.match(lonRegex);
 
-    const latDigits = latMatch[1];
-    const latDir = latMatch[2];
+        if (!lonMatch) return null;
 
-    const remainder = input.slice(latMatch[0].length);
+        const lonDigits = lonMatch[1];
+        const lonDir = lonMatch[2];
 
-    const lonMatch = remainder.match(lonRegex);
-    if (!lonMatch) return null;
+        function toDecimal(degMin: string) {
+            if (degMin.length <= 3) {
+                return parseInt(degMin, 10);
+            }
 
-    const lonDigits = lonMatch[1];
-    const lonDir = lonMatch[2];
-
-    function toDecimal(degMin: string) {
-        if (degMin.length <= 3) {
-            return parseInt(degMin, 10);
+            const len = degMin.length;
+            const deg = parseInt(degMin.slice(0, len - 2), 10);
+            const min = parseInt(degMin.slice(len - 2), 10);
+            return deg + (min / 60);
         }
 
-        const len = degMin.length;
-        const deg = parseInt(degMin.slice(0, len - 2), 10);
-        const min = parseInt(degMin.slice(len - 2), 10);
-        return deg + (min / 60);
+        const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
+        const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+
+        return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
     }
 
-    const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
-    const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+    const parts = input.split('/');
+    if (parts.length === 2) {
+        const latPart = parts[0];
+        const lonDeg = parseFloat(parts[1]);
 
+        if (isNaN(lonDeg)) return null;
 
-    return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
+        let lat: number;
+
+        if (latPart.length === 4) {
+            // ddmm → 49°30′ = 49 + 30 / 60
+            const deg = parseInt(latPart.slice(0, 2), 10);
+            const min = parseInt(latPart.slice(2, 4), 10);
+            lat = deg + (min / 60);
+        }
+        else if (latPart.length <= 2) {
+            lat = parseFloat(latPart);
+        }
+        else {
+            return null;
+        }
+
+        return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
+    }
+
+    return null;
 }
 
 export interface FlightPlanInputWaypoint {
@@ -230,8 +255,19 @@ type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoi
 let previousRequest = 0;
 let interval: NodeJS.Timeout | null = null;
 let data: NeededNavigraphData | null = null;
+let gettingData = false;
 
 async function getFullData(): Promise<NeededNavigraphData> {
+    if (gettingData) {
+        return new Promise<NeededNavigraphData>((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (gettingData) return;
+                resolve(data!);
+                clearInterval(interval);
+            }, 1000);
+        });
+    }
+
     previousRequest = Date.now();
 
     if (!interval) {
@@ -245,14 +281,25 @@ async function getFullData(): Promise<NeededNavigraphData> {
 
     if (data) return data;
 
-    data = {
-        parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-        parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-        parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-        parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-    };
+    gettingData = true;
 
-    return data;
+    try {
+        data = {
+            parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+            parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+            parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+            parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+        };
+
+        gettingData = false;
+
+        return data;
+    }
+    catch (e) {
+        gettingData = false;
+
+        throw e;
+    }
 }
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {

@@ -12,7 +12,7 @@ import type {
     VatsimBooking,
     VatsimDivision,
     VatsimSubDivision,
-    VatsimShortenedController, VatsimController,
+    VatsimShortenedController, VatsimController, VatsimNattrak,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -406,6 +406,47 @@ export async function updateAirlines() {
         },
     };
     await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
+}
+
+export async function updateNattrak() {
+    const data = await $fetch<VatsimNattrak[]>('https://nattrak.vatsim.net/api/tracks', {
+        retry: 3,
+    });
+
+    radarStorage.vatsimStatic.tracks = [
+        ...data.filter(x => x.active && !x.concorde),
+        {
+            identifier: 'SM',
+            active: true,
+            last_routeing: '50/15 50/20 50/30 49/40 47/50 46/53 44/60 42/65 42/67',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+        {
+            identifier: 'SN',
+            active: true,
+            last_routeing: '40/67 41/65 43/60 45/52 46/50 48/40 49/30 50/20 49/15',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+        {
+            identifier: 'SO',
+            active: true,
+            last_routeing: '48/15 49/20 48/30 47/40 45/50 44/52 42/60',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+    ];
+    await setRedisData('data-nattrak', radarStorage.vatsimStatic.tracks, 1000 * 60 * 60 * 24 * 7);
 }
 
 export async function updateBookings() {

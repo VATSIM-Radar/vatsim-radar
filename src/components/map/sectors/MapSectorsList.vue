@@ -1,7 +1,7 @@
 <template>
     <template v-if="!isHideAtcType('firs')">
         <map-sector
-            v-for="(sector, index) in firs"
+            v-for="(sector, index) in firs.filter(x => x.atc?.length || x.booking)"
             :key="sector.fir.feature.id as string + index"
             :atc="sector.atc"
             :fir="sector.fir"
@@ -83,6 +83,7 @@
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
+import { Feature } from 'ol';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
@@ -99,9 +100,11 @@ import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import { useMapStore } from '~/store/map';
+import { MultiPolygon } from 'ol/geom';
 
 let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);
+let emptyFirs: Feature[] = [];
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
@@ -144,11 +147,9 @@ const { data } = await useAsyncData(
     },
 );
 
-const bookingsData = computed(() => data.value ? data.value : []);
+const facilities = useFacilitiesIds();
 
-function isFirDefined<T extends { fir?: any }>(item: T): item is T & { fir: Exclude<T['fir'], undefined> } {
-    return item.fir !== undefined;
-}
+const bookingsData = computed(() => data.value ? data.value?.filter(x => x.atc.facility === facilities.CTR) : []);
 
 const firs = computed(() => {
     interface Fir {
@@ -169,29 +170,56 @@ const firs = computed(() => {
         allFirs.push(...(firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex))));
     }
 
-    const facilities = useFacilitiesIds();
+    const bookingFirs = store.bookingOverride ? dataStore.vatspy.value!.data.firs : allFirs;
 
-    for (const fir of dataStore.vatspy.value!.data.firs) {
+    for (let i = 0; i < bookingFirs.length; i++) {
+        const _fir = bookingFirs[i];
+
+        if ('atc' in _fir && _fir.atc?.length) continue;
+
+        const fir = 'fir' in _fir ? _fir.fir : _fir;
+
         const booking = bookingsData.value.find(
-            b => b.atc.facility === facilities.CTR &&
-                b.atc.callsign === fir.callsign + '_CTR',
+            x => x.atc.callsign === fir.callsign?.replaceAll('-', '_') + '_CTR',
         );
+
         if (booking) {
             const atc = makeFakeAtcFeatureFromBooking(booking.atc, booking);
             const item = { booking, fir, atc };
-            if (isFirDefined(item)) {
-                allFirs.push(item);
-            }
+            allFirs.splice(i, 1, item);
         }
     }
 
     return allFirs;
 });
 
+const emptyFirsList = computed(() => firs.value.filter(x => !x.atc?.length && !x.booking));
+
+function processEmptyFirs() {
+    const newFeatures: Feature[] = [];
+
+    for (const fir of emptyFirsList.value) {
+        newFeatures.push(new Feature({
+            geometry: new MultiPolygon(fir.fir.feature.geometry.coordinates),
+            ...(fir.fir.feature.properties ?? {}),
+            type: 'default',
+        }));
+    }
+
+    vectorSource.value?.removeFeatures(emptyFirs);
+    emptyFirs.forEach(x => x.dispose());
+    emptyFirs = newFeatures;
+    vectorSource.value?.addFeatures(emptyFirs);
+}
+
 const mapStore = useMapStore();
 
 watch(() => mapStore.distance.pixel, val => {
     if (val) vatglassesPopupIsShown.value = false;
+});
+
+watch([emptyFirsList, vectorSource], processEmptyFirs, {
+    immediate: true,
 });
 
 function getPositionLevel(_level: number) {
@@ -381,7 +409,6 @@ function updateMap(map: Map | null) {
         vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
-            imageRatio: store.isTouch ? 1 : 2,
             properties: {
                 type: 'sectors',
             },

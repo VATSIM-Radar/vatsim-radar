@@ -196,10 +196,10 @@ function setVisiblePilots() {
             const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
             const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
             const aDist = (aGoDist && aDepDist)
-                ? aGoDist > aDepDist
+                ? aGoDist > aDepDist && aDepDist
                     ? aDepDist
                     : aGoDist
-                : aGoDist ?? aDepDist;
+                : aGoDist || aDepDist;
 
             const bGoDist = (b.isArrival && b.pilot.toGoDist) || 0;
             const bDepDist = (b.isDeparture && b.pilot.depDist) || 0;
@@ -207,7 +207,7 @@ function setVisiblePilots() {
                 ? bGoDist > bDepDist
                     ? bDepDist
                     : bGoDist
-                : bGoDist ?? bDepDist;
+                : bGoDist || bDepDist;
 
             return aDist - bDist;
         }).map((x, index) => {

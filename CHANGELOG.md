@@ -1,13 +1,29 @@
 # Changelog
 
-# [1.2.0-beta.10]
+# [1.2.0-rc.1]
+
+## QA
 
 - Fixed Navigraph layers partially not working after beta.7
 - Fixed route sometimes showing waypoint that is already passed
+- Added predicted flight time based on parsed route (!!!)
 - Low IFR waypoints and holdings are now shown correctly if no flight level is selected
 - You can now select "Both" for IFR level, this is now default value
 - Waypoint text is now prioritized over airway/sidstar name
+- Fixed holdings sometimes flickering
+- Approved minor performance optimizations to holdings
+- Fixed an issue, that when loading many aircraft, memory, instead of going down immediately, for a brief moment, went up significantly
+- Improved many aircraft add performance
+- Fixed booked FIRs showing above staffed
+- Added NatTrak oceanic tracks support
+
+## Public release
+
 - Departing and arrived aircraft are now sorted by groundspeed
+- Updated quiet airport logic: aircraft approaching at distance 200NM or more will now be ignored when calculating "quietness"
+- Quiet airports are now sorted by how close they are to current map center (if "quietness" is the same)
+- Fixed max tracks algo to show tracks for aircraft closest to airport
+- Slightly reduced memory usage by VATSpy inactive sectors
 
 # [1.2.0-beta.9]
 
