@@ -155,7 +155,7 @@ export type DataStoreNavigraphAircraftProcedures = Ref<Record<string, { departur
 async function getNavigraphIDBData(key: 'version'): Promise<string | null>;
 async function getNavigraphIDBData<T extends keyof ClientNavigraphData>(key: T): Promise<ClientNavigraphData[T] | null>;
 async function getNavigraphIDBData(key: any) {
-    return (await clientDB.get('navigraphData', 'version')) ?? null;
+    return (await clientDB.get('navigraphData', key)) ?? null;
 }
 
 export interface UseDataStore {

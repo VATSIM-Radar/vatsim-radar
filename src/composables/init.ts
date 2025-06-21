@@ -78,8 +78,6 @@ export function checkForVATSpy() {
             notRequired = false;
         }
 
-        console.log('iteration');
-
         for (const airport of vatspy.data.airports) {
             vatspy.data.keyAirports.icao[airport.icao] = airport;
 
