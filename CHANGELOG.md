@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.0-rc.2]
+
+- Fixed waypoints flickering
+- Added waypoints icons. Finally!
+- Reduced enroute NDB/VORDME size and removed labels if general no labels setting is used
+
 # [1.2.0-rc.1]
 
 ## QA

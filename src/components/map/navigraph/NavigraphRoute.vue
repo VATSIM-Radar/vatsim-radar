@@ -162,13 +162,14 @@ function update() {
 
                     newFeatures.push({
                         geometry: new Point(waypoint.coordinate!),
-                        usage: waypoint.usage,
                         identifier: waypoint.identifier,
                         id: waypoint.identifier,
                         waypoint: waypoint.identifier,
                         kind: waypoint.kind,
                         key: waypoint.key,
-                        type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? waypoint.kind : 'enroute-waypoint',
+                        type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
+                        usage: waypoint.type,
+                        description: waypoint.description,
                         dataType: 'navdata',
 
                         altitude: waypoint.altitude,
@@ -234,6 +235,7 @@ function update() {
                             id: currWaypoint[0],
                             type: 'airway-waypoint',
                             dataType: 'navdata',
+                            usage: currWaypoint[6],
 
                             altitude: waypoint.altitude,
                             altitude1: waypoint.altitude1,

@@ -22,12 +22,13 @@ export function buildNavDataWaypoint(item: {
     speed_limit_description: string;
     speed_limit: number;
     waypoint_ref_table: string;
+    waypoint_description_code: string;
     [key: string]: any;
 }): NavigraphNavDataAirportWaypoint {
     const waypoint: NavigraphNavDataAirportWaypoint = {
         identifier: item.waypoint_identifier,
         coordinate: [item.waypoint_longitude, item.waypoint_latitude],
-        ref: item.waypoint_ref_table,
+        description: item.waypoint_description_code,
         altitude: null,
         altitude1: null,
         altitude2: null,

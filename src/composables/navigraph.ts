@@ -379,6 +379,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 identifier: x.identifier,
                                 title: procedure?.procedure.identifier,
                                 coordinate: x.coordinate,
+                                description: x.description,
                                 kind: 'sids',
 
                                 altitude: x.altitude,
@@ -394,6 +395,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         title: procedure?.procedure.identifier,
                         identifier: x.identifier,
                         coordinate: x.coordinate,
+                        description: x.description,
                         kind: 'sids',
 
                         altitude: x.altitude,
@@ -409,6 +411,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                             title: procedure?.procedure.identifier,
                             identifier: x.identifier,
                             coordinate: x.coordinate,
+                            description: x.description,
                             kind: 'sids',
 
                             altitude: x.altitude,
@@ -459,6 +462,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                             title: procedure?.procedure.identifier,
                             identifier: x.identifier,
                             coordinate: x.coordinate,
+                            description: x.description,
                             kind: 'stars',
 
                             altitude: x.altitude,
@@ -473,6 +477,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         title: procedure?.procedure.identifier,
                         identifier: x.identifier,
                         coordinate: x.coordinate,
+                        description: x.description,
                         kind: 'stars',
 
                         altitude: x.altitude,
@@ -489,6 +494,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 title: procedure?.procedure.identifier,
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
+                                description: x.description,
                                 kind: 'stars',
 
                                 altitude: x.altitude,
@@ -510,6 +516,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'approaches',
+                                    description: x.description,
 
                                     altitude: x.altitude,
                                     altitude1: x.altitude1,
@@ -523,6 +530,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
                                 kind: 'approaches',
+                                description: x.description,
 
                                 altitude: x.altitude,
                                 altitude1: x.altitude1,
@@ -536,6 +544,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'missedApproach',
+                                    description: x.description,
 
                                     altitude: x.altitude,
                                     altitude1: x.altitude1,
@@ -609,6 +618,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         waypoints.push({
                             identifier: waypoint[0],
                             kind: 'enroute',
+                            type: waypoint[6],
                             coordinate: [waypoint[3], waypoint[4]],
                         });
                     }
@@ -656,6 +666,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 let kind: NavigraphNavDataEnrouteWaypointPartial['kind'] = 'enroute';
                 let identifier = '';
                 let key = '';
+                let type = '';
                 let coordinate: Coordinate = [0, 0];
 
                 const smallestCoordinates = [
@@ -674,6 +685,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     if (smallest[1] === 'waypoint') {
                         identifier = regularWaypoint[1][0];
                         key = regularWaypoint[0];
+                        type = regularWaypoint[1][3];
                     }
                     else if (smallest[1] === 'vhf') {
                         identifier = vhfWaypoint[1][1];
@@ -690,6 +702,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         identifier,
                         coordinate,
                         kind,
+                        type,
                         key,
                     });
                 }

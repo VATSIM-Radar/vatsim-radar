@@ -141,7 +141,7 @@ export const processNavdataSid: NavdataProcessFunction = async ({ fullData, db, 
                 speedLimit: null,
                 identifier: `RW${ runway.identifier }`,
                 coordinate: runway.coordinate,
-                ref: '',
+                description: '',
             });
         }
     }
@@ -434,7 +434,7 @@ export const processNavdataIap: NavdataProcessFunction = async ({ fullData, db, 
             speedLimit: null,
             identifier: `RW${ runway.identifier }`,
             coordinate: runway.coordinate,
-            ref: '',
+            description: '',
         });
 
         if (value.procedure.missedApproach.length) {
@@ -446,7 +446,7 @@ export const processNavdataIap: NavdataProcessFunction = async ({ fullData, db, 
                 speedLimit: null,
                 identifier: `RW${ runway.identifier }`,
                 coordinate: runway.coordinate,
-                ref: '',
+                description: '',
             });
         }
     }

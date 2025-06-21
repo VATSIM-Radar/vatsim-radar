@@ -181,7 +181,7 @@
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import VectorSource from 'ol/source/Vector';
-import { Fill, Style, Text, Icon, Stroke, Circle } from 'ol/style';
+import { Fill, Style, Text, Icon, Stroke } from 'ol/style';
 import { getCurrentThemeRgbColor } from '~/composables';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate';
@@ -266,15 +266,29 @@ function isNat(activeFeature: ActiveFeature<any>): activeFeature is NatFeature {
 }
 
 const ndbStyle = new Icon({
-    src: '/icons/ndb.png',
+    src: '/icons/compressed/ndb.png',
     width: 16,
     color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
     opacity: 0.6,
 });
 
 const vordmeStyle = new Icon({
-    src: '/icons/vordme.png',
+    src: '/icons/compressed/vordme.png',
     width: 16,
+    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+    opacity: 0.6,
+});
+
+const ndbStyleSmall = new Icon({
+    src: '/icons/compressed/ndb.png',
+    width: 12,
+    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+    opacity: 0.6,
+});
+
+const vordmeStyleSmall = new Icon({
+    src: '/icons/compressed/vordme.png',
+    width: 12,
     color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
     opacity: 0.6,
 });
@@ -314,14 +328,14 @@ async function handleMapClick(event: MapBrowserEvent<any>) {
         activeFeature.value = null;
         await sleep(0);
         const data = await getNavigraphData({
-            data: properties.type,
+            data: properties.type.replace('enroute-', ''),
             key: properties.key,
         });
         mapStore.openOverlayId = null;
         await nextTick();
         activeFeature.value = {
             coords: event.coordinate,
-            type: properties.type as keyof NavigraphNavData,
+            type: properties.type.replace('enroute-', '') as keyof NavigraphNavData,
             data,
             properties,
         };
@@ -341,13 +355,62 @@ watch(map, val => {
     if (!navigraphLayer) {
         navigraphSource.value = new VectorSource();
 
-        const waypointCircle = new Circle({
-            radius: 4,
-            stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
-                width: 2,
+        const waypointsTypes = {
+            default: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/compulsory-rep.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 8,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
             }),
-        });
+            flyOver: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/fly-over.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 10,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+            flyBy: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/fly-by.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 10,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+            onRequest: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/on-request.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 8,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+            compulsoryFlyBy: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/compulsory-fly-by.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 12,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+            approachFix: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/final-approach-fix.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 12,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+        };
 
         const waypointStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
@@ -410,10 +473,12 @@ watch(map, val => {
         function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
             const properties = feature.getProperties();
 
-            if (properties.type === 'vhf') {
+            const isEnroute = properties.type.startsWith('enroute');
+
+            if (properties.type.endsWith('vhf')) {
                 return [
                     new Style({
-                        image: fake ? fakeCircle : vordmeStyle,
+                        image: fake ? fakeCircle : isEnroute ? vordmeStyleSmall : vordmeStyle,
                         zIndex: 7,
                     }),
                     new Style({
@@ -433,10 +498,10 @@ watch(map, val => {
                 ];
             }
 
-            if (properties.type === 'ndb') {
+            if (properties.type.endsWith('ndb')) {
                 return [
                     new Style({
-                        image: fake ? fakeCircle : ndbStyle,
+                        image: fake ? fakeCircle : isEnroute ? ndbStyleSmall : ndbStyle,
                         zIndex: 7,
                     }),
                     new Style({
@@ -498,18 +563,47 @@ watch(map, val => {
                     }
                 }
 
+                let image = waypointsTypes.default;
+
+                if (properties.usage) {
+                    if (properties.usage[0] === 'W' && properties.usage[2]?.trim()) {
+                        image = waypointsTypes.compulsoryFlyBy;
+                    }
+                    else if (properties.usage[0] === 'W') {
+                        image = waypointsTypes.flyBy;
+                    }
+                    else if (properties.usage[0] === 'R') {
+                        image = waypointsTypes.onRequest;
+                    }
+                }
+
+                if (properties.description) {
+                    if (properties.description[0] === 'R') {
+                        image = waypointsTypes.onRequest;
+                    }
+
+                    if (properties.description[1] === 'Y') {
+                        image = waypointsTypes.flyOver;
+                    }
+
+                    if (properties.description[2] === 'C' || properties.description[0] === 'V') {
+                        image = waypointsTypes.compulsoryFlyBy;
+                    }
+
+                    if (properties.description[3] === 'E' || properties.description[3] === 'F') {
+                        image = waypointsTypes.approachFix;
+                    }
+                }
+
                 const styles = [
-                    new Style({
-                        image: waypointCircle,
-                        zIndex: 6,
-                    }),
+                    image,
                     new Style({
                         text: showWaypointsLabels.value || properties.type === 'waypoint'
                             ? new Text({
                                 font: '8px Montserrat',
                                 text,
-                                offsetX: 15,
-                                textBaseline: 'top',
+                                offsetX: 12,
+                                textBaseline: 'middle',
                                 textAlign: 'left',
                                 justify: 'left',
                                 padding: [2, 2, 2, 2],
