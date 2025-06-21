@@ -83,10 +83,6 @@ const props = defineProps({
         type: Array as PropType<VatSpyDataFeature[]>,
         required: true,
     },
-    booking: {
-        type: Boolean,
-        default: false,
-    },
 });
 
 defineSlots<{ default: () => any }>();
@@ -101,6 +97,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
+const booking = computed(() => props.atc.some(x => x.controller.booking !== undefined && x.controller.booking !== null));
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
@@ -213,7 +210,7 @@ onBeforeUnmount(() => {
 
 function makeLocalFeatureType() {
     if (isHovered.value && locals.value.length) {
-        if (store.bookingOverride || props.booking) {
+        if (store.bookingOverride || booking.value) {
             return 'hovered-booking';
         }
         else {
@@ -222,7 +219,7 @@ function makeLocalFeatureType() {
     }
     else {
         if (locals.value.length) {
-            if (store.bookingOverride || props.booking) {
+            if (store.bookingOverride || booking.value) {
                 return 'local-booking';
             }
             else {

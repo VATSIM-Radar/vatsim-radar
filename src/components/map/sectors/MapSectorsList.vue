@@ -4,7 +4,6 @@
             v-for="(sector, index) in firs"
             :key="sector.fir.feature.id as string + index"
             :atc="sector.atc"
-            :booking="sector.atc.some(x => x.controller.booking !== undefined)"
             :fir="sector.fir"
         />
     </template>
@@ -171,13 +170,20 @@ const firs = computed(() => {
     }
 
     const facilities = useFacilitiesIds();
-    const bookedFirs: Fir[] = bookingsData.value.filter(x => x.atc.facility === facilities.CTR).map(booking => ({
-        booking,
-        fir: dataStore.vatspy.value!.data.firs.find(x => x.callsign + '_CTR' === booking.atc.callsign),
-        atc: makeFakeAtcFeatureFromBooking(booking.atc, booking),
-    })).filter(isFirDefined);
 
-    allFirs.push(...bookedFirs);
+    for (const fir of dataStore.vatspy.value!.data.firs) {
+        const booking = bookingsData.value.find(
+            b => b.atc.facility === facilities.CTR &&
+                b.atc.callsign === fir.callsign + '_CTR',
+        );
+        if (booking) {
+            const atc = makeFakeAtcFeatureFromBooking(booking.atc, booking);
+            const item = { booking, fir, atc };
+            if (isFirDefined(item)) {
+                allFirs.push(item);
+            }
+        }
+    }
 
     return allFirs;
 });
