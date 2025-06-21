@@ -309,8 +309,8 @@
                 Affects airways and holdings
             </common-notification>
             <common-radio-group
-                :items="[{ value: 'ifrHigh', text: 'IFR High' }, { value: 'ifrLow', text: 'IFR Low' }]"
-                :model-value="store.mapSettings.navigraphData?.mode ?? 'ifrHigh'"
+                :items="[{ value: 'ifrHigh', text: 'IFR High' }, { value: 'ifrLow', text: 'IFR Low' }, { value: 'both', text: 'Both' }]"
+                :model-value="store.mapSettings.navigraphData?.mode ?? 'both'"
                 @update:modelValue="setUserMapSettings({ navigraphData: { mode: $event as any } })"
             />
         </template>

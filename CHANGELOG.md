@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.0-beta.9]
+
+- Fixed Navigraph layers partially not working after beta.7
+- Fixed route sometimes showing waypoint that is already passed
+- Low IFR waypoints and holdings are now shown correctly if no flight level is selected
+- You can now select "Both" for IFR level, this is now default value
+- Waypoint text is now prioritized over airway/sidstar name
+- Departing and arrived aircraft are now sorted by groundspeed
+
 # [1.2.0-beta.8]
 
 - Added ability to control aicraft tracks route parsing: disable, disable auto-sid and star parsing

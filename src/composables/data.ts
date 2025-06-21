@@ -1,6 +1,7 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
+    VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats,
     VatsimShortenedAircraft,
@@ -184,6 +185,7 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
+        calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs'>;
         full: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
@@ -477,9 +479,10 @@ export async function getNavigraphData<T extends keyof NavigraphNavData>({ data,
 }
 
 export function checkFlightLevel(level: NavDataFlightLevel) {
-    if (level === 'B' || level === null) return true;
-
     const store = useStore();
+
+    if (level === 'B' || level === null || !store.mapSettings.navigraphData?.mode || store.mapSettings.navigraphData.mode === 'both') return true;
+
     if (store.mapSettings.navigraphData?.mode && store.mapSettings.navigraphData?.mode !== 'ifrHigh') {
         return level === 'L';
     }

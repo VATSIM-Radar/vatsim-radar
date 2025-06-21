@@ -139,7 +139,7 @@
                                         <question-icon width="14"/>
                                     </div>
                                 </template>
-                                - The left column shows the aircrafts on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
+                                - The left column shows the aircraft on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
                             </common-tooltip>
                         </div>
                     </div>

@@ -30,6 +30,10 @@ function update() {
         for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
 
+            dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival ??= {};
+
+            const calculatedArrival = dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival!;
+
             const arrival = _arrival!;
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
@@ -60,9 +64,9 @@ function update() {
                 return waypointDiff(coordinate, a[1]) - waypointDiff(coordinate, b[1]);
             });
 
-            rawWaypoints = rawWaypoints.slice(0, 5);
-
             const backupWaypoints = rawWaypoints.slice(0);
+
+            rawWaypoints = rawWaypoints.slice(0, 5);
 
             rawWaypoints = rawWaypoints.filter((x, xIndex) => {
                 if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
@@ -73,7 +77,17 @@ function update() {
                 return diff <= 90;
             });
 
-            if (!rawWaypoints.length) rawWaypoints = backupWaypoints;
+            if (!rawWaypoints.length) {
+                // Closest correct waypoint
+                rawWaypoints = backupWaypoints.filter((x, xIndex) => {
+                    if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
+
+                    let diff = Math.abs(x[2] - bearing);
+                    if (diff > 180) diff = 360 - diff;
+
+                    return diff <= 90;
+                }).slice(0, 1);
+            }
 
             rawWaypoints = rawWaypoints.slice(0, 1);
 

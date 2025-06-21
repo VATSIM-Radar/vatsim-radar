@@ -421,7 +421,7 @@ watch(map, val => {
                                 }),
                             })
                             : undefined,
-                        zIndex: 4,
+                        zIndex: 6,
                     }),
                 ];
 
