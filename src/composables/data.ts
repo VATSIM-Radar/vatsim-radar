@@ -3,7 +3,7 @@ import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
     VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
-    VatsimMemberStats, VatsimNattrak, VatsimNattrakClient,
+    VatsimMemberStats, VatsimNattrakClient,
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
