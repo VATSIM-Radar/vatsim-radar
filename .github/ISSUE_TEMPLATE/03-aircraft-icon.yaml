@@ -2,6 +2,7 @@ name: Aircraft icon(s)
 description: Suggest aircraft icon(s) you want us to add
 labels: [ "aircraft icon" ]
 assignees: ["DotWallop"]
+type: "Aircraft Icon"
 body:
   - type: markdown
     attributes:
@@ -19,7 +20,7 @@ body:
       label: Your Vatsim CID
       description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
     validations:
-      required: true
+      required: false
   - type: textarea
     id: what
     attributes:
