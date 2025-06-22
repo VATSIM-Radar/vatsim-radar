@@ -395,7 +395,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     },
     {
         value: 'RE',
-        text: 'Relief',
+        text: 'Ground elevation',
     },
     {
         value: 'PR0C',

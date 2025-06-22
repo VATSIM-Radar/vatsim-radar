@@ -1,20 +1,9 @@
 # Changelog
 
-# [1.2.0-rc.3]
+# [1.2.0-rc.4]
 
-- Removed holdings on SIDs waypoints
-- When on ground, only the first waypoint will be selected as nearest, no matter what is the heading
-- Fixed random waypoint being selected instead of some of the closest
-- If STAR prefiled only has one runway possible to go from it, this runway will now be selected automatically
-- Fixed approach manual transition selection
-- Improved waypoint selection for complicated approaches like in UUDD (based on constraints only)
-- Fixed new radar layer sometimes not showing on low or high zoom levels
-- Fixed arrival distance appearing after landing
-- Added v1.2 update popup
-
-## Public release
-
-- Added Relief weather layer
+- Renamed relief layer to ground elevation
+- Reworked filter search combobox to significantly improve UI of adding new filter data
 
 # [1.2.0-final]
 
@@ -63,7 +52,7 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Added observers page
 - Added shared cockpit support
 - Added Weather request to weather filters and pilot overlay
-- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity". Also added Relief weather layer
+- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity". Also added Ground elevation layer
 - Applied performance and memory usage optimizations
 
 ## Features and Improvements
@@ -84,6 +73,8 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Departing and arrived aircraft are now sorted by groundspeed
 - Updated quiet airport logic: aircraft approaching at distance 200NM or more will now be ignored when calculating "quietness"
 - Quiet airports are now sorted by how close they are to current map center (if "quietness" is the same)
+- Added initialization popup with retry functionality
+- Reworked filter search combobox to significantly improve UI of adding new filter data
 
 ## Bookings improvements by MindCollaps
 
