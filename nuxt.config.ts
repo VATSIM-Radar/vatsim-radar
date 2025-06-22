@@ -140,6 +140,9 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
         '@sentry/nuxt/module',
     ],
+    sentry: {
+        telemetry: false,
+    },
     eslint: {
         checker: {
             configType: 'flat',
