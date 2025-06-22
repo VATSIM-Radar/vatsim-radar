@@ -82,7 +82,6 @@
                     <view-favorite/>
                 </common-control-block>
             </div>
-
             <div class="map-footer_left_section __desktop">
                 <div class="map-footer__connections">
                     <div class="map-footer__connections_title">
@@ -148,6 +147,55 @@
                 >
                     Cancel Booking Override
                 </common-button>
+            </div>
+            <div class="map-footer_right_section __from-tablet">
+                <common-button
+                    :type="store.mapBookingOpen ? 'primary' : 'secondary'"
+                    @click="store.mapBookingOpen = !store.mapBookingOpen"
+                >
+                    <template #icon>
+                        <svg
+                            fill="none"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            width="20"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            />
+                            <path
+                                d="M12 7v5l3 3"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-width="2"
+                            />
+                        </svg>
+                    </template>
+                </common-button>
+                <common-control-block
+                    center-by-offset="-40px"
+                    class="map-footer__booking"
+                    v-model:="store.mapBookingOpen"
+                    width="700px"
+                >
+                    <template #title>
+                        <div class="map-footer__booking-title-row">
+                            <span>Bookings</span>
+                            <common-toggle
+                                v-model="store.mapSettings.bookingsLocalTimezone"
+                                class="picker-localtime"
+                                @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                            >
+                                local time
+                            </common-toggle>
+                        </div>
+                    </template>
+                    <map-popup-footer-booking/>
+                </common-control-block>
             </div>
 
             <div
@@ -243,6 +291,7 @@ import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSet
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -270,6 +319,7 @@ onMounted(() => {
 
 function cancelBookingOverride() {
     store.bookingOverride = false;
+    store.mapBookingOpen = false;
     delete route.query.start;
     delete route.query.end;
     router.replace({ query: route.query });
@@ -348,6 +398,29 @@ function cancelBookingOverride() {
         gap: 8px;
         align-items: center;
 
+        &_section {
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            &:not(:last-child) {
+                margin-right: 12px;
+                padding-right: 12px;
+
+                &::after {
+                    content: '';
+
+                    position: absolute;
+                    left: 100%;
+
+                    align-self: center;
+
+                    height: 24px;
+                    border-right: 1px solid varToRgba('lightgray150', 0.1);
+                }
+            }
+        }
+
         &_vg {
             min-width: 320px;
 
@@ -385,5 +458,18 @@ function cancelBookingOverride() {
         gap: 8px;
         align-items: center;
     }
+
+    &__booking {
+        z-index: 10; // need that so the popup is above the scale lin of the map
+    }
+}
+
+.map-footer__booking-title-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 600px;
+    gap: 16px;
 }
 </style>

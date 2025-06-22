@@ -77,6 +77,7 @@ export const useStore = defineStore('index', {
         featuredAirportsOpen: false,
         featuredVisibleOnly: false,
         menuFriendsOpen: false,
+        mapBookingOpen: false,
 
         updateRequired: false,
         isTabVisible: false,
