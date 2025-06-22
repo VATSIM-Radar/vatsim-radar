@@ -459,9 +459,10 @@ export const ownFlight = computed(() => {
 export function getAircraftDistance(pilot: VatsimExtendedPilot | VatsimShortenedAircraft): Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'> {
     const dataStore = useDataStore();
     return Object.assign({
+        depDist: dataStore.navigraphWaypoints.value[String(pilot.cid)]?.calculatedArrival?.depDist ?? pilot?.depDist,
         toGoDist: pilot?.toGoDist,
         toGoTime: 'toGoTime' in pilot && pilot?.toGoTime,
         toGoPercent: 'toGoPercent' in pilot && pilot?.toGoPercent,
         stepclimbs: 'stepclimbs' in pilot && pilot?.stepclimbs,
-    }, dataStore.navigraphWaypoints.value[String(pilot.cid)]?.calculatedArrival ?? {});
+    }, (pilot.status === 'arrTaxi' || pilot.status === 'arrGate') ? {} : dataStore.navigraphWaypoints.value[String(pilot.cid)]?.calculatedArrival ?? {});
 }

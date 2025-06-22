@@ -59,19 +59,32 @@ function update() {
                 const index = lastIndex === -1 ? waypoints.length - 1 : lastIndex;
 
                 waypoints.splice(index + 1, 0, {
-                    identifier: arrival,
+                    identifier: '',
+                    description: ' Y  ',
                     coordinate: [dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lon, dataStore.vatspy.value?.data.keyAirports.realIcao[arrival]?.lat],
                     kind: 'enroute',
                 });
             }
 
-            let rawWaypoints: [string, Coordinate, number][] = [];
+            let rawWaypoints: [string, Coordinate, number, number | null][] = [];
             waypoints.forEach(x => x.coordinate
-                ? rawWaypoints.push([x.identifier, x.coordinate, turfBearing(coordinate, x.coordinate, { final: true })])
-                : x.airway!.value[2].forEach(x => rawWaypoints.push([x[0], [x[3], x[4]], turfBearing(coordinate, [x[3], x[4]], { final: true })])));
+                ? rawWaypoints.push([x.identifier, x.coordinate, turfBearing(coordinate, x.coordinate, { final: true }), x.altitude1 ?? null])
+                : x.airway!.value[2].forEach(x => rawWaypoints.push([x[0], [x[3], x[4]], turfBearing(coordinate, [x[3], x[4]], { final: true }), null])));
 
             rawWaypoints.sort((a, b) => {
-                return waypointDiff(coordinate, a[1]) - waypointDiff(coordinate, b[1]);
+                const diff = waypointDiff(coordinate, a[1]) - waypointDiff(coordinate, b[1]);
+
+                if (Math.abs(diff) < 2) {
+                    let aDiff = Math.abs(a[2] - bearing);
+                    if (aDiff > 180) aDiff = 360 - aDiff;
+
+                    let bDiff = Math.abs(b[2] - bearing);
+                    if (bDiff > 180) bDiff = 360 - aDiff;
+
+                    return aDiff - bDiff;
+                }
+
+                return diff;
             });
 
             const backupWaypoints = rawWaypoints.slice(0);
@@ -87,21 +100,19 @@ function update() {
                 return diff <= 90;
             });
 
-            if (!rawWaypoints.length) {
-                // Closest correct waypoint
-                rawWaypoints = backupWaypoints.filter((x, xIndex) => {
-                    if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
+            if (rawWaypoints[0]?.[3] && rawWaypoints[1]?.[3]) {
+                const aDiff = Math.abs(rawWaypoints[0]?.[3] - pilot.altitude);
+                const bDiff = Math.abs(rawWaypoints[1]?.[3] - pilot.altitude);
 
-                    let diff = Math.abs(x[2] - bearing);
-                    if (diff > 180) diff = 360 - diff;
-
-                    return diff <= 90;
-                }).slice(0, 1);
+                if (aDiff > bDiff) rawWaypoints = [rawWaypoints[1]];
+                else rawWaypoints = [rawWaypoints[0]];
             }
+
+            if (!rawWaypoints.length) rawWaypoints = backupWaypoints;
 
             rawWaypoints = rawWaypoints.slice(0, 1);
 
-            let foundWaypoint = false;
+            let foundWaypoint = speed < 50;
 
             let firstWaypoint = false;
 

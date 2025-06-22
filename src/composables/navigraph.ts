@@ -246,7 +246,7 @@ export interface FlightPlanInputWaypoint {
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
-    return distance(compare, coordinate);
+    return distance(compare, coordinate, { units: 'nauticalmiles' });
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
@@ -454,7 +454,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     starInit = true;
 
                     const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
-                    const arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
+                    let arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
+
+                    if (!arrivalProcedures && Array.isArray(procedure?.procedure.runways) && procedure?.procedure.runways.length === 1 && procedure?.procedure.runways[0]) {
+                        arrRunway = procedure?.procedure.runways[0];
+                        arrivalProcedures = await getNavigraphAirportProceduresForKey('approaches', arrival);
+                    }
 
                     const enrouteTransition = procedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
@@ -510,7 +515,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         const forRunway = arrivalProcedures.filter(x => x.procedure.runway === arrRunway);
                         const procedure = arrApproach ? arrApproach.procedure : forRunway.find(x => x.procedure.procedureName.startsWith('ILS')) ?? forRunway[0];
                         if (procedure) {
-                            const transition = procedure?.transitions.find(x => x.name === entries[entries.length - 2]);
+                            const transition = procedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === entries[entries.length - 2]);
                             if (transition) {
                                 waypoints.push(...transition.waypoints.map(x => ({
                                     identifier: x.identifier,
