@@ -141,7 +141,9 @@ export default defineNuxtConfig({
         '@sentry/nuxt/module',
     ],
     sentry: {
-        telemetry: false,
+        sourceMapsUploadOptions: {
+            telemetry: false,
+        },
     },
     eslint: {
         checker: {
