@@ -140,6 +140,11 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
         '@sentry/nuxt/module',
     ],
+    sentry: {
+        sourceMapsUploadOptions: {
+            telemetry: false,
+        },
+    },
     eslint: {
         checker: {
             configType: 'flat',

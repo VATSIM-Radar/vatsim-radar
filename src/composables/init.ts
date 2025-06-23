@@ -15,6 +15,7 @@ import type {
 import type { UseDataStore } from '~/composables/data';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { VatsimNattrak } from '~/types/data/vatsim';
 
 async function initCheck(key: keyof VRInitStatus, handler: (args: {
     store: ReturnType<typeof useStore>;
@@ -96,6 +97,28 @@ export function checkForVATSpy() {
 
         dataStore.vatspy.value = vatspy;
         if (notRequired) return 'notRequired';
+    });
+}
+
+export const tracksExpired = computed(() => {
+    const dataStore = useDataStore();
+
+    const closestDates = dataStore.vatsim.tracks.value.slice(0).sort((a, b) => a.valid_to.getTime() - b.valid_to.getTime());
+    const closestTime = closestDates[0]?.valid_to.getTime();
+    if (!closestTime) return true;
+
+    return dataStore.time.value > closestTime ? closestTime : false;
+});
+
+export function checkForTracks() {
+    return initCheck('tracks', async ({ dataStore }) => {
+        if (!tracksExpired.value) return false;
+
+        dataStore.vatsim.tracks.value = (await $fetch<VatsimNattrak[]>(`/api/data/tracks?d=${ !dataStore.vatsim.tracks.value.length ? '0' : tracksExpired.value }`)).map(x => ({
+            ...x,
+            valid_from: new Date(x.valid_from),
+            valid_to: new Date(x.valid_to),
+        }));
     });
 }
 

@@ -164,6 +164,7 @@ import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { MapAircraftKeys } from '~/types/map';
 import type { PropType } from 'vue';
 import CommonStatsBlock from '~/components/common/vatsim/CommonStatsBlock.vue';
+import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 const props = defineProps({
     filterRelativeToAircraft: {
@@ -255,10 +256,14 @@ const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
             ];
         case 'dep':
         case 'groundDep':
-            return aircraft.value?.groundDep ?? [];
+            return aircraft.value?.groundDep?.slice().sort((a, b) => {
+                return (b as VatsimShortenedAircraft).groundspeed - (a as VatsimShortenedAircraft).groundspeed;
+            }) ?? [];
         case 'arr':
         case 'groundArr':
-            return aircraft.value?.groundArr ?? [];
+            return aircraft.value?.groundArr?.slice().sort((a, b) => {
+                return (b as VatsimShortenedAircraft).groundspeed - (a as VatsimShortenedAircraft).groundspeed;
+            }) ?? [];
         case 'prefiles':
             return aircraft.value?.prefiles ?? [];
     }

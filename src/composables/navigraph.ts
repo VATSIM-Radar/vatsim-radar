@@ -14,6 +14,7 @@ import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
 import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
@@ -177,37 +178,62 @@ export const enrouteAircraftPath = useCookie<Record<string, { departure: Enroute
     sameSite: 'none',
 });
 
-function getPreciseCoord(input: string): [Coordinate, string] | null {
+export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const latMatch = input.match(latRegex);
-    if (!latMatch) return null;
+    if (latMatch) {
+        const latDigits = latMatch[1];
+        const latDir = latMatch[2];
+        const remainder = input.slice(latMatch[0].length);
+        const lonMatch = remainder.match(lonRegex);
 
-    const latDigits = latMatch[1];
-    const latDir = latMatch[2];
+        if (!lonMatch) return null;
 
-    const remainder = input.slice(latMatch[0].length);
+        const lonDigits = lonMatch[1];
+        const lonDir = lonMatch[2];
 
-    const lonMatch = remainder.match(lonRegex);
-    if (!lonMatch) return null;
+        function toDecimal(degMin: string) {
+            if (degMin.length <= 3) {
+                return parseInt(degMin, 10);
+            }
 
-    const lonDigits = lonMatch[1];
-    const lonDir = lonMatch[2];
-
-    function toDecimal(degMin: string) {
-        if (degMin.length <= 3) {
-            return parseInt(degMin, 10);
+            const len = degMin.length;
+            const deg = parseInt(degMin.slice(0, len - 2), 10);
+            const min = parseInt(degMin.slice(len - 2), 10);
+            return deg + (min / 60);
         }
 
-        const len = degMin.length;
-        const deg = parseInt(degMin.slice(0, len - 2), 10);
-        const min = parseInt(degMin.slice(len - 2), 10);
-        return deg + (min / 60);
+        const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
+        const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+
+        return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
     }
 
-    const lat = (latDir === 'N' ? 1 : -1) * toDecimal(latDigits);
-    const lon = (lonDir === 'E' ? 1 : -1) * toDecimal(lonDigits);
+    const parts = input.split('/');
+    if (parts.length === 2) {
+        const latPart = parts[0];
+        const lonDeg = parseFloat(parts[1]);
 
+        if (isNaN(lonDeg)) return null;
 
-    return [[lon, lat], `${ latDir }${ latDigits }${ lonDir }${ lonDigits }`];
+        let lat: number;
+
+        if (latPart.length === 4) {
+            // ddmm → 49°30′ = 49 + 30 / 60
+            const deg = parseInt(latPart.slice(0, 2), 10);
+            const min = parseInt(latPart.slice(2, 4), 10);
+            lat = deg + (min / 60);
+        }
+        else if (latPart.length <= 2) {
+            lat = parseFloat(latPart);
+        }
+        else {
+            return null;
+        }
+
+        return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
+    }
+
+    return null;
 }
 
 export interface FlightPlanInputWaypoint {
@@ -220,18 +246,30 @@ export interface FlightPlanInputWaypoint {
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
-    return distance(compare, coordinate);
+    return distance(compare, coordinate, { units: 'nauticalmiles' });
 }
 
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
+const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
 let previousRequest = 0;
 let interval: NodeJS.Timeout | null = null;
 let data: NeededNavigraphData | null = null;
+let gettingData = false;
 
 async function getFullData(): Promise<NeededNavigraphData> {
+    if (gettingData) {
+        return new Promise<NeededNavigraphData>((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (gettingData) return;
+                resolve(data!);
+                clearInterval(interval);
+            }, 1000);
+        });
+    }
+
     previousRequest = Date.now();
 
     if (!interval) {
@@ -245,14 +283,25 @@ async function getFullData(): Promise<NeededNavigraphData> {
 
     if (data) return data;
 
-    data = {
-        parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-        parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-        parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-        parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-    };
+    gettingData = true;
 
-    return data;
+    try {
+        data = {
+            parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+            parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+            parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+            parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+        };
+
+        gettingData = false;
+
+        return data;
+    }
+    catch (e) {
+        gettingData = false;
+
+        throw e;
+    }
 }
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
@@ -293,6 +342,17 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             if (routeRegex.test(entry)) split = split.slice(0, 1);
 
+            const nat = NATRegex.exec(entry);
+
+            if (nat?.groups?.letter) {
+                const natRoute = dataStore.vatsim.tracks.value.find(x => x.identifier === nat?.groups?.letter);
+                if (natRoute) {
+                    waypoints.push(...await buildNATWaypoints(natRoute));
+                }
+
+                continue;
+            }
+
             const sidTest = disableSidParsing ? false : sidstarRegex.test(search);
 
             // SIDs
@@ -319,6 +379,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 identifier: x.identifier,
                                 title: procedure?.procedure.identifier,
                                 coordinate: x.coordinate,
+                                description: x.description,
                                 kind: 'sids',
 
                                 altitude: x.altitude,
@@ -334,6 +395,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         title: procedure?.procedure.identifier,
                         identifier: x.identifier,
                         coordinate: x.coordinate,
+                        description: x.description,
                         kind: 'sids',
 
                         altitude: x.altitude,
@@ -349,6 +411,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                             title: procedure?.procedure.identifier,
                             identifier: x.identifier,
                             coordinate: x.coordinate,
+                            description: x.description,
                             kind: 'sids',
 
                             altitude: x.altitude,
@@ -391,7 +454,12 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     starInit = true;
 
                     const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
-                    const arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
+                    let arrivalProcedures = arrApproach?.procedure ? [arrApproach.procedure] : (arrRunway && await getNavigraphAirportProceduresForKey('approaches', arrival));
+
+                    if (!arrivalProcedures && Array.isArray(procedure?.procedure.runways) && procedure?.procedure.runways.length === 1 && procedure?.procedure.runways[0]) {
+                        arrRunway = procedure?.procedure.runways[0];
+                        arrivalProcedures = await getNavigraphAirportProceduresForKey('approaches', arrival);
+                    }
 
                     const enrouteTransition = procedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
@@ -399,6 +467,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                             title: procedure?.procedure.identifier,
                             identifier: x.identifier,
                             coordinate: x.coordinate,
+                            description: x.description,
                             kind: 'stars',
 
                             altitude: x.altitude,
@@ -413,6 +482,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         title: procedure?.procedure.identifier,
                         identifier: x.identifier,
                         coordinate: x.coordinate,
+                        description: x.description,
                         kind: 'stars',
 
                         altitude: x.altitude,
@@ -429,6 +499,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 title: procedure?.procedure.identifier,
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
+                                description: x.description,
                                 kind: 'stars',
 
                                 altitude: x.altitude,
@@ -444,12 +515,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         const forRunway = arrivalProcedures.filter(x => x.procedure.runway === arrRunway);
                         const procedure = arrApproach ? arrApproach.procedure : forRunway.find(x => x.procedure.procedureName.startsWith('ILS')) ?? forRunway[0];
                         if (procedure) {
-                            const transition = procedure?.transitions.find(x => x.name === entries[entries.length - 2]);
+                            const transition = procedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === entries[entries.length - 2]);
                             if (transition) {
                                 waypoints.push(...transition.waypoints.map(x => ({
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'approaches',
+                                    description: x.description,
 
                                     altitude: x.altitude,
                                     altitude1: x.altitude1,
@@ -463,6 +535,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
                                 kind: 'approaches',
+                                description: x.description,
 
                                 altitude: x.altitude,
                                 altitude1: x.altitude1,
@@ -476,6 +549,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
                                     kind: 'missedApproach',
+                                    description: x.description,
 
                                     altitude: x.altitude,
                                     altitude1: x.altitude1,
@@ -549,6 +623,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         waypoints.push({
                             identifier: waypoint[0],
                             kind: 'enroute',
+                            type: waypoint[6],
                             coordinate: [waypoint[3], waypoint[4]],
                         });
                     }
@@ -596,6 +671,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 let kind: NavigraphNavDataEnrouteWaypointPartial['kind'] = 'enroute';
                 let identifier = '';
                 let key = '';
+                let type = '';
                 let coordinate: Coordinate = [0, 0];
 
                 const smallestCoordinates = [
@@ -614,6 +690,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     if (smallest[1] === 'waypoint') {
                         identifier = regularWaypoint[1][0];
                         key = regularWaypoint[0];
+                        type = regularWaypoint[1][3];
                     }
                     else if (smallest[1] === 'vhf') {
                         identifier = vhfWaypoint[1][1];
@@ -630,6 +707,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         identifier,
                         coordinate,
                         kind,
+                        type,
                         key,
                     });
                 }
@@ -787,4 +865,47 @@ export async function updateCachedProcedures() {
             }
         }
     }
+}
+
+export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak) {
+    const result: NavigraphNavDataEnrouteWaypointPartial[] = [];
+
+    const navigraphData = await getFullData();
+    const waypoints = nat.last_routeing.split(' ');
+
+    const parsedWaypoints: {
+        identifier: string;
+        coordinate: Coordinate | null;
+    }[] = waypoints.map(x => ({ identifier: x, coordinate: getPreciseCoord(x)?.[0] ?? null }));
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (waypoint.coordinate) continue;
+
+        const refCoordinate = parsedWaypoints.find((x, xIndex) => (xIndex === i + 1 || xIndex === i - 1) && x.coordinate)?.coordinate;
+        if (!refCoordinate) continue;
+
+        const foundWaypoint = Object.entries(navigraphData.parsedWaypoints?.[waypoint.identifier] ?? {}).sort((a, b) => {
+            const aCoord = [a[1][1], a[1][2]];
+            const bCoord = [b[1][1], b[1][2]];
+
+            return waypointDiff(refCoordinate, aCoord) - waypointDiff(refCoordinate, bCoord);
+        })[0];
+
+        if (foundWaypoint) waypoint.coordinate = [foundWaypoint[1][1], foundWaypoint[1][2]];
+    }
+
+    for (let i = 0; i < parsedWaypoints.length; i++) {
+        const waypoint = parsedWaypoints[i];
+        if (!waypoint.coordinate) continue;
+
+        result.push({
+            coordinate: waypoint.coordinate,
+            identifier: waypoint.identifier,
+            key: waypoint.identifier,
+            kind: 'nat-waypoint',
+        });
+    }
+
+    return result;
 }

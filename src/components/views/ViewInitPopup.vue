@@ -41,7 +41,7 @@ import type { PartialRecord } from '~/types';
 import {
     checkForAirlines,
     checkForData, checkForNavigraph,
-    checkForSimAware,
+    checkForSimAware, checkForTracks,
     checkForUpdates,
     checkForVATSpy,
     checkForVG,
@@ -63,6 +63,10 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
     dataGet: {
         title: 'VATSIM Data',
         method: checkForData,
+    },
+    tracks: {
+        title: 'natTrak Data',
+        method: checkForTracks,
     },
     vatspy: {
         title: 'VATSpy Sectorization',

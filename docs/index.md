@@ -7,17 +7,16 @@ hero:
   tagline: The Premiere Flight Tracker for the VATSIM Network
   actions:
     - theme: brand
-      text: Website
-      link: https://vatsim-radar.com
-      
-    - theme: alt
-      text: Github
-      link: https://github.com/VATSIM-Radar/vatsim-radar
+      text: Enter docs
+      link: /contributing
       
     - theme: alt
       text: About Us
       link: /introduction/about
-   
+      
+    - theme: alt
+      text: Website
+      link: https://vatsim-radar.com
 
 features:
 - icon: ⭐

@@ -1,7 +1,7 @@
 <template>
     <div
         class="flight-info"
-        :style="{ '--percent': `${ pilot.toGoPercent ?? 0 }%` , '--status-color': radarColors[getStatus.color] }"
+        :style="{ '--percent': `${ distance.toGoPercent ?? 0 }%` , '--status-color': radarColors[getStatus.color] }"
     >
         <div class="flight-info_self">
             <div>Pilot</div>
@@ -107,18 +107,18 @@
                         </component>
                     </div>
                     <div
-                        v-show="pilot.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
+                        v-show="distance.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
                         class="flight-info__card_route_line"
                         :class="{
-                            'flight-info__card_route_line--start': pilot.toGoPercent && pilot.toGoPercent < 10,
-                            'flight-info__card_route_line--end': pilot.toGoPercent && pilot.toGoPercent > 90,
+                            'flight-info__card_route_line--start': distance.toGoPercent && distance.toGoPercent < 10,
+                            'flight-info__card_route_line--end': distance.toGoPercent && distance.toGoPercent > 90,
                         }"
                         v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
                     />
                     <div class="flight-info__card_route_footer">
                         <div class="flight-info__card_route_footer_left">
                             {{
-                                (pilot.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(pilot.depDist) } NM,` : ''
+                                (distance.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(distance.depDist) } NM,` : ''
                             }} Online
                             <span v-if="pilot.logon_time">
                                 {{ getLogonTime }}
@@ -208,7 +208,13 @@
 <script setup lang="ts">
 import { parseEncoding } from '~/utils/data';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import { fetchAircraftIcon, getPilotStatus, isPilotOnGround, reColorSvg } from '~/composables/pilots';
+import {
+    fetchAircraftIcon,
+    getAircraftDistance,
+    getPilotStatus,
+    isPilotOnGround,
+    reColorSvg,
+} from '~/composables/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
@@ -270,12 +276,14 @@ const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
     minute: '2-digit',
 }));
 
+const distance = computed(() => getAircraftDistance(props.pilot));
+
 const getDistAndTime = computed(() => {
     try {
-        if (!props.pilot.toGoDist || !props.pilot.toGoTime) return null;
+        if (!distance.value.toGoDist) return null;
 
-        const dist = Math.round(props.pilot.toGoDist);
-        const goTime = new Date(props.pilot.toGoTime!);
+        const dist = Math.round(distance.value.toGoDist);
+        const goTime = new Date(distance.value.toGoTime!);
         let date = datetime.value.format(goTime).toUpperCase();
         if (store.user?.settings.timeFormat === '12h') date += ' ';
 

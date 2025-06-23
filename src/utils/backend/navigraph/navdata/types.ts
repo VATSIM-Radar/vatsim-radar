@@ -31,7 +31,8 @@ export interface NavigraphNavDataHolding {
 export interface NavigraphNavDataWaypoint {
     identifier: string;
     coordinate: Coordinate;
-    ref: string;
+    type?: string;
+    description?: string;
 }
 
 export interface NavigraphNavDataEnrouteWaypoint {
@@ -46,10 +47,10 @@ export interface NavigraphNavDataEnrouteWaypointPartial extends Partial<Navigrap
     coordinate?: Coordinate;
     title?: string;
     type?: string;
-    usage?: string;
+    description?: string;
     key?: string;
     canShowHold?: boolean;
-    kind: 'sids' | 'stars' | 'approaches' | 'missedApproach' | 'airway' | 'enroute' | 'vhf' | 'ndb';
+    kind: 'sids' | 'stars' | 'approaches' | 'missedApproach' | 'airway' | 'enroute' | 'vhf' | 'ndb' | 'nat-waypoint';
     airway?: {
         key: string;
         value: ShortAirway;
@@ -207,7 +208,7 @@ export type ShortAirway = [identifier: string, type: string, waypoints: [identif
 export interface NavigraphNavDataShort {
     vhf: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
-    holdings: Record<string, [waypoint: string, course: number, time: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null]>;
+    holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;
     airways: Record<string, ShortAirway>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string]>;
 

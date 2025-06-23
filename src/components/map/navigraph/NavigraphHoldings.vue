@@ -77,7 +77,7 @@ function generateHoldingPatternGeoJSON(
     // 2) Compute outbound leg distance in meters
     const distanceMeters = distanceInMinutes
         ? gsMs * 60 * distanceInput
-        : distanceInput;
+        : 1852 * distanceInput;
 
     // 3) Sign for turn direction
     const sign = turnDirection === 'R' ? 1 : -1;
@@ -144,29 +144,39 @@ const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataSto
     x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
 ]))));
 
-const aircraftWaypoints = computed(() => Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.waypoints.filter(x => x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x))));
+const aircraftWaypoints = computed(() => Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x))));
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
-    source?.value.removeFeatures(features);
-    features = [];
+    const newFeatures: Feature[] = [];
 
-    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) return;
+    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) {
+        source?.value.removeFeatures(features);
+        features = [];
+        return;
+    }
 
-    const entries = Object.entries(await dataStore.navigraph.data('holdings') ?? {}).filter(x => (enabled && x[1][7] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
+    const entries = Object.entries(await dataStore.navigraph.data('holdings') ?? {}).filter(x => (enabled && x[1][8] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
 
-    entries.forEach(([key, [waypoint, course, time, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
+    entries.forEach(([key, [waypoint, course, time, length, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
         let flightLevel: NavDataFlightLevel = 'B';
 
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
         if (!isPointInExtent([longitude, latitude], extent) || !checkFlightLevel(flightLevel)) return;
+
+        const existingFeatures = features.filter(x => x.getProperties().key === key);
+        if (existingFeatures.length) {
+            newFeatures.push(...existingFeatures);
+            return;
+        }
+
         speed ??= 240;
         time ??= 0;
 
-        features.push(
+        newFeatures.push(
             new Feature({
-                geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time, true, 32)),
+                geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
                 key,
                 turns,
                 time,
@@ -185,6 +195,8 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
         );
     });
 
+    source?.value.removeFeatures(features);
+    features = newFeatures;
     source?.value.addFeatures(features);
 }, {
     immediate: true,

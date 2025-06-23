@@ -143,12 +143,17 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
 export interface VatsimNattrak {
     identifier: string;
     active: boolean;
-    last_routein: string;
+    last_routeing: string;
     valid_from: string;
     valid_to: string;
     last_active: string;
-    condorde: number;
+    concorde: number;
     flight_levels: number[];
+}
+
+export interface VatsimNattrakClient extends Omit<VatsimNattrak, 'valid_to' | 'valid_from'> {
+    valid_from: Date;
+    valid_to: Date;
 }
 
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;

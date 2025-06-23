@@ -483,6 +483,7 @@ async function setPilotRoute(enabled: boolean) {
     dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
         pilot: pilot.value,
         full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
+        calculatedArrival: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.calculatedArrival,
         waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
             flightPlan: flightPlan.value,
             departure: pilot.value.departure!,

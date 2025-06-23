@@ -32,6 +32,8 @@ async function loadTimestamp() {
 
 interface Layer {
     attributions?: string;
+    minZoom?: number;
+    maxZoom?: number;
     tileUrlFunction: UrlFunction;
 }
 
@@ -49,8 +51,17 @@ function getLayer(id: MapWeatherLayer): Layer {
         now.setMinutes(roundedMinutes - 10, 0, 0);
 
         return {
+            minZoom: 3,
+            maxZoom: 7,
             attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
             tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/radar/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb&tm=${ now.getTime() / 1000 }`,
+        };
+    }
+
+    if (id === 'RE') {
+        return {
+            attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/relief/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb`,
         };
     }
 

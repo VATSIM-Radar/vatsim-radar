@@ -11,6 +11,10 @@
         </template>
         <navigraph-procedures/>
         <navigraph-route v-if="!store.localSettings.disableNavigraphRoute"/>
+        <navigraph-nat
+            v-if="store.localSettings.natTrak?.enabled"
+            :key="String(store.localSettings.natTrak?.showConcorde)"
+        />
         <map-overlay
             v-if="activeFeature"
             model-value
@@ -34,8 +38,14 @@
                     <template v-else-if="activeFeature && isHolding(activeFeature)">
                         {{ activeFeature.data.name }}
                     </template>
+                    <template v-else-if="activeFeature && isNat(activeFeature)">
+                        {{ activeFeature.data.identifier }}
+                    </template>
                 </template>
-                <div class="layers_info">
+                <div
+                    class="layers_info"
+                    :class="[`layers_info--type-${ activeFeature.type }`]"
+                >
                     <template v-if="activeFeature && isVHF(activeFeature)">
                         <div
                             v-for="field in ([
@@ -119,6 +129,48 @@
                             </span>
                         </div>
                     </template>
+                    <div
+                        v-else-if="activeFeature && isNat(activeFeature)"
+                        class="layers__nat"
+                    >
+                        <div class="__grid-info-sections __grid-info-sections--large-title">
+                            <div class="__grid-info-sections_title">
+                                Active from
+                            </div>
+                            <span>
+                                {{ datetime.format(activeFeature.data.validFrom) }}Z
+                            </span>
+                        </div>
+                        <div class="__grid-info-sections __grid-info-sections--large-title">
+                            <div class="__grid-info-sections_title">
+                                Active to
+                            </div>
+                            <span>
+                                {{ datetime.format(activeFeature.data.validTo) }}Z
+                            </span>
+                        </div>
+                        <div
+                            v-if="activeFeature.data.flightLevels?.length"
+                            class="__grid-info-sections __grid-info-sections--large-title"
+                        >
+                            <div class="__grid-info-sections_title">
+                                Valid at
+                            </div>
+                            <div>
+                                <span
+                                    v-for="(level, index) in activeFeature.data.flightLevels"
+                                    :key="level + index"
+                                >
+                                    FL{{level / 100}}
+                                </span>
+                            </div>
+                        </div>
+                        <common-copy-info-block
+                            :text="activeFeature.data.route"
+                        >
+                            Route
+                        </common-copy-info-block>
+                    </div>
                 </div>
             </common-popup-block>
         </map-overlay>
@@ -129,7 +181,7 @@
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import VectorSource from 'ol/source/Vector';
-import { Fill, Style, Text, Icon, Stroke, Circle } from 'ol/style';
+import { Fill, Style, Text, Icon, Stroke } from 'ol/style';
 import { getCurrentThemeRgbColor } from '~/composables';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
 import type { Coordinate } from 'ol/coordinate';
@@ -144,6 +196,8 @@ import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigra
 import { useMapStore } from '~/store/map';
 import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
 import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
+import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
+import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
@@ -164,7 +218,32 @@ type ActiveFeature<T extends keyof NavigraphNavData> = {
     properties: Record<string, any>;
 };
 
-const activeFeature: Ref<ActiveFeature<keyof NavigraphNavData> | null> = ref(null);
+const datetime = new Intl.DateTimeFormat(['ru-RU'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    day: '2-digit',
+    year: 'numeric',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+});
+
+interface NatFeature {
+    coords: Coordinate;
+    type: 'nat';
+    data: {
+        validFrom: Date;
+        validTo: Date;
+        flightLevels: number[];
+        route: string;
+        concorde: number;
+        identifier: string;
+    };
+    additionalData?: Record<string, any>;
+    properties: Record<string, any>;
+}
+
+const activeFeature: Ref<ActiveFeature<keyof NavigraphNavData> | NatFeature | null> = ref(null);
 
 function isVHF(activeFeature: ActiveFeature<any>): activeFeature is ActiveFeature<'vhf'> {
     return activeFeature.type === 'vhf';
@@ -182,16 +261,34 @@ function isHolding(activeFeature: ActiveFeature<any>): activeFeature is ActiveFe
     return activeFeature.type === 'holdings';
 }
 
+function isNat(activeFeature: ActiveFeature<any>): activeFeature is NatFeature {
+    return activeFeature.type === 'nat';
+}
+
 const ndbStyle = new Icon({
-    src: '/icons/ndb.png',
+    src: '/icons/compressed/ndb.png',
     width: 16,
     color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
     opacity: 0.6,
 });
 
 const vordmeStyle = new Icon({
-    src: '/icons/vordme.png',
+    src: '/icons/compressed/vordme.png',
     width: 16,
+    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+    opacity: 0.6,
+});
+
+const ndbStyleSmall = new Icon({
+    src: '/icons/compressed/ndb.png',
+    width: 12,
+    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+    opacity: 0.6,
+});
+
+const vordmeStyleSmall = new Icon({
+    src: '/icons/compressed/vordme.png',
+    width: 12,
     color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
     opacity: 0.6,
 });
@@ -213,18 +310,32 @@ async function handleMapClick(event: MapBrowserEvent<any>) {
 
     const feature = features[0];
     const properties = feature.getProperties();
+
+    if (properties.kind === 'nat') {
+        activeFeature.value = {
+            coords: event.coordinate,
+            type: 'nat',
+            // @ts-expect-error Dynamic type
+            data: properties,
+            additionalData: {},
+            properties: {},
+        };
+
+        return;
+    }
+
     if (!properties.type.endsWith('waypoint') && properties.key) {
         activeFeature.value = null;
         await sleep(0);
         const data = await getNavigraphData({
-            data: properties.type,
+            data: properties.type.replace('enroute-', ''),
             key: properties.key,
         });
         mapStore.openOverlayId = null;
         await nextTick();
         activeFeature.value = {
             coords: event.coordinate,
-            type: properties.type as keyof NavigraphNavData,
+            type: properties.type.replace('enroute-', '') as keyof NavigraphNavData,
             data,
             properties,
         };
@@ -244,13 +355,62 @@ watch(map, val => {
     if (!navigraphLayer) {
         navigraphSource.value = new VectorSource();
 
-        const waypointCircle = new Circle({
-            radius: 4,
-            stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
-                width: 2,
+        const waypointsTypes = {
+            default: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/compulsory-rep.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 8,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
             }),
-        });
+            flyOver: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/fly-over.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 12,
+                    opacity: 0.8,
+                }),
+                zIndex: 6,
+            }),
+            flyBy: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/fly-by.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 10,
+                    opacity: 1,
+                }),
+                zIndex: 6,
+            }),
+            onRequest: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/on-request.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 8,
+                    opacity: 0.6,
+                }),
+                zIndex: 6,
+            }),
+            compulsoryFlyBy: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/compulsory-fly-by.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 12,
+                    opacity: 0.8,
+                }),
+                zIndex: 6,
+            }),
+            approachFix: new Style({
+                image: new Icon({
+                    src: '/icons/compressed/final-approach-fix.png',
+                    color: `rgb(${ getCurrentThemeRgbColor('lightgray125').join(',') })`,
+                    width: 12,
+                    opacity: 0.8,
+                }),
+                zIndex: 6,
+            }),
+        };
 
         const waypointStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.2)`,
@@ -313,10 +473,12 @@ watch(map, val => {
         function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
             const properties = feature.getProperties();
 
-            if (properties.type === 'vhf') {
+            const isEnroute = properties.type.startsWith('enroute');
+
+            if (properties.type.endsWith('vhf')) {
                 return [
                     new Style({
-                        image: fake ? fakeCircle : vordmeStyle,
+                        image: fake ? fakeCircle : isEnroute ? vordmeStyleSmall : vordmeStyle,
                         zIndex: 7,
                     }),
                     new Style({
@@ -336,10 +498,10 @@ watch(map, val => {
                 ];
             }
 
-            if (properties.type === 'ndb') {
+            if (properties.type.endsWith('ndb')) {
                 return [
                     new Style({
-                        image: fake ? fakeCircle : ndbStyle,
+                        image: fake ? fakeCircle : isEnroute ? ndbStyleSmall : ndbStyle,
                         zIndex: 7,
                     }),
                     new Style({
@@ -401,18 +563,47 @@ watch(map, val => {
                     }
                 }
 
+                let image = waypointsTypes.default;
+
+                if (properties.usage) {
+                    if (properties.usage[0] === 'W' && properties.usage[2]?.trim()) {
+                        image = waypointsTypes.compulsoryFlyBy;
+                    }
+                    else if (properties.usage[0] === 'W') {
+                        image = waypointsTypes.flyBy;
+                    }
+                    else if (properties.usage[0] === 'R') {
+                        image = waypointsTypes.onRequest;
+                    }
+                }
+
+                if (properties.description) {
+                    if (properties.description[0] === 'R') {
+                        image = waypointsTypes.onRequest;
+                    }
+
+                    if (properties.description[1] === 'Y') {
+                        image = waypointsTypes.flyOver;
+                    }
+
+                    if (properties.description[2] === 'C' || properties.description[0] === 'V') {
+                        image = waypointsTypes.compulsoryFlyBy;
+                    }
+
+                    if (properties.description[3] === 'E' || properties.description[3] === 'F') {
+                        image = waypointsTypes.approachFix;
+                    }
+                }
+
                 const styles = [
-                    new Style({
-                        image: waypointCircle,
-                        zIndex: 6,
-                    }),
+                    image,
                     new Style({
                         text: showWaypointsLabels.value || properties.type === 'waypoint'
                             ? new Text({
                                 font: '8px Montserrat',
                                 text,
-                                offsetX: 15,
-                                textBaseline: 'top',
+                                offsetX: 12,
+                                textBaseline: 'middle',
                                 textAlign: 'left',
                                 justify: 'left',
                                 padding: [2, 2, 2, 2],
@@ -421,7 +612,7 @@ watch(map, val => {
                                 }),
                             })
                             : undefined,
-                        zIndex: 4,
+                        zIndex: 6,
                     }),
                 ];
 
@@ -457,11 +648,12 @@ watch(map, val => {
                             text: `${ properties.identifier }`,
                             placement: 'line',
                             keepUpright: true,
+                            textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
                             justify: 'center',
                             padding: [6, 6, 6, 6],
                             rotateWithView: false,
                             fill: new Fill({
-                                color: `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
+                                color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
                             }),
                         })
                         : undefined,
@@ -598,5 +790,17 @@ onBeforeUnmount(() => {
     max-width: 300px;
 
     font-size: 14px;
+
+    &--type-nat {
+        width: 300px;
+
+        .layers__nat {
+            width: 100%;
+        }
+    }
+
+    @include mobileOnly {
+        max-width: calc(100dvw - 48px);
+    }
 }
 </style>

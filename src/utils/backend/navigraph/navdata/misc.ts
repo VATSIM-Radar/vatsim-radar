@@ -31,6 +31,8 @@ export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData,
     for (const item of holdings) {
         const key = `${ item.icao_code }-${ item.waypoint_identifier }-${ item.area_code }-${ item.region_code }`;
 
+        const waypoint = shortData.waypoints?.[`${ item.waypoint_identifier }-${ item.area_code }`];
+
         fullData.holdings[key] = {
             name: item.holding_name,
             speed: item.holding_speed,
@@ -43,11 +45,11 @@ export const processNavdataHoldings: NavdataProcessFunction = async ({ fullData,
             waypoint: {
                 identifier: item.waypoint_identifier,
                 coordinate: [item.waypoint_longitude, item.waypoint_latitude],
-                ref: item.waypoint_ref_table,
+                type: waypoint?.[3],
             },
         };
 
-        shortData.holdings[key] = [item.waypoint_identifier, item.inbound_holding_course, item.leg_time, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code, item.minimum_altitude, item.maximum_altitude];
+        shortData.holdings[key] = [item.waypoint_identifier, item.inbound_holding_course, item.leg_time, item.leg_length, item.turn_direction as 'L' | 'R', item.waypoint_longitude, item.waypoint_latitude, item.holding_speed, item.region_code, item.minimum_altitude, item.maximum_altitude, waypoint?.[3]];
     }
 };
 
@@ -171,7 +173,6 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
             objectAirway.waypoints.push({
                 identifier: airway.waypoint_identifier,
                 coordinate: [airway.waypoint_longitude, airway.waypoint_latitude],
-                ref: airway.waypoint_ref_table,
                 minAlt: airway.minimum_altitude1,
                 maxAlt: airway.maximum_altitude,
                 inbound: airway.inbound_course,

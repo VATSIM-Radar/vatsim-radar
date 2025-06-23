@@ -11,13 +11,35 @@ import { colorsList } from '../utils/backend/styles';
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);
 
-    const iconsPath = resolver.resolve('../assets/icons/aircraft');
+    const aircraftIconsPath = resolver.resolve('../assets/icons/aircraft');
     const publicPath = resolver.resolve('../public/aircraft');
+    const iconsPath = resolver.resolve('../public/icons');
+    const waypointsPath = resolver.resolve('../public/icons/waypoints');
+    const compressedPath = resolver.resolve('../public/icons/compressed');
+
+    const waypoints = ['compulsory-fly-by', 'compulsory-rep', 'final-approach-fix', 'fly-by', 'fly-over', 'on-request'];
+    const regular = ['ndb', 'vordme'];
+
+    for (const waypoint of waypoints) {
+        const sharpIcon = sharp(join(waypointsPath, `${ waypoint }.png`));
+        sharpIcon.resize({
+            width: 12,
+        });
+        await sharpIcon.png().toFile(join(compressedPath, `${ waypoint }.png`));
+    }
+
+    for (const icon of regular) {
+        const sharpIcon = sharp(join(iconsPath, `${ icon }.png`));
+        sharpIcon.resize({
+            width: 16,
+        });
+        await sharpIcon.png().toFile(join(compressedPath, `${ icon }.png`));
+    }
 
     const fullList: PartialRecord<AircraftIcon, { icon: AircraftIcon; width: number; height: number }> = {};
 
     for (const [icon, { width }] of Object.entries(aircraftIcons)) {
-        const iconContents = readFileSync(join(iconsPath, `${ icon }.svg`), 'utf-8');
+        const iconContents = readFileSync(join(aircraftIconsPath, `${ icon }.svg`), 'utf-8');
 
         for (let i = 0; i < 2; i++) {
             let iconContent = iconContents

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nuxt';
+import packageJSON from '~~/package.json';
 
 let env = 'production';
 if (process.env.NODE_ENV === 'development') env = 'development';
@@ -9,4 +10,5 @@ Sentry.init({
     integrations: [Sentry.piniaIntegration(usePinia())],
     tracesSampleRate: 0,
     environment: env,
+    release: packageJSON.version,
 });

@@ -24,29 +24,33 @@ let features: Feature[] = [];
 const extent = computed(() => mapStore.extent);
 
 watch([isEnabled, extent], async ([enabled, extent]) => {
-    source?.value.removeFeatures(features);
-    features = [];
+    if (!enabled) {
+        source?.value.removeFeatures(features);
+        features = [];
+        return;
+    }
 
-    if (!enabled) return;
-
-    source?.value.removeFeatures(features);
-    features = [];
+    const newFeatures: Feature[] = [];
     const entries = Object.entries(await dataStore.navigraph.data('waypoints') ?? {});
 
     entries.forEach(([key, waypoint]) => {
         const coordinate = [waypoint[1], waypoint[2]];
         if (!isPointInExtent(coordinate, extent)) return;
 
-        features.push(new Feature({
+        newFeatures.push(new Feature({
             geometry: new Point([waypoint[1], waypoint[2]]),
             key,
             identifier: waypoint[0],
+            usage: waypoint[3],
             waypoint: waypoint[0],
             dataType: 'navdata',
             type: 'waypoint',
         }));
     });
 
+    source?.value.removeFeatures(features);
+    features.forEach(feature => feature.dispose());
+    features = newFeatures;
     source?.value.addFeatures(features);
 }, {
     immediate: true,

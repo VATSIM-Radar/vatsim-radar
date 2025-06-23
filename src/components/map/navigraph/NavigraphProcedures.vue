@@ -46,7 +46,8 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
                 dataType: 'navdata',
                 key: x.identifier,
                 waypoint: x.identifier,
-                ref: x.ref,
+                description: x.description,
+                usage: x.type,
                 type: 'enroute-waypoint',
 
                 altitude: x.altitude,
