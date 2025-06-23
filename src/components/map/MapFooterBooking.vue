@@ -156,18 +156,21 @@ const bookingChanged = computed(() => {
 
 <style scoped lang="scss">
 .footer-time-popup {
-  &__arrows {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 12px 0 12px 0;
-    gap: 4px;
-  }
-  &__arrows-spacer {
-    flex: 1;
-  }
-  &__apply {
-    margin: 0 8px;
-  }
+    &__arrows {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        justify-content: center;
+
+        margin: 12px 0;
+    }
+
+    &__arrows-spacer {
+        flex: 1;
+    }
+
+    &__apply {
+        margin: 0 8px;
+    }
 }
 </style>

@@ -467,9 +467,10 @@ function cancelBookingOverride() {
 .map-footer__booking-title-row {
     display: flex;
     flex-direction: row;
+    gap: 16px;
     align-items: center;
     justify-content: space-between;
+
     width: 600px;
-    gap: 16px;
 }
 </style>
