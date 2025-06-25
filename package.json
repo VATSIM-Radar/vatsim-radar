@@ -71,7 +71,7 @@
     "sharp": "^0.34.2",
     "sqlite3": "^5.1.7",
     "srvx": "^0.8.0",
-    "svgo": "^3.3.2",
+    "svgo": "^4.0.0",
     "ua-parser-js": "2.0.4",
     "vite-plugin-pwa": "^1.0.0",
     "vite-svg-loader": "^5.1.0",
