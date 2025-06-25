@@ -86,7 +86,7 @@
     "@nuxt/devtools": "^2.5.0",
     "@nuxt/eslint": "^1.4.1",
     "@nuxtjs/stylelint-module": "5.2.0",
-    "@stylistic/eslint-plugin": "^4.4.1",
+    "@stylistic/eslint-plugin": "^5.0.0",
     "@stylistic/stylelint-plugin": "^3.1.2",
     "@types/adm-zip": "^0.5.7",
     "@types/deep-equal": "^1.0.4",
