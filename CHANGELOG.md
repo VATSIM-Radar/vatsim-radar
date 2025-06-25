@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.0-rc.5]
+
+- Default map layers have been updated from March 22 to June 22 version
+- 
+
 # [1.2.0-rc.4]
 
 - Renamed relief layer to ground elevation
