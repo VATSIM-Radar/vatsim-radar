@@ -189,6 +189,8 @@ export interface UseDataStore {
         pilot: VatsimShortenedAircraft;
         calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
         full: boolean;
+        disableHoldings?: boolean;
+        disableLabels?: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

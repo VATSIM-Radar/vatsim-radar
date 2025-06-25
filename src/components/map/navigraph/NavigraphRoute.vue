@@ -32,7 +32,7 @@ function update() {
     let newFeatures: ObjectWithGeometry[] = [];
 
     try {
-        for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+        for (let { waypoints, pilot, full, disableLabels } of Object.values(dataStore.navigraphWaypoints.value)) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -173,9 +173,9 @@ function update() {
 
                     newFeatures.push({
                         geometry: new Point(waypoint.coordinate!),
-                        identifier: waypoint.identifier,
+                        identifier: disableLabels ? '' : waypoint.identifier,
                         id: waypoint.identifier,
-                        waypoint: waypoint.identifier,
+                        waypoint: disableLabels ? '' : waypoint.identifier,
                         kind: waypoint.kind,
                         key: waypoint.key,
                         type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
@@ -183,11 +183,11 @@ function update() {
                         description: waypoint.description,
                         dataType: 'navdata',
 
-                        altitude: waypoint.altitude,
-                        altitude1: waypoint.altitude1,
-                        altitude2: waypoint.altitude2,
-                        speed: waypoint.speed,
-                        speedLimit: waypoint.speedLimit,
+                        altitude: disableLabels ? undefined : waypoint.altitude,
+                        altitude1: disableLabels ? undefined : waypoint.altitude1,
+                        altitude2: disableLabels ? undefined : waypoint.altitude2,
+                        speed: disableLabels ? undefined : waypoint.speed,
+                        speedLimit: disableLabels ? undefined : waypoint.speedLimit,
                     });
 
                     if (foundWaypoint) {
@@ -204,7 +204,7 @@ function update() {
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
-                        identifier: waypoint.title ?? '',
+                        identifier: disableLabels ? '' : waypoint.title ?? '',
                         type: 'airways',
                         dataType: 'navdata',
                         kind: waypoint.kind,
@@ -240,9 +240,9 @@ function update() {
 
                         newFeatures.push({
                             geometry: new Point([currWaypoint[3], currWaypoint[4]]),
-                            identifier: currWaypoint[0],
+                            identifier: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
-                            waypoint: currWaypoint[0],
+                            waypoint: disableLabels ? '' : currWaypoint[0],
                             id: currWaypoint[0],
                             type: 'airway-waypoint',
                             dataType: 'navdata',
@@ -279,10 +279,10 @@ function update() {
                             geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
                             id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
-                            identifier: waypoint.airway!.value[0],
+                            identifier: disableLabels ? '' : waypoint.airway!.value[0],
                             inbound: currWaypoint[1],
                             outbound: currWaypoint[2],
-                            waypoint: currWaypoint[0],
+                            waypoint: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
                             type: 'airways',
                             dataType: 'navdata',

@@ -66,6 +66,8 @@ interface IUserLocalSettings {
         enabled?: boolean;
         sid?: boolean;
         star?: boolean;
+        holds?: boolean;
+        labels?: boolean;
     };
 
     natTrak: {

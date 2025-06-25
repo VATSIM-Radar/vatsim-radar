@@ -243,6 +243,8 @@ export interface FlightPlanInputWaypoint {
     cid: number;
     disableSidParsing?: boolean;
     disableStarParsing?: boolean;
+    disableHoldings?: boolean;
+    disableLabels?: boolean;
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
@@ -323,6 +325,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     let arrApproach = null as null | DataStoreNavigraphProcedure<NavigraphNavDataApproach>;
 
     const navigraphData = await getFullData();
+    let letter = '';
 
     try {
         for (let i = 0; i < entries.length; i++) {
@@ -344,9 +347,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             const nat = NATRegex.exec(entry);
 
+            if (letter && entries[i - 1] === letter && entries[i + 1] === letter) continue;
+
             if (nat?.groups?.letter) {
                 const natRoute = dataStore.vatsim.tracks.value.find(x => x.identifier === nat?.groups?.letter);
                 if (natRoute) {
+                    if (letter) continue;
+                    letter = entry;
                     waypoints.push(...await buildNATWaypoints(natRoute));
                 }
 

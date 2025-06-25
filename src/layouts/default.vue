@@ -7,8 +7,8 @@
         <view-header v-if="!store.config.hideHeader"/>
         <div class="app_content">
             <client-only>
-                <view-update-popup v-if="!hasObs()"/>
                 <view-init-popup/>
+                <view-update-popup v-if="!hasObs()"/>
                 <view-metar v-if="store.metarRequest"/>
             </client-only>
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>

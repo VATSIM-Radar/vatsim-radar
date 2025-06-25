@@ -3,7 +3,11 @@
 # [1.2.0-rc.5]
 
 - Default map layers have been updated from March 22 to June 22 version
-- 
+- Fixed distance tool not saving when CTRL is pressed
+- Fixed distance tool going crazy in some cases when CTRL+Click is enabled
+- Added ability to disable holdings and labels for airport-only traffic
+- Fixed stepclimbs parse for NAT tracks
+- Updated roadmap
 
 # [1.2.0-rc.4]
 
@@ -80,6 +84,7 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Quiet airports are now sorted by how close they are to current map center (if "quietness" is the same)
 - Added initialization popup with retry functionality
 - Reworked filter search combobox to significantly improve UI of adding new filter data
+- Default map layers have been updated from March 22 to June 22 version
 
 ## Bookings improvements by MindCollaps
 

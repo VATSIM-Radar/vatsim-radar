@@ -708,6 +708,7 @@ async function initDistance(event: MapBrowserEvent) {
 let overlaysCache: typeof mapStore.overlays = [];
 
 function handleDownEvent(event: MapBrowserEvent) {
+    if (mapStore.distance.pixel) return false;
     const now = Date.now();
 
     if (store.localSettings.distance?.ctrlClick) {
@@ -727,7 +728,6 @@ function handleDownEvent(event: MapBrowserEvent) {
     if (now - lastClickTime < 300) {
         initDistance(event).then(async () => {
             await nextTick();
-            console.log(overlaysCache);
             mapStore.overlays = overlaysCache;
         });
         lastClickTime = 0;
@@ -757,6 +757,7 @@ function setMapInteractions() {
     const ctrl = store.localSettings.distance?.ctrlClick;
 
     map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
+    map.value.getInteractions().clear();
 
     if (withDistance) {
         const interactions = defaults({

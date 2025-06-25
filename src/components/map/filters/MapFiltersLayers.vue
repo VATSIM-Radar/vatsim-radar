@@ -239,34 +239,11 @@
             >
                 Enabled
             </common-toggle>
-            <common-block-title remove-margin>
-                Route parsing
-            </common-block-title>
             <common-toggle
                 :model-value="store.localSettings.disableNavigraphRoute !== true"
                 @update:modelValue="setUserLocalSettings({ disableNavigraphRoute: !$event })"
             >
-                Enabled
-            </common-toggle>
-            <common-toggle
-                :model-value="store.localSettings.navigraphRouteAirportOverlay?.enabled !== false"
-                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { enabled: $event } })"
-            >
-                Enable for airport tracks
-            </common-toggle>
-            <common-toggle
-                :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
-                :model-value="store.localSettings.navigraphRouteAirportOverlay?.sid !== false"
-                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { sid: $event } })"
-            >
-                Auto-SID parsing for airport tracks
-            </common-toggle>
-            <common-toggle
-                :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
-                :model-value="store.localSettings.navigraphRouteAirportOverlay?.star !== false"
-                @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { star: $event } })"
-            >
-                Auto-STAR parsing for airport tracks
+                Enable route parsing
             </common-toggle>
 
             <common-block-title remove-margin>
@@ -337,6 +314,51 @@
                 :model-value="store.mapSettings.navigraphData?.mode ?? 'both'"
                 @update:modelValue="setUserMapSettings({ navigraphData: { mode: $event as any } })"
             />
+            <template v-if="!store.localSettings.disableNavigraphRoute">
+                <common-block-title remove-margin>
+                    Airport Tracks
+                </common-block-title>
+                <map-filter-columns>
+                    <template #col1>
+                        <common-toggle
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.enabled !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { enabled: $event } })"
+                        >
+                            Enabled
+                        </common-toggle>
+                        <common-toggle
+                            :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.sid !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { sid: $event } })"
+                        >
+                            Auto-SID parsing
+                        </common-toggle>
+                        <common-toggle
+                            :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.star !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { star: $event } })"
+                        >
+                            Auto-STAR parsing
+                        </common-toggle>
+                    </template>
+                    <template #col2>
+                        <common-toggle
+                            :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.holds !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { holds: $event } })"
+                        >
+                            Holdings
+                        </common-toggle>
+                        <common-toggle
+                            :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.labels !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { labels: $event } })"
+                        >
+                            Labels
+                        </common-toggle>
+                    </template>
+                </map-filter-columns>
+            </template>
         </template>
     </div>
 </template>
