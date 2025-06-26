@@ -4779,21 +4779,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/stylelint-plugin@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "@stylistic/stylelint-plugin@npm:3.1.2"
+"@stylistic/stylelint-plugin@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "@stylistic/stylelint-plugin@npm:3.1.3"
   dependencies:
     "@csstools/css-parser-algorithms": "npm:^3.0.1"
     "@csstools/css-tokenizer": "npm:^3.0.1"
     "@csstools/media-query-list-parser": "npm:^3.0.1"
     is-plain-object: "npm:^5.0.0"
+    postcss: "npm:^8.4.41"
     postcss-selector-parser: "npm:^6.1.2"
     postcss-value-parser: "npm:^4.2.0"
     style-search: "npm:^0.1.0"
-    stylelint: "npm:^16.8.2"
   peerDependencies:
     stylelint: ^16.8.0
-  checksum: 10c0/90d6363f7d5aa7003b0a35a02716253839a8ae4f823485eaaae1d13a328c7a17bb792f376c93797f772abf84f22789209e9ccd3f6ae9f6c5a12aa1cd7a86d36e
+  checksum: 10c0/c36c8dee02406295075b4d75977420b0edbb93fe58081e03c930d43aa578d1bdf0af938541b14b6ed572607c0a711e680e2b02aa3b44f432d5ee4cceb3deb45e
   languageName: node
   linkType: hard
 
@@ -8146,9 +8146,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:^14.20.0":
-  version: 14.20.0
-  resolution: "discord.js@npm:14.20.0"
+"discord.js@npm:^14.21.0":
+  version: 14.21.0
+  resolution: "discord.js@npm:14.21.0"
   dependencies:
     "@discordjs/builders": "npm:^1.11.2"
     "@discordjs/collection": "npm:1.5.3"
@@ -8163,7 +8163,7 @@ __metadata:
     magic-bytes.js: "npm:^1.10.0"
     tslib: "npm:^2.6.3"
     undici: "npm:6.21.3"
-  checksum: 10c0/78c847f5cc86579a881be73d9d7642aee0ece6c17157dbc13efbd89c5e42ed82fabb4468a55afb723a7e269104929dd57da2d40846fb0d8159ceff986f7baffe
+  checksum: 10c0/35d89b66ec427ecc972f9141540774af6c6a5bf177bdbb5c948efbf838ec074204fb4610227f0f8405336d66706ba17f7280aedf00cccd858ef5c1048d861b34
   languageName: node
   linkType: hard
 
@@ -13799,7 +13799,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.32, postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.1, postcss@npm:^8.5.3, postcss@npm:^8.5.4, postcss@npm:^8.5.5, postcss@npm:^8.5.6":
+"postcss@npm:^8.4.32, postcss@npm:^8.4.41, postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.1, postcss@npm:^8.5.3, postcss@npm:^8.5.4, postcss@npm:^8.5.5, postcss@npm:^8.5.6":
   version: 8.5.6
   resolution: "postcss@npm:8.5.6"
   dependencies:
@@ -14652,10 +14652,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rou3@npm:^0.7.2":
-  version: 0.7.2
-  resolution: "rou3@npm:0.7.2"
-  checksum: 10c0/801572e220200d2ec721b4ddccc0b9584c57bd800626c34f2cd0da2e367f3ece25b59b6b358877aa3ab50c289020a1e606a3f4415018503444c00207b8330580
+"rou3@npm:^0.7.3":
+  version: 0.7.3
+  resolution: "rou3@npm:0.7.3"
+  checksum: 10c0/f20224a724838c8a0cbdd8b37462ad684b59f87a8314aa7e6a1a892f96d806bcf504bcb9108f9d812cdb6194e1a347adc15f2c379238bfbc3b723e33dc71ca46
   languageName: node
   linkType: hard
 
@@ -15892,9 +15892,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended-vue@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "stylelint-config-recommended-vue@npm:1.6.0"
+"stylelint-config-recommended-vue@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "stylelint-config-recommended-vue@npm:1.6.1"
   dependencies:
     semver: "npm:^7.3.5"
     stylelint-config-html: "npm:>=1.0.0"
@@ -15902,7 +15902,7 @@ __metadata:
   peerDependencies:
     postcss-html: ^1.0.0
     stylelint: ">=14.0.0"
-  checksum: 10c0/638d3106b0d82ccf550c48e56dbf1c4eafd2e9e523d25f15dd75da626244c8bf22d9816aef260e5485ea6e5efe3259c0a7f30b4f2ad7443a983ae6de890e9451
+  checksum: 10c0/2513fc4c6712b70d4793635690025ee3b73bfb8df9531aab46a31c677b7e7fadc38e2db640097a882e0cb3cc5c416b320099146e489f310faf9e6a73e062fd2e
   languageName: node
   linkType: hard
 
@@ -15972,7 +15972,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^16.21.0, stylelint@npm:^16.8.2":
+"stylelint@npm:^16.21.0":
   version: 16.21.0
   resolution: "stylelint@npm:16.21.0"
   dependencies:
@@ -17235,7 +17235,7 @@ __metadata:
     "@protomaps/basemaps": "npm:^5.4.1"
     "@sentry/nuxt": "npm:^9.32.0"
     "@stylistic/eslint-plugin": "npm:^5.0.0"
-    "@stylistic/stylelint-plugin": "npm:^3.1.2"
+    "@stylistic/stylelint-plugin": "npm:^3.1.3"
     "@turf/bearing": "npm:^7.2.0"
     "@turf/boolean-point-in-polygon": "npm:^7.2.0"
     "@turf/difference": "npm:^7.2.0"
@@ -17263,7 +17263,7 @@ __metadata:
     chokidar: "npm:^4.0.3"
     croner: "npm:^9.1.0"
     deep-equal: "npm:^2.2.3"
-    discord.js: "npm:^14.20.0"
+    discord.js: "npm:^14.21.0"
     eslint: "npm:^9.29.0"
     fast-xml-parser: "npm:^5.2.5"
     idb: "npm:^8.0.3"
@@ -17282,7 +17282,7 @@ __metadata:
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.10.1"
-    rou3: "npm:^0.7.2"
+    rou3: "npm:^0.7.3"
     sass-embedded: "npm:^1.89.2"
     sharp: "npm:^0.34.2"
     sqlite3: "npm:^5.1.7"
@@ -17290,7 +17290,7 @@ __metadata:
     stylelint: "npm:^16.21.0"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^15.0.1"
-    stylelint-config-recommended-vue: "npm:^1.6.0"
+    stylelint-config-recommended-vue: "npm:^1.6.1"
     stylelint-config-standard: "npm:^38.0.0"
     svgo: "npm:^4.0.0"
     tsx: "npm:4.16.2"
