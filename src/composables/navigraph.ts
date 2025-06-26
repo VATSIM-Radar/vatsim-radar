@@ -16,6 +16,8 @@ import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
 import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
+import { initIDBData } from '~/composables/idb-init';
+
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
 export async function getNavigraphAirportProcedures(airport: string): Promise<IDBNavigraphProcedures> {
@@ -256,55 +258,12 @@ const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
-let previousRequest = 0;
-let interval: NodeJS.Timeout | null = null;
-let data: NeededNavigraphData | null = null;
-let gettingData = false;
-
-async function getFullData(): Promise<NeededNavigraphData> {
-    if (gettingData) {
-        return new Promise<NeededNavigraphData>((resolve, reject) => {
-            const interval = setInterval(() => {
-                if (gettingData) return;
-                resolve(data!);
-                clearInterval(interval);
-            }, 1000);
-        });
-    }
-
-    previousRequest = Date.now();
-
-    if (!interval) {
-        interval = setInterval(() => {
-            // For GC
-            if (data && Date.now() - previousRequest > 1000 * 15) {
-                data = null;
-            }
-        }, 1000);
-    }
-
-    if (data) return data;
-
-    gettingData = true;
-
-    try {
-        data = {
-            parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-            parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-            parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-            parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-        };
-
-        gettingData = false;
-
-        return data;
-    }
-    catch (e) {
-        gettingData = false;
-
-        throw e;
-    }
-}
+const getFullData = initIDBData<NeededNavigraphData>(async () => ({
+    parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+    parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+    parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+    parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+}));
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];

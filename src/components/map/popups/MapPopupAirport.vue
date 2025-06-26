@@ -356,7 +356,7 @@ const listGroundDepartures = ref(false); // TODO: When a settings page exists, a
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures`, () => getNavigraphAirportProcedures(props.overlay.key));
+const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures-lazy`, () => getNavigraphAirportProcedures(props.overlay.key));
 
 const bookings = computed(() => {
     const atcs: VatsimShortenedController[] = [];
@@ -442,7 +442,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (runways.value) {
+    if (runways) {
         list.info.sections.push({
             title: 'Active Runways',
             collapsible: true,
@@ -546,9 +546,8 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
     }
 });
 
-const runways = computed(() => {
-    return getAirportRunways(props.overlay.data.icao);
-});
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const runways = await getAirportRunways(props.overlay.data.icao);
 
 onMounted(() => {
     const interval = setInterval(async () => {

@@ -156,7 +156,7 @@
                         <strong>This is not a tool for supervising</strong>.
                         <br>VATSIM Radar has delays.
                         <br> Each airspace has it's own separation rules.
-                        <br> Please, do not .wallop for separation issues.<br> If you think that separation was bad - submit a controller feedback instead.
+                        <br> Please, do not .wallop for separation issues.<br> If you think that separation was bad - provide feedback via local ATC facility instead.
                     </li>
                     <li>
                         To activate tool, press twice on the map

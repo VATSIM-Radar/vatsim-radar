@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.0-rc.6]
+
+- Added "Flying together" for friends in shared cockpit
+- Slightly reduced initial static resources loading size
+- You can now open latest changelog from footer
+- Implemented VATGlasses memory usage improvements when not used
+- Slightly reduced SimAware TRACON memory usage
+- Removed booking approach/center when in VG mode
+
 # [1.2.0-rc.5]
 
 - Default map layers have been updated from March 22 to June 22 version
@@ -30,7 +39,7 @@
 
 Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME, and Holdings on map. 
 
-For those who have Navigraph subscription, newest AIRAC is used - for others, Navigraph provides AIRAC 2404 for free.
+For those who have Navigraph subscription, newest AIRAC is used - for others, Navigraph provides AIRAC 2403 for free.
 
 This update also includes "Proc" tab under Aircraft and Airport, so you can view SIDs, STARs and Approaches. 
 

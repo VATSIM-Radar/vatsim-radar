@@ -275,11 +275,9 @@ import type {
     MapWeatherLayer,
 } from '~/types/map';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
-import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { IUserMapSettings, UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 import { saveMapSettings } from '~/composables/settings';
 import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';
@@ -289,9 +287,12 @@ import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
-import MapFiltersLayers from '~/components/map/filters/MapFiltersLayers.vue';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { observerFlight, ownFlight, skipObserver } from '~/composables/pilots';
+
+const MapFiltersLayers = defineAsyncComponent(() => import('~/components/map/filters/MapFiltersLayers.vue'));
+const MapFiltersTraffic = defineAsyncComponent(() => import('~/components/map/filters/MapFiltersTraffic.vue'));
+const MapSettings = defineAsyncComponent(() => import('~/components/map/filters/settings/MapSettings.vue'));
 
 const store = useStore();
 const mapStore = useMapStore();

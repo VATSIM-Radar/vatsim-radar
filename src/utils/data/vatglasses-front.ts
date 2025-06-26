@@ -1,12 +1,12 @@
 import type { CookieRef } from '#app';
-import { isVatGlassesActive, activeRunwayChanged } from '~/utils/data/vatglasses';
+import { isVatGlassesActive, activeRunwayChanged, getVGData } from '~/utils/data/vatglasses';
 import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
 
 let runwayCookie: CookieRef<Record<string, string>> | undefined;
 
-export function getAirportRunways(icao: string): VatglassesAirportRunways | null {
+export async function getAirportRunways(icao: string): Promise<VatglassesAirportRunways | null> {
     const dataStore = useDataStore();
-    const vatglassesData = dataStore?.vatglasses?.value?.data;
+    const vatglassesData = await getVGData();
     const runways = dataStore?.vatglassesActiveRunways.value[icao];
 
     if (!vatglassesData || !runways || !isVatGlassesActive.value) return null;
@@ -25,9 +25,9 @@ export function getAirportRunways(icao: string): VatglassesAirportRunways | null
     return runways;
 }
 
-export function setAirportActiveRunway(icao: string, active: string) {
+export async function setAirportActiveRunway(icao: string, active: string) {
     const dataStore = useDataStore();
-    const vatglassesData = dataStore?.vatglasses?.value?.data;
+    const vatglassesData = await getVGData();
     const runways = dataStore?.vatglassesActiveRunways.value[icao];
 
     if (!vatglassesData || !runways) return null;

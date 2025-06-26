@@ -11,7 +11,6 @@ import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
-    VatglassesAPIData,
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
 import { View } from 'ol';
@@ -55,7 +54,7 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
 });
 const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
-const vatglasses = shallowRef<VatglassesAPIData>();
+const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
@@ -175,7 +174,7 @@ export interface UseDataStore {
         localUpdateTime: Ref<number>;
     };
     simaware: ShallowRef<SimAwareAPIData | undefined>;
-    vatglasses: ShallowRef<VatglassesAPIData | undefined>;
+    vatglasses: ShallowRef<string>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
     vatglassesCombiningInProgress: Ref<boolean>;

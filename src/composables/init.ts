@@ -156,6 +156,7 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
 
 export function checkForVG() {
     return initCheck('vatglasses', async ({ dataStore }) => {
+        if (!isVatGlassesActive.value) return 'notRequired';
         let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
 
         if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
@@ -163,8 +164,9 @@ export function checkForVG() {
             await clientDB.put('data', vatglasses, 'vatglasses');
         }
 
+        dataStore.vatglasses.value = vatglasses.version;
+
         if (isVatGlassesActive.value) {
-            dataStore.vatglasses.value = vatglasses;
             await getVatglassesDynamic(dataStore);
         }
         else return 'notRequired';
