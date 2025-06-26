@@ -89,7 +89,7 @@ function update() {
 
             const backupWaypoints = rawWaypoints.slice(0);
 
-            rawWaypoints = rawWaypoints.slice(0, 5);
+            rawWaypoints = rawWaypoints.slice(0, 10);
 
             rawWaypoints = rawWaypoints.filter((x, xIndex) => {
                 if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
