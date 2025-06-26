@@ -236,18 +236,22 @@ function setVisiblePilots() {
 
             dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => {
                 const fullPilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
+                const nearby = fullPilot && fullPilot.flight_rules !== 'I' && coords[0] && calculateDistanceInNauticalMiles(coords as Coordinate, [x.longitude, x.latitude]) <= 40;
+                if (nearby) return true;
 
-                return aircraft.includes(x.cid) || (fullPilot && fullPilot.flight_rules !== 'I' && coords[0] && calculateDistanceInNauticalMiles(coords as Coordinate, [x.longitude, x.latitude]) <= 40);
+                if (!aircraft.includes(x.cid)) return false;
+
+                if (store.config.airportMode && store.config.airportMode !== 'all') {
+                    if (store.config.airportMode === 'ground') {
+                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                    }
+                    else {
+                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+                    }
+                }
+
+                return true;
             });
-
-            if (store.config.airportMode && store.config.airportMode !== 'all') {
-                if (store.config.airportMode === 'ground') {
-                    dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
-                }
-                else {
-                    dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
-                }
-            }
         }
         else {
             dataStore.visiblePilots.value = [];
