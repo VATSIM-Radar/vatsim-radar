@@ -13,7 +13,6 @@ import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
 import type {
     UserListLive,
     UserListLiveUser,
-    UserListLiveUserController,
     UserListLiveUserPilot,
 } from '~/utils/backend/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
