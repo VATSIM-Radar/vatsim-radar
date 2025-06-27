@@ -98,6 +98,7 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Added initialization popup with retry functionality
 - Reworked filter search combobox to significantly improve UI of adding new filter data
 - Default map layers have been updated from March 22 to June 22 version
+- New icon: C160 from DotWallop
 
 ## Bookings improvements by MindCollaps
 
