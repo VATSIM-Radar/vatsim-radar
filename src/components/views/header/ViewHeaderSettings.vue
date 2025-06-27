@@ -200,8 +200,7 @@
                     </common-button>
                 </div>
                 <div class="settings__description">
-                    Users with linked Navigraph and Unlimited/Data subscription receive latest AIRAC for
-                    gates and runways. Navigraph Unlimited members also get Airport Layouts feature.
+                    Users with linked Navigraph and Unlimited/Data subscription receive latest AIRAC for Navigational Data. Navigraph Unlimited members also get Airport Layouts feature.
                 </div>
             </div>
         </template>
