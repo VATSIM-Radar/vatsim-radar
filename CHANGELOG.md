@@ -1,7 +1,8 @@
 # Changelog
 
 # [1.2.0-rc.7]
-- New icon: C160
+
+- New icon: C160 
 
 # [1.2.0-rc.6]
 
@@ -42,79 +43,84 @@
 
 Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME, and Holdings on map.
 
-# [1.2.0-beta.2]
+For those who have Navigraph subscription, newest AIRAC is used - for others, Navigraph provides AIRAC 2403 for free.
 
-## QA
+This update also includes "Proc" tab under Aircraft and Airport, so you can view SIDs, STARs and Approaches.
 
-- Re-added missed approach to predicted route
+Of course, we have suffered some limitations with how waypoints are connected - but overall you should enjoy this as a great and most complicated addition we had to VATSIM Radar in a long time.
 
-## Public release
+Also, as part of this change, you can toggle natTrak oceanic routes.
 
-- Removed random VATSIM Radar restarts when you open it
-- Fixed random website reloads when you open it
-- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity"
+### Predicted aircraft route
 
-# [1.2.0-beta.1]
+This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual predicted route.
 
-All notes here are for QA release.
+You can also modify SIDs/STARs for each aircraft using "Proc" tab, but not only you can do that, but ATC also - each ATC flight plan modifications (excluding directs) will be synced with displayed route.
 
-- Added missed approach when we were able to parse approach for planned track
-- Remove dashed line to destination in favor of connecting aircraft to predicted route (if not pass last waypoint)
-- Predicted route is now drawn on hover
-- Airways labels are now correct
-- Added labels for predicted SIDs/STARs
-- Updated nearest waypoint algo
-- Fixed an issue when holdings activated randomly
-- Added a toggle to show full route to pilot popup + user settings
-- Airport SID/STAR config is now saved for one browser session
-- You can now separately toggle all SIDs/STARs
-- Procedures are no longer removed after they are opened - instead, they are pinned in screen bottom area, as well as persist when reloading page
-- Fixed multiple transitions display
-- Added procedures to airport dashboard
-- Improved map loading
+And not only that - ETA is now also calculated based on actual route to be flown.
 
-## Public release
+As usual, you can disable this inside Map Layers menu.
 
+### Distance measurement tool
+
+In map bottom left corner, you can spot a small ruler icon. Click on it to activate long-requested distance measurement tool!
+
+By default, it starts measuring (when active) by double mouse click - but you can also change it to CTRL+Click, as well as switch units to kilometers.
+
+Of course, you can click on aircraft to view separation between two of them - but please, don't use this as superivising tool. Like, please.
+
+## Other significant features
+
+- Added observers page
+- Added shared cockpit support
+- Added Weather request to weather filters and pilot overlay
+- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity". Also added Ground elevation layer
+- Applied performance and memory usage optimizations
+
+## Features and Improvements
+
+- Improved supports for screens that are small on screen height - for example, in horizontal view mode
 - Removed scale indicator on mobile to save space
-- Improved supports for screens that are small on screen height - for example, in horisontal view mode
+- You can now toggle short aircraft hover view in map settings
+- You can now switch to 12 hours time display in user settings
+- You can now filter by flight plan type: IFR, VFR, VFR + no flight plan, no flight plan
+- VFR traffic will now show within 40 miles from airport when inside airport dashboard
+- VATGlasses level can now be controlled using mouse wheel
+- SIGMETs hitbox has been improved to be opened even inside VATGlasses
+- Map settings and filters can now be imported even by guest users
+- You will now see friend's comment next to his name in short info and pilot overlay
+- You will now see friend's name instead of CID in short info and pilot overlay if friend only specified CID when connected to network
+- Mobile settings will now always open on top for spacing’s sake
+- Fixed max tracks algo to show tracks for aircraft closest to airports
+- Departing and arrived aircraft are now sorted by groundspeed
+- Updated quiet airport logic: aircraft approaching at distance 200NM or more will now be ignored when calculating "quietness"
+- Quiet airports are now sorted by how close they are to current map center (if "quietness" is the same)
+- Added initialization popup with retry functionality
+- Reworked filter search combobox to significantly improve UI of adding new filter data
+- Default map layers have been updated from March 22 to June 22 version
 
-# [1.2.0-alpha.4]
-
-- (QA) Removed setup popup if was already initialized at some point
-- (QA) Improved performance when using airways
-- Added SID/STAR/Approach selection to each airport
-- (QA) Added STAR holdings
-- Added aircraft predicted flight plan route when you click on it (EXPERIMENTAL)
-  - Route is NOT updated in real time
-  - Route is NOT shown on hover
-  - All waypoints are placeholders, including their and airways namings
-  - Aircraft nose is not connected to nearest waypoint
-  - Flight plan parse should be compared to how Navigraph displays it
-
-# [1.2.0-alpha.3]
-
-- (QA) Added waypoints to holdings
-- (QA) Added toggle to disable Navigraph Layers with quick access from Map Layers
-- (QA) Changed NDB/VORDME shown ident instead of icao code
-- (QA) Fixed some NDB/VORDME missing because of same frequency in same region
-
-# [1.2.0-alpha.2]
-
-Added Navigraph Data. You can enable it via Map Layers menu. 
-
-You can enable to display on map: Airways (Low/High IFR), NDB, VORDME, Waypoints, Holdings.
-
-Waypoints shape is placeholder for now. Oceanic tracks, STARs/SIDs/Approaches and Aircraft path features are WIP
-
-Other changes:
-
-- Added initialization screen to get a clear view on what is happening with VATSIM Radar
-- Unloaded VATGlasses from memory when not used, excluded from initial setup as well
-- Free Navigraph AIRAC Cycle has been upgraded to 2404
-
-# [1.2.0-alpha.1]
+## Bookings improvements by MindCollaps
 
 - Changed design of booking page - especially in lightmode by MindCollaps
+- Added search bar and sorting to bookings page
+- Added shortcut for bookings dates
+- Added support for approach/center bookings
+- Bookings in normal view have separate colors for sectors and approach now
+- Default "Hours in advance" setting is 30 min now instead of 1h
+- Fixed display of "show on map" or the "booking view" now actually uses correct time
+- Bookings will be refetched once booking override is disabled
+- Separate VectorImageLayer styles for bookings
+- Map settings for updated hours now works correctly
+- Only visible airport bookings will be displayed on the map
+- You can press enter the booking page to confirm a custom Now + Hours value
+
+## Bug Fixes
+
+- Fixed filtered aircraft settings sometimes being reset
+- Fixed filtered aircraft color not displaying correctly
+- Fixed an issue when flight plan type filter option could not be saved
+- Fixed very old and rare issue with "ghost" aircraft
+- Fixed minor visual issue with aircraft icon inside flight progress in pilot overlay
 
 # [1.1.2-4]
 
@@ -174,7 +180,7 @@ Other changes:
 - Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
 - Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
-## Features and Improvements 
+## Features and Improvements
 
 - Added separate VATSIM General Discord link
 - Added "Install App" button to header
@@ -228,7 +234,7 @@ Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
 
 On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
 
-They are also displayed on map (TWR and below) 1 hour before they come online. 
+They are also displayed on map (TWR and below) 1 hour before they come online.
 
 This feature should now be considered BETA - more improvements are coming later.
 
@@ -354,9 +360,9 @@ Welcome a small VATSIM Radar quality of life update.
 
 # [1.0.0]
 
-This update marks an important milestone for VATSIM Radar. 
+This update marks an important milestone for VATSIM Radar.
 
-Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. 
+Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services.
 
 Well, we do now.
 
@@ -381,9 +387,9 @@ Thanks to Felix for developing this integration.
 
 ### Airports Layouts
 
-Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports. 
+Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports.
 
-Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility. 
+Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility.
 
 And for those of you who didn’t buy Navigraph Unlimited yet - here are the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
 
