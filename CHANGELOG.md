@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.0-rc.7]
+
+- New icon: C160
+
 # [1.2.0-rc.6]
 
 - Added "Flying together" for friends in shared cockpit
@@ -37,11 +41,11 @@
 
 ### Navigational Data
 
-Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME, and Holdings on map. 
+Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME, and Holdings on map.
 
 For those who have Navigraph subscription, newest AIRAC is used - for others, Navigraph provides AIRAC 2403 for free.
 
-This update also includes "Proc" tab under Aircraft and Airport, so you can view SIDs, STARs and Approaches. 
+This update also includes "Proc" tab under Aircraft and Airport, so you can view SIDs, STARs and Approaches.
 
 Of course, we have suffered some limitations with how waypoints are connected - but overall you should enjoy this as a great and most complicated addition we had to VATSIM Radar in a long time.
 
@@ -49,7 +53,7 @@ Also, as part of this change, you can toggle natTrak oceanic routes.
 
 ### Predicted aircraft route
 
-This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual predicted route. 
+This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual predicted route.
 
 You can also modify SIDs/STARs for each aircraft using "Proc" tab, but not only you can do that, but ATC also - each ATC flight plan modifications (excluding directs) will be synced with displayed route.
 
@@ -94,6 +98,7 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Added initialization popup with retry functionality
 - Reworked filter search combobox to significantly improve UI of adding new filter data
 - Default map layers have been updated from March 22 to June 22 version
+- New icon: C160 from DotWallop
 
 ## Bookings improvements by MindCollaps
 
@@ -176,7 +181,7 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
 - Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
-## Features and Improvements 
+## Features and Improvements
 
 - Added separate VATSIM General Discord link
 - Added "Install App" button to header
@@ -230,7 +235,7 @@ Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
 
 On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
 
-They are also displayed on map (TWR and below) 1 hour before they come online. 
+They are also displayed on map (TWR and below) 1 hour before they come online.
 
 This feature should now be considered BETA - more improvements are coming later.
 
@@ -356,9 +361,9 @@ Welcome a small VATSIM Radar quality of life update.
 
 # [1.0.0]
 
-This update marks an important milestone for VATSIM Radar. 
+This update marks an important milestone for VATSIM Radar.
 
-Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services. 
+Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services.
 
 Well, we do now.
 
@@ -383,9 +388,9 @@ Thanks to Felix for developing this integration.
 
 ### Airports Layouts
 
-Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports. 
+Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports.
 
-Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility. 
+Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility.
 
 And for those of you who didn’t buy Navigraph Unlimited yet - here are the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
 
