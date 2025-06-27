@@ -3,6 +3,7 @@
         <div
             v-if="store.featuredAirportsOpen || store.menuFriendsOpen || (overlay && !overlay.collapsed)"
             class="mobile-window"
+            :class="{ 'mobile-window--procedures': hasProcedures }"
             :style="{ '--collapsed-height': `${ overlaysHeight }px` }"
         >
             <common-info-popup
@@ -44,6 +45,7 @@
     <div
         v-if="mapStore.overlays.length"
         class="mobile-overlays"
+        :class="{ 'mobile-overlays--procedures': hasProcedures }"
     >
         <transition-group name="mobile-overlays--appear">
             <common-button
@@ -112,6 +114,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const overlay = computed(() => mapStore.overlays.find(x => x.id === mapStore.activeMobileOverlay));
+const hasProcedures = computed(() => Object.values(dataStore.navigraphProcedures).some(x => Object.keys(x!.sids).length || Object.keys(x!.stars).length || Object.keys(x!.approaches).length));
 
 onMounted(() => {
     const uncollapsed = mapStore.overlays.find(x => !x.collapsed);
@@ -171,7 +174,7 @@ const airports = computed(() => {
 .mobile-window {
     position: absolute;
     z-index: 6;
-    top: 24px;
+    top: 8px;
     left: 40px + 8px + 16px;
 
     display: flex;
@@ -179,6 +182,10 @@ const airports = computed(() => {
 
     width: calc(100% - 40px - 8px - 8px - 16px);
     height: calc(100% - 48px - var(--collapsed-height));
+
+    &--procedures {
+        height: calc(100% - 32px - var(--collapsed-height) - 40px);
+    }
 
     &_popup {
         width: 100%;
@@ -211,6 +218,12 @@ const airports = computed(() => {
     justify-content: space-between;
 
     width: calc(100% - 16px - 32px - 8px - 8px);
+
+    transition: 0.3s;
+
+    &--procedures {
+        bottom: 40px + 16px;
+    }
 
     &__collapsed-btn {
         display: flex;

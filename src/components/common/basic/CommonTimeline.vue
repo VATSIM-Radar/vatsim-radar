@@ -3,6 +3,7 @@
         v-if="ready"
         ref="dragContainer"
         class="timeline"
+        :class="store.theme === 'default' ? '' : 'timeline-lightmode'"
         :style="{ cursor: isDragging ? 'grabbing' : 'grab' }"
         @mousedown="startDrag"
         @mouseleave="stopDrag"
@@ -59,7 +60,7 @@
                             :style="widthStyle"
                         >
                             <span>
-                                {{ time.formattedTime }}
+                                {{ String(time.formattedTime) + (utc ? 'z' : '')  }}
                             </span>
                         </div>
                     </div>
@@ -182,6 +183,7 @@ import FoldIcon from '@/assets/icons/kit/fold.svg?component';
 import UnfoldIcon from '@/assets/icons/kit/unfold.svg?component';
 import CommonTimelineEntry from './CommonTimelineEntry.vue';
 import CommonScrollText from './CommonScrollText.vue';
+import { useStore } from '~/store';
 
 interface TimelineTime {
     id: number; date: Date; formattedDate: string; formattedTime: string; day: number;
@@ -224,6 +226,7 @@ const props = defineProps({
 });
 
 const isMobile = useIsMobile();
+const store = useStore();
 
 const ready = ref(false);
 
@@ -301,6 +304,7 @@ const currentMinute = ref(new Date());
 const timeZone = computed(() => props.utc ? 'UTC' : undefined);
 
 const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
     hour: '2-digit',
     minute: '2-digit',
     timeZone: timeZone.value,
@@ -642,7 +646,7 @@ function generateTimeline(): TimelineTime[] {
         i < endCalculated.value;
         i.setMinutes(i.getMinutes() + scaleInMinutes)
     ) {
-        if (i.getDay() !== before.getDay()) {
+        if (props.utc ? i.getUTCDay() !== before.getUTCDay() : i.getDay() !== before.getDay()) {
             day++;
             before = new Date(i);
         }
@@ -791,7 +795,6 @@ function stopDrag() {
         z-index: 6;
         width: 19px;
         border-radius: 5px;
-        background: $darkgray1000;
     }
 
     &-collapse {
@@ -834,6 +837,30 @@ function stopDrag() {
     flex-direction: column;
 
     height: 80vh;
+
+    &-lightmode {
+        .timeline-timeline-time {
+            background: $darkgray850;
+            box-shadow: 0 2px 5px rgb(black, 0.3);
+        }
+
+        .timeline-timeline-day-txt {
+            background: $darkgray850;
+            box-shadow: 0 2px 5px rgb(black, 0.3);
+        }
+
+        .header {
+            background: $darkgray900;
+        }
+
+        .header-head {
+            background: $darkgray900;
+        }
+
+        .id {
+            background: $darkgray900;
+        }
+    }
 
     &-data {
         position: sticky;

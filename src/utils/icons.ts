@@ -1,6 +1,7 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'c160'
     | 'h60'
     | 'star'
     | 'sb39'
@@ -283,6 +284,10 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    c160: {
+        icon: 'c160',
+        width: getAircraftSizeByCoef(0.67),
+    },
     h60: {
         icon: 'h60',
         width: getAircraftSizeByCoef(0.21),
@@ -1864,6 +1869,7 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'SB39':
         case 'STAR':
         case 'H60':
+        case 'C160':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;

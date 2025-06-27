@@ -14,13 +14,13 @@ import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
-import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import { Fill, Style } from 'ol/style';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 defineSlots<{ default: () => any }>();
 
@@ -83,7 +83,15 @@ const externalLayers: PartialRecord<MapLayoutLayerExternal, Layer | IVectorLayer
 
 const isLabels = computed(() => store.localSettings.filters?.layers?.layerLabels ?? true);
 
+const route = useRoute();
+
 const layer = computed<Layer | IVectorLayer | IPMLayer>(() => {
+    if (route.path.startsWith('/data') && route.path.endsWith('/compare')) {
+        return {
+            url: 'basic',
+        };
+    }
+
     let layer = store.localSettings.filters?.layers?.layer ?? 'protoData';
 
     if (layer === 'OSM' && store.theme !== 'light') layer = 'protoGeneral';
@@ -177,8 +185,6 @@ useHead(() => ({
 
 const allowedLayers = /^(?!roadname)(background|landcover|boundary|water|aeroway|road|rail|bridge|building|place)/;
 
-const geoJson = new GeoJSON();
-
 let mapSource: VectorSource | undefined;
 let mapLayer: VectorImageLayer | undefined;
 let style: Style | undefined;
@@ -227,6 +233,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
@@ -268,6 +275,7 @@ async function initLayer() {
             updateWhileAnimating: false,
             updateWhileInteracting: false,
             renderMode: 'hybrid',
+            zIndex: 0,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';

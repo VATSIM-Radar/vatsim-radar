@@ -1,7 +1,7 @@
 <template>
     <map-overlay
         v-if="openSigmet"
-        :settings="{ position: openSigmet.pixel, stopEvent: true }"
+        :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
         :z-index="5"
         @update:modelValue="openSigmet = null"
     >
@@ -40,18 +40,18 @@
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Sigmet, Sigmets } from '~/utils/backend/storage';
-import { GeoJSON } from 'ol/format';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Coordinate } from 'ol/coordinate';
-import RenderFeature from 'ol/render/Feature';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
+import { useMapStore } from '~/store/map';
 
 const store = useStore();
+const mapStore = useMapStore();
 const dataStore = useDataStore();
 let initialCall = false;
 
@@ -166,15 +166,10 @@ const jsonFeatures = computed(() => {
 
     geoData.features = geoData.features.filter(x => x.properties.hazard && (store.localSettings.filters?.layers?.sigmets?.showAirmets !== false || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
 
-    return geojson.readFeatures(geoData, {
+    return geoJson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',
         dataProjection: 'EPSG:4326',
     });
-});
-
-const geojson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
 });
 
 function buildStyle(color: ColorsList, type: string) {
@@ -222,13 +217,17 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
     };
 });
 
-function handleMapClick(event: MapBrowserEvent<any>) {
+async function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (!features?.every(x => x instanceof RenderFeature || x.getProperties().dataType || x.getProperties().type === 'local' || x.getProperties().type === 'root')) return;
+    if (features?.some(x => x.getProperties().type === 'aircraft')) return;
 
-    const sigmets = features.filter(x => x.getProperties()?.dataType);
-    if (!sigmets.length) return;
+    const sigmets = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: x => x === layer });
+    if (!sigmets?.length) return;
+
+    await sleep(0);
+    mapStore.openOverlayId = null;
+    await nextTick();
 
     openSigmet.value = {
         pixel: event.coordinate,

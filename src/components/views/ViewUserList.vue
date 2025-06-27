@@ -75,6 +75,9 @@
                             <template v-else>
                                 {{ user.data.callsign }}
                             </template>
+                            <template v-if="user.sharedPilots.length">
+                                together with {{user.sharedPilots.map(x => x.name).join(', ')}}
+                            </template>
                         </div>
                         <div
                             v-else-if="user.type === 'prefile'"

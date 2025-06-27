@@ -1,7 +1,16 @@
-import type { Feature, LineString as GeoLineString, MultiLineString as GeoMultiLineString } from 'geojson';
-import { LineString, MultiLineString } from 'ol/geom';
+import type {
+    Feature,
+    LineString as GeoLineString,
+    MultiLineString as GeoMultiLineString,
+    MultiPolygon as GeoMultiPolygon,
+    Polygon as GeoPolygon,
+    Point as GeoPoint,
+} from 'geojson';
+import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import Polygon from 'ol/geom/Polygon';
+import type { VatsimBooking, VatsimBookingAtc, VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatSpyDataFeature } from '~/types/data/vatspy';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -49,8 +58,14 @@ export function serializeClass<T extends string | null | undefined>(className: T
     return className;
 }
 
-export function greatCircleGeometryToOL(feature: Feature<GeoLineString | GeoMultiLineString>) {
-    return feature.geometry.type === 'LineString' ? new LineString(feature.geometry.coordinates) : new MultiLineString(feature.geometry.coordinates);
+export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint | GeoPolygon | GeoMultiPolygon>) {
+    if (feature.geometry.type === 'LineString') return new LineString(feature.geometry.coordinates);
+    if (feature.geometry.type === 'MultiLineString') return new MultiLineString(feature.geometry.coordinates);
+    if (feature.geometry.type === 'Point') return new Point(feature.geometry.coordinates);
+    if (feature.geometry.type === 'Polygon') return new Polygon(feature.geometry.coordinates);
+    if (feature.geometry.type === 'MultiPolygon') return new MultiPolygon(feature.geometry.coordinates);
+
+    throw new Error('Invalid geometry');
 }
 
 export function createCircle(center: Coordinate, radius: number, numPoints = 64) {
@@ -72,3 +87,24 @@ export function createCircle(center: Coordinate, radius: number, numPoints = 64)
     return new Polygon([coords]);
 }
 
+export function makeFakeAtcFeatureFromBooking(atc: VatsimShortenedController, booking: VatsimBookingAtc): VatSpyDataFeature[] {
+    atc.booking = booking;
+    makeBookingLocalTime(booking);
+    return [{
+        controller: atc,
+        firs: [],
+    }];
+}
+
+export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
+    return {
+        cid: booking.atc.cid,
+        name: booking.atc.name,
+        callsign: booking.atc.callsign,
+        frequency: booking.atc.frequency,
+        facility: booking.atc.facility,
+        rating: booking.atc.rating,
+        logon_time: booking.atc.logon_time,
+        text_atis: booking.atc.text_atis,
+    };
+}

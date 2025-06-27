@@ -1,7 +1,7 @@
 <template>
     <common-popup
         v-if="!store.config.hideHeader && update.active !== false"
-        :model-value="show"
+        model-value
         @update:modelValue="close"
     >
         <template #title>
@@ -85,6 +85,7 @@
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
+import { showUpdatePopup, updatePopupActive } from '~/composables';
 
 interface UpdateFeature {
     title: string;
@@ -108,29 +109,79 @@ const images = import.meta.glob('../../assets/update/*', { import: 'default', ea
 const title = useTemplateRef('title');
 
 const update: Update = {
-    type: 'minor',
-    name: '1.1.1',
+    name: String(updatePopupActive),
+    type: 'major',
+    height: '580px',
     features: [
+        {
+            title: 'Welcome to newest VATSIM Radar update!',
+            description: 'This update is packed with one of our the most longest requested features, and many more changes that will improve your usage of VATSIM Radar.',
+            imageRatio: '1920 / 1080',
+            image: images['../../assets/update/presentation.png'],
+            list: [
+                'Navigational data by Navigraph',
+                'Predicted aircraft route',
+                'Bookings improvements',
+                'Distance measurement tool',
+                'Shared cockpit support, weather request, and much more stuff',
+            ],
+        },
+        {
+            title: 'Navigational Data',
+            description: 'Provided by Navigraph and Jeppesen, you can now view navigational data on map!',
+            image: images['../../assets/update/navdata.png'],
+            list: [
+                'Toggle Waypoints, Airways, NDB, VORDME, and Holdings',
+                'View STARs, SIDs and Approaches for airports',
+                'natTrak oceanic routes are now also available to toggle as part of this change',
+                'Available for free with AIRAC 2403',
+                'For newest AIRAC - see <a href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe" class="__link">Navigraph Subscription Options</a>',
+            ],
+        },
+        {
+            title: 'Predicted aircraft route',
+            description: 'Meet one of most requested VATSIM Radar feature!',
+            image: images['../../assets/update/route.png'],
+            list: [
+                'See actual predicted aircraft route instead of straight line',
+                'SIDs and STARs are parsed automatically - with an ability to override them by ATC or you in pilot overlay',
+                'ETA is now also calculated based on route to be flown',
+                'Based on same AIRAC as Navigational Data',
+            ],
+        },
+        {
+            title: 'Other highlights',
+            description: 'Visit our <a href="/discord" target="_blank">Discord</a> for a full changelog',
+            image: images['../../assets/update/changes.png'],
+            list: [
+                'Shared cockpit support has been added with an automatic detection - expect more updates on that in future',
+                'Distance measurement tool has been added with NM/KM/Mi support',
+                'Weather request popup straight for VATSpy enjoyers',
+                'Bookings improvements by MindCollaps',
+                'New weather layers - Radar and Ground elevation',
+                'Observers page in Stats',
+            ],
+        },
         {
             title: 'Quality of Life',
             description: 'Visit our <a href="/discord" target="_blank">Discord</a> for a full changelog',
             image: images['../../assets/update/quality.png'],
             list: [
-                'VATGlasses dynamic sectors support',
-                'Added Sentry error logging, as well as privacy popup',
-                'Bookings on map will now show zulu time',
-                '<a target="_blank" href="https://vats.im/bars">BARS</a> integration',
-                'Bug fixes and improvements',
+                'New customization settings and filters',
+                'VATGlasses level can now be controlled by mouse wheel',
+                'Mobile version tuning',
+                'Performance and memory usage improvements',
+                'Quiet airports algorithm changes to improve chances of pilots flying there',
+                'Map initialization popup with retry functionality',
+                'Other bug fixes and improvements',
             ],
         },
     ],
-    active: false,
+    active: !!updatePopupActive,
 };
 
 const shownFeatureIndex = ref(0);
 const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
-
-const show = ref(store.user?.settings.seenVersion !== update.name && localStorage.getItem('seen-version') !== update.name);
 
 watch(shownFeatureIndex, () => {
     if (title.value) {
@@ -139,9 +190,12 @@ watch(shownFeatureIndex, () => {
     }
 });
 
-const close = () => {
+const close = async () => {
     localStorage.setItem('seen-version', update.name);
+    await nextTick();
+    triggerRef(showUpdatePopup);
     if (store.user) {
+        store.user.settings.seenVersion = update.name;
         $fetch('/api/user/settings', {
             method: 'POST',
             body: {
@@ -150,7 +204,6 @@ const close = () => {
             },
         });
     }
-    show.value = false;
 };
 </script>
 

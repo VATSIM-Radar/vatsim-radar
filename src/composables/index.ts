@@ -15,6 +15,7 @@ import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
+import { GeoJSON } from 'ol/format';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -122,13 +123,13 @@ export function attachPointerMove(callback: (event: any) => unknown) {
     });
 }
 
-export function useCopyText() {
+export function useCopyText({ delay = 3000 }: { delay?: number } = {}) {
     const copied = ref(false);
 
     const copy = async (text: string) => {
         copied.value = true;
         await copyText(text);
-        await sleep(3000);
+        await sleep(delay);
         copied.value = false;
     };
 
@@ -359,3 +360,12 @@ export const cookiePolicyStatus = () => {
 };
 
 export const useIsDebug = () => import.meta.dev || !!useRuntimeConfig().public.VR_DEBUG;
+
+export const geoJson = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
+
+export const updatePopupActive: boolean | string = '1.2';
+export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
+

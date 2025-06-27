@@ -2,7 +2,7 @@
     <common-tabs
         mobile-vertical
         :model-value="statsTab"
-        :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, pilots: { title: 'Pilots' }, atc: { title: 'ATC' } }"
+        :tabs="{ airports: { title: 'Airports' }, airlines: { title: 'Airlines' }, aircraft: { title: 'Aircraft' }, routes: { title: 'Routes' }, pilots: { title: 'Pilots' }, atc: { title: 'ATC' }, observers: { title: 'Observers' } }"
         @update:modelValue="navigateTo({ path: `/stats/${ $event }` })"
     />
 </template>

@@ -1,11 +1,11 @@
 <template>
     <div
-        v-if="taf"
+        v-if="tafData"
         class="__info-sections"
     >
-        <common-copy-info-block :text="data.airport?.taf"/>
+        <common-copy-info-block :text="taf || data.airport?.taf"/>
         <div
-            v-for="(tafMetar, index) in taf.forecast"
+            v-for="(tafMetar, index) in tafData.forecast"
             :key="index"
             class="__info-sections"
         >
@@ -30,11 +30,18 @@ import { parseTAFAsForecast } from 'metar-taf-parser';
 import { injectAirport } from '~/composables/airport';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 
+const props = defineProps({
+    taf: {
+        type: String,
+        default: null,
+    },
+});
+
 const data = injectAirport();
 
-const taf = computed(() => {
-    if (!data.value.airport?.taf) return;
-    return parseTAFAsForecast(data.value.airport.taf, {
+const tafData = computed(() => {
+    if (!props.taf && !data.value.airport?.taf) return;
+    return parseTAFAsForecast(props.taf || data.value.airport!.taf!, {
         issued: new Date(),
     });
 });

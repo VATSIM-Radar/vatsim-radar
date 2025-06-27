@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel)"
+        v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
         class="__grid-info-sections"
     >
         <div class="__grid-info-sections_title">
@@ -17,6 +17,7 @@
                 min="0"
                 step="5"
                 type="range"
+                @wheel.prevent="handleWheel"
             >
             <common-input-text
                 v-model="vatglassesLevel"
@@ -30,7 +31,7 @@
                 }"
                 input-type="number"
             />
-            <label v-if="store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? ''] && showAuto">
+            <label v-if="store.user && ownFlight && showAuto">
                 <input
                     :checked="store.mapSettings.vatglasses?.autoLevel !== false"
                     type="checkbox"
@@ -44,10 +45,11 @@
 
 <script setup lang="ts">
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { ownFlight } from '~/composables/pilots';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 defineProps({
     hideIfDisabled: {
@@ -60,7 +62,6 @@ defineProps({
     },
 });
 const store = useStore();
-const dataStore = useDataStore();
 
 const vatglassesLevel = computed({
     get() {
@@ -74,8 +75,26 @@ const vatglassesLevel = computed({
     },
 });
 
+let lastScrollTime = 0;
+
+function handleWheel(e: WheelEvent) {
+    const now = Date.now();
+    const timeDiff = now - lastScrollTime;
+    lastScrollTime = now;
+
+    let stepMultiplier = 1;
+    if (timeDiff < 80) stepMultiplier = 5;
+
+    const delta = e.deltaY > 0 ? -1 : 1;
+    const change = delta * 5 * stepMultiplier;
+
+    const newValue = Math.min(430, Math.max(0, +(vatglassesLevel.value ?? '0') + change));
+    vatglassesLevel.value = newValue.toString();
+}
+
 watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
-    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
+    if (!store.user) return;
+    const user = ownFlight.value;
     if (!user) return;
 
     setUserLocalSettings({
@@ -84,7 +103,7 @@ watch(() => store.mapSettings.vatglasses?.autoLevel, () => {
 });
 
 const vatglassesActive = isVatGlassesActive;
-const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && !!store.user && dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString() ?? '']);
+const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !== false && !!store.user && !!ownFlight.value);
 </script>
 
 <style lang="scss" scoped>

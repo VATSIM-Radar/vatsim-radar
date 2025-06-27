@@ -61,7 +61,7 @@ export default withNuxt([
             'import/no-mutable-exports': 'off',
             'prefer-const': ['error', { destructuring: 'all' }],
             camelcase: ['off'],
-            'stylistic/func-call-spacing': 'error',
+            'stylistic/function-call-spacing': 'error',
             'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
             'import/exports-last': 'off',
             'import/first': 'error',
@@ -104,7 +104,9 @@ export default withNuxt([
                 },
             ],
             'stylistic/one-var-declaration-per-line': 'error',
-            'stylistic/operator-linebreak': 'error',
+            'stylistic/operator-linebreak': ['error', 'after', {
+                overrides: { '|': 'before', '?': 'before', ':': 'before' },
+            }],
             'stylistic/padded-blocks': ['error', 'never'],
             'stylistic/quote-props': ['error', 'as-needed'],
             'stylistic/rest-spread-spacing': 'error',
@@ -382,6 +384,8 @@ export default withNuxt([
                     'ts-nocheck': false,
                 },
             ],
+            '@typescript-eslint/no-invalid-void-type': 'off',
+            '@typescript-eslint/no-dynamic-delete': 'off',
         },
     },
     {

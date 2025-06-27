@@ -61,7 +61,6 @@ import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
-import { GeoJSON } from 'ol/format';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
@@ -71,6 +70,8 @@ import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { vgFallbackKeys } from '~/composables/data';
+
+
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
@@ -96,6 +97,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const isHovered = ref(false);
+const booking = computed(() => props.atc.some(x => x.controller.booking !== undefined && x.controller.booking !== null));
 let localFeature: Feature | undefined;
 let rootFeature: Feature | undefined;
 
@@ -139,16 +141,11 @@ const getATCFullName = computed(() => {
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 
-const geoJson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
-});
-
 const init = () => {
     if (!vectorSource.value) return;
 
     try {
-        const localFeatureType = (isHovered.value && locals.value.length) ? 'hovered' : locals.value.length ? 'local' : 'default';
+        const localFeatureType = makeLocalFeatureType();
         const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
 
         if (!localFeature) {
@@ -210,6 +207,30 @@ onBeforeUnmount(() => {
         rootFeature.dispose();
     }
 });
+
+function makeLocalFeatureType() {
+    if (isHovered.value && locals.value.length) {
+        if (store.bookingOverride || booking.value) {
+            return 'hovered-booking';
+        }
+        else {
+            return 'hovered';
+        }
+    }
+    else {
+        if (locals.value.length) {
+            if (store.bookingOverride || booking.value) {
+                return 'local-booking';
+            }
+            else {
+                return 'local';
+            }
+        }
+        else {
+            return 'default';
+        }
+    }
+}
 </script>
 
 <style lang="scss">

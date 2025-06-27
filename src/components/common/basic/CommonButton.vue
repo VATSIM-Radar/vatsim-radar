@@ -271,6 +271,10 @@ const getAttrs = computed(() => {
 
         background: transparent !important;
 
+        &.button--icon {
+            width: auto;
+        }
+
         @include hover {
             &:hover {
                 color: var(--hover-color);

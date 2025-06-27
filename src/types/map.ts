@@ -26,7 +26,7 @@ export type MapAircraft = PartialRecord<Exclude<keyof MapAirport['aircraft'], 'p
     prefiles?: VatsimShortenedPrefile[];
 };
 
-export type MapWeatherLayer = 'PR0' | 'WND' | 'CL' | 'rainViewer';
+export type MapWeatherLayer = 'PR0' | 'RE' | 'PR0C' | 'WND' | 'CL' | 'rainViewer';
 export type MapLayoutLayerProto = 'protoData' | 'protoDataGray' | 'protoGeneral';
 export type MapLayoutLayerExternal = 'OSM' | 'Satellite' | 'SatelliteEsri' | 'basic' | `${ MapLayoutLayerProto }Labels` | `${ MapLayoutLayerProto }NoLabels`;
 export type MapLayoutLayer = MapLayoutLayerExternal | MapLayoutLayerProto;
@@ -60,6 +60,26 @@ interface IUserLocalSettings {
     featuredDefaultBookmarks: boolean;
     skipBookmarkAnimation: boolean;
     eventsLocalTimezone: boolean;
+    disableNavigraph: boolean;
+    disableNavigraphRoute: boolean;
+    navigraphRouteAirportOverlay: {
+        enabled?: boolean;
+        sid?: boolean;
+        star?: boolean;
+        holds?: boolean;
+        labels?: boolean;
+    };
+
+    natTrak: {
+        enabled?: boolean;
+        showConcorde?: boolean;
+    };
+
+    distance: {
+        enabled?: boolean;
+        units?: Units;
+        ctrlClick?: boolean;
+    };
 
     filters: {
         opened?: boolean;

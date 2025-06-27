@@ -1,21 +1,22 @@
-name: Feature Request / Feedback
-description: Do you want us to improve or add something?
-labels: [ "enhancement", "pending triage" ]
-assignees: [ "daniluk4000" ]
+name: Feedback (Next Branch)
+description: Suggest feedback to Next branch
+labels: [ "enhancement", "next", "pending triage" ]
+assignees: ["daniluk4000"]
+type: "Feature"
 body:
   - type: markdown
     attributes:
       value: |
-        Hello! Thank you for suggesting an improvement for VATSIM Radar.
+        Hello! Thank you for suggesting an improvement for VATSIM Radar Next. Remember, that you have to be QA or Patreon member to suggest features for next branch.
         
-        Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" label (also check closed ones).
+        Before reporting, please also check existing feature requests and enhancements in this repository - you can filter them by "feature request" and "pending triage" labels (also check closed ones).
         
         Also please check our roadmap - your request could already be planned to be implemented or is actually a separate feature.
   - type: input
     id: id
     attributes:
       label: Your Vatsim CID
-      description: It is your Vatsim login. Required for us to contact you in Discord if you're there.
+      description: It is your Vatsim login. Required for us to contact you in Discord, and also track your activity.
     validations:
       required: true
   - type: textarea
@@ -55,4 +56,6 @@ body:
         - label: I have searched for other requests and didn't found any alike
           required: true
         - label: I have also checked roadmap, and this is not planned
+          required: true
+        - label: I am QA or Patreon member and using next.vatsim-radar.com
           required: true

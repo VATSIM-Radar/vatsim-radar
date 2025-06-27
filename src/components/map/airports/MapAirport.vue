@@ -68,7 +68,7 @@
             </div>
         </map-overlay>
         <map-airport-counts
-            v-if="'lon' in airport && !isPseudoAirport"
+            v-if="'lon' in airport && !isPseudoAirport && !store.bookingOverride"
             :aircraft="aircraft"
             :airport="airport"
             class="airport__square"
@@ -134,15 +134,14 @@ import type { AirportTraconFeature } from '~/components/map/airports/MapAirports
 import { useStore } from '~/store';
 import MapOverlay from '~/components/map/MapOverlay.vue';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import { GeoJSON } from 'ol/format';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { getSelectedColorFromSettings } from '~/composables/colors';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 import { createCircle } from '~/utils';
-import { makeBookingLocalTime } from '~/composables/bookings';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     airport: {
@@ -280,16 +279,16 @@ const localsFacilities = computed(() => {
     return sortControllersByPosition(Array.from(facilitiesMap.values()));
 });
 
+const isAppOnlyBooking = computed(() => {
+    return props.arrAtc.filter(x => !x.booking).length === 0 && !isVatGlassesActive.value;
+});
+
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
     const facility: Facility = {
         facility: facilityId,
         booked: !!booking,
         atc: [],
     };
-
-    if (booking) {
-        makeBookingLocalTime(booking);
-    }
 
     return facility;
 }
@@ -350,11 +349,6 @@ watch(getAirportColor, () => {
     }));
 });
 
-const geojson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
-});
-
 watch(hoveredFeature, val => {
     if (!val?.traconFeature && hoverFeature) {
         vectorSource.value?.removeFeature(hoverFeature);
@@ -362,14 +356,14 @@ watch(hoveredFeature, val => {
         hoverFeature = null;
     }
     else if (val?.traconFeature && !hoverFeature) {
-        hoverFeature = geojson.readFeature(val.traconFeature) as Feature<any>;
+        hoverFeature = geoJson.readFeature(val.traconFeature) as Feature<any>;
         hoverFeature?.setProperties({
             ...hoverFeature?.getProperties(),
             type: 'background',
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: `rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`,
+                color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -382,7 +376,7 @@ watch(hoveredFeature, val => {
 function setBorderFeatureStyle(feature: Feature) {
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`,
+            color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
         }),
     }));
@@ -397,14 +391,14 @@ function setLabelFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
+                    color: (store.bookingOverride || isAppOnlyBooking.value) ? radarColors.lightgray125Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: getSelectedColorFromSettings('approach') || radarColors.error400Hex,
+                    color: (store.bookingOverride || isAppOnlyBooking.value) ? radarColors.info300Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 padding: [3, 1, 2, 3],
             }),
@@ -517,7 +511,7 @@ onMounted(async () => {
                 traconFeature,
                 controllers,
             } of props.features) {
-                const borderFeature = geojson.readFeature(traconFeature) as Feature<any>;
+                const borderFeature = geoJson.readFeature(traconFeature) as Feature<any>;
 
                 borderFeature.setProperties({
                     ...(borderFeature?.getProperties() ?? {}),
@@ -710,7 +704,7 @@ onMounted(async () => {
             const key = _key as AmdbLayerName;
             if (!supportedLayouts.value.includes(key)) continue;
 
-            const features = geojson.readFeatures(value, {
+            const features = geoJson.readFeatures(value, {
                 dataProjection: 'EPSG:4326',
                 featureProjection: 'EPSG:4326',
             });

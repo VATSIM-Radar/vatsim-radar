@@ -1,14 +1,14 @@
 <template>
     <template v-if="!isHideAtcType('firs')">
         <map-sector
-            v-for="(sector, index) in firs"
+            v-for="(sector, index) in firs.filter(x => x.atc?.length || x.booking)"
             :key="sector.fir.feature.id as string + index"
             :atc="sector.atc"
             :fir="sector.fir"
         />
     </template>
 
-    <template v-if="!isHideAtcType('firs') && vatGlassesActive">
+    <template v-if="!isHideAtcType('firs') && vatGlassesActive && !store.bookingOverride">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -22,8 +22,8 @@
 
 
         <map-overlay
+            v-model="vatglassesPopupIsShown"
             class="vatglasses-overlay"
-            :model-value="vatglassesPopupIsShown"
             :settings="{
                 position: getCoordinates,
                 offset: [15, -15],
@@ -83,41 +83,144 @@
 import VectorSource from 'ol/source/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
+import { Feature } from 'ol';
 import { Fill, Stroke, Style } from 'ol/style';
 import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 import { attachMoveEnd, collapsingWithOverlay } from '~/composables';
+import { makeFakeAtcFeatureFromBooking } from '~/utils';
 
 import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
+import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 
 import type { Pixel } from 'ol/pixel';
 import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
+import type { VatsimBooking } from '~/types/data/vatsim';
+import { useMapStore } from '~/store/map';
+import { MultiPolygon } from 'ol/geom';
 
 let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);
+let emptyFirs: Feature[] = [];
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const store = useStore();
-
-const firs = computed(() => {
-    const list = dataStore.vatspy.value!.data.firs;
-    const firs = list.map(fir => ({
-        fir,
-        atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || (fir.callsign && fir.callsign === x.callsign)))) ?? [],
-    }));
-    return firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex));
-});
-
 
 const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
 const getCoordinates = ref([0, 0]);
 const vatglassesPopupIsShown = ref(false);
 const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+
+const now = new Date();
+const end = ref(new Date());
+
+const { mapSettings } = storeToRefs(store);
+
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, { immediate: true });
+
+const queryParams = computed(() => ({
+    starting: store.bookingOverride
+        ? store.bookingsStartTime.getTime()
+        : now.getTime(),
+    ending: store.bookingOverride
+        ? store.bookingsEndTime.getTime()
+        : end.value.getTime(),
+}));
+
+const { data } = await useAsyncData(
+    'bookings',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        watch: [queryParams],
+        server: false,
+    },
+);
+
+const facilities = useFacilitiesIds();
+
+const bookingsData = computed(() => data.value ? data.value?.filter(x => x.atc.facility === facilities.CTR) : []);
+
+const firs = computed(() => {
+    interface Fir {
+        booking?: VatsimBooking;
+        fir: VatSpyData['firs'][number];
+        atc: VatSpyDataFeature[];
+    }
+
+    const allFirs: Fir[] = [];
+
+    if (!store.bookingOverride) {
+        const list = dataStore.vatspy.value!.data.firs;
+        const firs: Fir[] = list.map(fir => ({
+            fir,
+            atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || (fir.callsign && fir.callsign === x.callsign)))) ?? [],
+        }));
+
+        allFirs.push(...(firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex))));
+    }
+
+    const bookingFirs = store.bookingOverride ? dataStore.vatspy.value!.data.firs : allFirs;
+
+    for (let i = 0; i < bookingFirs.length; i++) {
+        const _fir = bookingFirs[i];
+
+        if ('atc' in _fir && _fir.atc?.length) continue;
+
+        const fir = 'fir' in _fir ? _fir.fir : _fir;
+
+        const booking = bookingsData.value.find(
+            x => x.atc.callsign === fir.callsign?.replaceAll('-', '_') + '_CTR',
+        );
+
+        if (booking) {
+            const atc = makeFakeAtcFeatureFromBooking(booking.atc, booking);
+            const item = { booking, fir, atc };
+            allFirs.splice(i, 1, item);
+        }
+    }
+
+    return allFirs;
+});
+
+const emptyFirsList = computed(() => firs.value.filter(x => !x.atc?.length && !x.booking));
+
+function processEmptyFirs() {
+    const newFeatures: Feature[] = [];
+
+    for (const fir of emptyFirsList.value) {
+        newFeatures.push(new Feature({
+            geometry: new MultiPolygon(fir.fir.feature.geometry.coordinates),
+            ...(fir.fir.feature.properties ?? {}),
+            type: 'default',
+        }));
+    }
+
+    vectorSource.value?.removeFeatures(emptyFirs);
+    emptyFirs.forEach(x => x.dispose());
+    emptyFirs = newFeatures;
+    vectorSource.value?.addFeatures(emptyFirs);
+}
+
+const mapStore = useMapStore();
+
+watch(() => mapStore.distance.pixel, val => {
+    if (val) vatglassesPopupIsShown.value = false;
+});
+
+watch([emptyFirsList, vectorSource], processEmptyFirs, {
+    immediate: true,
+});
 
 function getPositionLevel(_level: number) {
     const level = _level.toString().padStart(3, '0');
@@ -174,10 +277,20 @@ attachMoveEnd(() => {
 });
 
 watch(map, val => {
-    if (!val) return;
+    updateMap(val);
+}, {
+    immediate: true,
+});
+
+watch(() => store.bookingOverride, val => {
+    updateMap(map.value);
+});
+
+function updateMap(map: Map | null) {
+    if (!map) return;
 
     if (vectorLayer) {
-        val.removeLayer(vectorLayer);
+        map.removeLayer(vectorLayer);
         vectorLayer = undefined;
     }
 
@@ -216,6 +329,17 @@ watch(map, val => {
             zIndex: 3,
         });
 
+        const localBookingStyle = new Style({
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.07)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
+                width: 1,
+            }),
+            zIndex: 3,
+        });
+
         const rootStyle = new Style({
             fill: new Fill({
                 color: uirColor || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 0.07)`,
@@ -233,6 +357,17 @@ watch(map, val => {
             }),
             stroke: new Stroke({
                 color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success300').join(',') }, 0.6)`,
+                width: 1,
+            }),
+            zIndex: 5,
+        });
+
+        const hoveredBookingStyle = new Style({
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.2)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,
@@ -274,7 +409,6 @@ watch(map, val => {
         vectorLayer = new VectorImageLayer<any>({
             source: vectorSource.value,
             zIndex: 2,
-            imageRatio: store.isTouch ? 1 : 2,
             properties: {
                 type: 'sectors',
             },
@@ -286,10 +420,14 @@ watch(map, val => {
                         return defaultStyle;
                     case 'local':
                         return localStyle;
+                    case 'local-booking':
+                        return localBookingStyle;
                     case 'root':
                         return rootStyle;
                     case 'hovered':
                         return hoveredStyle;
+                    case 'hovered-booking':
+                        return hoveredBookingStyle;
                     case 'hovered-root':
                         return hoveredRootStyle;
                     case 'vatglasses':
@@ -302,12 +440,10 @@ watch(map, val => {
         });
     }
 
-    val.addLayer(vectorLayer);
+    map.addLayer(vectorLayer);
     initVatglasses();
-    val.on('click', handleClick);
-}, {
-    immediate: true,
-});
+    map.on('click', handleClick);
+}
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);

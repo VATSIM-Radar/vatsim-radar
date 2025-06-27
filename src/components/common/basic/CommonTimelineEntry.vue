@@ -7,6 +7,7 @@
         <template #activator>
             <div
                 class="entry"
+                :class="store.theme === 'default' ? '' : 'entry-lightmode'"
                 :style="getEntryStyle()"
             >
                 <div class="entry-title">
@@ -147,6 +148,10 @@ function getSumOffset(index: number): number {
 
     background: rgb(var(--primary300), 0.3);
     box-shadow: 5px 5px 4px varToRgba($darkgray1000, 0.3);
+
+    &-lightmode {
+        background: rgb(var(--primary300), 0.4);
+    }
 
     &-tooltip {
         position: absolute;

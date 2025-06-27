@@ -157,8 +157,8 @@ watch(() => JSON.stringify(mapStore.extent), () => {
     if (!view || props.id) return;
 
     if (!getAirport.value) {
-        props.bookmark.coords = view.getCenter();
-        props.bookmark.zoom = view.getZoom();
+        props.bookmark.coords = mapStore.center;
+        props.bookmark.zoom = mapStore.zoom;
     }
     else if (!props.bookmark.zoom) props.bookmark.zoom = 14;
 }, {

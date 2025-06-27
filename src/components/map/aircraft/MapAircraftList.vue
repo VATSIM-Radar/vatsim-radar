@@ -21,8 +21,8 @@ import VectorLayer from 'ol/layer/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
-import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
-import { attachMoveEnd, collapsingWithOverlay, isPointInExtent, useUpdateInterval } from '~/composables';
+import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
@@ -30,6 +30,9 @@ import type { MapAircraftKeys } from '~/types/map';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { isHideMapObject } from '~/composables/settings';
 import { Heatmap } from 'ol/layer';
+import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
+import type { Coordinate } from 'ol/coordinate';
+import { ownFlight } from '~/composables/pilots';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -69,37 +72,16 @@ function receiveMessage(event: MessageEvent) {
     }
 }
 
-function getPilotsForPixel(pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
-    if (!pixel || isHideMapObject('pilots')) return [];
-
-    if (exitOnAnyOverlay && mapStore.openOverlayId && !mapStore.openPilotOverlay) return [];
-
-    if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
-
-    return visiblePilots.value.filter(x => {
-        const pilotPixel = aircraftCoordsToPixel(x);
-        if (!pilotPixel) return false;
-
-        return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
-            Math.abs(pilotPixel[1] - pixel[1]) < tolerance;
-    }) ?? [];
-}
-
-function aircraftCoordsToPixel(aircraft: VatsimMandatoryPilot): Pixel | null {
-    return map.value!.getPixelFromCoordinate([aircraft.longitude, aircraft.latitude]);
-}
-
-const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
 const showTracks = shallowRef<{ show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }[]>([]);
 
 const getShownPilots = computed(() => {
-    if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return visiblePilots.value;
+    if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return dataStore.visiblePilots.value;
 
-    if (store.mapSettings.groundTraffic.hide === 'lowZoom' && mapStore.zoom > 11) return visiblePilots.value;
-    if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return visiblePilots.value;
+    if (store.mapSettings.groundTraffic.hide === 'lowZoom' && mapStore.zoom > 11) return dataStore.visiblePilots.value;
+    if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return dataStore.visiblePilots.value;
 
-    const pilots = visiblePilots.value;
-    const me = dataStore.vatsim.data.keyedPilots.value[store.user?.cid.toString() ?? ''];
+    const pilots = dataStore.visiblePilots.value;
+    const me = ownFlight.value;
 
     let arrivalAirport = '';
 
@@ -121,6 +103,7 @@ const getShownPilots = computed(() => {
         allOnGround.push(...airport.aircraft.groundArr ?? []);
     }
 
+
     return pilots.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || !allOnGround.includes(x.cid));
 });
 
@@ -133,7 +116,7 @@ function setVisiblePilots() {
         showOutOfBounds = false,
     } = store.mapSettings.tracks ?? {};
 
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => {
+    dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
         // Don't iterate through pilots if no need
@@ -213,10 +196,10 @@ function setVisiblePilots() {
             const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
             const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
             const aDist = (aGoDist && aDepDist)
-                ? aGoDist > aDepDist
+                ? aGoDist > aDepDist && aDepDist
                     ? aDepDist
                     : aGoDist
-                : aGoDist ?? aDepDist;
+                : aGoDist || aDepDist;
 
             const bGoDist = (b.isArrival && b.pilot.toGoDist) || 0;
             const bDepDist = (b.isDeparture && b.pilot.depDist) || 0;
@@ -224,7 +207,7 @@ function setVisiblePilots() {
                 ? bGoDist > bDepDist
                     ? bDepDist
                     : bGoDist
-                : bGoDist ?? bDepDist;
+                : bGoDist || bDepDist;
 
             return aDist - bDist;
         }).map((x, index) => {
@@ -238,30 +221,40 @@ function setVisiblePilots() {
         const airports = dataStore.vatsim.data.airports.value.filter(x => store.config.airports!.includes(x.icao));
         if (airports?.length) {
             const aircraft = airports.flatMap(x => x.aircraft).map(x => Object.values(x)).flat().flat();
-            visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
+            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => aircraft.includes(x.cid));
         }
         else {
-            visiblePilots.value = [];
+            dataStore.visiblePilots.value = [];
         }
     }
 
     if (store.config.airport && store.config.onlyAirportAircraft) {
         const airport = dataStore.vatsim.data.airports.value.find(x => x.icao === store.config.airport);
         if (airport) {
+            const coords = [dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[store.config.airport].lat];
             const aircraft = Object.values(airport.aircraft).flatMap(x => x);
-            visiblePilots.value = visiblePilots.value.filter(x => aircraft.includes(x.cid));
 
-            if (store.config.airportMode && store.config.airportMode !== 'all') {
-                if (store.config.airportMode === 'ground') {
-                    visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+            dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => {
+                const fullPilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
+                const nearby = fullPilot && fullPilot.flight_rules !== 'I' && coords[0] && calculateDistanceInNauticalMiles(coords as Coordinate, [x.longitude, x.latitude]) <= 40;
+                if (nearby) return true;
+
+                if (!aircraft.includes(x.cid)) return false;
+
+                if (store.config.airportMode && store.config.airportMode !== 'all') {
+                    if (store.config.airportMode === 'ground') {
+                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                    }
+                    else {
+                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+                    }
                 }
-                else {
-                    visiblePilots.value = visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
-                }
-            }
+
+                return true;
+            });
         }
         else {
-            visiblePilots.value = [];
+            dataStore.visiblePilots.value = [];
         }
     }
 }
@@ -292,7 +285,7 @@ watch(() => store.mapSettings.heatmapLayer, async () => {
 });
 
 watch(dataStore.vatsim.updateTimestamp, () => {
-    visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => dataStore.visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {
@@ -326,7 +319,7 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
-    let features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+    let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
     // we have more than one aircraft within the tolerance, so we need to find the closest one
     if (features.length > 1) {
@@ -371,10 +364,10 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 async function handleClick(e: MapBrowserEvent<any>) {
     if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || isManualHover.value) return;
 
-    // here we deselect all aircrafts when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircrafts
+    // here we deselect all aircraft when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircraft
     if (!hoveredAircraft.value && store.config.hideOverlays) {
         const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
-        const features = getPilotsForPixel(eventPixel, undefined, true) ?? [];
+        const features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
         if (features.length < 1) {
             if (store.config.hideOverlays) {
@@ -407,14 +400,14 @@ async function handleClick(e: MapBrowserEvent<any>) {
 function handleMoveEnd() {
     setVisiblePilots();
 
-    if (store.mapSettings.visibility?.pilotLabels || visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100) || visiblePilots.value.length === 0) {
+    if (store.mapSettings.visibility?.pilotLabels || dataStore.visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100) || dataStore.visiblePilots.value.length === 0) {
         if (showAircraftLabel.value.length) {
             showAircraftLabel.value = [];
         }
         return;
     }
 
-    showAircraftLabel.value = visiblePilots.value.filter(feature => getPilotsForPixel(aircraftCoordsToPixel(feature)!).length === 1).map(x => x.cid);
+    showAircraftLabel.value = dataStore.visiblePilots.value.filter(feature => getPilotsForPixel(map.value!, aircraftCoordsToPixel(map.value!, feature)!).length === 1).map(x => x.cid);
 }
 
 attachMoveEnd(handleMoveEnd);

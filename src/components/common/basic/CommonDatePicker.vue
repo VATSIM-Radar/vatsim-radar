@@ -57,6 +57,12 @@ export interface DateRange {
     to: Date;
 }
 
+const emit = defineEmits({
+    change() {
+        return true;
+    },
+});
+
 const dateRange = defineModel<DateRange>({ required: true });
 
 const formatDate = (date: Date): string => {
@@ -74,11 +80,13 @@ const formattedEndDate = computed(() => dateRange.value.to ? formatDate(dateRang
 const updateStartDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
     dateRange.value.from = new Date(target.value);
+    emit('change');
 };
 
 const updateEndDate = (event: Event) => {
     const target = event.target as HTMLInputElement;
     dateRange.value.to = new Date(target.value);
+    emit('change');
 };
 
 const adjustTime = (isStart: boolean, minutes: number) => {
@@ -92,6 +100,7 @@ const adjustTime = (isStart: boolean, minutes: number) => {
             dateRange.value.to = newDate;
         }
     }
+    emit('change');
 };
 </script>
 
@@ -102,8 +111,6 @@ const adjustTime = (isStart: boolean, minutes: number) => {
         gap: 5%;
         align-items: center;
         justify-content: center;
-
-        width: 100%;
 
         &-container {
             display: flex;

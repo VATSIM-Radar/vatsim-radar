@@ -13,6 +13,7 @@ export function hasActivePilotFilter() {
         !store.activeFilter.users?.cids?.length &&
         (!store.activeFilter.airports || Object.values(!store.activeFilter.airports).some(x => x.length)) &&
         (!store.activeFilter.flights?.type || store.activeFilter.flights?.type === 'all') &&
+        (!store.activeFilter.flights?.plan || store.activeFilter.flights?.plan === 'all') &&
         (!store.activeFilter.flights?.status || store.activeFilter.flights?.status === 'all') &&
         (!store.activeFilter.flights?.excludeNoFlightPlan) &&
         (!store.activeFilter.flights?.diverted) &&
@@ -68,8 +69,9 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
     const routes = store.activeFilter.airports?.routes?.map(x => x.split('-'));
     const altitude = store.activeFilter.flights?.altitude?.map(x => parseFilterAltitude(x));
 
-    let filteredPilots = pilots.filter(pilot => {
+    let filteredPilots = pilots.filter((pilot, index) => {
         if (store.activeFilter.flights?.excludeNoFlightPlan && !pilot.departure) return false;
+
         if (store.activeFilter.flights?.diverted && (!('diverted' in pilot) || !pilot.diverted)) return false;
 
         if (!filterUser(pilot)) return false;
@@ -135,6 +137,14 @@ export function filterVatsimPilots<T extends VatsimLiveDataShort['pilots'] | Vat
 
         if (store.activeFilter.flights?.squawks?.length && !store.activeFilter.flights.squawks.some(x => 'transponder' in pilot && pilot.transponder === x)) return false;
         if (store.activeFilter.flights?.ratings?.length && !store.activeFilter.flights.ratings.some(x => 'pilot_rating' in pilot && pilot.pilot_rating === x)) return false;
+
+        if (store.activeFilter.flights?.plan) {
+            if (store.activeFilter.flights?.plan === 'none' && pilot.departure) return false;
+            if (store.activeFilter.flights?.plan === 'ifr' && pilot.flight_rules !== 'I') return false;
+            if (store.activeFilter.flights?.plan === 'trueVfr' && pilot.flight_rules !== 'V') return false;
+            if (store.activeFilter.flights?.plan === 'allVfr' && pilot.flight_rules === 'I') return false;
+        }
+
         if (altitude?.length) {
             if (!('logon_time' in pilot)) return false;
 

@@ -42,12 +42,15 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
-                    <map-aircraft-list/>
+                    <view-selected-procedures/>
+                    <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sectors-list
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
+                    <map-distance v-if="store.localSettings.distance?.enabled"/>
                     <map-airports-list v-if="!store.config.hideAirports"/>
+                    <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather v-if="!store.config.hideHeader"/>
                     <a
                         v-if="store.config.showCornerLogo"
@@ -95,6 +98,7 @@
                 Warning: preset import will overwrite your current preset.<br><br>
 
                 <common-input-text
+                    v-if="store.user"
                     v-model="store.presetImport.name"
                     placeholder="Enter a name for new preset"
                 />
@@ -107,7 +111,7 @@
                         Cancel import
                     </common-button>
                     <common-button
-                        :disabled="!store.presetImport.name"
+                        :disabled="!store.presetImport.name && !!store.user"
                         @click="store.presetImport.save!()"
                     >
                         Import preset
@@ -137,13 +141,90 @@
                     </common-button>
                 </template>
             </common-popup>
+            <common-popup
+                v-model="mapStore.distance.tutorial"
+                width="600px"
+            >
+                <template #title>
+                    Distance Tool
+                </template>
+
+                You have just enabled Distance Tool for the first time.<br> This is a message to give you a little understanding on how it works.
+
+                <ol class="__info-sections">
+                    <li>
+                        <strong>This is not a tool for supervising</strong>.
+                        <br>VATSIM Radar has delays.
+                        <br> Each airspace has it's own separation rules.
+                        <br> Please, do not .wallop for separation issues.<br> If you think that separation was bad - provide feedback via local ATC facility instead.
+                    </li>
+                    <li>
+                        To activate tool, press twice on the map
+                    </li>
+                    <li>
+                        To pin point to aircraft, double click on it
+                    </li>
+                    <li>
+                        This tool disables double click to zoom. Need to use both Distance Tool and click to zoom? Enable CTRL+Click!
+
+                        <common-toggle
+                            :model-value="!!store.localSettings.distance?.ctrlClick"
+                            @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
+                        >
+                            CTRL+Click instead of double click
+                        </common-toggle>
+                    </li>
+                    <li>
+                        You can change CTRL+Click action and displayed units in Map layer settings (second icon on left filters screen)
+                    </li>
+                </ol>
+            </common-popup>
+            <common-popup
+                v-if="observerFlight && canShowObserver"
+                :model-value="canShowObserver"
+                width="700px"
+            >
+                <template #title>
+                    Shared Cockpit Mode
+                </template>
+
+                We have noticed that you have connected as observer... <br>
+                And there is also someone flying as <strong>{{observerFlight.callsign}}</strong>.<br><br>
+
+                Would you like us to connect your flights for this session?
+
+                <br><br>
+
+                <common-toggle
+                    v-model="skipObserver.value"
+                    align-left
+                >
+                    Don't show me this again
+
+                    <template #description>
+                        You will be able to change this later by clicking on track icon below filters in the left
+                    </template>
+                </common-toggle>
+
+                <template #actions>
+                    <common-button
+                        type="secondary"
+                        @click="[mapStore.selectedCid = false, observerCookie = false]"
+                    >
+                        No, thanks
+                    </common-button>
+                    <common-button @click="[mapStore.selectedCid = observerFlight.cid, observerCookie = observerFlight.cid]">
+                        Yes, connect me and {{observerFlight.callsign}}
+                    </common-button>
+                </template>
+            </common-popup>
         </template>
         <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
             <map-sigmets/>
         </client-only>
         <map-layer v-else/>
-        <map-scale v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+        <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
         <slot/>
     </div>
 </template>
@@ -151,6 +232,7 @@
 <script setup lang="ts">
 import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
+import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control';
 import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
@@ -160,7 +242,7 @@ import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
-import { showPilotOnMap } from '~/composables/pilots';
+import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/pilots';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~/server/api/data/vatsim/airport/[icao]';
 import type { VatsimAirportDataNotam } from '~/server/api/data/vatsim/airport/[icao]/notams';
@@ -175,8 +257,13 @@ import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
+import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
+import { defaults } from 'ol/interaction';
+import PointerInteraction from 'ol/interaction/Pointer';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 defineProps({
     mode: {
@@ -204,7 +291,6 @@ const isDiscord = ref(route.query.discord === '1');
 const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
-const isMobileOrTablet = useIsMobileOrTablet();
 const config = useRuntimeConfig();
 
 if (route.query.discord === '1') {
@@ -222,18 +308,24 @@ let initialOwnCheck = false;
 
 useIframeHeader();
 
+if (route.query.start !== undefined && route.query.end !== undefined) {
+    store.bookingsStartTime.setTime(Number(route.query.start));
+    store.bookingsEndTime.setTime(Number(route.query.end));
+    store.bookingOverride = true;
+}
+
 async function checkAndAddOwnAircraft() {
     if (!store.user?.settings.autoFollow || store.config.hideAllExternal || mapStore.closedOwnOverlay) {
         initialOwnCheck = true;
         return;
     }
-    let overlay = mapStore.overlays.find(x => x.key === store.user?.cid);
+    let overlay = mapStore.overlays.find(x => x.key === ownFlight.value?.cid.toString());
     if (overlay) {
         initialOwnCheck = true;
         return;
     }
 
-    const aircraft = dataStore.vatsim.data.keyedPilots.value[store.user!.cid.toString()];
+    const aircraft = ownFlight.value;
     if (!aircraft) {
         initialOwnCheck = true;
         return;
@@ -242,11 +334,11 @@ async function checkAndAddOwnAircraft() {
     const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport && !route.query.bookmark);
 
     if (isPilotOnGround(aircraft)) {
-        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
+        overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
     }
     else if (!initialSpawn) {
         initialSpawn = true;
-        overlay = await mapStore.addPilotOverlay(store.user.cid, shouldTrack);
+        overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
     }
 
     initialSpawn = true;
@@ -267,6 +359,22 @@ const getRouteZoom = (): number | null => {
 
     return null;
 };
+
+const observerCookie = useCookie<number | false>('observer-for-cid', {
+    path: '/',
+    secure: true,
+});
+
+if (observerCookie.value) {
+    mapStore.selectedCid = observerCookie.value;
+}
+
+const canShowObserver = computed(() => {
+    const mapStore = useMapStore();
+    if (skipObserver.value.value || mapStore.selectedCid !== null) return null;
+
+    return !!observerFlight.value;
+});
 
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
@@ -450,15 +558,32 @@ function updateMapCursor() {
 
 watch(() => mapStore.mapCursorPointerTrigger, updateMapCursor);
 
+watch(() => store.localSettings.distance?.enabled, val => {
+    if (!val) return;
+
+    if (!localStorage.getItem('distance-tool-tutorial-seen')) {
+        mapStore.distance.tutorial = true;
+        localStorage.setItem('distance-tool-tutorial-seen', '1');
+    }
+});
+
 useUpdateInterval(() => {
     if (store.mapSettings.vatglasses?.autoLevel === false || !store.user) return;
 
-    const user = dataStore.vatsim.data.keyedPilots.value[+store.user!.cid.toString()];
+    const user = ownFlight.value;
     if (!user) return;
 
     setUserLocalSettings({
         vatglassesLevel: Math.round(getPilotTrueAltitude(user) / 500) * 5,
     });
+
+    if (store.mapSettings.navigraphData?.isModeAuto !== false) {
+        setUserMapSettings({
+            navigraphData: {
+                mode: getPilotTrueAltitude(user) >= 18000 ? 'ifrHigh' : 'ifrLow',
+            },
+        });
+    }
 });
 
 const overlays = computed(() => mapStore.overlays);
@@ -538,11 +663,12 @@ async function handleMoveEnd() {
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
     mapStore.extent = view.calculateExtent(map.value!.getSize());
+    mapStore.center = view.getCenter()!;
 
     const query = {
         ...route.query,
-        center: view.getCenter()!.map(x => x.toFixed(5))?.join(','),
-        zoom: view.getZoom()?.toFixed(2),
+        center: mapStore.center.map(x => x.toFixed(5))?.join(','),
+        zoom: mapStore.zoom.toFixed(2),
     };
 
     if (initialOwnCheck && !store.mapSettings.disableQueryUpdate) {
@@ -558,8 +684,8 @@ async function handleMoveEnd() {
     }, targetOrigin);
 
     setUserLocalSettings({
-        location: view.getCenter(),
-        zoom: view.getZoom(),
+        location: mapStore.center,
+        zoom: mapStore.zoom,
     });
 
     await sleep(300);
@@ -567,8 +693,93 @@ async function handleMoveEnd() {
     mapStore.moving = false;
 }
 
+let lastClickTime = 0;
+
+async function initDistance(event: MapBrowserEvent) {
+    const pilots = getPilotsForPixel(map.value!, event.pixel);
+    if (pilots.length === 1) {
+        mapStore.distance.initAircraft = pilots[0].cid;
+    }
+
+    mapStore.distance.pixel = map.value!.getCoordinateFromPixel(event.pixel);
+    mapStore.distance.overlayOpenCheck = true;
+}
+
+let overlaysCache: typeof mapStore.overlays = [];
+
+function handleDownEvent(event: MapBrowserEvent) {
+    if (mapStore.distance.pixel) return false;
+    const now = Date.now();
+
+    if (store.localSettings.distance?.ctrlClick) {
+        overlaysCache = mapStore.overlays.slice(0);
+        if (event.originalEvent.ctrlKey) {
+            initDistance(event).then(async () => {
+                await nextTick();
+                mapStore.overlays = overlaysCache;
+            });
+
+            return true;
+        }
+
+        return false;
+    }
+
+    if (now - lastClickTime < 300) {
+        initDistance(event).then(async () => {
+            await nextTick();
+            mapStore.overlays = overlaysCache;
+        });
+        lastClickTime = 0;
+
+        return true;
+    }
+    else overlaysCache = mapStore.overlays.slice(0);
+
+    lastClickTime = now;
+
+    return false;
+}
+
+class DoubleClick extends PointerInteraction {
+    constructor() {
+        super({
+            handleDownEvent,
+        });
+    }
+}
+
+const doubleClick = new DoubleClick();
+
+function setMapInteractions() {
+    if (!map.value) return;
+    const withDistance = store.localSettings.distance?.enabled;
+    const ctrl = store.localSettings.distance?.ctrlClick;
+
+    map.value.getInteractions().forEach(x => map.value?.removeInteraction(x));
+    map.value.getInteractions().clear();
+
+    if (withDistance) {
+        const interactions = defaults({
+            doubleClickZoom: !!ctrl,
+        }).extend([
+            doubleClick,
+        ]);
+
+        interactions.forEach(x => map.value?.addInteraction(x));
+    }
+    else {
+        const interactions = defaults();
+
+        interactions.forEach(x => map.value?.addInteraction(x));
+    }
+}
+
+watch(() => store.localSettings.distance?.enabled, setMapInteractions);
+watch(() => store.localSettings.distance?.ctrlClick, setMapInteractions);
+
 await setupDataFetch({
-    onMount() {
+    async onMount() {
         if (typeof route.query.airline === 'string') {
             setUserActiveFilter({
                 users: {
@@ -680,6 +891,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            interactions: [],
             maxTilesLoading: 128,
             view: new View({
                 center,
@@ -692,19 +904,14 @@ await setupDataFetch({
             }),
         });
 
+        setMapInteractions();
+
         const mapView = map.value.getView();
         mapStore.zoom = mapView.getZoom() ?? 0;
         mapStore.rotation = toDegrees(mapView.getRotation() ?? 0);
         mapStore.extent = mapView.calculateExtent(map.value!.getSize());
+        mapStore.center = mapView.getCenter()!;
         ready.value = true;
-
-        if (isMobileOrTablet.value) {
-            let dblClickInteraction;
-
-            if (dblClickInteraction) {
-                map.value.removeInteraction(dblClickInteraction);
-            }
-        }
 
         map.value.getTargetElement().style.cursor = 'grab';
         map.value.on('pointerdrag', function() {
@@ -713,6 +920,7 @@ await setupDataFetch({
         map.value.on('pointermove', updateMapCursor);
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
+        mapStore.center = map.value!.getView().getCenter()!;
 
         map.value.getTargetElement().addEventListener('mousedown', event => {
             const target = event.target as HTMLCanvasElement;

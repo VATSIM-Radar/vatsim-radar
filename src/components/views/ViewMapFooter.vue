@@ -127,9 +127,18 @@
             </div>
             <div
                 v-if="store.version"
-                class="map-footer_left_section map-footer__text"
+                class="map-footer_left_section map-footer_left_section--version map-footer__text"
             >
                 v{{ store.version }}
+                <common-button
+                    v-if="updatePopupActive"
+                    type="link"
+                    @click="openUpdatePopup"
+                >
+                    <template #icon>
+                        <gift-icon height="16"/>
+                    </template>
+                </common-button>
             </div>
         </div>
         <div class="map-footer_right">
@@ -139,7 +148,7 @@
                 show-auto
             />
 
-            <div v-if="store.mapSettings.bookingOverride">
+            <div v-if="store.bookingOverride">
                 <common-button
                     primary-color="error700"
                     size="S"
@@ -243,6 +252,8 @@ import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSet
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import GiftIcon from '~/assets/icons/kit/gift.svg?component';
+import { updatePopupActive } from '~/composables';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -258,6 +269,14 @@ const outdated = computed(() => {
 });
 const isMobile = useIsMobile();
 
+function openUpdatePopup() {
+    if (store.user?.settings) {
+        store.user.settings.seenVersion = '';
+    }
+    localStorage.removeItem('seen-version');
+    triggerRef(showUpdatePopup);
+}
+
 onMounted(() => {
     const interval = setInterval(() => {
         curDate.value = Date.now();
@@ -269,9 +288,7 @@ onMounted(() => {
 });
 
 function cancelBookingOverride() {
-    setUserMapSettings({
-        bookingOverride: false,
-    });
+    store.bookingOverride = false;
     delete route.query.start;
     delete route.query.end;
     router.replace({ query: route.query });
@@ -295,6 +312,13 @@ function cancelBookingOverride() {
             position: relative;
             display: flex;
             align-items: center;
+
+            &--version {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                white-space: nowrap;
+            }
 
             &:not(:last-child) {
                 margin-right: 12px;
@@ -323,6 +347,7 @@ function cancelBookingOverride() {
 
         span {
             font-weight: 600;
+            font-variant-numeric: tabular-nums;
             color: $primary500;
         }
 

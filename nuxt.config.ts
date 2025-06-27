@@ -65,6 +65,9 @@ export default defineNuxtConfig({
         client: process.env.NODE_ENV === 'development',
         server: true,
     },
+    pinia: {
+        storesDirs: ['./src/store/**'],
+    },
     compatibilityDate: '2024-12-12',
     experimental: {
         appManifest: true,
@@ -137,6 +140,11 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
         '@sentry/nuxt/module',
     ],
+    sentry: {
+        sourceMapsUploadOptions: {
+            telemetry: false,
+        },
+    },
     eslint: {
         checker: {
             configType: 'flat',
@@ -196,6 +204,9 @@ export default defineNuxtConfig({
             dir: 'ltr',
             lang: 'en',
             handle_links: 'not-preferred',
+            edge_side_panel: {
+                preferred_width: 400,
+            },
             icons: [
                 {
                     src: 'android-chrome-192x192.png',

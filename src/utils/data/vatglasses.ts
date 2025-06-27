@@ -4,17 +4,25 @@ import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'g
 
 import { polygon } from '@turf/helpers';
 import { GeoJSON } from 'ol/format';
-import type { RadarStorage, VatglassesAirspace, VatglassesSector } from '~/utils/backend/storage.js';
+import type {
+    RadarStorage,
+    VatglassesAirspace,
+    VatglassesAPIData,
+    VatglassesData,
+    VatglassesSector,
+} from '~/utils/backend/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
-import type { useStore } from '~/store';
 import { computed } from 'vue';
+import { clientDB } from '~/utils/client-db';
+import { initIDBData } from '~/composables/idb-init';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
 let radarStorage: RadarStorage;
 let store: ReturnType<typeof useStore>;
+let mapStore: ReturnType<typeof useMapStore>;
 let mode: 'local' | 'server';
 let facilities: {
     ATIS: number;
@@ -75,11 +83,11 @@ export interface VatglassesSectorProperties {
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
-function updateVatglassesPositionsAndAirspaces() {
+async function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
 
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage?.vatglasses?.data.data;
+    const vatglassesData = dataStore ? await getVGData() : radarStorage?.vatglasses?.data.data;
     const vatglassesActiveRunways = dataStore?.vatglassesActiveRunways.value ?? workerDataStore.vatglassesActiveRunways;
     const vatglassesActivePositions = dataStore?.vatglassesActivePositions.value ?? workerDataStore.vatglassesActivePositions;
     const vatglassesDynamicData = dataStore?.vatglassesDynamicData?.value ?? radarStorage.vatglasses.dynamicData;
@@ -318,7 +326,7 @@ function updateVatglassesPositionsAndAirspaces() {
                         sectors.push(sector);
                     }
                 }
-                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
+                newVatglassesActivePositions[countryGroupId][positionId]['sectors'] = sectors.map(sector => convertSectorToGeoJson(vatglassesData, sector, countryGroupId, positionId, newVatglassesActivePositions[countryGroupId][positionId].atc, newVatglassesActivePositions)).filter(sector => sector !== false) || [];
             }
             else if (atcChanged) {
                 newVatglassesActivePositions[countryGroupId][positionId]['sectors']?.forEach(x => x.properties!.atc = newVatglassesActivePositions[countryGroupId][positionId].atc);
@@ -405,10 +413,10 @@ function stringToArray<T>(item: T | T[] | undefined): T[] {
     return item;
 }
 
-// Converts from vatglasses sector format to geojson format
-function convertSectorToGeoJson(sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
-    const vatglassesData = dataStore?.vatglasses?.value?.data ?? radarStorage.vatglasses?.data.data;
+export const getVGData = initIDBData<VatglassesData | undefined>(async () => (await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined)?.data);
 
+// Converts from vatglasses sector format to geojson format
+function convertSectorToGeoJson(vatglassesData: VatglassesData, sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
     try {
         // Create a polygon turf object
         const firstCoord = sector.points[0];
@@ -572,13 +580,13 @@ async function combineAllVatglassesActiveSectors(newVatglassesActiveSectors: Vat
     }
 }
 
+const format = new GeoJSON({
+    featureProjection: 'EPSG:4326',
+    dataProjection: 'EPSG:4326',
+});
 
 // Function to convert GeoJSON back to OpenLayers features
 export function convertToOpenLayersFeatures(geoJSONPolygons: TurfFeature<TurfPolygon>[]): Feature<Polygon>[] {
-    const format = new GeoJSON({
-        featureProjection: 'EPSG:4326',
-        dataProjection: 'EPSG:4326',
-    });
     return geoJSONPolygons.map(polygon => format.readFeature(polygon) as Feature<Polygon>);
 }
 
@@ -626,7 +634,9 @@ const _isVatGlassesActive = () => computed(() => {
     if (typeof window === 'undefined') return false;
 
     const store = useNuxtApp().$pinia.state.value.index;
+    if (store.bookingOverride) return false;
     dataStore ??= useDataStore();
+    mapStore ??= useMapStore();
 
     const isAuto = store.mapSettings.vatglasses?.autoEnable !== false;
 
@@ -634,7 +644,7 @@ const _isVatGlassesActive = () => computed(() => {
 
     if (isAuto) {
         if (store.user) {
-            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid);
+            return dataStore.vatsim.data.pilots.value.some(x => x.cid === +store.user!.cid || x.cid === mapStore.selectedCid);
         }
     }
 
@@ -651,7 +661,7 @@ export async function updateVatglassesStateLocal(forceNoCombine = false) {
     // console.time('updateVatglassesStateLocal');
 
     vatglassesUpdateInProgress = true;
-    const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
+    const newVatglassesActivePositions = await updateVatglassesPositionsAndAirspaces();
     if (store.mapSettings.vatglasses?.active && store.mapSettings.vatglasses?.combined && !forceNoCombine) {
         dataStore.vatglassesCombiningInProgress.value = true;
 
@@ -672,7 +682,7 @@ export async function updateVatglassesStateServer() {
     // console.time('updateVatglassesStateServer');
 
     vatglassesUpdateInProgress = true;
-    const newVatglassesActivePositions = updateVatglassesPositionsAndAirspaces();
+    const newVatglassesActivePositions = await updateVatglassesPositionsAndAirspaces();
     await combineAllVatglassesActiveSectors(newVatglassesActivePositions);
     triggerUpdatedVatglassesPositions(newVatglassesActivePositions);
     workerDataStore.vatglassesActivePositions = newVatglassesActivePositions;
@@ -692,7 +702,7 @@ async function initVatglassesCombined() {
     dataStore.vatglassesCombiningInProgress.value = true;
     try {
         const data: VatglassesActiveData = JSON.parse(await $fetch<string>(`/api/data/vatsim/data/vatglasses/active`));
-        const vatglassesDataVersion = dataStore?.vatglasses?.value?.version;
+        const vatglassesDataVersion = dataStore?.versions.value?.vatglasses;
         if (vatglassesDataVersion === data.version) {
             for (const countryGroupId in data.vatglassesActivePositions) {
                 for (const positionId in data.vatglassesActivePositions[countryGroupId]) {
@@ -752,8 +762,6 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         }
     }
     else {
-        const { useStore } = await import('~/store');
-
         mode = 'local';
         dataStore = useDataStore();
         store = useStore();

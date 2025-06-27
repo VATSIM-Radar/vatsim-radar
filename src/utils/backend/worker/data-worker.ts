@@ -10,19 +10,17 @@ import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/bac
 import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/backend/worker/kafka';
 import { initWebsocket, wss } from '~/utils/backend/vatsim/ws';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/backend/influx/converters';
 import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
-import { initWholeBunchOfBackendTasks } from '~/utils/backend/tasks';
+import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/backend/tasks';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 initWebsocket();
 initInfluxDB();
-initKafka();
-initNavigraph().catch(console.error);
 
-initWholeBunchOfBackendTasks();
+await initWholeBunchOfBackendTasks();
+initKafka();
 
 const redisPublisher = getRedis();
 
@@ -77,6 +75,8 @@ await defineCronJob('*/10 * * * * *', async () => {
     const data = await $fetch<BARS>('https://api.stopbars.com/all').catch(() => {});
     shortBars = {};
 
+    if (!data) return;
+
     for (const stopbar of data?.stopbars ?? []) {
         try {
             shortBars[stopbar.airportICAO] ??= [];
@@ -91,7 +91,7 @@ await defineCronJob('*/10 * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000) return;
+    if (!vatspy?.data || dataInProgress || Date.now() - dataLatestFinished < 1000 || navigraphUpdating) return;
 
     try {
         dataInProgress = true;
@@ -159,7 +159,7 @@ defineCronJob('* * * * * *', async () => {
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
 
-    if (!vatspy?.data || dataProcessInProgress || !data) return;
+    if (!vatspy?.data || dataProcessInProgress || !data || navigraphUpdating) return;
 
     try {
         dataProcessInProgress = true;
@@ -535,14 +535,26 @@ defineCronJob('* * * * * *', async () => {
                 last_updated: true,
             },
             controllers: {
+                visual_range: true,
                 server: true,
                 last_updated: true,
             },
             atis: {
+                visual_range: true,
                 server: true,
                 last_updated: true,
             },
             prefiles: {
+                flight_plan: true,
+                last_updated: true,
+            },
+            observers: {
+                frequency: true,
+                facility: true,
+                rating: true,
+                text_atis: true,
+                server: true,
+                visual_range: true,
                 flight_plan: true,
                 last_updated: true,
             },
@@ -558,6 +570,7 @@ defineCronJob('* * * * * *', async () => {
                     aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                     departure: origPilot.flight_plan?.departure,
                     arrival: origPilot.flight_plan?.arrival,
+                    flight_rules: origPilot.flight_plan?.flight_rules,
                 };
             }),
             prefiles: regularData.prefiles.map(x => {
@@ -568,6 +581,7 @@ defineCronJob('* * * * * *', async () => {
                     aircraft_faa: origPilot.flight_plan?.aircraft_faa,
                     departure: origPilot.flight_plan?.departure,
                     arrival: origPilot.flight_plan?.arrival,
+                    flight_rules: origPilot.flight_plan?.flight_rules,
                 };
             }),
             bars: shortBars,

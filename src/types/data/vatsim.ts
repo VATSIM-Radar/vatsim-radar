@@ -140,12 +140,29 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
     end_z?: string;
 }
 
+export interface VatsimNattrak {
+    identifier: string;
+    active: boolean;
+    last_routeing: string;
+    valid_from: string;
+    valid_to: string;
+    last_active: string;
+    concorde: number;
+    flight_levels: number[];
+}
+
+export interface VatsimNattrakClient extends Omit<VatsimNattrak, 'valid_to' | 'valid_from'> {
+    valid_from: Date;
+    valid_to: Date;
+}
+
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;
 
 export interface VatsimData {
     general: VatsimGeneral;
     pilots: VatsimPilot[];
     controllers: VatsimController[];
+    observers: VatsimController[];
     atis: VatsimATIS[];
     servers: VatsimServers[];
     prefiles: VatsimPrefile[];
@@ -170,15 +187,16 @@ export type VatsimShortenedData = {
     general: VatsimGeneral;
     pilots: Array<
         Omit<VatsimPilot, 'server' | 'qnh_i_hg' | 'flight_plan' | 'last_updated'> &
-        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'diverted' | 'diverted_arrival' | 'diverted_origin'>> &
+        Partial<Pick<NonNullable<VatsimPilot['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'diverted' | 'diverted_arrival' | 'diverted_origin' | 'flight_rules'>> &
         Partial<Pick<VatsimExtendedPilot, 'status' | 'depDist' | 'toGoDist'>> & {
             filteredColor?: UserMapSettingsColor;
             filteredOpacity?: number;
         }
     >;
-    controllers: Omit<VatsimController, 'server' | 'last_updated'>[];
-    atis: Omit<VatsimATIS, 'server' | 'last_updated'>[];
-    prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival'>>>;
+    controllers: Omit<VatsimController, 'visual_range' | 'server' | 'last_updated'>[];
+    observers: Omit<VatsimController, 'frequency' | 'facility' | 'rating' | 'visual_range' | 'text_atis' | 'server' | 'last_updated'>[];
+    atis: Omit<VatsimATIS, 'visual_range' | 'server' | 'last_updated'>[];
+    prefiles: Array<Omit<VatsimPrefile, 'flight_plan' | 'last_updated'> & Partial<Pick<NonNullable<VatsimPrefile['flight_plan']>, 'aircraft_faa' | 'aircraft_short' | 'departure' | 'arrival' | 'flight_rules'>>>;
     bars: BARSShort;
 } & Pick<VatsimData, 'facilities' | 'ratings' | 'pilot_ratings' | 'military_ratings'>;
 
@@ -211,7 +229,7 @@ export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> &
     keyedPilots?: Record<string, VatsimShortenedData['pilots'][0]>;
 };
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars'>;
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars'>;
 
 export interface VatsimDivision {
     id: string;

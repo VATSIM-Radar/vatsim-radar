@@ -6,7 +6,7 @@
                     <roadmap-runway height="56"/>
                 </div>
                 <div class="roadmap_runway_digits">
-                    {{ percents }}
+                    06
                 </div>
                 <div class="roadmap_runway_cols">
                     <div
@@ -270,15 +270,15 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Oceanic Tracks integration',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Waypoints on map (including aircraft submitted route)',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'Friends export/import',
@@ -316,10 +316,22 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             'Lock North button',
-            'Distance measuring tool',
-            'NOTAMs grouping',
-            'METAR request',
-            'Settings Page',
+            {
+                title: 'Distance measuring tool',
+                status: 'completed',
+            },
+            {
+                title: 'NOTAMs grouping',
+                status: 'todo',
+            },
+            {
+                title: 'METAR request',
+                status: 'completed',
+            },
+            {
+                title: 'Settings Page',
+                status: 'todo',
+            },
         ],
     },
     {
@@ -368,7 +380,7 @@ const roadmap = reactive<Roadmap[]>([
     },
 ]);
 
-const percents = 52;
+const percents = 60;
 
 interface RoadmapGroup {
     status: ItemStatus;

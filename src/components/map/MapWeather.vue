@@ -32,6 +32,8 @@ async function loadTimestamp() {
 
 interface Layer {
     attributions?: string;
+    minZoom?: number;
+    maxZoom?: number;
     tileUrlFunction: UrlFunction;
 }
 
@@ -42,6 +44,28 @@ function getLayer(id: MapWeatherLayer): Layer {
             tileUrlFunction: coord => `https://tilecache.rainviewer.com/v2/radar/${ timestamp.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/3/1_1.png`,
         };
     }
+
+    if (id === 'PR0') {
+        const now = new Date();
+        const roundedMinutes = Math.floor(now.getMinutes() / 10) * 10;
+        now.setMinutes(roundedMinutes - 10, 0, 0);
+
+        return {
+            minZoom: 3,
+            maxZoom: 7,
+            attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/radar/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb&tm=${ now.getTime() / 1000 }`,
+        };
+    }
+
+    if (id === 'RE') {
+        return {
+            attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
+            tileUrlFunction: coord => `https://maps.openweathermap.org/maps/2.0/relief/${ coord[0] }/${ coord[1] }/${ coord[2] }?appid=a1d03b5fa17676270ee45e3b2b29bebb`,
+        };
+    }
+
+    if (id === 'PR0C') id = 'PR0';
 
     let url = `https://maps.openweathermap.org/maps/2.0/weather/{op}/{z}/{x}/{y}?appid=a1d03b5fa17676270ee45e3b2b29bebb&opacity=1`;
     if (id === 'CL' && store.theme === 'light') {
@@ -109,7 +133,7 @@ onMounted(async () => {
     const interval = setInterval(() => {
         if (weather.value !== 'rainViewer') return;
         initLayer();
-    }, 1000 * 60);
+    }, 1000 * 60 * 5);
 
     onBeforeUnmount(() => clearInterval(interval));
 });

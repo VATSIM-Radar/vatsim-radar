@@ -3,20 +3,23 @@
         class="filters"
         :class="{ 'filters--collapsed': !isOpened }"
     >
-        <common-button
-            class="filters_toggle"
-            @click="setUserLocalSettings({ filters: { opened: !isOpened } })"
-        >
-            <template #icon>
-                <filter-icon/>
-            </template>
-        </common-button>
+        <div class="filters_top">
+            <common-button
+                class="filters_toggle"
+                @click="setUserLocalSettings({ filters: { opened: !isOpened } })"
+            >
+                <template #icon>
+                    <filter-icon/>
+                </template>
+            </common-button>
+            <div class="filters_sections"/>
+        </div>
 
         <transition name="filters_sections--appear">
             <div
                 v-if="isOpened"
                 class="filters_sections"
-                :class="{ 'filters_sections--has-pilot': store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid] }"
+                :class="{ 'filters_sections--has-pilot': store.user && !!ownFlight }"
             >
                 <div
                     class="filters_sections_section"
@@ -34,150 +37,14 @@
                         location="right"
                         max-height="57vh"
                         :model-value="selectedFilter === 'map'"
+                        :width="isMobile ? 'calc(100dvw - 100px)' : '450px'"
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
                             Map layers
                         </template>
 
-                        <div class="__info-sections">
-                            <template v-if="radarIsDefault">
-                                <common-block-title remove-margin>
-                                    Settings
-                                </common-block-title>
-
-                                <common-toggle
-                                    :model-value="store.localSettings.filters?.layers?.relativeIndicator !== false"
-                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event } } })"
-                                >
-                                    Relative distance indicator
-                                </common-toggle>
-                                <common-select
-                                    v-if="store.localSettings.filters?.layers?.relativeIndicator !== false"
-                                    :items="[
-                                        {
-                                            value: 'degrees',
-                                            text: 'Degrees',
-                                        },
-                                        {
-                                            value: 'imperial',
-                                            text: 'Imperial (mi)',
-                                        },
-                                        {
-                                            value: 'nautical',
-                                            text: 'Nautical (NM)',
-                                        },
-                                        {
-                                            value: 'metric',
-                                            text: 'Metric (km)',
-                                        },
-                                    ]"
-                                    :model-value="typeof store.localSettings.filters?.layers?.relativeIndicator === 'string' ? store.localSettings.filters?.layers?.relativeIndicator : 'metric'"
-                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { relativeIndicator: $event as Units } } })"
-                                >
-                                    <template #label>
-                                        Distance unit
-                                        Distance unit
-                                    </template>
-                                </common-select>
-
-                                <common-toggle
-                                    :disabled="!radarIsDefault"
-                                    :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
-                                    @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
-                                >
-                                    Show labels
-                                </common-toggle>
-                                <!--
-                                <template v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')">
-                                    <common-toggle
-                                        v-if="!store.localSettings.filters?.layers?.layer || store.localSettings.filters?.layers?.layer?.startsWith('protoData')"
-                                        :disabled="store.getCurrentTheme === 'default'"
-                                        :model-value="store.localSettings.filters?.layers?.layer === 'protoDataGray'"
-                                        @update:modelValue="setUserLocalSettings({ filters: { layers: { layer: !$event ? 'protoData' : 'protoDataGray' } } })"
-                                    >
-                                        Grayscale
-
-                                        <template
-                                            v-if="store.getCurrentTheme === 'default'"
-                                            #description
-                                        >
-                                            Light theme only
-                                        </template>
-                                    </common-toggle>
-                                </template>
-    -->
-                            </template>
-
-                            <common-block-title remove-margin>
-                                Layers
-                            </common-block-title>
-
-                            <common-notification
-                                cookie-name="layers-tutorial"
-                                type="info"
-                            >
-                                Light and Detailed have worse performance than other layers
-                            </common-notification>
-
-                            <map-filter-transparency
-                                v-if="store.localSettings.filters?.layers?.layer === 'OSM'"
-                                setting="osm"
-                            />
-                            <map-filter-transparency
-                                v-else-if="store.localSettings.filters?.layers?.layer === 'Satellite' || store.localSettings.filters?.layers?.layer === 'SatelliteEsri'"
-                                setting="satellite"
-                            />
-                            <common-radio-group
-                                :items="mapLayers"
-                                :model-value="store.localSettings.filters?.layers?.layer ?? 'protoData'"
-                                @update:modelValue="changeLayer($event as MapLayoutLayer)"
-                            />
-
-                            <common-block-title remove-margin>
-                                SIGMETs
-                            </common-block-title>
-
-                            <common-toggle
-                                :model-value="!!store.localSettings.filters?.layers?.sigmets?.enabled"
-                                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { enabled: $event } } } })"
-                            >
-                                Enable
-                            </common-toggle>
-                            <common-button
-                                size="S"
-                                to="/sigmets"
-                                type="secondary"
-                            >
-                                View on separate page
-                            </common-button>
-                            <common-radio-group
-                                v-if="store.localSettings.filters?.layers?.sigmets?.enabled"
-                                :items="sigmetDatesList"
-                                :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
-                                @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
-                            >
-                                <template #label>
-                                    Active date
-                                </template>
-                            </common-radio-group>
-                            <common-sigmets-settings/>
-                            <div class="__partner-info">
-                                <div class="__partner-info_image">
-                                    <img
-                                        alt="NWS"
-                                        src="~/assets/images/NWS-logo.svg"
-                                    >
-                                </div>
-                                <span>
-                                    Data provided by <a
-                                        class="__link"
-                                        href="https://aviationweather.gov/"
-                                        target="_blank"
-                                    >Aviation Weather Center</a>
-                                </span>
-                            </div>
-                        </div>
+                        <map-filters-layers/>
                     </common-control-block>
                 </div>
                 <div
@@ -198,28 +65,39 @@
                         @update:modelValue="!$event ? selectedFilter = null : undefined"
                     >
                         <template #title>
-                            Weather on map
+                            Weather
                         </template>
-                        <a
-                            class="filters__open-weather"
-                            href="https://openweathermap.org/"
-                            target="_blank"
-                        >
-                            <div class="filters__open-weather_text">
-                                Data provided by
-                            </div>
-                            <img
-                                alt="OpenWeather"
-                                class="filters__open-weather_image"
-                                src="@/assets/images/openweather.png"
+                        <div class="__info-sections">
+                            <common-button
+                                size="S"
+                                @click="store.metarRequest = true"
                             >
-                        </a>
-                        <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
-                        <common-radio-group
-                            :items="weatherLayers"
-                            :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
-                            @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
-                        />
+                                Weather Request
+                            </common-button>
+                            <common-block-title remove-margin>
+                                Weather on map
+                            </common-block-title>
+                            <a
+                                class="filters__open-weather"
+                                href="https://openweathermap.org/"
+                                target="_blank"
+                            >
+                                <div class="filters__open-weather_text">
+                                    Data provided by
+                                </div>
+                                <img
+                                    alt="OpenWeather"
+                                    class="filters__open-weather_image"
+                                    src="@/assets/images/openweather.png"
+                                >
+                            </a>
+                            <map-filter-transparency :setting="store.theme === 'light' ? 'weatherLight' : 'weatherDark'"/>
+                            <common-radio-group
+                                :items="weatherLayers"
+                                :model-value="store.localSettings.filters?.layers?.weather2 || 'false'"
+                                @update:modelValue="setUserLocalSettings({ filters: { layers: { weather2: $event as MapWeatherLayer } } })"
+                            />
+                        </div>
                     </common-control-block>
                 </div>
                 <div
@@ -364,7 +242,7 @@
                     </common-control-block>
                 </div>
                 <div
-                    v-if="store.user && dataStore.vatsim.data.keyedPilots.value?.[+store.user.cid]"
+                    v-if="store.user && (ownFlight || observerFlight)"
                     class="filters_sections_section filters_sections_section--location"
                     :class="{ 'filters_sections_section--tracked': myOverlay?.data.tracked }"
                     @click="handleUserTrack"
@@ -394,18 +272,12 @@ import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vu
 import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import type { RadioItemGroup } from '~/components/common/basic/CommonRadioGroup.vue';
 import type {
-    MapLayoutLayer,
-    MapLayoutLayerExternalOptions,
     MapWeatherLayer,
 } from '~/types/map';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import MapSettings from '~/components/map/filters/settings/MapSettings.vue';
 import type { IUserMapSettings, UserMapSettings } from '~/utils/backend/handlers/map-settings';
-import { isProductionMode, MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
+import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import MapFiltersTraffic from '~/components/map/filters/MapFiltersTraffic.vue';
 import { saveMapSettings } from '~/composables/settings';
 import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';
@@ -414,15 +286,15 @@ import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import { sigmetDates } from '~/composables';
-import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
-import type { Units } from 'ol/control/ScaleLine';
 import { useRadarError } from '~/composables/errors';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import { observerFlight, ownFlight, skipObserver } from '~/composables/pilots';
+
+const MapFiltersLayers = defineAsyncComponent(() => import('~/components/map/filters/MapFiltersLayers.vue'));
+const MapFiltersTraffic = defineAsyncComponent(() => import('~/components/map/filters/MapFiltersTraffic.vue'));
+const MapSettings = defineAsyncComponent(() => import('~/components/map/filters/settings/MapSettings.vue'));
 
 const store = useStore();
-const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 const isOpened = computed(() => store.localSettings.filters?.opened !== false);
@@ -441,50 +313,8 @@ const importedPreset = shallowRef<UserMapSettings | false | null>(null);
 const importedPresetName = ref('');
 const isMobile = useIsMobile();
 const isPC = useIsPC();
-const sigmetDatesList = sigmetDates();
 
 const isDebug = useIsDebug();
-
-let mapLayers: RadioItemGroup<MapLayoutLayerExternalOptions>[] = [
-    {
-        value: 'protoData',
-        text: 'Light',
-    },
-    {
-        value: 'protoGeneral',
-        text: 'Detailed',
-    },
-    {
-        value: 'basic',
-        text: 'Basic',
-    },
-    {
-        value: 'Satellite',
-        text: 'Satellite (USA only)',
-        hint: 'Lacks quality data outside US. Will be noticeable when zooming',
-        hintLocation: 'right',
-    },
-    {
-        value: 'SatelliteEsri',
-        text: 'Satellite (Esri)',
-    },
-    {
-        value: 'OSM',
-        hint: 'Will only show for light theme',
-        hintLocation: 'left',
-    },
-];
-
-if (isProductionMode()) mapLayers = mapLayers.filter(x => x.value !== 'SatelliteEsri');
-
-const radarIsDefault = computed(() => !mapLayers.some(x => x.value === store.localSettings.filters?.layers?.layer) ||
-    store.localSettings.filters?.layers?.layer?.startsWith('proto') ||
-    store.localSettings.filters?.layers?.layer === 'Satellite' ||
-    (store.localSettings.filters?.layers?.layer === 'OSM' && store.theme !== 'light'));
-
-const changeLayer = (layer: MapLayoutLayer) => {
-    setUserLocalSettings({ filters: { layers: { layer } } });
-};
 
 const createPreset = async () => {
     if (filtersImportMode.value === 'settings') {
@@ -506,12 +336,18 @@ const createPreset = async () => {
 };
 
 const myOverlay = computed(() => {
-    return mapStore.overlays.find(x => x.type === 'pilot' && x.key === store.user?.cid) as StoreOverlayPilot | undefined;
+    return mapStore.overlays.find(x => x.type === 'pilot' && x.key === ownFlight.value?.cid.toString()) as StoreOverlayPilot | undefined;
 });
 
 const handleUserTrack = () => {
+    if (observerFlight.value && !ownFlight.value) {
+        mapStore.selectedCid = null;
+        skipObserver.value.value = false;
+        return;
+    }
+
     const overlay = myOverlay.value;
-    if (!overlay) mapStore.addPilotOverlay(store.user!.cid, true);
+    if (!overlay) mapStore.addPilotOverlay(ownFlight.value!.cid, true);
     else overlay.data.tracked = !overlay.data.tracked;
 };
 
@@ -556,7 +392,15 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
     },
     {
         value: 'PR0',
-        text: 'Precipitation',
+        text: 'Precipitation Radar',
+    },
+    {
+        value: 'RE',
+        text: 'Ground elevation',
+    },
+    {
+        value: 'PR0C',
+        text: 'Precipitation Intensity',
     },
     {
         value: 'rainViewer',
@@ -574,7 +418,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 <style scoped lang="scss">
 .filters {
     position: absolute;
-    z-index: 8;
+    z-index: 5;
     top: 16px;
     left: 16px;
 
@@ -631,6 +475,10 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
             position: relative;
             display: flex;
 
+            @include mobileOnly {
+                position: unset;
+            }
+
             &--location {
                 margin-top: 8px;
 
@@ -659,6 +507,20 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
 
             &--tracked svg {
                 transform: rotate(-45deg) translate(-2px, 2px);
+            }
+
+            &_content {
+                @include mobileOnly {
+                    top: 0;
+                }
+            }
+        }
+
+        @media(max-height: 630px) {
+            flex-direction: row;
+
+            .control-block {
+                max-width: calc(100dvw - 200px - 48px) !important;
             }
         }
     }

@@ -12,7 +12,7 @@ import type {
     VatsimBooking,
     VatsimDivision,
     VatsimSubDivision,
-    VatsimShortenedController,
+    VatsimShortenedController, VatsimController, VatsimNattrak,
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/backend/navigraph';
@@ -55,14 +55,21 @@ export function updateVatsimDataStorage() {
 
     const positions = useFacilitiesIds();
 
+    const observers: VatsimController[] = [];
+
     data.controllers = data.controllers.filter(controller => {
-        if (controller.facility === positions.OBS) return;
+        if (controller.facility === positions.OBS) {
+            observers.push(controller);
+            return false;
+        }
         let postfix = controller.callsign.split('_').slice(-1)[0];
         if (postfix === 'DEP') postfix = 'APP';
         if (postfix === 'RMP') postfix = 'GND';
         controller.facility = positions[postfix as keyof typeof positions] ?? -1;
         return controller.facility !== -1 && controller.facility !== positions.OBS;
     });
+
+    data.observers = observers;
 }
 
 export function updateVatsimMandatoryDataStorage() {
@@ -401,6 +408,47 @@ export async function updateAirlines() {
     await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
 }
 
+export async function updateNattrak() {
+    const data = await $fetch<VatsimNattrak[]>('https://nattrak.vatsim.net/api/tracks', {
+        retry: 3,
+    });
+
+    radarStorage.vatsimStatic.tracks = [
+        ...data.filter(x => x.active && !x.concorde),
+        {
+            identifier: 'SM',
+            active: true,
+            last_routeing: '50/15 50/20 50/30 49/40 47/50 46/53 44/60 42/65 42/67',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+        {
+            identifier: 'SN',
+            active: true,
+            last_routeing: '40/67 41/65 43/60 45/52 46/50 48/40 49/30 50/20 49/15',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+        {
+            identifier: 'SO',
+            active: true,
+            last_routeing: '48/15 49/20 48/30 47/40 45/50 44/52 42/60',
+            valid_from: '2005-01-01T08:00:00.000000Z',
+            valid_to: '2085-01-01T08:00:00.000000Z',
+            last_active: '2005-01-01T08:00:00.000000Z',
+            concorde: 1,
+            flight_levels: [],
+        },
+    ];
+    await setRedisData('data-nattrak', radarStorage.vatsimStatic.tracks, 1000 * 60 * 60 * 24 * 7);
+}
+
 export async function updateBookings() {
     try {
         const bookingData = await fetchBookingData();
@@ -425,28 +473,35 @@ export async function updateBookings() {
             };
         }) as VatsimBooking[];
 
-        /* const start = new Date();
+        /*
+        const start = new Date();
         const end = new Date();
         start.setMinutes(start.getMinutes() + 60);
         end.setMinutes((end.getMinutes() + 60) * 3);
 
-        bookings.push({
-            atc: {
-                callsign: 'ETNW_TWR',
-                cid: 10000,
-                facility: getFacilityByCallsign('ETNW_TWR'),
-                frequency: '122.800',
-                logon_time: '',
-                name: 'Test dummy',
-                rating: 1,
-                text_atis: [],
-                visual_range: 1,
-            },
+        const fakeBooking: VatsimBookingData = {
+            callsign: 'EDDV_APP',
+            cid: 10000,
             start: start.getTime(),
             end: end.getTime(),
             id: 0,
             type: 'booking',
-        });*/
+            division: '',
+            subdivision: '',
+        };
+
+        const atc = makeFakeAtc(fakeBooking);
+
+        bookings.push({
+            ...fakeBooking,
+            atc,
+            start: start.getTime(),
+            end: end.getTime(),
+            division: undefined,
+            subdivision: undefined,
+        } as VatsimBooking);
+        */
+
 
         setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
     }
@@ -494,7 +549,6 @@ function makeFakeAtc(booking: VatsimBookingData): VatsimShortenedController {
         frequency: '',
         facility: getFacilityByCallsign(booking.callsign),
         rating: -1,
-        visual_range: 0,
         logon_time: '',
         text_atis: [],
     };

@@ -125,10 +125,22 @@ function recreateOverlay(stopEvent: boolean) {
 
 const canShowOverlay = computed(() => mapStore.canShowOverlay);
 
+function removeOverlay() {
+    if (!overlay.value) return;
+    map.value!.removeOverlay(overlay.value);
+    overlay.value.dispose();
+    overlay.value = null;
+    if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
+}
+
 watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
     await nextTick();
     if (model.value && !overlay.value) {
-        if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) return;
+        if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {
+            removeOverlay();
+            model.value = false;
+            return;
+        }
 
         overlay.value = new Overlay({
             stopEvent: false,
@@ -140,16 +152,11 @@ watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOve
         map.value!.addOverlay(overlay.value);
     }
     else if (model.value && overlay.value && !props.persistent && mapStore.openOverlayId !== id) {
-        map.value!.removeOverlay(overlay.value);
-        overlay.value.dispose();
-        overlay.value = null;
+        removeOverlay();
         return;
     }
     else if (!model.value && overlay.value) {
-        map.value!.removeOverlay(overlay.value);
-        overlay.value.dispose();
-        overlay.value = null;
-        if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
+        removeOverlay();
         return;
     }
 
@@ -193,11 +200,7 @@ watch(stopEvent, val => {
 });
 
 onBeforeUnmount(() => {
-    if (overlay.value) {
-        map.value!.removeOverlay(overlay.value);
-        overlay.value.dispose();
-        overlay.value = null;
-    }
+    removeOverlay();
 
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
     if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;

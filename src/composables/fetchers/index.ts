@@ -6,6 +6,9 @@ import type { Map } from 'ol';
 
 export async function sendUserPreset<T extends Record<string, any>>(name: string, json: T, prefix: string, retryMethod: () => Promise<any>) {
     const store = useStore();
+
+    if (!store.user) return json;
+
     try {
         return await $fetch<T>(`/api/user/${ prefix }${ store.presetImport.error ? '?force=1' : '' }`, {
             method: 'POST',

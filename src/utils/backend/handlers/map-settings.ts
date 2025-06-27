@@ -98,13 +98,13 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     bookingHours: val => {
         return isNumber(val, 1) && val > 0 && val < 5;
     },
-    bookingOverride: val => {
-        return typeof val === 'boolean';
-    },
     bookingsLocalTimezone: val => {
         return typeof val === 'boolean';
     },
     disableQueryUpdate: val => {
+        return typeof val === 'boolean';
+    },
+    shortAircraftView: val => {
         return typeof val === 'boolean';
     },
     heatmapLayer: val => {
@@ -206,6 +206,27 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportCounterLimit: val => {
         return isNumber(val, 0) && val >= 0 && val <= 1000;
     },
+    navigraphData: val => {
+        if (!isObject(val)) return false;
+        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
+
+        if ('ndb' in val && typeof val.ndb !== 'boolean') return false;
+        if ('vordme' in val && typeof val.vordme !== 'boolean') return false;
+        if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
+        if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
+        if ('isModeAuto' in val && typeof val.isModeAuto !== 'boolean') return false;
+        if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr' && val.mode !== 'ifrHigh' && val.mode !== 'ifrLow' && val.mode !== 'both') return false;
+        if ('airways' in val) {
+            if (!isObject(val.airways)) return false;
+            if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
+
+            if ('enabled' in val.airways && typeof val.airways.enabled !== 'boolean') return false;
+            if ('showAirwaysLabel' in val.airways && typeof val.airways.showAirwaysLabel !== 'boolean') return false;
+            if ('showWaypointsLabel' in val.airways && typeof val.airways.showWaypointsLabel !== 'boolean') return false;
+        }
+
+        return true;
+    },
 };
 
 export interface UserMapSettingsColor {
@@ -235,6 +256,7 @@ export interface UserMapSettingsVisibilityATC {
 }
 
 export type UserMapSettingsTurns = 'magma' | 'inferno' | 'rainbow' | 'viridis';
+export type NavigraphSettingsLevel = 'ifrHigh' | 'ifrLow' | 'vfr' | 'both';
 
 export interface IUserMapSettings {
     visibility: {
@@ -250,9 +272,9 @@ export interface IUserMapSettings {
         pilotLabels?: boolean;
     };
     bookingHours: number;
-    bookingOverride?: boolean;
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
+    shortAircraftView?: boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;
@@ -274,6 +296,19 @@ export interface IUserMapSettings {
         hideGateGuidance?: boolean;
         hideRunwayExit?: boolean;
         hideDeicing?: boolean;
+    }>;
+    navigraphData: Partial<{
+        ndb: boolean;
+        vordme: boolean;
+        waypoints: boolean;
+        holdings: boolean;
+        mode: NavigraphSettingsLevel;
+        isModeAuto: boolean;
+        airways: Partial<{
+            enabled: boolean;
+            showAirwaysLabel: boolean;
+            showWaypointsLabel: boolean;
+        }>;
     }>;
     aircraftScale: number;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
@@ -312,15 +347,15 @@ export async function handleMapSettingsEvent(event: H3Event) {
     try {
         const user = await findUserByCookie(event);
 
-        if (!user) {
+        if (!user && !isValidate) {
             return handleH3Error({
                 event,
                 statusCode: 401,
             });
         }
 
-        userId = user.id;
-        if (await freezeH3Request(event, user.id) !== true) return;
+        userId = user?.id;
+        if (user && await freezeH3Request(event, user.id) !== true) return;
 
         const id = getRouterParam(event, 'id');
 
@@ -339,20 +374,22 @@ export async function handleMapSettingsEvent(event: H3Event) {
             });
         }
 
-        const presets = await prisma.userPreset.findMany({
-            where: {
-                userId: user.id,
-                type: UserPresetType.MAP_SETTINGS,
-            },
-            orderBy: [
-                {
-                    order: 'asc',
+        const presets = (!user && isValidate)
+            ? []
+            : await prisma.userPreset.findMany({
+                where: {
+                    userId: user!.id,
+                    type: UserPresetType.MAP_SETTINGS,
                 },
-                {
-                    id: 'desc',
-                },
-            ],
-        });
+                orderBy: [
+                    {
+                        order: 'asc',
+                    },
+                    {
+                        id: 'desc',
+                    },
+                ],
+            });
 
         let settings: UserPreset | null = null;
 
@@ -407,7 +444,6 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
                 for (const [key, value] of Object.entries(body.json) as [keyof IUserMapSettings, unknown][]) {
                     if (!(key in validators)) {
-                        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
                         delete body.json[key];
 
                         continue;
@@ -464,7 +500,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
             else {
                 const userPresets = await prisma.userPreset.count({
                     where: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.MAP_SETTINGS,
                     },
                 });
@@ -479,7 +515,7 @@ export async function handleMapSettingsEvent(event: H3Event) {
 
                 await prisma.userPreset.create({
                     data: {
-                        userId: user.id,
+                        userId: user!.id,
                         type: UserPresetType.MAP_SETTINGS,
                         name: body.name as string,
                         json: body.json!,

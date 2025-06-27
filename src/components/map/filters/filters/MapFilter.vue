@@ -321,6 +321,15 @@
                 >
                     Altitude allowed values examples: +FL100, -FL100, +10000, -10000, +FL100/-FL100, -10000/+10000
                 </common-notification>
+                <common-select
+                    :items="[{ value: 'all', text: 'All' }, { value: 'ifr', text: 'IFR' }, { value: 'trueVfr', text: 'VFR (filed)' }, { value: 'allVfr', text: 'VFR + no plan' }, { value: 'none', text: 'No flight plan' }]"
+                    :model-value="store.filter.flights?.plan ?? 'all'"
+                    @update:modelValue="setUserFilter({ flights: { plan: $event as any } })"
+                >
+                    <template #label>
+                        Flight plan
+                    </template>
+                </common-select>
                 <common-toggle
                     :model-value="!!store.filter.flights?.diverted"
                     @update:modelValue="setUserFilter({ flights: { diverted: $event } } )"
@@ -350,8 +359,9 @@
                     Non-filtered transparency
                 </common-color>
                 <common-color
-                    v-model="store.filter.others.ourColor"
                     :default-color="store.filter.others.ourColor"
+                    :model-value="store.filter.others.ourColor"
+                    @update:modelValue="setUserFilter({ others: { ourColor: $event as UserMapSettingsColor } })"
                 >
                     Filtered color
                 </common-color>
@@ -446,6 +456,7 @@ import MapFiltersPresets from '~/components/map/filters/MapFiltersPresets.vue';
 import type { UserFilter } from '~/utils/backend/handlers/filters';
 import { sendUserPreset } from '~/composables/fetchers';
 import equal from 'deep-equal';
+import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 
 const store = useStore();
 const tab = ref('filter');

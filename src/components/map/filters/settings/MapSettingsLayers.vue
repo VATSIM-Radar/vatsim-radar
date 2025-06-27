@@ -83,16 +83,32 @@
                 </common-toggle>
             </template>
         </map-filter-columns>
-        <common-toggle
-            :model-value="!!store.mapSettings.disableQueryUpdate"
-            @update:modelValue="setUserMapSettings({ disableQueryUpdate: $event })"
-        >
-            Disable query update
+        <map-filter-columns>
+            <template #col1>
+                <common-toggle
+                    :model-value="!!store.mapSettings.shortAircraftView"
+                    @update:modelValue="setUserMapSettings({ shortAircraftView: $event })"
+                >
+                    Short aircraft view
 
-            <template #description>
-                URL will stop updating with constant center-zoom change. Use this if you hate this feature, or simply need infinite browser history entries to stop appearing
+                    <template #description>
+                        Reduces on-hover displayed info
+                    </template>
+                </common-toggle>
             </template>
-        </common-toggle>
+            <template #col2>
+                <common-toggle
+                    :model-value="!!store.mapSettings.disableQueryUpdate"
+                    @update:modelValue="setUserMapSettings({ disableQueryUpdate: $event })"
+                >
+                    Disable query update
+
+                    <template #description>
+                        URL will stop updating with constant center-zoom change
+                    </template>
+                </common-toggle>
+            </template>
+        </map-filter-columns>
         <common-notification
             cookie-name="settings-emergency"
             type="info"
@@ -250,10 +266,11 @@ import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { backupMapSettings } from '~/composables/settings';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
 import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const store = useStore();
 const dataStore = useDataStore();

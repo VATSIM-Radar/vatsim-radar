@@ -10,7 +10,7 @@ import { setRedisData } from '~/utils/backend/redis';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
 
 const revisions: Record<string, number> = {
-    'v2410.1': 4,
+    'v2506.1': 1,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -135,12 +135,28 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
             };
         });
 
-    // @ts-expect-error First init
-    result.keyAirports ??= {};
-    result.keyAirports.icao = Object.fromEntries(result.airports.map(airport => [airport.icao, airport]));
-    result.keyAirports.iata = Object.fromEntries(result.airports.filter(x => x.iata).map(airport => [airport.iata, airport]));
-    result.keyAirports.realIcao = Object.fromEntries(result.airports.filter(x => !x.isPseudo).map(airport => [airport.icao, airport]));
-    result.keyAirports.realIata = Object.fromEntries(result.airports.filter(x => x.iata && !x.isPseudo).map(airport => [airport.iata, airport]));
+    result.keyAirports ??= {
+        icao: {},
+        iata: {},
+        realIcao: {},
+        realIata: {},
+    };
+
+    for (const airport of result.airports) {
+        result.keyAirports.icao[airport.icao] = airport;
+
+        if (airport.iata) {
+            result.keyAirports.iata[airport.iata] = airport;
+        }
+
+        if (!airport.isPseudo) {
+            result.keyAirports.realIcao[airport.icao] = airport;
+
+            if (airport.iata) {
+                result.keyAirports.realIata[airport.iata] = airport;
+            }
+        }
+    }
 
     result.firs = [];
     parsedDat.firs

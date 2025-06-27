@@ -13,13 +13,21 @@
                 title: 'Info',
                 sections,
             },
+            proc: {
+                title: 'Proc',
+                sections: [{
+                    key: 'procedures',
+                    title: `${ pilot.status?.includes('dep') ? depAirport?.icao : arrAirport?.icao } procedures`,
+                }],
+                disabled: !depAirport,
+            },
             atc: {
                 title: 'ATC',
                 sections: atcSections,
                 disabled: !atcSections.length,
             },
         }"
-        @update:modelValue="!$event ? [store.user && pilot.cid === +store.user.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
+        @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
     >
         <template #title>
             <div class="pilot-header pilot_header">
@@ -98,6 +106,32 @@
                 :is-offline="isOffline"
                 :pilot
                 @viewRoute="viewRoute()"
+            />
+        </template>
+        <template
+            v-if="depAirport"
+            #procedures
+        >
+            <common-notification
+                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
+                cookie-name="full-route-tip"
+                type="info"
+            >
+                Want to always show full route? Visit <a
+                    class="__link"
+                    href="#"
+                    @click.prevent="store.settingsPopup = true"
+                >settings</a>.
+            </common-notification>
+            <common-toggle v-model="overlay.data.fullRoute">
+                Show full route
+            </common-toggle>
+            <br>
+            <airport-procedures
+                :aircraft="pilot"
+                :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
+                :flight-type="pilot.status?.includes('dep') ? 'departure' : 'arrival'"
+                from="pilotOverlay"
             />
         </template>
         <template #depRunways>
@@ -191,7 +225,7 @@ import PathIcon from '@/assets/icons/kit/path.svg?component';
 import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
-import { sortControllersByPosition, useFacilitiesIds } from '#imports';
+import { ownFlight, sortControllersByPosition, useFacilitiesIds } from '#imports';
 import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
@@ -205,11 +239,14 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     overlay: {
@@ -284,12 +321,23 @@ const atcSections = computed<InfoPopupSection[]>(() => {
     return list;
 });
 
-const depRunways = computed(() => {
-    return depAirport.value && getAirportRunways(depAirport.value.icao);
-});
+const depRunways = shallowRef<VatglassesAirportRunways | null>(null);
+const arrRunways = shallowRef<VatglassesAirportRunways | null>(null);
 
-const arrRunways = computed(() => {
-    return arrAirport.value && getAirportRunways(arrAirport.value.icao);
+const setDepRunways = async () => {
+    depRunways.value = (depAirport.value && await getAirportRunways(depAirport.value.icao)) || null;
+};
+
+const setArrRunways = async () => {
+    arrRunways.value = (arrAirport.value && await getAirportRunways(arrAirport.value.icao)) || null;
+};
+
+setDepRunways();
+setArrRunways();
+
+watch(() => String(depAirport.value?.icao) + String(arrAirport.value?.icao), () => {
+    setDepRunways();
+    setArrRunways();
 });
 
 const depBars = computed(() => {
@@ -545,6 +593,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
     map.value?.un('pointerdrag', handlePointerDrag);
     map.value?.un('moveend', handleMouseMove);
+
+    if (enrouteAircraftPath.value) {
+        delete enrouteAircraftPath.value[props.overlay.key];
+    }
 });
 </script>
 

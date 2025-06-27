@@ -41,15 +41,15 @@ import type { Coordinate } from 'ol/coordinate';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatSpyAirport, VatSpyData, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { intersects } from 'ol/extent';
-import { GeoJSON } from 'ol/format';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
 import VectorLayer from 'ol/layer/Vector';
 import type { FeatureLike } from 'ol/Feature';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { airportLayoutStyles } from '~/composables/airport-layout';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { AmdbLayerName } from '@navigraph/amdb';
+
+import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
@@ -92,28 +92,38 @@ const hoveredPixel = ref<Coordinate | null>(null);
 const hoveredId = ref<string | null>(null);
 const isMobileOrTablet = useIsMobileOrTablet();
 
-const start = new Date(Date.now());
-const end = new Date(start.getTime() + (5 * 60 * 60 * 1000));
+const now = new Date();
+const end = ref(new Date());
 
-const url = new URL(location.href);
+const { mapSettings } = storeToRefs(store);
 
-if (url.searchParams.has('start') && url.searchParams.has('end')) {
-    start.setTime(Number(url.searchParams.get('start')));
-    end.setTime(Number(url.searchParams.get('end')));
-    setUserMapSettings({
-        bookingOverride: true,
-    });
-}
+watch(mapSettings, val => {
+    const d = new Date();
+    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
+    end.value = d;
+}, { immediate: true });
 
-const { data } = await useAsyncData('bookings', async () => {
-    return $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: { starting: start.getTime(), ending: end.getTime() },
-    });
-}, {
-    server: false,
-});
+const queryParams = computed(() => ({
+    starting: store.bookingOverride
+        ? store.bookingsStartTime.getTime()
+        : now.getTime(),
+    ending: store.bookingOverride
+        ? store.bookingsEndTime.getTime()
+        : end.value.getTime(),
+}));
 
-const bookingsData = data.value ? data.value : [];
+const { data } = await useAsyncData(
+    'bookings',
+    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        query: queryParams.value,
+    }),
+    {
+        watch: [queryParams],
+        server: false,
+    },
+);
+
+const bookingsData = computed(() => data.value ? data.value : []);
 
 const getShownAirports = computed(() => {
     let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
@@ -255,6 +265,7 @@ watch(map, val => {
         airportsLayer = new VectorLayer<any>({
             source: airportsSource.value,
             zIndex: 8,
+            declutter: true,
             properties: {
                 type: 'airports',
             },
@@ -513,7 +524,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if (!store.mapSettings.bookingOverride) {
+    if (!store.bookingOverride) {
         for (const atc of dataStore.vatsim.data.locals.value) {
             const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
             const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
@@ -542,16 +553,16 @@ const getAirportsList = computed(() => {
         }
     }
 
-    if ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) {
+    if (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) {
         const now = new Date();
         const timeInHours = new Date(now.getTime() + ((store.mapSettings?.bookingHours ?? 1) * 60 * 60 * 1000));
 
-        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL]);
+        const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
-        bookingsData.forEach((booking: VatsimBooking) => {
-            if (!validFacilities.has(booking.atc.facility)) return;
+        bookingsData.value.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao))).forEach((booking: VatsimBooking) => {
+            if (!validFacilities.has(booking.atc.facility) || isVatGlassesActive.value) return;
 
-            if (!store.mapSettings.bookingOverride) {
+            if (!store.bookingOverride) {
                 const start = new Date(booking.start);
                 const end = new Date(booking.end);
 
@@ -595,16 +606,35 @@ const getAirportsList = computed(() => {
     }
 
     function updateAirportWithBooking(airport: AirportsList, booking: VatsimBooking): void {
-        const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
+        if (booking.atc.facility === facilities.APP) {
+            const existingLocal = airport.arrAtc.find(x => booking.atc.callsign === x.callsign);
 
-        if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
-            if (existingLocal) {
-                airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.arrAtc = airport.arrAtc.filter(x => x.facility !== existingLocal.facility);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.arrAtc.push(booking.atc);
             }
+        }
+        else {
+            const existingLocal = airport.localAtc.find(x => booking.atc.facility === (x.isATIS ? -1 : x.facility));
 
-            booking.atc.booking = booking;
-            airport.bookings.push(booking);
-            airport.localAtc.push(booking.atc);
+            if (!existingLocal || (existingLocal.booking && booking.start < existingLocal.booking.start)) {
+                if (existingLocal) {
+                    airport.localAtc = airport.localAtc.filter(x => x.facility !== existingLocal.facility || x.isATIS);
+                }
+
+                makeBookingLocalTime(booking);
+
+                booking.atc.booking = booking;
+                airport.bookings.push(booking);
+                airport.localAtc.push(booking.atc);
+            }
         }
     }
 
@@ -713,11 +743,6 @@ const getAirportsList = computed(() => {
     return list;
 });
 
-const geoJson = new GeoJSON({
-    featureProjection: 'EPSG:4326',
-    dataProjection: 'EPSG:4326',
-});
-
 const vatAirportsList = computed(() => {
     let list = dataStore.vatsim.data.airports.value;
 
@@ -741,6 +766,8 @@ const vatAirportsList = computed(() => {
 
     return list;
 });
+
+const cachedSimAwareFeatures: Record<string, Feature> = {};
 
 async function setVisibleAirports() {
     if (settingAirports) return;
@@ -769,7 +796,8 @@ async function setVisibleAirports() {
                 const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao) || y === (x.iata ?? x.icao)));
                 if (!simawareFeature) return null;
 
-                const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
+                const feature = cachedSimAwareFeatures[x.icao] ?? geoJson.readFeature(simawareFeature) as Feature<any>;
+                cachedSimAwareFeatures[x.icao] ??= feature;
 
                 return {
                     vatspyAirport: airport,

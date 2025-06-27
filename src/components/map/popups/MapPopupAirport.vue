@@ -2,6 +2,7 @@
     <common-info-popup
         v-if="airport"
         v-model:collapsed="overlay.collapsed"
+        v-model:tab="tab"
         class="airport"
         collapsible
         :disabled="store.config.airport === props.overlay.data.icao"
@@ -138,7 +139,7 @@
                                         <question-icon width="14"/>
                                     </div>
                                 </template>
-                                - The left column shows the aircrafts on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
+                                - The left column shows the aircraft on the ground.<br>- The right column shows the expected arrivals in 15-minute intervals from top to bottom.
                             </common-tooltip>
                         </div>
                     </div>
@@ -172,6 +173,15 @@
             #notams
         >
             <airport-notams/>
+        </template>
+        <template
+            v-if="procedures"
+            #procedures
+        >
+            <airport-procedures
+                :airport="props.overlay.key"
+                from="airportOverlay"
+            />
         </template>
         <template #bookmark>
             <div class="__info-sections">
@@ -281,7 +291,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport } from '~/store/map';
 import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
 import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
-import { sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
+import { getNavigraphAirportProcedures, sendUserPreset, showAirportOnMap, useDataStore } from '#imports';
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { InfoPopupContent } from '~/components/common/popup/CommonInfoPopup.vue';
@@ -317,6 +327,7 @@ import type { VatsimShortenedController } from '~/types/data/vatsim';
 import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
 import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
+import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 
 const props = defineProps({
     overlay: {
@@ -344,6 +355,9 @@ const notams = computed(() => props.overlay.data.notams);
 const listGroundDepartures = ref(false); // TODO: When a settings page exists, add a toggle to the settings to set the default value
 const arrivalCountTooltipCloseMethod = ref<TooltipCloseMethod>('mouseLeave');
 
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const { data: procedures } = await useLazyAsyncData(`${ props.overlay.key }-procedures-lazy`, () => getNavigraphAirportProcedures(props.overlay.key));
+
 const bookings = computed(() => {
     const atcs: VatsimShortenedController[] = [];
     data.value?.bookings?.forEach(b => {
@@ -370,6 +384,13 @@ const createBookmark = async () => {
     await store.fetchBookmarks();
 };
 
+const tab = ref<StoreOverlayAirport['data']['tab']>('aircraft');
+
+watch(() => props.overlay?.data.tab, changedTab => {
+    if (!changedTab) return;
+    tab.value = changedTab;
+});
+
 const tabs = computed<InfoPopupContent>(() => {
     const list: InfoPopupContent = {
         aircraft: {
@@ -381,6 +402,15 @@ const tabs = computed<InfoPopupContent>(() => {
             title: 'ATC',
             disabled: !atc.value.length && !bookings.value.length,
             sections: [],
+        },
+        procedures: {
+            title: 'Proc',
+            disabled: !procedures.value?.sids.length && !procedures.value?.stars.length && !procedures.value?.approaches.length,
+            sections: [
+                {
+                    key: 'procedures',
+                },
+            ],
         },
         info: {
             title: 'Info',
@@ -412,7 +442,7 @@ const tabs = computed<InfoPopupContent>(() => {
         });
     }
 
-    if (runways.value) {
+    if (runways) {
         list.info.sections.push({
             title: 'Active Runways',
             collapsible: true,
@@ -516,9 +546,8 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
     }
 });
 
-const runways = computed(() => {
-    return getAirportRunways(props.overlay.data.icao);
-});
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const runways = await getAirportRunways(props.overlay.data.icao);
 
 onMounted(() => {
     const interval = setInterval(async () => {

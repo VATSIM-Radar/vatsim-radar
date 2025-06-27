@@ -1,6 +1,17 @@
 <template>
     <div class="flight-plan">
         <template v-if="flightPlan?.departure && flightPlan.arrival">
+            <common-button
+                size="S"
+                text-align="left"
+                type="secondary"
+                @click="store.metarRequest = status?.startsWith('dep') ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
+            >
+                <template #icon>
+                    <ground-icon/>
+                </template>
+                Weather Request
+            </common-button>
             <common-pilot-destination
                 :pilot="{
                     departure: flightPlan.departure,
@@ -101,6 +112,9 @@ import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
+import { useStore } from '~/store';
 
 const props = defineProps({
     flightPlan: {
@@ -116,6 +130,8 @@ const props = defineProps({
         default: null,
     },
 });
+
+const store = useStore();
 
 const convertTime = (time: string) => {
     const hours = time.slice(0, 2);

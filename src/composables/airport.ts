@@ -41,7 +41,6 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
                     name: '',
                     logon_time: '',
                     rating: 0,
-                    visual_range: 0,
                     frequency: data.value.airport?.vatInfo?.ctafFreq,
                 },
             ];
@@ -121,7 +120,9 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
             const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
 
-            if (arrivalAirport) {
+            const pilotDistance = getAircraftDistance(pilot);
+
+            if (arrivalAirport && !pilotDistance?.toGoTime) {
                 const pilotCoords = [pilot.longitude, pilot.latitude];
                 const depCoords = [departureAirport?.lon ?? 0, departureAirport?.lat ?? 0];
                 const arrCoords = [arrivalAirport.lon, arrivalAirport.lat];
@@ -135,9 +136,9 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
             const truePilot: AirportPopupPilotStatus = {
                 ...pilot,
-                distance,
-                eta,
-                flown,
+                distance: pilotDistance.toGoDist || distance,
+                eta: pilotDistance.toGoTime ? new Date(pilotDistance.toGoTime) : eta,
+                flown: pilotDistance.depDist || flown,
                 isArrival: true,
             };
 
@@ -189,14 +190,14 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
     return aircraft;
 };
 
-export const getArrivalRate = (aircrafts: Ref<AirportPopupPilotList | null>, intervals: number, intervalLength: number) => {
+export const getArrivalRate = (aircraft: Ref<AirportPopupPilotList | null>, intervals: number, intervalLength: number) => {
     const returnArray = computed<AirportPopupPilotStatus[][]>(() => {
         const returnArray = Array(intervals).fill(null).map(() => [] as AirportPopupPilotStatus[]);
 
-        if (aircrafts.value?.arrivals) {
+        if (aircraft.value?.arrivals) {
             const currentDate = new Date() as Date;
 
-            for (const arrival of aircrafts.value?.arrivals || []) {
+            for (const arrival of aircraft.value?.arrivals || []) {
                 if (!arrival.eta) continue;
 
                 const differenceInMs = arrival.eta.getTime() - currentDate.getTime();

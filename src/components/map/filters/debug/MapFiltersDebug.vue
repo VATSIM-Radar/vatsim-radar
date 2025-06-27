@@ -86,7 +86,7 @@
         <common-block-title remove-margin>
             Data
         </common-block-title>
-        <div  class="debug_data-container __info-sections">
+        <div class="debug_data-container __info-sections">
             <div
                 v-for="key in ['vatspy', 'simaware', 'vatglasses'] as DataKey[]"
                 :key
@@ -174,6 +174,26 @@
                 </div>
             </div>
         </div>
+        <common-block-title remove-margin>
+            Flight plan
+        </common-block-title>
+        <div class="__section-group">
+            <common-input-text v-model="flightPlan.departure">
+                Departure
+            </common-input-text>
+            <common-input-text v-model="flightPlan.arrival">
+                Arrival
+            </common-input-text>
+            <common-input-text v-model="flightPlan.plan">
+                Flight plan
+            </common-input-text>
+        </div>
+        <common-button
+            :disabled="!flightPlan.departure || !flightPlan.arrival || !flightPlan.plan"
+            @click="parse"
+        >
+            Parse
+        </common-button>
     </div>
 </template>
 
@@ -201,6 +221,12 @@ const prs = reactive({
     simaware: null as number | null | true | 'loading',
 });
 
+const flightPlan = reactive({
+    departure: '',
+    arrival: '',
+    plan: '',
+});
+
 export interface VatsimControllerWithField extends VatsimController {
     default: boolean;
 }
@@ -221,6 +247,68 @@ const getDefaultController = (): VatsimControllerWithField => ({
 });
 
 const { data: controllers, refresh } = await useAsyncData('debug-controllers', () => $fetch<VatsimControllerWithField[]>('/api/data/custom/controllers'), { deep: true });
+
+const dataStore = useDataStore();
+const mapStore = useMapStore();
+
+async function parse() {
+    const mapCenter = mapStore.center;
+
+    dataStore.navigraphWaypoints.value.test = {
+        // @ts-expect-error this data is ok enough
+        pilot: {
+            callsign: 'test',
+            cid: 1,
+            heading: 0,
+            groundspeed: 0,
+            arrival: flightPlan.arrival,
+            departure: flightPlan.departure,
+            longitude: mapCenter![0],
+            latitude: mapCenter![1],
+        },
+        full: true,
+        waypoints: await getFlightPlanWaypoints({
+            flightPlan: flightPlan.plan,
+            departure: flightPlan.departure,
+            arrival: flightPlan.arrival,
+            cid: 1,
+        }),
+        arrived: false,
+    };
+
+    triggerRef(dataStore.navigraphWaypoints);
+}
+
+onMounted(() => {
+    // @ts-expect-error debug only
+    window.debugWaypoints = async (departure: string, arrival: string, flightPlan: string) => {
+        const mapCenter = mapStore.center;
+
+        dataStore.navigraphWaypoints.value[1] = {
+            // @ts-expect-error this data is ok enough
+            pilot: {
+                callsign: 'test',
+                cid: 1,
+                heading: 0,
+                groundspeed: 0,
+                arrival,
+                departure,
+                longitude: mapCenter![0],
+                latitude: mapCenter![1],
+            },
+            full: true,
+            waypoints: await getFlightPlanWaypoints({
+                flightPlan,
+                departure,
+                arrival,
+                cid: 1,
+            }),
+            arrived: false,
+        };
+
+        triggerRef(dataStore.navigraphWaypoints);
+    };
+});
 
 const activeController = ref<VatsimControllerWithField | null>(null);
 const isDisabledControllerSave = computed(() => !activeController.value ||

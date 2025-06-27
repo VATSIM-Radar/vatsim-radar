@@ -63,8 +63,10 @@ export interface FullUser {
 export interface UserSettings {
     autoFollow?: boolean;
     autoZoom?: boolean;
+    timeFormat?: '24h' | '12h';
     autoShowAirportTracks?: boolean;
     toggleAircraftOverlays?: boolean;
+    showFullRoute?: boolean;
     headerName?: string;
     seenVersion?: string;
     favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';

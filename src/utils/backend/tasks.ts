@@ -8,12 +8,18 @@ import type {
     PatreonPledgesUser,
 } from '~/types/data/patreon';
 import { isDataReady, radarStorage } from '~/utils/backend/storage';
-import { initNavigraph } from '~/utils/backend/navigraph-db';
+import { initNavigraph } from '~/utils/backend/navigraph/db';
 import { updateSimAware } from '~/utils/backend/vatsim/simaware';
 import { updateVatglassesData } from '~/utils/backend/vatglasses';
-import { getRedis, getRedisData, setRedisData } from '~/utils/backend/redis';
+import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/backend/redis';
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
-import { updateAirlines, updateAustraliaData, updateBookings, updateTransceivers } from '~/utils/backend/vatsim/update';
+import {
+    updateAirlines,
+    updateAustraliaData,
+    updateBookings,
+    updateNattrak,
+    updateTransceivers,
+} from '~/utils/backend/vatsim/update';
 import { updateVatSpy } from '~/utils/backend/vatsim/vatspy';
 import S3 from 'aws-sdk/clients/s3';
 import { execSync } from 'node:child_process';
@@ -26,11 +32,11 @@ import { watch } from 'chokidar';
 
 const redisSubscriber = getRedis();
 
-function basicTasks() {
-    defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
-    defineCronJob('15 * * * *', updateSimAware).catch(console.error);
-    defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
-    defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
+async function basicTasks() {
+    await defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
+    await defineCronJob('15 * * * *', updateSimAware).catch(console.error);
+    await defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
+    await defineCronJob('15 * * * *', updateVatSpy).catch(console.error);
 
     redisSubscriber.subscribe('vatglassesActive', 'vatglassesDynamic');
     redisSubscriber.on('message', (channel, message) => {
@@ -43,7 +49,7 @@ function basicTasks() {
     });
 }
 
-function vatsimTasks() {
+async function vatsimTasks() {
     async function fetchDivisions() {
         const [divisions, subdivisions] = await Promise.all([
             $fetch<VatsimDivision[]>('https://api.vatsim.net/api/divisions/', {
@@ -62,7 +68,7 @@ function vatsimTasks() {
         setRedisData('data-subdivisions', subdivisions, 1000 * 60 * 60 * 24);
     }
 
-    defineCronJob('30 * * * *', async () => {
+    await defineCronJob('30 * * * *', async () => {
         const myData = await $fetch<{
             data: VatsimEvent[];
         }>('https://my.vatsim.net/api/v2/events/latest', {
@@ -73,11 +79,12 @@ function vatsimTasks() {
         setRedisData('data-events', myData.data.filter(e => new Date(e.start_time) < inFourWeeks), 1000 * 60 * 60);
     }).catch(console.error);
 
-    defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
-    defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
-    defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
-    defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
-    defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
+    await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
+    await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
+    await defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
+    await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
+    await defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
+    await defineCronJob('*/30 * * * *', updateNattrak).catch(console.error);
 }
 
 let s3: S3 | undefined;
@@ -148,14 +155,14 @@ function clearTask() {
     }).catch(console.error);
 }
 
-function patreonTask() {
+async function patreonTask() {
     const pFetch = $fetch.create({
         headers: {
             Authorization: `Bearer ${ process.env.PATREON_ACCESS_TOKEN }`,
         },
     });
 
-    defineCronJob('15 * * * *', async () => {
+    await defineCronJob('15 * * * *', async () => {
         const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns');
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
@@ -193,11 +200,18 @@ function patreonTask() {
     }).catch(() => {});
 }
 
+export const navigraphUpdating = false;
+
+async function navigraphTask() {
+    if (await getRedisSync('navigraph-ready')) radarStorage.navigraphSetUp = true;
+}
+
 export async function initWholeBunchOfBackendTasks() {
     try {
-        basicTasks();
+        await basicTasks();
         await vatsimTasks();
-        patreonTask();
+        await patreonTask();
+        await navigraphTask();
         backupTask();
         clearTask();
     }
@@ -239,21 +253,31 @@ export async function updateRedisData() {
     radarStorage.vatsimStatic.subDivisions = (await getRedisData('data-subdivisions')) ?? radarStorage.vatsimStatic.subDivisions;
     radarStorage.vatsimStatic.events = (await getRedisData('data-events')) ?? radarStorage.vatsimStatic.events;
     radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
+    radarStorage.vatsimStatic.tracks = (await getRedisData('data-nattrak')) ?? radarStorage.vatsimStatic.tracks;
     radarStorage.patreonInfo = (await getRedisData('data-patreon')) ?? radarStorage.patreonInfo;
+    radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
 }
 
 export async function setupRedisDataFetch() {
     await defineCronJob('15 * * * *', async () => {
         await updateRedisData();
 
+        while (!radarStorage.navigraphSetUp && process.env.NAVIGRAPH_CLIENT_ID) {
+            await sleep(1000 * 15);
+            radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
+            console.log('Waiting for navigraph');
+        }
+
         while (!await isDataReady()) {
-            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data);
+            console.log(await getRedisSync('navigraph-ready'));
+            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
             await sleep(1000 * 60);
             await updateRedisData();
         }
     });
 
     redisSubscriber.subscribe('update');
+
     redisSubscriber.on('message', async (channel, message) => {
         if (channel === 'update') {
             if (message === 'data-vatspy') {
@@ -264,6 +288,12 @@ export async function setupRedisDataFetch() {
             }
             else if (message === 'data-simaware') {
                 radarStorage.simaware = (await getRedisData('data-simaware')) ?? radarStorage.simaware;
+            }
+            else if (message === 'data-nattrak') {
+                radarStorage.vatsimStatic.tracks = (await getRedisData('data-nattrak')) ?? radarStorage.vatsimStatic.tracks;
+            }
+            else if (message === 'navigraph-data') {
+                radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
             }
         }
     });
