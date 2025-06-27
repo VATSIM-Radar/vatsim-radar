@@ -185,7 +185,7 @@
                 Airport Layouts (Navigraph Unlimited only)
             </li>
             <li>
-                Airways/waypoints AIRAC upgrade (coming soon)
+                Navigational Data AIRAC upgrade
             </li>
         </ul>
         <template #actions>
