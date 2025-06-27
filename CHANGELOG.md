@@ -1,16 +1,16 @@
 # Changelog
 
-# [1.2.0-final]
+# [1.2.0]
 
 ## Highlights
 
-- Navigational Data on map (provided by Jeppesen and Navigraph)
-- Predicted aircraft route
-- Bookings improvements
-- Distance measurement tool
-- Shared cockpit support
-- Weather request
-- New map layers
+🧭️ Navigational Data on map (provided by Jeppesen and Navigraph)
+✈️ Predicted aircraft route
+📅 Bookings improvements
+📏 Distance measurement tool
+👨‍✈️ Shared cockpit support
+🌦️ Weather request
+🗺️ New map layers
 
 ### Navigational Data
 
