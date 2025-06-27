@@ -21,7 +21,7 @@ spec:
         doks.digitalocean.com/node-pool: navigraph-4
       containers:
         - name: navigraph
-          image: ghcr.io/vatsim-radar/vatsim-radar/next
+          image: ghcr.io/vatsim-radar/vatsim-radar/production
           imagePullPolicy: Always
           command: ["/radar/.config/navigraph-prod.sh"]
           ports:
