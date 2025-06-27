@@ -1,32 +1,5 @@
 # Changelog
 
-# [1.2.0-rc.7]
-
-- New icon: C160
-
-# [1.2.0-rc.6]
-
-- Added "Flying together" for friends in shared cockpit
-- Slightly reduced initial static resources loading size
-- You can now open latest changelog from footer
-- Implemented VATGlasses memory usage improvements when not used
-- Slightly reduced SimAware TRACON memory usage
-- Removed booking approach/center when in VG mode
-
-# [1.2.0-rc.5]
-
-- Default map layers have been updated from March 22 to June 22 version
-- Fixed distance tool not saving when CTRL is pressed
-- Fixed distance tool going crazy in some cases when CTRL+Click is enabled
-- Added ability to disable holdings and labels for airport-only traffic
-- Fixed stepclimbs parse for NAT tracks
-- Updated roadmap
-
-# [1.2.0-rc.4]
-
-- Renamed relief layer to ground elevation
-- Reworked filter search combobox to significantly improve UI of adding new filter data
-
 # [1.2.0-final]
 
 ## Highlights
