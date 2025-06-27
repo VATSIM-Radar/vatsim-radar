@@ -1,13 +1,14 @@
 <template>
     <div
-        v-if="false && !notamCookie"
+        v-if="!notamCookie"
         class="header-error header-error--notam"
     >
         <div class="header-error_text">
-            We have initiated VATSIM Radar feedback poll. We would appreciate if you could provide us your feedback, so we could plan our development and listen to you. <a
-                href="https://forms.gle/q7iFB7RuzULoqz1q6"
+            Update v1.2 will be released on, or shortly after, 15z. Expect VATSIM Radar downtime of 10 minutes or more - visit our <a
+                class="__link"
+                href="/discord"
                 target="_blank"
-            >You can find it here</a>. Thanks in advance &lt;3
+            >Discord</a> for updates.
         </div>
         <div
             class="header-error_close"
