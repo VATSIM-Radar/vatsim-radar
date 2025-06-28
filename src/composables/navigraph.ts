@@ -565,9 +565,34 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             }
 
             const airways = navigraphData.parsedAirways[search];
+
             if (airways) {
                 const list = Object.entries(airways);
                 let neededAirway = list.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) && x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+
+                if (!neededAirway) {
+                    const neededAirways = list.filter(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) || x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+
+                    if (neededAirways.length === 2) {
+                        neededAirway = neededAirways[0];
+
+                        // First waypoint inbound track equals last waypoint outbound track
+                        const dir = neededAirways[0][1][2][0][1] === neededAirways[1][1][2][neededAirways[1][1][2].length - 1][2];
+
+                        if (!dir) {
+                            neededAirway[1][2] = [
+                                ...neededAirway[1][2],
+                                ...neededAirways[1][1][2],
+                            ];
+                        }
+                        else {
+                            neededAirway[1][2] = [
+                                ...neededAirways[1][1][2],
+                                ...neededAirway[1][2],
+                            ];
+                        }
+                    }
+                }
 
                 if (neededAirway) {
                     let startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);

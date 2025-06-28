@@ -235,7 +235,9 @@ const selectedAirport = computed({
                 dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()].arrival = val;
             }
 
-            dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()].waypoints = [];
+            if (dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()]) {
+                dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()].waypoints = [];
+            }
             triggerRef(dataStore.navigraphAircraftProcedures);
 
             return;
