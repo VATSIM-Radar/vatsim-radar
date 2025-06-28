@@ -356,6 +356,13 @@
                         >
                             Labels
                         </common-toggle>
+                        <common-toggle
+                            :disabled="store.localSettings.navigraphRouteAirportOverlay?.enabled === false"
+                            :model-value="store.localSettings.navigraphRouteAirportOverlay?.waypoints !== false"
+                            @update:modelValue="setUserLocalSettings({ navigraphRouteAirportOverlay: { waypoints: $event } })"
+                        >
+                            Waypoints
+                        </common-toggle>
                     </template>
                 </map-filter-columns>
             </template>

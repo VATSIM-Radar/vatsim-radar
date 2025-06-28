@@ -190,6 +190,7 @@ export interface UseDataStore {
         full: boolean;
         disableHoldings?: boolean;
         disableLabels?: boolean;
+        disableWaypoints?: boolean;
         waypoints: NavigraphNavDataEnrouteWaypointPartial[];
     }>>;
     navigraphProcedures: DataStoreNavigraphProcedures;

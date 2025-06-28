@@ -576,8 +576,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     if (neededAirways.length === 2) {
                         neededAirway = neededAirways[0];
 
-                        // First waypoint inbound track equals last waypoint outbound track
-                        const dir = neededAirways[0][1][2][0][1] === neededAirways[1][1][2][neededAirways[1][1][2].length - 1][2];
+                        const dir = neededAirways[0][1][2][0][0] === neededAirways[1][1][2][neededAirways[1][1][2].length - 1][0];
 
                         if (!dir) {
                             neededAirway[1][2] = [

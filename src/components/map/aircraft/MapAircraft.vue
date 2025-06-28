@@ -485,6 +485,7 @@ async function setPilotRoute(enabled: boolean) {
         full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
         calculatedArrival: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.calculatedArrival,
         disableHoldings: store.localSettings.navigraphRouteAirportOverlay?.holds === false && !activeCurrentOverlay.value && !props.isHovered,
+        disableWaypoints: store.localSettings.navigraphRouteAirportOverlay?.waypoints === false && !activeCurrentOverlay.value && !props.isHovered,
         disableLabels: store.localSettings.navigraphRouteAirportOverlay?.labels === false && !activeCurrentOverlay.value && !props.isHovered,
         waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
             flightPlan: flightPlan.value,
