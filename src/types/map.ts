@@ -68,6 +68,7 @@ interface IUserLocalSettings {
         star?: boolean;
         holds?: boolean;
         labels?: boolean;
+        waypoints?: boolean;
     };
 
     natTrak: {

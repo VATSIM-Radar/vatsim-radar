@@ -1,6 +1,12 @@
 # Changelog
 
-# [1.2.0]
+# [1.2.0-1-final]
+
+- Fixed airway transition to another region airway with same name could result in route looking weird
+- Added a way to disable waypoints in "Airport Tracks"
+- Fixed weird holdings font
+
+# [1.2.0-final]
 
 ## Highlights
 
