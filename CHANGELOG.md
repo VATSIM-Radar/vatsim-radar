@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-alpha.1]
+
+- Fixed "simple" bookings not working
+
 # [1.2.0-1-final]
 
 - Fixed airway transition to another region airway with same name could result in route looking weird

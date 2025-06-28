@@ -7,21 +7,30 @@
 <script setup lang="ts">
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
+import type LayerGroup from 'ol/layer/Group';
 
 const route = useRoute();
 
 let watcher: WatchStopHandle | null = null;
 const mapRef = shallowRef<Map | null>(null);
+const layerRef = shallowRef<LayerGroup | null>(null);
 
-const setMap = (event: Ref<Map | null>) => {
+export type MapEvent = { map: Ref<Map | null>; layerGroup: Ref<LayerGroup | null> };
+
+const setMap = ({ map, layerGroup }: MapEvent) => {
     watcher?.();
-    watcher = watch(event, val => mapRef.value = val);
+    watcher = watch([map, layerGroup], ([map, layer]) => {
+        mapRef.value = map;
+        layerRef.value = layer;
+    });
 };
 
 provide('map', mapRef);
+provide('layer-group', layerRef);
 
 watch(() => route.path, () => {
     mapRef.value = null;
+    layerRef.value = null;
 }, {
     flush: 'pre',
 });
