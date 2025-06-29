@@ -11,7 +11,7 @@ Failed to do so? Add it here: [https://github.com/VATSIM-Radar/data/blob/main/cu
 ## My airline has real-world airline
 
 1. Add your airline as virtual to GNG or VR Data following links above
-2. Once this is done (or was done before), use special remark to identify yourself
+2. Once this is done (or was done before), use a special remark in your flight plan to identify the airline
 
 Examples:
 
