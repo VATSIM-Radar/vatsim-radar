@@ -180,7 +180,7 @@ const firs = computed(() => {
         const fir = 'fir' in _fir ? _fir.fir : _fir;
 
         const booking = bookingsData.value.find(
-            x => x.atc.callsign === fir.callsign?.replaceAll('-', '_') + '_CTR',
+            x => x.atc.callsign === (fir.callsign ?? fir.boundary)?.replaceAll('-', '_') + '_CTR',
         );
 
         if (booking) {
