@@ -104,6 +104,8 @@ watch([overlay, isPopupOpen, zIndex], () => {
     else {
         element.style.zIndex = props.zIndex.toString();
     }
+}, {
+    immediate: true,
 });
 
 const openOverlayId = computed(() => mapStore.openOverlayId);
@@ -111,7 +113,6 @@ const openOverlayId = computed(() => mapStore.openOverlayId);
 function recreateOverlay(stopEvent: boolean) {
     // @ts-expect-error Ignore protected state
     if (!overlay.value || stopEvent === overlay.value.stopEvent) return;
-    if (!overlay.value) return;
 
     map.value!.removeOverlay(overlay.value);
     overlay.value.dispose();
@@ -133,7 +134,8 @@ function removeOverlay() {
     if (mapStore.openOverlayId === id) mapStore.openOverlayId = null;
 }
 
-watch([model, popup, openOverlayId], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
+watch([model, popup, openOverlayId, overlayElement], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
+    if (!overlayElement.value) return;
     await nextTick();
     if (model.value && !overlay.value) {
         if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {
