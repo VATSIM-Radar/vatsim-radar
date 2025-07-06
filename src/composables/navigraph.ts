@@ -232,6 +232,8 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
             return null;
         }
 
+        if (isNaN(lat)) return null;
+
         return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
     }
 
