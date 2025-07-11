@@ -47,13 +47,6 @@ export default defineNuxtConfig({
             ],
         },
     },
-    build: {
-        transpile: process.env.NODE_ENV === 'development'
-            ? []
-            : [
-                'ol',
-            ],
-    },
     srcDir: 'src/',
     devtools: {
         enabled: false,
