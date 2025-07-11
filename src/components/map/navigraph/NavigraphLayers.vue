@@ -663,7 +663,7 @@ watch(map, val => {
             if (properties.type === 'holdings') {
                 return new Style({
                     stroke: holdingStroke,
-                    zIndex: 8,
+                    zIndex: 5,
                     text: new Text({
                         font: 'bold 10px Montserrat',
                         text: `${ properties.course }° ${ properties.turns }`,

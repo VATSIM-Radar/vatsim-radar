@@ -1,8 +1,11 @@
 # Changelog
 
-# [1.2.1-alpha.1]
+# [1.2.1-alpha.2]
 
-- Fixed "simple" bookings not working
+- Fixed Navigraph AIRAC sometimes loading old AIRAC data
+- Fixed an issue when Proc for previous flight were not unloaded for a new one
+- Fixed opening Proc clearing routes for every aircraft
+- Holdings now have lower priority than waypoints names
 
 # [1.2.0-1-final]
 

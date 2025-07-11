@@ -26,7 +26,7 @@ export async function getNavigraphAirportProcedures(airport: string): Promise<ID
 
     const store = useStore();
 
-    const data = await $fetch<NavigraphNavDataShortProcedures>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }`).catch(() => {});
+    const data = await $fetch<NavigraphNavDataShortProcedures>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }?airac=${ navigraphAirac.value }`).catch(() => {});
 
     if (data) {
         if (idbAirport) {
@@ -44,6 +44,10 @@ export async function getNavigraphAirportProcedures(airport: string): Promise<ID
     };
 }
 
+export const navigraphAirac = computed(() => {
+    return useDataStore().versions.value?.navigraph?.[useStore().user?.hasFms ? 'current' : 'outdated'];
+});
+
 export async function getNavigraphAirportShortProceduresForKey<T extends NavigraphDataAirportKeys>(get: T, airport: string): Promise<T extends 'approaches' ? NavigraphNavDataApproachShort[] : NavigraphNavDataStarShort[]> {
     const idbAirport = await clientDB.get('navigraphAirports', airport);
     const idbData = idbAirport?.[get];
@@ -51,7 +55,7 @@ export async function getNavigraphAirportShortProceduresForKey<T extends Navigra
 
     const store = useStore();
 
-    const data = await $fetch<any[]>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }`).catch(e => e);
+    const data = await $fetch<any[]>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }?airac=${ navigraphAirac.value }`).catch(e => e);
 
     if (Array.isArray(data)) {
         // @ts-expect-error dynamic data
@@ -83,7 +87,7 @@ export async function getNavigraphAirportProceduresForKey<T extends NavigraphDat
 
     const store = useStore();
 
-    const data = await $fetch<any>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/all`).catch(e => e);
+    const data = await $fetch<any>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/all?airac=${ navigraphAirac.value }`).catch(e => e);
 
     if (Array.isArray(data)) {
         if (idbData) {
@@ -120,7 +124,7 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 
     const store = useStore();
 
-    const data = await $fetch<NavDataProcedure<NavigraphNavDataStar> | NavDataProcedure<NavigraphNavDataApproach>>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/${ index }`).catch(() => {});
+    const data = await $fetch<NavDataProcedure<NavigraphNavDataStar> | NavDataProcedure<NavigraphNavDataApproach>>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/${ index }?airac=${ navigraphAirac.value }`).catch(() => {});
 
     if (data) {
         if (idbProcedure) {
@@ -275,8 +279,14 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     let sidInit = false;
     let starInit = false;
 
-    const selectedDeparture = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.departure;
-    const selectedArrival = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.arrival;
+    let selectedDeparture = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.departure;
+    let selectedArrival = dataStore.navigraphAircraftProcedures.value[cid.toString()]?.arrival;
+
+    if ((selectedDeparture?.icao && selectedDeparture.icao !== departure) || (selectedArrival?.icao && selectedArrival.icao !== arrival)) {
+        delete dataStore.navigraphAircraftProcedures.value[cid.toString()];
+        selectedDeparture = undefined;
+        selectedArrival = undefined;
+    }
 
     let depRunway = selectedDeparture?.runways[0];
     let arrRunway = null as string | null;
@@ -291,7 +301,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     try {
         for (let i = 0; i < entries.length; i++) {
             if (i === entries.length - 1) {
-                arrRunway ||= selectedArrival?.runways[0];
+                arrRunway ||= selectedArrival?.runways[0] ?? null;
                 arrStar = Object.values(selectedArrival?.stars ?? {})[0];
                 arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
             }
@@ -803,6 +813,7 @@ export async function updateCachedProcedures() {
         for (const [cid, value] of Object.entries(aircraftValues)) {
             dataStore.navigraphAircraftProcedures.value[cid] ??= {
                 departure: {
+                    icao: value.departure.icao ?? '',
                     sids: {},
                     stars: {},
                     approaches: {},
@@ -810,6 +821,7 @@ export async function updateCachedProcedures() {
                     setBy: value.departure.setBy,
                 },
                 arrival: {
+                    icao: value.arrival.icao ?? '',
                     sids: {},
                     stars: {},
                     approaches: {},
@@ -845,12 +857,12 @@ export async function updateCachedProcedures() {
             }
 
             if (
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.sids).length &&
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.stars).length &&
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].departure.approaches).length &&
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.sids).length &&
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.stars).length &&
-                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid].arrival.approaches).length
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.sids).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.stars).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.departure.approaches).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.sids).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.stars).length &&
+                !Object.keys(dataStore.navigraphAircraftProcedures.value[cid]!.arrival.approaches).length
             ) {
                 delete dataStore.navigraphAircraftProcedures.value[cid];
                 delete dataStore.navigraphAircraftProcedures.value[cid];

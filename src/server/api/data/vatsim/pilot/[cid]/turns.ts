@@ -38,6 +38,11 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
                     flightPlan: pilot.flight_plan?.route,
                 });
             }
+            else if (pilot.flight_plan?.route) {
+                return {
+                    flightPlan: pilot.flight_plan?.route,
+                };
+            }
 
             handleH3Error({
                 event,
