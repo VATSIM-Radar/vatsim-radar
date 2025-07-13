@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-alpha.3]
+
+- Updated "Basic" map layer
+
 # [1.2.1-alpha.2]
 
 - Fixed Navigraph AIRAC sometimes loading old AIRAC data

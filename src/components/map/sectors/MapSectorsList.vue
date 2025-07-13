@@ -1,5 +1,5 @@
 <template>
-    <template v-if="!isHideAtcType('firs')">
+    <template v-if="!hideAtc">
         <map-sector
             v-for="(sector, index) in firs.filter(x => x.atc?.length || x.booking)"
             :key="sector.fir.feature.id as string + index"
@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="!isHideAtcType('firs') && vatGlassesActive && !store.bookingOverride">
+    <template v-if="!hideAtc && vatGlassesActive && !store.bookingOverride">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -196,6 +196,13 @@ const firs = computed(() => {
 const emptyFirsList = computed(() => firs.value.filter(x => !x.atc?.length && !x.booking));
 
 function processEmptyFirs() {
+    if (hideAtc.value) {
+        vectorSource.value?.removeFeatures(emptyFirs);
+        emptyFirs.forEach(x => x.dispose());
+        emptyFirs = [];
+        return;
+    }
+
     const newFeatures: Feature[] = [];
 
     for (const fir of emptyFirsList.value) {
@@ -218,7 +225,9 @@ watch(() => mapStore.distance.pixel, val => {
     if (val) vatglassesPopupIsShown.value = false;
 });
 
-watch([emptyFirsList, vectorSource], processEmptyFirs, {
+const hideAtc = computed(() => isHideAtcType('firs'));
+
+watch([emptyFirsList, vectorSource, hideAtc], processEmptyFirs, {
     immediate: true,
 });
 
