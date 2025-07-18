@@ -116,24 +116,7 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
     parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S2', boundary: 'BIRD' });
     parsedDat.firs.push({ icao: 'BIRD', name: 'Reykjavik', callsign: 'BIRD_S3', boundary: 'BIRD' });
 
-    result.airports = parsedDat.airports
-        .filter(value => value.icao && value.name && value.lat && value.lon && value.isPseudo)
-        .map((value, index) => {
-            const duplicateIata = parsedDat.airports.find((x, xIndex) => value.iata && x.iata === value.iata && xIndex !== index);
-            if (duplicateIata) {
-                delete value.iata;
-                delete duplicateIata.iata;
-            }
-
-            const lonlat = [+value.lon!, +value.lat!];
-
-            return {
-                ...value as Required<typeof value>,
-                lat: lonlat[1],
-                lon: lonlat[0],
-                isPseudo: value.isPseudo === '1',
-            };
-        });
+    result.airports = [];
 
     result.keyAirports ??= {
         icao: {},
@@ -142,7 +125,18 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
         realIata: {},
     };
 
-    for (const airport of result.airports) {
+    for (const data of parsedDat.airports) {
+        if (!data.icao || !data.name || !data.lat || !data.lon || !data.isPseudo) continue;
+        if (data.iata && result.keyAirports.iata[data.iata]) continue;
+
+        const lonlat = [+data.lon!, +data.lat!];
+        const airport = {
+            ...data as Required<typeof data>,
+            lat: lonlat[1],
+            lon: lonlat[0],
+            isPseudo: data.isPseudo === '1',
+        };
+
         result.keyAirports.icao[airport.icao] = airport;
 
         if (airport.iata) {
@@ -156,6 +150,8 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
                 result.keyAirports.realIata[airport.iata] = airport;
             }
         }
+
+        result.airports.push(airport);
     }
 
     result.firs = [];
