@@ -142,6 +142,7 @@ export default defineNuxtConfig({
     ],
     sentry: {
         sourceMapsUploadOptions: {
+            enabled: false,
             telemetry: false,
         },
     },
