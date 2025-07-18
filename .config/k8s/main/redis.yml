@@ -26,7 +26,7 @@ spec:
         app: redis
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2
+        doks.digitalocean.com/node-pool: main
       containers:
         - name: redis
           image: redis

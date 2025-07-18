@@ -18,7 +18,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: navigraph-4
+        doks.digitalocean.com/node-pool: main
       containers:
         - name: navigraph-next
           image: ghcr.io/vatsim-radar/vatsim-radar/next

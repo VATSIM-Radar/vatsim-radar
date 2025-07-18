@@ -45,11 +45,22 @@ export function checkForUpdates() {
         // Data is not yet ready
         if (!mapStore.dataReady) {
             await new Promise<void>(resolve => {
+                let previousInProgress = false;
                 const interval = setInterval(async () => {
-                    const { ready } = await $fetch('/api/data/status');
-                    if (ready) {
-                        resolve();
-                        clearInterval(interval);
+                    if (previousInProgress) return;
+                    try {
+                        previousInProgress = true;
+                        const { ready } = await $fetch('/api/data/status');
+                        if (ready) {
+                            resolve();
+                            clearInterval(interval);
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                    finally {
+                        previousInProgress = false;
                     }
                 }, 1000);
             });
