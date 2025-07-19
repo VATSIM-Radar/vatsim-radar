@@ -280,7 +280,7 @@ const localsFacilities = computed(() => {
 });
 
 const isAppOnlyBooking = computed(() => {
-    return props.arrAtc.filter(x => !x.booking).length === 0;
+    return props.arrAtc.filter(x => !x.booking).length === 0 && !isVatGlassesActive.value;
 });
 
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {

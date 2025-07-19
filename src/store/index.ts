@@ -10,7 +10,11 @@ import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
 import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
 import type { TurnsBulkReturn } from '~/server/api/data/vatsim/pilot/turns';
-import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
+import type {
+    UserListLive,
+    UserListLiveUser,
+    UserListLiveUserPilot,
+} from '~/utils/backend/handlers/lists';
 import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
@@ -140,7 +144,7 @@ export const useStore = defineStore('index', {
 
             const lists = this.user.lists.slice(0);
             const listsUsers = new Set(lists.flatMap(x => x.users.map(x => x.cid)));
-            const foundUsers: Record<number, Pick<UserListLiveUser, 'type' | 'data'>> = {};
+            const foundUsers: Record<number, Omit<UserListLiveUser, 'name' | 'cid'>> = {};
 
             const dataStore = useDataStore();
 
@@ -155,11 +159,21 @@ export const useStore = defineStore('index', {
                 });
             }
 
+            const friendsObservers: UserListLiveUserPilot['sharedPilots'] = dataStore.vatsim.data.observers.value
+                .filter(x => listsUsers.has(x.cid))
+                .map(x => ({
+                    ...lists.find(y => y.users.some(y => y.cid === x.cid))?.users.find(y => y.cid === x.cid),
+                    data: x,
+                } as UserListLiveUserPilot['sharedPilots'][0]))
+                .filter(x => 'name' in x);
+
             if (listsUsers.size) {
                 for (const pilot of dataStore.vatsim.data.pilots.value) {
                     if (listsUsers.has(pilot.cid)) {
                         foundUsers[pilot.cid] = {
                             type: 'pilot',
+                            // @ts-expect-error not working because ts is stupid
+                            sharedPilots: friendsObservers.filter(x => x.data.callsign.slice(0, x.data.callsign.length - 1) === pilot.callsign),
                             data: pilot,
                         };
                     }
@@ -254,7 +268,7 @@ export const useStore = defineStore('index', {
                     if (
                         dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
                         (
-                            (dataStore.vatglasses.value?.version && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value?.version) ||
+                            (dataStore.vatglasses.value && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value) ||
                             dataStore.versions.value.simaware !== dataStore.simaware.value?.version ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )

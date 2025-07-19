@@ -2,7 +2,7 @@
   "tilejson": "3.0.0",
   "scheme": "xyz",
   "tiles": [
-    "https://tiles.vatsim-radar.com/tiles-250322/{z}/{x}/{y}.mvt"
+    "https://tiles.vatsim-radar.com/tiles-250622/{z}/{x}/{y}.mvt"
   ],
   "vector_layers": [
     {

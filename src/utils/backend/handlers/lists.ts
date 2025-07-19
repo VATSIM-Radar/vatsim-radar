@@ -6,7 +6,11 @@ import { prisma } from '~/utils/backend/prisma';
 import { UserTrackingListType } from '@prisma/client';
 import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
 import { colorsList } from '~/utils/backend/styles';
-import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type {
+    VatsimShortenedAircraft,
+    VatsimShortenedController, VatsimShortenedData,
+    VatsimShortenedPrefile,
+} from '~/types/data/vatsim';
 import { validateColor, validateRandomObjectKeys } from '~/utils/backend/handlers/index';
 
 export interface UserList {
@@ -27,6 +31,9 @@ export interface UserListUser {
 
 export interface UserListLiveUserPilot extends UserListUser {
     type: 'pilot';
+    sharedPilots: Array<UserListUser & {
+        data: VatsimShortenedData['observers'][0];
+    }>;
     data: VatsimShortenedAircraft;
 }
 

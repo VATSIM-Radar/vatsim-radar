@@ -272,6 +272,7 @@ onBeforeUnmount(() => {
 <style scoped lang="scss">
 .distance {
     &_tooltip {
+        user-select: none;
         font-size: 10px;
     }
 }

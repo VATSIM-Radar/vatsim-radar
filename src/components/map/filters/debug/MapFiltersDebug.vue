@@ -284,7 +284,7 @@ onMounted(() => {
     window.debugWaypoints = async (departure: string, arrival: string, flightPlan: string) => {
         const mapCenter = mapStore.center;
 
-        dataStore.navigraphWaypoints.value.test = {
+        dataStore.navigraphWaypoints.value[1] = {
             // @ts-expect-error this data is ok enough
             pilot: {
                 callsign: 'test',

@@ -146,7 +146,7 @@ export async function initNavigraph() {
 
     if (!existsSync(currentPath)) {
         closeNavigraphDB('current');
-        filesInPath.filter(x => x.name.includes('current')).forEach(file => unlinkSync(`${ file.path }/${ file.name }`));
+        filesInPath.filter(x => x.name.includes('current')).forEach(file => unlinkSync(`${ file.parentPath }/${ file.name }`));
 
         await downloadNavigraphFile({
             fileUrl: current.files[0].signed_url,
@@ -159,7 +159,7 @@ export async function initNavigraph() {
 
     if (!existsSync(outdatedPath)) {
         closeNavigraphDB('outdated');
-        filesInPath.filter(x => x.name.includes('outdated')).forEach(file => unlinkSync(`${ file.path }/${ file.name }`));
+        filesInPath.filter(x => x.name.includes('outdated')).forEach(file => unlinkSync(`${ file.parentPath }/${ file.name }`));
 
         await downloadNavigraphFile({
             fileUrl: outdated.files[0].signed_url,

@@ -1,7 +1,7 @@
 <template>
     <common-popup
         v-if="!store.config.hideHeader && update.active !== false"
-        :model-value="show"
+        model-value
         @update:modelValue="close"
     >
         <template #title>
@@ -85,6 +85,7 @@
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
+import { showUpdatePopup, updatePopupActive } from '~/composables';
 
 interface UpdateFeature {
     title: string;
@@ -108,8 +109,8 @@ const images = import.meta.glob('../../assets/update/*', { import: 'default', ea
 const title = useTemplateRef('title');
 
 const update: Update = {
+    name: String(updatePopupActive),
     type: 'major',
-    name: '1.2',
     height: '580px',
     features: [
         {
@@ -127,13 +128,13 @@ const update: Update = {
         },
         {
             title: 'Navigational Data',
-            description: 'Provided by Navigraph and Jeppesen, you can now view navdata on map!',
+            description: 'Provided by Navigraph and Jeppesen, you can now view navigational data on map!',
             image: images['../../assets/update/navdata.png'],
             list: [
                 'Toggle Waypoints, Airways, NDB, VORDME, and Holdings',
                 'View STARs, SIDs and Approaches for airports',
                 'natTrak oceanic routes are now also available to toggle as part of this change',
-                'Available for free with AIRAC 2404',
+                'Available for free with AIRAC 2403',
                 'For newest AIRAC - see <a href="https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe" class="__link">Navigraph Subscription Options</a>',
             ],
         },
@@ -145,7 +146,7 @@ const update: Update = {
                 'See actual predicted aircraft route instead of straight line',
                 'SIDs and STARs are parsed automatically - with an ability to override them by ATC or you in pilot overlay',
                 'ETA is now also calculated based on route to be flown',
-                'Based on same AIRAC as NavData',
+                'Based on same AIRAC as Navigational Data',
             ],
         },
         {
@@ -176,13 +177,11 @@ const update: Update = {
             ],
         },
     ],
-    active: true,
+    active: !!updatePopupActive,
 };
 
 const shownFeatureIndex = ref(0);
 const shownFeature = computed(() => update.features[shownFeatureIndex.value]);
-
-const show = ref(store.user?.settings.seenVersion !== update.name && localStorage.getItem('seen-version') !== update.name);
 
 watch(shownFeatureIndex, () => {
     if (title.value) {
@@ -191,9 +190,12 @@ watch(shownFeatureIndex, () => {
     }
 });
 
-const close = () => {
+const close = async () => {
     localStorage.setItem('seen-version', update.name);
+    await nextTick();
+    triggerRef(showUpdatePopup);
     if (store.user) {
+        store.user.settings.seenVersion = update.name;
         $fetch('/api/user/settings', {
             method: 'POST',
             body: {
@@ -202,7 +204,6 @@ const close = () => {
             },
         });
     }
-    show.value = false;
 };
 </script>
 

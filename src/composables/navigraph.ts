@@ -16,6 +16,8 @@ import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
 import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
+import { initIDBData } from '~/composables/idb-init';
+
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
 export async function getNavigraphAirportProcedures(airport: string): Promise<IDBNavigraphProcedures> {
@@ -230,6 +232,8 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
             return null;
         }
 
+        if (isNaN(lat)) return null;
+
         return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
     }
 
@@ -243,6 +247,8 @@ export interface FlightPlanInputWaypoint {
     cid: number;
     disableSidParsing?: boolean;
     disableStarParsing?: boolean;
+    disableHoldings?: boolean;
+    disableLabels?: boolean;
 }
 
 export function waypointDiff(compare: Coordinate, coordinate: Coordinate): number {
@@ -254,55 +260,12 @@ const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
 type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
-let previousRequest = 0;
-let interval: NodeJS.Timeout | null = null;
-let data: NeededNavigraphData | null = null;
-let gettingData = false;
-
-async function getFullData(): Promise<NeededNavigraphData> {
-    if (gettingData) {
-        return new Promise<NeededNavigraphData>((resolve, reject) => {
-            const interval = setInterval(() => {
-                if (gettingData) return;
-                resolve(data!);
-                clearInterval(interval);
-            }, 1000);
-        });
-    }
-
-    previousRequest = Date.now();
-
-    if (!interval) {
-        interval = setInterval(() => {
-            // For GC
-            if (data && Date.now() - previousRequest > 1000 * 15) {
-                data = null;
-            }
-        }, 1000);
-    }
-
-    if (data) return data;
-
-    gettingData = true;
-
-    try {
-        data = {
-            parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-            parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-            parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-            parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-        };
-
-        gettingData = false;
-
-        return data;
-    }
-    catch (e) {
-        gettingData = false;
-
-        throw e;
-    }
-}
+const getFullData = initIDBData<NeededNavigraphData>(async () => ({
+    parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
+    parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
+    parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
+    parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
+}));
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];
@@ -323,6 +286,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     let arrApproach = null as null | DataStoreNavigraphProcedure<NavigraphNavDataApproach>;
 
     const navigraphData = await getFullData();
+    let letter = '';
 
     try {
         for (let i = 0; i < entries.length; i++) {
@@ -344,9 +308,13 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
 
             const nat = NATRegex.exec(entry);
 
+            if (letter && entries[i - 1] === letter && entries[i + 1] === letter) continue;
+
             if (nat?.groups?.letter) {
                 const natRoute = dataStore.vatsim.tracks.value.find(x => x.identifier === nat?.groups?.letter);
                 if (natRoute) {
+                    if (letter) continue;
+                    letter = entry;
                     waypoints.push(...await buildNATWaypoints(natRoute));
                 }
 
@@ -599,9 +567,33 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             }
 
             const airways = navigraphData.parsedAirways[search];
+
             if (airways) {
                 const list = Object.entries(airways);
                 let neededAirway = list.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) && x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+
+                if (!neededAirway) {
+                    const neededAirways = list.filter(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) || x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+
+                    if (neededAirways.length === 2) {
+                        neededAirway = neededAirways[0];
+
+                        const dir = neededAirways[0][1][2][0][0] === neededAirways[1][1][2][neededAirways[1][1][2].length - 1][0];
+
+                        if (!dir) {
+                            neededAirway[1][2] = [
+                                ...neededAirway[1][2],
+                                ...neededAirways[1][1][2],
+                            ];
+                        }
+                        else {
+                            neededAirway[1][2] = [
+                                ...neededAirways[1][1][2],
+                                ...neededAirway[1][2],
+                            ];
+                        }
+                    }
+                }
 
                 if (neededAirway) {
                     let startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);

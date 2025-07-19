@@ -126,9 +126,18 @@
             </div>
             <div
                 v-if="store.version"
-                class="map-footer_left_section map-footer__text"
+                class="map-footer_left_section map-footer_left_section--version map-footer__text"
             >
                 v{{ store.version }}
+                <common-button
+                    v-if="updatePopupActive"
+                    type="link"
+                    @click="openUpdatePopup"
+                >
+                    <template #icon>
+                        <gift-icon height="16"/>
+                    </template>
+                </common-button>
             </div>
         </div>
         <div class="map-footer_right">
@@ -224,7 +233,7 @@
                 Airport Layouts (Navigraph Unlimited only)
             </li>
             <li>
-                Airways/waypoints AIRAC upgrade (coming soon)
+                Navigational Data AIRAC upgrade
             </li>
         </ul>
         <template #actions>
@@ -292,6 +301,8 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
+import GiftIcon from '~/assets/icons/kit/gift.svg?component';
+import { updatePopupActive } from '~/composables';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -306,6 +317,14 @@ const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
 });
 const isMobile = useIsMobile();
+
+function openUpdatePopup() {
+    if (store.user?.settings) {
+        store.user.settings.seenVersion = '';
+    }
+    localStorage.removeItem('seen-version');
+    triggerRef(showUpdatePopup);
+}
 
 onMounted(() => {
     const interval = setInterval(() => {
@@ -344,6 +363,13 @@ function cancelBookingOverride() {
             display: flex;
             align-items: center;
 
+            &--version {
+                display: flex;
+                gap: 4px;
+                align-items: center;
+                white-space: nowrap;
+            }
+
             &:not(:last-child) {
                 margin-right: 12px;
                 padding-right: 12px;
@@ -371,6 +397,7 @@ function cancelBookingOverride() {
 
         span {
             font-weight: 600;
+            font-variant-numeric: tabular-nums;
             color: $primary500;
         }
 

@@ -45,11 +45,22 @@ export function checkForUpdates() {
         // Data is not yet ready
         if (!mapStore.dataReady) {
             await new Promise<void>(resolve => {
+                let previousInProgress = false;
                 const interval = setInterval(async () => {
-                    const { ready } = await $fetch('/api/data/status');
-                    if (ready) {
-                        resolve();
-                        clearInterval(interval);
+                    if (previousInProgress) return;
+                    try {
+                        previousInProgress = true;
+                        const { ready } = await $fetch('/api/data/status');
+                        if (ready) {
+                            resolve();
+                            clearInterval(interval);
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
+                    }
+                    finally {
+                        previousInProgress = false;
                     }
                 }, 1000);
             });
@@ -156,6 +167,7 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
 
 export function checkForVG() {
     return initCheck('vatglasses', async ({ dataStore }) => {
+        if (!isVatGlassesActive.value) return 'notRequired';
         let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
 
         if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
@@ -163,8 +175,9 @@ export function checkForVG() {
             await clientDB.put('data', vatglasses, 'vatglasses');
         }
 
+        dataStore.vatglasses.value = vatglasses.version;
+
         if (isVatGlassesActive.value) {
-            dataStore.vatglasses.value = vatglasses;
             await getVatglassesDynamic(dataStore);
         }
         else return 'notRequired';

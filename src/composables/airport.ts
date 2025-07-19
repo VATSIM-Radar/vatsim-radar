@@ -119,9 +119,10 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
             const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
             const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
+
             const pilotDistance = getAircraftDistance(pilot);
 
-            if (arrivalAirport && !pilotDistance?.toGoDist) {
+            if (arrivalAirport && !pilotDistance?.toGoTime) {
                 const pilotCoords = [pilot.longitude, pilot.latitude];
                 const depCoords = [departureAirport?.lon ?? 0, departureAirport?.lat ?? 0];
                 const arrCoords = [arrivalAirport.lon, arrivalAirport.lat];
@@ -135,9 +136,9 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
             const truePilot: AirportPopupPilotStatus = {
                 ...pilot,
-                distance: pilotDistance.toGoDist ?? distance,
+                distance: pilotDistance.toGoDist || distance,
                 eta: pilotDistance.toGoTime ? new Date(pilotDistance.toGoTime) : eta,
-                flown: pilotDistance.depDist ?? flown,
+                flown: pilotDistance.depDist || flown,
                 isArrival: true,
             };
 

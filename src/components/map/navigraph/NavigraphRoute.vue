@@ -32,7 +32,7 @@ function update() {
     let newFeatures: ObjectWithGeometry[] = [];
 
     try {
-        for (let { waypoints, pilot, full } of Object.values(dataStore.navigraphWaypoints.value)) {
+        for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of Object.values(dataStore.navigraphWaypoints.value)) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -89,7 +89,7 @@ function update() {
 
             const backupWaypoints = rawWaypoints.slice(0);
 
-            rawWaypoints = rawWaypoints.slice(0, 5);
+            rawWaypoints = rawWaypoints.slice(0, 10);
 
             rawWaypoints = rawWaypoints.filter((x, xIndex) => {
                 if (rawWaypoints.some((y, yIndex) => x[0] === y[0] && xIndex < yIndex)) return false;
@@ -171,24 +171,26 @@ function update() {
                         continue;
                     }
 
-                    newFeatures.push({
-                        geometry: new Point(waypoint.coordinate!),
-                        identifier: waypoint.identifier,
-                        id: waypoint.identifier,
-                        waypoint: waypoint.identifier,
-                        kind: waypoint.kind,
-                        key: waypoint.key,
-                        type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
-                        usage: waypoint.type,
-                        description: waypoint.description,
-                        dataType: 'navdata',
+                    if (!disableWaypoints) {
+                        newFeatures.push({
+                            geometry: new Point(waypoint.coordinate!),
+                            identifier: disableLabels ? '' : waypoint.identifier,
+                            id: waypoint.identifier,
+                            waypoint: disableLabels ? '' : waypoint.identifier,
+                            kind: waypoint.kind,
+                            key: waypoint.key,
+                            type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
+                            usage: waypoint.type,
+                            description: waypoint.description,
+                            dataType: 'navdata',
 
-                        altitude: waypoint.altitude,
-                        altitude1: waypoint.altitude1,
-                        altitude2: waypoint.altitude2,
-                        speed: waypoint.speed,
-                        speedLimit: waypoint.speedLimit,
-                    });
+                            altitude: disableLabels ? undefined : waypoint.altitude,
+                            altitude1: disableLabels ? undefined : waypoint.altitude1,
+                            altitude2: disableLabels ? undefined : waypoint.altitude2,
+                            speed: disableLabels ? undefined : waypoint.speed,
+                            speedLimit: disableLabels ? undefined : waypoint.speedLimit,
+                        });
+                    }
 
                     if (foundWaypoint) {
                         onFirstWaypoint(waypoint.coordinate!, waypoint.kind);
@@ -204,7 +206,7 @@ function update() {
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
-                        identifier: waypoint.title ?? '',
+                        identifier: disableLabels ? '' : waypoint.title ?? '',
                         type: 'airways',
                         dataType: 'navdata',
                         kind: waypoint.kind,
@@ -238,22 +240,24 @@ function update() {
                             onFirstWaypoint([currWaypoint[3], currWaypoint[4]], waypoint.kind);
                         }
 
-                        newFeatures.push({
-                            geometry: new Point([currWaypoint[3], currWaypoint[4]]),
-                            identifier: currWaypoint[0],
-                            flightLevel: currWaypoint[5],
-                            waypoint: currWaypoint[0],
-                            id: currWaypoint[0],
-                            type: 'airway-waypoint',
-                            dataType: 'navdata',
-                            usage: currWaypoint[6],
+                        if (!disableWaypoints) {
+                            newFeatures.push({
+                                geometry: new Point([currWaypoint[3], currWaypoint[4]]),
+                                identifier: disableLabels ? '' : currWaypoint[0],
+                                flightLevel: currWaypoint[5],
+                                waypoint: disableLabels ? '' : currWaypoint[0],
+                                id: currWaypoint[0],
+                                type: 'airway-waypoint',
+                                dataType: 'navdata',
+                                usage: currWaypoint[6],
 
-                            altitude: waypoint.altitude,
-                            altitude1: waypoint.altitude1,
-                            altitude2: waypoint.altitude2,
-                            speed: waypoint.speed,
-                            speedLimit: waypoint.speedLimit,
-                        });
+                                altitude: waypoint.altitude,
+                                altitude1: waypoint.altitude1,
+                                altitude2: waypoint.altitude2,
+                                speed: waypoint.speed,
+                                speedLimit: waypoint.speedLimit,
+                            });
+                        }
 
                         if (!nextWaypoint) {
                             // Last one
@@ -279,10 +283,10 @@ function update() {
                             geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
                             id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
-                            identifier: waypoint.airway!.value[0],
+                            identifier: disableLabels ? '' : waypoint.airway!.value[0],
                             inbound: currWaypoint[1],
                             outbound: currWaypoint[2],
-                            waypoint: currWaypoint[0],
+                            waypoint: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
                             type: 'airways',
                             dataType: 'navdata',

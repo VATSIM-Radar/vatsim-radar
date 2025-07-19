@@ -246,6 +246,7 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     overlay: {
@@ -320,12 +321,23 @@ const atcSections = computed<InfoPopupSection[]>(() => {
     return list;
 });
 
-const depRunways = computed(() => {
-    return depAirport.value && getAirportRunways(depAirport.value.icao);
-});
+const depRunways = shallowRef<VatglassesAirportRunways | null>(null);
+const arrRunways = shallowRef<VatglassesAirportRunways | null>(null);
 
-const arrRunways = computed(() => {
-    return arrAirport.value && getAirportRunways(arrAirport.value.icao);
+const setDepRunways = async () => {
+    depRunways.value = (depAirport.value && await getAirportRunways(depAirport.value.icao)) || null;
+};
+
+const setArrRunways = async () => {
+    arrRunways.value = (arrAirport.value && await getAirportRunways(arrAirport.value.icao)) || null;
+};
+
+setDepRunways();
+setArrRunways();
+
+watch(() => String(depAirport.value?.icao) + String(arrAirport.value?.icao), () => {
+    setDepRunways();
+    setArrRunways();
 });
 
 const depBars = computed(() => {

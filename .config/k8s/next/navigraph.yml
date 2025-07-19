@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: navigraph-next
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: navigraph-next
+  template:
+    metadata:
+      labels:
+        app: navigraph-next
+    spec:
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        doks.digitalocean.com/node-pool: main
+      containers:
+        - name: navigraph-next
+          image: ghcr.io/vatsim-radar/vatsim-radar/next
+          imagePullPolicy: Always
+          command: ["/radar/.config/navigraph-prod.sh"]
+          ports:
+            - containerPort: 3000
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            successThreshold: 1
+            failureThreshold: 30
+            timeoutSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: navigraph-next
+spec:
+  ports:
+    - port: 3000
+  selector:
+    app: navigraph-next

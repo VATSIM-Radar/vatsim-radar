@@ -270,15 +270,15 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Oceanic Tracks integration',
-                status: 'in-progress',
+                status: 'completed',
             },
             {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Waypoints on map (including aircraft submitted route)',
-                status: 'next',
+                status: 'completed',
             },
             {
                 title: 'Friends export/import',
@@ -318,14 +318,20 @@ const roadmap = reactive<Roadmap[]>([
             'Lock North button',
             {
                 title: 'Distance measuring tool',
-                status: 'next',
+                status: 'completed',
             },
-            'NOTAMs grouping',
+            {
+                title: 'NOTAMs grouping',
+                status: 'todo',
+            },
             {
                 title: 'METAR request',
-                status: 'next',
+                status: 'completed',
             },
-            'Settings Page',
+            {
+                title: 'Settings Page',
+                status: 'todo',
+            },
         ],
     },
     {

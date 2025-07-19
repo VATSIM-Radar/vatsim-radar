@@ -40,7 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2-2
+        doks.digitalocean.com/node-pool: main
 ---
 apiVersion: v1
 kind: Service
@@ -72,7 +72,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2-2
+        doks.digitalocean.com/node-pool: main
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/next
@@ -123,7 +123,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: basic-2-2
+        doks.digitalocean.com/node-pool: main
       containers:
         - name: worker
           image: ghcr.io/vatsim-radar/vatsim-radar/next

@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import type { FeatureCollection, Feature, MultiPolygon, Polygon } from 'geojson';
+import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
 import githubRequest from '~/utils/backend/github';
 import type { SimAwareData } from '~/utils/backend/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
@@ -84,7 +84,6 @@ export async function getVatSpyData(pr: number, receiveOnly = false) {
     const sha = data.head.sha;
 
     const archive = await githubRequest<ArrayBuffer, 'arrayBuffer'>(`https://github.com/vatsimnetwork/vatspy-data-project/archive/${ sha }.zip`, { responseType: 'arrayBuffer' });
-
     if (receiveOnly) return archive;
 
     return getVatSpyCompiledData(archive);
@@ -114,7 +113,9 @@ export async function getSimAwareData(pr: number) {
     const data = await githubRequest<Record<string, any>>(`https://api.github.com/repos/vatsimnetwork/simaware-tracon-project/pulls/${ pr }`);
     const sha = data.head.sha;
 
-    return compileSimAware(await githubRequest<ArrayBuffer, 'arrayBuffer'>(`https://github.com/vatsimnetwork/simaware-tracon-project/archive/${ sha }.zip`, { responseType: 'arrayBuffer' }));
+    const archive = await githubRequest<ArrayBuffer, 'arrayBuffer'>(`https://github.com/vatsimnetwork/simaware-tracon-project/archive/${ sha }.zip`, { responseType: 'arrayBuffer' });
+
+    return compileSimAware(archive);
 }
 
 export function compileSimAware(file: ArrayBuffer) {

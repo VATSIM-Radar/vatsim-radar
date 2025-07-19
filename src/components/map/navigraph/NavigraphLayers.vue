@@ -665,7 +665,7 @@ watch(map, val => {
                     stroke: holdingStroke,
                     zIndex: 8,
                     text: new Text({
-                        font: '11px bold Montserrat',
+                        font: 'bold 10px Montserrat',
                         text: `${ properties.course }° ${ properties.turns }`,
                         maxAngle: 0,
                         placement: 'line',

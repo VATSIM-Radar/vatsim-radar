@@ -560,7 +560,7 @@ const getAirportsList = computed(() => {
         const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
         bookingsData.value.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao))).forEach((booking: VatsimBooking) => {
-            if (!validFacilities.has(booking.atc.facility)) return;
+            if (!validFacilities.has(booking.atc.facility) || isVatGlassesActive.value) return;
 
             if (!store.bookingOverride) {
                 const start = new Date(booking.start);
@@ -767,6 +767,8 @@ const vatAirportsList = computed(() => {
     return list;
 });
 
+const cachedSimAwareFeatures: Record<string, Feature> = {};
+
 async function setVisibleAirports() {
     if (settingAirports) return;
     settingAirports = true;
@@ -794,7 +796,8 @@ async function setVisibleAirports() {
                 const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao) || y === (x.iata ?? x.icao)));
                 if (!simawareFeature) return null;
 
-                const feature = geoJson.readFeature(simawareFeature) as Feature<any>;
+                const feature = cachedSimAwareFeatures[x.icao] ?? geoJson.readFeature(simawareFeature) as Feature<any>;
+                cachedSimAwareFeatures[x.icao] ??= feature;
 
                 return {
                     vatspyAirport: airport,
