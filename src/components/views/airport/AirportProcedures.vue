@@ -213,6 +213,7 @@ const selectedAirport = computed({
         if (props.from === 'pilotOverlay') {
             dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()] ||= {
                 departure: {
+                    icao: '',
                     sids: {},
                     stars: {},
                     approaches: {},
@@ -220,6 +221,7 @@ const selectedAirport = computed({
                     setBy: props.from,
                 },
                 arrival: {
+                    icao: '',
                     sids: {},
                     stars: {},
                     approaches: {},
@@ -229,10 +231,16 @@ const selectedAirport = computed({
             };
 
             if (props.flightType === 'departure') {
-                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()].departure = val;
+                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.departure = {
+                    icao: props.airport,
+                    ...val,
+                };
             }
             else {
-                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()].arrival = val;
+                dataStore.navigraphAircraftProcedures.value[props.aircraft!.cid.toString()]!.arrival = {
+                    icao: props.airport,
+                    ...val,
+                };
             }
 
             if (dataStore.navigraphWaypoints.value[props.aircraft!.cid.toString()]) {
@@ -383,12 +391,15 @@ async function selectAll(key: 'sids' | 'stars') {
 
 watch(selectedAirport, () => {
     setAirport();
-    dataStore.navigraphWaypoints.value = {};
+    if (props.aircraft?.cid) {
+        delete dataStore.navigraphWaypoints.value[props.aircraft!.cid];
+    }
+    else dataStore.navigraphWaypoints.value = {};
 
     if (selectedAirport.value) {
         if (props.from === 'pilotOverlay') {
-            enrouteAircraftPath.value ||= {};
-            enrouteAircraftPath.value[props.aircraft!.cid] ||= {
+            enrouteAircraftPath.value ??= {};
+            enrouteAircraftPath.value[props.aircraft!.cid] ??= {
                 departure: {
                     sids: {},
                     stars: {},

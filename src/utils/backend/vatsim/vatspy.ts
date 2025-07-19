@@ -20,10 +20,10 @@ function parseDatFile<S extends Record<string, { title: string; children: Record
     sections: S;
     dat: string;
 }): {
-        [K in keyof S]: Array<{
-            [L in keyof S[K]['children']]?: string
-        }>
-    } {
+    [K in keyof S]: Array<{
+        [L in keyof S[K]['children']]?: string
+    }>
+} {
     const result = {} as ReturnType<typeof parseDatFile<S>>;
 
     for (

@@ -1,6 +1,17 @@
 # Changelog
 
-# [1.2.0-1]
+# [1.2.1-alpha.3]
+
+- Updated "Basic" map layer
+
+# [1.2.1-alpha.2]
+
+- Fixed Navigraph AIRAC sometimes loading old AIRAC data
+- Fixed an issue when Proc for previous flight were not unloaded for a new one
+- Fixed opening Proc clearing routes for every aircraft
+- Holdings now have lower priority than waypoints names
+
+# [1.2.0-1-final]
 
 - Fixed airway transition to another region airway with same name could result in route looking weird
 - Added a way to disable waypoints in "Airport Tracks"

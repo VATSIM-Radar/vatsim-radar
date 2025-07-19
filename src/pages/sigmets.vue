@@ -1,5 +1,8 @@
 <template>
-    <view-map mode="sigmets">
+    <view-map
+        mode="sigmets"
+        @map="$emit('map', $event)"
+    >
         <common-info-popup
             v-model:collapsed="collapsed"
             class="date"
@@ -53,7 +56,13 @@ import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
 import { useStore } from '~/store';
 import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { MapEvent } from '~/app.vue';
 
+defineEmits({
+    map(data: MapEvent) {
+        return true;
+    },
+});
 const config = useRuntimeConfig();
 const store = useStore();
 const sigmetDatesList = sigmetDates();

@@ -200,7 +200,7 @@ export function checkForNavigraph() {
             }
 
             if (!navigraph || navigraph !== dataStore.versions.value?.navigraph?.[type]) {
-                const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&version=${ store.version }`);
+                const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&airac=${ dataStore.versions.value?.navigraph?.[type] }&version=${ store.version }`);
 
                 await clientDB.clear('navigraphData');
                 await clientDB.clear('navigraphAirports');

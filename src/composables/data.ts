@@ -151,7 +151,7 @@ export interface DataStoreNavigraphProceduresAirport {
 }
 
 export type DataStoreNavigraphProcedures = PartialRecord<string, DataStoreNavigraphProceduresAirport>;
-export type DataStoreNavigraphAircraftProcedures = Ref<Record<string, { departure: DataStoreNavigraphProceduresAirport; arrival: DataStoreNavigraphProceduresAirport }>>;
+export type DataStoreNavigraphAircraftProcedures = Ref<PartialRecord<string, { departure: DataStoreNavigraphProceduresAirport & { icao: string }; arrival: DataStoreNavigraphProceduresAirport & { icao: string } }>>;
 
 async function getNavigraphIDBData(key: 'version'): Promise<string | null>;
 async function getNavigraphIDBData<T extends keyof ClientNavigraphData>(key: T): Promise<ClientNavigraphData[T] | null>;

@@ -264,6 +264,7 @@ import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vu
 import { defaults } from 'ol/interaction';
 import PointerInteraction from 'ol/interaction/Pointer';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import LayerGroup from 'ol/layer/Group';
 
 defineProps({
     mode: {
@@ -272,7 +273,7 @@ defineProps({
     },
 });
 const emit = defineEmits({
-    map(map: Ref<Map | null>) {
+    map(data: { map: Ref<Map | null>; layerGroup: Ref<LayerGroup | null> }) {
         return true;
     },
 });
@@ -281,6 +282,7 @@ const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
 const map = shallowRef<Map | null>(null);
+const layer = shallowRef<LayerGroup | null>(null);
 const ready = ref(false);
 const store = useStore();
 const mapStore = useMapStore();
@@ -300,8 +302,12 @@ if (route.query.discord === '1') {
 }
 
 provide('map', map);
-// eslint-disable-next-line vue/no-ref-as-operand
-emit('map', map);
+provide('layer-group', layer);
+
+emit('map', {
+    map,
+    layerGroup: layer,
+});
 
 let initialSpawn = false;
 let initialOwnCheck = false;
@@ -903,6 +909,7 @@ await setupDataFetch({
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
         });
+        layer.value = new LayerGroup();
 
         setMapInteractions();
 
