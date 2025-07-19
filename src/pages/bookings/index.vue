@@ -39,6 +39,7 @@
                 <div class="picker-picker">
                     <common-date-picker
                         v-model="dateRange"
+                        :use-local="store.mapSettings.bookingsLocalTimezone"
                         @change="currentDateRange = 'custom'"
                     />
                     <common-button
