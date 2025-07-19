@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.1-beta.1]
+
+- You can now view bookings via map footer, by Felix
+- Fixed bookings not updating without page reload
+- Improved performance when updating aircraft
+- Improved memory usage when parsing many aircraft flight plan
+
 # [1.2.1-alpha.3]
 
 - Updated "Basic" map layer

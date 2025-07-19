@@ -545,11 +545,22 @@ async function toggleAirportLines(value = canShowLines.value) {
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
         if (value) {
-            turns = airportOverlayTracks.value !== 'short'
-                ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
-                    timeout: 1000 * 5,
-                }).catch(console.error) ?? null
-                : null;
+            turns = await new Promise<InfluxGeojson | null | undefined>(resolve => {
+                if (airportOverlayTracks.value === 'short') {
+                    resolve(null);
+                    return;
+                }
+
+                requestIdleCallback(async () => {
+                    resolve(
+                        airportOverlayTracks.value !== 'short'
+                            ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
+                                timeout: 1000 * 5,
+                            }).catch(console.error) ?? null
+                            : null,
+                    );
+                });
+            });
 
             flightPlan.value = turns?.flightPlan ?? '';
 

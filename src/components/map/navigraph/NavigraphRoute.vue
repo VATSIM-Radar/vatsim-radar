@@ -29,10 +29,17 @@ let features: Feature[] = [];
 let skipUpdate = false;
 
 function update() {
-    let newFeatures: ObjectWithGeometry[] = [];
+    const newFeatures: Record<string, Feature> = {};
+
+    function addFeature(id: string, feature: () => ObjectWithGeometry) {
+        if (newFeatures[id]) return;
+        newFeatures[id] = new Feature(Object.assign(feature(), { id }));
+    }
 
     try {
-        for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of Object.values(dataStore.navigraphWaypoints.value)) {
+        const pilots = Object.values(dataStore.navigraphWaypoints.value);
+
+        for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of pilots) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -138,7 +145,8 @@ function update() {
                 if (firstWaypoint) return;
 
                 applyAircraftDistance(coordinate, newCoordinate);
-                newFeatures.push({
+
+                addFeature(callsign, () => ({
                     geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
                     key: '',
                     identifier: '',
@@ -146,8 +154,7 @@ function update() {
                     dataType: 'navdata',
                     self: true,
                     kind,
-                    id: callsign,
-                });
+                }));
 
                 firstWaypoint = true;
             };
@@ -172,10 +179,9 @@ function update() {
                     }
 
                     if (!disableWaypoints) {
-                        newFeatures.push({
+                        addFeature(waypoint.identifier, () => ({
                             geometry: new Point(waypoint.coordinate!),
                             identifier: disableLabels ? '' : waypoint.identifier,
-                            id: waypoint.identifier,
                             waypoint: disableLabels ? '' : waypoint.identifier,
                             kind: waypoint.kind,
                             key: waypoint.key,
@@ -189,7 +195,7 @@ function update() {
                             altitude2: disableLabels ? undefined : waypoint.altitude2,
                             speed: disableLabels ? undefined : waypoint.speed,
                             speedLimit: disableLabels ? undefined : waypoint.speedLimit,
-                        });
+                        }));
                     }
 
                     if (foundWaypoint) {
@@ -202,15 +208,14 @@ function update() {
                         applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
                     }
 
-                    newFeatures.push({
+                    addFeature(`${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
-                        id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                         identifier: disableLabels ? '' : waypoint.title ?? '',
                         type: 'airways',
                         dataType: 'navdata',
                         kind: waypoint.kind,
-                    });
+                    }));
                 }
                 else {
                     for (let k = 0; k < waypoint.airway!.value[2].length; k++) {
@@ -241,12 +246,11 @@ function update() {
                         }
 
                         if (!disableWaypoints) {
-                            newFeatures.push({
+                            addFeature(currWaypoint[0], () => ({
                                 geometry: new Point([currWaypoint[3], currWaypoint[4]]),
                                 identifier: disableLabels ? '' : currWaypoint[0],
                                 flightLevel: currWaypoint[5],
                                 waypoint: disableLabels ? '' : currWaypoint[0],
-                                id: currWaypoint[0],
                                 type: 'airway-waypoint',
                                 dataType: 'navdata',
                                 usage: currWaypoint[6],
@@ -256,7 +260,7 @@ function update() {
                                 altitude2: waypoint.altitude2,
                                 speed: waypoint.speed,
                                 speedLimit: waypoint.speedLimit,
-                            });
+                            }));
                         }
 
                         if (!nextWaypoint) {
@@ -264,7 +268,7 @@ function update() {
                             if (nextCoordinate?.[0]) {
                                 applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
 
-                                newFeatures.push({
+                                addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`, () => ({
                                     geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
                                     key: '',
                                     id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
@@ -272,14 +276,14 @@ function update() {
                                     type: 'airways',
                                     dataType: 'navdata',
                                     kind: waypoint.kind,
-                                });
+                                }));
                             }
                             continue;
                         }
 
                         applyAircraftDistance([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]]);
 
-                        newFeatures.push({
+                        addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`, () => ({
                             geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], [nextWaypoint[3], nextWaypoint[4]], { npoints: 8 })),
                             key: waypoint.airway!.key,
                             id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-${ nextWaypoint[0] }`,
@@ -291,7 +295,7 @@ function update() {
                             type: 'airways',
                             dataType: 'navdata',
                             kind: waypoint.kind,
-                        });
+                        }));
                     }
                 }
             }
@@ -309,9 +313,9 @@ function update() {
 
         source?.value.removeFeatures(features);
         features.forEach(x => x.dispose());
-        newFeatures = newFeatures.filter((x, xIndex) => !newFeatures.some((y, yIndex) => x.id === y.id && yIndex > xIndex));
 
-        features = newFeatures.map(x => new Feature(x));
+        features = Object.values(newFeatures);
+
         source?.value.addFeatures(features);
 
         skipUpdate = true;

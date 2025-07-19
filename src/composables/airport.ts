@@ -169,7 +169,6 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
         if (filter) {
             const _filter = toValue(filter);
-
             if (_filter) {
                 return {
                     groundDep: [],

@@ -4,7 +4,7 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
 import type { ThemesList } from '~/utils/backend/styles';
 import type { VatDataVersions } from '~/types/data';
-import type { VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/data';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
@@ -64,6 +64,7 @@ export const useStore = defineStore('index', {
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
 
+        bookings: [] as VatsimBooking[],
         bookingsStartTime: new Date(),
         bookingsEndTime: new Date(Date.now() + (5 * 60 * 60 * 1000)),
         bookingOverride: false,

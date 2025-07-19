@@ -1,6 +1,7 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
+    VatsimBooking,
     VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats, VatsimNattrakClient,
@@ -303,6 +304,42 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     vatsim._mandatoryData.value = vatsim.mandatoryData.value;
 }
 
+function initBookings() {
+    const store = useStore();
+    const dataStore = useDataStore();
+
+    const lastUpdate = Date.now();
+    const end = ref(0);
+    const bookingsQueryParams = computed(() => ({
+        starting: store.bookingOverride
+            ? store.bookingsStartTime.getTime()
+            : Date.now(),
+        ending: store.bookingOverride
+            ? store.bookingsEndTime.getTime()
+            : end.value,
+    }));
+
+    async function updateBookings() {
+        store.bookings = await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+            query: bookingsQueryParams.value,
+        });
+    }
+
+    function updateEnd() {
+        const d = new Date();
+        d.setTime(Date.now() + ((((store.mapSettings.bookingHours ?? 0.5) * 60) * 60) * 1000));
+        end.value = d.getTime();
+    }
+
+    const bookingHours = computed(() => store.mapSettings.bookingHours);
+    // Every 15 minutes
+    const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 60 * 15);
+
+    watch(bookingsQueryParams, updateBookings);
+    watch(bookingHours, updateEnd, { immediate: true });
+    watch(needToUpdate, val => val && updateEnd(), { immediate: true });
+}
+
 export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     onMount?: () => any;
     onFetch?: () => any;
@@ -393,6 +430,8 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
                 checkForVG();
             }
         });
+
+        initBookings();
 
         store.initStatus.status = true;
 

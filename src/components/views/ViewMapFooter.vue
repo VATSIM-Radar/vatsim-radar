@@ -159,8 +159,8 @@
             </div>
             <div class="map-footer_right_section __from-tablet">
                 <common-button
-                    :type="store.mapBookingOpen ? 'primary' : 'secondary'"
                     size="S"
+                    :type="store.mapBookingOpen ? 'primary' : 'secondary'"
                     @click="store.mapBookingOpen = !store.mapBookingOpen"
                 >
                     <template #icon>
@@ -186,9 +186,9 @@
                     </template>
                 </common-button>
                 <common-control-block
+                    v-model="store.mapBookingOpen"
                     center-by-offset="-40px"
                     class="map-footer__booking"
-                    v-model:="store.mapBookingOpen"
                     width="700px"
                 >
                     <template #title>

@@ -26,7 +26,7 @@ export async function getNavigraphAirportProcedures(airport: string): Promise<ID
 
     const store = useStore();
 
-    const data = await $fetch<NavigraphNavDataShortProcedures>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }?airac=${ navigraphAirac.value }`).catch(() => {});
+    const data = await $fetch<NavigraphNavDataShortProcedures>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }?airac=${ navigraphAirac.value }&version=${ store.version }`).catch(() => {});
 
     if (data) {
         if (idbAirport) {
@@ -55,7 +55,7 @@ export async function getNavigraphAirportShortProceduresForKey<T extends Navigra
 
     const store = useStore();
 
-    const data = await $fetch<any[]>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }?airac=${ navigraphAirac.value }`).catch(e => e);
+    const data = await $fetch<any[]>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }?airac=${ navigraphAirac.value }&version=${ store.version }`).catch(e => e);
 
     if (Array.isArray(data)) {
         // @ts-expect-error dynamic data
@@ -87,7 +87,7 @@ export async function getNavigraphAirportProceduresForKey<T extends NavigraphDat
 
     const store = useStore();
 
-    const data = await $fetch<any>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/all?airac=${ navigraphAirac.value }`).catch(e => e);
+    const data = await $fetch<any>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/all?airac=${ navigraphAirac.value }&version=${ store.version }`).catch(e => e);
 
     if (Array.isArray(data)) {
         if (idbData) {
@@ -124,7 +124,7 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 
     const store = useStore();
 
-    const data = await $fetch<NavDataProcedure<NavigraphNavDataStar> | NavDataProcedure<NavigraphNavDataApproach>>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/${ index }?airac=${ navigraphAirac.value }`).catch(() => {});
+    const data = await $fetch<NavDataProcedure<NavigraphNavDataStar> | NavDataProcedure<NavigraphNavDataApproach>>(`/api/data/navigraph/procedure/${ store.user?.hasFms ? 'current' : 'outdated' }/${ airport }/${ get }/${ index }?airac=${ navigraphAirac.value }&version=${ store.version }`).catch(() => {});
 
     if (data) {
         if (idbProcedure) {

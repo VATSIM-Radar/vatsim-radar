@@ -116,40 +116,9 @@ const vatglassesPopupIsShown = ref(false);
 const vatGlassesActive = isVatGlassesActive;
 const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
-const now = new Date();
-const end = ref(new Date());
-
-const { mapSettings } = storeToRefs(store);
-
-watch(mapSettings, val => {
-    const d = new Date();
-    d.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
-    end.value = d;
-}, { immediate: true });
-
-const queryParams = computed(() => ({
-    starting: store.bookingOverride
-        ? store.bookingsStartTime.getTime()
-        : now.getTime(),
-    ending: store.bookingOverride
-        ? store.bookingsEndTime.getTime()
-        : end.value.getTime(),
-}));
-
-const { data } = await useAsyncData(
-    'bookings',
-    () => $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
-        query: queryParams.value,
-    }),
-    {
-        watch: [queryParams],
-        server: false,
-    },
-);
-
 const facilities = useFacilitiesIds();
 
-const bookingsData = computed(() => data.value ? data.value?.filter(x => x.atc.facility === facilities.CTR) : []);
+const bookingsData = computed(() => store.bookings.filter(x => x.atc.facility === facilities.CTR));
 
 const firs = computed(() => {
     interface Fir {
