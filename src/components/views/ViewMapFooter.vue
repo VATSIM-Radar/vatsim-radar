@@ -151,14 +151,14 @@
             <div class="map-footer_right_section __from-tablet">
                 <common-button
                     :type="store.mapBookingOpen ? 'primary' : 'secondary'"
+                    size="S"
                     @click="store.mapBookingOpen = !store.mapBookingOpen"
                 >
                     <template #icon>
                         <svg
                             fill="none"
-                            height="20"
                             viewBox="0 0 24 24"
-                            width="20"
+                            width="16"
                         >
                             <circle
                                 cx="12"
