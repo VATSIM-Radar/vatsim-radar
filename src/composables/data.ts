@@ -1,12 +1,12 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
-    VatsimBooking, VatsimDivision,
+    VatsimBooking,
     VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats, VatsimNattrakClient,
     VatsimShortenedAircraft,
-    VatsimShortenedController, VatsimSubDivision,
+    VatsimShortenedController,
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
