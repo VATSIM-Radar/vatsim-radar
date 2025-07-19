@@ -1,12 +1,12 @@
 import type { VatDataVersions } from '~/types/data';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type {
-    VatsimBooking,
+    VatsimBooking, VatsimDivision,
     VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryConvertedData, VatsimMandatoryData, VatsimMandatoryPilot,
     VatsimMemberStats, VatsimNattrakClient,
     VatsimShortenedAircraft,
-    VatsimShortenedController,
+    VatsimShortenedController, VatsimSubDivision,
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
@@ -498,9 +498,10 @@ function getAtcStats(controller: VatsimShortenedController, stats: VatsimMemberS
     };
 }
 
+export async function getVATSIMMemberStats(aircraft: VatsimShortenedAircraft | number, type: 'both'): Promise<{ pilot: number; atc: number }>;
 export async function getVATSIMMemberStats(aircraft: VatsimShortenedAircraft | number, type: 'pilot'): Promise<number>;
 export async function getVATSIMMemberStats(controller: VatsimShortenedController, type: 'atc'): Promise<ControllerStats>;
-export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | VatsimShortenedController | number, type: 'pilot' | 'atc'): Promise<number | ControllerStats> {
+export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | VatsimShortenedController | number, type: 'pilot' | 'atc' | 'both'): Promise<number | ControllerStats | { pilot: number; atc: number }> {
     const dataStore = useDataStore();
     const cid = typeof data === 'number' ? data : data.cid;
     let stats = dataStore.stats.value.find(x => x.cid === cid)?.stats;
@@ -513,6 +514,12 @@ export async function getVATSIMMemberStats(data: VatsimShortenedAircraft | Vatsi
     }
 
     if (type === 'atc') return getAtcStats(data as VatsimShortenedController, stats);
+    if (type === 'both') {
+        return {
+            atc: getAtcStats(data as VatsimShortenedController, stats).total,
+            pilot: Math.floor(stats.pilot ?? 0),
+        };
+    }
     return Math.floor(stats.pilot ?? 0);
 }
 

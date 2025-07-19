@@ -6,7 +6,7 @@
         <div class="flight-info_self">
             <div>Pilot</div>
             <common-info-block
-                :bottom-items="[...usePilotRating(pilot), stats ? `${ stats }h total time` : undefined]"
+                :bottom-items="[...usePilotRating(pilot), stats ? stats.atc ? `${ stats.pilot ?? 0 }h pilot, ${ stats.atc }h atc` : `${ stats.pilot ?? 0 }h total time` : undefined]"
                 class="flight-info__card"
                 :top-items="[parseEncoding(pilot.name), pilot.cid, friend?.comment]"
             >
@@ -319,7 +319,7 @@ onMounted(() => {
 });
 
 // eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () => getVATSIMMemberStats(props.pilot, 'pilot'));
+const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () => getVATSIMMemberStats(props.pilot, 'both'));
 </script>
 
 <style scoped lang="scss">

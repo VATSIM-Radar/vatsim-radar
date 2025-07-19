@@ -385,10 +385,10 @@ const canShowObserver = computed(() => {
 const restoreOverlays = async () => {
     if (store.config.hideAllExternal) return;
     const routeOverlays = Array.isArray(route.query['overlay[]']) ? route.query['overlay[]'] : [route.query['overlay[]'] as string | undefined].filter(x => x);
-    const overlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
+    const localOverlays = (routeOverlays && routeOverlays.length) ? [] : JSON.parse(localStorage.getItem('overlays') ?? '[]') as Omit<StoreOverlay, 'data'>[];
     await checkAndAddOwnAircraft().catch(useRadarError);
 
-    const fetchedList = (await Promise.all(overlays.map(async overlay => {
+    const fetchedList = (await Promise.all(localOverlays.map(async overlay => {
         const existingOverlay = mapStore.overlays.find(x => x.key === overlay.key);
         if (existingOverlay) return;
 
@@ -549,6 +549,8 @@ const restoreOverlays = async () => {
                 addedOverlay.sticky = sticky;
                 addedOverlay.collapsed = collapsed;
             }
+
+            triggerRef(overlays);
         }
     }
 };
@@ -719,7 +721,7 @@ function handleDownEvent(event: MapBrowserEvent) {
 
     if (store.localSettings.distance?.ctrlClick) {
         overlaysCache = mapStore.overlays.slice(0);
-        if (event.originalEvent.ctrlKey) {
+        if (event.originalEvent.ctrlKey || event.originalEvent.metaKey) {
             initDistance(event).then(async () => {
                 await nextTick();
                 mapStore.overlays = overlaysCache;

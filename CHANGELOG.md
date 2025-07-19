@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.2.1-beta.2]
+
+- Fixed bookings sector sometimes being incorrect
+- You can now use CMD instead of CTRL to open search or use ruler with CTRL option
+- Heatmap layer has been fixed
+- You can now view pilot atc hours in pilot's popup
+- Fixed some airways not parsing correctly
+
 # [1.2.1-beta.1]
 
 - You can now view bookings via map footer, by Felix

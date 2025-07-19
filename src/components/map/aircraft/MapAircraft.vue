@@ -187,14 +187,15 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
+import type { MapAircraftStatus } from '~/composables/pilots';
 import {
     getAircraftStatusColor,
     isPilotOnGround,
-    loadAircraftIcon, ownFlight,
+    loadAircraftIcon,
+    ownFlight,
     usePilotRating,
 } from '~/composables/pilots';
-import type { MapAircraftStatus } from '~/composables/pilots';
-import { turfGeometryToOl, sleep } from '~/utils';
+import { sleep, turfGeometryToOl } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
@@ -208,13 +209,12 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
-import type { Position, Feature as GeoFeature, Point as GeoPoint } from 'geojson';
+import type { Feature as GeoFeature, Point as GeoPoint, Position } from 'geojson';
 import type { InfluxGeojson, InfluxGeojsonFeature } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
-import { fromLonLat } from 'ol/proj';
 
 const props = defineProps({
     aircraft: {
@@ -279,9 +279,7 @@ function degreesToRadians(degrees: number) {
 const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 
 const getCoordinates = computed(() => {
-    const coords = [props.aircraft.longitude, props.aircraft.latitude];
-    if (store.mapSettings.heatmapLayer) return fromLonLat(coords);
-    return coords;
+    return [props.aircraft.longitude, props.aircraft.latitude];
 });
 const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
