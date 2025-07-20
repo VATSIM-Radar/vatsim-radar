@@ -1,6 +1,10 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'epic'
+    | 'c68a'
+    | 'v10'
+    | 'cl2t'
     | 'c160'
     | 'h60'
     | 'star'
@@ -284,6 +288,22 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    epic: {
+        icon: 'epic',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    c68a: {
+        icon: 'c68a',
+        width: getAircraftSizeByCoef(0.37),
+    },
+    v10: {
+        icon: 'v10',
+        width: getAircraftSizeByCoef(0.20),
+    },
+    cl2t: {
+        icon: 'cl2t',
+        width: getAircraftSizeByCoef(0.47),
+    },
     c160: {
         icon: 'c160',
         width: getAircraftSizeByCoef(0.67),
@@ -1340,6 +1360,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'F18H':
+        case 'F18S':
+            return aircraftIcons.f18;
         case 'C30J':
             return aircraftIcons.c130;
         case 'VF35':
@@ -1870,6 +1893,10 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'STAR':
         case 'H60':
         case 'C160':
+        case 'CL2T':
+        case 'V10':
+        case 'C68A':
+        case 'EPIC':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
