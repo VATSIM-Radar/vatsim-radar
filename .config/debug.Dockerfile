@@ -17,6 +17,7 @@ RUN yarn
 COPY . /radar
 RUN ls -la
 RUN npx prisma generate
+RUN yarn prepare
 RUN yarn build
 
 EXPOSE 3000
