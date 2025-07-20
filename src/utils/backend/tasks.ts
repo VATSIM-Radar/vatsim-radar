@@ -83,8 +83,8 @@ async function vatsimTasks() {
     await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
     await defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
-    await defineCronJob('*/30 * * * *', updateBookings).catch(console.error);
-    await defineCronJob('*/30 * * * *', updateNattrak).catch(console.error);
+    await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
+    await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
 }
 
 let s3: S3 | undefined;
@@ -291,6 +291,9 @@ export async function setupRedisDataFetch() {
             }
             else if (message === 'data-nattrak') {
                 radarStorage.vatsimStatic.tracks = (await getRedisData('data-nattrak')) ?? radarStorage.vatsimStatic.tracks;
+            }
+            else if (message === 'data-bookings') {
+                radarStorage.vatsimStatic.bookings = (await getRedisData('data-bookings')) ?? radarStorage.vatsimStatic.bookings;
             }
             else if (message === 'navigraph-data') {
                 radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');

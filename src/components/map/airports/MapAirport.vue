@@ -363,7 +363,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
+                color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -376,7 +376,7 @@ watch(hoveredFeature, val => {
 function setBorderFeatureStyle(feature: Feature) {
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
+            color: (store.bookingOverride || isAppOnlyBooking.value) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
         }),
     }));
@@ -398,7 +398,7 @@ function setLabelFeatureStyle(feature: Feature) {
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: (store.bookingOverride || isAppOnlyBooking.value) ? radarColors.info300Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
+                    color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 padding: [3, 1, 2, 3],
             }),

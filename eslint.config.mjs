@@ -32,7 +32,7 @@ export default withNuxt([
                 'error',
                 'single',
                 {
-                    allowTemplateLiterals: true,
+                    allowTemplateLiterals: 'always',
                     avoidEscape: true,
                 },
             ],

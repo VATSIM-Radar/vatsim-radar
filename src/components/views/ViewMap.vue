@@ -528,29 +528,20 @@ const restoreOverlays = async () => {
 
             if (!type || !key) continue;
 
-            let addedOverlay;
-
             switch (type) {
                 case 'pilot':
-                    addedOverlay = await mapStore.addPilotOverlay(key);
+                    await mapStore.addPilotOverlay(key, undefined, { sticky, collapsed });
                     break;
                 case 'prefile':
-                    addedOverlay = await mapStore.addPrefileOverlay(key);
+                    await mapStore.addPrefileOverlay(key, { sticky, collapsed });
                     break;
                 case 'airport':
-                    addedOverlay = await mapStore.addAirportOverlay(key);
+                    await mapStore.addAirportOverlay(key, undefined, { sticky, collapsed });
                     break;
                 case 'atc':
-                    addedOverlay = await mapStore.addAtcOverlay(key);
+                    await mapStore.addAtcOverlay(key, { sticky, collapsed });
                     break;
             }
-
-            if (addedOverlay) {
-                addedOverlay.sticky = sticky;
-                addedOverlay.collapsed = collapsed;
-            }
-
-            triggerRef(overlays);
         }
     }
 };

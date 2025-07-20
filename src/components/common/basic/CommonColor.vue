@@ -134,6 +134,21 @@ const transparencyOptions = computed<SelectItem[]>(() => {
         });
     }
 
+    options.push({
+        value: 0.05,
+        text: '95%',
+    });
+
+    options.push({
+        value: 0.03,
+        text: '97%',
+    });
+
+    options.push({
+        value: 0.01,
+        text: '99%',
+    });
+
     return options;
 });
 </script>

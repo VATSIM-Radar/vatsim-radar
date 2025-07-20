@@ -9,7 +9,7 @@
             controller.frequency,
             (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
         ]"
-        @click="[mapStore.addAtcOverlay(controller.callsign), emit('overlay')]"
+        @click="handleClick"
     >
         <template #top="{ item, index }">
             <template v-if="index === 0">
@@ -133,8 +133,9 @@ import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import SaveIcon from '@/assets/icons/kit/save.svg?component';
 import { getStringColorFromSettings } from '~/composables/colors';
 import { useStore } from '~/store';
+import { findAtcByCallsign } from '~/composables/atc';
 
-defineProps({
+const props = defineProps({
     controller: {
         type: Object as PropType<VatsimShortenedController>,
         required: true,
@@ -176,6 +177,15 @@ const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
 const store = useStore();
+
+const handleClick = () => {
+    if (!findAtcByCallsign(props.controller.callsign)) {
+        window.open(`https://stats.vatsim.net/stats/${ props.controller.cid }`, '_blank');
+        return;
+    }
+    mapStore.addAtcOverlay(props.controller.callsign);
+    emit('overlay');
+};
 
 const controllerColor = (controller: VatsimShortenedController) => {
     const list = getUserList(controller.cid);

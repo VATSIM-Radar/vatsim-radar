@@ -273,6 +273,10 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
+                title: 'Smart positioning for aircraft info popup',
+                status: 'next',
+            },
+            {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
                 status: 'completed',
             },
@@ -363,7 +367,6 @@ const roadmap = reactive<Roadmap[]>([
             'Stream Deck integration',
             'Day/Night line',
             'Map settings market',
-            'Smart positioning for aircraft info popup',
             'Google Play app',
             'Simbrief integration',
             'ATC/Booking notification for active flight',

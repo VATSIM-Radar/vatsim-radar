@@ -72,7 +72,7 @@ export function attachMoveEnd(callback: (event: any) => unknown) {
     });
 }
 
-export function attachPointerMove(callback: (event: any) => unknown) {
+export function attachPointerMove(callback: (event: any) => unknown, delay = 300) {
     if (!getCurrentInstance()) throw new Error('Only can attach pointerMove on setup');
     const moveStarted = ref(false);
     let latestCoordinate: string | undefined;
@@ -104,7 +104,7 @@ export function attachPointerMove(callback: (event: any) => unknown) {
             useRadarError(e);
         }
         finally {
-            await sleep(300);
+            await sleep(delay);
             moveStarted.value = false;
         }
     };

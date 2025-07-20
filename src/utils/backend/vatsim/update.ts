@@ -418,7 +418,7 @@ export async function updateNattrak() {
         {
             identifier: 'SM',
             active: true,
-            last_routeing: '50/15 50/20 50/30 49/40 47/50 46/53 44/60 42/65 42/67',
+            last_routeing: '5041/15 5050/20 5030/30 4916/40 4703/50 4610/53 4414/60 4226/65 4200/67',
             valid_from: '2005-01-01T08:00:00.000000Z',
             valid_to: '2085-01-01T08:00:00.000000Z',
             last_active: '2005-01-01T08:00:00.000000Z',
@@ -428,7 +428,7 @@ export async function updateNattrak() {
         {
             identifier: 'SN',
             active: true,
-            last_routeing: '40/67 41/65 43/60 45/52 46/50 48/40 49/30 50/20 49/15',
+            last_routeing: '4025/67 4110/65 4307/60 4510/5230 4554/50 4810/40 4926/30 4949/20 4941/15',
             valid_from: '2005-01-01T08:00:00.000000Z',
             valid_to: '2085-01-01T08:00:00.000000Z',
             last_active: '2005-01-01T08:00:00.000000Z',
@@ -438,7 +438,7 @@ export async function updateNattrak() {
         {
             identifier: 'SO',
             active: true,
-            last_routeing: '48/15 49/20 48/30 47/40 45/50 44/52 42/60',
+            last_routeing: '4840/15 4848/20 4822/30 4704/40 4445/50 4410/52 4200/60',
             valid_from: '2005-01-01T08:00:00.000000Z',
             valid_to: '2085-01-01T08:00:00.000000Z',
             last_active: '2005-01-01T08:00:00.000000Z',
@@ -502,6 +502,7 @@ export async function updateBookings() {
         } as VatsimBooking);
         */
 
+        radarStorage.vatsimStatic.bookings = bookings;
 
         setRedisData('data-bookings', bookings, 1000 * 60 * 60 * 24 * 7);
     }
@@ -546,10 +547,11 @@ function makeFakeAtc(booking: VatsimBookingData): VatsimShortenedController {
         cid: booking.cid,
         name: '',
         callsign: booking.callsign,
-        frequency: '',
+        frequency: '123.123',
         facility: getFacilityByCallsign(booking.callsign),
         rating: -1,
         logon_time: '',
         text_atis: [],
+        isBooking: true,
     };
 }

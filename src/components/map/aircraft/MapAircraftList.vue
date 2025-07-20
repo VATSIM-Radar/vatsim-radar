@@ -8,8 +8,8 @@
             :is-hovered="hoveredAircraft === aircraft.cid"
             :is-visible="showTracks.find(x => x.pilot.cid === aircraft.cid)?.isShown ?? true"
             :show-label="showAircraftLabel.includes(aircraft.cid)"
-            @manualHide="[isManualHover = false]"
-            @manualHover="[isManualHover = true, hoveredAircraft = aircraft.cid]"
+            @manualHide="[isManualHover === aircraft.cid && (isManualHover = null)]"
+            @manualHover="[isManualHover = aircraft.cid, setHoveredAircraft(aircraft)]"
         />
     </template>
     <!-- We do not set  hoveredAircraft = false in the manualHide event, because this led to a short time when moving with the mouse from the label to the icon where the aircraft got a "not hovered" state. We just switch to ManualHover=false and let the pointermove function handle the removal of the hover state -->
@@ -21,7 +21,7 @@ import VectorLayer from 'ol/layer/Vector';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import type { Pixel } from 'ol/pixel';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
@@ -51,7 +51,7 @@ const dataStore = useDataStore();
 const config = useRuntimeConfig();
 
 const hoveredAircraft = ref<number | null>(null);
-const isManualHover = ref(false);
+const isManualHover = ref<number | null>(null);
 const showAircraftLabel = ref<number[]>([]);
 
 // The next 3 functions are used to get data to and from the airport dashboard page. When an aircraft is selected it is sent to the airport dashboard so we can open the pilot overlay. We also receive the event from the dashboard when an aircraft is clicked in the dashboard, we then select it on the map.
@@ -106,6 +106,13 @@ const getShownPilots = computed(() => {
 
     return pilots.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || !allOnGround.includes(x.cid));
 });
+
+async function setHoveredAircraft(aircraft: VatsimMandatoryPilot) {
+    await sleep(500);
+    if (isManualHover.value === aircraft.cid) {
+        hoveredAircraft.value = aircraft.cid;
+    }
+}
 
 function setVisiblePilots() {
     showTracks.value = [];
@@ -315,11 +322,16 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
     return false;
 }
 
-function handlePointerMove(e: MapBrowserEvent<any>) {
+let activePilotHover: null | number = null;
+
+async function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
     let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
+
+    const hadHover = activePilotHover;
+    activePilotHover = null;
 
     // we have more than one aircraft within the tolerance, so we need to find the closest one
     if (features.length > 1) {
@@ -356,9 +368,21 @@ function handlePointerMove(e: MapBrowserEvent<any>) {
 
     if (isManualHover.value) return;
 
-    isManualHover.value = false;
-    hoveredAircraft.value = features[0].cid;
     mapStore.mapCursorPointerTrigger = 1;
+
+    if (!activePilotHover) {
+        activePilotHover = features[0].cid;
+
+        if (hadHover) return;
+    }
+
+    sleep(500).then(() => {
+        if (activePilotHover !== features[0].cid) return;
+
+        isManualHover.value = null;
+        hoveredAircraft.value = features[0].cid;
+        mapStore.mapCursorPointerTrigger = 1;
+    });
 }
 
 async function handleClick(e: MapBrowserEvent<any>) {
@@ -462,7 +486,7 @@ watch(map, val => {
     val.addLayer(vectorLayer);
     val.addLayer(linesLayer);
 
-    attachPointerMove(handlePointerMove);
+    attachPointerMove(handlePointerMove, 150);
     val.on('click', handleClick);
 }, {
     immediate: true,

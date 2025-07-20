@@ -537,7 +537,7 @@ const getAirportsList = computed(() => {
 
         const validFacilities = new Set([facilities.TWR, facilities.GND, facilities.DEL, facilities.APP]);
 
-        store.bookings.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao))).forEach((booking: VatsimBooking) => {
+        store.bookings.filter(x => visibleAirports.value.find(y => x.atc.callsign.startsWith(y.vatsimAirport.icao) || x.atc.callsign.startsWith(y.vatsimAirport.iata ?? ''))).forEach((booking: VatsimBooking) => {
             if (!validFacilities.has(booking.atc.facility) || isVatGlassesActive.value) return;
 
             if (!store.bookingOverride) {
@@ -548,7 +548,7 @@ const getAirportsList = computed(() => {
             }
 
             const airportIcao = booking.atc.callsign.split('_')[0];
-            let airport = airports.find(x => airportIcao === x.airport.icao);
+            let airport = airports.find(x => airportIcao === x.airport.icao || airportIcao === x.airport.iata);
 
             if (!airport) {
                 const vAirport = dataStore.vatspy.value?.data.airports.find(x => airportIcao === x.icao);

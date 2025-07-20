@@ -92,6 +92,7 @@ export interface VatsimController {
     last_updated: string;
     logon_time: string;
     booking?: VatsimBookingAtc;
+    isBooking?: boolean;
 }
 
 export interface VatsimATIS extends VatsimController {

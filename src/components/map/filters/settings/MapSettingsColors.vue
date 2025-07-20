@@ -42,11 +42,25 @@
             Approach tracon/circle
         </common-color>
         <common-color
+            :default-color="{ color: 'info300', transparency: 0.7 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.approachBookings ?? reactive({ color: 'info300', transparency: 0.7 })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { approachBookings: $event } } })"
+        >
+            Booked approach
+        </common-color>
+        <common-color
             :default-color="{ color: 'success500', transparency: 0.1 }"
             :model-value="store.mapSettings.colors?.[themeKey]?.firs ?? reactive({ color: 'success500', transparency: 0.1 })"
             @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { firs: $event } } })"
         >
             FIR (ARTCC)
+        </common-color>
+        <common-color
+            :default-color="{ color: 'lightgray125', transparency: 0.07 }"
+            :model-value="store.mapSettings.colors?.[themeKey]?.centerBookings ?? reactive({ color: 'lightgray125', transparency: 0.07 })"
+            @update:modelValue="setUserMapSettings({ colors: { [themeKey]: { centerBookings: $event } } })"
+        >
+            Booked FIR (ARTCC)
         </common-color>
         <common-color
             :default-color="{ color: 'info400', transparency: 0.1 }"

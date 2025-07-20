@@ -35,7 +35,7 @@ const statuses = Object.keys({
 } satisfies Record<MapAircraftStatus, true>);
 
 function validateTheme(val: unknown): boolean {
-    if (!isObject(val)) return false;
+    if (!isObject(val) || !validateRandomObjectKeys(val, ['firs', 'uirs', 'centerText', 'centerBg', 'approach', 'staffedAirport', 'defaultAirport', 'approachBookings', 'centerBookings', 'gates', 'runways', 'aircraft'])) return false;
 
     if ('firs' in val && !validateColor(val.firs)) return false;
     if ('uirs' in val && !validateColor(val.uirs)) return false;
@@ -52,6 +52,8 @@ function validateTheme(val: unknown): boolean {
         if (transparency !== false) val.defaultAirport = transparency;
         else return false;
     }
+    if ('approachBookings' in val && !validateColor(val.approachBookings)) return false;
+    if ('centerBookings' in val && !validateColor(val.centerBookings)) return false;
     if ('gates' in val) {
         const transparency = validateTransparency(val.gates);
         if (transparency !== false) val.gates = transparency;
@@ -242,6 +244,8 @@ export interface UserMapSettingsColors {
     approach?: UserMapSettingsColor;
     staffedAirport?: number;
     defaultAirport?: number;
+    approachBookings?: UserMapSettingsColor;
+    centerBookings?: UserMapSettingsColor;
     aircraft?: PartialRecord<MapAircraftStatus, UserMapSettingsColor> & {
         main?: UserMapSettingsColor;
     };

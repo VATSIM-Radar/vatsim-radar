@@ -109,17 +109,6 @@ useHead({
         font-weight: 500;
         color: $primary500;
     }
-
-    :deep(a) {
-        color: $primary500;
-        @include hover {
-            transition: 0.3s;
-
-            &:hover {
-                color: $primary300;
-            }
-        }
-    }
 }
 
 .events_timezone {

@@ -1,6 +1,7 @@
 <template>
     <map-overlay
         v-if="openSigmet"
+        class="sigmets-overlay"
         :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
         :z-index="5"
         @update:modelValue="openSigmet = null"
@@ -220,7 +221,7 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
 async function handleMapClick(event: MapBrowserEvent<any>) {
     openSigmet.value = null;
     const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (features?.some(x => x.getProperties().type === 'aircraft')) return;
+    if (features?.some(x => x.getProperties().type === 'aircraft' || x.getProperties().type === 'vatglasses')) return;
 
     const sigmets = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: x => x === layer });
     if (!sigmets?.length) return;

@@ -62,6 +62,8 @@ export interface StoreOverlayAtc extends StoreOverlayDefault {
 
 export type StoreOverlay = StoreOverlayPilot | StoreOverlayPrefile | StoreOverlayAtc | StoreOverlayAirport;
 
+type PartialOverlayParams = Partial<Omit<StoreOverlay, 'key' | 'data' | 'type'>>;
+
 export const useMapStore = defineStore('map', {
     state: () => ({
         extent: [0, 0, 0, 0] as Extent,
@@ -146,7 +148,7 @@ export const useMapStore = defineStore('map', {
             const targetOrigin = useRuntimeConfig().public.DOMAIN;
             window.parent.postMessage(message, targetOrigin);
         },
-        async addPilotOverlay(cid: string | number, tracked = false) {
+        async addPilotOverlay(cid: string | number, tracked = false, params?: PartialOverlayParams) {
             if (this.openingOverlay) return;
             if (typeof cid === 'number') cid = cid.toString();
             this.openingOverlay = true;
@@ -183,13 +185,14 @@ export const useMapStore = defineStore('map', {
                     type: 'pilot',
                     collapsed: store.user?.settings.toggleAircraftOverlays && this.overlays.some(x => x.type === 'pilot'),
                     sticky: cid === ownFlight.value?.cid.toString(),
+                    ...params,
                 });
             }
             finally {
                 this.openingOverlay = false;
             }
         },
-        async addPrefileOverlay(cid: string) {
+        async addPrefileOverlay(cid: string, params?: PartialOverlayParams) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
@@ -208,13 +211,14 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'prefile',
                     sticky: cid === ownFlight.value?.cid.toString(),
+                    ...params,
                 });
             }
             finally {
                 this.openingOverlay = false;
             }
         },
-        async addAtcOverlay(callsign: string) {
+        async addAtcOverlay(callsign: string, params?: PartialOverlayParams) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
@@ -235,6 +239,7 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'atc',
                     sticky: false,
+                    ...params,
                 });
             }
             finally {
@@ -244,7 +249,7 @@ export const useMapStore = defineStore('map', {
         async addAirportOverlay(airport: string, { aircraftTab, tab }: {
             aircraftTab?: StoreOverlayAirport['data']['aircraftTab'];
             tab?: StoreOverlayAirport['data']['tab'];
-        } = {}) {
+        } = {}, params?: PartialOverlayParams) {
             if (this.openingOverlay) return;
             this.openingOverlay = true;
 
@@ -274,6 +279,7 @@ export const useMapStore = defineStore('map', {
                     },
                     type: 'airport',
                     sticky: false,
+                    ...params,
                 });
 
                 this.openingOverlay = false;

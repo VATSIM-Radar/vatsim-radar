@@ -75,11 +75,11 @@ function findUir(name: string, controller: VatsimShortenedController): VatSpyDat
 }
 
 function filterATCByType(types: number[]) {
-    return radarStorage.vatsim.regularData?.controllers.filter(x => {
+    return [...radarStorage.vatsim.regularData?.controllers ?? [], ...radarStorage.vatsimStatic.bookings.map(x => x.atc)].filter(x => {
         if (!types.includes(x.facility)) return false;
         const freq = parseFloat(x.frequency || '0');
         return freq < 137 && freq > 117;
-    }) ?? [];
+    });
 }
 
 export const getLocalATC = (): VatSpyDataLocalATC[] => {
@@ -152,7 +152,7 @@ function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, ui
 
 export const getATCBounds = (): VatSpyDataFeature[] => {
     const facilities = useFacilitiesIds();
-    const atcWithBounds = filterATCByType([facilities.CTR, facilities.FSS]);
+    const atcWithBounds = filterATCByType([facilities.CTR, facilities.FSS]).filter(x => !x.isBooking);
 
     return atcWithBounds.flatMap(atc => {
         let splittedName = atc.callsign.toUpperCase().replaceAll('__', '_').split('_');

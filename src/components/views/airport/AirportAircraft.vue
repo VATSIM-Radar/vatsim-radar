@@ -245,7 +245,17 @@ const displayedAircraft = computed((): AirportPopupPilotStatus[] => {
         return aircraft.value?.departures.slice().sort((a, b) => a.flown - b.flown) ?? [];
     }
     if (aircraftMode.value === 'arriving' || props.simpleMode === 'arrivals') {
-        return aircraft.value?.arrivals.slice().sort((a, b) => a.distance - b.distance) ?? [];
+        return aircraft.value?.arrivals.slice().sort((a, b) => {
+            if (!a.eta && b.eta) return 1;
+            if (a.eta && !b.eta) return -1;
+            if (!a.eta && !b.eta) {
+                const gs = (b as VatsimShortenedAircraft).groundspeed - (a as VatsimShortenedAircraft).groundspeed;
+                if (gs === 0) return a.distance - b.distance;
+                return gs;
+            }
+
+            return a.eta!.getTime() - b.eta!.getTime();
+        }) ?? [];
     }
 
     switch (props.simpleMode || aircraftGroundMode.value) {

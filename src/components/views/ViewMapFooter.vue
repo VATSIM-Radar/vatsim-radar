@@ -143,7 +143,7 @@
         <div class="map-footer_right">
             <map-settings-vat-glasses-level
                 v-if="store.viewport.width > (store.friends.length ? 1200 : 1000)"
-                class="map-footer_right_vg"
+                class="map-footer_right_vg __wide"
                 show-auto
             />
 
@@ -157,7 +157,7 @@
                     Cancel Booking Override
                 </common-button>
             </div>
-            <div class="map-footer_right_section __from-tablet">
+            <div class="map-footer_right_section __wide">
                 <common-button
                     size="S"
                     :type="store.mapBookingOpen ? 'primary' : 'secondary'"

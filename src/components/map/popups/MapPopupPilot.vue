@@ -108,6 +108,9 @@
                 @viewRoute="viewRoute()"
             />
         </template>
+        <template #graph>
+            <map-popup-flight-graph :pilot/>
+        </template>
         <template
             v-if="depAirport"
             #procedures
@@ -255,6 +258,8 @@ const props = defineProps({
     },
 });
 
+const MapPopupFlightGraph = defineAsyncComponent(() => import('~/components/map/popups/MapPopupFlightGraph.vue'));
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const copy = useCopyText();
 
@@ -356,6 +361,16 @@ const sections = computed<InfoPopupSection[]>(() => {
             collapsible: true,
         },
     ];
+
+    if (props.overlay.data.pilot.status !== 'depTaxi' && props.overlay.data.pilot.status !== 'depGate') {
+        sections.push({
+            key: 'graph',
+            title: 'Speed & Altitude graph',
+            collapsedDefault: true,
+            collapsedDefaultOnce: true,
+            collapsible: true,
+        });
+    }
 
     sections.push({
         key: 'flightplan',

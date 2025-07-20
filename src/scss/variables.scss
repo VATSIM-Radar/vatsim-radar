@@ -27,7 +27,13 @@ $defaultPageHeight: calc(32px + 56px);
 }
 
 @mixin pc() {
-    @media all and (min-width: 1366px) {
+    @media all and (min-width: 1466px) {
+        @content;
+    }
+}
+
+@mixin pcWide() {
+    @media all and (min-width: 1900px) {
         @content;
     }
 }

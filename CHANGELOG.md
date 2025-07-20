@@ -1,5 +1,22 @@
 # Changelog
 
+# [1.2.1-beta.3]
+
+- Fixed SIGMET click taking priority over VATGlasses controller info
+- Fixed BALL icon rotation
+- Improved header/footer layout for non-full hd desktop screens and tablets
+- Fixed random aircraft hovers with added 500ms delay
+- Deleted runway transitions from STARs
+- Fixed concorde tracks showing slightly off
+- Fixed some approaches parsing incorrectly and showing same runway instead of correct suffix approaches (ILS -> ILS Z, etc)
+- You can now edit booked atc/fir color
+- Added 95%, 97% and 99% transparency support
+- Arriving aircraft are now sorted by time to be flown in airport dashboard / overlay
+- Clicking on booked controller will open controller's page on stats.vatsim.net
+- Speeded up bookings and tracks updates from 30 to 10 minutes
+- Bookings will now show for empty or "fake" airports
+- Added Speed & Altitude graph to pilot overlay
+
 # [1.2.1-beta.2]
 
 - Fixed bookings sector sometimes being incorrect

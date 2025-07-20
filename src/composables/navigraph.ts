@@ -217,7 +217,20 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const parts = input.split('/');
     if (parts.length === 2) {
         const latPart = parts[0];
-        const lonDeg = parseFloat(parts[1]);
+        const lonPart = parts[1];
+
+        if (!lonPart) return null;
+
+        let lonDeg: number;
+        if (lonPart.length === 4) {
+            // ddmm → 15°20′ = 15 + 20 / 60
+            const deg = parseInt(lonPart.slice(0, 2), 10);
+            const min = parseInt(lonPart.slice(2, 4), 10);
+            lonDeg = deg + (min / 60);
+        }
+        else {
+            lonDeg = parseFloat(lonPart);
+        }
 
         if (isNaN(lonDeg)) return null;
 
@@ -238,7 +251,7 @@ export function getPreciseCoord(input: string): [Coordinate, string] | null {
 
         if (isNaN(lat)) return null;
 
-        return [[-lonDeg, lat], `N${ latPart }W${ parts[1] }`];
+        return [[-lonDeg, lat], `N${ latPart }W${ lonPart }`];
     }
 
     return null;
@@ -469,25 +482,6 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                         speed: x.speed,
                         speedLimit: x.speedLimit,
                     } satisfies NavigraphNavDataEnrouteWaypointPartial)) ?? []);
-
-                    if (arrRunway) {
-                        const runwayTransition = procedure?.transitions.runway.find(x => x.name === arrRunway);
-                        if (runwayTransition) {
-                            waypoints.push(...runwayTransition.waypoints.map(x => ({
-                                title: procedure?.procedure.identifier,
-                                identifier: x.identifier,
-                                coordinate: x.coordinate,
-                                description: x.description,
-                                kind: 'stars',
-
-                                altitude: x.altitude,
-                                altitude1: x.altitude1,
-                                altitude2: x.altitude2,
-                                speed: x.speed,
-                                speedLimit: x.speedLimit,
-                            } satisfies NavigraphNavDataEnrouteWaypointPartial)));
-                        }
-                    }
 
                     if (arrivalProcedures) {
                         const forRunway = arrivalProcedures.filter(x => x.procedure.runway === arrRunway);

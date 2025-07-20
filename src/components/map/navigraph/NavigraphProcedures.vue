@@ -63,10 +63,12 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
 function processSidOrStar(newFeatures: Feature[], { procedure: { waypoints, transitions: { enroute, runway }, procedure: { identifier } }, constraints, transitions }: DataStoreNavigraphProcedure, type: 'sid' | 'star', runways: string[]) {
     addWaypoints(newFeatures, waypoints, constraints, type, identifier);
 
-    const runwayTransitions = runway.filter(x => !runways.length || runways.some(y => y === x.name));
+    if (type === 'sid') {
+        const runwayTransitions = runway.filter(x => !runways.length || runways.some(y => y === x.name));
 
-    if (runwayTransitions.length) {
-        addWaypoints(newFeatures, runwayTransitions.flatMap(x => x.waypoints), constraints, type);
+        if (runwayTransitions.length) {
+            addWaypoints(newFeatures, runwayTransitions.flatMap(x => x.waypoints), constraints, type);
+        }
     }
 
     const enrouteTransitions = enroute.filter(x => !transitions.length || transitions.some(y => y === x.name));

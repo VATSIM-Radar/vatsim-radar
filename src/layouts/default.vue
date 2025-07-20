@@ -340,9 +340,10 @@ async function getEngine(uaParser = parser) {
 
 function setWindowStore() {
     store.isMobile = window.innerWidth < 700;
-    store.isMobileOrTablet = window.innerWidth < 1366;
-    store.isTablet = window.innerWidth < 1366 && window.innerWidth >= 700;
-    store.isPC = window.innerWidth >= 1366;
+    store.isMobileOrTablet = window.innerWidth < 1466;
+    store.isTablet = window.innerWidth < 1466 && window.innerWidth >= 700;
+    store.isPC = window.innerWidth >= 1466;
+    store.isPCWide = window.innerWidth >= 1900;
     store.scrollbarWidth = window.innerWidth - document.documentElement.offsetWidth;
     store.viewport.width = window.innerWidth;
 }
@@ -390,6 +391,7 @@ await useAsyncData('default-init', async () => {
         store.isTablet = parsedType === 'tablet';
         store.isMobileOrTablet = store.isMobile || store.isTablet;
         store.isPC = !store.isMobile && !store.isTablet;
+        store.isPCWide = !store.isMobile && !store.isTablet;
         store.device = await getDeviceType() ?? 'desktop';
         store.engine = await getEngine();
     }
@@ -716,6 +718,12 @@ img {
 
 .no-overflow {
     overflow: hidden;
+}
+
+@media all and (max-width: 1899px) {
+    .__wide {
+        display: none !important;
+    }
 }
 
 @include fromTablet {

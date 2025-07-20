@@ -342,7 +342,7 @@ export const processNavdataIap: NavdataProcessFunction = async ({ fullData, db, 
         Y: 'MLS Type B/C',
     };
 
-    const runwayRegex = /(?<runway>[0-9]{2}([RLC])?)(?<suffix>[A-Z]+)?/;
+    const runwayRegex = /(?<runway>[0-9]{2}([RLC])?)( |-?)(?<suffix>[A-Z]+)?/;
 
     // key is airport-approach here
     const approachList: Record<string, NavDataProcedure<NavigraphNavDataApproach>> = {};

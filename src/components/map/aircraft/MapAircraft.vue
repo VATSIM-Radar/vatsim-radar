@@ -210,7 +210,7 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Feature as GeoFeature, Point as GeoPoint, Position } from 'geojson';
-import type { InfluxGeojson, InfluxGeojsonFeature } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson, InfluxGeojsonFeatureCollection } from '~/utils/backend/influx/converters';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
@@ -264,10 +264,10 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 const flightPlan = ref('');
 const turnsStart = ref('');
-const turnsTimestamp = ref(0);
+const turnsTimestamp = ref('');
 const turnsFirstGroupTimestamp = ref('');
 const turnsSecondGroupPoint = shallowRef<GeoFeature<GeoPoint> | null>(null);
-const turnsFirstGroup = shallowRef<InfluxGeojsonFeature | null>(null);
+const turnsFirstGroup = shallowRef<InfluxGeojsonFeatureCollection | null>(null);
 const linesUpdateInProgress = ref(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 const friend = computed(() => store.friends.find(x => x.cid === props.aircraft.cid));
@@ -410,7 +410,7 @@ const canShowLines = ref(false);
 const changeState = computed(() => {
     const values = [
         isInit.value,
-        !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
+        !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
         dataStore.vatsim.updateTimestamp,
     ];
 
@@ -420,7 +420,7 @@ const changeState = computed(() => {
 async function setState(val?: string, oldVal?: string) {
     if (!isInit.value || (val && oldVal && val === oldVal)) return;
 
-    canShowLines.value = !!feature && !!(isPropsHovered.value || hovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
+    canShowLines.value = !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
     await Promise.allSettled([
         setStyle(),
@@ -574,7 +574,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
 
             if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {
-                turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp;
+                turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp ?? '';
                 turnsStart.value = turns.flightPlanTime;
             }
         }
@@ -634,7 +634,7 @@ async function toggleAirportLines(value = canShowLines.value) {
             else if (turnsFirstGroupTimestamp.value !== firstCollectionTimestamp) turnsSecondGroupPoint.value = null;
 
             turnsFirstGroup.value = turns.features[0];
-            turnsFirstGroupTimestamp.value = firstCollectionTimestamp;
+            turnsFirstGroupTimestamp.value = firstCollectionTimestamp ?? '';
 
             for (let i = 0; i < turns.features.length; i++) {
                 const collection = {
@@ -898,7 +898,7 @@ watch([hovered, hoveredOverlay], async () => {
     if (hovered.value || hoveredOverlay.value) {
         emit('manualHover');
     }
-    else if (props.isHovered) {
+    else {
         await sleep(0);
         if (!hovered.value && !hoveredOverlay.value) {
             emit('manualHide');

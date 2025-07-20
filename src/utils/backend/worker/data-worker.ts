@@ -589,6 +589,7 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.firs = await getATCBounds();
         radarStorage.vatsim.locals = await getLocalATC();
         radarStorage.vatsim.airports = await getAirportsList();
+        radarStorage.vatsim.locals = radarStorage.vatsim.locals.filter(x => !x.atc.isBooking);
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();

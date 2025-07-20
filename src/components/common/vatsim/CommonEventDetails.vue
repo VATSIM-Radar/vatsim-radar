@@ -80,6 +80,36 @@
         </div>
 
         <div
+            v-if="bookings?.data?.value && Object.values(bookings?.data.value ?? {}).some(x => x.length)"
+            class="detail-item"
+        >
+            <div class="detail-item_header">
+                Bookings:
+            </div>
+            <div class="detail-item_content event-details__bookings">
+                <template
+                    v-for="(list, airport) in bookings.data.value"
+                    :key="airport"
+                >
+                    <a
+                        v-for="booking in list"
+                        :key="booking.id"
+                        class="event-details__bookings_booking"
+                        :href="`https://stats.vatsim.net/stats/${ booking.atc.cid }`"
+                        target="_blank"
+                    >
+                        <div class="event-details__bookings_booking_callsign">
+                            {{booking.atc.callsign}} (<span @click.prevent>{{booking.atc.cid}}</span>)
+                        </div>
+                        <div class="event-details__bookings_booking_date">
+                            From {{formatterTime.format(booking.start)}}{{timeZone === 'UTC' ? 'z' : ''}} to {{formatterTime.format(booking.end)}}{{timeZone === 'UTC' ? 'z' : ' local'}}
+                        </div>
+                    </a>
+                </template>
+            </div>
+        </div>
+
+        <div
             v-if="organisers"
             class="detail-item"
         >
@@ -120,7 +150,7 @@
 <script setup lang="ts">
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
-import type { VatsimEvent } from '~/types/data/vatsim';
+import type { VatsimBooking, VatsimEvent } from '~/types/data/vatsim';
 import { parse } from 'marked';
 
 const props = defineProps({
@@ -128,6 +158,35 @@ const props = defineProps({
         type: Object as PropType<VatsimEvent>,
         required: true,
     },
+});
+
+const store = useStore();
+
+const timeZone = computed(() => store.mapSettings.bookingsLocalTimezone ? 'UTC' : undefined);
+
+const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: timeZone.value,
+}));
+
+const start = computed(() => new Date(props.event.start_time).getTime());
+const end = computed(() => new Date(props.event.end_time).getTime());
+
+const bookings = await useLazyAsyncData<Record<string, VatsimBooking[]>>(computed(() => `event-${ props.event.id }-bookings`), async () => {
+    return Object.fromEntries(await Promise.all((props.event.airports ?? [])
+        .map(async ({ icao }) => (
+            [
+                icao,
+                (await $fetch<{ bookings: VatsimBooking[] }>(`/api/data/vatsim/airport/${ icao }?requestedDataType=2`).catch(e => {
+                    console.error(e);
+                    return { bookings: [] };
+                })).bookings.filter(x => x.start >= start.value && x.end <= end.value),
+            ]
+        ))));
+}, {
+    watch: [() => props.event],
 });
 
 const { copy: baseCopy } = useCopyText();
@@ -159,6 +218,18 @@ const organisers = computed(() => {
 .event-details {
     padding: 8px;
     font-size: 14px;
+
+
+    :deep(a) {
+        color: $primary500;
+        @include hover {
+            transition: 0.3s;
+
+            &:hover {
+                color: $primary300;
+            }
+        }
+    }
 
     @include mobileOnly {
         margin: 0;
@@ -235,6 +306,46 @@ const organisers = computed(() => {
                 &_actions {
                     min-width: 500px;
                 }
+            }
+        }
+    }
+
+    & &__bookings {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        padding: 0;
+
+        background: transparent;
+
+        &_booking {
+            padding: 8px;
+            border-radius: 8px;
+
+            color: currentColor;
+            text-decoration: none;
+
+            background: $darkgray875;
+
+            @include hover {
+                transition: 0.3s;
+
+                &:hover {
+                    background: $darkgray850;
+                }
+            }
+
+            &_callsign {
+                font-weight: 600;
+
+                span {
+                    user-select: all;
+                }
+            }
+
+            &_date {
+                font-size: 12px;
             }
         }
     }

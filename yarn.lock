@@ -2749,6 +2749,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kurkle/color@npm:^0.3.0":
+  version: 0.3.4
+  resolution: "@kurkle/color@npm:0.3.4"
+  checksum: 10c0/0e9fd55c614b005c5f0c4c755bca19ec0293bc7513b4ea3ec1725234f9c2fa81afbc78156baf555c8b9cb0d305619253c3f5bca016067daeebb3d00ebb4ea683
+  languageName: node
+  linkType: hard
+
 "@kwsites/file-exists@npm:^1.1.1":
   version: 1.1.1
   resolution: "@kwsites/file-exists@npm:1.1.1"
@@ -7410,6 +7417,15 @@ __metadata:
   version: 2.1.0
   resolution: "chardet@npm:2.1.0"
   checksum: 10c0/d1b03e47371851ed72741a898281d58f8a9b577aeea6fdfa75a86832898b36c550b3ad057e66d50d774a9cebd9f56c66b6880e4fe75e387794538ba7565b0b6f
+  languageName: node
+  linkType: hard
+
+"chart.js@npm:^4.5.0":
+  version: 4.5.0
+  resolution: "chart.js@npm:4.5.0"
+  dependencies:
+    "@kurkle/color": "npm:^0.3.0"
+  checksum: 10c0/f12c7f9a238ee7ce6d3f7111628e9daba86bb8ff8e54cfe63525fde6ded9003c72c4c8d2c7d5702539dc0aff7e682dfec058660ade8d03a970da002656d4ac91
   languageName: node
   linkType: hard
 
@@ -17699,6 +17715,7 @@ __metadata:
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
+    chart.js: "npm:^4.5.0"
     chokidar: "npm:^4.0.3"
     croner: "npm:^9.1.0"
     deep-equal: "npm:^2.2.3"
@@ -17740,6 +17757,7 @@ __metadata:
     vite-svg-loader: "npm:^5.1.0"
     vitepress: "npm:^1.6.3"
     vue: "npm:^3.5.17"
+    vue-chartjs: "npm:^5.3.2"
     vue-draggable-plus: "npm:^0.6.0"
     vue-router: "npm:^4.5.1"
     vue-tsc: "npm:3.0.3"
@@ -18166,6 +18184,16 @@ __metadata:
   dependencies:
     ufo: "npm:^1.5.4"
   checksum: 10c0/c5c241a2395ee34d8105fb6010027165f54f79f7cffebb73cb9da35b9ec006d910457b3e32026688f7f6a718e660040abffc43cd559d1e31cfea22b32fa0ba7f
+  languageName: node
+  linkType: hard
+
+"vue-chartjs@npm:^5.3.2":
+  version: 5.3.2
+  resolution: "vue-chartjs@npm:5.3.2"
+  peerDependencies:
+    chart.js: ^4.1.1
+    vue: ^3.0.0-0 || ^2.7.0
+  checksum: 10c0/e07d6766d058ecb11798ce3764105db2878c77bb6c887bf634644b5bf763e881e749b0d1a2981281126c889206b7fbe3b8db43ede275f951a84ec6087a83ff4e
   languageName: node
   linkType: hard
 

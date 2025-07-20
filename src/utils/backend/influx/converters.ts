@@ -1,6 +1,6 @@
 import type { InfluxFlight } from '~/utils/backend/influx/queries';
 import { getInfluxOnlineFlightTurns } from '~/utils/backend/influx/queries';
-import type { Feature, FeatureCollection, Point } from 'geojson';
+import type { FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { getFlightRowGroup } from '~/utils/shared/flight';
@@ -16,20 +16,29 @@ export interface VatsimPilotConnection {
     server: string;
 }
 
-export type InfluxGeojsonFeature = FeatureCollection<Point>;
+export type InfluxGeojsonFeatureCollection = FeatureCollection<Point, {
+    type: 'turn';
+    timestamp?: string;
+    color?: number | null;
+    altitude?: number | null | undefined;
+    speed?: number | null | undefined;
+    standing?: boolean;
+}>;
+
+export type InfluxGeojsonFeature = InfluxGeojsonFeatureCollection['features'][0];
 
 export type InfluxGeojson = {
     flightPlan?: string;
     flightPlanTime?: string;
-    features?: InfluxGeojsonFeature[];
+    features?: InfluxGeojsonFeatureCollection[];
 };
 
-export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string): InfluxGeojson {
+export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string, short = false): InfluxGeojson {
     function getRowColor(row: InfluxFlight) {
         return getFlightRowGroup(row.altitude);
     }
 
-    const geoRows: Feature<Point>[] = [];
+    const geoRows: InfluxGeojsonFeature[] = [];
 
     for (const row of rows.filter(x => x.latitude && x.longitude)) {
         geoRows.push({
@@ -39,6 +48,8 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
                 standing: row.groundspeed !== undefined && row.groundspeed !== null && row.groundspeed < 50,
                 timestamp: row._time,
                 color: getRowColor(row),
+                speed: row.groundspeed,
+                altitude: row.altitude,
             },
             geometry: {
                 type: 'Point',
@@ -47,10 +58,10 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
                     row.latitude!,
                 ],
             },
-        });
+        } satisfies InfluxGeojsonFeature);
     }
 
-    const rowsGroups: FeatureCollection<Point>[] = [];
+    const rowsGroups: InfluxGeojsonFeatureCollection[] = [];
 
     for (const row of geoRows) {
         const lastGroup = rowsGroups[rowsGroups.length - 1];
@@ -67,9 +78,24 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
 
     let hadStanding = false;
 
+    let lastTime = '';
+
     for (const group of rowsGroups) {
         for (let i = 0; i < group.features.length; i++) {
             const feature = group.features[i];
+            const savedTime = feature.properties.timestamp;
+
+            if ((short || lastTime === feature.properties.timestamp!.slice(0, 16)) && i !== 0 && i !== group.features.length - 1) {
+                delete feature.properties!.altitude;
+                delete feature.properties!.speed;
+                delete feature.properties!.timestamp;
+            }
+            else if (short) {
+                delete feature.properties!.altitude;
+                delete feature.properties!.speed;
+            }
+            if (savedTime) lastTime = savedTime.slice(0, 16);
+
             if (!hadStanding && feature.properties!.standing) {
                 hadStanding = true;
             }
@@ -77,7 +103,6 @@ export function getGeojsonForData(rows: InfluxFlight[], flightPlanStart: string)
 
             if (i === 0 || i === group.features.length - 1) continue;
             delete feature.properties!.color;
-            delete feature.properties!.timestamp;
         }
     }
 
@@ -91,7 +116,7 @@ export async function getInfluxOnlineFlightTurnsGeojson(cid: string, start?: str
     const rows = await getInfluxOnlineFlightTurns(cid, start);
     if (!rows?.features.length) return null;
 
-    return getGeojsonForData(rows.features, rows.flightPlanStart);
+    return getGeojsonForData(rows.features, rows.flightPlanStart, !!start);
 }
 
 function outputInfluxValue(value: string | number | boolean, isFloat = false) {
@@ -154,7 +179,9 @@ export function getPlanInfluxDataForPilots() {
 }
 
 function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousAltitude, previousLogTime }: PreviousPilot): boolean {
-    if (previousPilot.heading === pilot.heading && Math.abs(previousAltitude - pilot.altitude) < 100) return false;
+    if (
+        previousPilot.heading === pilot.heading && Math.abs(previousAltitude - pilot.altitude) < 100 && Math.abs(previousPilot.groundspeed - pilot.groundspeed) < 5
+    ) return false;
     if (previousPilot.longitude === pilot.longitude && previousPilot.latitude === pilot.latitude) return false;
 
     const diff = Date.now() - previousLogTime;

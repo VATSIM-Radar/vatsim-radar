@@ -281,9 +281,11 @@ function updateMap(map: Map | null) {
 
         const firColor = getSelectedColorFromSettings('firs');
         const uirColor = getSelectedColorFromSettings('uirs');
+        const bookingsColor = getSelectedColorFromSettings('centerBookings');
 
         const firColorRaw = getSelectedColorFromSettings('firs', true);
         const uirColorRaw = getSelectedColorFromSettings('uirs', true);
+        const bookingsColorRaw = getSelectedColorFromSettings('centerBookings', true);
 
         const defaultStyle = new Style({
             stroke: new Stroke({
@@ -310,10 +312,10 @@ function updateMap(map: Map | null) {
 
         const localBookingStyle = new Style({
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.07)`,
+                color: bookingsColor || `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.07)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
+                color: `rgba(${ bookingsColorRaw || getCurrentThemeRgbColor('lightgray125').join(',') }, 0.5)`,
                 width: 1,
             }),
             zIndex: 3,
@@ -343,10 +345,10 @@ function updateMap(map: Map | null) {
 
         const hoveredBookingStyle = new Style({
             fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.2)`,
+                color: `rgba(${ bookingsColorRaw || getCurrentThemeRgbColor('lightgray100').join(',') }, 0.2)`,
             }),
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('lightgray100').join(',') }, 0.6)`,
+                color: `rgba(${ bookingsColorRaw || getCurrentThemeRgbColor('lightgray100').join(',') }, 0.6)`,
                 width: 1,
             }),
             zIndex: 5,

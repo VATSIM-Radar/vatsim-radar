@@ -255,6 +255,8 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     force?: boolean;
     cid: number;
 }) {
+    if (icon === 'ball') rotation = 0;
+
     const store = useStore();
 
     const image = style.getImage();
@@ -330,7 +332,7 @@ const lineStyles: {
     width: number;
 }[] = [];
 
-export function getAircraftLineStyle(color: string | number | null, width = 2, lineDash?: number[]): Style {
+export function getAircraftLineStyle(color: string | number | null | undefined, width = 2, lineDash?: number[]): Style {
     const store = useStore();
 
     let hex = typeof color === 'string' ? color : getFlightRowColor(color);
@@ -379,7 +381,7 @@ export const useShowPilotStats = () => {
     });
 };
 
-export function getFlightRowColor(index: number | null, theme = useStore().theme) {
+export function getFlightRowColor(index: number | null | undefined, theme = useStore().theme) {
     if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
 
     const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
