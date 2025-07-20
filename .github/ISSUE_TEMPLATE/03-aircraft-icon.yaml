@@ -11,7 +11,7 @@ body:
         
         Before reporting, please also check existing requests in this repository - you can filter them by "aircraft icon" label.
         
-        Also please check [existing icons list](https://github.com/vatsim-radar/vatsim-radar/tree/next/src/assets/icons/aircraft) and [model matching](https://github.com/daniluk4000/vatsim-radar/blob/next/src/utils/icons.ts#L410). 
+        Also please check [existing icons list](https://github.com/vatsim-radar/vatsim-radar/tree/next/app/assets/icons/aircraft) and [model matching](https://github.com/daniluk4000/vatsim-radar/blob/next/app/utils/icons.ts#L410). 
         
         You can also suggest model matching improvement while we wait for icon to be drawn!
   - type: input

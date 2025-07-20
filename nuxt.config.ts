@@ -54,7 +54,7 @@ export default defineNuxtConfig({
                 'ol',
             ],
     },
-    srcDir: 'src/',
+    srcDir: 'app/',
     devtools: {
         enabled: false,
     },
@@ -66,7 +66,7 @@ export default defineNuxtConfig({
         server: true,
     },
     pinia: {
-        storesDirs: ['./src/store/**'],
+        storesDirs: ['./app/store/**'],
     },
     compatibilityDate: '2024-12-12',
     experimental: {
@@ -152,7 +152,7 @@ export default defineNuxtConfig({
         },
     },
     stylelint: {
-        files: ['src/**/*.scss', 'src/**/*.css', 'src/**/*.vue'],
+        files: ['app/**/*.scss', 'app/**/*.css', 'app/**/*.vue'],
         emitError: true,
         emitWarning: true,
         failOnWarning: false,
@@ -184,6 +184,11 @@ export default defineNuxtConfig({
     },
     typescript: {
         typeCheck: true,
+        tsConfig: {
+            compilerOptions: {
+                noUncheckedIndexedAccess: false,
+            },
+        },
     },
     pwa: {
         registerType: 'autoUpdate',
@@ -241,7 +246,6 @@ export default defineNuxtConfig({
             preprocessorMaxWorkers: true,
             preprocessorOptions: {
                 scss: {
-                    api: 'modern-compiler',
                     additionalData: `@use "~/scss/colors.scss" as *;@use "~/scss/variables.scss" as *;`,
                 },
             },

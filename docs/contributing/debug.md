@@ -72,4 +72,4 @@ Enter `PR ID` in Debug window mentioned above and click "Save". Wait a few secon
 ## Some notes
 
 1. Clear buttons are always highlighted, even if you didn't upload anything
-2. Files are saved under src/data/custom. You can even edit them directly, if you want! Just don't forget to set correct permissions, since Docker can usually mess with them and you won't have edit access
+2. Files are saved under app/data/custom. You can even edit them directly, if you want! Just don't forget to set correct permissions, since Docker can usually mess with them and you won't have edit access
