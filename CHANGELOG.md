@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-rc.2]
+- New icons from DotWallop: CL2T, V10, C68A, EPIC
+- Added model matching for F18H, F18S -> F18
+
 # [1.2.1-rc.1]
 
 - Fixed weather layer not updating automatically
