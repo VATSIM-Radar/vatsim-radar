@@ -259,7 +259,6 @@ const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 const isInit = ref(false);
-const map = inject<ShallowRef<Map | null>>('map')!;
 let feature: Feature | undefined;
 let depLine: Feature | undefined;
 let arrLine: Feature | undefined;
