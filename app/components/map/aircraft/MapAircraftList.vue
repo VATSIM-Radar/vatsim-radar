@@ -108,7 +108,7 @@ const getShownPilots = computed(() => {
 });
 
 async function setHoveredAircraft(aircraft: VatsimMandatoryPilot) {
-    await sleep(500);
+    await sleep(300);
     if (isManualHover.value === aircraft.cid) {
         hoveredAircraft.value = aircraft.cid;
     }
@@ -376,7 +376,7 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
         if (hadHover) return;
     }
 
-    sleep(500).then(() => {
+    sleep(300).then(() => {
         if (activePilotHover !== features[0].cid) return;
 
         isManualHover.value = null;

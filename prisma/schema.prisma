@@ -20,6 +20,8 @@ model User {
   discordId            String?
   discordStrategy      DiscordStrategy?
   showFriendsInProfile Boolean            @default(false)
+  privateMode          Boolean            @default(false)
+  privateUntil         DateTime?
   tokens               UserToken[]
   settings             Json?              @default("{}")
   presets              UserPreset[]

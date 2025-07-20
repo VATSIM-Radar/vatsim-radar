@@ -30,7 +30,10 @@
                 </div>
             </template>
             <template v-else-if="index === 1">
-                <common-spoiler type="controller">
+                <common-spoiler
+                    v-if="!controller.booking"
+                    type="controller"
+                >
                     <div
                         class="atc__controller"
                         :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"

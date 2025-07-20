@@ -44,6 +44,7 @@ import {
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
+import type { UserList } from '~/utils/backend/handlers/lists';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -429,6 +430,11 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             if (val) {
                 checkForVG();
             }
+        });
+
+        watch(() => store.lists.flatMap(x => x.users.filter(x => x.type !== 'offline' || x.hidden).map(x => x.cid)).join(','), async val => {
+            if (store.initStatus.status !== false) return;
+            store.user!.lists = await $fetch<UserList[]>('/api/user/lists');
         });
 
         initBookings();

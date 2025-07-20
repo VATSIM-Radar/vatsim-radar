@@ -1,6 +1,6 @@
 <template>
     <div
-        v-if="notams?.length"
+        v-if="notamsList.length"
         class="__info-sections notams"
     >
         <common-select
@@ -10,44 +10,58 @@
             width="100%"
             @update:modelValue="setUserLocalSettings({ filters: { notamsSortBy: $event as any } })"
         />
-        <common-copy-info-block :text="notams.map(x => x.formattedText ?? x.text).join('\n\n')"/>
+        <common-copy-info-block :text="notamsList.map(x => x.formattedText ?? x.text).join('\n\n')"/>
         <div
-            v-for="(notam, index) in notams"
-            :key="index"
-            class="notams_notam"
+            v-for="({ title, items }) in notams"
+            :key="title"
+            class="notams_list"
         >
-            <common-copy-info-block
-                auto-expand
-                :text="notam.text"
-            >
-                {{ notam.number }}
-                <template #prepend>
-                    <common-info-block :bottom-items="[notam.classification, getNotamType(notam.type)]">
-                        <template #top>
-                            <div class="notams__top">
-                                <span
-                                    v-if="notam.effectiveFrom || notam.effectiveTo"
-                                    class="notams__date"
-                                >
-                                    <template v-if="notam.effectiveFrom">
-                                        <strong>{{ notam.effectiveFrom.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveFrom)) }Z` : notam.effectiveFrom }}</strong>
-                                    </template>
-                                    <template v-if="notam.effectiveTo">
-                                        To <strong>{{ notam.effectiveTo.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveTo)) }Z` : notam.effectiveTo }}</strong>
-                                    </template>
-                                </span>
-                                <span
-                                    v-if="notam.schedule"
-                                    class="notams__calendar"
-                                >
-                                    <calendar-icon width="12"/>
-                                    {{ notam.schedule }}
-                                </span>
-                            </div>
+            <template v-if="items.length">
+                <common-block-title
+                    class="notams_list_title"
+                    remove-margin
+                >
+                    {{title}}
+                </common-block-title>
+                <div
+                    v-for="(notam, index) in items"
+                    :key="index"
+                    class="notams_notam"
+                >
+                    <common-copy-info-block
+                        auto-expand
+                        :text="notam.text"
+                    >
+                        {{ notam.number }}
+                        <template #prepend>
+                            <common-info-block :bottom-items="[notam.classification, getNotamType(notam.type)]">
+                                <template #top>
+                                    <div class="notams__top">
+                                        <span
+                                            v-if="notam.effectiveFrom || notam.effectiveTo"
+                                            class="notams__date"
+                                        >
+                                            <template v-if="notam.effectiveFrom">
+                                                <strong>{{ notam.effectiveFrom.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveFrom)) }Z` : notam.effectiveFrom }}</strong>
+                                            </template>
+                                            <template v-if="notam.effectiveTo">
+                                                To <strong>{{ notam.effectiveTo.startsWith('20') ? `${ formatDateDime.format(new Date(notam.effectiveTo)) }Z` : notam.effectiveTo }}</strong>
+                                            </template>
+                                        </span>
+                                        <span
+                                            v-if="notam.schedule"
+                                            class="notams__calendar"
+                                        >
+                                            <calendar-icon width="12"/>
+                                            {{ notam.schedule }}
+                                        </span>
+                                    </div>
+                                </template>
+                            </common-info-block>
                         </template>
-                    </common-info-block>
-                </template>
-            </common-copy-info-block>
+                    </common-copy-info-block>
+                </div>
+            </template>
         </div>
         <div class="__partner-info notams__info">
             <div class="__partner-info_image">
@@ -73,11 +87,11 @@ import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import { useStore } from '~/store';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 const data = injectAirport();
-const notams = computed(() => {
+const notamsList = computed(() => {
     const list = data.value.notams ?? [];
-
     const sortBy = store.localSettings.filters?.notamsSortBy ?? null;
 
     if (sortBy) {
@@ -99,6 +113,41 @@ const notams = computed(() => {
     }
 
     return list;
+});
+const notams = computed(() => {
+    const groups = {
+        future: {
+            title: 'Future',
+            items: [],
+        },
+        sevd: {
+            title: 'Last 7 days',
+            items: [],
+        },
+        thrd: {
+            title: 'Last 30 days',
+            items: [],
+        },
+        old: {
+            title: 'Older',
+            items: [],
+        },
+    } as Record<'future' | 'sevd' | 'thrd' | 'old', {
+        title: string;
+        items: VatsimAirportDataNotam[];
+    }>;
+
+    const currentDate = Date.now();
+
+    for (const notam of notamsList.value) {
+        const date = new Date(notam.effectiveFrom);
+        if (date.getTime() > currentDate) groups.future.items.push(notam);
+        else if (currentDate - date.getTime() < 1000 * 60 * 60 * 24 * 7) groups.sevd.items.push(notam);
+        else if (currentDate - date.getTime() < 1000 * 60 * 60 * 24 * 30) groups.thrd.items.push(notam);
+        else groups.old.items.push(notam);
+    }
+
+    return groups;
 });
 const store = useStore();
 
@@ -144,6 +193,18 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
 });
 </script>
 
+<style lang="scss">
+.airport_sections .notams_list_title{
+    position: sticky;
+    z-index: 2;
+    top: 12px;
+
+    padding: 8px 0;
+
+    background: $darkgray900;
+}
+</style>
+
 <style lang="scss" scoped>
 .notams {
     display: flex;
@@ -174,9 +235,17 @@ const formatDateDime = new Intl.DateTimeFormat('en-GB', {
         font-weight: bold;
     }
 
-    &_notam {
-        padding-top: 16px;
-        border-top: 1px solid $darkgray875;
+    &_list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &_notam{
+        &:not(:nth-child(2)) {
+            padding-top: 8px;
+            border-top: 1px solid $darkgray850;
+        }
     }
 }
 </style>

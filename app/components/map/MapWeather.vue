@@ -131,7 +131,6 @@ watch(transparencySettings, initLayer);
 
 onMounted(async () => {
     const interval = setInterval(() => {
-        if (weather.value !== 'rainViewer') return;
         initLayer();
     }, 1000 * 60 * 5);
 

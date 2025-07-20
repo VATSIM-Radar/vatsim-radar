@@ -274,7 +274,6 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Smart positioning for aircraft info popup',
-                status: 'next',
             },
             {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
@@ -368,17 +367,14 @@ const roadmap = reactive<Roadmap[]>([
             'Day/Night line',
             'Map settings market',
             'Google Play app',
-            'Simbrief integration',
             'ATC/Booking notification for active flight',
             'ECFMP integration',
-            '3D map view',
             'Twitch/streamers integration',
             'Aircraft collision prediction',
             {
                 title: 'Gates status in airport popup/dashboard',
                 description: 'It is to be decided do we really need this and where specifically',
             },
-            'Proper estimate arrival time',
         ],
     },
 ]);

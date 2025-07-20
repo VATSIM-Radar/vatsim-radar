@@ -222,13 +222,22 @@ export const useStore = defineStore('index', {
 
             return lists.map(list => ({
                 ...list,
-                users: list.users.map(user => ({
-                    ...user,
-                    ...foundUsers[user.cid] ?? {
-                        type: 'offline',
-                        data: undefined,
-                    },
-                } as UserListLiveUser)).sort((a, b) => {
+                users: list.users.map(user => {
+                    const data = {
+                        ...user,
+                        ...foundUsers[user.cid] ?? {
+                            type: 'offline',
+                            data: undefined,
+                        },
+                    } as UserListLiveUser;
+
+                    if (user.private) {
+                        data.hidden = data.type !== 'offline';
+                        data.type = 'offline';
+                    }
+
+                    return data;
+                }).sort((a, b) => {
                     const aOnline = a.type !== 'offline';
                     const bOnline = b.type !== 'offline';
 

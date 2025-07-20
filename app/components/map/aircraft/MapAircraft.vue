@@ -8,8 +8,10 @@
             :model-value="props.isHovered"
             :settings="{
                 position: getCoordinates,
-                offset: [15, -15],
+                offset: overlayOffset,
+                positioning: overlayPosition,
             }"
+            :style="{ '--overlay-width': `${ overlayWidth }px` }"
             :z-index="20"
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
@@ -185,6 +187,7 @@ import { onMounted } from 'vue';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
+import type { Map } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
 import type { MapAircraftStatus } from '~/composables/pilots';
@@ -215,6 +218,7 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
+import type { Positioning } from 'ol/Overlay';
 
 const props = defineProps({
     aircraft: {
@@ -255,6 +259,7 @@ const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 const isInit = ref(false);
+const map = inject<ShallowRef<Map | null>>('map')!;
 let feature: Feature | undefined;
 let depLine: Feature | undefined;
 let arrLine: Feature | undefined;
@@ -394,6 +399,11 @@ const activeCurrentOverlay = computed(() => mapStore.overlays.find(x => x.type =
 
 const isPropsHovered = computed(() => props.isHovered);
 const airportOverlayTracks = computed(() => props.canShowTracks);
+
+const overlayPosition = ref<Positioning>('top-left');
+const overlayOffset = ref<[number, number]>([15, -15]);
+const overlayWidth = 248;
+// const overlayMaxHeight = 212;
 
 const isOnGround = computed(() => isPilotOnGround(props.aircraft));
 
@@ -866,6 +876,7 @@ function clearLines() {
     clearLineFeatures();
     if (depLine) linesSource.value?.removeFeature(depLine);
     if (arrLine) linesSource.value?.removeFeature(arrLine);
+    delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
     mapStore.localTurns.delete(props.aircraft.cid);
 }
 
@@ -936,13 +947,11 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .aircraft-hover {
-    position: absolute;
-
     display: flex;
     flex-direction: column;
     gap: 8px;
 
-    width: 248px;
+    width: var(--overlay-width);
     padding: 8px;
     border-radius: 8px;
 

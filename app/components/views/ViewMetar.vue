@@ -114,7 +114,6 @@
                                 v-if="item.metarRaw"
                                 class="metar__item_body_textarea metar__item_body_textarea--metar"
                                 readonly
-                                rows="1"
                                 :value="item.metarRaw"
                             />
                             <common-button
@@ -159,7 +158,6 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import { parseMetar, parseTAFAsForecast } from 'metar-taf-parser';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import StarIcon from '@/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
@@ -240,17 +238,7 @@ const metars = computed(() => {
     return list.map(airport => ({
         icao: airport.icao,
         metarRaw: airport.metar,
-        metar: airport.metar
-            ? parseMetar(airport.metar, {
-                issued: new Date(),
-            })
-            : null,
         tafRaw: airport.taf,
-        taf: airport.taf
-            ? parseTAFAsForecast(airport.taf, {
-                issued: new Date(),
-            })
-            : null,
     }));
 });
 </script>
@@ -353,7 +341,6 @@ const metars = computed(() => {
                 resize: vertical;
 
                 width: 100%;
-                min-height: 2em;
                 padding: 8px;
                 border: none;
                 border-radius: 4px;
@@ -365,6 +352,8 @@ const metars = computed(() => {
                 background: $darkgray850;
                 outline: none;
                 box-shadow: none;
+
+                field-sizing: normal;
             }
         }
     }

@@ -179,12 +179,13 @@ export function getPlanInfluxDataForPilots() {
 }
 
 function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousAltitude, previousLogTime }: PreviousPilot): boolean {
+    const diff = Date.now() - previousLogTime;
+
     if (
         previousPilot.heading === pilot.heading && Math.abs(previousAltitude - pilot.altitude) < 100 && Math.abs(previousPilot.groundspeed - pilot.groundspeed) < 5
-    ) return false;
+    ) return diff > 1000 * 120;
     if (previousPilot.longitude === pilot.longitude && previousPilot.latitude === pilot.latitude) return false;
 
-    const diff = Date.now() - previousLogTime;
     const altitude = pilot.altitude;
     if (altitude > 30000) return diff > 1000 * 30;
     if (altitude > 20000) return diff > 1000 * 20;

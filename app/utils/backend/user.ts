@@ -6,6 +6,7 @@ import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { UserList } from '~/utils/backend/handlers/lists';
+import type { UserTrackingList } from '@prisma/client';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -58,6 +59,8 @@ export interface FullUser {
     settings: UserSettings;
     discordId: string | null;
     lists: UserList[];
+    privateMode: boolean;
+    privateUntil: string | null;
 }
 
 export interface UserSettings {
@@ -99,6 +102,8 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
                     },
                     discordId: true,
                     lists: true,
+                    privateMode: true,
+                    privateUntil: true,
                 },
             },
             accessTokenExpire: true,
@@ -164,8 +169,40 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             fullName: token.user.vatsim!.fullName,
             settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
             discordId: token.user.discordId,
-            lists: token.user.lists as unknown as UserList[],
+            privateMode: token.user.privateMode,
+            privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
+            lists: await filterUserLists(token.user.lists as unknown as UserList[]),
         };
     }
     return null;
+}
+
+export async function filterUserLists(_lists: Array<UserTrackingList | UserList>): Promise<UserList[]> {
+    const lists = _lists as UserList[];
+
+    const dbUsers = (await prisma.user.findMany({
+        where: {
+            vatsim: {
+                id: {
+                    in: lists.flatMap(x => x.users.map(x => x.cid.toString())),
+                },
+            },
+        },
+        select: {
+            privateMode: true,
+            vatsim: {
+                select: {
+                    id: true,
+                },
+            },
+        },
+    })).filter(x => x.privateMode).map(x => x.vatsim!.id);
+
+    for (const list of lists) {
+        for (const user of list.users) {
+            if (dbUsers.includes(user.cid.toString())) user.private = true;
+        }
+    }
+
+    return lists;
 }

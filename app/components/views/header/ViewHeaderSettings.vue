@@ -59,6 +59,34 @@
                         </div>
                     </template>
                 </common-info-block>
+                <common-info-block>
+                    <template #top>
+                        Private Mode<br>
+
+                        <small>
+                            Hide from everyone following you using "Favorite Lists" feature. You will still be visible on map in "default" color, as well as searchable.
+                        </small>
+                    </template>
+                    <template #bottom>
+                        <template v-if="store.user!.privateMode">
+                            <common-notification type="info">
+                                Active until {{store.user!.privateUntil ? `${ formatterTime.format(new Date(store.user!.privateUntil)) }Z` : 'disabled'}}
+                            </common-notification>
+                            <common-toggle
+                                model-value
+                                @update:modelValue="setPrivateMode(false)"
+                            >
+                                Deactivate
+                            </common-toggle>
+                        </template>
+                        <common-select
+                            :items="[{ value: '1h' }, { value: '3h' }, { value: '6h' }, { value: '12h' }, { value: '24h' }, { value: '7d' }, { value: null, text: 'Until disabled' }]"
+                            :model-value="null"
+                            placeholder="Choose mode"
+                            @update:modelValue="setPrivateMode($event as any)"
+                        />
+                    </template>
+                </common-info-block>
                 <common-button-group>
                     <common-button
                         :href="`https://stats.vatsim.net/stats/${ store.user!.cid }`"
@@ -222,6 +250,7 @@ import ViewHeaderList from '~/components/views/header/ViewHeaderList.vue';
 import type { UserListLive } from '~/utils/backend/handlers/lists';
 import { MAX_USER_LISTS } from '~/utils/shared';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const model = defineModel({ type: Boolean, required: true });
 const store = useStore();
@@ -267,6 +296,15 @@ watch(settings, () => {
     store.user!.settings = settings;
 });
 
+const formatterTime = computed(() => new Intl.DateTimeFormat(['de-DE'], {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'UTC',
+}));
+
 const newList = reactive<UserListLive>({
     id: -1,
     name: '',
@@ -275,6 +313,57 @@ const newList = reactive<UserListLive>({
     users: [],
     showInMenu: false,
 });
+
+async function setPrivateMode(expiration: '1h' | '3h' | '6h' | '12h' | '24h' | '7d' | null | false) {
+    if (expiration === false) {
+        await $fetch('/api/user/private', {
+            method: 'POST',
+            body: {
+                date: null,
+                enabled: false,
+            },
+        });
+
+        store.user!.privateMode = false;
+
+        return;
+    }
+
+    let date: number | null = null;
+    const currentDate = new Date();
+
+    switch (expiration) {
+        case '1h':
+            date = currentDate.setHours(currentDate.getHours() + 1);
+            break;
+        case '3h':
+            date = currentDate.setHours(currentDate.getHours() + 3);
+            break;
+        case '6h':
+            date = currentDate.setHours(currentDate.getHours() + 6);
+            break;
+        case '12h':
+            date = currentDate.setHours(currentDate.getHours() + 12);
+            break;
+        case '24h':
+            date = currentDate.setHours(currentDate.getHours() + 24);
+            break;
+        case '7d':
+            date = currentDate.setDate(currentDate.getDate() + 24);
+            break;
+    }
+
+    await $fetch('/api/user/private', {
+        method: 'POST',
+        body: {
+            date: date ? new Date(date).toISOString() : date,
+            enabled: true,
+        },
+    });
+
+    store.user!.privateMode = true;
+    store.user!.privateUntil = date !== null ? new Date(date).toISOString() : date;
+}
 
 const saveSort = async (sort: any) => {
     await $fetch('/api/user/settings', {

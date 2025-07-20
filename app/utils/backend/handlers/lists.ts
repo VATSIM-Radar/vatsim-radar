@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
-import { findUserByCookie } from '~/utils/backend/user';
+import { filterUserLists, findUserByCookie } from '~/utils/backend/user';
 import type { UserTrackingList } from '@prisma/client';
 import { prisma } from '~/utils/backend/prisma';
 import { UserTrackingListType } from '@prisma/client';
@@ -27,6 +27,8 @@ export interface UserListUser {
     cid: number;
     comment?: string;
     listName?: string;
+    private?: boolean;
+    hidden?: boolean;
 }
 
 export interface UserListLiveUserPilot extends UserListUser {
@@ -332,10 +334,10 @@ export async function handleListsEvent(event: H3Event) {
         }
         else if (event.method === 'GET') {
             if (id) {
-                return list;
+                return list ? (await filterUserLists([list]))[0] : null;
             }
             else {
-                return lists;
+                return await filterUserLists(lists);
             }
         }
         else {

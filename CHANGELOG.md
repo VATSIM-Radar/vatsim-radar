@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.1-rc.1]
+
+- Fixed weather layer not updating automatically
+- Added private mode to user settings, so you can hide from following you using favorite lists feature
+- Added NOTAMs grouping
+
 # [1.2.1-beta.3]
 
 - Fixed SIGMET click taking priority over VATGlasses controller info
