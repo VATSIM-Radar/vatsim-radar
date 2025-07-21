@@ -4457,14 +4457,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@protomaps/basemaps@npm:^5.5.0":
-  version: 5.5.0
-  resolution: "@protomaps/basemaps@npm:5.5.0"
+"@protomaps/basemaps@npm:^5.5.1":
+  version: 5.5.1
+  resolution: "@protomaps/basemaps@npm:5.5.1"
   dependencies:
     tsx: "npm:^4.19.4"
   bin:
     generate_style: src/cli.ts
-  checksum: 10c0/1d604dd56c82bcf2b504f1be24d27b549975aadeef91cabd82204bb2f35f798d4db2f738b5ce3cbf49845700c4312e261d7dd0325adcb5c04f49b9a3fe514939
+  checksum: 10c0/03294520f2f851ab7b7ca2187149858f54f381a37b79f82a09f8fcccf24da7ee631eacce48a9748ccf80087489bfeb326f9b7cc7e0e39a765f06325e82ef8c93
   languageName: node
   linkType: hard
 
@@ -5286,6 +5286,22 @@ __metadata:
   peerDependencies:
     eslint: ">=9.0.0"
   checksum: 10c0/3be1714219c07a926d6c24284597f5816f491495a2e9cc3c6d5f8e13a93fbec396d7f42cbd8097debef10bceb006788edbdb1bd46facc733e5bc3ea69e035a9c
+  languageName: node
+  linkType: hard
+
+"@stylistic/eslint-plugin@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@stylistic/eslint-plugin@npm:5.2.1"
+  dependencies:
+    "@eslint-community/eslint-utils": "npm:^4.7.0"
+    "@typescript-eslint/types": "npm:^8.37.0"
+    eslint-visitor-keys: "npm:^4.2.1"
+    espree: "npm:^10.4.0"
+    estraverse: "npm:^5.3.0"
+    picomatch: "npm:^4.0.3"
+  peerDependencies:
+    eslint: ">=9.0.0"
+  checksum: 10c0/260f9fd829a23a6f4512566b8c47992119fb2a353c20f6445137bea52a347d8fd75362138a07efd7aeecb96cb41ae9dfcab18fca0d4b2dbb62759f0f1e6d6b75
   languageName: node
   linkType: hard
 
@@ -17964,9 +17980,9 @@ __metadata:
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.2"
     "@prisma/client": "npm:^6.12.0"
-    "@protomaps/basemaps": "npm:^5.5.0"
+    "@protomaps/basemaps": "npm:^5.5.1"
     "@sentry/nuxt": "npm:^9.40.0"
-    "@stylistic/eslint-plugin": "npm:^5.2.0"
+    "@stylistic/eslint-plugin": "npm:^5.2.1"
     "@stylistic/stylelint-plugin": "npm:^3.1.3"
     "@turf/bearing": "npm:^7.2.0"
     "@turf/boolean-point-in-polygon": "npm:^7.2.0"
