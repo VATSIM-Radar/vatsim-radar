@@ -3,6 +3,7 @@ import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 
 export default defineEventHandler(async event => {
     if (!await validateDataReady(event)) return;
+    const config = useRuntimeConfig();
 
     const { type, data, key } = getRouterParams(event);
 
@@ -18,5 +19,5 @@ export default defineEventHandler(async event => {
         }
     }
 
-    return $fetch<Record<string, any>>(`http://navigraph:3000/item/${ type }/${ data }/${ key }`);
+    return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/item/${ type }/${ data }/${ key }`);
 });

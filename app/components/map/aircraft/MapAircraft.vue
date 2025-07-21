@@ -187,7 +187,6 @@ import { onMounted } from 'vue';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
-import type { Map } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
 import type { MapAircraftStatus } from '~/composables/pilots';

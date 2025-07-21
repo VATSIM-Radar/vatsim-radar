@@ -94,6 +94,7 @@ export default defineNuxtConfig({
 
         NAVIGRAPH_SERVER_ID: process.env.NAVIGRAPH_SERVER_ID,
         NAVIGRAPH_SERVER_SECRET: process.env.NAVIGRAPH_SERVER_SECRET,
+        NAVIGRAPH_HOST: process.env.NAVIGRAPH_HOST,
 
         VATSIM_CLIENT_ID: process.env.VATSIM_CLIENT_ID,
         VATSIM_CLIENT_SECRET: process.env.VATSIM_CLIENT_SECRET,

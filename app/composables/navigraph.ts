@@ -680,7 +680,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     return waypointDiff(previousWaypoint, a[0]) - waypointDiff(previousWaypoint, b[0]);
                 })[0];
 
-                if (smallest) {
+                if (smallest?.[0] && waypointDiff(previousWaypoint!, smallest[0]) < 500) {
                     coordinate = smallest[0];
 
                     if (smallest[1] === 'waypoint') {

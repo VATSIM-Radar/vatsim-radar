@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.1-rc.2]
+
+- (QA) Private mode will now be properly cleared up
+- Events will now be properly cleared up - and also in real time
+- Fixed flight plan waypoint spawning on another side of planet - max distance can now be 500NM
+- (QA) Once again fixed approaches parsing incorrectly
+
 # [1.2.1-rc.1]
 
 - Fixed weather layer not updating automatically

@@ -50,7 +50,7 @@ export function checkForUpdates() {
                     if (previousInProgress) return;
                     try {
                         previousInProgress = true;
-                        const { ready } = await $fetch('/api/data/status');
+                        const { ready } = await $fetch<{ ready: boolean }>('/api/data/status');
                         if (ready) {
                             resolve();
                             clearInterval(interval);

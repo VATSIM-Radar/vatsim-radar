@@ -88,6 +88,7 @@ export async function processDatabase(db: sqlite3.Database) {
 
 export async function getShortNavData(event: H3Event, type: 'current' | 'outdated') {
     if (!await validateDataReady(event)) return;
+    const config = useRuntimeConfig();
 
     if (type === 'current') {
         const user = await findAndRefreshFullUserByCookie(event);
@@ -101,7 +102,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
         }
     }
 
-    return $fetch<Record<string, any>>(`http://navigraph:3000/data/${ type }`);
+    return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/data/${ type }`);
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full' | 'all') {
@@ -121,7 +122,8 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
 
     const key = type === 'outdated' ? type : 'current';
 
-    if (request === 'all') return $fetch<Record<string, any>>(`http://navigraph:3000/airport/${ key }/${ airport }`);
-    if (request === 'short') return $fetch<Record<string, any>>(`http://navigraph:3000/airport/${ key }/${ airport }/${ group }`);
-    else return $fetch<Record<string, any>>(`http://navigraph:3000/airport/${ key }/${ airport }/${ group }/${ index }`);
+    const config = useRuntimeConfig();
+    if (request === 'all') return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }`);
+    if (request === 'short') return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }`);
+    else return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }/${ index }`);
 }

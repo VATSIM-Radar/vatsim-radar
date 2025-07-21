@@ -152,6 +152,18 @@ function clearTask() {
                 },
             },
         });
+
+        await prisma.user.updateMany({
+            data: {
+                privateMode: false,
+                privateUntil: null,
+            },
+            where: {
+                privateUntil: {
+                    lte: new Date(),
+                },
+            },
+        });
     }).catch(console.error);
 }
 

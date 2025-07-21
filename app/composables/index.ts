@@ -366,6 +366,6 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: boolean | string = '1.2';
+export const updatePopupActive: boolean | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 

@@ -65,6 +65,8 @@ export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[
             },
         });
 
+        if (!Array.isArray(data?.items)) return [];
+
         for (const notam of data.items) {
             const data = notam.properties.coreNOTAMData.notam;
 
