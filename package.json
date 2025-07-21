@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.2.1-rc.2",
+  "version": "1.2.1-rc.3",
   "private": true,
   "type": "module",
   "scripts": {
@@ -63,7 +63,7 @@
     "marked": "^16.1.1",
     "merge-ranges": "^1.0.2",
     "metar-taf-parser": "^9.1.2",
-    "nuxt": "^4.0.0",
+    "nuxt": "^4.0.1",
     "ol": "^10.6.1",
     "ol-mapbox-style": "^13.0.1",
     "pinia": "^3.0.3",
