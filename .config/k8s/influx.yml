@@ -26,7 +26,7 @@ spec:
         app: influx-v2
     spec:
       nodeSelector:
-        doks.digitalocean.com/node-pool: influx
+        doks.digitalocean.com/node-pool: influx-m
       imagePullSecrets:
         - name: ghcr-login-secret
       containers:
