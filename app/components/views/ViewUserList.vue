@@ -29,7 +29,7 @@
             <div class="users_user-container">
                 <div
                     class="users_user_status"
-                    :class="{ 'users_user_status--online': user.type !== 'offline' }"
+                    :class="{ 'users_user_status--online': user.type !== 'offline', 'users_user_status--hidden': user.hidden }"
                 />
                 <div class="users_user_info">
                     <div class="users_user_info_name">
@@ -291,6 +291,10 @@ if (!props.list) {
 
             &--online {
                 background: $success500;
+            }
+
+            &--hidden {
+                background: $error500;
             }
         }
 
