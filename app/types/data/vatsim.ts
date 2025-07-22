@@ -142,19 +142,22 @@ export interface VatsimBooking extends Omit<VatsimBookingData, 'division' | 'sub
 }
 
 export interface VatsimNattrak {
+    id: number;
     identifier: string;
     active: boolean;
     last_routeing: string;
-    valid_from: string;
-    valid_to: string;
+    valid_from: string | null;
+    valid_to: string | null;
     last_active: string;
     concorde: number;
-    flight_levels: number[];
+    flight_levels: number[] | null;
+    direction: 'west' | 'east' | null;
+    odd_or_even: 'even' | 'odd' | 'mixed';
 }
 
 export interface VatsimNattrakClient extends Omit<VatsimNattrak, 'valid_to' | 'valid_from'> {
-    valid_from: Date;
-    valid_to: Date;
+    valid_from: Date | null;
+    valid_to: Date | null;
 }
 
 export type VatsimBookingAtc = Omit<VatsimBooking, 'atc'>;

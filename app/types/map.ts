@@ -1,5 +1,10 @@
 import type { PartialRecord } from '~/types/index';
-import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
+import type {
+    VatsimNattrak,
+    VatsimShortenedAircraft,
+    VatsimShortenedController,
+    VatsimShortenedPrefile,
+} from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import type { Units } from 'ol/control/ScaleLine';
@@ -74,6 +79,7 @@ interface IUserLocalSettings {
     natTrak: {
         enabled?: boolean;
         showConcorde?: boolean;
+        direction?: VatsimNattrak['direction'] | 'both' | 'all';
     };
 
     distance: {

@@ -13,7 +13,7 @@
         <navigraph-route v-if="!store.localSettings.disableNavigraphRoute"/>
         <navigraph-nat
             v-if="store.localSettings.natTrak?.enabled"
-            :key="String(store.localSettings.natTrak?.showConcorde)"
+            :key="JSON.stringify(store.localSettings.natTrak)"
         />
         <map-overlay
             v-if="activeFeature"
@@ -133,24 +133,30 @@
                         v-else-if="activeFeature && isNat(activeFeature)"
                         class="layers__nat"
                     >
-                        <div class="__grid-info-sections __grid-info-sections--large-title">
+                        <div
+                            v-if="activeFeature.data.valid_from"
+                            class="__grid-info-sections __grid-info-sections--large-title"
+                        >
                             <div class="__grid-info-sections_title">
                                 Active from
                             </div>
                             <span>
-                                {{ datetime.format(activeFeature.data.validFrom) }}Z
+                                {{ datetime.format(activeFeature.data.valid_from) }}Z
                             </span>
                         </div>
-                        <div class="__grid-info-sections __grid-info-sections--large-title">
+                        <div
+                            v-if="activeFeature.data.valid_to"
+                            class="__grid-info-sections __grid-info-sections--large-title"
+                        >
                             <div class="__grid-info-sections_title">
                                 Active to
                             </div>
                             <span>
-                                {{ datetime.format(activeFeature.data.validTo) }}Z
+                                {{ datetime.format(activeFeature.data.valid_to) }}Z
                             </span>
                         </div>
                         <div
-                            v-if="activeFeature.data.flightLevels?.length"
+                            v-if="activeFeature.data.flight_levels?.length"
                             class="__grid-info-sections __grid-info-sections--large-title"
                         >
                             <div class="__grid-info-sections_title">
@@ -158,15 +164,34 @@
                             </div>
                             <div>
                                 <span
-                                    v-for="(level, index) in activeFeature.data.flightLevels"
+                                    v-for="(level, index) in activeFeature.data.flight_levels"
                                     :key="level + index"
                                 >
                                     FL{{level / 100}}
                                 </span>
                             </div>
                         </div>
+                        <div
+                            v-if="activeFeature.data.direction"
+                            class="__grid-info-sections __grid-info-sections--large-title"
+                        >
+                            <div class="__grid-info-sections_title">
+                                Direction
+                            </div>
+                            <div>
+                                <template v-if="activeFeature.data.direction === 'west'">
+                                    West
+                                </template>
+                                <template v-else-if="activeFeature.data.direction === 'east'">
+                                    East
+                                </template>
+                                <template v-else>
+                                    Bidirectional track
+                                </template>
+                            </div>
+                        </div>
                         <common-copy-info-block
-                            :text="activeFeature.data.route"
+                            :text="activeFeature.data.last_routeing"
                         >
                             Route
                         </common-copy-info-block>
@@ -198,6 +223,7 @@ import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.
 import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
 import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
+import type { VatsimNattrakClient } from '~/types/data/vatsim';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
@@ -231,14 +257,7 @@ const datetime = new Intl.DateTimeFormat(['ru-RU'], {
 interface NatFeature {
     coords: Coordinate;
     type: 'nat';
-    data: {
-        validFrom: Date;
-        validTo: Date;
-        flightLevels: number[];
-        route: string;
-        concorde: number;
-        identifier: string;
-    };
+    data: VatsimNattrakClient;
     additionalData?: Record<string, any>;
     properties: Record<string, any>;
 }
@@ -470,6 +489,38 @@ watch(map, val => {
             lineDash: [6, 12],
         });
 
+        const westTrack = new Style({
+            zIndex: 5,
+            text: new Text({
+                font: '15px Montserrat',
+                text: `←`,
+                placement: 'line',
+                keepUpright: true,
+                justify: 'center',
+                declutterMode: 'none',
+                rotateWithView: false,
+                fill: new Fill({
+                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.7)`,
+                }),
+            }),
+        });
+
+        const eastTrack = new Style({
+            zIndex: 5,
+            text: new Text({
+                font: '15px Montserrat',
+                text: `→`,
+                placement: 'line',
+                keepUpright: true,
+                justify: 'center',
+                declutterMode: 'none',
+                rotateWithView: false,
+                fill: new Fill({
+                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.7)`,
+                }),
+            }),
+        });
+
         function getStyle(feature: FeatureLike, fake: boolean): (Style | Array<Style> | undefined) {
             const properties = feature.getProperties();
 
@@ -639,25 +690,34 @@ watch(map, val => {
                     }
                 }
 
-                return new Style({
-                    stroke,
-                    zIndex: 5,
-                    text: showAirwaysLabels.value
-                        ? new Text({
-                            font: 'bold 10px Montserrat',
-                            text: `${ properties.identifier }`,
-                            placement: 'line',
-                            keepUpright: true,
-                            textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
-                            justify: 'center',
-                            padding: [6, 6, 6, 6],
-                            rotateWithView: false,
-                            fill: new Fill({
-                                color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
-                            }),
-                        })
-                        : undefined,
-                });
+                const style = [
+                    new Style({
+                        stroke,
+                        zIndex: 5,
+                        text: showAirwaysLabels.value
+                            ? new Text({
+                                font: 'bold 10px Montserrat',
+                                text: `${ properties.identifier }`,
+                                placement: 'line',
+                                keepUpright: true,
+                                textBaseline: properties.kind === 'nat' ? 'bottom' : undefined,
+                                offsetY: -4,
+                                justify: 'center',
+                                padding: [6, 6, 6, 6],
+                                rotateWithView: false,
+                                fill: new Fill({
+                                    color: properties.kind === 'nat' ? `rgba(${ getCurrentThemeRgbColor('primary500').join(',') }, 0.7)` : `rgba(${ getCurrentThemeRgbColor('primary300').join(',') }, 0.7)`,
+                                }),
+                            })
+                            : undefined,
+                    }),
+                ];
+
+                if (properties.kind === 'nat' && properties.direction) {
+                    style.push(properties.direction === 'west' ? westTrack : eastTrack);
+                }
+
+                return style;
             }
 
             if (properties.type === 'holdings') {

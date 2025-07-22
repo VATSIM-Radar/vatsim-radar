@@ -115,7 +115,13 @@ useClickOutside({
 
 const activeItems = computed<Array<SelectItemValueType>>(() => {
     if (Array.isArray(model.value)) return model.value;
-    return model.value === null ? [] : [model.value];
+
+    if (model.value === null) {
+        if (props.items.some(x => x.value === null)) return [model.value];
+        return [null];
+    }
+
+    return [model.value];
 });
 
 const shownValue = computed<string>(() => {

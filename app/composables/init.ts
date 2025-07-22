@@ -114,8 +114,8 @@ export function checkForVATSpy() {
 export const tracksExpired = computed(() => {
     const dataStore = useDataStore();
 
-    const closestDates = dataStore.vatsim.tracks.value.slice(0).sort((a, b) => a.valid_to.getTime() - b.valid_to.getTime());
-    const closestTime = closestDates[0]?.valid_to.getTime();
+    const closestDates = dataStore.vatsim.tracks.value.filter(x => x.active && x.valid_to && x.valid_from).slice(0).sort((a, b) => a.valid_to!.getTime() - b.valid_to!.getTime());
+    const closestTime = closestDates[0]?.valid_to!.getTime();
     if (!closestTime) return true;
 
     return dataStore.time.value > closestTime ? closestTime : false;
@@ -127,8 +127,8 @@ export function checkForTracks() {
 
         dataStore.vatsim.tracks.value = (await $fetch<VatsimNattrak[]>(`/api/data/tracks?d=${ !dataStore.vatsim.tracks.value.length ? '0' : tracksExpired.value }`)).map(x => ({
             ...x,
-            valid_from: new Date(x.valid_from),
-            valid_to: new Date(x.valid_to),
+            valid_from: x.valid_from ? new Date(x.valid_from) : null,
+            valid_to: x.valid_to ? new Date(x.valid_to) : null,
         }));
     });
 }

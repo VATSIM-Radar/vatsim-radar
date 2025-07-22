@@ -408,44 +408,42 @@ export async function updateAirlines() {
     await setRedisData('data-airlines', radarStorage.airlines, 1000 * 60 * 60 * 24 * 7);
 }
 
+function parseCoordinates(input: string) {
+    if (!input.includes('(')) return input;
+
+    const regex = /([A-Z]+\d+W)\s+\(([\d.]+)N\s+-(\d+(?:\.\d*)?)W\)/g;
+    const result = [];
+
+    let match;
+    while ((match = regex.exec(input)) !== null) {
+        const lat = parseFloat(match[2]);
+        const lon = parseFloat(match[3]);
+
+        // Преобразуем широту: 40.25 → 4025 (40°15′)
+        const latDeg = Math.floor(lat);
+        const latMin = Math.round((lat - latDeg) * 60);
+        const latStr = `${ latDeg.toString().padStart(2, '0') }${ latMin.toString().padStart(2, '0') }`;
+
+        // Преобразуем долготу: 52.3 → 5230 (52°18′)
+        const lonDeg = Math.floor(lon);
+        const lonMin = Math.round((lon - lonDeg) * 60);
+        const lonStr = `${ lonDeg.toString().padStart(2, '0') }${ lonMin.toString().padStart(2, '0') }`;
+
+        result.push(`${ latStr }/${ lonStr }`);
+    }
+
+    return result.join(' ');
+}
+
 export async function updateNattrak() {
-    const data = await $fetch<VatsimNattrak[]>('https://nattrak.vatsim.net/api/tracks', {
+    const data = await $fetch<VatsimNattrak[]>('https://nattrak.vatsim.net/api/v2/tracks/all', {
         retry: 3,
     });
 
-    radarStorage.vatsimStatic.tracks = [
-        ...data.filter(x => x.active && !x.concorde),
-        {
-            identifier: 'SM',
-            active: true,
-            last_routeing: '5041/15 5050/20 5030/30 4916/40 4703/50 4610/53 4414/60 4226/65 4200/67',
-            valid_from: '2005-01-01T08:00:00.000000Z',
-            valid_to: '2085-01-01T08:00:00.000000Z',
-            last_active: '2005-01-01T08:00:00.000000Z',
-            concorde: 1,
-            flight_levels: [],
-        },
-        {
-            identifier: 'SN',
-            active: true,
-            last_routeing: '4025/67 4110/65 4307/60 4510/5230 4554/50 4810/40 4926/30 4949/20 4941/15',
-            valid_from: '2005-01-01T08:00:00.000000Z',
-            valid_to: '2085-01-01T08:00:00.000000Z',
-            last_active: '2005-01-01T08:00:00.000000Z',
-            concorde: 1,
-            flight_levels: [],
-        },
-        {
-            identifier: 'SO',
-            active: true,
-            last_routeing: '4840/15 4848/20 4822/30 4704/40 4445/50 4410/52 4200/60',
-            valid_from: '2005-01-01T08:00:00.000000Z',
-            valid_to: '2085-01-01T08:00:00.000000Z',
-            last_active: '2005-01-01T08:00:00.000000Z',
-            concorde: 1,
-            flight_levels: [],
-        },
-    ];
+    radarStorage.vatsimStatic.tracks = data.map(x => ({
+        ...x,
+        last_routeing: parseCoordinates(x.last_routeing),
+    }));
     await setRedisData('data-nattrak', radarStorage.vatsimStatic.tracks, 1000 * 60 * 60 * 24 * 7);
 }
 

@@ -20,9 +20,14 @@ watch(dataStore.vatsim.tracks, async () => {
     source?.value.removeFeatures(features);
     features = [];
 
-    for (const track of dataStore.vatsim.tracks.value) {
+    for (const track of dataStore.vatsim.tracks.value.filter(x => x.active || (store.localSettings.natTrak?.showConcorde && x.concorde))) {
         if (!store.localSettings.natTrak?.showConcorde && track.concorde) continue;
         if (store.localSettings.natTrak?.showConcorde && !track.concorde) continue;
+        if (store.localSettings.natTrak?.direction) {
+            if (store.localSettings.natTrak?.direction === 'west' && track.direction !== 'west') continue;
+            if (store.localSettings.natTrak?.direction === 'east' && track.direction !== 'east') continue;
+            if (store.localSettings.natTrak?.direction === 'both' && track.direction !== null) continue;
+        }
         const waypoints = await buildNATWaypoints(track);
 
         for (let i = 0; i < waypoints.length; i++) {
@@ -42,15 +47,11 @@ watch(dataStore.vatsim.tracks, async () => {
 
             if (nextWaypoint?.coordinate) {
                 features.push(new Feature({
+                    ...track,
                     geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextWaypoint.coordinate as any, { npoints: 8 })),
                     key: '',
                     id: `${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`,
                     identifier: `Track ${ track.identifier }`,
-                    validFrom: track.valid_from,
-                    validTo: track.valid_to,
-                    flightLevels: track.flight_levels,
-                    concorde: track.concorde,
-                    route: track.last_routeing,
                     type: 'airways',
                     dataType: 'navdata',
                     kind: 'nat',

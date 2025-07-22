@@ -3,6 +3,7 @@
 # [1.2.1-rc.4]
 
 - Added events page auto update every 5 minutes if you stay on this page
+- Added natTrak direction filter and indicator, inactive routes parsing support
 
 # [1.2.1-rc.3]
 

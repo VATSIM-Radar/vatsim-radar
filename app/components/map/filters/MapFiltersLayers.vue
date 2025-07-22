@@ -65,13 +65,35 @@
                     >
                         NAT Tracks
                     </common-toggle>
+                </template>
+            </map-filter-columns>
+            <map-filter-columns
+                v-if="!!store.localSettings.natTrak?.enabled"
+                align-items="flex-start"
+            >
+                <template #col1>
                     <common-toggle
-                        v-if="!!store.localSettings.natTrak?.enabled"
                         :model-value="!!store.localSettings.natTrak?.showConcorde"
                         @update:modelValue="setUserLocalSettings({ natTrak: { showConcorde: $event } })"
                     >
                         Concorde tracks
                     </common-toggle>
+                </template>
+                <template #col2>
+                    <common-select
+                        :items="[
+                            { value: 'all', text: 'All' },
+                            { value: 'east', text: 'East' },
+                            { value: 'west', text: 'West' },
+                            { value: 'both', text: 'Bidirectional' },
+                        ]"
+                        :model-value="store.localSettings.natTrak?.direction ?? 'all'"
+                        @update:modelValue="setUserLocalSettings({ natTrak: { direction: $event as any } })"
+                    >
+                        <template #label>
+                            Tracks Direction
+                        </template>
+                    </common-select>
                 </template>
             </map-filter-columns>
 
