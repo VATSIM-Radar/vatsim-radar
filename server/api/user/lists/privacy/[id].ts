@@ -1,19 +1,18 @@
 import type { H3Event } from 'h3';
-import { findUserByCookie } from '~/utils/backend/user';
-import { handleH3Error } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
+import { isNext } from '~/utils/backend/debug';
 
 export default defineEventHandler(async (event: H3Event) => {
-    const user = await findUserByCookie(event);
-
-    if (!user) {
-        return handleH3Error({
-            event,
-            statusCode: 401,
-        });
-    }
-
     const id = getRouterParam(event, 'id');
+
+    if (isNext()) {
+        const request = await $fetch<{ isPrivate: boolean }>(`https://vatsim-radar.com/api/user/lists/privacy/${ id }`).catch(() => {});
+        if (request?.isPrivate) {
+            return {
+                isPrivate: true,
+            };
+        }
+    }
 
     const dbUser = (await prisma.user.findFirst({
         where: {

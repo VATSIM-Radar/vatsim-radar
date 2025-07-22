@@ -41,3 +41,7 @@ export function removeLocalFolder() {
 export function isDebug() {
     return process.env.VR_DEBUG === '1' || import.meta.dev || process.env.NODE_ENV === 'development';
 }
+
+export function isNext() {
+    return process.env.DOMAIN?.includes('next');
+}

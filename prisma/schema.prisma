@@ -22,6 +22,7 @@ model User {
   showFriendsInProfile Boolean            @default(false)
   privateMode          Boolean            @default(false)
   privateUntil         DateTime?
+  isSup                Boolean            @default(false)
   tokens               UserToken[]
   settings             Json?              @default("{}")
   presets              UserPreset[]

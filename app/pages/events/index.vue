@@ -37,7 +37,7 @@ import type { VatsimEvent } from '~/types/data/vatsim';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
 
-const { data } = await useAsyncData('events', async () => {
+const { data, refresh } = await useAsyncData('events', async () => {
     return $fetch<VatsimEventData>('/api/data/vatsim/events');
 });
 
@@ -77,8 +77,13 @@ onMounted(() => {
         currentDate.value = Date.now();
     }, 1000 * 10);
 
+    const checkInterval = setInterval(() => {
+        refresh();
+    }, 1000 * 60 * 5);
+
     onBeforeUnmount(() => {
         clearInterval(interval);
+        clearInterval(checkInterval);
     });
 });
 

@@ -7,6 +7,7 @@ import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/na
 import { handleH3Error } from '~/utils/backend/h3';
 import type { UserList } from '~/utils/backend/handlers/lists';
 import type { UserTrackingList } from '@prisma/client';
+import { isNext } from '~/utils/backend/debug';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {
     const cookie = getCookie(event, 'access-token');
@@ -61,6 +62,7 @@ export interface FullUser {
     lists: UserList[];
     privateMode: boolean;
     privateUntil: string | null;
+    isSup: boolean;
 }
 
 export interface UserSettings {
@@ -104,6 +106,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
                     lists: true,
                     privateMode: true,
                     privateUntil: true,
+                    isSup: true,
                 },
             },
             accessTokenExpire: true,
@@ -171,6 +174,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             discordId: token.user.discordId,
             privateMode: token.user.privateMode,
             privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
+            isSup: token.user.isSup,
             lists: await filterUserLists(token.user.lists as unknown as UserList[]),
         };
     }
@@ -201,6 +205,11 @@ export async function filterUserLists(_lists: Array<UserTrackingList | UserList>
     for (const list of lists) {
         for (const user of list.users) {
             if (dbUsers.includes(user.cid.toString())) user.private = true;
+
+            if (!user.private && isNext()) {
+                const request = await $fetch<{ isPrivate: boolean }>(`https://vatsim-radar.com/api/user/lists/privacy/${ user.cid }`).catch(() => {});
+                if (request?.isPrivate) user.private = true;
+            }
         }
     }
 

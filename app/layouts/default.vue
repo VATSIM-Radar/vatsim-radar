@@ -243,6 +243,18 @@ onMounted(() => {
 
         store.theme = theme.value;
     }
+
+    if (store.user?.isSup) {
+        $fetch('/api/user/supervisor', {
+            method: 'POST',
+            body: {
+                enabled: true,
+            },
+        }).catch(() => {
+            alert(`Uh oh, it seems you are no longer a sup, or an unknown issue in VATSIM Radar has occured. If first is true... We're sorry (and also removed sup flag from your account)`);
+            store.user!.isSup = false;
+        });
+    }
 });
 
 const policy = cookiePolicyStatus();

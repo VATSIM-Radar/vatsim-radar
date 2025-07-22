@@ -231,7 +231,7 @@ export const useStore = defineStore('index', {
                         },
                     } as UserListLiveUser;
 
-                    if (user.private) {
+                    if (user.private && !this.user?.isSup) {
                         data.hidden = data.type !== 'offline';
                         data.type = 'offline';
                     }

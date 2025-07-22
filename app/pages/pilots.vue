@@ -5,6 +5,15 @@
                 Pilots
             </template>
 
+            <common-toggle
+                align-left
+                :disabled="!store.user"
+                :model-value="!!store.user?.isSup"
+                @update:modelValue="setSupStatus"
+            >
+                I'm a supervisor
+            </common-toggle>
+
             <table>
                 <thead>
                     <tr>
@@ -77,8 +86,27 @@
 <script setup lang="ts">
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const { data: pilots, refresh } = useAsyncData('sup-pilots', () => $fetch<VatsimExtendedPilot[]>('/api/data/vatsim/data/pilots'));
+
+const store = useStore();
+
+async function setSupStatus(enabled: boolean) {
+    try {
+        await $fetch('/api/user/supervisor', {
+            method: 'POST',
+            body: {
+                enabled,
+            },
+        });
+        store.user!.isSup = enabled;
+    }
+    catch (e) {
+        console.error(e);
+        alert('You are not a supervisor, or an unknown issue has occurred');
+    }
+}
 
 onMounted(() => {
     const interval = setInterval(() => {

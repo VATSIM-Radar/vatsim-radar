@@ -59,7 +59,8 @@ export async function deleteUserList(list: Partial<UserList> & { id: number }) {
 }
 
 export function getUserList(cid: number): UserList | null {
-    return useStore().user?.lists.find(x => x.users.some(x => x.cid === cid && !x.private)) ?? null;
+    const store = useStore();
+    return store.user?.lists.find(x => x.users.some(x => x.cid === cid && (!x.private || store.user?.isSup))) ?? null;
 }
 
 export function sortList(users: UserListLiveUser[]) {

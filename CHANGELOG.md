@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-rc.4]
+
+- Added events page auto update every 5 minutes if you stay on this page
+
 # [1.2.1-rc.3]
 
 - (QA) Private mode will now be properly cleared up
