@@ -83,6 +83,7 @@
             No flight plan uploaded
         </common-notification>
         <common-bubble
+            v-if="flightPlan?.locked"
             size="M"
             type="secondary"
         >
