@@ -1,9 +1,10 @@
+import type { BARS, BARSShort, VatsimStorage } from '../storage';
 import { radarStorage } from '../storage';
-import type { BARSShort, BARS } from '../storage';
 import type { VatsimData } from '~/types/data/vatsim';
 import {
     updateVatsimDataStorage,
-    updateVatsimExtendedPilots, updateVatsimMandatoryDataStorage,
+    updateVatsimExtendedPilots,
+    updateVatsimMandatoryDataStorage,
 } from '~/utils/backend/vatsim/update';
 import { getAirportsList, getATCBounds, getLocalATC } from '~/utils/data/vatsim';
 import { influxDBWriteMain, influxDBWritePlans, initInfluxDB } from '~/utils/backend/influx/influx';
@@ -15,6 +16,9 @@ import { getRedis } from '~/utils/backend/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/backend';
 import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/backend/tasks';
 import { getLocalText, isDebug } from '~/utils/backend/debug';
+import { prisma } from '~/utils/backend/prisma';
+
+import type { RadarNotam } from '~/utils/shared/vatsim';
 
 initWebsocket();
 initInfluxDB();
@@ -591,6 +595,12 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.airports = await getAirportsList();
         radarStorage.vatsim.locals = radarStorage.vatsim.locals.filter(x => !x.atc.isBooking);
 
+        radarStorage.vatsim.notam = await prisma.notams.findFirst({
+            where: {
+                active: true,
+            },
+        }) as RadarNotam | null;
+
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();
             const pilots = getShortInfluxDataForPilots();
@@ -632,7 +642,17 @@ defineCronJob('* * * * * *', async () => {
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);
-            redisPublisher.publish('data', JSON.stringify(radarStorage.vatsim), err => {
+            redisPublisher.publish('data', JSON.stringify({
+                data: radarStorage.vatsim.data,
+                regularData: radarStorage.vatsim.regularData,
+                mandatoryData: radarStorage.vatsim.mandatoryData,
+                extendedPilots: radarStorage.vatsim.extendedPilots,
+                firs: radarStorage.vatsim.firs,
+                locals: radarStorage.vatsim.locals,
+                airports: radarStorage.vatsim.airports,
+                transceivers: radarStorage.vatsim.transceivers,
+                notam: radarStorage.vatsim.notam,
+            } satisfies Omit<VatsimStorage, 'kafka' | 'australia'>), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
                 resolve();
