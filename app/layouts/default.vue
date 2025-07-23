@@ -179,6 +179,7 @@ import * as Sentry from '@sentry/nuxt';
 import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
+import { isFetchError } from '~/utils/shared';
 
 defineSlots<{ default: () => any }>();
 
@@ -250,9 +251,13 @@ onMounted(() => {
             body: {
                 enabled: true,
             },
-        }).catch(() => {
-            alert(`Uh oh, it seems you are no longer a sup, or an unknown issue in VATSIM Radar has occured. If first is true... We're sorry (and also removed sup flag from your account)`);
-            store.user!.isSup = false;
+        }).catch(e => {
+            if (isFetchError(e)) {
+                if (e.status === 403) {
+                    alert(`Uh oh, it seems you are no longer a sup, or an unknown issue in VATSIM Radar has occurred. We're sorry (and also removed sup flag from your account)`);
+                    store.user!.isSup = false;
+                }
+            }
         });
     }
 });

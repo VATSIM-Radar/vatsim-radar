@@ -40,7 +40,7 @@ import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import type { TooltipLocation } from '~/components/common/basic/CommonTooltip.vue';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 
-export interface RadioItem<T extends string | number | null = string | number | null> {
+export interface RadioItem<T extends string | number | boolean | null = string | number | boolean | null> {
     value: T;
     text?: string;
     hint?: string;

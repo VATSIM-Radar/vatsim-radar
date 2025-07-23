@@ -208,6 +208,10 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportCounterLimit: val => {
         return isNumber(val, 0) && val >= 0 && val <= 1000;
     },
+    aircraftHoverDelay: val => {
+        if (typeof val === 'boolean') return true;
+        return isNumber(val, 0) && val >= 0 && val <= 10000;
+    },
     navigraphData: val => {
         if (!isObject(val)) return false;
         if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
@@ -279,6 +283,7 @@ export interface IUserMapSettings {
     bookingsLocalTimezone?: boolean;
     disableQueryUpdate?: boolean;
     shortAircraftView?: boolean;
+    aircraftHoverDelay?: number | boolean;
     defaultAirportZoomLevel: number;
     heatmapLayer: boolean;
     highlightEmergency: boolean;

@@ -109,6 +109,15 @@
                 </common-toggle>
             </template>
         </map-filter-columns>
+        <common-select
+            :items="[{ value: true, text: 'Default (400ms)' }, { value: 150, text: '150ms' }, { value: 300, text: '300ms' }, { value: 750, text: '750ms' }, { value: 1000, text: '1 second' }, { value: false, text: 'Disabled (no delay)' }]"
+            :model-value="store.mapSettings.aircraftHoverDelay ?? true"
+            @update:modelValue="setUserMapSettings({ aircraftHoverDelay: $event as any })"
+        >
+            <template #label>
+                Aircraft hover delay duration
+            </template>
+        </common-select>
         <common-notification
             cookie-name="settings-emergency"
             type="info"

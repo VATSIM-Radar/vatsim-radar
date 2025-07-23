@@ -36,7 +36,7 @@ import CommonRadio from '~/components/common/basic/CommonRadio.vue';
 import type { RadioItem } from '~/components/common/basic/CommonRadio.vue';
 import type { PropType } from 'vue';
 
-export interface RadioItemGroup<T extends string | number | null = string | number | null> extends RadioItem<T> {
+export interface RadioItemGroup<T extends string | number | boolean | null = string | number | boolean | null> extends RadioItem<T> {
     key?: string;
 }
 defineProps({

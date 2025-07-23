@@ -85,7 +85,6 @@
                             { value: 'all', text: 'All' },
                             { value: 'east', text: 'East' },
                             { value: 'west', text: 'West' },
-                            { value: 'both', text: 'Bidirectional' },
                         ]"
                         :model-value="store.localSettings.natTrak?.direction ?? 'all'"
                         @update:modelValue="setUserLocalSettings({ natTrak: { direction: $event as any } })"

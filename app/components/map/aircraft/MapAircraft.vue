@@ -293,7 +293,7 @@ const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
     if (props.isHovered) return 'hover';
 
-    const isEmergency = store.mapSettings.highlightEmergency && (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7500');
+    const isEmergency = store.mapSettings.highlightEmergency && (pilot.value?.transponder === '7700' || pilot.value?.transponder === '7600' || pilot.value?.transponder === '7601' || pilot.value?.transponder === '7500');
 
     if (isEmergency) {
         return 'landed';
@@ -426,18 +426,18 @@ const changeState = computed(() => {
 });
 
 async function setState(val?: string, oldVal?: string) {
-    if (!isInit.value || (val && oldVal && val === oldVal)) return;
+    if (!isInit.value || val === oldVal) return;
 
     canShowLines.value = !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
+
+    if (!canShowLines.value) {
+        clearLines();
+    }
 
     await Promise.allSettled([
         setStyle(),
         toggleAirportLines(),
     ]);
-
-    if (!canShowLines.value) {
-        clearLines();
-    }
 }
 
 watch(changeState, setState);
@@ -875,6 +875,7 @@ function clearLines() {
     if (depLine) linesSource.value?.removeFeature(depLine);
     if (arrLine) linesSource.value?.removeFeature(arrLine);
     delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+    triggerRef(dataStore.navigraphWaypoints);
     mapStore.localTurns.delete(props.aircraft.cid);
 }
 

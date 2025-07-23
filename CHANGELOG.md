@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.1-rc.5]
+
+- Fixed aircraft lines sometimes not clearing up - it should also happen faster now
+- (QA) Fixed responsiveness of new aircraft hovering system
+- Added an ability to modify or disable new hovering system
+- Added support for 7601 emergency squawk code
+
 # [1.2.1-rc.4]
 
 - Added events page auto update every 5 minutes if you stay on this page

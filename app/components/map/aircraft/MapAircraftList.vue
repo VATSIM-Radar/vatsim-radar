@@ -73,6 +73,7 @@ function receiveMessage(event: MessageEvent) {
 }
 
 const showTracks = shallowRef<{ show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }[]>([]);
+const hoverDelay = computed(() => (store.mapSettings.aircraftHoverDelay === undefined || store.mapSettings.aircraftHoverDelay === true) ? 400 : store.mapSettings.aircraftHoverDelay);
 
 const getShownPilots = computed(() => {
     if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return dataStore.visiblePilots.value;
@@ -108,7 +109,9 @@ const getShownPilots = computed(() => {
 });
 
 async function setHoveredAircraft(aircraft: VatsimMandatoryPilot) {
-    await sleep(300);
+    if (hoverDelay.value !== false) {
+        await sleep(hoverDelay.value as number);
+    }
     if (isManualHover.value === aircraft.cid) {
         hoveredAircraft.value = aircraft.cid;
     }
@@ -330,8 +333,7 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 
     let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
-    const hadHover = activePilotHover;
-    activePilotHover = null;
+    activePilotHover = features[0]?.cid ?? null;
 
     // we have more than one aircraft within the tolerance, so we need to find the closest one
     if (features.length > 1) {
@@ -370,19 +372,22 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 
     mapStore.mapCursorPointerTrigger = 1;
 
-    if (!activePilotHover) {
-        activePilotHover = features[0].cid;
-
-        if (hadHover) return;
-    }
-
-    sleep(300).then(() => {
-        if (activePilotHover !== features[0].cid) return;
-
+    async function setAircraft() {
         isManualHover.value = null;
+        hoveredAircraft.value = null;
+        await nextTick();
         hoveredAircraft.value = features[0].cid;
         mapStore.mapCursorPointerTrigger = 1;
-    });
+    }
+
+    if (hoverDelay.value !== false) {
+        sleep(hoverDelay.value as number).then(() => {
+            if (activePilotHover !== features[0].cid || hoveredAircraft.value === features[0].cid || isManualHover.value === features[0].cid) return;
+
+            setAircraft();
+        });
+    }
+    else setAircraft();
 }
 
 async function handleClick(e: MapBrowserEvent<any>) {
