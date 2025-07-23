@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-rc.6]
+
+- Add "Verified by ATC" label to locked flight plans
+
 # [1.2.1-rc.5]
 
 - Fixed aircraft lines sometimes not clearing up - it should also happen faster now

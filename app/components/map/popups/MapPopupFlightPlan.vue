@@ -12,6 +12,7 @@
                 </template>
                 Weather Request
             </common-button>
+
             <common-pilot-destination
                 :pilot="{
                     departure: flightPlan.departure,
@@ -81,6 +82,12 @@
         <common-notification v-else>
             No flight plan uploaded
         </common-notification>
+        <common-bubble
+            size="M"
+            type="secondary"
+        >
+            Verified by ATC
+        </common-bubble>
         <common-copy-info-block
             v-if="flightPlan?.route"
             :text="flightPlan.route"
@@ -115,6 +122,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
 import { useStore } from '~/store';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 
 const props = defineProps({
     flightPlan: {

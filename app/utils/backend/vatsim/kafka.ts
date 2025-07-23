@@ -154,6 +154,10 @@ export function kafkaUpdatePlan(event: KafkaPlan) {
             });
             return;
         }
+        else {
+            pilot.date = Date.now();
+            pilot.flight_plan = fields;
+        }
     }
 
     pilot.flight_plan = fields;
