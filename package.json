@@ -77,7 +77,7 @@
     "vite-plugin-pwa": "^1.0.1",
     "vite-svg-loader": "^5.1.0",
     "vitepress": "^1.6.3",
-    "vue": "^3.5.17",
+    "vue": "^3.5.18",
     "vue-chartjs": "^5.3.2",
     "vue-draggable-plus": "^0.6.0",
     "vue-router": "^4.5.1",
