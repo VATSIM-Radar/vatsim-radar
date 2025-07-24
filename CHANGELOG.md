@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.1-rc.7]
+
+- Fixed more airways being parsing incorrectly
+
 # [1.2.1-rc.6]
 
 - Add "Verified by ATC" label to locked flight plans

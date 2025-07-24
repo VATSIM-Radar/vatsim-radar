@@ -5,6 +5,8 @@ export function initIDBData<T>(getFunction: () => Promise<T>): () => Promise<T> 
     let gettingData = false;
 
     return async function() {
+        if (typeof window === 'undefined') throw new Error('Server interval set');
+
         if (gettingData) {
             return new Promise<T>((resolve, reject) => {
                 const interval = setInterval(() => {

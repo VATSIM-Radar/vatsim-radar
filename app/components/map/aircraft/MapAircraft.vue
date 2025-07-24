@@ -874,8 +874,11 @@ function clearLines() {
     clearLineFeatures();
     if (depLine) linesSource.value?.removeFeature(depLine);
     if (arrLine) linesSource.value?.removeFeature(arrLine);
+    const hadWaypoint = dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
     delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
-    triggerRef(dataStore.navigraphWaypoints);
+    if (hadWaypoint) {
+        triggerRef(dataStore.navigraphWaypoints);
+    }
     mapStore.localTurns.delete(props.aircraft.cid);
 }
 
