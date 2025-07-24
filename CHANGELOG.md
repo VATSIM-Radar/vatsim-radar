@@ -10,7 +10,7 @@
 
 - Add "Verified by ATC" label to locked flight plans
 
-# [1.2.1-rc.5]a
+# [1.2.1-rc.5]
 
 - Fixed aircraft lines sometimes not clearing up - it should also happen faster now
 - (QA) Fixed responsiveness of new aircraft hovering system
