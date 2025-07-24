@@ -119,7 +119,7 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
         waypoint_ref_table: string;
     }>({
         db,
-        sql: 'SELECT area_code, flightlevel, icao_code, direction_restriction, inbound_course, inbound_distance, maximum_altitude, minimum_altitude1, minimum_altitude2, outbound_course, route_identifier, route_type, seqno, waypoint_description_code, waypoint_identifier, waypoint_latitude, waypoint_longitude, waypoint_ref_table FROM tbl_er_enroute_airways ORDER BY seqno ASC',
+        sql: 'SELECT area_code, flightlevel, icao_code, direction_restriction, inbound_course, inbound_distance, maximum_altitude, minimum_altitude1, minimum_altitude2, outbound_course, route_identifier, route_type, seqno, waypoint_description_code, waypoint_identifier, waypoint_latitude, waypoint_longitude, waypoint_ref_table FROM tbl_er_enroute_airways',
         table: 'tbl_er_enroute_airways',
     });
 
@@ -138,13 +138,11 @@ export const processNavdataAirways: NavdataProcessFunction = async ({ fullData, 
         const nextAirways: typeof airways = [airway];
 
         let k = i + 1;
-        let seqno = airway.seqno;
         let nextItem = airways[k];
 
-        while (nextItem && nextItem.seqno > seqno && airway.route_identifier === nextItem.route_identifier) {
+        while (nextItem && airway.route_identifier === nextItem.route_identifier && airway.seqno < nextItem.seqno) {
             nextAirways.push(nextItem);
             k++;
-            seqno = nextItem.seqno;
             nextItem = airways[k];
         }
 

@@ -1,10 +1,12 @@
 # Changelog
 
 # [1.2.1-rc.7]
+
 - New icons from DotWallop: CL30, C919
 - Improved model matching for several helicopter models
 - Removed some invalid ICAO codes from model matching
 - Refactored and did some tidying up in the model matching file
+- Fixed more airways being parsing incorrectly
 
 # [1.2.1-rc.6]
 

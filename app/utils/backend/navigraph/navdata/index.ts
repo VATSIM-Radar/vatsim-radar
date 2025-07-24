@@ -1,7 +1,7 @@
 import type sqlite3 from 'sqlite3';
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
 import type { H3Event } from 'h3';
-import { handleH3Error, validateDataReady } from '~/utils/backend/h3';
+import { handleH3Error, handleH3Exception, validateDataReady } from '~/utils/backend/h3';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { processNavdataNDB, processNavdataVHF } from '~/utils/backend/navigraph/navdata/vordme';
 import {
@@ -123,7 +123,12 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
     const key = type === 'outdated' ? type : 'current';
 
     const config = useRuntimeConfig();
-    if (request === 'all') return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }`);
-    if (request === 'short') return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }`);
-    else return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }/${ index }`);
+    try {
+        if (request === 'all') return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }`);
+        if (request === 'short') return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }`);
+        else return await $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/airport/${ key }/${ airport }/${ group }/${ index }`);
+    }
+    catch (e) {
+        handleH3Exception(event, e);
+    }
 }
