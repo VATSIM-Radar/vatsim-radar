@@ -325,7 +325,7 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'NOTAMs grouping',
-                status: 'todo',
+                status: 'completed',
             },
             {
                 title: 'METAR request',
