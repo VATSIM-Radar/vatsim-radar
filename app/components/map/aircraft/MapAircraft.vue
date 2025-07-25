@@ -419,14 +419,14 @@ const changeState = computed(() => {
     const values = [
         isInit.value,
         !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
-        dataStore.vatsim.updateTimestamp,
+        dataStore.vatsim.updateTimestamp.value,
     ];
 
     return values.map(x => String(x)).join(',');
 });
 
 async function setState(val?: string, oldVal?: string) {
-    if (!isInit.value || val === oldVal) return;
+    if (!isInit.value || ((val !== undefined || oldVal !== undefined) && val === oldVal)) return;
 
     canShowLines.value = !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status);
 
