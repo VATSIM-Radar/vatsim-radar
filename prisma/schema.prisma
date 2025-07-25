@@ -137,7 +137,7 @@ enum NotamType {
 model Notams {
   id          Int       @id @default(autoincrement())
   type        NotamType
-  text        String
+  text        String    @db.Text
   activeFrom  DateTime?
   activeTo    DateTime?
   dismissable Boolean
