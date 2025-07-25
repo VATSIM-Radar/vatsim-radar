@@ -1,6 +1,8 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'c919'
+    | 'cl30'
     | 'epic'
     | 'c68a'
     | 'v10'
@@ -288,6 +290,14 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    c919: {
+        icon: 'c919',
+        width: getAircraftSizeByCoef(0.60),
+    },
+    cl30: {
+        icon: 'cl30',
+        width: getAircraftSizeByCoef(0.35),
+    },
     epic: {
         icon: 'epic',
         width: getAircraftSizeByCoef(0.22),
@@ -1360,6 +1370,24 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'AS32':
+            return aircraftIcons.as32;
+        case 'B06T':
+            return aircraftIcons.b06;
+        case 'B427':
+        case 'B429':
+        case 'B430':
+            return aircraftIcons.b407;
+        case 'EN28':
+            return aircraftIcons.g2ca;
+        case 'ES11':
+        case 'EXEC':
+        case 'EXEJ':
+            return aircraftIcons.r22;
+        case 'FH11':
+            return aircraftIcons.r66;
+        case 'PSW4':
+            return aircraftIcons.as50;
         case 'F18H':
         case 'F18S':
             return aircraftIcons.f18;
@@ -1424,66 +1452,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'A30B':
         case 'A30F':
             return aircraftIcons.a300;
-        case 'A310':
-            return aircraftIcons.a310;
-        case 'A318':
-            return aircraftIcons.a318;
-        case 'A319':
-            return aircraftIcons.a319;
-        case 'A321':
         case 'A21N':
             return aircraftIcons.a321;
-        case 'A225':
-            return aircraftIcons.a225;
-        case 'A124':
-            return aircraftIcons.a124;
-        case 'A332':
-            return aircraftIcons.a332;
-        case 'A333':
-            return aircraftIcons.a333;
-        case 'A342':
-            return aircraftIcons.a342;
-        case 'A343':
-            return aircraftIcons.a343;
-        case 'A359':
-            return aircraftIcons.a359;
-        case 'A35K':
-            return aircraftIcons.a35k;
-        case 'A388':
-            return aircraftIcons.a388;
-        case 'DC6':
-            return aircraftIcons.dc6;
-        case 'MD11':
         case 'MD1F':
             return aircraftIcons.md11;
         case 'MD82':
         case 'MD83':
         case 'MD88':
             return aircraftIcons.md80;
-        case 'B703':
-            return aircraftIcons.b703;
-        case 'B712':
-            return aircraftIcons.b712;
-        case 'B773':
-            return aircraftIcons.b773;
         case 'B77F':
             return aircraftIcons.b77l;
-        case 'B772':
-            return aircraftIcons.b772;
-        case 'B788':
-            return aircraftIcons.b788;
-        case 'B789':
-            return aircraftIcons.b789;
-        case 'B78X':
-            return aircraftIcons.b78x;
-        case 'CONC':
-            return aircraftIcons.conc;
-        case 'T134':
-            return aircraftIcons.t134;
-        case 'T144':
-            return aircraftIcons.t144;
-        case 'T154':
-            return aircraftIcons.t154;
         case 'B74F':
             return aircraftIcons.b74s;
         case 'B48F':
@@ -1525,7 +1503,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'AW101':
             return aircraftIcons.eh10;
         case 'C700':
-        case 'C750':
             return aircraftIcons.c750;
         case 'A109':
         case 'A119':
@@ -1535,34 +1512,24 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'ALO2':
         case 'ALO3':
         case 'AS3B':
-        case 'B06T':
+        case 'AS55':
+        case 'AS65':
         case 'B212':
         case 'B214':
-        case 'B230':
         case 'B222':
+        case 'B230':
         case 'B412':
-        case 'B427':
-        case 'B429':
-        case 'B430':
         case 'B47G':
         case 'B47J':
-        case 'BABY':
         case 'BK17':
         case 'BRB2':
         case 'BSTP':
         case 'CH7':
         case 'CHIF':
-        case 'COMU':
         case 'DJIN':
-        case 'DRAG':
         case 'DYH2':
         case 'ELTO':
-        case 'EN28':
-        case 'ES11':
-        case 'EXEC':
-        case 'EXEJ':
         case 'EXPL':
-        case 'FH11':
         case 'FREL':
         case 'GAZL':
         case 'H12T':
@@ -1571,13 +1538,13 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'H53':
         case 'H53S':
         case 'HUCO':
-        case 'K226':
         case 'K126':
+        case 'K226':
         case 'KA25':
         case 'KA26':
         case 'KA50':
-        case 'KA62':
         case 'KA52':
+        case 'KA62':
         case 'KMAX':
         case 'LAMA':
         case 'LR2T':
@@ -1588,23 +1555,22 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'MH20':
         case 'MI10':
         case 'MI2':
-        case 'MI8':
         case 'MI24':
         case 'MI26':
         case 'MI28':
         case 'MI34':
         case 'MI38':
+        case 'MI8':
         case 'NA40':
         case 'NH90':
-        case 'PSW4':
         case 'PHIL':
         case 'PUMA':
         case 'R4':
         case 'RMOU':
         case 'RP1':
         case 'RVAL':
-        case 'S278':
         case 'S274':
+        case 'S278':
         case 'S330':
         case 'S51':
         case 'S52':
@@ -1624,8 +1590,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'WASP':
         case 'WG30':
         case 'X2':
-        case 'AS65':
-        case 'AS55':
         case 'X49':
         case 'YNHL':
         case 'ZA6':
@@ -1668,6 +1632,53 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'AT75':
         case 'AT76':
             return aircraftIcons.at7x;
+        case 'A10':
+        case 'A124':
+        case 'A139':
+        case 'A149':
+        case 'A169':
+        case 'A189':
+        case 'A20N':
+        case 'A225':
+        case 'A310':
+        case 'A318':
+        case 'A319':
+        case 'A321':
+        case 'A332':
+        case 'A333':
+        case 'A338':
+        case 'A339':
+        case 'A342':
+        case 'A343':
+        case 'A345':
+        case 'A346':
+        case 'A359':
+        case 'A35K':
+        case 'A388':
+        case 'A3ST':
+        case 'A400':
+        case 'A748':
+        case 'AN2':
+        case 'AN24':
+        case 'AS50':
+        case 'ATP':
+        case 'B06':
+        case 'B1':
+        case 'B105':
+        case 'B190':
+        case 'B2':
+        case 'B350':
+        case 'B37M':
+        case 'B38M':
+        case 'B39M':
+        case 'B407':
+        case 'B462':
+        case 'B463':
+        case 'B703':
+        case 'B712':
+        case 'B720':
+        case 'B721':
+        case 'B722':
         case 'B731':
         case 'B732':
         case 'B733':
@@ -1677,226 +1688,207 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'B737':
         case 'B738':
         case 'B739':
-        case 'B462':
-        case 'B463':
         case 'B741':
         case 'B744':
         case 'B748':
         case 'B74S':
+        case 'B752':
+        case 'B753':
+        case 'B762':
+        case 'B763':
+        case 'B764':
+        case 'B772':
+        case 'B773':
+        case 'B77L':
+        case 'B77W':
+        case 'B788':
+        case 'B789':
+        case 'B78X':
+        case 'BA11':
+        case 'BALL':
+        case 'BCS1':
+        case 'BCS3':
+        case 'BE20':
+        case 'BE35':
+        case 'BE36':
+        case 'BE58':
+        case 'BE60':
+        case 'BE9L':
         case 'BLCF':
+        case 'BN2P':
+        case 'BR23':
+        case 'BT7':
+        case 'C130':
+        case 'C152':
+        case 'C160':
+        case 'C17':
+        case 'C172':
+        case 'C2':
+        case 'C206':
+        case 'C208':
+        case 'C25B':
+        case 'C25C':
+        case 'C310':
+        case 'C402':
+        case 'C414':
+        case 'C510':
+        case 'C525':
+        case 'C5M':
+        case 'C68A':
+        case 'C750':
+        case 'C919':
+        case 'CL2T':
+        case 'CL30':
+        case 'CL60':
+        case 'CONC':
+        case 'CP10':
         case 'CRJ2':
         case 'CRJ7':
         case 'CRJ9':
         case 'CRJX':
+        case 'DA40':
         case 'DA42':
         case 'DA62':
-        case 'TBM7':
-        case 'TBM8':
-        case 'TBM9':
-        case 'C510':
-        case 'E170':
-        case 'E175':
-        case 'E190':
-        case 'E195':
-        case 'H47':
-        case 'H160':
-        case 'EUFI':
-        case 'PC12':
-        case 'P46T':
-        case 'B720':
-        case 'B721':
-        case 'B722':
-        case 'B752':
-        case 'B753':
-        case 'B77L':
-        case 'B77W':
-        case 'B762':
-        case 'B763':
-        case 'B764':
-        case 'A3ST':
-        case 'A345':
-        case 'A346':
-        case 'A400':
-        case 'AN24':
-        case 'B1':
-        case 'B2':
-        case 'B37M':
-        case 'B38M':
-        case 'B39M':
-        case 'BALL':
-        case 'GLID':
-        case 'SHIP':
-        case 'C152':
-        case 'C172':
-        case 'C208':
-        case 'C17':
-        case 'C25C':
-        case 'DA40':
         case 'DC10':
         case 'DC3':
+        case 'DC6':
+        case 'DC86':
+        case 'DH88':
         case 'DH8C':
         case 'DH8D':
         case 'DHC2':
         case 'DHC6':
         case 'DHC7':
+        case 'DIMO':
+        case 'DR40':
+        case 'DV20':
+        case 'E135':
+        case 'E145':
+        case 'E170':
+        case 'E175':
+        case 'E190':
+        case 'E195':
+        case 'E2':
+        case 'E290':
+        case 'E295':
+        case 'E3CF':
+        case 'E50P':
+        case 'E55P':
+        case 'E75S':
         case 'EC45':
         case 'EH10':
+        case 'EPIC':
+        case 'EUFI':
+        case 'EVOT':
+        case 'F100':
+        case 'F104':
+        case 'F117':
         case 'F14':
         case 'F15':
         case 'F16':
         case 'F18':
         case 'F22':
+        case 'F27':
+        case 'F28':
+        case 'F2TH':
         case 'F35':
-        case 'KODI':
-        case 'A10':
-        case 'A748':
-        case 'BE58':
-        case 'C130':
-        case 'CL60':
-        case 'E135':
-        case 'F117':
-        case 'G2CA':
-        case 'A20N':
-        case 'A338':
-        case 'A339':
-        case 'PA24':
-        case 'P51':
-        case 'U2':
-        case 'SR22':
-        case 'GLEX':
-        case 'BE60':
+        case 'F70':
+        case 'F900':
         case 'FA10':
         case 'FA20':
-        case 'GL5T':
-        case 'GL7T':
-        case 'GLF5':
-        case 'GLF6':
-        case 'DIMO':
-        case 'A139':
-        case 'A149':
-        case 'A169':
-        case 'A189':
-        case 'AN2':
-        case 'AS32':
-        case 'AS50':
-        case 'ATP':
-        case 'B06':
-        case 'B190':
-        case 'C310':
-        case 'DV20':
-        case 'E145':
-        case 'F2TH':
         case 'FA50':
         case 'FA6X':
         case 'FA7X':
         case 'FA8X':
-        case 'F900':
-        case 'IL76':
-        case 'L410':
-        case 'LJ35':
-        case 'PC6T':
-        case 'R22':
-        case 'SF34':
-        case 'SF50':
-        case 'SU95':
-        case 'TEX2':
-        case 'TOR':
-        case 'YK40':
         case 'G109':
-        case 'PITE':
-        case 'S12S':
-        case 'PC24':
-        case 'C525':
-        case 'B407':
-        case 'BN2P':
-        case 'CP10':
-        case 'DC86':
-        case 'E50P':
-        case 'E55P':
-        case 'E75S':
-        case 'L101':
-        case 'RFAL':
-        case 'SPIT':
-        case 'SR71':
-        case 'TL20':
-        case 'TRIS':
-        case 'V22':
-        case 'VAMP':
-        case 'VULC':
-        case 'BE9L':
-        case 'C402':
-        case 'RV10':
-        case 'EVOT':
-        case 'PA34':
-        case 'PA44':
-        case 'BA11':
-        case 'DH88':
-        case 'F28':
-        case 'J328':
-        case 'P180':
-        case 'B350':
-        case 'C206':
-        case 'C5M':
-        case 'DR40':
-        case 'E295':
-        case 'E3CF':
-        case 'JS41':
-        case 'K35E':
-        case 'ME08':
-        case 'P212':
-        case 'PC21':
-        case 'R44':
-        case 'R66':
-        case 'SB20':
-        case 'SH36':
-        case 'SIRA':
-        case 'VC10':
-        case 'VISC':
-        case 'BCS1':
-        case 'BCS3':
-        case 'BE35':
-        case 'BE36':
-        case 'E290':
-        case 'F27':
-        case 'F70':
-        case 'F100':
+        case 'G2CA':
+        case 'G91':
+        case 'GL5T':
+        case 'GL7T':
+        case 'GLEX':
+        case 'GLF5':
+        case 'GLF6':
+        case 'GLID':
+        case 'H160':
+        case 'H47':
+        case 'H60':
+        case 'H64':
         case 'HAWK':
         case 'HDJT':
-        case 'HUSK':
-        case 'L39':
-        case 'M20P':
-        case 'PA18':
-        case 'PA38':
-        case 'SAVG':
-        case 'SU27':
-        case 'TWEN':
-        case 'VIPJ':
-        case 'B105':
-        case 'BE20':
-        case 'BR23':
-        case 'BT7':
-        case 'C2':
-        case 'C25B':
-        case 'C414':
-        case 'E2':
-        case 'F104':
-        case 'G91':
-        case 'H64':
         case 'HUNT':
+        case 'HUSK':
+        case 'IL76':
         case 'IL96':
+        case 'J328':
+        case 'JS41':
+        case 'K35E':
+        case 'KODI':
+        case 'L101':
+        case 'L39':
+        case 'L410':
         case 'LANC':
+        case 'LJ35':
+        case 'M20P':
+        case 'MD11':
+        case 'ME08':
         case 'ME09':
         case 'ME62':
         case 'MIR2':
+        case 'P180':
+        case 'P212':
+        case 'P46T':
+        case 'P51':
+        case 'PA18':
+        case 'PA24':
+        case 'PA34':
+        case 'PA38':
+        case 'PA44':
+        case 'PC12':
+        case 'PC21':
+        case 'PC24':
+        case 'PC6T':
+        case 'PITE':
+        case 'R22':
+        case 'R44':
+        case 'R66':
+        case 'RFAL':
+        case 'RV10':
+        case 'S12S':
         case 'S92':
+        case 'SAVG':
+        case 'SB20':
         case 'SB39':
+        case 'SF34':
+        case 'SF50':
+        case 'SH36':
+        case 'SHIP':
+        case 'SIRA':
+        case 'SPIT':
+        case 'SR22':
+        case 'SR71':
         case 'STAR':
-        case 'H60':
-        case 'C160':
-        case 'CL2T':
+        case 'SU27':
+        case 'SU95':
+        case 'T134':
+        case 'T144':
+        case 'T154':
+        case 'TBM7':
+        case 'TBM8':
+        case 'TBM9':
+        case 'TEX2':
+        case 'TL20':
+        case 'TOR':
+        case 'TRIS':
+        case 'TWEN':
+        case 'U2':
         case 'V10':
-        case 'C68A':
-        case 'EPIC':
+        case 'V22':
+        case 'VAMP':
+        case 'VC10':
+        case 'VIPJ':
+        case 'VISC':
+        case 'VULC':
+        case 'YK40':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
