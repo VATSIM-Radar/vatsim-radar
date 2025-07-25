@@ -1,22 +1,31 @@
 <template>
-    <div
-        v-if="false && !notamCookie"
-        class="header-error header-error--notam"
-    >
-        <div class="header-error_text">
-            We have initiated VATSIM Radar feedback poll. We would appreciate if you could provide us your feedback, so we could plan our development and listen to you. <a
-                href="https://forms.gle/q7iFB7RuzULoqz1q6"
-                target="_blank"
-            >You can find it here</a>. Thanks in advance &lt;3
-        </div>
-        <div
-            class="header-error_close"
-            @click="[notamCookie=true]"
-        >
-            <close-icon/>
-        </div>
-    </div>
     <header class="header">
+        <transition name="header_notam--appear">
+            <div
+                v-if="notam"
+                class="header_notam"
+                :class="[`header_notam--type-${ notam.type }`, { 'header_notam--dismissalbe': notam.dismissable }]"
+            >
+                <div class="header_notam_icon">
+                    <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
+                    <error-icon v-else-if="notam.type === NotamType.ERROR"/>
+                    <warning-icon v-else-if="notam.type === NotamType.WARNING"/>
+                </div>
+                <div
+                    class="header_notam_text"
+                    v-html="notam.text"
+                />
+                <div class="header_notam_spacer"/>
+                <div
+                    v-if="notam.dismissable"
+                    class="header_notam_close"
+                    @click="[notamCookie=notam.id]"
+                >
+                    <close-icon/>
+                </div>
+            </div>
+        </transition>
+
         <div class="header_left">
             <nuxt-link
                 class="header__logo"
@@ -308,17 +317,34 @@ import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
+import ErrorIcon from '~/assets/icons/kit/error.svg?component';
+import WarningIcon from '~/assets/icons/kit/warning.svg?component';
+import { NotamType } from '~/utils/shared/vatsim';
 
 const headerMenu = useHeaderMenu();
 
 const route = useRoute();
 const store = useStore();
 const config = useRuntimeConfig();
-const notamCookie = useCookie<boolean>('notam-closed', {
+const dataStore = useDataStore();
+
+const notamCookie = useCookie<number>('notam-closed', {
     path: '/',
     sameSite: 'none',
     secure: true,
     maxAge: 60 * 60 * 24 * 7,
+});
+
+const notam = computed(() => {
+    const activeNotam = dataStore.vatsim.data.notam.value;
+    if (!activeNotam) return null;
+
+    if (activeNotam.dismissable && notamCookie.value === activeNotam.id) return null;
+    if (activeNotam.activeFrom && new Date(activeNotam.activeFrom).getTime() > dataStore.time.value) return null;
+    if (activeNotam.activeTo && new Date(activeNotam.activeTo).getTime() < dataStore.time.value) return null;
+
+    return activeNotam;
 });
 
 const app = useNuxtApp();
@@ -344,53 +370,78 @@ const mobileMenuOpened = ref(false);
 
     background: $darkgray1000;
 
-    &-error {
-        position: relative;
+    &_notam {
+        position: absolute;
+        top: calc(100% + 16px);
+        right: 16px;
+        left: 16px + 40px + 16px + 8px;
 
         display: flex;
-        gap: 16px;
+        gap: 8px;
         align-items: center;
-        justify-content: space-between;
 
-        margin: 0 24px;
-        padding: 8px 16px;
-        border-radius: 0 0 8px 8px;
+        width: calc(100vw - 16px - 40px - 16px - 16px - 24px);
+        min-height: 40px;
+        padding: 10px 12px;
+        border-radius: 8px;
 
-        font-size: 12px;
-        color: $lightgray150Orig;
+        font-size: 14px;
+        line-height: 100%;
+        color: $lightgray125Orig;
 
-        background: $error500;
-
-        a {
-            color: $lightgray150Orig;
+        @include mobileOnly {
+            align-items: flex-start;
+            width: calc(100vw - 16px - 40px - 16px - 16px - 16px);
+            font-size: 12px;
+            line-height: 130%;
         }
 
-        &--notam {
-            background: $primary600;
-
-            @include pc {
-                &::before {
-                    content: 'NOTAM';
-
-                    position: absolute;
-                    right: 40px;
-
-                    font-size: 15px;
-                    font-weight: 700;
-                    letter-spacing: 2px;
-                }
+        &--appear {
+            &-enter-active,
+            &-leave-active {
+                transition: 0.3s ease-in-out;
             }
+
+            &-enter-from,
+            &-leave-to {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        &--type-WARNING {
+            color: $darkgray850Orig;
+            background: $warning500;
+        }
+
+        &--type-ERROR {
+            background: $error500;
+        }
+
+        &--type-ANNOUNCEMENT {
+            background: $primary500;
+        }
+
+        &_icon {
+            width: 20px;
+            min-width: 20px;
+        }
+
+        &_spacer {
+            flex: 1 0 auto;
         }
 
         &_close {
             cursor: pointer;
             width: 16px;
             min-width: 16px;
-            transition: 0.3s;
+            opacity: 0.8;
 
             @include hover {
+                transition: 0.3s;
+
                 &:hover {
-                    color: $lightgray50Orig;
+                    opacity: 1;
                 }
             }
         }

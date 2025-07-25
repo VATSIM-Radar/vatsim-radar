@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.2.1-rc.7",
+  "version": "1.2.1-final",
   "private": true,
   "type": "module",
   "scripts": {
@@ -110,7 +110,7 @@
     "tsx": "4.16.2",
     "typescript": "5.8.3",
     "vite-plugin-eslint2": "^5.0.4",
-    "vue-tsc": "3.0.4"
+    "vue-tsc": "3.0.1"
   },
   "packageManager": "yarn@4.9.2"
 }

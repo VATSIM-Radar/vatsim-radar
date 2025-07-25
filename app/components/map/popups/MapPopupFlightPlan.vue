@@ -82,18 +82,21 @@
         <common-notification v-else>
             No flight plan uploaded
         </common-notification>
-        <common-bubble
-            v-if="flightPlan?.locked"
-            size="M"
-            type="secondary"
-        >
-            Verified by ATC
-        </common-bubble>
         <common-copy-info-block
             v-if="flightPlan?.route"
             :text="flightPlan.route"
         >
             Route
+
+            <template #actions>
+                <common-bubble
+                    v-if="flightPlan?.locked"
+                    size="S"
+                    type="secondary"
+                >
+                    Locked by ATC
+                </common-bubble>
+            </template>
         </common-copy-info-block>
         <common-copy-info-block
             v-if="flightPlan?.remarks"

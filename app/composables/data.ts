@@ -46,6 +46,8 @@ import {
 import type { PartialRecord } from '~/types';
 import type { UserList } from '~/utils/backend/handlers/lists';
 
+import type { RadarNotam } from '~/utils/shared/vatsim';
+
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
 const navigraphVersion = ref<string | null>(null);
@@ -58,6 +60,7 @@ const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
+const notam = ref<RadarNotam | null>(null);
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
 
@@ -80,6 +83,7 @@ export type VatsimData = {
     [K in keyof Required<Omit<VatsimLiveData, 'keyedPilots'>>]-?: Ref<VatsimLiveData[K] extends Array<any> ? VatsimLiveData[K] : K extends 'general' ? (VatsimLiveData[K] | null) : VatsimLiveData[K]>
 } & {
     keyedPilots: Ref<NonNullable<VatsimLiveData['keyedPilots']>>;
+    notam: Ref<RadarNotam | null>;
 };
 
 const data: VatsimData = {
@@ -97,28 +101,11 @@ const data: VatsimData = {
     pilot_ratings: shallowRef([]),
     ratings: shallowRef([]),
     bars: shallowRef({}),
-};
-
-const rawData: VatsimData = {
-    // eslint-disable-next-line vue/require-typed-ref
-    general: ref(null),
-    pilots: shallowRef([]),
-    keyedPilots: shallowRef({}),
-    airports: shallowRef([]),
-    prefiles: shallowRef([]),
-    observers: shallowRef([]),
-    locals: shallowRef([]),
-    firs: shallowRef([]),
-    facilities: shallowRef([]),
-    military_ratings: shallowRef([]),
-    pilot_ratings: shallowRef([]),
-    ratings: shallowRef([]),
-    bars: shallowRef({}),
+    notam,
 };
 
 const vatsim = {
     data,
-    rawData,
     tracks: shallowRef([]),
     parsedAirports: shallowRef<AirportsList[]>([]),
     // For fast turn-on in case we need to restore mandatory data
@@ -136,6 +123,7 @@ const vatsim = {
     updateTimestamp: ref(''),
     updateTime: ref(0),
     localUpdateTime: ref(0),
+    notam,
 };
 
 export interface DataStoreNavigraphProcedure<T extends NavigraphNavDataStar | NavigraphNavDataApproach = NavigraphNavDataStar> {
@@ -237,15 +225,17 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
     const filteredControllers = filterVatsimControllers(vatsimData.locals, vatsimData.firs);
 
     for (const key in vatsimData) {
-        // @ts-expect-error Dynamic assignment
-        rawData[key].value = vatsimData[key];
-    }
-
-    for (const key in vatsimData) {
         if (key === 'pilots' || key === 'prefiles') vatsimData[key] = filterVatsimPilots<any>(vatsimData[key]);
 
         if (key === 'locals') vatsimData.locals = filteredControllers.locals;
         if (key === 'firs') vatsimData.firs = filteredControllers.firs;
+        if (key === 'notam') {
+            if (vatsimData.notam && data.notam.value) {
+                Object.assign(data.notam.value, vatsimData.notam);
+            }
+            else if (data.notam.value !== vatsimData.notam) data.notam.value = vatsimData.notam;
+            continue;
+        }
 
         if (key === 'airports' && hasActivePilotFilter()) {
             const filteredPilots = vatsimData.pilots.map(x => x.cid);

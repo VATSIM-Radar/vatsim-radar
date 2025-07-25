@@ -555,7 +555,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                     return [dataStore.vatspy.value?.data.keyAirports.realIcao[departure].lon, dataStore.vatspy.value?.data.keyAirports.realIcao[departure].lat];
                 }
 
-                return waypoint?.coordinate || [waypoint?.airway?.value[2][0]?.[3], waypoint?.airway?.value[2][0]?.[4]] as Coordinate;
+                return waypoint?.coordinate || [waypoint?.airway?.value[2][waypoint?.airway?.value[2].length - 1]?.[3], waypoint?.airway?.value[2][waypoint?.airway?.value[2].length - 1]?.[4]] as Coordinate;
             }
 
             const previousWaypoint = previousWaypointCoordinate(waypoints[waypoints.length - 1]);

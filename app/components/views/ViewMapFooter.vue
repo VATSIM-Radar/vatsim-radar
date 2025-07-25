@@ -129,15 +129,6 @@
                 class="map-footer_left_section map-footer_left_section--version map-footer__text"
             >
                 v{{ store.version }}
-                <common-button
-                    v-if="updatePopupActive"
-                    type="link"
-                    @click="openUpdatePopup"
-                >
-                    <template #icon>
-                        <gift-icon height="16"/>
-                    </template>
-                </common-button>
             </div>
         </div>
         <div class="map-footer_right">
@@ -301,8 +292,6 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
-import GiftIcon from '~/assets/icons/kit/gift.svg?component';
-import { updatePopupActive } from '~/composables';
 
 const store = useStore();
 const dataStore = useDataStore();
@@ -317,14 +306,6 @@ const outdated = computed(() => {
     return (curDate.value - dataStore.vatsim.localUpdateTime.value) > 1000 * 60;
 });
 const isMobile = useIsMobile();
-
-function openUpdatePopup() {
-    if (store.user?.settings) {
-        store.user.settings.seenVersion = '';
-    }
-    localStorage.removeItem('seen-version');
-    triggerRef(showUpdatePopup);
-}
 
 onMounted(() => {
     const interval = setInterval(() => {

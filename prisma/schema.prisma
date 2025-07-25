@@ -127,3 +127,19 @@ model VatsimUser {
   userId            Int      @unique
   user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
+
+enum NotamType {
+  ERROR
+  WARNING
+  ANNOUNCEMENT
+}
+
+model Notams {
+  id          Int       @id @default(autoincrement())
+  type        NotamType
+  text        String
+  activeFrom  DateTime?
+  activeTo    DateTime?
+  dismissable Boolean
+  active      Boolean
+}

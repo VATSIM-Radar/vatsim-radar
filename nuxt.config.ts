@@ -139,7 +139,7 @@ export default defineNuxtConfig({
         '@nuxt/eslint',
         '@nuxtjs/stylelint-module',
         '@vite-pwa/nuxt',
-        '@sentry/nuxt/module',
+        // '@sentry/nuxt/module',
     ],
     sentry: {
         sourceMapsUploadOptions: {

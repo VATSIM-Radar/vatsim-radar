@@ -14,6 +14,8 @@ import type { Feature, FeatureCollection, Geometry, MultiPolygon, Polygon } from
 import type { cycles } from '~/utils/backend/navigraph/db';
 import type { PatreonInfo } from '~/types/data/patreon';
 
+import type { RadarNotam } from '~/utils/shared/vatsim';
+
 export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
 export interface SimAwareAPIData {
     version: string;
@@ -200,6 +202,7 @@ export interface VatsimStorage {
     locals: VatSpyDataLocalATC[];
     airports: MapAirport[];
     transceivers: VatsimTransceiver[];
+    notam: RadarNotam | null;
     australia: AustraliaSector[];
     kafka: {
         pilots: Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>;
@@ -277,6 +280,7 @@ export const radarStorage: RadarStorage = {
         airports: [],
         transceivers: [],
         australia: [],
+        notam: null,
         kafka: {
             pilots: [],
             atc: [],
@@ -340,6 +344,7 @@ export function getServerVatsimLiveData(): VatsimLiveData {
         pilot_ratings: storage.vatsim.regularData!.pilot_ratings,
         military_ratings: storage.vatsim.regularData!.military_ratings,
         bars: radarStorage.vatsim.regularData!.bars,
+        notam: storage.vatsim.notam,
     };
 }
 
@@ -353,5 +358,6 @@ export function getServerVatsimLiveShortData() {
         prefiles: radarStorage.vatsim.regularData!.prefiles,
         airports: radarStorage.vatsim.airports,
         bars: radarStorage.vatsim.regularData!.bars,
+        notam: radarStorage.vatsim.notam,
     } satisfies VatsimLiveDataShort;
 }

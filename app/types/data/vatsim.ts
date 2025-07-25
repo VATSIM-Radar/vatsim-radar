@@ -4,6 +4,8 @@ import type { AircraftIcon } from '~/utils/icons';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 import type { BARSShort } from '~/utils/backend/storage';
 
+import type { RadarNotam } from '~/utils/shared/vatsim';
+
 export interface VatsimGeneral {
     version: number;
     update_timestamp: string;
@@ -231,9 +233,10 @@ export type VatsimLiveData = Omit<VatsimShortenedData, 'controllers' | 'atis'> &
     firs: VatSpyDataFeature[];
     airports: MapAirport[];
     keyedPilots?: Record<string, VatsimShortenedData['pilots'][0]>;
+    notam: RadarNotam | null;
 };
 
-export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars'>;
+export type VatsimLiveDataShort = Pick<VatsimLiveData, 'general' | 'pilots' | 'observers' | 'locals' | 'firs' | 'prefiles' | 'airports' | 'bars' | 'notam'>;
 
 export interface VatsimDivision {
     id: string;

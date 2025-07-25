@@ -135,3 +135,19 @@ export const supportedNavigraphLayouts: AmdbLayerName[] = [
     'verticallinestructure',
     'verticalpolygonalstructure',
 ];
+
+export enum NotamType {
+    ERROR = 'ERROR',
+    WARNING = 'WARNING',
+    ANNOUNCEMENT = 'ANNOUNCEMENT',
+}
+
+export interface RadarNotam {
+    id: number;
+    type: NotamType;
+    text: string;
+    active: boolean;
+    activeFrom: string | null;
+    activeTo: string | null;
+    dismissable: boolean;
+}
