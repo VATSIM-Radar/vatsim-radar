@@ -1,6 +1,61 @@
 # Changelog
 
-# [1.2.0-1]
+# [1.2.1-final]
+
+Welcome to quality of life VATSIM Radar update! This update adds new features and fixes many issues.
+
+## Highlights
+
+- You can now view bookings via map footer, by Felix
+- Added Speed & Altitude graph to pilot overlay
+- Fixed random aircraft hovers with added delay
+- Added NOTAMs grouping
+- Added private mode to user settings, so you can hide from following you using favorite lists feature
+- New icons from DotWallop: CL2T, V10, C68A, EPIC, CL30, C919
+- Added model matching for F18H, F18S -> F18, improved model matching for several helicopter models
+- Removed some invalid ICAO codes from model matching
+- Fixed flight plan waypoint spawning on another side of planet - max distance can now be 500NM
+- Added natTrak direction filter and indicator, inactive routes parsing support
+- Add "Locked by ATC" label to locked flight plans
+
+## Features and Improvements
+
+- Updated "Basic" map layer
+- Default map layer has been updated to 20250724 from 20250622
+- Improved performance when updating aircraft
+- Improved memory usage when parsing many aircraft flight plan
+- You can now use CMD instead of CTRL to open search or use ruler with CTRL option
+- You can now view pilot atc hours in pilot's popup
+- Bookings will now show for empty or "fake" airports
+- Speeded up bookings and tracks updates from 30 to 10 minutes
+- Clicking on booked controller will open controller's page on stats.vatsim.net
+- Arriving aircraft are now sorted by time to be flown in airport dashboard / overlay
+- You can now edit booked atc/fir color
+- Added 95%, 97% and 99% transparency support
+- Deleted runway transitions from STARs
+- Added events page auto update every 5 minutes if you stay on this page
+- Added support for 7601 emergency squawk code
+- Added an ability to modify or disable new hovering system
+
+## Bug Fixes
+
+- Fixed Navigraph AIRAC sometimes loading old AIRAC data
+- Fixed an issue when Proc for previous flight were not unloaded for a new one
+- Fixed opening Proc clearing routes for every aircraft
+- Holdings now have lower priority than waypoints names
+- Fixed bookings not updating without page reload
+- Fixed bookings sector sometimes being incorrect
+- Heatmap layer has been fixed
+- Fixed some airways not parsing correctly
+- Fixed some approaches parsing incorrectly and showing same runway instead of correct suffix approaches (ILS -> ILS Z, etc)
+- Fixed concorde tracks showing slightly off
+- Improved header/footer layout for non-full hd desktop screens and tablets
+- Fixed SIGMET click taking priority over VATGlasses controller info
+- Fixed BALL icon rotation
+- Fixed weather layer not updating automatically
+- Fixed aircraft lines sometimes not clearing up - it should also happen faster now
+
+# [1.2.0-1-final]
 
 - Fixed airway transition to another region airway with same name could result in route looking weird
 - Added a way to disable waypoints in "Airport Tracks"

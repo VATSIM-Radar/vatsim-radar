@@ -10,7 +10,7 @@ services:
         environment:
             - NITRO_HOST=0.0.0.0
         volumes:
-            - "./src/data:/radar/src/data:rw"
+            - "./app/data:/radar/app/data:rw"
         healthcheck:
             test: "bash -c 'echo -n > /dev/tcp/127.0.0.1/3000'"
             interval: 1s
@@ -30,7 +30,7 @@ services:
             - 8880:8880
         command: /radar/.config/worker-prod.sh
         volumes:
-            - "./src/data:/radar/src/data:rw"
+            - "./app/data:/radar/app/data:rw"
         depends_on:
             db:
                 condition: service_healthy
@@ -48,7 +48,7 @@ services:
             - 3000:3000
         command: /radar/.config/navigraph-prod.sh
         volumes:
-            - "./src/data:/radar/src/data:rw"
+            - "./app/data:/radar/app/data:rw"
         depends_on:
             db:
                 condition: service_healthy
@@ -64,7 +64,7 @@ services:
         container_name: vatsim-radar-prebuilt-vg
         command: /radar/.config/vatglasses-worker-prod.sh
         volumes:
-            - "./src/data:/radar/src/data:rw"
+            - "./app/data:/radar/app/data:rw"
         depends_on:
             db:
                 condition: service_healthy

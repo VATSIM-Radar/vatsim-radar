@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:24-slim
 WORKDIR /radar
 
 COPY package.json package.json
@@ -16,6 +16,7 @@ RUN yarn
 COPY . /radar
 RUN ls -la
 RUN npx prisma generate
+RUN yarn prepare
 RUN yarn build
 
 EXPOSE 3000

@@ -3,4 +3,4 @@
 cd /radar
 npx prisma generate
 npx prisma migrate deploy
-exec node --unhandled-rejections=warn-with-error-code --import=tsx /radar/src/utils/backend/worker/vatglasses-worker.ts
+exec node --unhandled-rejections=warn-with-error-code --import=tsx /radar/app/utils/backend/worker/vatglasses-worker.ts

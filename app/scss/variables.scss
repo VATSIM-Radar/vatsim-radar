@@ -1,0 +1,53 @@
+$defaultFont: Montserrat, Arial, sans-serif;
+$openSansFont: OpenSans, Arial, sans-serif;
+$defaultPageHeight: calc(32px + 56px);
+
+@mixin mobile(){
+    @media all and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin mobileOnly() {
+    @media all and (max-width: 699px) {
+        @content;
+    }
+}
+
+@mixin tablet() {
+    @media all and (min-width: 700px) and (max-width: 1365px) {
+        @content;
+    }
+}
+
+@mixin fromTablet() {
+    @media all and (min-width: 700px) {
+        @content;
+    }
+}
+
+@mixin pc() {
+    @media all and (min-width: 1466px) {
+        @content;
+    }
+}
+
+@mixin pcWide() {
+    @media all and (min-width: 1900px) {
+        @content;
+    }
+}
+
+@mixin hover() {
+    @media (any-hover: hover) and (hover: hover) {
+        @content;
+    }
+}
+
+@mixin mobileSafariOnly() {
+    @include mobileOnly() {
+        @supports (-webkit-hyphens:none) {
+            @content;
+        }
+    }
+}

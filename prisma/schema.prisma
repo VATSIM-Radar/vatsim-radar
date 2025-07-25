@@ -20,6 +20,9 @@ model User {
   discordId            String?
   discordStrategy      DiscordStrategy?
   showFriendsInProfile Boolean            @default(false)
+  privateMode          Boolean            @default(false)
+  privateUntil         DateTime?
+  isSup                Boolean            @default(false)
   tokens               UserToken[]
   settings             Json?              @default("{}")
   presets              UserPreset[]
@@ -123,4 +126,20 @@ model VatsimUser {
   fullName          String
   userId            Int      @unique
   user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
+}
+
+enum NotamType {
+  ERROR
+  WARNING
+  ANNOUNCEMENT
+}
+
+model Notams {
+  id          Int       @id @default(autoincrement())
+  type        NotamType
+  text        String    @db.Text
+  activeFrom  DateTime?
+  activeTo    DateTime?
+  dismissable Boolean
+  active      Boolean
 }
