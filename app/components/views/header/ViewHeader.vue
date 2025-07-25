@@ -414,6 +414,10 @@ const mobileMenuOpened = ref(false);
             line-height: 130%;
         }
 
+        :deep(a) {
+            color: currentColor !important;
+        }
+
         &--appear {
             &-enter-active,
             &-leave-active {
