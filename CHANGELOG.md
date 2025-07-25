@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.1-final]
+# [1.2.1]
 
 Welcome to quality of life VATSIM Radar update! This update adds new features and fixes many issues.
 
