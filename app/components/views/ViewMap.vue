@@ -5,6 +5,33 @@
             class="map_container"
         />
 
+        <transition name="map_notam--appear">
+            <div
+                v-if="notam"
+                v-touch:swipe.top="closeNotam"
+                class="map_notam"
+                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissalbe': notam.dismissable }]"
+            >
+                <div class="map_notam_icon">
+                    <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
+                    <error-icon v-else-if="notam.type === NotamType.ERROR"/>
+                    <warning-icon v-else-if="notam.type === NotamType.WARNING"/>
+                </div>
+                <div
+                    class="map_notam_text"
+                    v-html="notam.text"
+                />
+                <div class="map_notam_spacer"/>
+                <div
+                    v-if="notam.dismissable"
+                    class="map_notam_close"
+                    @click="[notamCookie=notam.id]"
+                >
+                    <close-icon/>
+                </div>
+            </div>
+        </transition>
+
         <template v-if="mode === 'all'">
             <div
                 v-if="ready && !isMobile"
@@ -259,12 +286,16 @@ import { showBookmark } from '~/composables/fetchers';
 import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
-import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { getPilotTrueAltitude, NotamType } from '~/utils/shared/vatsim';
 import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
 import { defaults } from 'ol/interaction';
 import PointerInteraction from 'ol/interaction/Pointer';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import LayerGroup from 'ol/layer/Group';
+import CloseIcon from 'assets/icons/basic/close.svg?component';
+import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
+import ErrorIcon from '~/assets/icons/kit/error.svg?component';
+import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 
 defineProps({
     mode: {
@@ -313,6 +344,31 @@ let initialSpawn = false;
 let initialOwnCheck = false;
 
 useIframeHeader();
+
+const notamCookie = useCookie<number>('notam-closed', {
+    path: '/',
+    sameSite: 'none',
+    secure: true,
+    maxAge: 60 * 60 * 24 * 7,
+});
+
+function closeNotam() {
+    if (notam.value?.dismissable) {
+        notamCookie.value = notam.value.id;
+        triggerRef(notamCookie);
+    }
+}
+
+const notam = computed(() => {
+    const activeNotam = dataStore.vatsim.data.notam.value;
+    if (!activeNotam) return null;
+
+    if (activeNotam.dismissable && notamCookie.value === activeNotam.id) return null;
+    if (activeNotam.activeFrom && new Date(activeNotam.activeFrom).getTime() > dataStore.time.value) return null;
+    if (activeNotam.activeTo && new Date(activeNotam.activeTo).getTime() < dataStore.time.value) return null;
+
+    return activeNotam;
+});
 
 if (route.query.start !== undefined && route.query.end !== undefined) {
     store.bookingsStartTime.setTime(Number(route.query.start));
@@ -1063,6 +1119,114 @@ onMounted(() => {
         :deep(>*) {
             flex: 1 0 auto;
             border-radius: 16px;
+        }
+    }
+
+    &_notam {
+        user-select: none;
+
+        position: absolute;
+        z-index: 6;
+        top: 16px;
+        right: 16px;
+        left: 16px + 40px + 16px;
+
+        display: flex;
+        gap: 8px;
+        align-items: center;
+
+        width: calc(100vw - 16px - 40px - 16px - 16px - 24px);
+        min-height: 40px;
+        padding: 10px 12px;
+        border-radius: 8px;
+
+        font-size: 14px;
+        line-height: 100%;
+        color: $lightgray125Orig;
+
+        &--dismissalbe {
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
+
+        @include mobileOnly {
+            align-items: flex-start;
+            width: calc(100vw - 16px - 40px - 16px - 16px - 16px);
+            font-size: 12px;
+            line-height: 130%;
+        }
+
+        :deep(a) {
+            color: currentColor !important;
+        }
+
+        &--appear {
+            &-enter-active,
+            &-leave-active {
+                transition: 0.3s ease-in-out;
+            }
+
+            &-enter-from,
+            &-leave-to {
+                top: 0;
+                opacity: 0;
+            }
+        }
+
+        &--type-WARNING {
+            color: $darkgray850Orig;
+            background: $warning500;
+        }
+
+        &--type-ERROR {
+            background: $error500;
+        }
+
+        &--type-ANNOUNCEMENT {
+            background: $primary500;
+        }
+
+        &_icon {
+            width: 20px;
+            min-width: 20px;
+        }
+
+        &_spacer {
+            flex: 1 0 auto;
+        }
+
+        &_text {
+            cursor: default;
+            user-select: unset;
+        }
+
+        &_close {
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            width: 20px;
+            min-width: 20px;
+            height: 20px;
+
+            opacity: 0.8;
+
+            svg {
+                width: 12px;
+            }
+
+            @include hover {
+                transition: 0.3s;
+
+                &:hover {
+                    opacity: 1;
+                }
+            }
         }
     }
 

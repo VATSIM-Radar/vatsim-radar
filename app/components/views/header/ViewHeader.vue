@@ -1,30 +1,4 @@
 <template>
-    <transition name="header_notam--appear">
-        <div
-            v-if="notam"
-            v-touch:swipe.top="closeNotam"
-            class="header_notam"
-            :class="[`header_notam--type-${ notam.type }`, { 'header_notam--dismissalbe': notam.dismissable }]"
-        >
-            <div class="header_notam_icon">
-                <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
-                <error-icon v-else-if="notam.type === NotamType.ERROR"/>
-                <warning-icon v-else-if="notam.type === NotamType.WARNING"/>
-            </div>
-            <div
-                class="header_notam_text"
-                v-html="notam.text"
-            />
-            <div class="header_notam_spacer"/>
-            <div
-                v-if="notam.dismissable"
-                class="header_notam_close"
-                @click="[notamCookie=notam.id]"
-            >
-                <close-icon/>
-            </div>
-        </div>
-    </transition>
     <header class="header">
         <div class="header_left">
             <nuxt-link
@@ -301,7 +275,6 @@ import { useStore } from '~/store';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
-import CloseIcon from 'assets/icons/basic/close.svg?component';
 import QuestionIcon from 'assets/icons/basic/question.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
@@ -317,42 +290,12 @@ import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
-import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
-import ErrorIcon from '~/assets/icons/kit/error.svg?component';
-import WarningIcon from '~/assets/icons/kit/warning.svg?component';
-import { NotamType } from '~/utils/shared/vatsim';
 
 const headerMenu = useHeaderMenu();
 
 const route = useRoute();
 const store = useStore();
 const config = useRuntimeConfig();
-const dataStore = useDataStore();
-
-const notamCookie = useCookie<number>('notam-closed', {
-    path: '/',
-    sameSite: 'none',
-    secure: true,
-    maxAge: 60 * 60 * 24 * 7,
-});
-
-function closeNotam() {
-    if (notam.value?.dismissable) {
-        notamCookie.value = notam.value.id;
-        triggerRef(notamCookie);
-    }
-}
-
-const notam = computed(() => {
-    const activeNotam = dataStore.vatsim.data.notam.value;
-    if (!activeNotam) return null;
-
-    if (activeNotam.dismissable && notamCookie.value === activeNotam.id) return null;
-    if (activeNotam.activeFrom && new Date(activeNotam.activeFrom).getTime() > dataStore.time.value) return null;
-    if (activeNotam.activeTo && new Date(activeNotam.activeTo).getTime() < dataStore.time.value) return null;
-
-    return activeNotam;
-});
 
 const app = useNuxtApp();
 
@@ -376,114 +319,6 @@ const mobileMenuOpened = ref(false);
     padding: 8px 24px;
 
     background: $darkgray1000;
-
-    &_notam {
-        user-select: none;
-
-        position: absolute;
-        z-index: 6;
-        top: calc(56px + 16px);
-        right: 16px;
-        left: 16px + 40px + 16px + 8px;
-
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        width: calc(100vw - 16px - 40px - 16px - 16px - 24px);
-        min-height: 40px;
-        padding: 10px 12px;
-        border-radius: 8px;
-
-        font-size: 14px;
-        line-height: 100%;
-        color: $lightgray125Orig;
-
-        &--dismissalbe {
-            cursor: grab;
-
-            &:active {
-                cursor: grabbing;
-            }
-        }
-
-        @include mobileOnly {
-            align-items: flex-start;
-            width: calc(100vw - 16px - 40px - 16px - 16px - 16px);
-            font-size: 12px;
-            line-height: 130%;
-        }
-
-        :deep(a) {
-            color: currentColor !important;
-        }
-
-        &--appear {
-            &-enter-active,
-            &-leave-active {
-                transition: 0.3s ease-in-out;
-            }
-
-            &-enter-from,
-            &-leave-to {
-                top: 56px;
-                opacity: 0;
-            }
-        }
-
-        &--type-WARNING {
-            color: $darkgray850Orig;
-            background: $warning500;
-        }
-
-        &--type-ERROR {
-            background: $error500;
-        }
-
-        &--type-ANNOUNCEMENT {
-            background: $primary500;
-        }
-
-        &_icon {
-            width: 20px;
-            min-width: 20px;
-        }
-
-        &_spacer {
-            flex: 1 0 auto;
-        }
-
-        &_text {
-            cursor: default;
-            user-select: unset;
-        }
-
-        &_close {
-            cursor: pointer;
-
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-
-            width: 20px;
-            min-width: 20px;
-            height: 20px;
-
-            opacity: 0.8;
-
-            svg {
-                width: 12px;
-            }
-
-            @include hover {
-                transition: 0.3s;
-
-                &:hover {
-                    opacity: 1;
-                }
-            }
-        }
-    }
 
     &_left {
         display: flex;
