@@ -90,7 +90,10 @@ const options: Record<string, any> = {
     },
     elements: {
         point: {
-            radius: 0, // скрыть точки
+            radius: 0,
+        },
+        line: {
+            tension: 0.5,
         },
     },
     stacked: false,
@@ -105,9 +108,8 @@ const options: Record<string, any> = {
             display: true,
             position: 'right',
 
-            // grid line settings
             grid: {
-                drawOnChartArea: false, // only want the grid lines for one axis to show up
+                drawOnChartArea: false,
             },
         },
     },
