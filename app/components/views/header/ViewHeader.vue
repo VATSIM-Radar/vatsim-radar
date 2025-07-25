@@ -1,31 +1,31 @@
 <template>
-    <header class="header">
-        <transition name="header_notam--appear">
-            <div
-                v-if="notam"
-                class="header_notam"
-                :class="[`header_notam--type-${ notam.type }`, { 'header_notam--dismissalbe': notam.dismissable }]"
-            >
-                <div class="header_notam_icon">
-                    <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
-                    <error-icon v-else-if="notam.type === NotamType.ERROR"/>
-                    <warning-icon v-else-if="notam.type === NotamType.WARNING"/>
-                </div>
-                <div
-                    class="header_notam_text"
-                    v-html="notam.text"
-                />
-                <div class="header_notam_spacer"/>
-                <div
-                    v-if="notam.dismissable"
-                    class="header_notam_close"
-                    @click="[notamCookie=notam.id]"
-                >
-                    <close-icon/>
-                </div>
+    <transition name="header_notam--appear">
+        <div
+            v-if="notam"
+            v-touch:swipe.top="closeNotam"
+            class="header_notam"
+            :class="[`header_notam--type-${ notam.type }`, { 'header_notam--dismissalbe': notam.dismissable }]"
+        >
+            <div class="header_notam_icon">
+                <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
+                <error-icon v-else-if="notam.type === NotamType.ERROR"/>
+                <warning-icon v-else-if="notam.type === NotamType.WARNING"/>
             </div>
-        </transition>
-
+            <div
+                class="header_notam_text"
+                v-html="notam.text"
+            />
+            <div class="header_notam_spacer"/>
+            <div
+                v-if="notam.dismissable"
+                class="header_notam_close"
+                @click="[notamCookie=notam.id]"
+            >
+                <close-icon/>
+            </div>
+        </div>
+    </transition>
+    <header class="header">
         <div class="header_left">
             <nuxt-link
                 class="header__logo"
@@ -336,6 +336,13 @@ const notamCookie = useCookie<number>('notam-closed', {
     maxAge: 60 * 60 * 24 * 7,
 });
 
+function closeNotam() {
+    if (notam.value?.dismissable) {
+        notamCookie.value = notam.value.id;
+        triggerRef(notamCookie);
+    }
+}
+
 const notam = computed(() => {
     const activeNotam = dataStore.vatsim.data.notam.value;
     if (!activeNotam) return null;
@@ -371,8 +378,11 @@ const mobileMenuOpened = ref(false);
     background: $darkgray1000;
 
     &_notam {
+        user-select: none;
+
         position: absolute;
-        top: calc(100% + 16px);
+        z-index: 6;
+        top: calc(56px + 16px);
         right: 16px;
         left: 16px + 40px + 16px + 8px;
 
@@ -389,6 +399,14 @@ const mobileMenuOpened = ref(false);
         line-height: 100%;
         color: $lightgray125Orig;
 
+        &--dismissalbe {
+            cursor: grab;
+
+            &:active {
+                cursor: grabbing;
+            }
+        }
+
         @include mobileOnly {
             align-items: flex-start;
             width: calc(100vw - 16px - 40px - 16px - 16px - 16px);
@@ -404,7 +422,7 @@ const mobileMenuOpened = ref(false);
 
             &-enter-from,
             &-leave-to {
-                top: 100%;
+                top: 56px;
                 opacity: 0;
             }
         }
@@ -429,6 +447,11 @@ const mobileMenuOpened = ref(false);
 
         &_spacer {
             flex: 1 0 auto;
+        }
+
+        &_text {
+            cursor: default;
+            user-select: unset;
         }
 
         &_close {

@@ -18017,6 +18017,7 @@ __metadata:
     vue-draggable-plus: "npm:^0.6.0"
     vue-router: "npm:^4.5.1"
     vue-tsc: "npm:3.0.1"
+    vue3-touch-events: "npm:^5.0.13"
     ws: "npm:^8.18.3"
   languageName: unknown
   linkType: soft
@@ -18457,6 +18458,15 @@ __metadata:
   bin:
     vue-tsc: ./bin/vue-tsc.js
   checksum: 10c0/952789664eb7e9f268aba1f08e59f9e81c97cad8dbfe8ff23741c1c57c4eabb45c4a11f1c20f0f0f6b7cf1c64e2d39a4fc318260e851c88c4fd5d647266ba213
+  languageName: node
+  linkType: hard
+
+"vue3-touch-events@npm:^5.0.13":
+  version: 5.0.13
+  resolution: "vue3-touch-events@npm:5.0.13"
+  peerDependencies:
+    vue: ^3.0.0
+  checksum: 10c0/a7e3c0e66fac9f23ccfd830ba04f1c9193c2f6aa5110f7b2cccfe92aeda005370b35500085861025550c25ce3beddb2df1d008e8bd1c1633cbed74d6841052fd
   languageName: node
   linkType: hard
 

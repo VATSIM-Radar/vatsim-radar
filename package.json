@@ -81,6 +81,7 @@
     "vue-chartjs": "^5.3.2",
     "vue-draggable-plus": "^0.6.0",
     "vue-router": "^4.5.1",
+    "vue3-touch-events": "^5.0.13",
     "ws": "^8.18.3"
   },
   "devDependencies": {
