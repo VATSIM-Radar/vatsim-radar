@@ -1,14 +1,17 @@
 <template>
     <div
         v-if="vatglassesActive && !store.mapSettings.vatglasses?.combined && (!hideIfDisabled || !disabledLevel) && !store.bookingOverride"
-        class="__grid-info-sections"
+        class="vg-level"
     >
-        <div class="__grid-info-sections_title">
-            VATGlasses Level
+        <div
+            v-if="store.viewport.width > 1400 || store.viewport.width < 1350"
+            class="vg-level_title __grid-info-sections_title"
+        >
+            Flight<br> Level
         </div>
-        <div class="__section-group">
+        <div class="vg-level_content">
             <input
-                v-if="(!disabledLevel || showAuto) && store.isPC"
+                v-if="(!disabledLevel || showAuto) && store.viewport.width > 1500"
                 v-model="vatglassesLevel"
                 class="range"
                 :class="{ 'range--wide': hideIfDisabled }"
@@ -107,7 +110,27 @@ const disabledLevel = computed(() => store.mapSettings.vatglasses?.autoLevel !==
 </script>
 
 <style lang="scss" scoped>
+.vg-level {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    &_title {
+        white-space: nowrap;
+    }
+
+    &_content {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+}
+
 .range--wide {
+    width: 80px;
+}
+
+.range {
     width: 80px;
 }
 
@@ -116,7 +139,11 @@ label {
     align-items: center;
 }
 
-.vatglassesLevel-input :deep(.input_container) {
-    padding: 0 8px;
+.vatglassesLevel-input{
+    width: 60px;
+
+    :deep(.input_container) {
+        padding: 0 8px;
+    }
 }
 </style>

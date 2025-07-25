@@ -134,7 +134,7 @@
         <div class="map-footer_right">
             <map-settings-vat-glasses-level
                 v-if="store.viewport.width > (store.friends.length ? 1200 : 1000)"
-                class="map-footer_right_vg __wide"
+                class="map-footer_right_vg map-footer_right_section __from-tablet"
                 show-auto
             />
 
@@ -412,8 +412,7 @@ function cancelBookingOverride() {
             align-items: center;
 
             &:not(:last-child) {
-                margin-right: 12px;
-                padding-right: 12px;
+                padding-right: 8px;
 
                 &::after {
                     content: '';
@@ -430,8 +429,6 @@ function cancelBookingOverride() {
         }
 
         &_vg {
-            min-width: 320px;
-
             :deep(.input) {
                 height: 32px !important;
             }
