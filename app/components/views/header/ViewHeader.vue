@@ -433,9 +433,20 @@ const mobileMenuOpened = ref(false);
 
         &_close {
             cursor: pointer;
-            width: 16px;
-            min-width: 16px;
+
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+
+            width: 20px;
+            min-width: 20px;
+            height: 20px;
+
             opacity: 0.8;
+
+            svg {
+                width: 12px;
+            }
 
             @include hover {
                 transition: 0.3s;
