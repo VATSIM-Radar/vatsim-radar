@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.1-1-final]
+
+I flew to EDDF yesterday. While it was fun, I have also noticed significant performance issues. This patch tends to fix
+them - let me know if you see any changes, and also lmk about performance issues you experience in general.
+
+- Restored straight arrival line when route cannot be shown due to performance - also solving unneeded calculations
+- Fixed constant holdings calculation to be once per second instead of dozens per second to improve performance
+- Fixed performance drop when aircraft list is open - e.g. airport overlay or dashboard
+
 # [1.2.1-final]
 
 Welcome to quality of life VATSIM Radar update! This update adds new features and fixes many issues.
@@ -47,7 +56,8 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - Fixed bookings sector sometimes being incorrect
 - Heatmap layer has been fixed
 - Fixed some airways not parsing correctly
-- Fixed some approaches parsing incorrectly and showing same runway instead of correct suffix approaches (ILS -> ILS Z, etc)
+- Fixed some approaches parsing incorrectly and showing same runway instead of correct suffix approaches (ILS -> ILS Z,
+  etc)
 - Fixed concorde tracks showing slightly off
 - Improved header/footer layout for non-full hd desktop screens and tablets
 - Fixed SIGMET click taking priority over VATGlasses controller info
@@ -75,21 +85,25 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 
 ### Navigational Data
 
-Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME, and Holdings on map.
+Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME,
+and Holdings on map.
 
 For those who have Navigraph subscription, newest AIRAC is used - for others, Navigraph provides AIRAC 2403 for free.
 
 This update also includes "Proc" tab under Aircraft and Airport, so you can view SIDs, STARs and Approaches.
 
-Of course, we have suffered some limitations with how waypoints are connected - but overall you should enjoy this as a great and most complicated addition we had to VATSIM Radar in a long time.
+Of course, we have suffered some limitations with how waypoints are connected - but overall you should enjoy this as a
+great and most complicated addition we had to VATSIM Radar in a long time.
 
 Also, as part of this change, you can toggle natTrak oceanic routes.
 
 ### Predicted aircraft route
 
-This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual predicted route.
+This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual
+predicted route.
 
-You can also modify SIDs/STARs for each aircraft using "Proc" tab, but not only you can do that, but ATC also - each ATC flight plan modifications (excluding directs) will be synced with displayed route.
+You can also modify SIDs/STARs for each aircraft using "Proc" tab, but not only you can do that, but ATC also - each ATC
+flight plan modifications (excluding directs) will be synced with displayed route.
 
 And not only that - ETA is now also calculated based on actual route to be flown.
 
@@ -97,18 +111,22 @@ As usual, you can disable this inside Map Layers menu.
 
 ### Distance measurement tool
 
-In map bottom left corner, you can spot a small ruler icon. Click on it to activate long-requested distance measurement tool!
+In map bottom left corner, you can spot a small ruler icon. Click on it to activate long-requested distance measurement
+tool!
 
-By default, it starts measuring (when active) by double mouse click - but you can also change it to CTRL+Click, as well as switch units to kilometers.
+By default, it starts measuring (when active) by double mouse click - but you can also change it to CTRL+Click, as well
+as switch units to kilometers.
 
-Of course, you can click on aircraft to view separation between two of them - but please, don't use this as superivising tool. Like, please.
+Of course, you can click on aircraft to view separation between two of them - but please, don't use this as superivising
+tool. Like, please.
 
 ## Other significant features
 
 - Added observers page
 - Added shared cockpit support
 - Added Weather request to weather filters and pilot overlay
-- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity". Also added Ground elevation layer
+- Added new precipitation weather layer - provided by OpenWeather. Old has been renamed to "Precipitation intensity".
+  Also added Ground elevation layer
 - Applied performance and memory usage optimizations
 
 ## Features and Improvements
@@ -123,11 +141,13 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - SIGMETs hitbox has been improved to be opened even inside VATGlasses
 - Map settings and filters can now be imported even by guest users
 - You will now see friend's comment next to his name in short info and pilot overlay
-- You will now see friend's name instead of CID in short info and pilot overlay if friend only specified CID when connected to network
+- You will now see friend's name instead of CID in short info and pilot overlay if friend only specified CID when
+  connected to network
 - Mobile settings will now always open on top for spacing’s sake
 - Fixed max tracks algo to show tracks for aircraft closest to airports
 - Departing and arrived aircraft are now sorted by groundspeed
-- Updated quiet airport logic: aircraft approaching at distance 200NM or more will now be ignored when calculating "quietness"
+- Updated quiet airport logic: aircraft approaching at distance 200NM or more will now be ignored when calculating "
+  quietness"
 - Quiet airports are now sorted by how close they are to current map center (if "quietness" is the same)
 - Added initialization popup with retry functionality
 - Reworked filter search combobox to significantly improve UI of adding new filter data
@@ -171,7 +191,8 @@ Of course, you can click on aircraft to view separation between two of them - bu
 
 # [1.1.2-1]
 
-- Now when you open shared filter it is not saved to active filter when you open page without shared filter in parameters
+- Now when you open shared filter it is not saved to active filter when you open page without shared filter in
+  parameters
 - Now when you open shared filter it is saved into your "draft" filter
 - If you have active preset it will now show as small dot under filter menu
 - Removed not needed scroll when friends exceed 4. This is definetly the case today!
@@ -182,14 +203,16 @@ Of course, you can click on aircraft to view separation between two of them - bu
 
 - Improved performance when VATGlasses is enabled
 - Added VATSpy/SimAware TRACON geojson debug tool
-- New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27, TWEN, VIPJ
+- New icons from DotWallop: BCS3, BE35, BE36, E290, F27, F70, F100, HAWK, HDJT, HUSK, L39, M20P, PA18, PA38, SAVG, SU27,
+  TWEN, VIPJ
 - Improved icon for BCS1
 - Added model matching: FH27 -> F27, M20T -> M20, CC19 -> PA18, SU30-32-33-34-35-37 -> SU27, P208 -> TWEN
 - Removed feature positions if they are booked and not actually online
 - Added SIGMETs transparency settings
 - Filter preset save/reset now actually does it's job
 - Applying filter from presets now fully rewrites it's settings instead of merging them
-- You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this contribution!
+- You can now configure displayed count or disable airport counters and aircraft labels. Thanks to magicmq for this
+  contribution!
 - Added multiple organisers to event page
 - VATGlasses step is now "500" instead of "1000"
 - Added VATGlasses online-only color support
@@ -203,16 +226,19 @@ Of course, you can click on aircraft to view separation between two of them - bu
 - Fixed an issue when you could not click on SIGMET if non-VG UIR was active
 - Fixed feature position display when no ATIS is online
 - Fixed an issue when VG Combined Mode could get stuck (by Felix)
-- Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new altitude
+- Fixed an error when flight climbing or desending on heading didn't have it's track color change according to new
+  altitude
 - Fixed incorrect VATGlasses automatic altitude assigment for some cases
-- Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can now only be done via sorting icon, as it should have been from the start
+- Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can
+  now only be done via sorting icon, as it should have been from the start
 
 # [1.1.1]
 
 ## Highlights
 
 - Added VATGlasses dynamic sectors support
-- Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when on ground), and also directly on map for Navigraph users
+- Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when
+  on ground), and also directly on map for Navigraph users
 - Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
 ## Features and Improvements
@@ -244,7 +270,8 @@ Of course, you can click on aircraft to view separation between two of them - bu
 
 # [1.1.0]
 
-Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow community.
+Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow
+community.
 
 ## Highlights
 
@@ -257,7 +284,8 @@ Welcome to newest VATSIM Radar update! This one is packed with a bunch of featur
 
 ### SIGMETs
 
-Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to show additional details.
+Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to
+show additional details.
 
 AIRMETs are also available for US. You can enable SIGMETs on map in Map Layers menu.
 
@@ -267,7 +295,8 @@ This data was provided by [Aviation Weather Center](https://aviationweather.gov/
 
 Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
 
-On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you can also view all coming bookings on map.
+On separate page you can view a timeline with an ability to click on an airport to open facilities list. From here, you
+can also view all coming bookings on map.
 
 They are also displayed on map (TWR and below) 1 hour before they come online.
 
@@ -275,7 +304,8 @@ This feature should now be considered BETA - more improvements are coming later.
 
 ### Live Stats
 
-With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as ATC/Pilots online.
+With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as
+ATC/Pilots online.
 
 You can also sort by various columns, and filter map by some of the data you choose.
 
@@ -284,9 +314,11 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Favorite count in a single list was increased to 200 from 50
 - Updated default map layer data
 - Added Where2Fly integration into airports popup
-- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
+- Changed data projection to EPSG:4326, thus improving data consumption, improving performance and making VR easier to
+  work with for developers in most cases where EPSG:EPSG:3857 will now only be used under the hood
 - Added diverting flight state by MindCollaps
-- New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA, VC10, VISC)
+- New icons from DotWallop (B350, C5M, C206, DR40, E3CF, E295, JS41, K35E, ME08, P212, PC21, R44, R66, SB20, SH36, SIRA,
+  VC10, VISC)
 - Added model matching (C210 -> C206, E290 -> E295, E3TF -> E3CF, K35R -> K35E)
 - Added 10% opacity as possible for weather/layers opacity
 - Restored north reset icon for mobile
@@ -315,7 +347,8 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Fixed airport default zoom change to floating number breaking whole map settings save
 - Fixed the way pilots without flight plans display in Favorite tab
 - Disabled zoom to CTR/FSS facilities
-- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you move it
+- Fixed this annoying issue when airport layouts (and more things) were just not loading on initial map open unless you
+  move it
 - Fixed aircraft popup on mobile version of Airport Dashboard
 - Clicking on aircraft callsign will now also open it's popup in Airport Dashboard
 - Fixed an issue when local timezone was not displayed in VATSIM Events page
@@ -341,12 +374,16 @@ You can also sort by various columns, and filter map by some of the data you cho
 
 # [1.0.2]
 
-- New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so if you experience performance issues after this update - switch to Basic layer instead
+- New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so
+  if you experience performance issues after this update - switch to Basic layer instead
 - Fixed an error when pilot info panel was sometimes not displayed
 - Excluded TCAS SIMBRIEF from detecting as virtual airline callsign
 - Migrated METAR API to be fetched from VATSIM API
-- Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
-- Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc) or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
+- Satellite layer comeback (works good in USA only). Old Satellite layer was renamed and is still available for paid
+  users. A reminder: if anybody knows decent free satellite layer with no usage limits, I'm all ears
+- Improved logic for new VA parse: aircraft will now be considered flying under VA ONLY if listed
+  in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
+  or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
 # [1.0.1-1]
 
@@ -362,8 +399,10 @@ Welcome a small VATSIM Radar quality of life update.
 
 - Layouts option will now always show in visibility to highlight that you can have it if you link Navigraph
 - You can now switch timezones in events page
-- New icons from DotWallop (PC24, G109, PITE/PITA, S12, B407, BN2P, C525, CP10, DC86, E50P, E55P, E75S/L, L101, RFAL, SPIT, SR71, TL20, TRIS, V22, VAMP, VULC)
-- VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`, `CS=JERSEY=VFLYBE`)
+- New icons from DotWallop (PC24, G109, PITE/PITA, S12, B407, BN2P, C525, CP10, DC86, E50P, E55P, E75S/L, L101, RFAL,
+  SPIT, SR71, TL20, TRIS, V22, VAMP, VULC)
+- VA callsign parse will now also accept `-` and `=`, not only `/` as separator (ex. `CS-JERSEY-VFLYBE`,
+  `CS=JERSEY=VFLYBE`)
 - Added event separate page. Share events direct link if you like ;)
 
 ## Features and Improvements
@@ -397,7 +436,8 @@ Welcome a small VATSIM Radar quality of life update.
 
 This update marks an important milestone for VATSIM Radar.
 
-Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map services.
+Of course, no one considered it a beta anymore, but we still didn't have features people could get used to in other map
+services.
 
 Well, we do now.
 
@@ -408,11 +448,13 @@ Well, we do now.
 - ⭐ Friends: favorite your friends and create different lists for them
 - 🗺️ Filters: configure what's displayed on the map to your liking
 - 📌 Bookmarks: bookmark favorite locations or airports
-- 🛠️ Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as bug fixes
+- 🛠️ Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as
+  bug fixes
 
 ### VATGlasses
 
-VATGlasses is a tool familiar to many, especially flying in complex European airspace. From now on, VATSIM Radar has integration with their data!
+VATGlasses is a tool familiar to many, especially flying in complex European airspace. From now on, VATSIM Radar has
+integration with their data!
 
 It is enabled by default, if you are logged in and have active flight. As always, you can control it from map settings.
 
@@ -422,17 +464,22 @@ Thanks to Felix for developing this integration.
 
 ### Airports Layouts
 
-Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large airports.
+Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large
+airports.
 
-Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before. As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings -> Visibility.
+Those airports have also received updates gates - that would be noticeable for airports that had incorrect gates before.
+As always, you can disable Layouts, as well as separated layers or fallback to old gates system in Map Settings ->
+Visibility.
 
-And for those of you who didn’t buy Navigraph Unlimited yet - here are the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
+And for those of you who didn’t buy Navigraph Unlimited yet - here are
+the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
 
 ### Filters
 
 Meet filters - inspired by VATSpy and FlightRadar 24 fitlers, they allow you to filter things out of map.
 
-Filter by many things - callsigns, friend lists, dep/arr airports, routes (you can also set those from active events!), ratings, positions, and more.
+Filter by many things - callsigns, friend lists, dep/arr airports, routes (you can also set those from active events!),
+ratings, positions, and more.
 
 You can also save your filters, and share them - even for those who are not logged in.
 
@@ -456,14 +503,16 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Added active flight tracking button
 - You can now share a link to atc via ?controller route param
 - You can now change airport default zoom level
-- New icons from DotWallop: A139-189, AN2, AS32-50, ATP, B06, B190, C310, DV20, E145, F2TH, F900, FAxx, IL76, L410, LJ35, PC6T, SF34, SF50, SU95, TEX2, TOR, YK40
+- New icons from DotWallop: A139-189, AN2, AS32-50, ATP, B06, B190, C310, DV20, E145, F2TH, F900, FAxx, IL76, L410,
+  LJ35, PC6T, SF34, SF50, SU95, TEX2, TOR, YK40
 
 ### UI/UX Improvements
 
 - Added basic VatSpy-like theme with no country borders etc. Very traffic effective
 - Sectors borders and Airport Layouts are now drawn on x2 distance from your visible area
 - You can now zoom higher
-- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took so long, isn't it?
+- After almost a year since user settings have appeared, you can now close them by clicking outside. A shame this took
+  so long, isn't it?
 - Opening airport dashboard will no longer cause airport to stay opened when you come back to main map
 - Tabs are now pinned in every overlay you open
 - Slight redesign of featured airports
@@ -493,8 +542,10 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 
 ## Notable changes
 
-- Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue may have to reinstall the app
-- Once again fixed USA TRACONs, such as Houston approach, SCT_APP, CHI_X_APP, PCT_APP. I'm really sorry this kept happening each major update folks
+- Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue
+  may have to reinstall the app
+- Once again fixed USA TRACONs, such as Houston approach, SCT_APP, CHI_X_APP, PCT_APP. I'm really sorry this kept
+  happening each major update folks
 - New aircraft icons from DotWallop
 - Added model matching for C310 (as C172 for now)
 
@@ -533,7 +584,8 @@ A small hotfix with an issue when you could not save your map preset, if:
 - ⚙️ Map Settings: personalize the map with great variation of options
 - 🔍 Search Feature: effortlessly find airports, controllers, or pilots
 - 📅 Events Hub (Beta): discover and explore network events with all the details you need
-- 📦 Progressive Web App (PWA): install VATSIM Radar on your device/PC for easy access (use Safari's "Add to Home Screen" for iOS/iPadOS)
+- 📦 Progressive Web App (PWA): install VATSIM Radar on your device/PC for easy access (use Safari's "Add to Home Screen"
+  for iOS/iPadOS)
 - 📱 Mobile-Friendly Design: seamlessly use VATSIM Radar on phones and tablets
 - ✨ Quality of life: enjoy new aircraft icons, community-driven enhancements, and bug fixes
 
@@ -591,7 +643,8 @@ Made by Thorsten.
 
 - You can now copy and save current map location via browser URL
 - You can now copy and save most of Airport Dashboard settings via browser URL
-- Added PWA integration with ability to install VATSIM Radar on your PC or Phone ("Install app" button in "About", on iOS use "Add to home screen")
+- Added PWA integration with ability to install VATSIM Radar on your PC or Phone ("Install app" button in "About", on
+  iOS use "Add to home screen")
 - Added Share window to Filters & Traffic with ability to share current URL with friends - including overlay
 - Mobile/Tablet versions have been added
 - Added ability to toggle arrivals tracks for airport dashboard
@@ -599,7 +652,8 @@ Made by Thorsten.
 
 ### Improvements
 
-- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between aircraft sizes
+- Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between
+  aircraft sizes
 - Improved model matching for A139-189, C700, C750 by StefBrands
 - New aircraft icons from DotWallop: A20N, A338, A339, P28*, P51, PA24, U2, SR22, GLEX, BE60
 - Significantly reduced data consumption
@@ -681,13 +735,16 @@ Big thanks to Felix and DotWallop for making this release possible!
 ### Featured Airports
 
 - View airports with much traffic from all around the world
-- View quiet, yet staffed airports to find interesting places to go, learn to fly, or support lonely controller in your area
+- View quiet, yet staffed airports to find interesting places to go, learn to fly, or support lonely controller in your
+  area
 - Filter by visible only to view this stats in specific area
 
 ### New aircraft icons
 
 - Updated helicopter icons matching
-- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172, C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10, A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
+- Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172,
+  C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10,
+  A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
 
 ### Arrival rate
 

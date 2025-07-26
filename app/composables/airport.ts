@@ -5,6 +5,8 @@ import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/
 import type {
     MapAircraftKeys,
 } from '~/types/map';
+import { getAircraftDistance } from '~/composables/pilots';
+import { debounce } from '~/utils/shared';
 
 /**
  * @note data must be reactive object or a computed
@@ -66,6 +68,7 @@ export type AirportPopupPilotList = Record<MapAircraftKeys, Array<AirportPopupPi
 export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, filter?: MaybeRef<MapAircraftKeys | null>) => {
     const dataStore = useDataStore();
     const injected = inject<MaybeRef<AirportPopupPilotList> | null>('airport-aircraft', null);
+    if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in getAircraftForAirport');
     if (injected) {
         return computed(() => {
             if (filter) {
@@ -86,6 +89,8 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             return toValue(injected);
         });
     }
+
+    const pilotDistances = shallowRef<Record<string, ReturnType<typeof getAircraftDistance>>>({});
 
     const aircraft = computed<AirportPopupPilotList | null>(() => {
         const vatAirport = dataStore.vatsim.data.airports.value.find(x => x.icao === data.value.icao);
@@ -120,7 +125,7 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
             const departureAirport = airport?.icao === pilot.departure ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.departure!];
             const arrivalAirport = airport?.icao === pilot.arrival ? airport : dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.arrival!];
 
-            const pilotDistance = getAircraftDistance(pilot);
+            const pilotDistance = pilotDistances.value[pilot.cid.toString()] ?? {};
 
             if (arrivalAirport && !pilotDistance?.toGoTime) {
                 const pilotCoords = [pilot.longitude, pilot.latitude];
@@ -183,6 +188,12 @@ export const getAircraftForAirport = (data: Ref<StoreOverlayAirport['data']>, fi
 
         return list;
     });
+
+    const debouncedUpdate = debounce(() => {
+        pilotDistances.value = Object.fromEntries(Object.values(aircraft.value ?? {}).flatMap(aircraft => aircraft.map(aircraft => [aircraft.cid.toString(), getAircraftDistance(dataStore.vatsim.data.keyedPilots.value[aircraft.cid.toString()])])));
+    }, 5000);
+
+    watch(dataStore.navigraphWaypoints, debouncedUpdate);
 
     if (getCurrentInstance() && !injected && !filter) provide('airport-aircraft', aircraft);
 

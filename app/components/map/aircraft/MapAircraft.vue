@@ -516,6 +516,7 @@ const canShowRoute = computed(() => {
         props.isVisible &&
         (pilot.value.groundspeed > 50 || !!activeCurrentOverlay.value || isPropsHovered.value) &&
         !store.localSettings.disableNavigraphRoute &&
+        airportOverlayTracks.value !== 'short' &&
         !!dataStore.navigraph.data;
 });
 
@@ -663,7 +664,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                         [props.aircraft.longitude, props.aircraft.latitude],
                     ];
                     const points = coordinates.map(x => point(x));
-                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1]));
+                    const geometry = turfGeometryToOl(greatCircle(points[0], points[1], { npoints: 8 }));
 
                     const lineFeature = new Feature({
                         geometry,

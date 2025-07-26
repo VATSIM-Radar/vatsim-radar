@@ -458,7 +458,9 @@ export const ownFlight = computed(() => {
     return dataStore.vatsim.data.keyedPilots.value[store.user.cid.toString()] ?? null;
 });
 
-export function getAircraftDistance(pilot: VatsimExtendedPilot | VatsimShortenedAircraft): Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'> {
+export function getAircraftDistance(pilot: VatsimExtendedPilot | VatsimShortenedAircraft): Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'> | null {
+    if (!pilot) return null;
+
     const dataStore = useDataStore();
     return Object.assign({
         depDist: dataStore.navigraphWaypoints.value[String(pilot.cid)]?.calculatedArrival?.depDist ?? pilot?.depDist,
