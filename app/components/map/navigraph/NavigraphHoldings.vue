@@ -11,6 +11,7 @@ import type VectorSource from 'ol/source/Vector';
 import type { Coordinate } from 'ol/coordinate';
 import { useMapStore } from '~/store/map';
 import type { NavDataFlightLevel } from '~/utils/backend/navigraph/navdata/types';
+import { debounce } from '~/utils/shared';
 
 defineSlots<{ default: () => any }>();
 
@@ -138,13 +139,15 @@ function generateHoldingPatternGeoJSON(
 const extent = computed(() => mapStore.extent);
 const level = computed(() => store.mapSettings.navigraphData?.mode);
 
-const starWaypoints = computed(() => Array.from(new Set(...Object.values(dataStore.navigraphProcedures).flatMap(x => Object.values(x!.stars)).flatMap(x => [
-    x.procedure.waypoints.map(x => x.identifier),
-    x.procedure.transitions.enroute.flatMap(x => x.waypoints.map(x => x.identifier)),
-    x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
-]))));
+const starWaypoints = shallowRef<string[]>([]);
+const aircraftWaypoints = shallowRef<string[]>([]);
 
-const aircraftWaypoints = computed(() => Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x))));
+const debouncedUpdate = debounce(() => {
+    aircraftWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x)));
+    starWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x)));
+}, 1000);
+
+watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUpdate);
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
     const newFeatures: Feature[] = [];
