@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.2.2-beta.1]
+
+- Improved internal data update speed
+- Improved aircraft click on map for both touch screens and mouse
+- You will now be able to precisely hover on aircraft even if they are close together
+- VATGlasses will no longer open if you click on an aircraft
+- You can no longer add yourself as a friend :(((
+
 # [1.2.1-1-final]
 
 I flew to EDDF yesterday. While it was fun, I have also noticed significant performance issues. This patch tends to fix

@@ -333,17 +333,10 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 
     let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
-    activePilotHover = features[0]?.cid ?? null;
-
     // we have more than one aircraft within the tolerance, so we need to find the closest one
-    if (features.length > 1) {
-        const closestFeature = vectorSource.value?.getClosestFeatureToCoordinate(e.coordinate);
-        // we now know the closest feature, so we filter the features array to only include the closest feature
-        // we use filter instead of a new features array, because we we want to make sure that the returned closest feature is actually part of the initial getPilotsForPixel return
-        features = features.filter(x => {
-            return x.cid === closestFeature?.get('id');
-        });
-    }
+    if (features.length > 1) features = getPilotsForPixel(map.value!, eventPixel, 10, true)?.slice(0, 1) ?? [];
+
+    activePilotHover = features[0]?.cid ?? null;
 
     if (features.length !== 1 || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
@@ -393,11 +386,15 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 async function handleClick(e: MapBrowserEvent<any>) {
     if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || isManualHover.value) return;
 
+    const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
+    let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
+
+    if (features.length < 1) return;
+
+    if (features.length > 1) features = getPilotsForPixel(map.value!, eventPixel, 10, true)?.slice(0, 1) ?? [];
+
     // here we deselect all aircraft when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircraft
     if (!hoveredAircraft.value && store.config.hideOverlays) {
-        const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
-        const features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
-
         if (features.length < 1) {
             if (store.config.hideOverlays) {
                 mapStore.overlays = mapStore.overlays.filter(x => x.type === 'airport');
@@ -417,12 +414,9 @@ async function handleClick(e: MapBrowserEvent<any>) {
         return;
     }
 
-    if (hoveredAircraft.value) {
-        // we are hovering over an aircraft and open the overlay
-        const overlay = await mapStore.addPilotOverlay(hoveredAircraft.value.toString());
-        if (overlay && store.config.showInfoForPrimaryAirport) {
-            overlay.sticky = true;
-        }
+    const overlay = await mapStore.addPilotOverlay(features[0].cid);
+    if (overlay && store.config.showInfoForPrimaryAirport) {
+        overlay.sticky = true;
     }
 }
 
@@ -491,7 +485,7 @@ watch(map, val => {
     val.addLayer(vectorLayer);
     val.addLayer(linesLayer);
 
-    attachPointerMove(handlePointerMove, 150);
+    attachPointerMove(handlePointerMove, 300);
     val.on('click', handleClick);
 }, {
     immediate: true,

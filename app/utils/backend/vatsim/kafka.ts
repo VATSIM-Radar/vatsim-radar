@@ -12,30 +12,24 @@ import type { VatsimController, VatsimPilot, VatsimPilotFlightPlan } from '~/typ
 
 export function kafkaAddClient(event: KafkaAddClient) {
     if (event.Type === KafkaClientType.Pilot) {
-        const pilot = radarStorage.vatsim.kafka.pilots.findIndex(x => x.cid === +event.Cid);
-        if (pilot !== -1) radarStorage.vatsim.kafka.pilots.splice(pilot, 1);
-
-        radarStorage.vatsim.kafka.pilots.push({
+        radarStorage.vatsim.kafka.pilots[event.Callsign] = {
             cid: +event.Cid,
             server: event.Server,
             callsign: event.Callsign,
             name: event.RealName,
             date: Date.now(),
             deleted: false,
-        });
+        };
     }
     else {
-        const controller = radarStorage.vatsim.kafka.atc.findIndex(x => x.cid === +event.Cid);
-        if (controller !== -1) radarStorage.vatsim.kafka.atc.splice(controller, 1);
-
-        radarStorage.vatsim.kafka.atc.push({
+        radarStorage.vatsim.kafka.atc[event.Callsign] = {
             cid: +event.Cid,
             server: event.Server,
             callsign: event.Callsign,
             name: event.RealName,
             date: Date.now(),
             deleted: false,
-        });
+        };
     }
 }
 
@@ -47,7 +41,7 @@ export function kafkaRemoveClient(event: KafkaRmClient) {
 }
 
 export function kafkaUpdateController(event: KafkaAD) {
-    let controller = radarStorage.vatsim.kafka.atc.find(x => x.callsign === event.Callsign);
+    let controller = radarStorage.vatsim.kafka.atc[event.Callsign];
 
     const fields: Partial<VatsimController> = {
         callsign: event.Callsign,
@@ -61,7 +55,7 @@ export function kafkaUpdateController(event: KafkaAD) {
             date: Date.now(),
             deleted: false,
         };
-        radarStorage.vatsim.kafka.atc.push(controller);
+        radarStorage.vatsim.kafka.atc[event.Callsign] = controller;
     }
     else {
         Object.assign(controller, fields);
@@ -71,7 +65,7 @@ export function kafkaUpdateController(event: KafkaAD) {
 }
 
 export function kafkaUpdatePilot(event: KafkaPD) {
-    let pilot = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === event.Callsign);
+    let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
 
     const qnhIhb = Number((29.92 - (event.PressureDifference / 1000.0)).toFixed(2));
     const qnhMb = Math.round(qnhIhb * 33.86389);
@@ -94,7 +88,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
             date: Date.now(),
             deleted: false,
         };
-        radarStorage.vatsim.kafka.pilots.push(pilot);
+        radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
     }
     else {
         Object.assign(pilot, fields);
@@ -126,32 +120,32 @@ export function kafkaUpdatePlan(event: KafkaPlan) {
     let pilot;
 
     if (event.Prefile) {
-        pilot = radarStorage.vatsim.kafka.prefiles.find(x => x.callsign === event.Callsign);
+        pilot = radarStorage.vatsim.kafka.prefiles[event.Callsign];
 
         if (!pilot) {
-            radarStorage.vatsim.kafka.prefiles.push({
+            radarStorage.vatsim.kafka.prefiles[event.Callsign] = {
                 flight_plan: fields,
                 callsign: event.Callsign,
                 cid: +event.Cid,
                 name: event.RealName ?? undefined,
                 date: Date.now(),
                 deleted: false,
-            });
+            };
             return;
         }
     }
     else {
-        pilot = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === event.Callsign);
+        pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
 
         if (!pilot) {
-            radarStorage.vatsim.kafka.pilots.push({
+            radarStorage.vatsim.kafka.pilots[event.Callsign] = {
                 flight_plan: fields,
                 callsign: event.Callsign,
                 cid: +event.Cid,
                 name: event.RealName ?? undefined,
                 date: Date.now(),
                 deleted: false,
-            });
+            };
             return;
         }
         else {
