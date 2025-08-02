@@ -6876,9 +6876,9 @@ __metadata:
   linkType: hard
 
 "alien-signals@npm:^2.0.5":
-  version: 2.0.5
-  resolution: "alien-signals@npm:2.0.5"
-  checksum: 10c0/6410a42f838018107e1d70d2bd503ef3349fd6e580c6d5a290a1be1e8d7a590a68485ffb297628655911ad775856308ca5ae6da2cdf400e5d632a4bb86b741c3
+  version: 2.0.6
+  resolution: "alien-signals@npm:2.0.6"
+  checksum: 10c0/174f84a2c8f8565542ad64e51780a252a44f765feb524084b5023eb1423e4a211b14bba41aeec518e409173037dbd88bb4a352e9e622f23a38ed3173596e695f
   languageName: node
   linkType: hard
 
@@ -16356,12 +16356,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:^0.8.2":
-  version: 0.8.2
-  resolution: "srvx@npm:0.8.2"
+"srvx@npm:^0.8.3":
+  version: 0.8.3
+  resolution: "srvx@npm:0.8.3"
   dependencies:
     cookie-es: "npm:^2.0.0"
-  checksum: 10c0/e227daf0f927f88a0f36036266cf51ebd8738b8bf886daac01fcd2a4bc4a901f638cfa9a3f31e6474e6659bf6c44c740932679901f66fd6b34fb4506f7821e54
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/821194a759643e6670cc471acd0ea9e2ede924df9cfb03dcffa7c4be299eaf7e9fc77bd5363f9dda1190c7d5e152d71f5f0333607b5db5eb323c80d63aef2f39
   languageName: node
   linkType: hard
 
@@ -18094,7 +18096,7 @@ __metadata:
     sass-embedded: "npm:^1.89.2"
     sharp: "npm:^0.34.3"
     sqlite3: "npm:^5.1.7"
-    srvx: "npm:^0.8.2"
+    srvx: "npm:^0.8.3"
     stylelint: "npm:^16.23.0"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^15.0.1"
