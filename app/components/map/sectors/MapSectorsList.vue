@@ -211,7 +211,7 @@ let lastEventPixel: Pixel | null = null;
 async function handleClick(e: MapBrowserEvent<any>) {
     // TODO: don't show popup when clicked target has an aircraft
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
-    if (mapStore.openingOverlay || getPilotsForPixel(map.value!, eventPixel, undefined, true)) return;
+    if (mapStore.openingOverlay || getPilotsForPixel(map.value!, eventPixel, undefined, true).length) return;
 
     if (collapsingWithOverlay(map, eventPixel, [])) return;
 
