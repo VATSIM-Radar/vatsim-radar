@@ -21,7 +21,6 @@
                     class="map_notam_text"
                     v-html="notam.text"
                 />
-                <div class="map_notam_spacer"/>
                 <div
                     v-if="notam.dismissable"
                     class="map_notam_close"

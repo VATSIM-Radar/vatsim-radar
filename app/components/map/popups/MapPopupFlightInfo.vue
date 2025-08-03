@@ -280,7 +280,7 @@ const distance = computed(() => getAircraftDistance(props.pilot));
 
 const getDistAndTime = computed(() => {
     try {
-        if (!distance.value?.toGoDist) return null;
+        if (!distance.value?.toGoDist || !distance.value.toGoTime) return null;
 
         const dist = Math.round(distance.value.toGoDist);
         const goTime = new Date(distance.value.toGoTime!);

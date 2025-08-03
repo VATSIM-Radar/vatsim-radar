@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.2-beta.2]
+
+- Fixed star/runway selected in Proc sometimes getting reset
+- Fixed bookings updating every 15 hours instead of 15 minutes
+- Expired bookings will now immediately hide from map
+- Fixed console error spam if tracking an aircraft on the ground
+- It is now much easier to swipe-to-close NOTAM
+- NOTAM close button has been moved close to text... so you know, it's not placed below overlay
+
 # [1.2.2-beta.1]
 
 - Improved internal data update speed
