@@ -1,21 +1,24 @@
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { getRedisSync, setRedisSync } from '~/utils/backend/redis';
 
-const caches: {
+interface CachedMetar {
     icao: string;
     metar: string;
     taf: string | null;
     date: number;
-}[] = [];
+}
 
 export async function getAirportWeather(icao: string): Promise<{ metar: string | null; taf: string | null } | null> {
-    const cachedMetar = caches.find(x => x.icao === icao);
+    const redisMetar = await getRedisSync(`airport-${ icao }-metar`);
+
+    const cachedMetar = redisMetar ? JSON.parse(redisMetar) as CachedMetar : undefined;
 
     const data: { metar: string | null; taf: string | null } = {
         metar: null,
         taf: null,
     };
 
-    if (cachedMetar?.metar && cachedMetar.date > Date.now() - (1000 * 60 * 5)) {
+    if (cachedMetar?.metar) {
         data.metar = cachedMetar.metar;
         data.taf = cachedMetar.taf ?? null;
     }
@@ -34,19 +37,12 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
             }
 
             if (data.metar) {
-                if (cachedMetar) {
-                    cachedMetar.date = Date.now();
-                    cachedMetar.metar = data.metar;
-                    cachedMetar.taf = data.taf ?? null;
-                }
-                else {
-                    caches.push({
-                        icao,
-                        metar: data.metar,
-                        taf: data.taf,
-                        date: Date.now(),
-                    });
-                }
+                await setRedisSync(`airport-${ icao }-metar`, JSON.stringify({
+                    icao,
+                    metar: data.metar,
+                    taf: data.taf,
+                    date: Date.now(),
+                }), 1000 * 60 * 10);
             }
         }
         catch (e) {
