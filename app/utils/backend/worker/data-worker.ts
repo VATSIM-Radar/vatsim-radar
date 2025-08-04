@@ -174,7 +174,7 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
 
         radarStorage.vatsim.data!.pilots.forEach(pilot => {
-            const newerData = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === pilot.callsign);
+            const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
             if (!newerData || updateTimestamp > newerData.date) return;
 
             if (newerData.deleted) return toDelete.pilots.add(pilot.callsign);
@@ -195,7 +195,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data!.prefiles.forEach(prefile => {
-            const newerData = radarStorage.vatsim.kafka.prefiles.find(x => x.callsign === prefile.callsign);
+            const newerData = radarStorage.vatsim.kafka.prefiles[prefile.callsign];
             if (!newerData || updateTimestamp > newerData.date) return;
 
             if (newerData.deleted) return toDelete.prefiles.add(prefile.callsign);
@@ -216,7 +216,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data!.controllers.forEach(controller => {
-            const newerData = radarStorage.vatsim.kafka.atc.find(x => x.callsign === controller.callsign);
+            const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
             if (!newerData || updateTimestamp > newerData.date) return;
 
             if (newerData.deleted) return toDelete.atc.add(controller.callsign);
@@ -402,7 +402,7 @@ defineCronJob('* * * * * *', async () => {
         }
 
         radarStorage.vatsim.data!.atis.forEach(controller => {
-            const newerData = radarStorage.vatsim.kafka.atc.find(x => x.callsign === controller.callsign);
+            const newerData = radarStorage.vatsim.kafka.atc[controller.callsign];
             if (!newerData || updateTimestamp > newerData.date) return;
 
             if (newerData.deleted) return toDelete.atc.add(controller.callsign);
@@ -410,10 +410,22 @@ defineCronJob('* * * * * *', async () => {
             objectAssign(controller, newerData);
         });
 
-        radarStorage.vatsim.kafka.pilots = radarStorage.vatsim.kafka.pilots.filter(x => radarStorage.vatsim.data!.pilots.some(y => y.callsign === x.callsign));
-        radarStorage.vatsim.kafka.atc = radarStorage.vatsim.kafka.atc.filter(x => radarStorage.vatsim.data!.controllers.some(y => y.callsign === x.callsign) ||
-            radarStorage.vatsim.data!.atis.some(y => y.callsign === x.callsign));
-        radarStorage.vatsim.kafka.prefiles = radarStorage.vatsim.kafka.prefiles.filter(x => radarStorage.vatsim.data!.prefiles.some(y => y.callsign === x.callsign));
+        const pilotCallsigns = new Set(data.pilots.map(p => p.callsign));
+        const atcCallsigns = new Set(data.controllers.map(c => c.callsign));
+        const atisCallsigns = new Set(data.atis.map(a => a.callsign));
+        const prefileCallsigns = new Set(data.prefiles.map(p => p.callsign));
+
+        Object.keys(radarStorage.vatsim.kafka.pilots).forEach(k => {
+            if (!pilotCallsigns.has(k)) delete radarStorage.vatsim.kafka.pilots[k];
+        });
+
+        Object.keys(radarStorage.vatsim.kafka.atc).forEach(k => {
+            if (!atcCallsigns.has(k) && !atisCallsigns.has(k)) delete radarStorage.vatsim.kafka.atc[k];
+        });
+
+        Object.keys(radarStorage.vatsim.kafka.prefiles).forEach(k => {
+            if (!prefileCallsigns.has(k)) delete radarStorage.vatsim.kafka.prefiles[k];
+        });
 
         if (toDelete.pilots.size) radarStorage.vatsim.data!.pilots = radarStorage.vatsim.data!.pilots.filter(x => !toDelete.pilots.has(x.callsign));
         if (toDelete.atc.size) radarStorage.vatsim.data!.controllers = radarStorage.vatsim.data!.controllers.filter(x => !toDelete.atc.has(x.callsign));

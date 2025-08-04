@@ -27,8 +27,8 @@ spec:
               cpu: 300m
               memory: 600Mi
             limits:
-              cpu: 950m
-              memory: 2Gi
+              cpu: 900m
+              memory: 1.5Gi
           readinessProbe:
             tcpSocket:
               port: 3000
