@@ -104,12 +104,14 @@ export function getVAWebsite(remarks: string) {
 
     try {
         if (website.startsWith('http')) {
-            new URL(website);
-            return website;
+            const url = new URL(website);
+            url.hostname = url.hostname.replace(/,/g, '-');
+            return url.toString();
         }
 
-        new URL(`https://${ website }`);
-        return `https://${ website }`;
+        const url = new URL(`https://${ website }`);
+        url.hostname = url.hostname.replace(/,/g, '-');
+        return url.toString();
     }
     catch {
         console.warn(`Failed to parse VA url from ${ remarks } (result: ${ website })`);
