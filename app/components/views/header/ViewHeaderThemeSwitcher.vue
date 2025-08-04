@@ -90,6 +90,10 @@ const theme = useCookie<ThemesList>('theme', {
         }
 
         .theme_item--light {
+            transform: rotate(-90deg);
+            color: $darkgray900;
+            animation: lightColorChange 0.5s ease-in-out;
+
             @keyframes lightColorChange {
                 0% {
                     color: $darkgray900Orig;
@@ -98,12 +102,6 @@ const theme = useCookie<ThemesList>('theme', {
                 100% {
                     color: $darkgray900;
                 }
-            }
-
-            & {
-                transform: rotate(-90deg);
-                color: $darkgray900;
-                animation: lightColorChange 0.5s ease-in-out;
             }
         }
 

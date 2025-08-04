@@ -205,9 +205,9 @@ export interface VatsimStorage {
     notam: RadarNotam | null;
     australia: AustraliaSector[];
     kafka: {
-        pilots: Array<Partial<VatsimData['pilots'][0]> & KafkaExtension>;
-        atc: Array<Partial<VatsimData['controllers'][0]> & KafkaExtension>;
-        prefiles: Array<Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
+        pilots: Record<string, Partial<VatsimData['pilots'][0]> & KafkaExtension>;
+        atc: Record<string, Partial<VatsimData['controllers'][0]> & KafkaExtension>;
+        prefiles: Record<string, Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
     };
 }
 
@@ -282,9 +282,9 @@ export const radarStorage: RadarStorage = {
         australia: [],
         notam: null,
         kafka: {
-            pilots: [],
-            atc: [],
-            prefiles: [],
+            pilots: {},
+            atc: {},
+            prefiles: {},
         },
     },
     navigraph: {

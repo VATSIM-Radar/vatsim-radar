@@ -34,6 +34,7 @@ module.exports = {
         'selector-class-pattern': null,
         'selector-id-pattern': null,
         'declaration-empty-line-before': null,
+        'property-no-deprecated': [true, { ignoreProperties: ['-webkit-box-orient'] }],
         'function-name-case': null,
         'alpha-value-notation': null,
         'value-keyword-case': null,

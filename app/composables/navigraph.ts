@@ -302,23 +302,17 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     }
 
     let depRunway = selectedDeparture?.runways[0];
-    let arrRunway = null as string | null;
+    let arrRunway = selectedArrival?.runways[0];
 
     const depSid = Object.values(selectedDeparture?.sids ?? {})[0];
-    let arrStar = null as null | DataStoreNavigraphProcedure;
-    let arrApproach = null as null | DataStoreNavigraphProcedure<NavigraphNavDataApproach>;
+    const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
+    const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
 
     const navigraphData = await getFullData();
     let letter = '';
 
     try {
         for (let i = 0; i < entries.length; i++) {
-            if (i === entries.length - 1) {
-                arrRunway ||= selectedArrival?.runways[0] ?? null;
-                arrStar = Object.values(selectedArrival?.stars ?? {})[0];
-                arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
-            }
-
             const entry = entries[i];
             let split = entry.split('/');
             if (split.length > 2) split = split.slice(split.length - 2, split.length);
@@ -422,7 +416,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             const starTest = disableStarParsing ? false : sidstarRegex.test(entry);
 
             // STARs/Approaches
-            if (!starInit && (arrStar || arrApproach || starTest)) {
+            if (!starInit && ((!arrStar && !arrApproach) ? starTest : i === entries.length - 1)) {
                 let star = -1;
 
                 if (!arrRunway) {

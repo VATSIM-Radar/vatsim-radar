@@ -1,5 +1,6 @@
 <template>
     <div
+        v-if="cid.toString() !== store.user?.cid"
         class="list"
         :class="{ 'list--added': addedList }"
     >

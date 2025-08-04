@@ -311,7 +311,7 @@ function initBookings() {
     }));
 
     async function updateBookings() {
-        store.bookings = await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
+        store.fetchedBookings = await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
             query: bookingsQueryParams.value,
         });
     }
@@ -324,7 +324,7 @@ function initBookings() {
 
     const bookingHours = computed(() => store.mapSettings.bookingHours);
     // Every 15 minutes
-    const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 60 * 15);
+    const needToUpdate = computed(() => dataStore.time.value - lastUpdate > 1000 * 60 * 15);
 
     watch(bookingsQueryParams, updateBookings);
     watch(bookingHours, updateEnd, { immediate: true });

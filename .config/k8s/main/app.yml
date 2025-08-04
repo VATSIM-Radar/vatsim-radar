@@ -28,7 +28,7 @@ spec:
               memory: 600Mi
             limits:
               cpu: 900m
-              memory: 2Gi
+              memory: 1.5Gi
           readinessProbe:
             tcpSocket:
               port: 3000
@@ -126,7 +126,7 @@ spec:
         name: memory
         target:
           type: Utilization
-          averageUtilization: 300
+          averageUtilization: 240
   behavior:
     scaleDown:
       stabilizationWindowSeconds: 300

@@ -64,7 +64,7 @@ export const useStore = defineStore('index', {
         bookmarks: [] as UserBookmarkPreset[],
         config: {} as SiteConfig,
 
-        bookings: [] as VatsimBooking[],
+        fetchedBookings: [] as VatsimBooking[],
         bookingsStartTime: new Date(),
         bookingsEndTime: new Date(Date.now() + (5 * 60 * 60 * 1000)),
         bookingOverride: false,
@@ -124,6 +124,10 @@ export const useStore = defineStore('index', {
         } as VRInitStatus,
     }),
     getters: {
+        bookings(): VatsimBooking[] {
+            const dataStore = useDataStore();
+            return this.fetchedBookings.filter(x => x.end > dataStore.time.value);
+        },
         fullAirportsUpdate(): boolean {
             return (this.featuredAirportsOpen && !this.featuredVisibleOnly) || this.updateATCTracons;
         },
