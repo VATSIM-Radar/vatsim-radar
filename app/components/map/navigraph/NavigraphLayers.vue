@@ -88,12 +88,12 @@
                     <template v-else-if="activeFeature && isAirway(activeFeature)">
                         <div
                             v-for="field in ([
-                                ['Inbound course', activeFeature.additionalData?.waypoint.inbound],
-                                ['Outbound course', activeFeature.additionalData?.waypoint.outbound],
-                                ['Minimum altitude', activeFeature.additionalData?.waypoint.minAlt],
-                                ['Maximum altitude', activeFeature.additionalData?.waypoint.maxAlt],
-                                ['Direction restriction', activeFeature.additionalData?.waypoint.direction === 'F' ? 'Forward' : activeFeature.additionalData?.waypoint.direction === 'B' ? 'Backwards' : null],
-                                ['Level', activeFeature.additionalData?.waypoint.flightLevel === 'H' ? 'High' : activeFeature.additionalData?.waypoint.flightLevel === 'L' ? 'Low' : 'Both'],
+                                ['Inbound course', activeFeature.additionalData?.waypoint?.inbound],
+                                ['Outbound course', activeFeature.additionalData?.waypoint?.outbound],
+                                ['Minimum altitude', activeFeature.additionalData?.waypoint?.minAlt],
+                                ['Maximum altitude', activeFeature.additionalData?.waypoint?.maxAlt],
+                                ['Direction restriction', activeFeature.additionalData?.waypoint?.direction === 'F' ? 'Forward' : activeFeature.additionalData?.waypoint?.direction === 'B' ? 'Backwards' : null],
+                                ['Level', activeFeature.additionalData?.waypoint?.flightLevel === 'H' ? 'High' : activeFeature.additionalData?.waypoint?.flightLevel === 'L' ? 'Low' : 'Both'],
                             ] as [string, any][]).filter(x => x[1])"
                             :key="field[0]"
                             class="__grid-info-sections __grid-info-sections--vertical"

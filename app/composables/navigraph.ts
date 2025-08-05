@@ -567,35 +567,52 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             const airways = navigraphData.parsedAirways[search];
 
             if (airways) {
-                const list = Object.entries(airways);
+                let list = Object.entries(airways);
                 let neededAirway = list.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) && x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
 
                 if (!neededAirway) {
+                    list = JSON.parse(JSON.stringify(list));
                     const neededAirways = list.filter(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]) || x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
 
                     if (neededAirways.length === 2) {
-                        neededAirway = neededAirways[0];
+                        neededAirway = JSON.parse(JSON.stringify(neededAirways[0])) as typeof neededAirways[0];
 
-                        const dir = neededAirways[0][1][2][0][0] === neededAirways[1][1][2][neededAirways[1][1][2].length - 1][0];
+                        const startingAirway = neededAirways.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]));
+                        const endAirway = neededAirways.find(x => x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+                        let startAirwayEndingWaypoint = -1;
+                        let endAirwayStartingWaypoint = -1;
+                        const endIndex = endAirway?.[1][2].findIndex(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]);
+                        const startingIndex = startingAirway?.[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
 
-                        if (!dir) {
-                            neededAirway[1][2] = [
-                                ...neededAirway[1][2],
-                                ...neededAirways[1][1][2],
-                            ];
+                        // Looking for airway start
+                        for (let i = startingIndex ?? 0; i < (startingAirway?.[1][2].length ?? 0); i++) {
+                            endAirwayStartingWaypoint = endAirway?.[1][2].findIndex(x => x[0] === startingAirway?.[1][2][i]?.[0]) ?? -1;
+                            if (endAirwayStartingWaypoint !== -1) {
+                                startAirwayEndingWaypoint = i;
+                                break;
+                            }
                         }
-                        else {
-                            neededAirway[1][2] = [
-                                ...neededAirways[1][1][2],
-                                ...neededAirway[1][2],
-                            ];
+
+                        if (endIndex !== -1 && endAirwayStartingWaypoint !== -1) {
+                            const startingIndex = startingAirway?.[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
+                            neededAirway[1][2] = startingAirway![1][2].slice(startingIndex, startAirwayEndingWaypoint);
+                            console.log(search, endAirwayStartingWaypoint, endIndex);
+                            neededAirway[1][2].push(...endAirway![1][2].slice(endAirwayStartingWaypoint, endIndex! + 1));
                         }
+
+                        console.log(search, endAirwayStartingWaypoint, endIndex);
+                        console.log(search, startingAirway, endAirway, neededAirways, neededAirway);
+
+                        if (endIndex === -1 || endAirwayStartingWaypoint === -1 || !startingAirway || !endAirway) neededAirway = undefined;
+                        else console.log(search, neededAirway);
                     }
                 }
 
                 if (neededAirway) {
                     let startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
                     let endIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i + 1]?.split('/')[0]);
+
+                    if (search === 'Q140') console.log(startIndex, endIndex);
 
                     neededAirway = JSON.parse(JSON.stringify(neededAirway)) as [string, ShortAirway];
 
@@ -635,6 +652,8 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             const vhfs = navigraphData.parsedVHF[search];
             const ndbs = navigraphData.parsedNDB[search];
             const waypointsList = navigraphData.parsedWaypoints[search];
+
+            if (search === 'MADAV') console.log(waypointsList);
 
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {

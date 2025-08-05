@@ -126,8 +126,8 @@ export async function initNavigraph() {
         retry: 3,
     });
 
-    const currentCycle = `${ current.cycle }-${ current.revision }-5`;
-    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-5`;
+    const currentCycle = `${ current.cycle }-${ current.revision }-1`;
+    const outdatedCycle = `${ outdated.cycle }-${ outdated.revision }-1`;
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 

@@ -39,7 +39,8 @@ export interface NavigraphNavDataEnrouteWaypoint {
     identifier: string;
     coordinate: Coordinate;
     type: string;
-    usage: string;
+    usage?: string;
+    terminal: boolean;
 }
 
 export interface NavigraphNavDataEnrouteWaypointPartial extends Partial<NavigraphNavDataAirportWaypointConstraints> {
@@ -210,7 +211,7 @@ export interface NavigraphNavDataShort {
     ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;
     airways: Record<string, ShortAirway>;
-    waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string]>;
+    waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string, terminal: boolean]>;
 
     parsedVHF?: Record<string, NavigraphNavDataShort['vhf']>;
     parsedNDB?: Record<string, NavigraphNavDataShort['ndb']>;

@@ -6594,6 +6594,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueuse/core@npm:13.6.0, @vueuse/core@npm:^13.6.0":
+  version: 13.6.0
+  resolution: "@vueuse/core@npm:13.6.0"
+  dependencies:
+    "@types/web-bluetooth": "npm:^0.0.21"
+    "@vueuse/metadata": "npm:13.6.0"
+    "@vueuse/shared": "npm:13.6.0"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/c9f7b4c95b7bbca5c0b168fb1f238a4db5a0d7b3e7dc89b5f35dc4812c5a8efa9b441af7f5a79b20829942e06e66e7298c3d10809c9ea104500317556b791e75
+  languageName: node
+  linkType: hard
+
 "@vueuse/integrations@npm:^12.4.0":
   version: 12.8.2
   resolution: "@vueuse/integrations@npm:12.8.2"
@@ -6650,12 +6663,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vueuse/metadata@npm:13.6.0":
+  version: 13.6.0
+  resolution: "@vueuse/metadata@npm:13.6.0"
+  checksum: 10c0/8966688196d3e15a2cf73e7c033abfdc41add43d89fd3ff2562f53294b8ee04316d9578a222c9c6b07e9535ace4fef678a16d4626bfcdbd4884b63f217f1a04a
+  languageName: node
+  linkType: hard
+
+"@vueuse/nuxt@npm:^13.6.0":
+  version: 13.6.0
+  resolution: "@vueuse/nuxt@npm:13.6.0"
+  dependencies:
+    "@nuxt/kit": "npm:^4.0.1"
+    "@vueuse/core": "npm:13.6.0"
+    "@vueuse/metadata": "npm:13.6.0"
+    local-pkg: "npm:^1.1.1"
+  peerDependencies:
+    nuxt: ^3.0.0 || ^4.0.0-0
+    vue: ^3.5.0
+  checksum: 10c0/74e8e40b848e3dc95532adf71037d23baf93ad9dd41f356152d8e7dcc84f02e6b69e54a6fdb67d15b099a579658c38a165032cd98dc8b04cd23ac60ed6afeeab
+  languageName: node
+  linkType: hard
+
 "@vueuse/shared@npm:12.8.2":
   version: 12.8.2
   resolution: "@vueuse/shared@npm:12.8.2"
   dependencies:
     vue: "npm:^3.5.13"
   checksum: 10c0/43a04cf44e3377ee7666787e597d45ddf83880d3e1835000201b0c471198ce83ad45e4f4a0182d68781c0a23c84a904aab253e4c6279400a235e0246b613bad2
+  languageName: node
+  linkType: hard
+
+"@vueuse/shared@npm:13.6.0":
+  version: 13.6.0
+  resolution: "@vueuse/shared@npm:13.6.0"
+  peerDependencies:
+    vue: ^3.5.0
+  checksum: 10c0/378e8158ea13225a33e6fafb91a2e94c2720a7f93b9227d6e3277e22d081d92f59b1a4a946692bc47f5d4a5d7f32bf1bbeab3a941a7b68fec2aa04df8ec8aa19
   languageName: node
   linkType: hard
 
@@ -18066,6 +18110,8 @@ __metadata:
     "@types/node": "npm:^24.1.0"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.0.4"
+    "@vueuse/core": "npm:^13.6.0"
+    "@vueuse/nuxt": "npm:^13.6.0"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
     chardet: "npm:^2.1.0"
@@ -18115,7 +18161,6 @@ __metadata:
     vue-draggable-plus: "npm:^0.6.0"
     vue-router: "npm:^4.5.1"
     vue-tsc: "npm:3.0.5"
-    vue3-touch-events: "npm:^5.0.13"
     ws: "npm:^8.18.3"
   languageName: unknown
   linkType: soft
@@ -18556,15 +18601,6 @@ __metadata:
   bin:
     vue-tsc: ./bin/vue-tsc.js
   checksum: 10c0/6354d1da0061937f8ec4212f122c1e4d49bd6f3a5650984f5abb9b6b15706f8f09564e22412fe6e21a05dfab0ae567474d0d2a3b1d8fd6fe406cc9f8d6d41e4f
-  languageName: node
-  linkType: hard
-
-"vue3-touch-events@npm:^5.0.13":
-  version: 5.0.13
-  resolution: "vue3-touch-events@npm:5.0.13"
-  peerDependencies:
-    vue: ^3.0.0
-  checksum: 10c0/a7e3c0e66fac9f23ccfd830ba04f1c9193c2f6aa5110f7b2cccfe92aeda005370b35500085861025550c25ce3beddb2df1d008e8bd1c1633cbed74d6841052fd
   languageName: node
   linkType: hard
 

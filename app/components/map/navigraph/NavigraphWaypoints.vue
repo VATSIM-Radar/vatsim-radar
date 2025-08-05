@@ -22,8 +22,9 @@ const isEnabled = computed(() => store.mapSettings.navigraphData?.waypoints !== 
 let features: Feature[] = [];
 
 const extent = computed(() => mapStore.extent);
+const terminal = computed(() => store.mapSettings.navigraphData?.terminalWaypoints);
 
-watch([isEnabled, extent], async ([enabled, extent]) => {
+watch([isEnabled, extent, terminal], async ([enabled, extent, terminal]) => {
     if (!enabled) {
         source?.value.removeFeatures(features);
         features = [];
@@ -36,6 +37,7 @@ watch([isEnabled, extent], async ([enabled, extent]) => {
     entries.forEach(([key, waypoint]) => {
         const coordinate = [waypoint[1], waypoint[2]];
         if (!isPointInExtent(coordinate, extent)) return;
+        if (waypoint[4] && !terminal) return;
 
         newFeatures.push(new Feature({
             geometry: new Point([waypoint[1], waypoint[2]]),

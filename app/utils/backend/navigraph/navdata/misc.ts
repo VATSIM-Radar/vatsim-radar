@@ -66,12 +66,37 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
         waypoint_longitude: number;
         waypoint_name: string;
         waypoint_type: string;
-        waypoint_usage: string;
+        waypoint_usage?: string;
+        is_terminal?: boolean;
     }>({
         db,
         sql: 'SELECT * FROM tbl_ea_enroute_waypoints',
         table: 'tbl_ea_enroute_waypoints',
     });
+
+    const terminalWaypoints = await dbPartialRequest<{
+        area_code: string;
+        continent: string;
+        country: string;
+        datum_code: string;
+        icao_code: string;
+        magnetic_variation: number;
+        waypoint_identifier: string;
+        waypoint_latitude: number;
+        waypoint_longitude: number;
+        waypoint_name: string;
+        waypoint_type: string;
+        is_terminal?: boolean;
+    }>({
+        db,
+        sql: 'SELECT * FROM tbl_pc_terminal_waypoints',
+        table: 'tbl_pc_terminal_waypoints',
+    });
+
+    for (let i = 0; i < terminalWaypoints.length; i++) {
+        terminalWaypoints[i].is_terminal = true;
+        waypoints.push(terminalWaypoints[i]);
+    }
 
     fullData.waypoints = [];
     shortData.waypoints = {};
@@ -82,9 +107,10 @@ export const processNavdataWaypoints: NavdataProcessFunction = async ({ fullData
             coordinate: [item.waypoint_longitude, item.waypoint_latitude],
             type: item.waypoint_type,
             usage: item.waypoint_usage,
+            terminal: !!item.is_terminal,
         });
 
-        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type];
+        shortData.waypoints[`${ item.waypoint_identifier }-${ item.area_code }`] = [item.waypoint_identifier, item.waypoint_longitude, item.waypoint_latitude, item.waypoint_type, !!item.is_terminal];
     }
 };
 

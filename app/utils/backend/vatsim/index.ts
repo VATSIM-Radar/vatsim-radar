@@ -75,7 +75,7 @@ export async function vatsimGetUser(token: string) {
 export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: simawareData, isApp }: {
     callsign: string; isApp: boolean; vatspy: VatSpyData; simaware: SimAwareData;
 }): VatSpyAirport | SimAwareData['features'][0] {
-    const splittedName = callsign.split('_').slice(0, 2);
+    const splittedName = callsign.replaceAll('__', '_').split('_').slice(0, 2);
     const regularName = splittedName.join('_');
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];

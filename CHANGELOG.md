@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.2.2-final]
+
+- You can now use `,` as separator for VA name, or in VA website by andy199310
+- TCAS Simbrief will now be filtered from VA name by andy199310
+- Added support for Terminal Waypoints parsing - not displayed on map by default when waypoints layer is enabled
+- Fixed TRACONs not showing for `__` and such callsigns
+- Fixed some edge cases for route parsing
+
 # [1.2.2-beta.2]
 
 - Fixed star/runway selected in Proc sometimes getting reset
