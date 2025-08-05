@@ -87,7 +87,7 @@ export function getVACallsign(remarks: string): { callsign: string; name: string
     if (exec?.groups && exec?.groups?.callsign) {
         const callsign = exec.groups.callsign?.replace('VATSIMVA', '').split('TCAS')[0].split('SIMBRIEF')[0].trim();
         if (!callsign) return null;
-        const name = exec.groups.name ? exec.groups.name.replace('VATSIMVA', '').replace('TCAS', '').replace('SIMBRIEF', '').trim() : null;
+        const name = exec.groups.name ? exec.groups.name.replace('VATSIMVA', '').replace('TCAS', '').replace('SIMBRIEF', '').replaceAll('  ', ' ').trim() : null;
 
         return {
             callsign,
