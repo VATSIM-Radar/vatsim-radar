@@ -311,6 +311,13 @@
                     Waypoints
                 </common-toggle>
                 <common-toggle
+                    :disabled="!store.mapSettings.navigraphData?.waypoints"
+                    :model-value="store.mapSettings.navigraphData?.terminalWaypoints"
+                    @update:modelValue="setUserMapSettings({ navigraphData: { terminalWaypoints: $event } })"
+                >
+                    Terminal Waypoints
+                </common-toggle>
+                <common-toggle
                     :model-value="store.mapSettings.navigraphData?.holdings"
                     @update:modelValue="setUserMapSettings({ navigraphData: { holdings: $event } })"
                 >

@@ -110,7 +110,7 @@ export const useMapStore = defineStore('map', {
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {
-            const id = crypto.randomUUID();
+            const id = typeof crypto.randomUUID === 'undefined' ? Math.random().toString() : crypto.randomUUID();
             const isMobile = useIsMobile();
 
             for (const overlay of this.overlays.filter(x => typeof x.position === 'number')) {

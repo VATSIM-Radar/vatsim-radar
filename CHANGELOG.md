@@ -1,5 +1,26 @@
 # Changelog
 
+# [1.2.2]
+
+This update is focused on bug fixes and small improvements.
+
+- You can now use `,` as separator for VA name, or in VA website by andy199310
+- TCAS Simbrief will now be filtered from VA name by andy199310
+- Added support for Terminal Waypoints parsing - not displayed on map by default when waypoints layer is enabled
+- Fixed TRACONs not showing for `__` and such callsigns
+- Fixed some edge cases for route parsing
+- Fixed star/runway selected in Proc sometimes getting reset
+- Fixed bookings updating every 15 hours instead of 15 minutes
+- Expired bookings will now immediately hide from map
+- Fixed console error spam if tracking an aircraft on the ground
+- It is now much easier to swipe-to-close NOTAM
+- NOTAM close button has been moved close to text... so you know, it's not placed below overlay
+- Improved internal data update speed
+- Improved aircraft click on map for both touch screens and mouse
+- You will now be able to precisely hover on aircraft even if they are close together
+- VATGlasses will no longer open if you click on an aircraft
+- You can no longer add yourself as a friend :(((
+
 # [1.2.1-1]
 
 I flew to EDDF yesterday. While it was fun, I have also noticed significant performance issues. This patch tends to fix

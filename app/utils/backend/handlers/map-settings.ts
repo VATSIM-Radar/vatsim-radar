@@ -310,6 +310,7 @@ export interface IUserMapSettings {
         ndb: boolean;
         vordme: boolean;
         waypoints: boolean;
+        terminalWaypoints: boolean;
         holdings: boolean;
         mode: NavigraphSettingsLevel;
         isModeAuto: boolean;

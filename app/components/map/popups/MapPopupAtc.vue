@@ -85,6 +85,7 @@
                 <common-atc-time-online
                     class="atc__time-online"
                     :controller="atc"
+                    full
                 />
             </div>
         </template>

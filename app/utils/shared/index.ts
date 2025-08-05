@@ -83,14 +83,15 @@ export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
 }
 
 export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
-    const exec = /(CS[\/-=]|CALLSIGN([\/-=]| ))(?<callsign>[A-Z -]+)(([\/-=](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/-=][A-Z-])|((?= [A-Z-]+[\/-=][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/-=][A-Z-]))|((?= [A-Z-]+[\/-=][A-Z-]))|(?=$))/.exec(remarks);
+    const exec = /(CS[\/-=,]|CALLSIGN([\/-=,]| ))(?<callsign>[A-Z -]+)(([\/-=,](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/-=,][A-Z-])|((?= [A-Z-]+[\/-=,][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/-=,][A-Z-]))|((?= [A-Z-]+[\/-=,][A-Z-]))|(?=$))/.exec(remarks);
     if (exec?.groups && exec?.groups?.callsign) {
         const callsign = exec.groups.callsign?.replace('VATSIMVA', '').split('TCAS')[0].split('SIMBRIEF')[0].trim();
         if (!callsign) return null;
+        const name = exec.groups.name ? exec.groups.name.replace('VATSIMVA', '').replace('TCAS', '').replace('SIMBRIEF', '').replaceAll('  ', ' ').trim() : null;
 
         return {
             callsign,
-            name: exec.groups.name ? exec.groups.name.trim() : null,
+            name,
         };
     }
 
@@ -98,18 +99,20 @@ export function getVACallsign(remarks: string): { callsign: string; name: string
 }
 
 export function getVAWebsite(remarks: string) {
-    const website = /WEB[\/-=](?<website>.+?)((?= )|(?=$))/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
+    const website = /WEB[\/-=,](?<website>.+?)((?= )|(?=$))/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
 
     if (!website) return website;
 
     try {
         if (website.startsWith('http')) {
-            new URL(website);
-            return website;
+            const url = new URL(website);
+            url.hostname = url.hostname.replace(/,/g, '-');
+            return url.toString();
         }
 
-        new URL(`https://${ website }`);
-        return `https://${ website }`;
+        const url = new URL(`https://${ website }`);
+        url.hostname = url.hostname.replace(/,/g, '-');
+        return url.toString();
     }
     catch {
         console.warn(`Failed to parse VA url from ${ remarks } (result: ${ website })`);

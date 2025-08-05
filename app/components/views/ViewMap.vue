@@ -8,7 +8,7 @@
         <transition name="map_notam--appear">
             <div
                 v-if="notam"
-                v-touch:swipe.top="closeNotam"
+                ref="notam"
                 class="map_notam"
                 :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissalbe': notam.dismissable }]"
             >
@@ -21,7 +21,6 @@
                     class="map_notam_text"
                     v-html="notam.text"
                 />
-                <div class="map_notam_spacer"/>
                 <div
                     v-if="notam.dismissable"
                     class="map_notam_close"
@@ -309,6 +308,7 @@ const emit = defineEmits({
     },
 });
 defineSlots<{ default: () => any }>();
+const notamRef = useTemplateRef('notam');
 const mapContainer = ref<HTMLDivElement | null>(null);
 const popups = useTemplateRef<HTMLDivElement | null>('popups');
 const popupsHeight = ref(0);
@@ -325,6 +325,13 @@ const filterId = ref(route.query.filter && +route.query.filter);
 const bookmarkId = ref(route.query.bookmark && +route.query.bookmark);
 const isMobile = useIsMobile();
 const config = useRuntimeConfig();
+
+usePointerSwipe(notamRef, {
+    threshold: 20,
+    onSwipeEnd(_, direction) {
+        if (direction === 'up') closeNotam();
+    },
+});
 
 if (route.query.discord === '1') {
     router.replace({
