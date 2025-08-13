@@ -822,7 +822,7 @@ watch(map, val => {
 
         map.value?.addLayer(navigraphLayer);
         map.value?.addLayer(navigraphFakeLayer);
-        map.value?.on('click', handleMapClick);
+        map.value?.on('singleclick', handleMapClick);
     }
 }, {
     immediate: true,
@@ -835,7 +835,7 @@ onBeforeUnmount(() => {
     if (navigraphFakeLayer) map.value?.removeLayer(navigraphFakeLayer);
     navigraphLayer?.dispose();
     navigraphFakeLayer?.dispose();
-    map.value?.un('click', handleMapClick);
+    map.value?.un('singleclick', handleMapClick);
 });
 </script>
 

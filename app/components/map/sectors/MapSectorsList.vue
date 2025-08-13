@@ -424,11 +424,12 @@ function updateMap(map: Map | null) {
 
     map.addLayer(vectorLayer);
     initVatglasses();
-    map.on('click', handleClick);
+    map.on('singleclick', handleClick);
 }
 
 onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
+    map.value?.un('singleclick', handleClick);
 });
 </script>
 

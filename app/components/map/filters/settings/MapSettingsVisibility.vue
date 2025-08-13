@@ -156,8 +156,8 @@
                 </div>
                 <common-select
                     :disabled="!(store.mapSettings.visibility?.bookings ?? true)"
-                    :items="[{ value: '0.5', text: '30 min' }, { value: '1', text: '1h' }, { value: '2', text: '2h' }, { value: '3', text: '3h' }, { value: '4', text: '4h' }]"
-                    :model-value="store.mapSettings.bookingHours ?? '0.5'"
+                    :items="[{ value: 0.5, text: '30 min' }, { value: 1, text: '1h' }, { value: 2, text: '2h' }, { value: 3, text: '3h' }, { value: 4, text: '4h' }]"
+                    :model-value="store.mapSettings.bookingHours ?? 0.5"
                     placeholder="1h"
                     @update:modelValue="setUserMapSettings({ bookingHours: $event as any })"
                 />

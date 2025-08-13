@@ -98,6 +98,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     bookingHours: val => {
+        if (typeof val === 'string') val = Number(val);
+        if (isNaN(val as number)) return false;
+
         return isNumber(val, 1) && val > 0 && val < 5;
     },
     bookingsLocalTimezone: val => {
@@ -224,7 +227,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr' && val.mode !== 'ifrHigh' && val.mode !== 'ifrLow' && val.mode !== 'both') return false;
         if ('airways' in val) {
             if (!isObject(val.airways)) return false;
-            if (!validateRandomObjectKeys(val, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
+            if (!validateRandomObjectKeys(val.airways, ['enabled', 'showAirwaysLabel', 'showWaypointsLabel'])) return false;
 
             if ('enabled' in val.airways && typeof val.airways.enabled !== 'boolean') return false;
             if ('showAirwaysLabel' in val.airways && typeof val.airways.showAirwaysLabel !== 'boolean') return false;
