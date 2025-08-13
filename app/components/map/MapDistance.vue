@@ -250,7 +250,7 @@ watch(map, val => {
         },
     });
     val.addLayer(layer);
-    val.on('click', handleMapClick);
+    val.on('singleclick', handleMapClick);
 }, {
     immediate: true,
 });
@@ -265,7 +265,7 @@ onBeforeUnmount(() => {
         map.value?.removeLayer(layer);
     }
 
-    map.value?.un('click', handleMapClick);
+    map.value?.un('singleclick', handleMapClick);
 });
 </script>
 

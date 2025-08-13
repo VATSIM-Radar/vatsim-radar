@@ -384,7 +384,7 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 }
 
 async function handleClick(e: MapBrowserEvent<any>) {
-    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || isManualHover.value) return;
+    if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || (isManualHover.value && !store.isTouch)) return;
 
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
     let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
@@ -486,7 +486,7 @@ watch(map, val => {
     val.addLayer(linesLayer);
 
     attachPointerMove(handlePointerMove, 300);
-    val.on('click', handleClick);
+    val.on('singleclick', handleClick);
 }, {
     immediate: true,
 });
@@ -499,7 +499,7 @@ onBeforeUnmount(() => {
     if (vectorLayer) map.value?.removeLayer(vectorLayer);
     if (linesLayer) map.value?.removeLayer(linesLayer);
     vectorSource.value?.clear();
-    map.value?.un('click', handleClick);
+    map.value?.un('singleclick', handleClick);
     window.removeEventListener('message', receiveMessage);
     if (heatmap) {
         map.value?.removeLayer(heatmap);

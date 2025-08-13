@@ -164,7 +164,7 @@ watch(map, val => {
         default: buildStyle('lightgray200', 0.05, 0.2),
     };
 
-    val.on('click', handleMapClick);
+    val.on('singleclick', handleMapClick);
 
     layer = new VectorImageLayer({
         source: source.value = new VectorSource(),
@@ -204,7 +204,7 @@ onBeforeUnmount(() => {
     if (layer) {
         map.value?.removeLayer(layer);
     }
-    map.value?.un('click', handleMapClick);
+    map.value?.un('singleclick', handleMapClick);
 });
 </script>
 

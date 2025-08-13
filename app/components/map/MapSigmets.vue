@@ -242,7 +242,7 @@ watch([jsonFeatures, map, localDisabled], () => {
     if (!map.value) return;
 
     if (!source) {
-        map.value.on('click', handleMapClick);
+        map.value.on('singleclick', handleMapClick);
 
         source = new VectorSource<any>({
             features: [],
@@ -283,7 +283,7 @@ watch([jsonFeatures, map, localDisabled], () => {
 
 onBeforeUnmount(() => {
     map.value?.removeLayer(layer);
-    map.value?.un('click', handleMapClick);
+    map.value?.un('singleclick', handleMapClick);
 });
 </script>
 

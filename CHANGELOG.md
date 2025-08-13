@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.2-1-final]
+
+- Fixed some cases when you were unable to save map settings
+- It is now much, much easier to click on an aircraft on mobile
+
 # [1.2.2-final]
 
 This update is focused on bug fixes and small improvements.

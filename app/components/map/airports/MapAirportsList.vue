@@ -340,7 +340,7 @@ watch(map, val => {
     useUpdateInterval(setVisibleAirports);
     watch(() => String(isHideMapObject('gates')) + isHideMapObject('runways'), setVisibleAirports);
     attachPointerMove(handlePointerMove);
-    val.on('click', handleMapClick);
+    val.on('singleclick', handleMapClick);
 }, {
     immediate: true,
 });
@@ -357,7 +357,7 @@ onBeforeUnmount(() => {
     if (airportVectorLayer) map.value?.removeLayer(airportVectorLayer);
     if (airportLabelVectorLayer) map.value?.removeLayer(airportLabelVectorLayer);
     map.value?.un('pointermove', handlePointerMove);
-    map.value?.un('click', handleMapClick);
+    map.value?.un('singleclick', handleMapClick);
 });
 
 const getAirportsData = computed<NavigraphAirportData[]>(() => {
