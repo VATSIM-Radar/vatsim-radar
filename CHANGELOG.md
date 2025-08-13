@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.2-2]
+
+- Fixed SELCAL sometimes parsing as virtual airline name
+- Fixed rare cases when VATGlasses approach controllers not displaying on map
+
 # [1.2.2-1]
 
 - Fixed some cases when you were unable to save map settings

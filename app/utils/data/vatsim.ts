@@ -100,7 +100,15 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
             simaware,
         });
 
-        if (!airport) return null as unknown as VatSpyDataLocalATC;
+        if (!airport) {
+            return {
+                atc: {
+                    ...atc,
+                    isATIS: atc.callsign.endsWith('ATIS'),
+                },
+                isATIS: atc.callsign.endsWith('ATIS'),
+            };
+        }
 
         return {
             atc: {
@@ -340,18 +348,19 @@ export async function getAirportsList() {
 
     radarStorage.vatsim.locals.forEach(atc => {
         const airport = atc.airport;
+        if (!airport) return;
 
         const duplicateAirport = airports.find(x => x.icao === airport.icao && x.iata !== airport.iata);
 
         if (duplicateAirport) {
             atc.airport = {
                 ...duplicateAirport,
-                tracon: atc.airport.iata,
+                tracon: airport.iata,
             };
             return;
         }
 
-        if (!airports.some(x => atc.airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
+        if (!airports.some(x => airport.iata ? x.iata === airport.iata : x.icao === airport.icao)) {
             const airportExist = airport.iata ? vatspy.data!.keyAirports.realIata[airport.iata ?? ''] : vatspy.data!.keyAirports.realIcao[airport.icao];
             const someAirportExist = vatspy.data!.keyAirports.iata[airport.iata ?? ''] || vatspy.data!.keyAirports.icao[airport.icao];
 

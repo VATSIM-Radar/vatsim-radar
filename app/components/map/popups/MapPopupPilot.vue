@@ -443,7 +443,7 @@ const getAtcList = computed<AtcPopupSection[]>(() => {
         });
     }
 
-    const controls = pilot.value.airport ? dataStore.vatsim.data.locals.value.filter(x => x.airport.icao === pilot.value.airport) : null;
+    const controls = pilot.value.airport ? dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao === pilot.value.airport) : null;
 
     if (controls?.length) {
         const atis = controls.filter(x => x.isATIS).map(x => x.atc);

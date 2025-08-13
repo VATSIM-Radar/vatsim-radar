@@ -74,7 +74,7 @@ export interface VatSpyDataFeature {
 export interface VatSpyDataLocalATC {
     atc: VatsimShortenedController;
     isATIS: boolean;
-    airport: {
+    airport?: {
         icao: string;
         iata?: string;
         isPseudo: boolean;

@@ -23,4 +23,4 @@ yarn
 npx prisma generate
 npx prisma migrate deploy
 rm -rf /tmp/nitro/worker-*
-exec yarn dev --qr=false
+exec yarn dev:debug --qr=false

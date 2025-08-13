@@ -145,7 +145,7 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     airport: {
-        type: Object as PropType<VatSpyData['airports'][0] | VatSpyDataLocalATC['airport']>,
+        type: Object as PropType<VatSpyData['airports'][0] | Required<VatSpyDataLocalATC>['airport']>,
         required: true,
     },
     aircraft: {

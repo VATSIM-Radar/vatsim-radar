@@ -221,7 +221,7 @@ export async function validateAirportIcao(event: H3Event, detailed?: boolean): P
         return;
     }
 
-    const airport = vatspy.data?.airports.find(x => x.icao === icao);
+    const airport = vatspy.data?.keyAirports.icao[icao];
     if (!airport) {
         handleH3Error({
             event,

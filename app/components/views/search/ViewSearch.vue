@@ -333,8 +333,8 @@ watch([search, opened], async ([val]) => {
             x.controller.text_atis?.includes(val)).map(x => x.controller);
 
         atc = atc.concat(
-            dataStore.vatsim.data.locals.value.filter(x => x.airport.icao.includes(val) ||
-                x.airport.iata?.includes(val) ||
+            dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao.includes(val) ||
+                x.airport?.iata?.includes(val) ||
                 x.atc.callsign.includes(val) ||
                 x.atc.name.toUpperCase().includes(val) ||
                 x.atc.frequency.includes(val) ||

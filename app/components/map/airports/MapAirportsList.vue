@@ -504,11 +504,12 @@ const getAirportsList = computed(() => {
 
     if (!store.bookingOverride) {
         for (const atc of dataStore.vatsim.data.locals.value) {
+            if (!atc.airport) continue;
             const isArr = !atc.isATIS && atc.atc.facility === facilities.APP;
-            const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport.icao);
+            const icaoOnlyAirport = airports.find(x => x.airport.icao === atc.airport!.icao);
             const iataAirport = airports.find(x => (
-                atc.airport.iata &&
-                x.airport.iata === atc.airport.iata &&
+                atc.airport!.iata &&
+                x.airport.iata === atc.airport!.iata &&
                 (isArr || !airports.some(y => y.airport.icao === x.airport.icao && y.airport.iata !== x.airport.iata && x.airport.lat === y.airport.lat && x.airport.lon === y.airport.lon))
             ));
 
@@ -619,7 +620,7 @@ const getAirportsList = computed(() => {
     function findSectorAirport(sector: GeoJSONFeature) {
         const prefixes = getTraconPrefixes(sector);
 
-        let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport.tracon && prefixes.includes(x.airport.tracon)));
+        let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport!.tracon && prefixes.includes(x.airport!.tracon)));
 
         if (!foundAirports.length) {
             foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
@@ -665,7 +666,8 @@ const getAirportsList = computed(() => {
     // Strict check
     for (const { airports, prefixes, suffix, sector } of sectors) {
         for (const airport of airports) {
-            for (const { atc: controller, airport: { tracon } } of airport.arrAtcInfo) {
+            for (const { atc: controller, airport: airportInfo } of airport.arrAtcInfo) {
+                const tracon = airportInfo!.tracon;
                 const splittedCallsign = controller.callsign.split('_');
 
                 if (

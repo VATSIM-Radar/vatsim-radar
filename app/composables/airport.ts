@@ -29,7 +29,7 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
         const dataStore = useDataStore();
 
         const list = sortControllersByPosition([
-            ...dataStore.vatsim.data.locals.value.filter(x => x.airport.icao === data.value.icao).map(x => x.atc),
+            ...dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao === data.value.icao).map(x => x.atc),
             ...dataStore.vatsim.data.firs.value.filter(x => data.value.airport?.center.includes(x.controller.callsign)).map(x => x.controller),
         ]);
 

@@ -83,7 +83,7 @@ export function isNumber(val: unknown, allowedAfterDot = 0): val is number {
 }
 
 export function getVACallsign(remarks: string): { callsign: string; name: string | null } | null {
-    const exec = /(CS[\/-=,]|CALLSIGN([\/-=,]| ))(?<callsign>[A-Z -]+)(([\/-=,](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/-=,][A-Z-])|((?= [A-Z-]+[\/-=,][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/-=,][A-Z-]))|((?= [A-Z-]+[\/-=,][A-Z-]))|(?=$))/.exec(remarks);
+    const exec = /(CS[\/\-=,]|CALLSIGN([\/\-=,]| ))(?<callsign>[A-Z -]+)(([\/\-=,](?<name>[A-Z -]+)((?= ([- A-Z]+)?[\/\-=,][A-Z-])|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$)))|((?= ([ A-Z-]+)?[\/\-=,][A-Z-]))|((?= [A-Z-]+[\/\-=,][A-Z-]))|(?=$))/.exec(remarks);
     if (exec?.groups && exec?.groups?.callsign) {
         const callsign = exec.groups.callsign?.replace('VATSIMVA', '').split('TCAS')[0].split('SIMBRIEF')[0].trim();
         if (!callsign) return null;
@@ -99,7 +99,7 @@ export function getVACallsign(remarks: string): { callsign: string; name: string
 }
 
 export function getVAWebsite(remarks: string) {
-    const website = /WEB[\/-=,](?<website>.+?)((?= )|(?=$))/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
+    const website = /WEB[\/\-=,](?<website>.+?)((?= )|(?=$))/.exec(remarks)?.groups?.website?.toLowerCase() ?? null;
 
     if (!website) return website;
 
