@@ -240,7 +240,7 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
         if (key === 'airports' && hasActivePilotFilter()) {
             const filteredPilots = vatsimData.pilots.map(x => x.cid);
             vatsimData.airports = vatsimData.airports.filter(x => {
-                return vatsimData.locals.some(y => y.airport.icao === x.icao || (x.iata && y.airport.iata === x.iata)) || Object.values(x.aircraft).some(x => x.some(x => filteredPilots.includes(x)));
+                return vatsimData.locals.some(y => y.airport?.icao === x.icao || (x.iata && y.airport?.iata === x.iata)) || Object.values(x.aircraft).some(x => x.some(x => filteredPilots.includes(x)));
             });
         }
 

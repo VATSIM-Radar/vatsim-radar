@@ -1,11 +1,12 @@
 {
   "name": "vatsim-radar",
-  "version": "1.2.2-1-final",
+  "version": "1.2.2-2-final",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:debug": "node --inspect=0.0.0.0:9229 node_modules/.bin/nuxt dev",
     "start:next": "docker pull ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml up",
     "start:prod": "docker pull ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml -f docker-compose.prebuilt-prod.yml up",
     "prepare": "nuxt prepare",

@@ -13,6 +13,7 @@ services:
         command: /radar/.config/command.sh
         ports:
             - "8080:8080"
+            - "9229:9229"
         volumes:
             - ".:/radar:rw"
         healthcheck:

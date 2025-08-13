@@ -271,21 +271,21 @@ export async function updateRedisData() {
 }
 
 export async function setupRedisDataFetch() {
+    while (!radarStorage.navigraphSetUp && process.env.NAVIGRAPH_CLIENT_ID) {
+        await sleep(1000 * 15);
+        radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
+        console.log('Waiting for navigraph');
+    }
+
+    while (!await isDataReady()) {
+        console.log(await getRedisSync('navigraph-ready'));
+        console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
+        await sleep(1000 * 60);
+        await updateRedisData();
+    }
+
     await defineCronJob('15 * * * *', async () => {
         await updateRedisData();
-
-        while (!radarStorage.navigraphSetUp && process.env.NAVIGRAPH_CLIENT_ID) {
-            await sleep(1000 * 15);
-            radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
-            console.log('Waiting for navigraph');
-        }
-
-        while (!await isDataReady()) {
-            console.log(await getRedisSync('navigraph-ready'));
-            console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
-            await sleep(1000 * 60);
-            await updateRedisData();
-        }
     });
 
     redisSubscriber.subscribe('update');
