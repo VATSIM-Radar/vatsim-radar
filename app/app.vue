@@ -37,7 +37,9 @@ watch(() => route.path, () => {
 
 if (import.meta.server) {
     await useAsyncData('iframe-header', async () => {
-        return (await import('~/composables/iframe')).useIframeHeader();
+        await (await import('~/composables/iframe')).useIframeHeader();
+
+        return true;
     });
 }
 </script>
