@@ -1,6 +1,5 @@
 import { getQuery, getRequestHeader, setHeader } from 'h3';
 import { isValidIPOrigin } from '~/utils/shared';
-import { prisma } from '~/utils/backend/prisma';
 
 const iframeWhitelist = [
     'localhost',
@@ -31,19 +30,9 @@ export async function useIframeHeader() {
             setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
         }
         else {
-            if (originHeader && isValidIPOrigin(originHeader)) {
-                const token = (getQuery(event).iframe as string | undefined);
-                if (token && await prisma.userIframeToken.findFirst({
-                    where: {
-                        accessToken: token,
-                        accessTokenExpire: {
-                            gte: new Date(),
-                        },
-                    },
-                })) {
-                    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
-                    return;
-                }
+            if (originHeader && isValidIPOrigin(originHeader) && event.context.referrerChecked) {
+                setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
+                return;
             }
 
             setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);

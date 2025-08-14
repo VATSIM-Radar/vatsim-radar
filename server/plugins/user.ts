@@ -2,6 +2,9 @@ import type { FullUser } from '~/utils/backend/user';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { discordClient } from '~~/server/plugins/discord';
 import type { GuildMemberRoleManager } from 'discord.js';
+import { getQuery, getRequestHeader, setHeader } from 'h3';
+import { isValidIPOrigin } from '~/utils/shared';
+import { prisma } from '~/utils/backend/prisma';
 
 export default defineNitroPlugin(app => {
     const config = useRuntimeConfig();
@@ -12,6 +15,28 @@ export default defineNitroPlugin(app => {
         if ((!config.ACCESS_BY_DISCORD_ROLES || !isPage) && (event.path.startsWith('/api/auth') || (event.path.startsWith('/api/data') && !event.path.includes('navigraph')))) return;
 
         event.context.user = await findAndRefreshFullUserByCookie(event);
+
+        try {
+            const originHeader = getRequestHeader(event, 'origin');
+            if (originHeader) {
+                if (originHeader && isValidIPOrigin(originHeader)) {
+                    const token = (getQuery(event).iframe as string | undefined);
+                    if (token && await prisma.userIframeToken.findFirst({
+                        where: {
+                            accessToken: token,
+                            accessTokenExpire: {
+                                gte: new Date(),
+                            },
+                        },
+                    })) {
+                        event.context.referrerChecked = true;
+                    }
+                }
+            }
+        }
+        catch (e) {
+            console.error(e);
+        }
 
         if (config.ACCESS_BY_DISCORD_ROLES && isPage) {
             const discordId = event.context.user?.discordId;
@@ -33,6 +58,7 @@ export default defineNitroPlugin(app => {
 declare module 'h3' {
     interface H3EventContext {
         user?: FullUser | null;
+        referrerChecked?: boolean;
         authRestricted?: boolean;
     }
 }
