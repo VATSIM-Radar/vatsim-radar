@@ -294,7 +294,6 @@ import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
-import { useIframeHeader } from '~/composables/iframe';
 
 defineProps({
     mode: {
