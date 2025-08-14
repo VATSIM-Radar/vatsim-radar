@@ -170,7 +170,8 @@ export async function useIframeHeader() {
         else {
             if (originHeader && isValidIPOrigin(originHeader)) {
                 const token = (getQuery(event).iframe as string | undefined);
-                const { prisma } = await import('~/utils/backend/prisma');
+                // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires
+                const { prisma } = require('~/utils/backend/prisma');
                 if (token && await prisma.userIframeToken.findFirst({
                     where: {
                         accessToken: token,

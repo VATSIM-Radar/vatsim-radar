@@ -8,6 +8,7 @@
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
 import type LayerGroup from 'ol/layer/Group';
+import { useIframeHeader } from '~/composables';
 
 const route = useRoute();
 
@@ -34,4 +35,8 @@ watch(() => route.path, () => {
 }, {
     flush: 'pre',
 });
+
+if (import.meta.server) {
+    await useAsyncData('iframe-header', useIframeHeader);
+}
 </script>

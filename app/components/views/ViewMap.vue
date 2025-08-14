@@ -350,10 +350,6 @@ emit('map', {
 let initialSpawn = false;
 let initialOwnCheck = false;
 
-if (import.meta.server) {
-    await useAsyncData('iframe-header', useIframeHeader);
-}
-
 const notamCookie = useCookie<number>('notam-closed', {
     path: '/',
     sameSite: 'none',
