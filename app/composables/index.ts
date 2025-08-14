@@ -5,7 +5,7 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
-import { getRequestHeader, setHeader } from 'h3';
+import { getRequestHeader, setHeader, getQuery } from 'h3';
 import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
@@ -16,6 +16,8 @@ import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format';
+import { isValidIPOrigin } from '~/utils/backend';
+import { prisma } from '~/utils/backend/prisma';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -151,25 +153,43 @@ const iframeWhitelist = [
     'vatsim-radar.com',
 ];
 
-export function useIframeHeader() {
+export async function useIframeHeader() {
     if (import.meta.client) return;
 
     const event = useRequestEvent();
     if (!event) return;
 
-    const referer = getRequestHeader(event, 'referer')?.split('/');
-    let origin = referer?.[2]?.split(':')[0];
+    const originHeader = getRequestHeader(event, 'origin');
+    const refererHeader = getRequestHeader(event, 'referer');
+    if (!originHeader && !refererHeader) return;
 
-    const domain = origin?.split('.');
-    if (domain) {
-        origin = domain.slice(domain.length - 2, domain.length).join('.');
-    }
+    try {
+        const origin = new URL(originHeader || refererHeader!).hostname;
 
-    if (referer && origin && iframeWhitelist.includes(origin)) {
-        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ referer.slice(0, 3).join('/') }`);
+        if (origin && iframeWhitelist.includes(origin)) {
+            setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
+        }
+        else {
+            if (originHeader && isValidIPOrigin(originHeader)) {
+                const token = (getQuery(event).iframe as string | undefined);
+                if (token && await prisma.userIframeToken.findFirst({
+                    where: {
+                        accessToken: token,
+                        accessTokenExpire: {
+                            gte: new Date(),
+                        },
+                    },
+                })) {
+                    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
+                    return;
+                }
+            }
+
+            setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
+        }
     }
-    else {
-        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
+    catch (e) {
+        console.error(e);
     }
 }
 

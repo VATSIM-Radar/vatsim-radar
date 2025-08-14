@@ -39,6 +39,14 @@ model UserToken {
   user              User     @relation(onDelete: Cascade, fields: [userId], references: [id])
 }
 
+model UserIframeToken {
+  id                 Int      @id @default(autoincrement())
+  accessToken        String   @unique
+  accessTokenExpire  DateTime
+  refreshToken       String
+  refreshTokenExpire DateTime
+}
+
 model UserRequest {
   id        Int      @id @default(autoincrement())
   userId    Int
