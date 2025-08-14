@@ -5,12 +5,11 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
-import { getRequestHeader, setHeader, getQuery } from 'h3';
 import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
-import { addLeadingZero, getVACallsign, getVAWebsite, isValidIPOrigin } from '~/utils/shared';
+import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
@@ -137,60 +136,6 @@ export function useCopyText({ delay = 3000 }: { delay?: number } = {}) {
         copyState: copied,
         copy,
     };
-}
-
-const iframeWhitelist = [
-    'localhost',
-    'vatsimsa.com',
-    'vatcar.net',
-    'idvacc.id',
-    'vatcol.org',
-    'urrv.me',
-    'vatsim.net',
-    'vatsim-petersburg.com',
-    'vatsim-radar.com',
-];
-
-export async function useIframeHeader() {
-    if (import.meta.client) return;
-
-    const event = useRequestEvent();
-    if (!event) return;
-
-    const originHeader = getRequestHeader(event, 'origin');
-    const refererHeader = getRequestHeader(event, 'referer');
-    if (!originHeader && !refererHeader) return;
-
-    try {
-        const origin = new URL(originHeader || refererHeader!).hostname;
-
-        if (origin && iframeWhitelist.includes(origin)) {
-            setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
-        }
-        else {
-            if (originHeader && isValidIPOrigin(originHeader)) {
-                const token = (getQuery(event).iframe as string | undefined);
-                // eslint-disable-next-line @typescript-eslint/no-require-imports,@typescript-eslint/no-var-requires
-                const { prisma } = require('~/utils/backend/prisma');
-                if (token && await prisma.userIframeToken.findFirst({
-                    where: {
-                        accessToken: token,
-                        accessTokenExpire: {
-                            gte: new Date(),
-                        },
-                    },
-                })) {
-                    setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
-                    return;
-                }
-            }
-
-            setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
-        }
-    }
-    catch (e) {
-        console.error(e);
-    }
 }
 
 export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feature): T | null {
