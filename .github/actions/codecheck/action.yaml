@@ -10,6 +10,12 @@ runs:
     - name: Lint
       shell: sh
       run: yarn lint
+    - name: Prisma
+      shell: sh
+      run: npx prisma generate
+    - name: Prepare
+      shell: sh
+      run: yarn prepare
     - name: Build package
       shell: sh
       run: yarn build
