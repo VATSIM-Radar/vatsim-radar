@@ -45,3 +45,4 @@ export function getVATSIMIdentHeaders(): Record<string, string> {
         'User-Agent': token,
     };
 }
+

@@ -5,7 +5,6 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
-import { getRequestHeader, setHeader } from 'h3';
 import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
@@ -137,40 +136,6 @@ export function useCopyText({ delay = 3000 }: { delay?: number } = {}) {
         copyState: copied,
         copy,
     };
-}
-
-const iframeWhitelist = [
-    'localhost',
-    'vatsimsa.com',
-    'vatcar.net',
-    'idvacc.id',
-    'vatcol.org',
-    'urrv.me',
-    'vatsim.net',
-    'vatsim-petersburg.com',
-    'vatsim-radar.com',
-];
-
-export function useIframeHeader() {
-    if (import.meta.client) return;
-
-    const event = useRequestEvent();
-    if (!event) return;
-
-    const referer = getRequestHeader(event, 'referer')?.split('/');
-    let origin = referer?.[2]?.split(':')[0];
-
-    const domain = origin?.split('.');
-    if (domain) {
-        origin = domain.slice(domain.length - 2, domain.length).join('.');
-    }
-
-    if (referer && origin && iframeWhitelist.includes(origin)) {
-        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ referer.slice(0, 3).join('/') }`);
-    }
-    else {
-        setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self'`);
-    }
 }
 
 export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feature): T | null {

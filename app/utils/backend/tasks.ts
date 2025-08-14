@@ -137,6 +137,14 @@ function clearTask() {
             },
         });
 
+        await prisma.userIframeToken.deleteMany({
+            where: {
+                refreshTokenExpire: {
+                    lte: new Date(),
+                },
+            },
+        });
+
         await prisma.auth.deleteMany({
             where: {
                 createdAt: {

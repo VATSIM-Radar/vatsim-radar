@@ -34,4 +34,11 @@ watch(() => route.path, () => {
 }, {
     flush: 'pre',
 });
+
+if (import.meta.server) {
+    await useAsyncData('iframe-header', async () => {
+        await useIframeHeader();
+        return true;
+    });
+}
 </script>

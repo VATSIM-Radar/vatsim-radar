@@ -122,6 +122,7 @@ export default defineNuxtConfig({
         INFLUX_ENABLE_WRITE: process.env.INFLUX_ENABLE_WRITE,
         INFLUX_BUCKET_ONLINE: process.env.INFLUX_BUCKET_ONLINE,
         PATREON_ACCESS_TOKEN: process.env.PATREON_ACCESS_TOKEN,
+        IFRAME_TOKEN: process.env.IFRAME_TOKEN,
 
         FAA_NOTAMS_CLIENT_ID: process.env.FAA_NOTAMS_CLIENT_ID,
         FAA_NOTAMS_CLIENT_SECRET: process.env.FAA_NOTAMS_CLIENT_SECRET,

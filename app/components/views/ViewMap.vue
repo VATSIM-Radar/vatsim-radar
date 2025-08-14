@@ -265,7 +265,6 @@ import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
-import { useIframeHeader } from '~/composables';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/pilots';
@@ -349,8 +348,6 @@ emit('map', {
 
 let initialSpawn = false;
 let initialOwnCheck = false;
-
-useIframeHeader();
 
 const notamCookie = useCookie<number>('notam-closed', {
     path: '/',
