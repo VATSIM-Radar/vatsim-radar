@@ -1,4 +1,4 @@
-import { getQuery, getRequestHeader, setHeader } from 'h3';
+import { getRequestHeader, setHeader } from 'h3';
 import { isValidIPOrigin } from '~/utils/shared';
 
 const iframeWhitelist = [

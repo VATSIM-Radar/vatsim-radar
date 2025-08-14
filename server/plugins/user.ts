@@ -2,7 +2,7 @@ import type { FullUser } from '~/utils/backend/user';
 import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
 import { discordClient } from '~~/server/plugins/discord';
 import type { GuildMemberRoleManager } from 'discord.js';
-import { getQuery, getRequestHeader, setHeader } from 'h3';
+import { getQuery, getRequestHeader } from 'h3';
 import { isValidIPOrigin } from '~/utils/shared';
 import { prisma } from '~/utils/backend/prisma';
 
