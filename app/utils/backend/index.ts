@@ -46,8 +46,3 @@ export function getVATSIMIdentHeaders(): Record<string, string> {
     };
 }
 
-const ipRegex = /^(?!https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(https?:\/\/\d{1,3}(?:\.\d{1,3}){3}.*)$/;
-
-export function isValidIPOrigin(origin: string) {
-    return ipRegex.test(origin);
-}

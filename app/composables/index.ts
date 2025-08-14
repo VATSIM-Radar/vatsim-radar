@@ -10,14 +10,12 @@ import type { Style } from 'ol/style';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { Pixel } from 'ol/pixel';
 import { createDefu } from 'defu';
-import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
+import { addLeadingZero, getVACallsign, getVAWebsite, isValidIPOrigin } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/backend/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format';
-import { isValidIPOrigin } from '~/utils/backend';
-import { prisma } from '~/utils/backend/prisma';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);
@@ -172,6 +170,7 @@ export async function useIframeHeader() {
         else {
             if (originHeader && isValidIPOrigin(originHeader)) {
                 const token = (getQuery(event).iframe as string | undefined);
+                const { prisma } = await import('~/utils/backend/prisma');
                 if (token && await prisma.userIframeToken.findFirst({
                     where: {
                         accessToken: token,

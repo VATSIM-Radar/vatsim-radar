@@ -1,7 +1,7 @@
 import { handleH3Error } from '~/utils/backend/h3';
-import { isValidIPOrigin } from '~/utils/backend';
 import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
+import { isValidIPOrigin } from '~/utils/shared';
 
 export default defineEventHandler(async event => {
     const config = useRuntimeConfig();
