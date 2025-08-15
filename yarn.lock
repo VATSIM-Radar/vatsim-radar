@@ -5744,12 +5744,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^24.2.1":
+"@types/node@npm:*":
   version: 24.2.1
   resolution: "@types/node@npm:24.2.1"
   dependencies:
     undici-types: "npm:~7.10.0"
   checksum: 10c0/439a3c7edf88a298e0c92e46f670234070b892589c3b06e82cc86c47a7e1cf220f4a4b4736ec6ac7e4b9e1c40d7b6d443a1e22f99dd17f13f9dd15de3b32011b
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^24.3.0":
+  version: 24.3.0
+  resolution: "@types/node@npm:24.3.0"
+  dependencies:
+    undici-types: "npm:~7.10.0"
+  checksum: 10c0/96bdeca01f690338957c2dcc92cb9f76c262c10398f8d91860865464412b0f9d309c24d9b03d0bdd26dd47fa7ee3f8227893d5c89bc2009d919a525a22512030
   languageName: node
   linkType: hard
 
@@ -13514,15 +13523,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:^13.0.1":
-  version: 13.0.1
-  resolution: "ol-mapbox-style@npm:13.0.1"
+"ol-mapbox-style@npm:^13.1.0":
+  version: 13.1.0
+  resolution: "ol-mapbox-style@npm:13.1.0"
   dependencies:
     "@maplibre/maplibre-gl-style-spec": "npm:^23.1.0"
     mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/c6cab89998e5ab74acc7fa511a36ef63e7cc11b759924e124181b2efb18e45100574cddeafdd7bb3fbe19ef4e0d003c12f87e8321f15adc781a00de6b24553b2
+  checksum: 10c0/4de3b907333c7a20740eedca0cccaeb9c2e7e3c9c8184cf2691268a33d3f83eeba9de60b24980c2f24f2fcf18dd090e6816aa52a65181ab4e32ea816732431a1
   languageName: node
   linkType: hard
 
@@ -18130,7 +18139,7 @@ __metadata:
     "@types/geojson": "npm:^7946.0.16"
     "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/merge-ranges": "npm:^1.0.2"
-    "@types/node": "npm:^24.2.1"
+    "@types/node": "npm:^24.3.0"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.0.4"
     "@vueuse/core": "npm:^13.6.0"
@@ -18156,7 +18165,7 @@ __metadata:
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.0.3"
     ol: "npm:^10.6.1"
-    ol-mapbox-style: "npm:^13.0.1"
+    ol-mapbox-style: "npm:^13.1.0"
     pinia: "npm:^3.0.3"
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.0"
