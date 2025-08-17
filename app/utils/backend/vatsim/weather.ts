@@ -42,7 +42,7 @@ export async function getAirportWeather(icao: string): Promise<{ metar: string |
                     metar: data.metar,
                     taf: data.taf,
                     date: Date.now(),
-                }), 1000 * 60 * 10);
+                }), 1000 * 60 * 5);
             }
         }
         catch (e) {
