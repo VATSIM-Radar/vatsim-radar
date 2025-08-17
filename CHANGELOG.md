@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.2-3]
+# [1.2.2-3-final]
 
 - METAR is now cached for 5 minutes instead of 10 minutes
 - Fixed next segment after SID color being purple instead of blue
