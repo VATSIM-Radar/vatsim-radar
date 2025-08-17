@@ -323,7 +323,7 @@ const showWaypointsLabels = computed(() => store.mapSettings.navigraphData?.airw
 watch([showAirwaysLabels, showWaypointsLabels], () => navigraphSource.value?.changed());
 
 async function handleMapClick(event: MapBrowserEvent<any>) {
-    const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 5, layerFilter: val => val === navigraphLayer || val === navigraphFakeLayer });
+    const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 21, layerFilter: val => val === navigraphLayer || val === navigraphFakeLayer });
 
     if (!features?.length) return activeFeature.value = null;
 
@@ -527,6 +527,8 @@ watch(map, val => {
             const isEnroute = properties.type.startsWith('enroute');
 
             if (properties.type.endsWith('vhf')) {
+                const text = !properties.type.startsWith('enroute') && properties.name ? `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.ident }` : properties.identifier;
+
                 return [
                     new Style({
                         image: fake ? fakeCircle : isEnroute ? vordmeStyleSmall : vordmeStyle,
@@ -535,7 +537,7 @@ watch(map, val => {
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: properties.name ? `${ properties.name }\nVORDME ${ properties.frequency } ${ properties.ident }` : properties.identifier,
+                            text,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',
@@ -550,6 +552,8 @@ watch(map, val => {
             }
 
             if (properties.type.endsWith('ndb')) {
+                const text = !properties.type.startsWith('enroute') && properties.name ? `${ properties.name }\nNDB ${ properties.frequency } ${ properties.ident }` : properties.identifier;
+
                 return [
                     new Style({
                         image: fake ? fakeCircle : isEnroute ? ndbStyleSmall : ndbStyle,
@@ -558,7 +562,7 @@ watch(map, val => {
                     new Style({
                         text: new Text({
                             font: '8px Montserrat',
-                            text: properties.name ? `${ properties.name }\nNDB ${ properties.frequency } ${ properties.ident }` : properties.identifier,
+                            text,
                             offsetX: 15,
                             offsetY: 2,
                             textAlign: 'left',

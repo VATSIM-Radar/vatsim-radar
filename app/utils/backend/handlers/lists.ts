@@ -29,6 +29,7 @@ export interface UserListUser {
     listName?: string;
     private?: boolean;
     hidden?: boolean;
+    suping?: string;
 }
 
 export interface UserListLiveUserPilot extends UserListUser {

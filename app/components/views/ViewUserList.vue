@@ -98,7 +98,15 @@
                             class="users_user__btn users_user__btn--no-action"
                             @click.stop
                         >
-                            SUPing ({{ user.data.callsign }})
+                            SUPing as {{ user.data.callsign }}
+                        </div>
+                    </div>
+                    <div
+                        v-if="user.suping && user.type !== 'sup'"
+                        class="users_user_info_status users_user_info_status--no-action"
+                    >
+                        <div class="users_user__btn users_user__btn--no-action">
+                            SUPing as {{ user.suping }}
                         </div>
                     </div>
                     <common-spoiler
@@ -326,6 +334,10 @@ if (!props.list) {
                 color: $primary500;
                 text-decoration: underline;
                 text-underline-offset: 3px;
+
+                & + & {
+                    width: 100%;
+                }
 
                 &--no-action {
                     cursor: default;
