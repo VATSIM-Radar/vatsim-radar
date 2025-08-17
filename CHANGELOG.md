@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.2-2]
+# [1.2.2-2-final]
 
 - Fixed SELCAL sometimes parsing as virtual airline name
 - Fixed rare cases when VATGlasses approach controllers not displaying on map

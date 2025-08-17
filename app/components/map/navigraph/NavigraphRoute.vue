@@ -214,7 +214,7 @@ function update() {
                         identifier: disableLabels ? '' : waypoint.title ?? '',
                         type: 'airways',
                         dataType: 'navdata',
-                        kind: waypoint.kind,
+                        kind: nextWaypoint.kind,
                     }));
                 }
                 else {
