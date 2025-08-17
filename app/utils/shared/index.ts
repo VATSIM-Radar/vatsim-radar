@@ -139,7 +139,7 @@ export function debounce<T extends (...args: any) => any>(func: T, delay: number
     };
 }
 
-const ipRegex = /^(?!https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(https?:\/\/\d{1,3}(?:\.\d{1,3}){3}.*)$/;
+const ipRegex = /^(?!https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})((https?:\/\/\d{1,3}(?:\.\d{1,3}){3}.*)|https?:\/\/localhost:\d{1,4})$/;
 
 export function isValidIPOrigin(origin: string) {
     return ipRegex.test(origin);

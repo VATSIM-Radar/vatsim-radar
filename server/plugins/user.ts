@@ -17,20 +17,18 @@ export default defineNitroPlugin(app => {
         event.context.user = await findAndRefreshFullUserByCookie(event);
 
         try {
-            const originHeader = getRequestHeader(event, 'origin');
-            if (originHeader) {
-                if (originHeader && isValidIPOrigin(originHeader)) {
-                    const token = (getQuery(event).iframe as string | undefined);
-                    if (token && await prisma.userIframeToken.findFirst({
-                        where: {
-                            accessToken: token,
-                            accessTokenExpire: {
-                                gte: new Date(),
-                            },
+            const originHeader = getRequestHeader(event, 'origin') ?? getRequestHeader(event, 'referer');
+            if (originHeader && isValidIPOrigin(new URL(originHeader).origin)) {
+                const token = (getQuery(event).iframe as string | undefined);
+                if (token && await prisma.userIframeToken.findFirst({
+                    where: {
+                        accessToken: token,
+                        accessTokenExpire: {
+                            gte: new Date(),
                         },
-                    })) {
-                        event.context.referrerChecked = true;
-                    }
+                    },
+                })) {
+                    event.context.referrerChecked = true;
                 }
             }
         }
