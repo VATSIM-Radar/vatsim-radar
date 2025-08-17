@@ -275,9 +275,9 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
 const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
-type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
+export type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
 
-const getFullData = initIDBData<NeededNavigraphData>(async () => ({
+export const getNavigraphParsedData = initIDBData<NeededNavigraphData>(async () => ({
     parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
     parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
     parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
@@ -308,7 +308,7 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
     const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
 
-    const navigraphData = await getFullData();
+    const navigraphData = await getNavigraphParsedData();
     let letter = '';
 
     try {
@@ -881,7 +881,7 @@ export async function updateCachedProcedures() {
 export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak) {
     const result: NavigraphNavDataEnrouteWaypointPartial[] = [];
 
-    const navigraphData = await getFullData();
+    const navigraphData = await getNavigraphParsedData();
     const waypoints = nat.last_routeing.split(' ');
 
     const parsedWaypoints: {

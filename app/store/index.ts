@@ -194,15 +194,6 @@ export const useStore = defineStore('index', {
                     }
                 }
 
-                for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
-                    if (listsUsers.has(atc.cid)) {
-                        foundUsers[atc.cid] = {
-                            type: 'sup',
-                            data: atc,
-                        };
-                    }
-                }
-
                 for (const atc of dataStore.vatsim.data.locals.value) {
                     if (atc.atc.isATIS) continue;
                     if (listsUsers.has(atc.atc.cid)) {
@@ -210,6 +201,18 @@ export const useStore = defineStore('index', {
                             type: 'atc',
                             data: atc.atc,
                         };
+                    }
+                }
+
+                for (const atc of dataStore.vatsim.data.general.value?.sups ?? []) {
+                    if (listsUsers.has(atc.cid)) {
+                        if (foundUsers[atc.cid]) foundUsers[atc.cid].suping = atc.callsign;
+                        else {
+                            foundUsers[atc.cid] = {
+                                type: 'sup',
+                                data: atc,
+                            };
+                        }
                     }
                 }
 

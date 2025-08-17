@@ -279,6 +279,8 @@ export async function updateRedisData() {
 }
 
 export async function setupRedisDataFetch() {
+    await updateRedisData();
+
     while (!radarStorage.navigraphSetUp && process.env.NAVIGRAPH_CLIENT_ID) {
         await sleep(1000 * 15);
         radarStorage.navigraphSetUp = !!await getRedisSync('navigraph-ready');
@@ -286,9 +288,8 @@ export async function setupRedisDataFetch() {
     }
 
     while (!await isDataReady()) {
-        console.log(await getRedisSync('navigraph-ready'));
         console.log('ready status', !!radarStorage.vatspy?.data, !!radarStorage.vatglasses.data, !!radarStorage.vatsim.data, !!radarStorage.simaware?.data, radarStorage.navigraphSetUp);
-        await sleep(1000 * 60);
+        await sleep(1000 * 30);
         await updateRedisData();
     }
 

@@ -8,7 +8,8 @@ import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import { Point } from 'ol/geom';
 import greatCircle from '@turf/great-circle';
-import { waypointDiff } from '~/composables/navigraph';
+import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
+import type { NeededNavigraphData } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate';
 import turfBearing from '@turf/bearing';
 import { debounce } from '~/utils/shared';
@@ -28,7 +29,7 @@ let features: Feature[] = [];
 
 let skipUpdate = false;
 
-function update() {
+async function update() {
     const newFeatures: Record<string, Feature> = {};
 
     function addFeature(id: string, feature: () => ObjectWithGeometry) {
@@ -38,8 +39,11 @@ function update() {
 
     try {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
+        let navigraphData: null | NeededNavigraphData = null;
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of pilots) {
+            navigraphData ||= await getNavigraphParsedData();
+
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -246,12 +250,25 @@ function update() {
                         }
 
                         if (!disableWaypoints) {
+                            let type = 'airway-waypoint';
+
+                            const ndb = Object.entries(navigraphData?.parsedNDB?.[currWaypoint[0]] ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const vhf = Object.entries(navigraphData?.parsedVHF?.[currWaypoint[0]] ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+
+                            if (ndb) {
+                                type = 'enroute-ndb';
+                            }
+
+                            if (vhf) {
+                                type = 'enroute-vhf';
+                            }
+
                             addFeature(currWaypoint[0], () => ({
                                 geometry: new Point([currWaypoint[3], currWaypoint[4]]),
                                 identifier: disableLabels ? '' : currWaypoint[0],
                                 flightLevel: currWaypoint[5],
                                 waypoint: disableLabels ? '' : currWaypoint[0],
-                                type: 'airway-waypoint',
+                                type,
                                 dataType: 'navdata',
                                 usage: currWaypoint[6],
 
@@ -260,6 +277,11 @@ function update() {
                                 altitude2: waypoint.altitude2,
                                 speed: waypoint.speed,
                                 speedLimit: waypoint.speedLimit,
+
+                                name: ndb?.[1][0] ?? vhf?.[1][0],
+                                ident: ndb?.[1][1] ?? vhf?.[1][1],
+                                frequency: ndb?.[1][2] ?? vhf?.[1][2],
+                                key: ndb?.[0] ?? vhf?.[0],
                             }));
                         }
 

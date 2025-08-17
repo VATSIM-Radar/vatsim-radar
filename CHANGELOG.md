@@ -1,6 +1,13 @@
 # Changelog
 
-# [1.2.2-2]
+# [1.2.2-3]
+
+- METAR is now cached for 5 minutes instead of 10 minutes
+- Fixed next segment after SID color being purple instead of blue
+- Enroute VORDME/NDBs are now displayed on map
+- If your supervisor friend is flying or controlling while SUPing, it will now be shown in friend list
+
+# [1.2.2-2-final]
 
 - Fixed SELCAL sometimes parsing as virtual airline name
 - Fixed rare cases when VATGlasses approach controllers not displaying on map
