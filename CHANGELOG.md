@@ -6,6 +6,7 @@
 - Fixed next segment after SID color being purple instead of blue
 - Enroute VORDME/NDBs are now displayed on map
 - If your supervisor friend is flying or controlling while SUPing, it will now be shown in friend list
+- Renamed ATIS NOT AVAIL in ATC popup to INFO NOT AVAIL
 
 # [1.2.2-2-final]
 

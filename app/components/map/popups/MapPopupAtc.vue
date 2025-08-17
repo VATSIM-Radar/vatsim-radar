@@ -103,7 +103,7 @@
                     v-else
                     class="atc__atis-error"
                 >
-                    ATIS NOT AVAIL
+                    INFO NOT AVAIL
                 </div>
             </div>
         </template>
