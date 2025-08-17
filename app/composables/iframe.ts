@@ -31,7 +31,7 @@ export async function useIframeHeader() {
         }
         else {
             if (originHeader && isValidIPOrigin(originHeader) && event.context.referrerChecked) {
-                setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
+                setHeader(event, 'Content-Security-Policy', `frame-ancestors *`);
                 return;
             }
 
