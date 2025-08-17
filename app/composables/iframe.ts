@@ -24,13 +24,14 @@ export async function useIframeHeader() {
     if (!originHeader && !refererHeader) return;
 
     try {
+        const url = new URL(originHeader || refererHeader!);
         const origin = new URL(originHeader || refererHeader!).hostname;
 
         if (origin && iframeWhitelist.includes(origin)) {
             setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
         }
         else {
-            if (originHeader && isValidIPOrigin(originHeader) && event.context.referrerChecked) {
+            if (isValidIPOrigin(url.origin) && event.context.referrerChecked) {
                 setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
                 return;
             }
