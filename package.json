@@ -47,8 +47,8 @@
     "@turf/nearest-point-on-line": "^7.2.0",
     "@turf/union": "^7.2.0",
     "@vite-pwa/nuxt": "^1.0.4",
-    "@vueuse/core": "^13.6.0",
-    "@vueuse/nuxt": "^13.6.0",
+    "@vueuse/core": "^13.7.0",
+    "@vueuse/nuxt": "^13.7.0",
     "adm-zip": "^0.5.16",
     "aws-sdk": "^2.1692.0",
     "chardet": "^2.1.0",
@@ -56,14 +56,14 @@
     "chokidar": "^4.0.3",
     "croner": "^9.1.0",
     "deep-equal": "^2.2.3",
-    "discord.js": "^14.21.0",
+    "discord.js": "^14.22.0",
     "idb": "^8.0.3",
     "ioredis": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.0",
     "kafkajs": "^2.2.4",
     "klona": "^2.0.6",
-    "marked": "^16.1.2",
+    "marked": "^16.2.0",
     "merge-ranges": "^1.0.2",
     "metar-taf-parser": "^9.1.2",
     "nuxt": "^4.0.3",
@@ -77,7 +77,7 @@
     "srvx": "^0.8.6",
     "svgo": "^4.0.0",
     "ua-parser-js": "2.0.4",
-    "vite-plugin-pwa": "^1.0.2",
+    "vite-plugin-pwa": "^1.0.3",
     "vite-svg-loader": "^5.1.0",
     "vitepress": "^1.6.4",
     "vue": "^3.5.18",
@@ -89,7 +89,7 @@
   "devDependencies": {
     "@navigraph/amdb": "^1.1.0",
     "@nuxt/devtools": "^2.6.2",
-    "@nuxt/eslint": "^1.8.0",
+    "@nuxt/eslint": "^1.9.0",
     "@nuxtjs/stylelint-module": "5.2.0",
     "@stylistic/eslint-plugin": "^5.2.3",
     "@stylistic/stylelint-plugin": "^4.0.0",
@@ -115,5 +115,5 @@
     "vite-plugin-eslint2": "^5.0.4",
     "vue-tsc": "3.0.5"
   },
-  "packageManager": "yarn@4.9.2"
+  "packageManager": "yarn@4.9.3"
 }
