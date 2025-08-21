@@ -249,7 +249,6 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
 
 const props = defineProps({
     overlay: {
