@@ -46,16 +46,15 @@ interface Runway {
     runways: string[];
 }
 
-// eslint-disable-next-line vue/no-setup-props-reactivity-loss
-const runways = await getAirportRunways(props.airport);
+const runways = computed(() => getAirportRunways(props.airport));
 
 const getRunways = computed<Runway[]>(() => {
-    if (!runways) return [];
+    if (!runways.value) return [];
 
-    return runways.potential.map(runway => {
+    return runways.value.potential.map(runway => {
         return {
             key: runway,
-            active: runways!.active === runway,
+            active: runways.value!.active === runway,
             runways: runway.split(',').map(x => x.trim()),
         };
     });

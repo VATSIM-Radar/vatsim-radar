@@ -326,24 +326,8 @@ const atcSections = computed<InfoPopupSection[]>(() => {
     return list;
 });
 
-const depRunways = shallowRef<VatglassesAirportRunways | null>(null);
-const arrRunways = shallowRef<VatglassesAirportRunways | null>(null);
-
-const setDepRunways = async () => {
-    depRunways.value = (depAirport.value && await getAirportRunways(depAirport.value.icao)) || null;
-};
-
-const setArrRunways = async () => {
-    arrRunways.value = (arrAirport.value && await getAirportRunways(arrAirport.value.icao)) || null;
-};
-
-setDepRunways();
-setArrRunways();
-
-watch(() => String(depAirport.value?.icao) + String(arrAirport.value?.icao), () => {
-    setDepRunways();
-    setArrRunways();
-});
+const depRunways = computed(() => depAirport.value ? getAirportRunways(depAirport.value.icao) : null);
+const arrRunways = computed(() => arrAirport.value ? getAirportRunways(arrAirport.value.icao) : null);
 
 const depBars = computed(() => {
     return depAirport.value && dataStore.vatsim.data.bars.value[depAirport.value.icao];

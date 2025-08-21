@@ -4,12 +4,11 @@ import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
 
 let runwayCookie: CookieRef<Record<string, string>> | undefined;
 
-export async function getAirportRunways(icao: string): Promise<VatglassesAirportRunways | null> {
+export function getAirportRunways(icao: string): VatglassesAirportRunways | null {
     const dataStore = useDataStore();
-    const vatglassesData = await getVGData();
     const runways = dataStore?.vatglassesActiveRunways.value[icao];
 
-    if (!vatglassesData || !runways || !isVatGlassesActive.value) return null;
+    if (!runways || !isVatGlassesActive.value) return null;
 
     runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
         path: '/',
