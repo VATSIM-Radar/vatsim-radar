@@ -2719,7 +2719,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/sourcemap-codec@npm:^1.4.14, @jridgewell/sourcemap-codec@npm:^1.4.15, @jridgewell/sourcemap-codec@npm:^1.5.0":
+"@jridgewell/sourcemap-codec@npm:^1.4.14, @jridgewell/sourcemap-codec@npm:^1.4.15, @jridgewell/sourcemap-codec@npm:^1.5.0, @jridgewell/sourcemap-codec@npm:^1.5.5":
   version: 1.5.5
   resolution: "@jridgewell/sourcemap-codec@npm:1.5.5"
   checksum: 10c0/f9e538f302b63c0ebc06eecb1dd9918dd4289ed36147a0ddce35d6ea4d7ebbda243cda7b2213b6a5e1d8087a298d5cf630fb2bd39329cdecb82017023f6081a0
@@ -3133,69 +3133,69 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/devtools-kit@npm:2.6.2, @nuxt/devtools-kit@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "@nuxt/devtools-kit@npm:2.6.2"
+"@nuxt/devtools-kit@npm:2.6.3, @nuxt/devtools-kit@npm:^2.6.2":
+  version: 2.6.3
+  resolution: "@nuxt/devtools-kit@npm:2.6.3"
   dependencies:
-    "@nuxt/kit": "npm:^3.17.6"
+    "@nuxt/kit": "npm:^3.18.1"
     execa: "npm:^8.0.1"
   peerDependencies:
     vite: ">=6.0"
-  checksum: 10c0/d38e6746e8ea752c4627d97803608d58a1bbc5784050ec8fb8129a40ca018ad0c55dcc3b2b36b28ab7c4d4759f615e35c052dd3520215b362124227b0cc83294
+  checksum: 10c0/a5baaeb6a6e87f3b7fd13f7d4e6731ad2b1c70fdc17fe8b18b418565f8b9b772a6617f716350865f03314aed59d2c26d34cdbc8f05a345475225279fbf37365a
   languageName: node
   linkType: hard
 
-"@nuxt/devtools-wizard@npm:2.6.2":
-  version: 2.6.2
-  resolution: "@nuxt/devtools-wizard@npm:2.6.2"
+"@nuxt/devtools-wizard@npm:2.6.3":
+  version: 2.6.3
+  resolution: "@nuxt/devtools-wizard@npm:2.6.3"
   dependencies:
     consola: "npm:^3.4.2"
     diff: "npm:^8.0.2"
     execa: "npm:^8.0.1"
     magicast: "npm:^0.3.5"
     pathe: "npm:^2.0.3"
-    pkg-types: "npm:^2.2.0"
+    pkg-types: "npm:^2.3.0"
     prompts: "npm:^2.4.2"
     semver: "npm:^7.7.2"
   bin:
     devtools-wizard: cli.mjs
-  checksum: 10c0/dd4e5c951e42ea76f88a0cdaff904ee243833e3bdbb3bb07b4de3e63fa9bea6ae1658a206c43df6c333359250dbcfe10394be1e4dfd0ce5a29b0395c04ddffdd
+  checksum: 10c0/1195d81bf38cbd3bf9fa2d5d48e8587dfd978a4bfb86fc5e5ac41930a0652444fea871db471af74b0ef74a0e352cf5089c6e23ea35d757cb6e920a61920b9402
   languageName: node
   linkType: hard
 
 "@nuxt/devtools@npm:^2.6.2":
-  version: 2.6.2
-  resolution: "@nuxt/devtools@npm:2.6.2"
+  version: 2.6.3
+  resolution: "@nuxt/devtools@npm:2.6.3"
   dependencies:
-    "@nuxt/devtools-kit": "npm:2.6.2"
-    "@nuxt/devtools-wizard": "npm:2.6.2"
-    "@nuxt/kit": "npm:^3.17.6"
+    "@nuxt/devtools-kit": "npm:2.6.3"
+    "@nuxt/devtools-wizard": "npm:2.6.3"
+    "@nuxt/kit": "npm:^3.18.1"
     "@vue/devtools-core": "npm:^7.7.7"
     "@vue/devtools-kit": "npm:^7.7.7"
-    birpc: "npm:^2.4.0"
+    birpc: "npm:^2.5.0"
     consola: "npm:^3.4.2"
     destr: "npm:^2.0.5"
     error-stack-parser-es: "npm:^1.0.5"
     execa: "npm:^8.0.1"
-    fast-npm-meta: "npm:^0.4.4"
-    get-port-please: "npm:^3.1.2"
+    fast-npm-meta: "npm:^0.4.6"
+    get-port-please: "npm:^3.2.0"
     hookable: "npm:^5.5.3"
     image-meta: "npm:^0.2.1"
     is-installed-globally: "npm:^1.0.0"
-    launch-editor: "npm:^2.10.0"
-    local-pkg: "npm:^1.1.1"
+    launch-editor: "npm:^2.11.1"
+    local-pkg: "npm:^1.1.2"
     magicast: "npm:^0.3.5"
-    nypm: "npm:^0.6.0"
+    nypm: "npm:^0.6.1"
     ohash: "npm:^2.0.11"
     pathe: "npm:^2.0.3"
     perfect-debounce: "npm:^1.0.0"
-    pkg-types: "npm:^2.2.0"
+    pkg-types: "npm:^2.3.0"
     semver: "npm:^7.7.2"
     simple-git: "npm:^3.28.0"
     sirv: "npm:^3.0.1"
     structured-clone-es: "npm:^1.0.0"
     tinyglobby: "npm:^0.2.14"
-    vite-plugin-inspect: "npm:^11.3.0"
+    vite-plugin-inspect: "npm:^11.3.2"
     vite-plugin-vue-tracer: "npm:^1.0.0"
     which: "npm:^5.0.0"
     ws: "npm:^8.18.3"
@@ -3203,7 +3203,7 @@ __metadata:
     vite: ">=6.0"
   bin:
     devtools: cli.mjs
-  checksum: 10c0/e1ffdd422ed8ae8054d640015bfef190391b518a1473dc3db5a5c30845abbda7593c57bebc488e4a9f3d7dfe6f8774e2c65b20cfed1f86df4463c5e6c92c080b
+  checksum: 10c0/24fcb8bd638a58a6b5b6b133aa1e4a459c7eb788eac7c68475de1b910ce4c409bea0db169fb6abd5bd64638dc02452f2464096a8dc1d27bf9359d7c32f7590dd
   languageName: node
   linkType: hard
 
@@ -3313,7 +3313,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.15.4, @nuxt/kit@npm:^3.17.6, @nuxt/kit@npm:^3.9.0":
+"@nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.15.4, @nuxt/kit@npm:^3.18.1, @nuxt/kit@npm:^3.9.0":
   version: 3.18.1
   resolution: "@nuxt/kit@npm:3.18.1"
   dependencies:
@@ -7285,7 +7285,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"birpc@npm:^2.3.0, birpc@npm:^2.4.0":
+"birpc@npm:^2.3.0, birpc@npm:^2.4.0, birpc@npm:^2.5.0":
   version: 2.5.0
   resolution: "birpc@npm:2.5.0"
   checksum: 10c0/8caed5ad86b71e0b4af6a1c5e8ed006f451d3b378ce52c2fa613fe68f15bb3df1357ad69f7fb0251e4261f39b2926995e34307ac06397f993665b16ba569dc54
@@ -9941,7 +9941,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-npm-meta@npm:^0.4.4":
+"fast-npm-meta@npm:^0.4.6":
   version: 0.4.6
   resolution: "fast-npm-meta@npm:0.4.6"
   checksum: 10c0/82fabded7c9b0cd219bddfe3e0a379f1b4a3ce34a5791d0e7bba429e4bb416a756ebbcf3a6122ed466c8f44fac5fd72ecf39e66de5ff3e52e09dfde8a04033f9
@@ -12007,7 +12007,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"launch-editor@npm:^2.10.0":
+"launch-editor@npm:^2.11.1":
   version: 2.11.1
   resolution: "launch-editor@npm:2.11.1"
   dependencies:
@@ -12107,7 +12107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"local-pkg@npm:^1.1.1":
+"local-pkg@npm:^1.1.1, local-pkg@npm:^1.1.2":
   version: 1.1.2
   resolution: "local-pkg@npm:1.1.2"
   dependencies:
@@ -12375,11 +12375,11 @@ __metadata:
   linkType: hard
 
 "magic-string@npm:^0.30.12, magic-string@npm:^0.30.17, magic-string@npm:^0.30.3":
-  version: 0.30.17
-  resolution: "magic-string@npm:0.30.17"
+  version: 0.30.18
+  resolution: "magic-string@npm:0.30.18"
   dependencies:
-    "@jridgewell/sourcemap-codec": "npm:^1.5.0"
-  checksum: 10c0/16826e415d04b88378f200fe022b53e638e3838b9e496edda6c0e086d7753a44a6ed187adc72d19f3623810589bf139af1a315541cd6a26ae0771a0193eaf7b8
+    "@jridgewell/sourcemap-codec": "npm:^1.5.5"
+  checksum: 10c0/80fba01e13ce1f5c474a0498a5aa462fa158eb56567310747089a0033e432d83a2021ee2c109ac116010cd9dcf90a5231d89fbe3858165f73c00a50a74dbefcd
   languageName: node
   linkType: hard
 
@@ -18313,7 +18313,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-inspect@npm:^11.3.0":
+"vite-plugin-inspect@npm:^11.3.2":
   version: 11.3.2
   resolution: "vite-plugin-inspect@npm:11.3.2"
   dependencies:
