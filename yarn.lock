@@ -2304,7 +2304,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@eslint/js@npm:9.33.0, @eslint/js@npm:^9.33.0":
+"@eslint/js@npm:9.34.0":
+  version: 9.34.0
+  resolution: "@eslint/js@npm:9.34.0"
+  checksum: 10c0/53f1bfd2a374683d9382a6850354555f6e89a88416c34a5d34e9fbbaf717e97c2b06300e8f93e5eddba8bda8951ccab7f93a680e56ded1a3d21d526019e69bab
+  languageName: node
+  linkType: hard
+
+"@eslint/js@npm:^9.33.0":
   version: 9.33.0
   resolution: "@eslint/js@npm:9.33.0"
   checksum: 10c0/4c42c9abde76a183b8e47205fd6c3116b058f82f07b6ad4de40de56cdb30a36e9ecd40efbea1b63a84d08c206aadbb0aa39a890197e1ad6455a8e542df98f186
@@ -3145,6 +3152,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nuxt/devtools-kit@npm:2.6.3":
+  version: 2.6.3
+  resolution: "@nuxt/devtools-kit@npm:2.6.3"
+  dependencies:
+    "@nuxt/kit": "npm:^3.18.1"
+    execa: "npm:^8.0.1"
+  peerDependencies:
+    vite: ">=6.0"
+  checksum: 10c0/a5baaeb6a6e87f3b7fd13f7d4e6731ad2b1c70fdc17fe8b18b418565f8b9b772a6617f716350865f03314aed59d2c26d34cdbc8f05a345475225279fbf37365a
+  languageName: node
+  linkType: hard
+
 "@nuxt/devtools-wizard@npm:2.6.2":
   version: 2.6.2
   resolution: "@nuxt/devtools-wizard@npm:2.6.2"
@@ -3160,6 +3179,24 @@ __metadata:
   bin:
     devtools-wizard: cli.mjs
   checksum: 10c0/dd4e5c951e42ea76f88a0cdaff904ee243833e3bdbb3bb07b4de3e63fa9bea6ae1658a206c43df6c333359250dbcfe10394be1e4dfd0ce5a29b0395c04ddffdd
+  languageName: node
+  linkType: hard
+
+"@nuxt/devtools-wizard@npm:2.6.3":
+  version: 2.6.3
+  resolution: "@nuxt/devtools-wizard@npm:2.6.3"
+  dependencies:
+    consola: "npm:^3.4.2"
+    diff: "npm:^8.0.2"
+    execa: "npm:^8.0.1"
+    magicast: "npm:^0.3.5"
+    pathe: "npm:^2.0.3"
+    pkg-types: "npm:^2.3.0"
+    prompts: "npm:^2.4.2"
+    semver: "npm:^7.7.2"
+  bin:
+    devtools-wizard: cli.mjs
+  checksum: 10c0/1195d81bf38cbd3bf9fa2d5d48e8587dfd978a4bfb86fc5e5ac41930a0652444fea871db471af74b0ef74a0e352cf5089c6e23ea35d757cb6e920a61920b9402
   languageName: node
   linkType: hard
 
@@ -3204,6 +3241,50 @@ __metadata:
   bin:
     devtools: cli.mjs
   checksum: 10c0/e1ffdd422ed8ae8054d640015bfef190391b518a1473dc3db5a5c30845abbda7593c57bebc488e4a9f3d7dfe6f8774e2c65b20cfed1f86df4463c5e6c92c080b
+  languageName: node
+  linkType: hard
+
+"@nuxt/devtools@npm:^2.6.3":
+  version: 2.6.3
+  resolution: "@nuxt/devtools@npm:2.6.3"
+  dependencies:
+    "@nuxt/devtools-kit": "npm:2.6.3"
+    "@nuxt/devtools-wizard": "npm:2.6.3"
+    "@nuxt/kit": "npm:^3.18.1"
+    "@vue/devtools-core": "npm:^7.7.7"
+    "@vue/devtools-kit": "npm:^7.7.7"
+    birpc: "npm:^2.5.0"
+    consola: "npm:^3.4.2"
+    destr: "npm:^2.0.5"
+    error-stack-parser-es: "npm:^1.0.5"
+    execa: "npm:^8.0.1"
+    fast-npm-meta: "npm:^0.4.6"
+    get-port-please: "npm:^3.2.0"
+    hookable: "npm:^5.5.3"
+    image-meta: "npm:^0.2.1"
+    is-installed-globally: "npm:^1.0.0"
+    launch-editor: "npm:^2.11.1"
+    local-pkg: "npm:^1.1.2"
+    magicast: "npm:^0.3.5"
+    nypm: "npm:^0.6.1"
+    ohash: "npm:^2.0.11"
+    pathe: "npm:^2.0.3"
+    perfect-debounce: "npm:^1.0.0"
+    pkg-types: "npm:^2.3.0"
+    semver: "npm:^7.7.2"
+    simple-git: "npm:^3.28.0"
+    sirv: "npm:^3.0.1"
+    structured-clone-es: "npm:^1.0.0"
+    tinyglobby: "npm:^0.2.14"
+    vite-plugin-inspect: "npm:^11.3.2"
+    vite-plugin-vue-tracer: "npm:^1.0.0"
+    which: "npm:^5.0.0"
+    ws: "npm:^8.18.3"
+  peerDependencies:
+    vite: ">=6.0"
+  bin:
+    devtools: cli.mjs
+  checksum: 10c0/24fcb8bd638a58a6b5b6b133aa1e4a459c7eb788eac7c68475de1b910ce4c409bea0db169fb6abd5bd64638dc02452f2464096a8dc1d27bf9359d7c32f7590dd
   languageName: node
   linkType: hard
 
@@ -3313,7 +3394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.15.4, @nuxt/kit@npm:^3.17.6, @nuxt/kit@npm:^3.9.0":
+"@nuxt/kit@npm:^3.10.1, @nuxt/kit@npm:^3.13.2, @nuxt/kit@npm:^3.15.4, @nuxt/kit@npm:^3.17.6, @nuxt/kit@npm:^3.18.1, @nuxt/kit@npm:^3.9.0":
   version: 3.18.1
   resolution: "@nuxt/kit@npm:3.18.1"
   dependencies:
@@ -7285,7 +7366,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"birpc@npm:^2.3.0, birpc@npm:^2.4.0":
+"birpc@npm:^2.3.0, birpc@npm:^2.4.0, birpc@npm:^2.5.0":
   version: 2.5.0
   resolution: "birpc@npm:2.5.0"
   checksum: 10c0/8caed5ad86b71e0b4af6a1c5e8ed006f451d3b378ce52c2fa613fe68f15bb3df1357ad69f7fb0251e4261f39b2926995e34307ac06397f993665b16ba569dc54
@@ -8755,9 +8836,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"discord.js@npm:^14.22.0":
-  version: 14.22.0
-  resolution: "discord.js@npm:14.22.0"
+"discord.js@npm:^14.22.1":
+  version: 14.22.1
+  resolution: "discord.js@npm:14.22.1"
   dependencies:
     "@discordjs/builders": "npm:^1.11.2"
     "@discordjs/collection": "npm:1.5.3"
@@ -8772,7 +8853,7 @@ __metadata:
     magic-bytes.js: "npm:^1.10.0"
     tslib: "npm:^2.6.3"
     undici: "npm:6.21.3"
-  checksum: 10c0/95b375e74fb4176c30cb40687a2c5cb64d33926270a29795a08a56ec28b97cd3081a9d69a7c6d247922eb064d434d682599a571dadab9a1b77d406d2824c8794
+  checksum: 10c0/d67dc90537270b4941aee896f70aafdba440dcd0f5d1d1f2762888b2edb804c1a384ccff48b6159211225091c3b5d8669799846d46147b907569a3591d8064b9
   languageName: node
   linkType: hard
 
@@ -9682,9 +9763,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint@npm:^9.33.0":
-  version: 9.33.0
-  resolution: "eslint@npm:9.33.0"
+"eslint@npm:^9.34.0":
+  version: 9.34.0
+  resolution: "eslint@npm:9.34.0"
   dependencies:
     "@eslint-community/eslint-utils": "npm:^4.2.0"
     "@eslint-community/regexpp": "npm:^4.12.1"
@@ -9692,7 +9773,7 @@ __metadata:
     "@eslint/config-helpers": "npm:^0.3.1"
     "@eslint/core": "npm:^0.15.2"
     "@eslint/eslintrc": "npm:^3.3.1"
-    "@eslint/js": "npm:9.33.0"
+    "@eslint/js": "npm:9.34.0"
     "@eslint/plugin-kit": "npm:^0.3.5"
     "@humanfs/node": "npm:^0.16.6"
     "@humanwhocodes/module-importer": "npm:^1.0.1"
@@ -9728,7 +9809,7 @@ __metadata:
       optional: true
   bin:
     eslint: bin/eslint.js
-  checksum: 10c0/1e1f60d2b62d9d65553e9af916a8dccf00eeedd982103f35bf58c205803907cb1fda73ef595178d47384ea80d8624a182b63682a6b15d8387e9a5d86904a2a2d
+  checksum: 10c0/ba3e54fa0c8ed23d062f91519afaae77fed922a6c4d76130b6cd32154bcb406aaea4b3c5ed88e0be40828c1d5b6921592f3947dbdc5e2043de6bd7aa341fe5ea
   languageName: node
   linkType: hard
 
@@ -9941,7 +10022,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-npm-meta@npm:^0.4.4":
+"fast-npm-meta@npm:^0.4.4, fast-npm-meta@npm:^0.4.6":
   version: 0.4.6
   resolution: "fast-npm-meta@npm:0.4.6"
   checksum: 10c0/82fabded7c9b0cd219bddfe3e0a379f1b4a3ce34a5791d0e7bba429e4bb416a756ebbcf3a6122ed466c8f44fac5fd72ecf39e66de5ff3e52e09dfde8a04033f9
@@ -12007,7 +12088,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"launch-editor@npm:^2.10.0":
+"launch-editor@npm:^2.10.0, launch-editor@npm:^2.11.1":
   version: 2.11.1
   resolution: "launch-editor@npm:2.11.1"
   dependencies:
@@ -12107,7 +12188,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"local-pkg@npm:^1.1.1":
+"local-pkg@npm:^1.1.1, local-pkg@npm:^1.1.2":
   version: 1.1.2
   resolution: "local-pkg@npm:1.1.2"
   dependencies:
@@ -18105,7 +18186,7 @@ __metadata:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
-    "@nuxt/devtools": "npm:^2.6.2"
+    "@nuxt/devtools": "npm:^2.6.3"
     "@nuxt/eslint": "npm:^1.9.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.2"
@@ -18144,8 +18225,8 @@ __metadata:
     chokidar: "npm:^4.0.3"
     croner: "npm:^9.1.0"
     deep-equal: "npm:^2.2.3"
-    discord.js: "npm:^14.22.0"
-    eslint: "npm:^9.33.0"
+    discord.js: "npm:^14.22.1"
+    eslint: "npm:^9.34.0"
     fast-xml-parser: "npm:^5.2.5"
     idb: "npm:^8.0.3"
     ioredis: "npm:^5.7.0"
@@ -18313,7 +18394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite-plugin-inspect@npm:^11.3.0":
+"vite-plugin-inspect@npm:^11.3.0, vite-plugin-inspect@npm:^11.3.2":
   version: 11.3.2
   resolution: "vite-plugin-inspect@npm:11.3.2"
   dependencies:
