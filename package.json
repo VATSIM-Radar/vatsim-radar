@@ -80,7 +80,7 @@
     "vite-plugin-pwa": "^1.0.3",
     "vite-svg-loader": "^5.1.0",
     "vitepress": "^1.6.4",
-    "vue": "^3.5.19",
+    "vue": "^3.5.20",
     "vue-chartjs": "^5.3.2",
     "vue-draggable-plus": "^0.6.0",
     "vue-router": "^4.5.1",
