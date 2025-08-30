@@ -376,6 +376,30 @@ defineCronJob('* * * * * *', async () => {
                 });
             }
 
+            // ZOA NCT Area mapping logic
+            const allowedNctCallsigns = ['NCT_APP', 'SFO_APP', 'OAK_APP', 'SJC_APP', 'SMF_APP', 'RNO_APP', 'NCT_DEP', 'SFO_DEP', 'OAK_DEP', 'MRY_APP', 'MOD_APP'];
+            const areaMapping = {
+                'Area A': 'SJC_APP',
+                'Area B': 'SFO_APP', 
+                'Area C': 'OAK_APP',
+                'Area D': 'SFO_DEP',
+                'Area E': 'SMF_APP',
+                'Area R': 'RNO_APP',
+            };
+
+            if (allowedNctCallsigns.includes(controller.callsign) && controller.text_atis?.length) {
+                const atisText = controller.text_atis.join(' ').toLowerCase();
+                
+                for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
+                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: targetCallsign,
+                        });
+                    }
+                }
+            }
+
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
