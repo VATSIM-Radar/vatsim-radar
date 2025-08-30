@@ -377,7 +377,7 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // ZOA NCT Area mapping logic
-            const allowedNctCallsigns = ['NCT_APP', 'SFO_APP', 'OAK_APP', 'SJC_APP', 'SMF_APP', 'RNO_APP', 'NCT_DEP', 'SFO_DEP', 'OAK_DEP', 'MRY_APP', 'MOD_APP'];
+            const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP)$/;
             const areaMapping = {
                 'Area A': 'SJC_APP',
                 'Area B': 'SFO_APP', 
@@ -387,7 +387,7 @@ defineCronJob('* * * * * *', async () => {
                 'Area R': 'RNO_APP',
             };
 
-            if (allowedNctCallsigns.includes(controller.callsign) && controller.text_atis?.length) {
+            if (nctCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ').toLowerCase();
                 
                 for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
