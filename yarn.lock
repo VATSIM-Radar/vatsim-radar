@@ -5291,7 +5291,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stylistic/eslint-plugin@npm:^5.2.3":
+"@stylistic/eslint-plugin@npm:^5.2.3, @stylistic/eslint-plugin@npm:^5.3.1":
   version: 5.3.1
   resolution: "@stylistic/eslint-plugin@npm:5.3.1"
   dependencies:
@@ -18143,7 +18143,7 @@ __metadata:
     "@prisma/client": "npm:^6.15.0"
     "@protomaps/basemaps": "npm:^5.5.1"
     "@sentry/nuxt": "npm:^10.8.0"
-    "@stylistic/eslint-plugin": "npm:^5.2.3"
+    "@stylistic/eslint-plugin": "npm:^5.3.1"
     "@stylistic/stylelint-plugin": "npm:^4.0.0"
     "@turf/bearing": "npm:^7.2.0"
     "@turf/boolean-point-in-polygon": "npm:^7.2.0"
