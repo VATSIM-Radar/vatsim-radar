@@ -279,18 +279,20 @@ const localsFacilities = computed(() => {
     return sortControllersByPosition(Array.from(facilitiesMap.values()));
 });
 
-const isAppOnlyBooking = computed(() => {
-    return props.arrAtc.filter(x => !x.booking).length === 0 && !isVatGlassesActive.value;
-});
+const facilities = useFacilitiesIds();
+
+const isAppOnlyBooking = (atc: VatsimShortenedController | VatsimShortenedController[]) => {
+    if (!Array.isArray(atc)) atc = [atc];
+
+    return atc.every(x => x.facility === facilities.APP && x.booking) && !isVatGlassesActive.value;
+};
 
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
-    const facility: Facility = {
+    return {
         facility: facilityId,
         booked: !!booking,
         atc: [],
     };
-
-    return facility;
 }
 
 let feature: Feature | null = null;
@@ -363,7 +365,7 @@ watch(hoveredFeature, val => {
         });
         hoverFeature!.setStyle(new Style({
             fill: new Fill({
-                color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
+                color: (store.bookingOverride || isAppOnlyBooking(val.controllers)) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`),
             }),
             stroke: new Stroke({
                 color: `transparent`,
@@ -376,7 +378,7 @@ watch(hoveredFeature, val => {
 function setBorderFeatureStyle(feature: Feature) {
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: (store.bookingOverride || isAppOnlyBooking.value) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
+            color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
         }),
     }));
@@ -391,14 +393,14 @@ function setLabelFeatureStyle(feature: Feature) {
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: (store.bookingOverride || isAppOnlyBooking.value) ? radarColors.lightgray125Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
+                    color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? radarColors.lightgray125Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
-                    color: (store.bookingOverride || isAppOnlyBooking.value) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
+                    color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 padding: [3, 1, 2, 3],
             }),
@@ -492,6 +494,7 @@ onMounted(async () => {
                     icao: props.airport.icao,
                     iata: props.airport.iata,
                     id: 'circle',
+                    controllers: props.arrAtc,
                 });
 
                 setLabelFeatureStyle(labelFeature);
@@ -520,6 +523,10 @@ onMounted(async () => {
                     type: 'tracon',
                     _traconId: traconFeature.properties?.id,
                     id,
+                    controllers: [
+                        ...controllers,
+                        ...leftAtc,
+                    ],
                 });
 
                 setBorderFeatureStyle(borderFeature);
@@ -552,6 +559,10 @@ onMounted(async () => {
                         iata: props.airport.iata,
                         _traconId: traconFeature.properties?.id,
                         id,
+                        controllers: [
+                            ...controllers,
+                            ...leftAtc,
+                        ],
                     });
 
                     setLabelFeatureStyle(labelFeature);

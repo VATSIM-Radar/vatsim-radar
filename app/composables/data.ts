@@ -490,7 +490,9 @@ function getAtcStats(controller: VatsimShortenedController, stats: VatsimMemberS
 
     return {
         rating: shortRating && Math.floor(shortRating),
-        total: Math.floor(stats.atc ?? 0),
+        total: Math.floor(
+            (stats.atc ?? 0) - (stats.sup ?? 0),
+        ),
     };
 }
 

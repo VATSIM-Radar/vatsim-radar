@@ -81,7 +81,7 @@ export default defineNitroPlugin(async app => {
             }
         })();
 
-        discordClient.on('ready', () => {
+        discordClient.on('clientReady', () => {
             console.log(`Logged in as ${ discordClient.user?.tag }!`);
         });
 

@@ -44,7 +44,7 @@ export default defineEventHandler(async event => {
         dir?: string;
         spd?: number;
         chng?: string;
-    }>>(`https://aviationweather.gov/api/data/isigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`);
+    }>>(`https://aviationweather.gov/api/data/isigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
     const airsigmet = $fetch<Sigmets<{
         icaoId: string;
         airSigmetType: string;
@@ -54,8 +54,9 @@ export default defineEventHandler(async event => {
         validTimeTo: string;
         severity: number;
         rawAirSigmet: string;
-    }>>(`https://aviationweather.gov/api/data/airsigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`);
-    const airmet = $fetch<Sigmets<{
+    }>>(`https://aviationweather.gov/api/data/airsigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
+
+    /* const airmet = $fetch<Sigmets<{
         region: string;
         reg_name: string;
         airmetType: string;
@@ -64,7 +65,19 @@ export default defineEventHandler(async event => {
         validTimeTo: string;
         severity: unknown | null;
         rawAirmet: string;
-    }>>(`https://aviationweather.gov/api/json/AirmetJSON${ requestParam ? `?date=${ requestParam }` : '' }`);
+    }>>(`https://aviationweather.gov/api/data/airmet${ requestParam ? `?date=${ requestParam }` : '' }`).catch(console.error);*/
+
+    const airmet = { type: 'FeatureCollection', features: [] } as Sigmets<{
+        region: string;
+        reg_name: string;
+        airmetType: string;
+        hazard: string;
+        validTimeFrom: string;
+        validTimeTo: string;
+        severity: unknown | null;
+        rawAirmet: string;
+    }>;
+
     const gairmet = $fetch<Sigmets<{
         product: string;
         hazard: string | null;
@@ -77,7 +90,7 @@ export default defineEventHandler(async event => {
         base?: string;
         level?: string;
         dueTo?: string;
-    }>>(`https://aviationweather.gov/api/data/gairmet?format=geojson&${ requestParam ? `&date=${ requestParam }` : '' }`);
+    }>>(`https://aviationweather.gov/api/data/gairmet?format=geojson&${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
 
     const sigmets: Sigmets = {
         type: 'FeatureCollection',
@@ -85,7 +98,7 @@ export default defineEventHandler(async event => {
         validUntil: 0,
     };
 
-    for (const feature of (await isigmet).features) {
+    for (const feature of (await isigmet)?.features ?? []) {
         const properties = feature.properties;
 
         sigmets.features.push({
@@ -110,7 +123,7 @@ export default defineEventHandler(async event => {
         });
     }
 
-    for (const feature of (await airsigmet).features) {
+    for (const feature of (await airsigmet)?.features ?? []) {
         const properties = feature.properties;
 
         if (properties.hazard !== 'CONVECTIVE') {
@@ -131,7 +144,7 @@ export default defineEventHandler(async event => {
         }
     }
 
-    for (const feature of (await airmet).features) {
+    for (const feature of (await airmet)?.features ?? []) {
         const properties = feature.properties;
 
         sigmets.features.push({
@@ -149,7 +162,7 @@ export default defineEventHandler(async event => {
         });
     }
 
-    for (const feature of (await gairmet).features) {
+    for (const feature of (await gairmet)?.features ?? []) {
         const properties = feature.properties;
 
         const basePropety = properties.base ?? properties.level;

@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.3-beta.1]
+
+- ATC total stats will now show the same number as stats page - time as supervisor is now excluded
+- Fixed some bookings showing as staffed
+- Fixed some bookings showing incorrect shape or TRACON
+
 # [1.2.2-3-final]
 
 - METAR is now cached for 5 minutes instead of 10 minutes
