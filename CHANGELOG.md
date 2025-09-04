@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.2-4]
+
+- Alaska AIRMETs were temporally disabled
+- Fixed all SIGMETs not showing on map if one of SIGMET types is failing to be loaded
+
 # [1.2.2-3]
 
 - METAR is now cached for 5 minutes instead of 10 minutes
