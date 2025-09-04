@@ -37,6 +37,7 @@ const formatter = new Intl.DateTimeFormat(['en-DE'], {
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'UTC',
     hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
 });
 </script>
