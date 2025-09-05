@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.3-beta.2]
+
+- Alaska AIRMETs are put back into operation
+- Fixed aircraft route constantly disappearing on first open
+- Improved performance when updating aircraft in dashboard mode
+
 # [1.2.3-beta.1]
 
 - ATC total stats will now show the same number as stats page - time as supervisor is now excluded

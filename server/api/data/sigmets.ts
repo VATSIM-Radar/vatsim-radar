@@ -4,7 +4,6 @@ import { getRedisSync, setRedisSync } from '~/utils/backend/redis';
 import { addLeadingZero } from '~/utils/shared';
 import { isDebug } from '~/utils/backend/debug';
 
-
 export default defineEventHandler(async event => {
     let date = getQuery(event).date;
 
@@ -56,27 +55,15 @@ export default defineEventHandler(async event => {
         rawAirSigmet: string;
     }>>(`https://aviationweather.gov/api/data/airsigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
 
-    /* const airmet = $fetch<Sigmets<{
+    const airmet = $fetch<Sigmets<{
         region: string;
-        reg_name: string;
-        airmetType: string;
+        zone: string;
+        receiptTime: string;
         hazard: string;
         validTimeFrom: string;
         validTimeTo: string;
-        severity: unknown | null;
-        rawAirmet: string;
-    }>>(`https://aviationweather.gov/api/data/airmet${ requestParam ? `?date=${ requestParam }` : '' }`).catch(console.error);*/
-
-    const airmet = { type: 'FeatureCollection', features: [] } as Sigmets<{
-        region: string;
-        reg_name: string;
-        airmetType: string;
-        hazard: string;
-        validTimeFrom: string;
-        validTimeTo: string;
-        severity: unknown | null;
-        rawAirmet: string;
-    }>;
+        airmetType: 'AIRMET';
+    }>>(`https://aviationweather.gov/api/data/airmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
 
     const gairmet = $fetch<Sigmets<{
         product: string;
@@ -151,12 +138,11 @@ export default defineEventHandler(async event => {
             ...feature,
             properties: {
                 region: properties.region,
-                regionName: properties.reg_name,
+                regionName: properties.zone,
                 type: properties.airmetType,
                 hazard: properties.hazard,
                 timeFrom: properties.validTimeFrom,
                 timeTo: properties.validTimeTo,
-                raw: properties.rawAirmet,
                 dataType: 'airmet',
             },
         });
