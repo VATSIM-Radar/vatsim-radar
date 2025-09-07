@@ -287,13 +287,15 @@ export const startDataStoreTimeUpdate = () => {
 
     const dataStore = useDataStore();
 
+    let interval: NodeJS.Timeout | undefined;
+
     onMounted(() => {
-        const interval = setInterval(() => {
+        interval = setInterval(() => {
             dataStore.time.value = Date.now();
         }, 5000);
-
-        onBeforeUnmount(() => clearInterval(interval));
     });
+
+    onBeforeUnmount(() => clearInterval(interval));
 };
 
 export const getSigmetType = (hazard: string | null | undefined): SigmetType | null => {

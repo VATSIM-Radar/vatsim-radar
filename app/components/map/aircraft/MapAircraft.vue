@@ -551,43 +551,6 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
-        if (value) {
-            turns = await new Promise<InfluxGeojson | null | undefined>(resolve => {
-                if (airportOverlayTracks.value === 'short') {
-                    resolve(null);
-                    return;
-                }
-
-                requestIdleCallback(async () => {
-                    resolve(
-                        airportOverlayTracks.value !== 'short'
-                            ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
-                                timeout: 1000 * 5,
-                            }).catch(console.error) ?? null
-                            : null,
-                    );
-                });
-            });
-
-            flightPlan.value = turns?.flightPlan ?? '';
-
-            if (turnsStart.value) {
-                if (turns?.flightPlanTime === turnsStart.value) {
-                    firstUpdate = false;
-                }
-                else {
-                    turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
-                        timeout: 1000 * 5,
-                    }).catch(console.error) ?? null;
-                }
-            }
-
-            if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {
-                turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp ?? '';
-                turnsStart.value = turns.flightPlanTime;
-            }
-        }
-
         if (!canShowLines.value) {
             clearLineFeatures();
 
@@ -607,6 +570,80 @@ async function toggleAirportLines(value = canShowLines.value) {
 
             return;
         }
+
+      setPilotRoute(canShowRoute.value);
+
+      if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
+        const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
+        const end = point([arrivalAirport.lon, arrivalAirport.lat]);
+
+        const geometry = turfGeometryToOl(greatCircle(start, end));
+
+        if (arrLine) {
+          arrLine.setGeometry(geometry);
+          getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+          arrLine.changed();
+        }
+        else {
+          arrLine = new Feature({
+            geometry,
+            type: 'arrLine',
+            color,
+          });
+
+          arrLine.setStyle(new Style({
+            stroke: new Stroke({
+              color,
+              width: 1,
+              lineDash: [4, 8],
+            }),
+          }));
+
+          linesSource.value?.addFeature(arrLine);
+        }
+      }
+      else if (arrLine) {
+        arrLine.dispose();
+        linesSource.value?.removeFeature(arrLine);
+        arrLine = undefined;
+      }
+
+      if (value) {
+        turns = await new Promise<InfluxGeojson | null | undefined>(resolve => {
+          if (airportOverlayTracks.value === 'short') {
+            resolve(null);
+            return;
+          }
+
+          requestIdleCallback(async () => {
+            resolve(
+                airportOverlayTracks.value !== 'short'
+                    ? await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns?start=${ turnsFirstGroupTimestamp.value ?? '' }`, {
+                  timeout: 1000 * 5,
+                }).catch(console.error) ?? null
+                    : null,
+            );
+          });
+        });
+
+        flightPlan.value = turns?.flightPlan ?? '';
+
+        if (turnsStart.value) {
+          if (turns?.flightPlanTime === turnsStart.value) {
+            firstUpdate = false;
+          }
+          else {
+            turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/turns`, {
+              timeout: 1000 * 5,
+            }).catch(console.error) ?? null;
+          }
+        }
+
+        if (turns?.features?.[0]?.features.length && turns?.flightPlanTime) {
+          turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp ?? '';
+          turnsStart.value = turns.flightPlanTime;
+        }
+      }
 
         if (turns?.features?.length && airportOverlayTracks.value !== 'short') {
             if (depLine) {
@@ -824,43 +861,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 linesSource.value?.removeFeature(depLine);
                 depLine = undefined;
             }
-        }
-
-        setPilotRoute(canShowRoute.value);
-
-        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
-            const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
-            const end = point([arrivalAirport.lon, arrivalAirport.lat]);
-
-            const geometry = turfGeometryToOl(greatCircle(start, end));
-
-            if (arrLine) {
-                arrLine.setGeometry(geometry);
-                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
-                arrLine.changed();
-            }
-            else {
-                arrLine = new Feature({
-                    geometry,
-                    type: 'arrLine',
-                    color,
-                });
-
-                arrLine.setStyle(new Style({
-                    stroke: new Stroke({
-                        color,
-                        width: 1,
-                        lineDash: [4, 8],
-                    }),
-                }));
-
-                linesSource.value?.addFeature(arrLine);
-            }
-        }
-        else if (arrLine) {
-            arrLine.dispose();
-            linesSource.value?.removeFeature(arrLine);
-            arrLine = undefined;
         }
     }
     catch (e) {

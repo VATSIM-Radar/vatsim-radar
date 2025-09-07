@@ -16,6 +16,19 @@
                     <div class="airport_header__title_name">
                         {{ icao }}
                     </div>
+                    <div class="airport_header__title_refresh">
+                        <common-button
+                            :disabled="loadingData"
+                            icon-width="16px"
+                            title="Refresh weather / NOTAMs"
+                            type="link"
+                            @click="refreshData"
+                        >
+                            <template #icon>
+                                <rotate-clockwise/>
+                            </template>
+                        </common-button>
+                    </div>
                 </div>
             </div>
             <div class="airport_header_section">
@@ -70,10 +83,33 @@
                     Show pilot stats
                 </common-toggle>
             </div>
-            <client-only
-                v-if="controllerMode"
-                class="airport_header_section"
+            <div
+                v-if="controllerMode && airportData.airport?.metar"
+                class="airport__metar __desktop"
             >
+                {{ airportData.airport.metar }}
+            </div>
+            <div
+                v-if="(currentAtisLetter || currentQnh) && controllerMode"
+                class="airport_header_section airport_header-weather"
+                :class="{ 'airport_header-weather--unack': !changesAck }"
+            >
+                <span
+                    v-if="currentQnh"
+                    :data-previous="previousQnh?.value"
+                    @click="changesAck = true"
+                >
+                    {{ currentQnh.value }}
+                </span>
+                <span
+                    v-if="currentAtisLetter"
+                    :data-previous="previousAtisLetter"
+                    @click="changesAck = true"
+                >
+                    {{ currentAtisLetter }}
+                </span>
+            </div>
+            <client-only class="airport_header_section">
                 <div class="airport_header__title">
                     <div class="airport_header__title_label">
                         Time
@@ -260,6 +296,8 @@ import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/views/airport/AirportMetar.vue';
 import AirportTaf from '~/components/views/airport/AirportTaf.vue';
 import AirportNotams from '~/components/views/airport/AirportNotams.vue';
+import { parseMetar } from 'metar-taf-parser';
+import type { IAltimeter } from 'metar-taf-parser';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import type { Ref } from 'vue';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
@@ -276,6 +314,8 @@ import CommonTabs from '~/components/common/basic/CommonTabs.vue';
 import { useRadarError } from '~/composables/errors';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 import { updateCachedProcedures } from '~/composables/navigraph';
+import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -353,7 +393,6 @@ watch(selectedPilot, async () => {
         iframeWindow?.postMessage(message, targetOrigin);
     }
 });
-
 
 const formatDateDime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'UTC',
@@ -637,6 +676,64 @@ useLazyAsyncData(async () => {
     server: false,
 });
 
+const changesAck = ref(true);
+const previousAtisLetter = ref<null | string>(null);
+const currentAtisLetter = computed(() => {
+    if (!airportData.value) return null;
+    return atc.value?.find(x => x.isATIS || x.facility === -1)?.atis_code;
+});
+
+watch(currentAtisLetter, (_, oldVal) => {
+    if (oldVal && oldVal !== previousAtisLetter.value) {
+        previousAtisLetter.value = oldVal;
+        changesAck.value = false;
+    }
+});
+
+const previousQnh = ref<null | IAltimeter>(null);
+const currentQnh = computed(() => {
+    if (!airportData.value?.airport?.metar) return null;
+    const parsedMetar = parseMetar(airportData.value?.airport?.metar);
+    return parsedMetar.altimeter;
+});
+
+watch(() => currentQnh.value?.value, (_, oldVal) => {
+    if (oldVal && oldVal !== previousQnh.value?.value) {
+        previousQnh.value = {
+            ...currentQnh.value!,
+            value: oldVal,
+        };
+        changesAck.value = false;
+    }
+});
+
+const loadingData = ref(false);
+
+async function refreshData() {
+    loadingData.value = true;
+    try {
+        airportData.value!.airport = Object.assign(
+            airportData.value!.airport!,
+            $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao.value }?requestDataType=1`),
+        );
+        airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? airportData.value!.notams;
+    }
+    catch (e) {
+        useRadarError(e);
+    }
+    finally {
+        loadingData.value = false;
+    }
+}
+
+let interval: NodeJS.Timeout | undefined;
+
+onMounted(() => {
+    interval = setInterval(refreshData, 1000 * 60 * 5);
+});
+
+onBeforeUnmount(() => clearInterval(interval));
+
 await setupDataFetch({
     async onSuccessCallback() {
         if (!airport.value) {
@@ -690,10 +787,16 @@ await setupDataFetch({
     }
 
     &_header {
+        position: relative;
+
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
         align-items: center;
+
+        &--hidden {
+            display: none;
+        }
 
         &_section {
             position: relative;
@@ -732,7 +835,74 @@ await setupDataFetch({
                 font-weight: 600;
                 color: $primary500
             }
+
+            &_refresh {
+                flex-grow: 1;
+            }
         }
+
+        &-weather {
+            display: flex;
+
+            span {
+                position: relative;
+
+                display: flex;
+                justify-content: center;
+
+                padding: 4px 8px;
+
+                font-size: 14px;
+                font-weight: 600;
+
+                background: $darkgray950;
+
+                &:first-child {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                &:last-child {
+                    border-radius: 0 8px 8px 0;
+                }
+
+                &:only-child {
+                    border-radius: 8px;
+                }
+
+                &:not(:first-child) {
+                    padding-left: 8px;
+                    border-left: 1px solid varToRgba('lightgray150', 0.1);
+                }
+            }
+
+            &--unack span[data-previous] {
+                cursor: pointer;
+
+                &::after {
+                    content: attr(data-previous);
+
+                    position: absolute;
+                    top: calc(100% + 2px);
+
+                    font-size: 12px;
+                    color: $primary500;
+                }
+            }
+        }
+    }
+
+    &__metar {
+        user-select: text;
+
+        position: absolute;
+        top: -16px;
+        right: 0;
+
+        padding: 0 8px;
+        border-radius: 4px;
+
+        font-size: 12px;
+        line-height: 100%;
     }
 
     &_sections {

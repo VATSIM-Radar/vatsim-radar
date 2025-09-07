@@ -4,7 +4,7 @@
         :style="{ '--percent': `${ distance?.toGoPercent ?? 0 }%` , '--status-color': radarColors[getStatus.color] }"
     >
         <div class="flight-info_self">
-            <div>Pilot</div>
+            <div class="flight-info_self_title">Pilot</div>
             <common-info-block
                 :bottom-items="[...usePilotRating(pilot), stats ? stats.atc ? `${ stats.pilot ?? 0 }h pilot, ${ stats.atc }h atc` : `${ stats.pilot ?? 0 }h total time` : undefined]"
                 class="flight-info__card"
@@ -46,7 +46,7 @@
             v-if="airline"
             class="flight-info_self"
         >
-            <div>Airline</div>
+            <div class="flight-info_self_title">Airline</div>
             <common-info-block
                 :bottom-items="[airline.icao, airline.callsign, airline.virtual ? '1' : null]"
                 class="flight-info__card flight-info__card--airline"
@@ -331,6 +331,10 @@ const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () 
 
         font-size: 13px;
         font-weight: 700;
+
+        &_title {
+            min-width: 50px;
+        }
 
         .flight-info__card {
             flex: 1 1 0;

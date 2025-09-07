@@ -284,7 +284,7 @@ const facilities = useFacilitiesIds();
 const isAppOnlyBooking = (atc: VatsimShortenedController | VatsimShortenedController[]) => {
     if (!Array.isArray(atc)) atc = [atc];
 
-    return atc.every(x => x.facility === facilities.APP && x.booking) && !isVatGlassesActive.value;
+    return atc.every(x => x && x.facility === facilities.APP && x.booking) && !isVatGlassesActive.value;
 };
 
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {

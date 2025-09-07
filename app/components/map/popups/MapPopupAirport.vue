@@ -328,6 +328,7 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
+import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
 
 const props = defineProps({
     overlay: {
@@ -555,6 +556,10 @@ onMounted(() => {
             ...props.overlay.data.airport,
             ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
         };
+
+        props.overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport.value }/notams`, {
+            timeout: 1000 * 15,
+        });
     }, 1000 * 60 * 5);
 
     onBeforeUnmount(() => {

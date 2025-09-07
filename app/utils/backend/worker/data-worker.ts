@@ -369,13 +369,6 @@ defineCronJob('* * * * * *', async () => {
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;
 
-            if (controller.callsign.startsWith('MIA_') && controllerSplit.length === 3 && controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
-                radarStorage.vatsim.data.controllers.push({
-                    ...controller,
-                    callsign: `ZMO_${ controllerSplit[1] }_CTR`,
-                });
-            }
-
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 

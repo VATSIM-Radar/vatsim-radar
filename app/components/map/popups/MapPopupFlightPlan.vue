@@ -5,7 +5,7 @@
                 size="S"
                 text-align="left"
                 type="secondary"
-                @click="store.metarRequest = status?.startsWith('dep') ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
+                @click="store.metarRequest = (!status || status?.startsWith('dep')) ? [flightPlan.departure, flightPlan.arrival] : [flightPlan.arrival]"
             >
                 <template #icon>
                     <ground-icon/>
@@ -62,6 +62,32 @@
                 />
             </div>
             <div
+                v-if="registration || alternates.alt || commType !== 'Voice'"
+                class="flight-plan__cols"
+            >
+                <common-info-block
+                    v-if="registration"
+                    :bottom-items="[registration]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Registration']"
+                />
+                <common-info-block
+                    v-if="alternates.alt"
+                    :bottom-items="[alternates.alt]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Alternate']"
+                />
+                <common-info-block
+                    v-if="commType !== 'Voice'"
+                    :bottom-items="[commType]"
+                    class="flight-plan__card"
+                    text-align="center"
+                    :top-items="['Voice Rules']"
+                />
+            </div>
+            <div
                 v-if="stepclimbs?.length"
                 class="flight-plan__cols"
             >
@@ -113,6 +139,20 @@
                 </div>
             </template>
         </common-copy-info-block>
+        <common-info-block
+            v-if="alternates.takeoff?.length"
+            :bottom-items="alternates.takeoff"
+            class="flight-plan__card"
+            text-align="center"
+            :top-items="['Takeoff alternates']"
+        />
+        <common-info-block
+            v-if="alternates.enroute?.length"
+            :bottom-items="alternates.enroute"
+            class="flight-plan__card"
+            text-align="center"
+            :top-items="['Enroute alternates']"
+        />
     </div>
 </template>
 
@@ -152,13 +192,38 @@ const convertTime = (time: string) => {
     return `${ hours }:${ minutes }`;
 };
 
-const selcalRegex = new RegExp(' SEL\\/(?<selcal>.+?) ');
+function getFlightPlanParam(param: string) {
+    if (!props.flightPlan?.remarks) return null;
+
+    const result = new RegExp(`( |^)${ param }\/(?<val>.+?)( [A-Z]+\/.*|$)`).exec(props.flightPlan.remarks);
+    return result?.groups?.val || null;
+}
 
 const selcal = computed<string | null>(() => {
-    const remarks = props.flightPlan?.remarks;
-    if (!remarks) return null;
-    const result = selcalRegex.exec(remarks);
-    return result?.groups?.selcal || null;
+    return getFlightPlanParam('SEL');
+});
+
+const registration = computed<string | null>(() => {
+    return getFlightPlanParam('REG');
+});
+
+const commType = computed<'Voice' | 'Receive Voice' | 'Text Only'>(() => {
+    if (props.flightPlan?.remarks?.includes('/V/')) return 'Voice';
+    if (props.flightPlan?.remarks?.includes('/R/')) return 'Receive Voice';
+    if (props.flightPlan?.remarks?.includes('/T/')) return 'Text Only';
+
+    return 'Voice';
+});
+
+const alternates = computed(() => {
+    const TALT = getFlightPlanParam('TALT')?.split(' ');
+    const RALT = getFlightPlanParam('RALT')?.split(' ');
+
+    return {
+        alt: props.flightPlan?.alternate ?? null,
+        takeoff: TALT,
+        enroute: RALT,
+    };
 });
 </script>
 

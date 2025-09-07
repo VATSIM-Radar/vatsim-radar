@@ -108,13 +108,15 @@ async function setSupStatus(enabled: boolean) {
     }
 }
 
+let interval: NodeJS.Timeout | undefined;
+
 onMounted(() => {
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
         refresh();
     }, 10000);
-
-    onBeforeUnmount(() => clearInterval(interval));
 });
+
+onBeforeUnmount(() => clearInterval(interval));
 </script>
 
 <style lang="scss" scoped>
