@@ -156,7 +156,11 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     }
 
     if (getCurrentInstance()?.isMounted) setUpdate();
-    else onMounted(setUpdate);
+    else {
+        onMounted(() => {
+            setUpdate();
+        });
+    }
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {

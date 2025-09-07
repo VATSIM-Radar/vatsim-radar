@@ -193,7 +193,9 @@ const init = () => {
     }
 };
 
-onMounted(init);
+onMounted(() => {
+    init();
+});
 
 watch([() => props.atc, isHovered, locals], init);
 

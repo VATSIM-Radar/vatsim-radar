@@ -907,7 +907,9 @@ async function delayedLinesDestroy() {
     }
 }
 
-onMounted(init);
+onMounted(() => {
+    init();
+});
 
 watch([hovered, hoveredOverlay], async () => {
     if (hovered.value || hoveredOverlay.value) {

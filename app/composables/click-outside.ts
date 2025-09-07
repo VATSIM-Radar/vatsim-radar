@@ -105,7 +105,9 @@ export function useClickOutside(_options: MaybeRef<ClickOutsideOptions>) {
         listener = true;
     }
 
-    onMounted(setupClickOutside);
+    onMounted(() => {
+        setupClickOutside();
+    });
     onBeforeUnmount(() => {
         if (listener) {
             element.value.removeEventListener('click', _handleClickOutside, {
