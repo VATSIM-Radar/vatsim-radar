@@ -129,15 +129,16 @@ watch(weather, initLayer);
 const transparencySettings = computed(() => JSON.stringify(store.localSettings.filters?.layers?.transparencySettings ?? '{}'));
 watch(transparencySettings, initLayer);
 
+let interval: NodeJS.Timeout | undefined;
+
 onMounted(async () => {
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
         initLayer();
     }, 1000 * 60 * 5);
-
-    onBeforeUnmount(() => clearInterval(interval));
 });
 
 onBeforeUnmount(() => {
     if (tileLayer) map.value?.removeLayer(tileLayer);
+    clearInterval(interval);
 });
 </script>

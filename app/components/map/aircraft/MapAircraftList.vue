@@ -253,10 +253,10 @@ function setVisiblePilots() {
 
                 if (store.config.airportMode && store.config.airportMode !== 'all') {
                     if (store.config.airportMode === 'ground') {
-                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid));
+                        return airport.aircraft.groundArr?.includes(x.cid) || airport.aircraft.groundDep?.includes(x.cid);
                     }
                     else {
-                        dataStore.visiblePilots.value = dataStore.visiblePilots.value.filter(x => airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid));
+                        return airport.aircraft[store.config.airportMode as MapAircraftKeys]?.includes(x.cid);
                     }
                 }
 
@@ -295,7 +295,7 @@ watch(() => store.mapSettings.heatmapLayer, async () => {
 });
 
 watch(dataStore.vatsim.updateTimestamp, () => {
-    dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => dataStore.visiblePilots.value.some(y => y.cid === x.cid)) ?? [];
+    dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => dataStore.visiblePilotsObj.value[x.cid.toString()]) ?? [];
 });
 
 function airportExistsAtPixel(eventPixel: Pixel) {

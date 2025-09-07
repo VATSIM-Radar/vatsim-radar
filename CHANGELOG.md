@@ -1,5 +1,32 @@
 # Changelog
 
+# [1.2.3-beta.3]
+
+[//]: # (- Added ZOA NCT Area mapping logic by `csko` - see https://docs.vatsim-radar.com/guide/duplicating)
+
+- Fixed unneeded flight data updating even when aircraft is standing still - this should slightly improve flight history service performance
+- Route does no longer depend on tracks loading - previously, if we had tracks slow load, route didn't load as well
+- Added altitude correction to Speed & Altitude graph, so it now shows altitude according to QNH
+- Pilot info and airline name are now aligned in pilot overlay
+- Added registration, alternates (w/ takeoff/enroute) and Voice Rules to pilot overlay
+- Fixed airport aircraft list crashing
+- Metar Request in pilot overlay will now include departure airport if clicked inside a prefile
+- Airport Dashboard now updates weather and NOTAMS every 5 minutes with an ability to fetch them manually
+- Added METAR display w/ ATIS letter and QNH to Controller Mode in Airport Dashboard. When ATIS letter or QNH get updated, they'll be colored for you to acknowledge with previous info displayed below
+- NOTAMs cache update has been lowered from 2 hours to 15 minutes
+
+# [1.2.3-beta.2]
+
+- Alaska AIRMETs are put back into operation
+- Fixed aircraft route constantly disappearing on first open
+- Improved performance when updating aircraft in dashboard mode
+
+# [1.2.3-beta.1]
+
+- ATC total stats will now show the same number as stats page - time as supervisor is now excluded
+- Fixed some bookings showing as staffed
+- Fixed some bookings showing incorrect shape or TRACON
+
 # [1.2.2-3-final]
 
 - METAR is now cached for 5 minutes instead of 10 minutes

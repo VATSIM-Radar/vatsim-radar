@@ -156,7 +156,11 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     }
 
     if (getCurrentInstance()?.isMounted) setUpdate();
-    else onMounted(setUpdate);
+    else {
+        onMounted(() => {
+            setUpdate();
+        });
+    }
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {
@@ -283,13 +287,15 @@ export const startDataStoreTimeUpdate = () => {
 
     const dataStore = useDataStore();
 
+    let interval: NodeJS.Timeout | undefined;
+
     onMounted(() => {
-        const interval = setInterval(() => {
+        interval = setInterval(() => {
             dataStore.time.value = Date.now();
         }, 5000);
-
-        onBeforeUnmount(() => clearInterval(interval));
     });
+
+    onBeforeUnmount(() => clearInterval(interval));
 };
 
 export const getSigmetType = (hazard: string | null | undefined): SigmetType | null => {
@@ -331,6 +337,6 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = '1.2.1';
+export const updatePopupActive: false | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 

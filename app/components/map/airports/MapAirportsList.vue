@@ -558,6 +558,10 @@ const getAirportsList = computed(() => {
                 airport = createNewAirport(vAirport);
                 airports.push(airport);
             }
+            else {
+                airport.isSimAware = true;
+                airport.airport.isSimAware = true;
+            }
 
             updateAirportWithBooking(airport, booking);
         });
@@ -571,6 +575,7 @@ const getAirportsList = computed(() => {
             airport: {
                 icao: vAirport.icao,
                 isPseudo: false,
+                isSimAware: true,
                 lat: vAirport.lat,
                 lon: vAirport.lon,
                 name: vAirport.name,
@@ -579,7 +584,7 @@ const getAirportsList = computed(() => {
             arrAtcInfo: [],
             bookings: [],
             features: [],
-            isSimAware: false,
+            isSimAware: true,
             localAtc: [],
         };
     }
@@ -598,6 +603,14 @@ const getAirportsList = computed(() => {
                 booking.atc.booking = booking;
                 airport.bookings.push(booking);
                 airport.arrAtc.push(booking.atc);
+                airport.arrAtcInfo.push({
+                    atc: booking.atc,
+                    isATIS: false,
+                    airport: {
+                        ...airport.airport,
+                        isSimAware: true,
+                    } satisfies VatSpyDataLocalATC['airport'],
+                });
             }
         }
         else {
@@ -774,16 +787,16 @@ async function setVisibleAirports() {
 
             if (x.isSimAware) {
                 const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao) || y === (x.iata ?? x.icao)));
-                if (!simawareFeature) return null;
+                if (simawareFeature) {
+                    const feature = cachedSimAwareFeatures[x.icao] ?? geoJson.readFeature(simawareFeature) as Feature<any>;
+                    cachedSimAwareFeatures[x.icao] ??= feature;
 
-                const feature = cachedSimAwareFeatures[x.icao] ?? geoJson.readFeature(simawareFeature) as Feature<any>;
-                cachedSimAwareFeatures[x.icao] ??= feature;
-
-                return {
-                    vatspyAirport: airport,
-                    vatsimAirport: x,
-                    visible: intersects(extent, feature.getGeometry()!.getExtent()),
-                };
+                    return {
+                        vatspyAirport: airport,
+                        vatsimAirport: x,
+                        visible: intersects(extent, feature.getGeometry()!.getExtent()),
+                    };
+                }
             }
 
             const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];

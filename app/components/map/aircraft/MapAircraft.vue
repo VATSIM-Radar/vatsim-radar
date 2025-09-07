@@ -551,6 +551,63 @@ async function toggleAirportLines(value = canShowLines.value) {
 
         const shortUpdate = !!turnsFirstGroupTimestamp.value && !!turnsFirstGroupTimestamp.value;
 
+        if (!canShowLines.value) {
+            clearLineFeatures();
+
+            if (depLine) {
+                depLine.dispose();
+                linesSource.value?.removeFeature(depLine);
+                depLine = undefined;
+            }
+
+            if (arrLine) {
+                arrLine.dispose();
+                linesSource.value?.removeFeature(arrLine);
+                arrLine = undefined;
+            }
+
+            setPilotRoute(false);
+
+            return;
+        }
+
+        setPilotRoute(canShowRoute.value);
+
+        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
+            const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
+            const end = point([arrivalAirport.lon, arrivalAirport.lat]);
+
+            const geometry = turfGeometryToOl(greatCircle(start, end));
+
+            if (arrLine) {
+                arrLine.setGeometry(geometry);
+                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
+                arrLine.changed();
+            }
+            else {
+                arrLine = new Feature({
+                    geometry,
+                    type: 'arrLine',
+                    color,
+                });
+
+                arrLine.setStyle(new Style({
+                    stroke: new Stroke({
+                        color,
+                        width: 1,
+                        lineDash: [4, 8],
+                    }),
+                }));
+
+                linesSource.value?.addFeature(arrLine);
+            }
+        }
+        else if (arrLine) {
+            arrLine.dispose();
+            linesSource.value?.removeFeature(arrLine);
+            arrLine = undefined;
+        }
+
         if (value) {
             turns = await new Promise<InfluxGeojson | null | undefined>(resolve => {
                 if (airportOverlayTracks.value === 'short') {
@@ -586,26 +643,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 turnsTimestamp.value = turns.features[0]?.features[0]?.properties!.timestamp ?? '';
                 turnsStart.value = turns.flightPlanTime;
             }
-        }
-
-        if (!canShowLines.value) {
-            clearLineFeatures();
-
-            if (depLine) {
-                depLine.dispose();
-                linesSource.value?.removeFeature(depLine);
-                depLine = undefined;
-            }
-
-            if (arrLine) {
-                arrLine.dispose();
-                linesSource.value?.removeFeature(arrLine);
-                arrLine = undefined;
-            }
-
-            setPilotRoute(false);
-
-            return;
         }
 
         if (turns?.features?.length && airportOverlayTracks.value !== 'short') {
@@ -825,43 +862,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 depLine = undefined;
             }
         }
-
-        setPilotRoute(canShowRoute.value);
-
-        if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
-            const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
-            const end = point([arrivalAirport.lon, arrivalAirport.lat]);
-
-            const geometry = turfGeometryToOl(greatCircle(start, end));
-
-            if (arrLine) {
-                arrLine.setGeometry(geometry);
-                getFeatureStyle(arrLine)?.getStroke()?.setColor(color);
-                arrLine.changed();
-            }
-            else {
-                arrLine = new Feature({
-                    geometry,
-                    type: 'arrLine',
-                    color,
-                });
-
-                arrLine.setStyle(new Style({
-                    stroke: new Stroke({
-                        color,
-                        width: 1,
-                        lineDash: [4, 8],
-                    }),
-                }));
-
-                linesSource.value?.addFeature(arrLine);
-            }
-        }
-        else if (arrLine) {
-            arrLine.dispose();
-            linesSource.value?.removeFeature(arrLine);
-            arrLine = undefined;
-        }
     }
     catch (e) {
         useRadarError(e);
@@ -901,12 +901,15 @@ async function delayedLinesDestroy() {
     clearLines();
 
     for (let i = 0; i < 5; i++) {
+        if (dataStore.visiblePilotsObj.value[String(props.aircraft?.cid)]) break;
         await sleep(3000);
         clearLines();
     }
 }
 
-onMounted(init);
+onMounted(() => {
+    init();
+});
 
 watch([hovered, hoveredOverlay], async () => {
     if (hovered.value || hoveredOverlay.value) {

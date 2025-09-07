@@ -8,3 +8,4 @@ There are various ways to contribute to VATSIM Radar.
 - [I want to debug VATSpy, SimAware or VATGlasses data](debug)
 - [I want my VA to be displayed with Virtual Airline badge](va.md)
 - [I want to change airlines data](airlines.md)
+- [I want to extend ATC sector](../guide/duplicating.md)

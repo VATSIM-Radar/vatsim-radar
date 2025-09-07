@@ -98,7 +98,7 @@ export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot,
     return result;
 }
 
-export function getPilotTrueAltitude(pilot: VatsimShortenedAircraft): number {
+export function getPilotTrueAltitude(pilot: Pick<VatsimShortenedAircraft, 'altitude' | 'qnh_mb'> & unknown): number {
     if (pilot.altitude < 9500) return pilot.altitude;
     return Math.round(pilot.altitude - ((pilot.qnh_mb - 1013) * 28.9));
 }

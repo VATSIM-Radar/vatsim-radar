@@ -369,18 +369,11 @@ defineCronJob('* * * * * *', async () => {
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;
 
-            if (controller.callsign.startsWith('MIA_') && controllerSplit.length === 3 && controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
-                radarStorage.vatsim.data.controllers.push({
-                    ...controller,
-                    callsign: `ZMO_${ controllerSplit[1] }_CTR`,
-                });
-            }
-
             // ZOA NCT Area mapping logic
             const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP)$/;
             const areaMapping = {
                 'Area A': 'SJC_APP',
-                'Area B': 'SFO_APP', 
+                'Area B': 'SFO_APP',
                 'Area C': 'OAK_APP',
                 'Area D': 'SFO_DEP',
                 'Area E': 'SMF_APP',
@@ -389,7 +382,7 @@ defineCronJob('* * * * * *', async () => {
 
             if (nctCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ').toLowerCase();
-                
+
                 for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
                     if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
                         radarStorage.vatsim.data.controllers.push({

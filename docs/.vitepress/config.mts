@@ -85,6 +85,10 @@ export default defineConfig({
                                 text: 'Data debugging',
                                 link: '/contributing/debug',
                             },
+                            {
+                                text: 'Extending ATC sectors',
+                                link: '/guide/duplicating',
+                            },
                         ]
                     },
                     {

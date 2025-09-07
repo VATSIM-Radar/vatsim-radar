@@ -12,6 +12,18 @@ export interface VatsimAirportDataNotam {
     formattedText?: string;
     classification: 'INTL' | 'MIL' | 'DOM' | 'LMIL' | 'FDC';
     schedule?: string;
+    id?: string;
+    series?: string;
+    affectedFIR?: string;
+    selectionCode?: string;
+    traffic?: string;
+    purpose?: string;
+    scope?: string;
+    minimumFL?: string;
+    maximumFL?: string;
+    location?: string;
+    icaoLocation?: string;
+    lastUpdated?: string;
 }
 
 interface FAAResponse {
@@ -23,9 +35,21 @@ interface FAAResponse {
         properties: {
             coreNOTAMData: {
                 notam: {
+                    id?: string;
+                    series?: string;
                     number: string;
                     type: string;
                     issued: string;
+                    affectedFIR?: string;
+                    selectionCode?: string;
+                    traffic?: string;
+                    purpose?: string;
+                    scope?: string;
+                    minimumFL?: string;
+                    maximumFL?: string;
+                    location?: string;
+                    icaoLocation?: string;
+                    lastUpdated?: string;
                     effectiveStart: string;
                     effectiveEnd: string;
                     text: string;

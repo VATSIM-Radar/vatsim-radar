@@ -4,6 +4,7 @@ import type { FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { getFlightRowGroup } from '~/utils/shared/flight';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 export interface VatsimPilotConnection {
     id: number;
@@ -143,7 +144,7 @@ export function getPlanInfluxDataForPilots() {
         const previousPilot = previousPlanData[pilot.cid];
 
         const obj = {
-            altitude: pilot.altitude,
+            altitude: getPilotTrueAltitude(pilot),
             callsign: pilot.callsign,
             groundspeed: pilot.groundspeed,
             heading: pilot.heading,
@@ -181,12 +182,12 @@ export function getPlanInfluxDataForPilots() {
 function shouldUpdatePilot(pilot: VatsimPilot, { pilot: previousPilot, previousAltitude, previousLogTime }: PreviousPilot): boolean {
     const diff = Date.now() - previousLogTime;
 
-    if (
-        previousPilot.heading === pilot.heading && Math.abs(previousAltitude - pilot.altitude) < 100 && Math.abs(previousPilot.groundspeed - pilot.groundspeed) < 5
-    ) return diff > 1000 * 120;
     if (previousPilot.longitude === pilot.longitude && previousPilot.latitude === pilot.latitude) return false;
+    if (
+        previousPilot.heading === pilot.heading && Math.abs(previousAltitude - getPilotTrueAltitude(pilot)) < 100 && Math.abs(previousPilot.groundspeed - pilot.groundspeed) < 5
+    ) return diff > 1000 * 120;
 
-    const altitude = pilot.altitude;
+    const altitude = getPilotTrueAltitude(pilot);
     if (altitude > 30000) return diff > 1000 * 30;
     if (altitude > 20000) return diff > 1000 * 20;
     if (altitude > 15000) return diff > 1000 * 10;
@@ -204,8 +205,8 @@ export function getShortInfluxDataForPilots() {
         const previousPilot = previousShortData[pilot.cid];
 
         const previousAltitude = !newPilotsData[pilot.cid]?.previousAltitude ||
-        (Math.abs(newPilotsData[pilot.cid].previousAltitude - pilot.altitude) > 500)
-            ? pilot.altitude
+        (Math.abs(newPilotsData[pilot.cid].previousAltitude - getPilotTrueAltitude(pilot)) > 500)
+            ? getPilotTrueAltitude(pilot)
             : newPilotsData[pilot.cid].previousAltitude;
 
         if (previousPilot && !shouldUpdatePilot(pilot, previousPilot)) {
@@ -218,7 +219,7 @@ export function getShortInfluxDataForPilots() {
         }
 
         const obj = {
-            altitude: pilot.altitude,
+            altitude: getPilotTrueAltitude(pilot),
             callsign: pilot.callsign,
             groundspeed: pilot.groundspeed,
             heading: pilot.heading,
@@ -230,7 +231,7 @@ export function getShortInfluxDataForPilots() {
         };
 
         const previousObj = previousPilot && {
-            altitude: previousPilot.pilot.altitude,
+            altitude: getPilotTrueAltitude(previousPilot.pilot),
             callsign: previousPilot.pilot.callsign,
             groundspeed: previousPilot.pilot.groundspeed,
             heading: previousPilot.pilot.heading,

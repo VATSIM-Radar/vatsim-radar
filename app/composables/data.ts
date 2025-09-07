@@ -60,6 +60,14 @@ const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
+const visiblePilotsObj = shallowRef<Record<string, VatsimMandatoryPilot>>({});
+
+if (typeof window !== 'undefined') {
+    watch(visiblePilots, () => {
+        visiblePilotsObj.value = Object.fromEntries(visiblePilots.value.map(pilot => [pilot.cid.toString(), pilot]));
+    });
+}
+
 const notam = ref<RadarNotam | null>(null);
 
 export type DataWaypoint = [identifier: string, longitude: number, latitude: number, type?: string];
@@ -171,6 +179,7 @@ export interface UseDataStore {
     vatglassesDynamicData: ShallowRef<VatglassesDynamicAPIData | undefined>;
     stats: ShallowRef<{ cid: number; stats: VatsimMemberStats }[]>;
     visiblePilots: ShallowRef<VatsimMandatoryPilot[]>;
+    visiblePilotsObj: ShallowRef<Record<string, VatsimMandatoryPilot>>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
     airlines: ShallowRef<RadarDataAirlinesAllList>;
@@ -204,6 +213,7 @@ const dataStore: UseDataStore = {
     stats,
     time,
     visiblePilots,
+    visiblePilotsObj,
     sigmets,
     airlines,
     navigraphWaypoints: waypoints,
@@ -490,7 +500,9 @@ function getAtcStats(controller: VatsimShortenedController, stats: VatsimMemberS
 
     return {
         rating: shortRating && Math.floor(shortRating),
-        total: Math.floor(stats.atc ?? 0),
+        total: Math.floor(
+            (stats.atc ?? 0) - (stats.sup ?? 0),
+        ),
     };
 }
 
