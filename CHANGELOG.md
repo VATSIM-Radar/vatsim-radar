@@ -12,7 +12,7 @@
 - Fixed airport aircraft list crashing
 - Metar Request in pilot overlay will now include departure airport if clicked inside a prefile
 - Airport Dashboard now updates weather and NOTAMS every 5 minutes with an ability to fetch them manually
-- Added METAR display w/ ATIS letter and QNH to Controller Mode in Airport Dashboard. When ATIS letter or QNH get updated, they'll be colored red for you to acknowledge with previous info displayed below
+- Added METAR display w/ ATIS letter and QNH to Controller Mode in Airport Dashboard. When ATIS letter or QNH get updated, they'll be colored for you to acknowledge with previous info displayed below
 - NOTAMs cache update has been lowered from 2 hours to 15 minutes
 
 # [1.2.3-beta.2]

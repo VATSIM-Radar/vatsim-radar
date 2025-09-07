@@ -4,7 +4,7 @@ import type { FeatureCollection, Point } from 'geojson';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimPilot } from '~/types/data/vatsim';
 import { getFlightRowGroup } from '~/utils/shared/flight';
-import {getPilotTrueAltitude} from "~/utils/shared/vatsim";
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 
 export interface VatsimPilotConnection {
     id: number;
