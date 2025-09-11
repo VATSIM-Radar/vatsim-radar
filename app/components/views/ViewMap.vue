@@ -10,7 +10,7 @@
                 v-if="notam"
                 ref="notam"
                 class="map_notam"
-                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissalbe': notam.dismissable }]"
+                :class="[`map_notam--type-${ notam.type }`, { 'map_notam--dismissable': notam.dismissable }]"
             >
                 <div class="map_notam_icon">
                     <announce-icon v-if="notam.type === NotamType.ANNOUNCEMENT"/>
@@ -326,6 +326,13 @@ const isMobile = useIsMobile();
 const config = useRuntimeConfig();
 
 usePointerSwipe(notamRef, {
+    threshold: 20,
+    onSwipeEnd(_, direction) {
+        if (direction === 'up') closeNotam();
+    },
+});
+
+useSwipe(notamRef, {
     threshold: 20,
     onSwipeEnd(_, direction) {
         if (direction === 'up') closeNotam();
@@ -1148,7 +1155,7 @@ onMounted(() => {
         line-height: 100%;
         color: $lightgray125Orig;
 
-        &--dismissalbe {
+        &--dismissable {
             cursor: grab;
 
             &:active {

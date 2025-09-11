@@ -43,26 +43,26 @@ const { data, refresh } = await useAsyncData('events', async () => {
 
 const store = useStore();
 
-const timeZone = store.localSettings.eventsLocalTimezone ? 'UTC' : undefined;
+const timeZone = computed(() => store.localSettings.eventsLocalTimezone ? 'UTC' : undefined);
 const offset = new Date().getTimezoneOffset();
 
-const datetime = new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
+const datetime = computed(() => new Intl.DateTimeFormat(['ru-RU', 'de-DE', 'en-GB', 'en-US'], {
     localeMatcher: 'best fit',
     day: 'numeric',
     month: 'numeric',
     year: 'numeric',
-    timeZone,
-});
+    timeZone: timeZone.value,
+}));
 
-const weekday = new Intl.DateTimeFormat(['en-US'], {
+const weekday = computed(() => new Intl.DateTimeFormat(['en-US'], {
     weekday: 'long',
-    timeZone,
-});
+    timeZone: timeZone.value,
+}));
 
 function getDate(_date: string) {
     const date = new Date(_date);
 
-    return `${ weekday.format(date) }, ${ datetime.format(date) }`;
+    return `${ weekday.value.format(date) }, ${ datetime.value.format(date) }`;
 }
 
 const timezone = new Intl.DateTimeFormat(['de-DE'], {
@@ -72,19 +72,22 @@ const timezone = new Intl.DateTimeFormat(['de-DE'], {
 
 const currentDate = ref(Date.now());
 
+let interval: NodeJS.Timeout | undefined;
+let checkInterval: NodeJS.Timeout | undefined;
+
 onMounted(() => {
-    const interval = setInterval(() => {
+    interval = setInterval(() => {
         currentDate.value = Date.now();
     }, 1000 * 10);
 
-    const checkInterval = setInterval(() => {
+    checkInterval = setInterval(() => {
         refresh();
     }, 1000 * 60 * 5);
+});
 
-    onBeforeUnmount(() => {
-        clearInterval(interval);
-        clearInterval(checkInterval);
-    });
+onBeforeUnmount(() => {
+    clearInterval(interval);
+    clearInterval(checkInterval);
 });
 
 const groupedEventData = computed(() => {

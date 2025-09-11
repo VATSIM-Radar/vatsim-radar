@@ -509,6 +509,8 @@ async function setPilotRoute(enabled: boolean) {
 const canShowRoute = computed(() => {
     const airportOnly = !activeCurrentOverlay.value && !isPropsHovered.value;
 
+    if (!activeCurrentOverlay.value && isPropsHovered.value && store.localSettings.disableNavigraphRouteHover) return false;
+
     if (airportOnly && store.localSettings.navigraphRouteAirportOverlay?.enabled === false) return false;
 
     return canShowLines.value &&

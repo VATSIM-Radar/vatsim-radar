@@ -12,6 +12,8 @@ import type { Coordinate } from 'ol/coordinate';
 import { useMapStore } from '~/store/map';
 import type { NavDataFlightLevel } from '~/utils/backend/navigraph/navdata/types';
 import { debounce } from '~/utils/shared';
+// @ts-expect-error JS-only lib
+import { magvar } from 'magvar';
 
 defineSlots<{ default: () => any }>();
 
@@ -70,6 +72,9 @@ function generateHoldingPatternGeoJSON(
     distanceInMinutes = true,
     steps = 64,
 ) {
+    const decl = magvar(startLatLng[1], startLatLng[0]);
+    startBearingDeg = (startBearingDeg + decl + 360) % 360;
+
     // 1) Turn radius for standard‐rate turn (3°/s)
     const gsMs = groundSpeedKts * 0.514444;
     const turnRateRad = 3 * Math.PI / 180;
@@ -144,10 +149,16 @@ const aircraftWaypoints = shallowRef<string[]>([]);
 
 const debouncedUpdate = debounce(() => {
     aircraftWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x)));
-    starWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x)));
+    starWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphProcedures).flatMap(x => Object.values(x!.stars)).flatMap(x => [
+        x.procedure.waypoints.map(x => x.identifier),
+        x.procedure.transitions.enroute.flatMap(x => x.waypoints.map(x => x.identifier)),
+        x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
+    ]).flat()));
 }, 1000);
 
-watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUpdate);
+watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUpdate, {
+    immediate: true,
+});
 
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
     const newFeatures: Feature[] = [];

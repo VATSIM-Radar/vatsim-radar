@@ -154,7 +154,7 @@ export type DataStoreNavigraphAircraftProcedures = Ref<PartialRecord<string, { d
 async function getNavigraphIDBData(key: 'version'): Promise<string | null>;
 async function getNavigraphIDBData<T extends keyof ClientNavigraphData>(key: T): Promise<ClientNavigraphData[T] | null>;
 async function getNavigraphIDBData(key: any) {
-    return (await clientDB.get('navigraphData', key)) ?? null;
+    return (await clientDB.navigraphData.get(key)) ?? null;
 }
 
 export interface UseDataStore {
@@ -309,7 +309,7 @@ function initBookings() {
     const store = useStore();
     const dataStore = useDataStore();
 
-    const lastUpdate = Date.now();
+    let lastUpdate = Date.now();
     const end = ref(0);
     const bookingsQueryParams = computed(() => ({
         starting: store.bookingOverride
@@ -321,6 +321,7 @@ function initBookings() {
     }));
 
     async function updateBookings() {
+        lastUpdate = Date.now();
         store.fetchedBookings = await $fetch<VatsimBooking[]>('/api/data/vatsim/bookings', {
             query: bookingsQueryParams.value,
         });
@@ -447,11 +448,11 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
             await Promise.all([
                 checkForData(),
                 checkForVATSpy(),
-                checkForTracks(),
                 checkForSimAware(),
                 checkForAirlines(),
             ]);
 
+            checkForTracks();
             await checkForVG();
             await checkForNavigraph();
 

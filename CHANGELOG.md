@@ -1,8 +1,23 @@
 # Changelog
 
-# [1.2.3-beta.3]
+# [1.2.3-beta.4]
 
-[//]: # (- Added ZOA NCT Area mapping logic by `csko` - see https://docs.vatsim-radar.com/guide/duplicating)
+- Reduced VATGlasses memory usage when update is not needed
+- Skip VATGlasses update if not needed to improve memory usage and performance
+- Significantly (>100x times) reduced route parsing memory consumption in exchange for slow **first** Navigraph database init
+- Fixed NOTAM swipe on touch devices
+- Tracks data is no longer required for initialization - it will be loaded in background instead
+- Once again fixed bookings not updating
+- Fixed holdings not displayed for manual airport star selection
+- Insane aviation fact: magnetic declination exists! Holding patterns now respect it
+- Waypoint restrictions will stop hiding randomly and will always show when intended
+- FIR/ARTCC bookings will not show when they are disabled
+- Fixed edge cases when day title on events page was not displayed correctly when switching between local and GMT+0 timezones
+- Fixed pilot overlay crash when pilot is flying to an unknown airport
+- You can now disable route parsing on hover
+- Added ZOA NCT Area mapping logic by `csko` - see https://docs.vatsim-radar.com/guide/duplicating
+
+# [1.2.3-beta.3]
 
 - Fixed unneeded flight data updating even when aircraft is standing still - this should slightly improve flight history service performance
 - Route does no longer depend on tracks loading - previously, if we had tracks slow load, route didn't load as well

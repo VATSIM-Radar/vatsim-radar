@@ -9,7 +9,6 @@ import type VectorSource from 'ol/source/Vector';
 import { Point } from 'ol/geom';
 import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
-import type { NeededNavigraphData } from '~/composables/navigraph';
 import type { Coordinate } from 'ol/coordinate';
 import turfBearing from '@turf/bearing';
 import { debounce } from '~/utils/shared';
@@ -39,11 +38,8 @@ async function update() {
 
     try {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
-        let navigraphData: null | NeededNavigraphData = null;
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of pilots) {
-            navigraphData ||= await getNavigraphParsedData();
-
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
@@ -252,8 +248,8 @@ async function update() {
                         if (!disableWaypoints) {
                             let type = 'airway-waypoint';
 
-                            const ndb = Object.entries(navigraphData?.parsedNDB?.[currWaypoint[0]] ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
-                            const vhf = Object.entries(navigraphData?.parsedVHF?.[currWaypoint[0]] ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
 
                             if (ndb) {
                                 type = 'enroute-ndb';

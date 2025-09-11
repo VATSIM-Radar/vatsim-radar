@@ -413,7 +413,7 @@ function stringToArray<T>(item: T | T[] | undefined): T[] {
     return item;
 }
 
-export const getVGData = initIDBData<VatglassesData | undefined>(async () => (await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined)?.data);
+export const getVGData = initIDBData<VatglassesData | undefined>(async () => (await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined)?.data);
 
 // Converts from vatglasses sector format to geojson format
 function convertSectorToGeoJson(vatglassesData: VatglassesData, sector: VatglassesSector, countryGroupId: string, positionId: string, atc: VatsimShortenedController[], positions: VatglassesActivePositions) {
@@ -776,7 +776,43 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
             await initVatglassesCombined();
         }
 
-        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, dataStore.vatglassesDynamicData, vatglassesCombined], async () => {
+        watch([dataStore.vatsim.data.firs, dataStore.vatsim.data.locals, dataStore.vatglassesDynamicData, vatglassesCombined], async ([firs, locals, dynamic, combined], oldValue) => {
+            const [oldFirs, oldLocals, oldDynamic, oldCombined] = oldValue ?? [];
+
+            let firsChanged = false;
+
+            if (firs && oldFirs) {
+                const oldCallsigns = new Set(oldFirs.map(x => x.controller.callsign));
+                const callsigns = new Set(firs.map(x => x.controller.callsign));
+
+                firsChanged = ![...callsigns].every(x => oldCallsigns.has(x)) || ![...oldCallsigns].every(x => callsigns.has(x));
+            }
+
+            let localsChanged = firsChanged;
+
+            if (!localsChanged && oldLocals) {
+                const oldCallsigns = new Set(oldLocals.map(x => x.atc.callsign));
+                const callsigns = new Set(locals.map(x => x.atc.callsign));
+
+                localsChanged = ![...callsigns].every(x => oldCallsigns.has(x)) || ![...oldCallsigns].every(x => callsigns.has(x));
+            }
+
+            let combinedChanged = localsChanged;
+
+            if (!combinedChanged) {
+                combinedChanged = oldCombined !== undefined && combined !== oldCombined;
+            }
+
+            let dynamicChanged = combinedChanged;
+
+            if (!dynamicChanged && dynamic && oldDynamic) {
+                dynamicChanged = JSON.stringify(dynamic.data) !== JSON.stringify(oldDynamic.data);
+            }
+
+            if (!dynamicChanged) {
+                return;
+            }
+
             if (!combineDataInitialized && vatglassesCombined.value) {
                 await updateVatglassesStateLocal(true);
                 await initVatglassesCombined();

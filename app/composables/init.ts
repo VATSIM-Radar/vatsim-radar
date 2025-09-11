@@ -82,11 +82,11 @@ export function checkForData() {
 export function checkForVATSpy() {
     return initCheck('vatspy', async ({ dataStore }) => {
         let notRequired = true;
-        let vatspy = await clientDB.get('data', 'vatspy') as VatSpyAPIData | undefined;
+        let vatspy = await clientDB.data.get('vatspy') as VatSpyAPIData | undefined;
         if (!vatspy || vatspy.version !== dataStore.versions.value!.vatspy) {
             vatspy = await $fetch<VatSpyAPIData>('/api/data/vatspy');
 
-            await clientDB.put('data', vatspy, 'vatspy');
+            await clientDB.data.put(vatspy, 'vatspy');
             notRequired = false;
         }
 
@@ -135,11 +135,11 @@ export function checkForTracks() {
 
 export function checkForSimAware() {
     return initCheck('simaware', async ({ dataStore }) => {
-        let simaware = await clientDB.get('data', 'simaware') as SimAwareAPIData | undefined;
+        let simaware = await clientDB.data.get('simaware') as SimAwareAPIData | undefined;
         let notRequired = true;
         if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
             simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
-            await clientDB.put('data', simaware, 'simaware');
+            await clientDB.data.put(simaware, 'simaware');
             notRequired = false;
         }
 
@@ -168,11 +168,11 @@ export async function getVatglassesDynamic(dataStore: UseDataStore) {
 export function checkForVG() {
     return initCheck('vatglasses', async ({ dataStore }) => {
         if (!isVatGlassesActive.value) return 'notRequired';
-        let vatglasses = await clientDB.get('data', 'vatglasses') as VatglassesAPIData | undefined;
+        let vatglasses = await clientDB.data.get('vatglasses') as VatglassesAPIData | undefined;
 
         if (!vatglasses || vatglasses.version !== dataStore.versions.value!.vatglasses) {
             vatglasses = await $fetch<VatglassesAPIData>('/api/data/vatglasses');
-            await clientDB.put('data', vatglasses, 'vatglasses');
+            await clientDB.data.put(vatglasses, 'vatglasses');
         }
 
         dataStore.vatglasses.value = vatglasses.version;
@@ -184,6 +184,31 @@ export function checkForVG() {
     });
 }
 
+async function upsertBagsByIdentifier<D extends any[], T extends Record<string, D>>(
+    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb',
+    entries: T,
+) {
+    let groups: Record<string, Record<string, any>> = {};
+    for (const [key, data] of Object.entries(entries)) {
+        const identifier = prefix + '-' + (data as D)[0] as string;
+        let groupItem = groups[identifier];
+        if (!groupItem) {
+            groupItem = {};
+            groups[identifier] = groupItem;
+        }
+        groupItem[key] = data;
+    }
+
+    const groupsKeys = Object.keys(groups);
+    const groupsValues = Object.values(groups);
+
+    await clientDB.navigraphDB.bulkPut(groupsValues, groupsKeys);
+
+    groupsKeys.length = 0;
+    groupsValues.length = 0;
+    (groups as any) = null;
+}
+
 export function checkForNavigraph() {
     return initCheck('navigraph', async ({ store, dataStore }) => {
         try {
@@ -192,64 +217,32 @@ export function checkForNavigraph() {
             const type = store.user?.hasFms ? 'current' : 'outdated';
             let notRequired = true;
 
-            const keys: Array<keyof NavigraphNavDataShort> = ['airways', 'holdings', 'waypoints', 'vhf', 'ndb'];
+            const emptyDB = await clientDB.navigraphData.get('inserted') !== '1';
 
-            if (navigraph && navigraph === dataStore.versions.value?.navigraph?.[type] && !keys.length) {
+            if (navigraph && navigraph === dataStore.versions.value?.navigraph?.[type] && !emptyDB) {
                 dataStore.navigraph.version.value = navigraph;
                 return 'notRequired';
             }
 
-            if (!navigraph || navigraph !== dataStore.versions.value?.navigraph?.[type]) {
-                const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?keys=${ keys.join(',') }&airac=${ dataStore.versions.value?.navigraph?.[type] }&version=${ store.version }`);
+            if (!navigraph || navigraph !== dataStore.versions.value?.navigraph?.[type] || emptyDB) {
+                const fetchedData = await $fetch<NavigraphNavDataShort>(`/api/data/navigraph/data${ store.user?.hasFms ? '' : '/outdated' }?airac=${ dataStore.versions.value?.navigraph?.[type] }&version=${ store.version }`);
 
-                await clientDB.clear('navigraphData');
-                await clientDB.clear('navigraphAirports');
+                await clientDB.navigraphData.clear();
+                await clientDB.navigraphAirports.clear();
+                await clientDB.navigraphDB.clear();
 
-                if (keys.includes('airways')) {
-                    fetchedData.parsedAirways = {};
-
-                    for (const [airway, data] of Object.entries(fetchedData.airways)) {
-                        const identifier = data[0];
-                        if (!fetchedData.parsedAirways[identifier]) fetchedData.parsedAirways[identifier] = {};
-                        fetchedData.parsedAirways[identifier][airway] = data;
-                    }
-                }
-
-                if (keys.includes('waypoints')) {
-                    fetchedData.parsedWaypoints = {};
-
-                    for (const [waypoint, data] of Object.entries(fetchedData.waypoints)) {
-                        const identifier = data[0];
-                        if (!fetchedData.parsedWaypoints[identifier]) fetchedData.parsedWaypoints[identifier] = {};
-                        fetchedData.parsedWaypoints[identifier][waypoint] = data;
-                    }
-                }
-
-                if (keys.includes('vhf')) {
-                    fetchedData.parsedVHF = {};
-
-                    for (const [vhf, data] of Object.entries(fetchedData.vhf)) {
-                        const identifier = data[1];
-                        if (!fetchedData.parsedVHF[identifier]) fetchedData.parsedVHF[identifier] = {};
-                        fetchedData.parsedVHF[identifier][vhf] = data;
-                    }
-                }
-
-                if (keys.includes('waypoints')) {
-                    fetchedData.parsedNDB = {};
-
-                    for (const [ndb, data] of Object.entries(fetchedData.ndb)) {
-                        const identifier = data[1];
-                        if (!fetchedData.parsedNDB[identifier]) fetchedData.parsedNDB[identifier] = {};
-                        fetchedData.parsedNDB[identifier][ndb] = data;
-                    }
-                }
+                await upsertBagsByIdentifier('airways', fetchedData.airways);
+                await upsertBagsByIdentifier('waypoints', fetchedData.waypoints);
+                await upsertBagsByIdentifier('vhf', fetchedData.vhf);
+                await upsertBagsByIdentifier('ndb', fetchedData.ndb);
 
                 for (const key in fetchedData) {
-                    await clientDB.put('navigraphData', fetchedData[key as keyof typeof fetchedData] as any, key as any);
+                    await clientDB.navigraphData.put(fetchedData[key as keyof typeof fetchedData] as any, key as any);
                 }
 
-                await clientDB.put('navigraphData', dataStore.versions.value?.navigraph?.[type] ?? '' as any, 'version');
+                await clientDB.navigraphData.put(dataStore.versions.value?.navigraph?.[type] ?? '' as any, 'version');
+
+                await clientDB.navigraphData.put('1', 'inserted');
 
                 notRequired = false;
             }
@@ -269,7 +262,7 @@ export function checkForNavigraph() {
 
 export function checkForAirlines() {
     return initCheck('airlines', async ({ dataStore }) => {
-        let airlines = await clientDB.get('data', 'airlines') as IDBAirlinesData['value'] | undefined;
+        let airlines = await clientDB.data.get('airlines') as IDBAirlinesData | undefined;
         let notRequired = true;
         if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
             const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
@@ -277,7 +270,7 @@ export function checkForAirlines() {
                 expireDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
                 airlines: data,
             };
-            await clientDB.put('data', airlines, 'airlines');
+            await clientDB.data.put(airlines, 'airlines');
             notRequired = false;
         }
 

@@ -8108,6 +8108,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dexie@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "dexie@npm:4.2.0"
+  checksum: 10c0/ba3f84a769ee34910263bce0957736968ba05162eebf47d5dab3dbb599890b122ac0d4a64ceb02428e5ec6a39f66923d8531e120c6341709fce1afbc698ea37c
+  languageName: node
+  linkType: hard
+
 "diff@npm:^8.0.2":
   version: 8.0.2
   resolution: "diff@npm:8.0.2"
@@ -10084,13 +10091,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"idb@npm:^8.0.3":
-  version: 8.0.3
-  resolution: "idb@npm:8.0.3"
-  checksum: 10c0/421cd9a3281b7564528857031cc33fd9e95753f8191e483054cb25d1ceea7303a0d1462f4f69f5b41606f0f066156999e067478abf2460dfcf9cab80dae2a2b2
-  languageName: node
-  linkType: hard
-
 "ieee754@npm:1.1.13":
   version: 1.1.13
   resolution: "ieee754@npm:1.1.13"
@@ -11428,6 +11428,13 @@ __metadata:
     "@babel/types": "npm:^7.25.4"
     source-map-js: "npm:^1.2.0"
   checksum: 10c0/a6cacc0a848af84f03e3f5bda7b0de75e4d0aa9ddce5517fd23ed0f31b5ddd51b2d0ff0b7e09b51f7de0f4053c7a1107117edda6b0732dca3e9e39e6c5a68c64
+  languageName: node
+  linkType: hard
+
+"magvar@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "magvar@npm:2.0.0"
+  checksum: 10c0/2eddc2d107487801230d81b159154a32e761834ee33f37174afed290df8f3abd159d702d583920abe575fb67dcc93fbca497f2b63b8c8632154eda9feabc5b70
   languageName: node
   linkType: hard
 
@@ -16844,15 +16851,16 @@ __metadata:
     chokidar: "npm:^4.0.3"
     croner: "npm:^9.1.0"
     deep-equal: "npm:^2.2.3"
+    dexie: "npm:^4.2.0"
     discord.js: "npm:^14.22.1"
     eslint: "npm:^9.35.0"
     fast-xml-parser: "npm:^5.2.5"
-    idb: "npm:^8.0.3"
     ioredis: "npm:^5.7.0"
     jsonwebtoken: "npm:^9.0.2"
     jwks-rsa: "npm:^3.2.0"
     kafkajs: "npm:^2.2.4"
     klona: "npm:^2.0.6"
+    magvar: "npm:^2.0.0"
     marked: "npm:^16.2.1"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"

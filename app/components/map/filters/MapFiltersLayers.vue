@@ -266,6 +266,12 @@
             >
                 Enable route parsing
             </common-toggle>
+            <common-toggle
+                :model-value="store.localSettings.disableNavigraphRouteHover !== true"
+                @update:modelValue="setUserLocalSettings({ disableNavigraphRouteHover: !$event })"
+            >
+                Route parsing on hover
+            </common-toggle>
 
             <common-block-title remove-margin>
                 Airways

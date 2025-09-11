@@ -7,6 +7,12 @@
         <template #title>
             VATSIM Radar initialization
         </template>
+        <common-notification
+            v-if="store.initStatus.navigraph === 'loading'"
+            type="info"
+        >
+            Navigraph database is updating, this can take up to a minute...
+        </common-notification>
         <div class="init-items">
             <div
                 v-for="(item, key) in shownKeys"
@@ -41,7 +47,7 @@ import type { PartialRecord } from '~/types';
 import {
     checkForAirlines,
     checkForData, checkForNavigraph,
-    checkForSimAware, checkForTracks,
+    checkForSimAware,
     checkForUpdates,
     checkForVATSpy,
     checkForVG,
@@ -49,6 +55,7 @@ import {
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const store = useStore();
 
@@ -63,10 +70,6 @@ const shownKeys: PartialRecord<keyof VRInitStatus, {
     dataGet: {
         title: 'VATSIM Data',
         method: checkForData,
-    },
-    tracks: {
-        title: 'natTrak Data',
-        method: checkForTracks,
     },
     vatspy: {
         title: 'VATSpy Sectorization',

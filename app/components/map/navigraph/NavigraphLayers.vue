@@ -580,10 +580,12 @@ watch(map, val => {
 
             if (properties.type.endsWith('waypoint')) {
                 let text = `${ properties.waypoint }`;
+                let zIndex = 6;
 
                 if (properties.altitude || properties.speedLimit) {
                     if (properties.altitude) {
                         text += '\n';
+                        zIndex = 7;
 
                         switch (properties.altitude) {
                             case 'between':
@@ -603,6 +605,7 @@ watch(map, val => {
 
                     if (properties.speed) {
                         text += '\n';
+                        zIndex = 7;
 
                         switch (properties.speed) {
                             case 'equals':
@@ -667,7 +670,7 @@ watch(map, val => {
                                 }),
                             })
                             : undefined,
-                        zIndex: 6,
+                        zIndex,
                     }),
                 ];
 

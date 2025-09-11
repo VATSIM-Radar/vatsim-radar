@@ -212,11 +212,6 @@ export interface NavigraphNavDataShort {
     holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;
     airways: Record<string, ShortAirway>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string, terminal: boolean]>;
-
-    parsedVHF?: Record<string, NavigraphNavDataShort['vhf']>;
-    parsedNDB?: Record<string, NavigraphNavDataShort['ndb']>;
-    parsedAirways?: Record<string, NavigraphNavDataShort['airways']>;
-    parsedWaypoints?: Record<string, NavigraphNavDataShort['waypoints']>;
 }
 
 export type NavdataProcessFunction = (settings: {

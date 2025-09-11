@@ -19,7 +19,7 @@
                     key: 'procedures',
                     title: `${ pilot.status?.includes('dep') ? depAirport?.icao : arrAirport?.icao } procedures`,
                 }],
-                disabled: !depAirport,
+                disabled: !depAirport || !arrAirport,
             },
             atc: {
                 title: 'ATC',
@@ -126,11 +126,15 @@
                     @click.prevent="store.settingsPopup = true"
                 >settings</a>.
             </common-notification>
-            <common-toggle v-model="overlay.data.fullRoute">
+            <common-toggle
+                v-if="!store.localSettings.disableNavigraphRoute"
+                v-model="overlay.data.fullRoute"
+            >
                 Show full route
             </common-toggle>
             <br>
             <airport-procedures
+                v-if="depAirport && arrAirport"
                 :aircraft="pilot"
                 :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
                 :flight-type="pilot.status?.includes('dep') ? 'departure' : 'arrival'"

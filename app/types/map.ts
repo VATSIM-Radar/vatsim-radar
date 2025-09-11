@@ -67,6 +67,7 @@ interface IUserLocalSettings {
     eventsLocalTimezone: boolean;
     disableNavigraph: boolean;
     disableNavigraphRoute: boolean;
+    disableNavigraphRouteHover: boolean;
     navigraphRouteAirportOverlay: {
         enabled?: boolean;
         sid?: boolean;

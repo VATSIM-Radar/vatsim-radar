@@ -2,13 +2,13 @@ import type {
     NavDataProcedure,
     NavigraphNavDataApproach,
     NavigraphNavDataApproachShort,
-    NavigraphNavDataEnrouteWaypointPartial,
+    NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataShort,
     NavigraphNavDataShortProcedures,
     NavigraphNavDataStar,
     NavigraphNavDataStarShort, ShortAirway,
 } from '~/utils/backend/navigraph/navdata/types';
 import { clientDB } from '~/utils/client-db';
-import type { ClientNavigraphData, IDBNavigraphProcedures } from '~/utils/client-db';
+import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
@@ -16,13 +16,11 @@ import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
 import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
-import { initIDBData } from '~/composables/idb-init';
-
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';
 
 export async function getNavigraphAirportProcedures(airport: string): Promise<IDBNavigraphProcedures> {
-    const idbAirport = await clientDB.get('navigraphAirports', airport);
-    if (idbAirport?.approaches && idbAirport?.stars && idbAirport?.sids) return idbAirport as any;
+    const idbAirport = await clientDB.navigraphAirports.get(airport);
+    if (idbAirport?.approaches && idbAirport?.stars && idbAirport?.sids) return idbAirport;
 
     const store = useStore();
 
@@ -33,7 +31,7 @@ export async function getNavigraphAirportProcedures(airport: string): Promise<ID
             Object.assign(data, idbAirport);
         }
 
-        await clientDB.put('navigraphAirports', data, airport);
+        await clientDB.navigraphAirports.put(data, airport);
         return data;
     }
 
@@ -49,7 +47,7 @@ export const navigraphAirac = computed(() => {
 });
 
 export async function getNavigraphAirportShortProceduresForKey<T extends NavigraphDataAirportKeys>(get: T, airport: string): Promise<T extends 'approaches' ? NavigraphNavDataApproachShort[] : NavigraphNavDataStarShort[]> {
-    const idbAirport = await clientDB.get('navigraphAirports', airport);
+    const idbAirport = await clientDB.navigraphAirports.get(airport);
     const idbData = idbAirport?.[get];
     if (idbData) return idbData as any;
 
@@ -59,7 +57,7 @@ export async function getNavigraphAirportShortProceduresForKey<T extends Navigra
 
     if (Array.isArray(data)) {
         // @ts-expect-error dynamic data
-        await clientDB.put('navigraphAirports', {
+        await clientDB.navigraphAirports.put({
             ...idbAirport,
             [get]: data,
         }, airport);
@@ -68,7 +66,7 @@ export async function getNavigraphAirportShortProceduresForKey<T extends Navigra
 
     if (isFetchError(data) && data.statusCode === 404) {
         // @ts-expect-error dynamic data
-        await clientDB.put('navigraphAirports', {
+        await clientDB.navigraphAirports.put({
             ...idbAirport,
             [get]: [],
         }, airport);
@@ -81,7 +79,7 @@ export async function getNavigraphAirportShortProceduresForKey<T extends Navigra
 }
 
 export async function getNavigraphAirportProceduresForKey<T extends NavigraphDataAirportKeys>(get: T, airport: string): Promise<T extends 'approaches' ? NavDataProcedure<NavigraphNavDataApproach>[] : NavDataProcedure<NavigraphNavDataStar>[]> {
-    const idbAirport = await clientDB.get('navigraphAirports', airport);
+    const idbAirport = await clientDB.navigraphAirports.get(airport);
     const idbData = idbAirport?.[get];
     if (idbData?.every(x => x.procedure)) return idbData.map(x => x.procedure) as any;
 
@@ -91,7 +89,7 @@ export async function getNavigraphAirportProceduresForKey<T extends NavigraphDat
 
     if (Array.isArray(data)) {
         if (idbData) {
-            await clientDB.put('navigraphAirports', {
+            await clientDB.navigraphAirports.put({
                 ...idbAirport,
                 [get]: idbData.map((x, index) => ({
                     ...x,
@@ -104,7 +102,7 @@ export async function getNavigraphAirportProceduresForKey<T extends NavigraphDat
 
     if (isFetchError(data) && data.statusCode === 404) {
         // @ts-expect-error dynamic data
-        await clientDB.put('navigraphAirports', {
+        await clientDB.navigraphAirports.put({
             ...idbAirport,
             [get]: [],
         }, airport);
@@ -117,7 +115,7 @@ export async function getNavigraphAirportProceduresForKey<T extends NavigraphDat
 }
 
 export async function getNavigraphAirportProcedure<T extends NavigraphDataAirportKeys>(get: T, airport: string, index: number): Promise<T extends 'approaches' ? NavDataProcedure<NavigraphNavDataApproach> | null : NavDataProcedure<NavigraphNavDataStar> | null> {
-    const idbAirport = await clientDB.get('navigraphAirports', airport);
+    const idbAirport = await clientDB.navigraphAirports.get(airport);
     const idbData = idbAirport?.[get];
     const idbProcedure = idbData?.[index];
     if (idbProcedure?.procedure) return idbProcedure.procedure as any;
@@ -130,7 +128,7 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
         if (idbProcedure) {
             idbProcedure.procedure = data;
             // @ts-expect-error dynamic data
-            await clientDB.put('navigraphAirports', {
+            await clientDB.navigraphAirports.put({
                 ...idbAirport,
                 [get]: idbData,
             }, airport);
@@ -275,14 +273,38 @@ export function waypointDiff(compare: Coordinate, coordinate: Coordinate): numbe
 const routeRegex = /(?<waypoint>([A-Z0-9]+))\/([A-Z0-9]+?)(?<level>([FS])([0-9]{2,4}))/;
 const NATRegex = /^NAT(?<letter>[A-Z])$/;
 
-export type NeededNavigraphData = Pick<ClientNavigraphData, 'parsedVHF' | 'parsedWaypoints' | 'parsedNDB' | 'parsedAirways'>;
+const dataCache: {
+    [K in 'vhf' | 'ndb' | 'waypoints' | 'airways']: NavigraphNavDataShort[K]
+} = {
+    vhf: {},
+    ndb: {},
+    waypoints: {},
+    airways: {},
+};
 
-export const getNavigraphParsedData = initIDBData<NeededNavigraphData>(async () => ({
-    parsedAirways: await clientDB.get('navigraphData', 'parsedAirways') as any ?? {},
-    parsedVHF: await clientDB.get('navigraphData', 'parsedVHF') as any ?? {},
-    parsedNDB: await clientDB.get('navigraphData', 'parsedNDB') as any ?? {},
-    parsedWaypoints: await clientDB.get('navigraphData', 'parsedWaypoints') as any ?? {},
-}));
+let latestUpdate = 0;
+
+export async function getNavigraphParsedData<T extends 'vhf' | 'ndb' | 'waypoints' | 'airways'>(type: T, key: string): Promise<NavigraphNavDataShort[T] | null>;
+export async function getNavigraphParsedData(type: 'vhf' | 'ndb' | 'waypoints' | 'airways', key: string): Promise<any | null> {
+    latestUpdate = Date.now();
+
+    if (key in dataCache[type]) return dataCache[type][key];
+    const data = await clientDB.navigraphDB.get(`${ type }-${ key }`) ?? null;
+    dataCache[type][key] = data as any;
+    return data;
+}
+
+// Cleanup when cache not used
+if (typeof window !== 'undefined') {
+    setInterval(() => {
+        if (latestUpdate && Date.now() - latestUpdate > 1000 * 15) {
+            dataCache.vhf = {};
+            dataCache.ndb = {};
+            dataCache.waypoints = {};
+            dataCache.airways = {};
+        }
+    }, 1000);
+}
 
 export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, cid, disableStarParsing, disableSidParsing }: FlightPlanInputWaypoint): Promise<NavigraphNavDataEnrouteWaypointPartial[]> {
     const waypoints: NavigraphNavDataEnrouteWaypointPartial[] = [];
@@ -308,7 +330,6 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
     const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
     const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
 
-    const navigraphData = await getNavigraphParsedData();
     let letter = '';
 
     try {
@@ -555,16 +576,16 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
             const previousWaypoint = previousWaypointCoordinate(waypoints[waypoints.length - 1]);
 
             const prevEntry = entries[i - 1]?.split('/')[0];
-            if (prevEntry && waypoints[waypoints.length - 1]?.airway && navigraphData.parsedAirways[prevEntry]) {
+            if (prevEntry && waypoints[waypoints.length - 1]?.airway && await getNavigraphParsedData('airways', prevEntry)) {
                 continue;
             }
 
             const nextEntry = entries[i + 1]?.split('/')[0];
-            if (nextEntry && navigraphData.parsedAirways[nextEntry]) {
+            if (nextEntry && await getNavigraphParsedData('airways', nextEntry)) {
                 continue;
             }
 
-            const airways = navigraphData.parsedAirways[search];
+            const airways = await getNavigraphParsedData('airways', search);
 
             if (airways) {
                 let list = Object.entries(airways);
@@ -649,11 +670,9 @@ export async function getFlightPlanWaypoints({ flightPlan, departure, arrival, c
                 continue;
             }
 
-            const vhfs = navigraphData.parsedVHF[search];
-            const ndbs = navigraphData.parsedNDB[search];
-            const waypointsList = navigraphData.parsedWaypoints[search];
-
-            if (search === 'MADAV') console.log(waypointsList);
+            const vhfs = getNavigraphParsedData('vhf', search);
+            const ndbs = getNavigraphParsedData('ndb', search);
+            const waypointsList = getNavigraphParsedData('waypoints', search);
 
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {
@@ -881,7 +900,6 @@ export async function updateCachedProcedures() {
 export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak) {
     const result: NavigraphNavDataEnrouteWaypointPartial[] = [];
 
-    const navigraphData = await getNavigraphParsedData();
     const waypoints = nat.last_routeing.split(' ');
 
     const parsedWaypoints: {
@@ -896,7 +914,7 @@ export async function buildNATWaypoints(nat: VatsimNattrakClient | VatsimNattrak
         const refCoordinate = parsedWaypoints.find((x, xIndex) => (xIndex === i + 1 || xIndex === i - 1) && x.coordinate)?.coordinate;
         if (!refCoordinate) continue;
 
-        const foundWaypoint = Object.entries(navigraphData.parsedWaypoints?.[waypoint.identifier] ?? {}).sort((a, b) => {
+        const foundWaypoint = Object.entries(await getNavigraphParsedData('waypoints', waypoint.identifier) ?? {}).sort((a, b) => {
             const aCoord = [a[1][1], a[1][2]];
             const bCoord = [b[1][1], b[1][2]];
 

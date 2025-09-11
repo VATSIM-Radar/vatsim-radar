@@ -1,6 +1,6 @@
-import type { DBSchema, IDBPDatabase } from 'idb';
-import { openDB } from 'idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
+import type { Table } from 'dexie';
+import Dexie from 'dexie';
 import type {
     RadarDataAirlinesAllList,
     SimAwareAPIData,
@@ -13,27 +13,9 @@ import type {
     NavigraphNavDataStarShort,
 } from '~/utils/backend/navigraph/navdata/types';
 
-interface VatSpyData {
-    key: 'vatspy';
-    value: VatSpyAPIData;
-}
-
-interface SimAwareData {
-    key: 'simaware';
-    value: SimAwareAPIData;
-}
-
-interface VatglassesData {
-    key: 'vatglasses';
-    value: VatglassesAPIData;
-}
-
 export interface IDBAirlinesData {
-    key: 'airlines';
-    value: {
-        expireDate: number;
-        airlines: RadarDataAirlinesAllList;
-    };
+    expireDate: number;
+    airlines: RadarDataAirlinesAllList;
 }
 
 export type ClientNavigraphData = Omit<Required<NavigraphNavDataShort>, 'stars' | 'sids' | 'approaches'>;
@@ -44,46 +26,32 @@ export type IDBNavigraphProcedures = {
     approaches: Array<(NavigraphNavDataApproachShort & { procedure?: NavDataProcedure<NavigraphNavDataApproach> })>;
 };
 
-interface ClientDB extends DBSchema {
-    data: VatSpyData | SimAwareData | VatglassesData | IDBAirlinesData;
-    navigraphAirports: {
-        key: string;
-        value: IDBNavigraphProcedures;
-    };
-    navigraphData: {
-        key: keyof ClientNavigraphData;
-        value: ClientNavigraphData[keyof ClientNavigraphData];
-    } | {
-        key: 'version';
-        value: string;
-    };
+class VatsimRadarDB extends Dexie {
+    data!: Table<VatSpyAPIData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
+
+    navigraphAirports!: Table<IDBNavigraphProcedures, string>;
+
+    navigraphData!: Table<ClientNavigraphData[keyof ClientNavigraphData] | string, keyof ClientNavigraphData | 'version' | 'inserted'>;
+
+    navigraphDB!: Table<NavigraphNavDataShort['vhf'] | NavigraphNavDataShort['ndb'] | NavigraphNavDataShort['airways'] | NavigraphNavDataShort['waypoints'], string>;
 }
 
-export let clientDB: IDBPDatabase<ClientDB> = undefined as any;
+export let clientDB: VatsimRadarDB = undefined as any;
 
 export async function initClientDB() {
-    if (clientDB) return;
-    clientDB = await openDB<ClientDB>('vatsim-radar', 4, {
-        upgrade(db) {
-            if (!db.objectStoreNames.contains('data')) {
-                db.createObjectStore('data');
-            }
-            // @ts-expect-error Old key
-            else (db.delete('data', 'navigraph'));
+    if (clientDB) return clientDB;
+    indexedDB.deleteDatabase('vatsim-radar');
+    const db = new VatsimRadarDB('vatsim-radar-db');
 
-            if (!db.objectStoreNames.contains('navigraphAirports')) {
-                db.createObjectStore('navigraphAirports');
-            }
+    db.version(1)
+        .stores({
+            data: '',
+            navigraphAirports: '',
+            navigraphData: '',
+            navigraphDB: '',
+        });
 
-            if (!db.objectStoreNames.contains('navigraphData')) {
-                db.createObjectStore('navigraphData');
-            }
-
-            // @ts-expect-error Legacy db version
-            if (db.objectStoreNames.contains('vatspy')) {
-                // @ts-expect-error Legacy db version
-                db.deleteObjectStore('vatspy');
-            }
-        },
-    });
+    await db.open();
+    clientDB = db;
+    return db;
 }
