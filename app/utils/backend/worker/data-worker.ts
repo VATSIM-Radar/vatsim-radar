@@ -379,10 +379,11 @@ defineCronJob('* * * * * *', async () => {
                     });
 
                     radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.filter(
-                        c => c.callsign !== `MIA_${ controllerSplit[1] }_CTR`
+                        c => c.callsign !== `MIA_${ controllerSplit[1] }_CTR`,
                     );
+                }
                 // Sign on ZMO_##_CTR if "ocean area" included in controller info
-                } else if (controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
+                else if (controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
                     radarStorage.vatsim.data.controllers.push({
                         ...controller,
                         callsign: `ZMO_${ controllerSplit[1] }_CTR`,
