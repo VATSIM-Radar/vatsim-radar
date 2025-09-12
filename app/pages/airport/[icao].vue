@@ -763,6 +763,7 @@ async function refreshData() {
             await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao.value }?requestDataType=1`),
         );
         airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? airportData.value!.notams;
+        triggerRef(airportData);
     }
     catch (e) {
         useRadarError(e);
