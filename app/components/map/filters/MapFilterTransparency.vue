@@ -62,6 +62,18 @@ const options = computed<SelectItem[]>(() => {
         });
     }
 
+    if (props.setting === 'sigmets') {
+        _options.push({
+            value: 0.05,
+            text: '95%',
+        });
+
+        _options.push({
+            value: 0.025,
+            text: '97.5%',
+        });
+    }
+
     _options.unshift({
         value: '',
         text: 'Default',

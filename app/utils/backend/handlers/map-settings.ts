@@ -92,8 +92,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         if ('pilotsInfo' in val && typeof val.pilotsInfo !== 'boolean') return false;
         if ('atcInfo' in val && typeof val.atcInfo !== 'boolean') return false;
         if ('pilotLabels' in val && typeof val.pilotLabels !== 'boolean') return false;
+        if ('bookings' in val && typeof val.bookings !== 'boolean') return false;
 
-        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels'])) return false;
+        if (!validateRandomObjectKeys(val, ['atc', 'atcLabels', 'airports', 'bookings', 'pilots', 'gates', 'runways', 'pilotsInfo', 'atcInfo', 'pilotLabels'])) return false;
 
         return true;
     },

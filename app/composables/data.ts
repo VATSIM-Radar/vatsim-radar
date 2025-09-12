@@ -225,6 +225,9 @@ const dataStore: UseDataStore = {
     },
 };
 
+// @ts-expect-error Dynamic key
+if (typeof window !== 'undefined') window.dataStore = dataStore;
+
 export const vgFallbackKeys = computed(() => Object.keys(vatglassesActivePositions.value['fallback']));
 
 export function useDataStore(): UseDataStore {

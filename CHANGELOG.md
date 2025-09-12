@@ -1,5 +1,15 @@
 # Changelog
 
+# [1.2.3-beta.5]
+
+- Reduced approach caching size
+- Improved route loading speed
+- Added 95% and 97.5% transparency settings for SIGMETs
+- Fixed an issue when you couldn't save map settings if you have changed bookings visibility
+- Max waypoint distance allowed has been increased to 700NM from 500NM. Let us know if this causes issues
+- Fixed airway getting parsed as full airway if route ends with it without second waypoint
+- Added information panel to airport dashboard in controller mode, showing current/previous QNH, ATIS info, as well as current/previous METAR
+
 # [1.2.3-beta.4]
 
 - Reduced VATGlasses memory usage when update is not needed
@@ -27,7 +37,6 @@
 - Fixed airport aircraft list crashing
 - Metar Request in pilot overlay will now include departure airport if clicked inside a prefile
 - Airport Dashboard now updates weather and NOTAMS every 5 minutes with an ability to fetch them manually
-- Added METAR display w/ ATIS letter and QNH to Controller Mode in Airport Dashboard. When ATIS letter or QNH get updated, they'll be colored for you to acknowledge with previous info displayed below
 - NOTAMs cache update has been lowered from 2 hours to 15 minutes
 
 # [1.2.3-beta.2]
