@@ -196,7 +196,7 @@ function buildStyle(color: ColorsList, type: string) {
 
 let styles = {
     default: buildStyle('lightgray125', 'SIGMET'),
-    WIND: buildStyle('error300', 'WIND'),
+    WIND: buildStyle('lightgray200', 'WIND'),
     ICE: buildStyle('primary300', 'ICE'),
     TURB: buildStyle('warning300', 'TURB'),
     MTW: buildStyle('warning300', 'MTW'),
@@ -209,7 +209,7 @@ let styles = {
 watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
     styles = {
         default: buildStyle('lightgray125', 'SIGMET'),
-        WIND: buildStyle('error300', 'WIND'),
+        WIND: buildStyle('lightgray200', 'WIND'),
         ICE: buildStyle('primary300', 'ICE'),
         TURB: buildStyle('warning300', 'TURB'),
         MTW: buildStyle('warning300', 'MTW'),
