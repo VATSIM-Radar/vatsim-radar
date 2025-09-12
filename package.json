@@ -114,7 +114,7 @@
     "tsx": "4.16.2",
     "typescript": "5.9.2",
     "vite-plugin-eslint2": "^5.0.4",
-    "vue-tsc": "3.0.6"
+    "vue-tsc": "3.0.7"
   },
   "packageManager": "yarn@4.9.4"
 }
