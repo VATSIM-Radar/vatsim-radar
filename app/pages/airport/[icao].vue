@@ -137,12 +137,14 @@
                     <div
                         class="airport__metar_arrow airport__metar_arrow--prev"
                         :class="{ 'airport__metar_arrow--disabled': !previousMetar || showPreviousMetar }"
+                        @click="previousMetar && (showPreviousMetar = true)"
                     >
                         <arrow-top-icon/>
                     </div>
                     <div
                         class="airport__metar_arrow airport__metar_arrow--next"
                         :class="{ 'airport__metar_arrow--disabled': !showPreviousMetar }"
+                        @click="showPreviousMetar = false"
                     >
                         <arrow-top-icon/>
                     </div>
