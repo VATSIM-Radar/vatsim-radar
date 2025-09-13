@@ -70,7 +70,7 @@ const buttons: Record<SigmetType, Button> = {
     },
     WIND: {
         text: 'WIND',
-        color: 'darkgray800',
+        color: 'darkgray850',
     },
     WS: {
         text: 'WS',
