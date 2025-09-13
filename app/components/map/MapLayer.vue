@@ -323,6 +323,8 @@ async function initLayer() {
 
         await applyStyle(tileLayer.value, glStyle);
 
+        console.log(tileLayer, tileLayer.value.getSource());
+
         attributionLayer = new TileLayer({
             source: new XYZ({
                 attributions: buildAttributions(layer.value.attribution?.title || false, layer.value.attribution?.url ?? ''),

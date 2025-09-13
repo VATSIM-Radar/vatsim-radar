@@ -557,7 +557,7 @@ onMounted(() => {
             ...await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ props.overlay.key }?requestedDataType=1`),
         };
 
-        props.overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport.value }/notams`, {
+        props.overlay.data.notams = await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ airport.value?.icao }/notams`, {
             timeout: 1000 * 15,
         });
     }, 1000 * 60 * 5);
