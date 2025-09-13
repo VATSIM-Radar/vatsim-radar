@@ -369,6 +369,28 @@ defineCronJob('* * * * * *', async () => {
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;
 
+            // ZMA Ocean Area logic
+            if (controller.callsign.startsWith('MIA_') && controllerSplit.length === 3) {
+                // Change MIA_##_CTR -> ZMA_##_CTR if "no ocean area" included in controller info
+                if (controller.text_atis?.join(' ').toLowerCase().includes('no ocean area')) {
+                    radarStorage.vatsim.data.controllers.push({
+                        ...controller,
+                        callsign: `ZMA_${ controllerSplit[1] }_CTR`,
+                    });
+
+                    radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.filter(
+                        c => c.callsign !== `MIA_${ controllerSplit[1] }_CTR`,
+                    );
+                }
+                // Sign on ZMO_##_CTR if "ocean area" included in controller info
+                else if (controller.text_atis?.join(' ').toLowerCase().includes('ocean area')) {
+                    radarStorage.vatsim.data.controllers.push({
+                        ...controller,
+                        callsign: `ZMO_${ controllerSplit[1] }_CTR`,
+                    });
+                }
+            }
+
             // ZOA NCT Area mapping logic
             const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP)$/;
             const areaMapping = {

@@ -23,6 +23,14 @@ In such case, controller is duplicated as-is, excluding **callsign** and **frequ
 
 In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
+## ZMA Ocean Area
+
+- Data is hard coded - allows opening or closing of ZMA's Ocean Area based off various callsign/polygon definitions
+- If controller ATIS includes `Ocean Area`, `ZMO_##_CTR` (`KZMA-OCN` polygon) is opened in addition to the current `MIA_##_CTR` (`KZMA` polygon) position
+- If controller ATIS includes `No Ocean Area`, `MIA_##_CTR` (`KZMA`) is signed off and replaced with `ZMA_##_CTR` (`KZMA-N` polygon)
+
+In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
+
 ## Other sector
 
 Contact us in Discord if you are duplicating your sectors internally, have this system documented, and want to make it work on VATSIM Radar.
