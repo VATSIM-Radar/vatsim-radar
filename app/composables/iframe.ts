@@ -28,7 +28,7 @@ export async function useIframeHeader() {
         const origin = new URL(originHeader || refererHeader!).hostname;
 
         if (origin && iframeWhitelist.includes(origin)) {
-            setHeader(event, 'Content-Security-Policy', `frame-ancestors 'self' ${ origin }`);
+            setHeader(event, 'Content-Security-Policy', `frame-ancestors *`);
         }
         else {
             if (isValidIPOrigin(url.origin) && event.context.referrerChecked) {
