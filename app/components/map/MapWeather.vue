@@ -27,7 +27,7 @@ let tileLayer: TileLayer<XYZ> | undefined;
 const timestamp = ref(0);
 
 async function loadTimestamp() {
-    timestamp.value = (await $fetch<number[]>('/rainviewer/api/maps.json'))[0];
+    timestamp.value = (await $fetch<number[]>('https://tilecache.rainviewer.com/api/maps.json'))[0];
 }
 
 interface Layer {
@@ -41,7 +41,7 @@ function getLayer(id: MapWeatherLayer): Layer {
     if (id === 'rainViewer') {
         return {
             attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
-            tileUrlFunction: coord => `/rainviewer/v2/radar/${ timestamp.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/3/1_1.png`,
+            tileUrlFunction: coord => `https://tilecache.rainviewer.com/v2/radar/${ timestamp.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/3/1_1.png`,
             maxZoom: 10,
         };
     }

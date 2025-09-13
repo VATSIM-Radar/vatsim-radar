@@ -180,9 +180,6 @@ export default defineNuxtConfig({
             '/layers/esri/**': {
                 proxy: 'https://ibasemaps-api.arcgis.com/**',
             },
-            '/rainviewer/**': {
-                proxy: 'https://tilecache.rainviewer.com/**',
-            },
         },
     },
     devServer: {
