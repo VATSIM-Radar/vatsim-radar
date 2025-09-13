@@ -392,7 +392,7 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // ZOA NCT Area mapping logic
-            const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP)$/;
+            const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
             const areaMapping = {
                 'Area A': 'SJC_APP',
                 'Area B': 'SFO_APP',

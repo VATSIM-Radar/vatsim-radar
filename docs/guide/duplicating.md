@@ -12,7 +12,7 @@ In such case, controller is duplicated as-is, excluding **callsign** and **frequ
 
 ## ZOA NCT
 
-- Data is hard coded - extending is allowed for NCT, SFO, OAK, SJC, SMF, RNO, MRY, MOD, BAY (APP or DEP)
+- Data is hard coded - extending is allowed for NCT, SFO, OAK, SJC, SMF, RNO, MRY, MOD, BAY (APP, DEP or CTR)
 - Controller ATIS should include the following text for extending to work
   - Area A: SJC_APP
   - Area B: SFO_APP
