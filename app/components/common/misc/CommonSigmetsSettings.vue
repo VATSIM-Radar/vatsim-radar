@@ -9,7 +9,10 @@
                 v-for="(button, key) in buttons"
                 :key="key"
                 class="sigmets-settings_btn"
-                :class="{ 'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key) }"
+                :class="{
+                    'sigmets-settings_btn--dark': button.color.startsWith('lightgray'),
+                    'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key),
+                }"
                 :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"
                 @click="setUserLocalSettings({ filters: { layers: { sigmets: {
                     disabled: store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key)
@@ -70,11 +73,11 @@ const buttons: Record<SigmetType, Button> = {
     },
     WIND: {
         text: 'WIND',
-        color: 'darkgray850',
+        color: 'lightgray200',
     },
     WS: {
         text: 'WS',
-        color: 'darkgray900',
+        color: 'lightgray150',
     },
     IFR: {
         text: 'IFR',
@@ -111,11 +114,15 @@ const buttons: Record<SigmetType, Button> = {
         font-family: $defaultFont;
         font-size: 12px;
         font-weight: 600;
-        color: $lightgray0Orig;
+        color: $lightgray100Orig;
 
         background: transparent;
 
         transition: 0.3s;
+
+        &--dark.sigmets-settings_btn--active {
+            color: $darkgray1000Orig;
+        }
 
         @include hover {
             &:hover {
@@ -124,7 +131,7 @@ const buttons: Record<SigmetType, Button> = {
         }
 
         &--active {
-            background: rgb(var(--color));
+            background: rgb(var(--color)) !important;
         }
     }
 }
