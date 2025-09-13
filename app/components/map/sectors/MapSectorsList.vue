@@ -277,7 +277,7 @@ function updateMap(map: Map | null) {
     if (!vectorLayer) {
         vectorSource.value = new VectorSource<any>({
             features: [],
-            wrapX: false,
+            wrapX: true,
         });
 
         const firColor = getSelectedColorFromSettings('firs');

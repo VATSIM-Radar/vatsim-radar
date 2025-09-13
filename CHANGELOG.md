@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.3-rc.1]
+
+- Slightly improved aircraft update performance
+- It is now possible to view VATSpy polygons on "other worlds" of map
+- Fixed CONVECTIVE SIGMETs not showing on map and SIGMETs color refresh by glott
+- Added ZMA Ocean Area duplicating logic by glott
+
 # [1.2.3-beta.5]
 
 - Reduced approach caching size

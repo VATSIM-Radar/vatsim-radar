@@ -361,6 +361,18 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     const isMounted = ref(false);
     const config = useRuntimeConfig();
 
+    function receiveMessage(event: MessageEvent) {
+        if (event.origin !== config.public.DOMAIN) {
+            return;
+        }
+
+        if (event.source === window) return; // the message is from the same window, so we ignore it
+
+        if (event.data && 'type' in event.data && event.data.type === 'efbX') {
+            store.isTabVisible = event.data.action === 'resume';
+        }
+    }
+
     const socketsEnabled = () => String(config.public.DISABLE_WEBSOCKETS) !== 'true' && !store.localSettings.traffic?.disableFastUpdate;
 
     function startIntervalChecks() {
@@ -405,9 +417,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
     }
 
     function setVisibilityState() {
-        document.addEventListener('visibilitychange', event => {
-            store.isTabVisible = document.visibilityState === 'visible';
-        });
+        store.isTabVisible = document.visibilityState === 'visible';
     }
 
     onMounted(async () => {
@@ -419,6 +429,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
         const config = useRuntimeConfig();
 
         document.addEventListener('visibilitychange', setVisibilityState);
+        window.addEventListener('message', receiveMessage);
 
         watch(() => store.localSettings.traffic?.disableFastUpdate, val => {
             if (String(config.public.DISABLE_WEBSOCKETS) === 'true') val = true;
@@ -484,6 +495,7 @@ export async function setupDataFetch({ onMount, onFetch, onSuccessCallback }: {
 
     onBeforeUnmount(() => {
         document.removeEventListener('visibilitychange', setVisibilityState);
+        window.removeEventListener('message', receiveMessage);
         isMounted.value = false;
         ws?.();
         if (interval) clearInterval(interval);

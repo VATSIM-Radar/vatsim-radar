@@ -4,9 +4,9 @@
             v-for="aircraft in getShownPilots"
             :key="aircraft.cid+String(store.mapSettings.heatmapLayer)"
             :aircraft="aircraft"
-            :can-show-tracks="showTracks.find(x => x.pilot.cid === aircraft.cid)?.show ?? null"
+            :can-show-tracks="showTracks[aircraft.cid.toString()]?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
-            :is-visible="showTracks.find(x => x.pilot.cid === aircraft.cid)?.isShown ?? true"
+            :is-visible="showTracks[aircraft.cid.toString()]?.isShown ?? true"
             :show-label="showAircraftLabel.includes(aircraft.cid)"
             @manualHide="[isManualHover === aircraft.cid && (isManualHover = null)]"
             @manualHover="[isManualHover = aircraft.cid, setHoveredAircraft(aircraft)]"
@@ -72,7 +72,7 @@ function receiveMessage(event: MessageEvent) {
     }
 }
 
-const showTracks = shallowRef<{ show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }[]>([]);
+const showTracks = shallowRef<Record<string, { show: 'short' | 'full'; pilot: VatsimShortenedAircraft; isShown: boolean; isDeparture?: boolean; isArrival?: boolean }>>({});
 const hoverDelay = computed(() => (store.mapSettings.aircraftHoverDelay === undefined || store.mapSettings.aircraftHoverDelay === true) ? 400 : store.mapSettings.aircraftHoverDelay);
 
 const getShownPilots = computed(() => {
@@ -118,7 +118,7 @@ async function setHoveredAircraft(aircraft: VatsimMandatoryPilot) {
 }
 
 function setVisiblePilots() {
-    showTracks.value = [];
+    showTracks.value = {};
 
     const {
         mode: tracksMode = 'arrivalsOnly',
@@ -129,9 +129,7 @@ function setVisiblePilots() {
     dataStore.visiblePilots.value = dataStore.vatsim._mandatoryData.value?.pilots.filter(x => {
         const coordinates = [x.longitude, x.latitude];
 
-        // Don't iterate through pilots if no need
-        // TODO: convert pilots and other things to a map
-        const pilot = mapStore.overlays.some(x => x.type === 'airport' && x.data.showTracks) && dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
+        const pilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
 
         const isShown = mapStore.overlays.some(y => y.type === 'pilot' && y.key === x.cid.toString()) || isPointInExtent(coordinates);
 
@@ -171,29 +169,29 @@ function setVisiblePilots() {
             const airport = pilot.departure && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.departure && x.data.showTracks);
             if (airport) {
                 hasTracks = true;
-                showTracks.value.push({
+                showTracks.value[pilot.cid.toString()] = {
                     pilot,
                     show: 'full',
                     isShown,
                     isDeparture: true,
-                });
+                };
             }
         }
 
         if (canShowForArrivals) {
             const airport = pilot.arrival && mapStore.overlays.some(x => x.type === 'airport' && x.data.icao === pilot.arrival && x.data.showTracks);
-            const duplicate = showTracks.value.find(x => x.pilot.cid === pilot.cid);
+            const duplicate = showTracks.value[pilot.cid.toString()];
             if (airport) {
                 hasTracks = true;
 
                 if (duplicate) duplicate.isArrival = true;
                 else {
-                    showTracks.value.push({
+                    showTracks.value[pilot.cid.toString()] = {
                         pilot,
                         show: 'full',
                         isShown,
                         isArrival: true,
-                    });
+                    };
                 }
             }
         }
@@ -201,31 +199,36 @@ function setVisiblePilots() {
         return isShown || (hasTracks && showOutOfBounds);
     }) ?? [];
 
-    if (showTracks.value.length > tracksLimit) {
-        showTracks.value = showTracks.value.filter(x => mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort((a, b) => {
-            const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
-            const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
-            const aDist = (aGoDist && aDepDist)
-                ? aGoDist > aDepDist && aDepDist
-                    ? aDepDist
-                    : aGoDist
-                : aGoDist || aDepDist;
+    const tracksEntries = Object.entries(showTracks.value);
 
-            const bGoDist = (b.isArrival && b.pilot.toGoDist) || 0;
-            const bDepDist = (b.isDeparture && b.pilot.depDist) || 0;
-            const bDist = (bGoDist && bDepDist)
-                ? bGoDist > bDepDist
-                    ? bDepDist
-                    : bGoDist
-                : bGoDist || bDepDist;
+    if (tracksEntries.length > tracksLimit) {
+        showTracks.value = Object.fromEntries(
+            tracksEntries.filter(([, x]) => mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid) || (x.pilot.toGoDist && x.pilot.toGoDist > 0) || (x.pilot.depDist && x.pilot.depDist > 0)).sort(([, a], [,b]) => {
+                const aGoDist = (a.isArrival && a.pilot.toGoDist) || 0;
+                const aDepDist = (a.isDeparture && a.pilot.depDist) || 0;
+                const aDist = (aGoDist && aDepDist)
+                    ? aGoDist > aDepDist && aDepDist
+                        ? aDepDist
+                        : aGoDist
+                    : aGoDist || aDepDist;
 
-            return aDist - bDist;
-        }).map((x, index) => {
-            if (index >= tracksLimit && !mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid)) x.show = 'short';
+                const bGoDist = (b.isArrival && b.pilot.toGoDist) || 0;
+                const bDepDist = (b.isDeparture && b.pilot.depDist) || 0;
+                const bDist = (bGoDist && bDepDist)
+                    ? bGoDist > bDepDist
+                        ? bDepDist
+                        : bGoDist
+                    : bGoDist || bDepDist;
 
-            return x;
-        }).filter((x, index) => index < 50 || x.isShown || mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid));
+                return aDist - bDist;
+            }).map(([key, x], index) => {
+                if (index >= tracksLimit && !mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid)) x.show = 'short';
+
+                return [key, x] satisfies [string, typeof x];
+            }).filter(([, x], index) => index < 50 || x.isShown || mapStore.overlays.some(y => y.type === 'pilot' && y.data.pilot.cid === x.pilot.cid)),
+        );
     }
+    else triggerRef(showTracks);
 
     if (store.config.airports?.length && store.config.onlyAirportsAircraft) {
         const airports = dataStore.vatsim.data.airports.value.filter(x => store.config.airports!.includes(x.icao));
