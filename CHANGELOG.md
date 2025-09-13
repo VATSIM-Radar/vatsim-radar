@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.3-rc.2]
+
+- Fixed RainViewer weather not loading on some zoom levels, improved its loading speed
+
 # [1.2.3-rc.1]
 
 - Slightly improved aircraft update performance
