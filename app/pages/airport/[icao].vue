@@ -521,7 +521,7 @@ const controllerMode = useCookie<boolean>('controller-mode', {
 function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | 'alone') {
     if (height === 0) return '0';
     let calculatedHeight = `calc(${ height }vh`;
-    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - ${ controllerMode.value ? '32px' : '0px' } - 16px)`;
+    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - ${ controllerMode.value ? '32px - 16px' : '0px' } - 16px)`;
     else if (type === 'map') calculatedHeight += ` - 16px)`;
     else if (type === 'alone') calculatedHeight += ` - (32px + 56px) - 16px)`;
     else calculatedHeight += ')';

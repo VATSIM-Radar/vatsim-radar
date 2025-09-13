@@ -273,9 +273,13 @@ export const sigmetDates = () => computed<SelectItem[]>(() => {
     }
 
     for (let i = 2; i < 7; i++) {
+        let value = hour + i;
+
+        if (value > 24) value -= 24;
+
         dates.push({
             value: `${ date.getUTCFullYear() }-${ addLeadingZero(date.getUTCMonth() + 1) }-${ addLeadingZero(date.getUTCDate()) }T${ addLeadingZero(hour + i) }:00:00.000Z`,
-            text: `${ hour + i }Z`,
+            text: `${ value }Z`,
         });
     }
 
@@ -310,7 +314,7 @@ export const getSigmetType = (hazard: string | null | undefined): SigmetType | n
     if (hazard?.startsWith('VA')) return 'VA';
     if (hazard?.startsWith('MTW')) return 'MTW';
     if (hazard?.startsWith('IFR')) return 'IFR';
-    if (hazard?.startsWith('CONVECTIVE')) return 'CONVECTIVE';
+    if (hazard?.startsWith('CONV')) return 'CONV';
 
     return null;
 };

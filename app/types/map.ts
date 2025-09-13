@@ -56,7 +56,7 @@ export interface SearchResults {
 
 export type SearchFilter = keyof SearchResults;
 
-export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC' | 'CONVECTIVE';
+export type SigmetType = 'TS' | 'VA' | 'FZLVL' | 'WS' | 'WIND' | 'ICE' | 'TURB' | 'MTW' | 'IFR' | 'OBSC' | 'CONV';
 
 interface IUserLocalSettings {
     location: Coordinate;

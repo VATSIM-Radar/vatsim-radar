@@ -202,7 +202,7 @@ let styles = {
     MTW: buildStyle('warning300', 'MTW'),
     IFR: buildStyle('info500', 'IFR'),
     TS: buildStyle('error300', 'TS'),
-    CONVECTIVE: buildStyle('error300', 'CONVECTIVE'),
+    CONV: buildStyle('error300', 'CONV'),
     VA: buildStyle('lightgray125', 'VA'),
 };
 
@@ -215,7 +215,7 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
         MTW: buildStyle('warning300', 'MTW'),
         IFR: buildStyle('info500', 'IFR'),
         TS: buildStyle('error300', 'TS'),
-        CONVECTIVE: buildStyle('error300', 'CONVECTIVE'),
+        CONV: buildStyle('error300', 'CONV'),
         VA: buildStyle('lightgray125', 'VA'),
     };
 });

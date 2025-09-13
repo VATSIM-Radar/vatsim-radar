@@ -4,20 +4,22 @@
             class="sigmets-settings_transparency"
             setting="sigmets"
         />
-        <div
-            v-for="(button, key) in buttons"
-            :key="key"
-            class="sigmets-settings_btn"
-            :class="{ 'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key) }"
-            :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"
-            @click="setUserLocalSettings({ filters: { layers: { sigmets: {
-                disabled: store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key)
-                    ? store.localSettings?.filters?.layers?.sigmets?.disabled.filter(x => x !== key)
-                    : [...store.localSettings?.filters?.layers?.sigmets?.disabled ?? [], key],
-            } } } })"
-        >
-            {{ button.text }}
-        </div>
+        <client-only>
+            <div
+                v-for="(button, key) in buttons"
+                :key="key"
+                class="sigmets-settings_btn"
+                :class="{ 'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key) }"
+                :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"
+                @click="setUserLocalSettings({ filters: { layers: { sigmets: {
+                    disabled: store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key)
+                        ? store.localSettings?.filters?.layers?.sigmets?.disabled.filter(x => x !== key)
+                        : [...store.localSettings?.filters?.layers?.sigmets?.disabled ?? [], key],
+                } } } })"
+            >
+                {{ button.text }}
+            </div>
+        </client-only>
         <common-toggle
             :model-value="store.localSettings?.filters?.layers?.sigmets?.showAirmets !== false"
             @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { showAirmets: $event } } } })"
@@ -42,7 +44,7 @@ interface Button {
 }
 
 const buttons: Record<SigmetType, Button> = {
-    CONVECTIVE: {
+    CONV: {
         text: 'CONV',
         color: 'error500',
     },
@@ -68,11 +70,11 @@ const buttons: Record<SigmetType, Button> = {
     },
     WIND: {
         text: 'WIND',
-        color: 'lightgray200',
+        color: 'darkgray800',
     },
     WS: {
         text: 'WS',
-        color: 'lightgray100',
+        color: 'darkgray900',
     },
     IFR: {
         text: 'IFR',

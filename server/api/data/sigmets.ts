@@ -113,22 +113,22 @@ export default defineEventHandler(async event => {
     for (const feature of (await airsigmet)?.features ?? []) {
         const properties = feature.properties;
 
-        if (properties.hazard !== 'CONVECTIVE') {
-            sigmets.features.push({
-                ...feature,
-                properties: {
-                    id: properties.icaoId,
-                    type: properties.airSigmetType,
-                    alphaChar: properties.alphaChar,
-                    hazard: properties.hazard,
-                    timeFrom: properties.validTimeFrom,
-                    timeTo: properties.validTimeTo,
-                    qualifier: properties.severity,
-                    raw: properties.rawAirSigmet,
-                    dataType: 'airsigmet',
-                },
-            });
-        }
+        console.log(feature);
+
+        sigmets.features.push({
+            ...feature,
+            properties: {
+                id: properties.icaoId,
+                type: properties.airSigmetType,
+                alphaChar: properties.alphaChar,
+                hazard: properties.hazard,
+                timeFrom: properties.validTimeFrom,
+                timeTo: properties.validTimeTo,
+                qualifier: properties.severity,
+                raw: properties.rawAirSigmet,
+                dataType: 'airsigmet',
+            },
+        });
     }
 
     for (const feature of (await airmet)?.features ?? []) {
