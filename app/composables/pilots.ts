@@ -43,7 +43,7 @@ export function usePilotRatings() {
 export function getAirportByIcao(icao?: string | null | undefined): VatSpyData['airports'][0] | null {
     if (!icao) return null;
 
-    return useDataStore().vatspy.value!.data.keyAirports.realIcao[icao] ?? null;
+    return useDataStore().vatspy.value?.data.keyAirports.realIcao[icao] ?? null;
 }
 
 export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExtendedPilot, map: Map | null, zoom?: number) {

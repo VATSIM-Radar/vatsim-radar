@@ -250,7 +250,9 @@
             <map-sigmets/>
         </client-only>
         <map-layer v-else/>
-        <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+        <client-only>
+            <map-scale v-if="!store.isMobile && store.localSettings.filters?.layers?.relativeIndicator !== false"/>
+        </client-only>
         <slot/>
     </div>
 </template>
@@ -1063,6 +1065,22 @@ await setupDataFetch({
     },
 });
 
+function handleKeys(event: KeyboardEvent) {
+    if (!event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) return;
+
+    const bookmark = store.bookmarks.find(x => {
+        const binding = x.json.binding;
+        if (!binding?.keys) return false;
+
+        return binding.code === event.code && binding.keys?.ctrl === event.ctrlKey && binding.keys.alt === event.altKey && binding.keys.meta === event.metaKey && binding.keys.shift === event.shiftKey;
+    });
+
+    if (!bookmark) return;
+
+    event.preventDefault();
+    showBookmark(bookmark.json, map.value);
+}
+
 onMounted(() => {
     if (route.query.vg === '1' || route.query.vg === '0') {
         setUserMapSettings({
@@ -1072,30 +1090,14 @@ onMounted(() => {
         });
     }
 
-    function handleKeys(event: KeyboardEvent) {
-        if (!event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey) return;
-
-        const bookmark = store.bookmarks.find(x => {
-            const binding = x.json.binding;
-            if (!binding?.keys) return false;
-
-            return binding.code === event.code && binding.keys?.ctrl === event.ctrlKey && binding.keys.alt === event.altKey && binding.keys.meta === event.metaKey && binding.keys.shift === event.shiftKey;
-        });
-
-        if (!bookmark) return;
-
-        event.preventDefault();
-        showBookmark(bookmark.json, map.value);
-    }
-
     document.addEventListener('keydown', handleKeys, {
         capture: true,
     });
+});
 
-    onBeforeUnmount(() => {
-        document.removeEventListener('keydown', handleKeys, {
-            capture: true,
-        });
+onBeforeUnmount(() => {
+    document.removeEventListener('keydown', handleKeys, {
+        capture: true,
     });
 });
 </script>

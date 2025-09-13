@@ -83,42 +83,76 @@
                     Show pilot stats
                 </common-toggle>
             </div>
-            <div
-                v-if="controllerMode && airportData.airport?.metar"
-                class="airport__metar __desktop"
-            >
-                {{ airportData.airport.metar }}
-            </div>
-            <div
-                v-if="(currentAtisLetter || currentQnh) && controllerMode"
-                class="airport_header_section airport_header-weather"
-                :class="{ 'airport_header-weather--unack': !changesAck }"
-            >
-                <span
-                    v-if="currentQnh"
-                    :data-previous="previousQnh?.value"
-                    @click="changesAck = true"
-                >
-                    {{ currentQnh.value }}
-                </span>
-                <span
-                    v-if="currentAtisLetter"
-                    :data-previous="previousAtisLetter"
-                    @click="changesAck = true"
-                >
-                    {{ currentAtisLetter }}
-                </span>
-            </div>
-            <client-only class="airport_header_section">
+        </div>
+        <div
+            v-if="controllerMode"
+            class="airport_header"
+        >
+            <div class="airport_header_section">
                 <div class="airport_header__title">
                     <div class="airport_header__title_label">
                         Time
                     </div>
-                    <div class="airport_header__title_name">
-                        {{ formatDateDime.format(dataStore.time.value) }}z
+                    <client-only>
+                        <div class="airport_header__title_name">
+                            {{ formatDateDime.format(dataStore.time.value) }}z
+                        </div>
+                    </client-only>
+                </div>
+            </div>
+            <div
+                v-if="currentQnh"
+                class="airport_header_section airport_header_section--themed"
+            >
+                <div class="airport_header_section--themed_section">
+                    <s
+                        v-if="!changesAck && previousQnh"
+                        @click="changesAck = true"
+                    >{{previousQnh?.value}}</s>
+                    <strong>{{currentQnh.value}}</strong> {{currentQnh.unit}}
+                </div>
+                <div
+                    v-if="currentAtisLetter?.departure || currentAtisLetter?.arrival"
+                    class="airport_header_section--themed_section"
+                >
+                    <div
+                        v-if="currentAtisLetter.departure"
+                        class="airport_header_section--themed_section_item"
+                    >
+                        {{currentAtisLetter.departure}}
+                    </div>
+                    <div
+                        v-if="currentAtisLetter.arrival"
+                        class="airport_header_section--themed_section_item"
+                    >
+                        {{currentAtisLetter.arrival}}
                     </div>
                 </div>
-            </client-only>
+            </div>
+            <div
+                v-if="currentMetar"
+                class="airport_header_section airport__metar"
+            >
+                <template v-if="previousMetar">
+                    <div
+                        class="airport__metar_arrow airport__metar_arrow--prev"
+                        :class="{ 'airport__metar_arrow--disabled': !previousMetar || showPreviousMetar }"
+                        @click="previousMetar && (showPreviousMetar = true)"
+                    >
+                        <arrow-top-icon/>
+                    </div>
+                    <div
+                        class="airport__metar_arrow airport__metar_arrow--next"
+                        :class="{ 'airport__metar_arrow--disabled': !showPreviousMetar }"
+                        @click="showPreviousMetar = false"
+                    >
+                        <arrow-top-icon/>
+                    </div>
+                </template>
+                <div class="airport__metar_text">
+                    {{showPreviousMetar ? previousMetar : currentMetar}}
+                </div>
+            </div>
         </div>
         <div
             v-if="!controllerMode"
@@ -257,7 +291,7 @@
             class="airport_map"
         >
             <iframe
-                v-if="mounted"
+                v-if="ready && mounted"
                 ref="airportMapFrame"
                 class="airport_map_iframe"
                 :src="`/?preset=dashboard&airport=${ icao }&airportMode=${ aircraftMode ?? 'all' }&zoom=${ savedZoom }&tracks=${ Number(arrivalTracks) }`"
@@ -316,6 +350,7 @@ import AirportProcedures from '~/components/views/airport/AirportProcedures.vue'
 import { updateCachedProcedures } from '~/composables/navigraph';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
+import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 
 const route = useRoute();
 const router = useRouter();
@@ -477,10 +512,16 @@ const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     default: () => null,
 });
 
+const controllerMode = useCookie<boolean>('controller-mode', {
+    sameSite: 'none',
+    secure: true,
+    default: () => false,
+});
+
 function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | 'alone') {
     if (height === 0) return '0';
     let calculatedHeight = `calc(${ height }vh`;
-    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - 16px)`;
+    if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - ${ controllerMode.value ? '32px' : '0px' } - 16px)`;
     else if (type === 'map') calculatedHeight += ` - 16px)`;
     else if (type === 'alone') calculatedHeight += ` - (32px + 56px) - 16px)`;
     else calculatedHeight += ')';
@@ -578,12 +619,6 @@ const controllerColumns = computed(() => {
     });
 });
 
-const controllerMode = useCookie<boolean>('controller-mode', {
-    sameSite: 'none',
-    secure: true,
-    default: () => false,
-});
-
 const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     sameSite: 'none',
     secure: true,
@@ -676,25 +711,38 @@ useLazyAsyncData(async () => {
     server: false,
 });
 
+type ATISChange = { departure: string | null; arrival: string | null } | null;
+
 const changesAck = ref(true);
-const previousAtisLetter = ref<null | string>(null);
-const currentAtisLetter = computed(() => {
+
+const currentAtisLetter = computed<ATISChange>(() => {
     if (!airportData.value) return null;
-    return atc.value?.find(x => x.isATIS || x.facility === -1)?.atis_code;
+    const atis = atc.value?.filter(x => x.isATIS || x.facility === -1);
+
+    const departure = atis?.length === 1 ? atis[0].atis_code ?? null : (atis?.find(x => x.callsign.endsWith('D_ATIS')) ?? atis[0])?.atis_code ?? null;
+
+    return {
+        departure,
+        arrival: atis?.length === 1 ? null : (atis?.find(x => departure && x.callsign.endsWith('A_ATIS')) ?? atis[1])?.atis_code ?? null,
+    };
 });
 
-watch(currentAtisLetter, (_, oldVal) => {
-    if (oldVal && oldVal !== previousAtisLetter.value) {
-        previousAtisLetter.value = oldVal;
-        changesAck.value = false;
-    }
-});
-
-const previousQnh = ref<null | IAltimeter>(null);
+const previousQnh = shallowRef<null | IAltimeter>(null);
 const currentQnh = computed(() => {
     if (!airportData.value?.airport?.metar) return null;
     const parsedMetar = parseMetar(airportData.value?.airport?.metar);
     return parsedMetar.altimeter;
+});
+
+const previousMetar = ref<null | string>(null);
+const showPreviousMetar = ref(false);
+const currentMetar = computed(() => {
+    return airportData.value?.airport?.metar ?? null;
+});
+
+watch(currentMetar, (_, oldVal) => {
+    if (!oldVal) return;
+    previousMetar.value = oldVal;
 });
 
 watch(() => currentQnh.value?.value, (_, oldVal) => {
@@ -714,9 +762,10 @@ async function refreshData() {
     try {
         airportData.value!.airport = Object.assign(
             airportData.value!.airport!,
-            $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao.value }?requestDataType=1`),
+            await $fetch<VatsimAirportData>(`/api/data/vatsim/airport/${ icao.value }?requestDataType=1`),
         );
         airportData.value!.notams = (await $fetch<VatsimAirportDataNotam[]>(`/api/data/vatsim/airport/${ icao.value }/notams`).catch(console.error)) ?? airportData.value!.notams;
+        triggerRef(airportData);
     }
     catch (e) {
         useRadarError(e);
@@ -801,6 +850,88 @@ await setupDataFetch({
         &_section {
             position: relative;
 
+            &--themed {
+                position: relative;
+
+                display: flex;
+                gap: 12px;
+                align-items: center;
+
+                padding: 8px 12px !important;
+                border-radius: 8px;
+
+                font-size: 11px;
+
+                background: $darkgray900;
+
+                &::after {
+                    left: calc(100% + 16px) !important;
+                }
+
+                &:not(:last-child) {
+                    margin-right: 16px;
+                }
+
+                &_section, &_section_item {
+                    @include pc {
+                        position: relative;
+
+                        &:not(:last-child) {
+                            padding-right: 12px;
+
+                            &::after {
+                                content: '';
+
+                                position: absolute;
+                                top: calc(50% - 8px);
+                                left: 100%;
+
+                                width: 1px;
+                                height: 16px;
+
+                                background: varToRgba('lightgray150', 0.2);
+                            }
+                        }
+                    }
+                }
+
+                &_section {
+                    display: flex;
+                    gap: 6px;
+                    align-items: center;
+
+                    s, strong {
+                        font-size: 13px;
+                    }
+
+                    s {
+                        cursor: pointer;
+                        color: $lightgray200;
+                        opacity: 0.5;
+                    }
+
+                    strong {
+                        font-weight: 600;
+                        color: $primary500;
+                    }
+
+                    &_item {
+                        &::after {
+                            top: calc(50% - 2px) !important;
+                            left: calc(100% - 2px) !important;
+
+                            width: 4px !important;
+                            height: 4px !important;
+                            border-radius: 100%;
+                        }
+
+                        &:not(:last-child) {
+                            padding-right: 6px;
+                        }
+                    }
+                }
+            }
+
             @include pc {
                 &:not(:last-child) {
                     padding-right: 16px;
@@ -827,7 +958,7 @@ await setupDataFetch({
             align-items: center;
 
             font-family: $openSansFont;
-            font-size: 17px;
+            font-size: 16px;
             line-height: 100%;
             text-transform: uppercase;
 
@@ -840,69 +971,67 @@ await setupDataFetch({
                 flex-grow: 1;
             }
         }
-
-        &-weather {
-            display: flex;
-
-            span {
-                position: relative;
-
-                display: flex;
-                justify-content: center;
-
-                padding: 4px 8px;
-
-                font-size: 14px;
-                font-weight: 600;
-
-                background: $darkgray950;
-
-                &:first-child {
-                    border-radius: 8px 0 0 8px;
-                }
-
-                &:last-child {
-                    border-radius: 0 8px 8px 0;
-                }
-
-                &:only-child {
-                    border-radius: 8px;
-                }
-
-                &:not(:first-child) {
-                    padding-left: 8px;
-                    border-left: 1px solid varToRgba('lightgray150', 0.1);
-                }
-            }
-
-            &--unack span[data-previous] {
-                cursor: pointer;
-
-                &::after {
-                    content: attr(data-previous);
-
-                    position: absolute;
-                    top: calc(100% + 2px);
-
-                    font-size: 12px;
-                    color: $primary500;
-                }
-            }
-        }
     }
 
     &__metar {
-        user-select: text;
+        display: flex;
+        gap: 4px;
 
-        position: absolute;
-        top: -16px;
-        right: 0;
+        &_arrow {
+            cursor: pointer;
 
-        padding: 0 8px;
-        border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-        font-size: 12px;
-        line-height: 100%;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+
+            background: $darkgray900;
+
+            @include hover {
+                transition: 0.3s;
+
+                &:hover {
+                    background: $darkgray875;
+                }
+            }
+
+            &--disabled {
+                opacity: 0.5;
+                background: $darkgray850;
+
+                &, svg {
+                    pointer-events: none;
+                    cursor: default;
+                }
+            }
+
+            svg {
+                transform: rotate(90deg);
+                width: 10px;
+            }
+
+            &--prev svg {
+                transform: rotate(-90deg);
+            }
+        }
+
+        &_text {
+            user-select: all;
+
+            display: flex;
+            align-items: center;
+
+            height: 32px;
+            padding: 0 12px;
+            border-radius: 8px;
+
+            font-size:  12px;
+
+            background: $darkgray900;
+        }
     }
 
     &_sections {

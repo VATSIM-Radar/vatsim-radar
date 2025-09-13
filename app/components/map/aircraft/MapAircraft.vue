@@ -461,49 +461,59 @@ const distance = computed(() => {
     );
 });
 
+let settingPilotRoute = false;
 
 async function setPilotRoute(enabled: boolean) {
-    if (!flightPlan.value || !enabled) {
-        const had = dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
-        delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
-        if (had) {
-            triggerRef(dataStore.navigraphWaypoints);
+    if (settingPilotRoute) return;
+    settingPilotRoute = true;
+
+    try {
+        if (!flightPlan.value || !enabled) {
+            const had = dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+            delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+            if (had) {
+                triggerRef(dataStore.navigraphWaypoints);
+            }
+
+            settingPilotRoute = false;
+            return;
         }
 
-        return;
+        if (!previousFlightPlan) previousFlightPlan = flightPlan.value;
+
+        if (previousFlightPlan !== flightPlan.value) {
+            delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
+            previousFlightPlan = flightPlan.value;
+        }
+
+        if (arrLine) {
+            arrLine.dispose();
+            linesSource.value?.removeFeature(arrLine);
+            arrLine = undefined;
+        }
+
+        dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
+            pilot: pilot.value,
+            full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
+            calculatedArrival: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.calculatedArrival,
+            disableHoldings: store.localSettings.navigraphRouteAirportOverlay?.holds === false && !activeCurrentOverlay.value && !props.isHovered,
+            disableWaypoints: store.localSettings.navigraphRouteAirportOverlay?.waypoints === false && !activeCurrentOverlay.value && !props.isHovered,
+            disableLabels: store.localSettings.navigraphRouteAirportOverlay?.labels === false && !activeCurrentOverlay.value && !props.isHovered,
+            waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
+                flightPlan: flightPlan.value,
+                departure: pilot.value.departure!,
+                arrival: pilot.value.arrival!,
+                cid: pilot.value.cid,
+                disableSidParsing: store.localSettings.navigraphRouteAirportOverlay?.sid === false,
+                disableStarParsing: store.localSettings.navigraphRouteAirportOverlay?.star === false,
+            }),
+        };
+
+        triggerRef(dataStore.navigraphWaypoints);
     }
-
-    if (!previousFlightPlan) previousFlightPlan = flightPlan.value;
-
-    if (previousFlightPlan !== flightPlan.value) {
-        delete dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()];
-        previousFlightPlan = flightPlan.value;
+    finally {
+        settingPilotRoute = false;
     }
-
-    if (arrLine) {
-        arrLine.dispose();
-        linesSource.value?.removeFeature(arrLine);
-        arrLine = undefined;
-    }
-
-    dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
-        pilot: pilot.value,
-        full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
-        calculatedArrival: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.calculatedArrival,
-        disableHoldings: store.localSettings.navigraphRouteAirportOverlay?.holds === false && !activeCurrentOverlay.value && !props.isHovered,
-        disableWaypoints: store.localSettings.navigraphRouteAirportOverlay?.waypoints === false && !activeCurrentOverlay.value && !props.isHovered,
-        disableLabels: store.localSettings.navigraphRouteAirportOverlay?.labels === false && !activeCurrentOverlay.value && !props.isHovered,
-        waypoints: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.waypoints ?? await getFlightPlanWaypoints({
-            flightPlan: flightPlan.value,
-            departure: pilot.value.departure!,
-            arrival: pilot.value.arrival!,
-            cid: pilot.value.cid,
-            disableSidParsing: store.localSettings.navigraphRouteAirportOverlay?.sid === false,
-            disableStarParsing: store.localSettings.navigraphRouteAirportOverlay?.star === false,
-        }),
-    };
-
-    triggerRef(dataStore.navigraphWaypoints);
 }
 
 const canShowRoute = computed(() => {
@@ -571,6 +581,12 @@ async function toggleAirportLines(value = canShowLines.value) {
             setPilotRoute(false);
 
             return;
+        }
+
+        if (canShowRoute.value && !flightPlan.value) {
+            flightPlan.value = (await $fetch<{ flightPlan: string } | null | undefined>(`/api/data/vatsim/pilot/${ props.aircraft.cid }/plan`, {
+                timeout: 1000 * 5,
+            }).catch(console.error))?.flightPlan ?? '';
         }
 
         setPilotRoute(canShowRoute.value);
