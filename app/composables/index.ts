@@ -310,6 +310,7 @@ export const getSigmetType = (hazard: string | null | undefined): SigmetType | n
     if (hazard?.startsWith('VA')) return 'VA';
     if (hazard?.startsWith('MTW')) return 'MTW';
     if (hazard?.startsWith('IFR')) return 'IFR';
+    if (hazard?.startsWith('CONVECTIVE')) return 'CONVECTIVE';
 
     return null;
 };

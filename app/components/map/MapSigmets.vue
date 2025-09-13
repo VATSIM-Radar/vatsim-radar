@@ -196,24 +196,26 @@ function buildStyle(color: ColorsList, type: string) {
 
 let styles = {
     default: buildStyle('lightgray125', 'SIGMET'),
-    WIND: buildStyle('error300', 'WIND'),
+    WIND: buildStyle('lightgray200', 'WIND'),
     ICE: buildStyle('primary300', 'ICE'),
     TURB: buildStyle('warning300', 'TURB'),
     MTW: buildStyle('warning300', 'MTW'),
     IFR: buildStyle('info500', 'IFR'),
     TS: buildStyle('error300', 'TS'),
+    CONVECTIVE: buildStyle('error300', 'CONVECTIVE'),
     VA: buildStyle('lightgray125', 'VA'),
 };
 
 watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, () => {
     styles = {
         default: buildStyle('lightgray125', 'SIGMET'),
-        WIND: buildStyle('error300', 'WIND'),
+        WIND: buildStyle('lightgray200', 'WIND'),
         ICE: buildStyle('primary300', 'ICE'),
         TURB: buildStyle('warning300', 'TURB'),
         MTW: buildStyle('warning300', 'MTW'),
         IFR: buildStyle('info500', 'IFR'),
         TS: buildStyle('error300', 'TS'),
+        CONVECTIVE: buildStyle('error300', 'CONVECTIVE'),
         VA: buildStyle('lightgray125', 'VA'),
     };
 });

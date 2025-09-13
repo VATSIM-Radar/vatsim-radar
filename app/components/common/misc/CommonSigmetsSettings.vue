@@ -42,41 +42,45 @@ interface Button {
 }
 
 const buttons: Record<SigmetType, Button> = {
-    WIND: {
-        text: 'WIND',
-        color: 'error300',
-    },
-    WS: {
-        text: 'WS',
+    CONVECTIVE: {
+        text: 'CONV',
         color: 'error500',
     },
-    FZLVL: {
-        text: 'FZLVL',
-        color: 'primary500',
+    TS: {
+        text: 'TS',
+        color: 'error300',
     },
     ICE: {
         text: 'ICE',
         color: 'primary300',
     },
+    FZLVL: {
+        text: 'FZLVL',
+        color: 'primary500',
+    },
     TURB: {
         text: 'TURB',
-        color: 'warning600',
+        color: 'warning700',
     },
     MTW: {
         text: 'MTW',
-        color: 'warning700',
+        color: 'warning600',
+    },
+    WIND: {
+        text: 'WIND',
+        color: 'lightgray200',
+    },
+    WS: {
+        text: 'WS',
+        color: 'lightgray100',
     },
     IFR: {
         text: 'IFR',
-        color: 'info500',
+        color: 'info700',
     },
     OBSC: {
         text: 'OBSC',
-        color: 'info700',
-    },
-    TS: {
-        text: 'ThunderStorm',
-        color: 'error300',
+        color: 'info500',
     },
     VA: {
         text: 'VA',
