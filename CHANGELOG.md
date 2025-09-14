@@ -41,6 +41,7 @@ Please keep in mind: Navigraph will initialize for a very long time in this upda
 - Fixed unneeded flight data updating even when aircraft is standing still - this should slightly improve flight history service performance
 - Route does no longer depend on tracks loading - previously, if we had tracks slow load, route didn't load as well
 - Improved performance when updating aircraft in dashboard mode
+- Add airport data cleanup when zooming out
 
 ## Bug Fixes
 

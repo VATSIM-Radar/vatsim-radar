@@ -217,7 +217,8 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
     if (lastEventPixel && lastEventPixel[0] === eventPixel[0] && lastEventPixel[1] === eventPixel[1]) {
         // same location, close popup
-        sectorsAtClick.value = [];
+        sectorsAtClick.value.length = 0;
+        triggerRef(sectorsAtClick);
         vatglassesPopupIsShown.value = false;
         lastEventPixel = null;
         return;

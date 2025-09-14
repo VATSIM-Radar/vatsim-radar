@@ -811,6 +811,8 @@ async function setVisibleAirports() {
         visibleAirports.value = airportsList.value.filter(x => x.visible);
 
         if ((map.value!.getView().getZoom() ?? 15) > 12) {
+            airportsData.value = airportsData.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport));
+            originalAirportsData.value = originalAirportsData.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport));
             const navigraphAirports = visibleAirports.value.filter(x => !x.vatsimAirport.isPseudo);
 
             if (!navigraphAirports.every(x => originalAirportsData.value.some(y => y.airport === x.vatsimAirport.icao))) {
@@ -840,6 +842,12 @@ async function setVisibleAirports() {
                     layout: data.layout,
                 };
             }).filter(x => visibleAirports.value.find(y => y.vatsimAirport.icao === x.airport));
+        }
+        else {
+            airportsData.value.length = 0;
+            originalAirportsData.value.length = 0;
+            triggerRef(airportsData);
+            triggerRef(originalAirportsData);
         }
     }
     finally {
