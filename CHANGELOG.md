@@ -64,7 +64,12 @@ Please keep in mind: Navigraph will initialize for a very long time in this upda
 - Fixed some bookings showing as staffed
 - Fixed some bookings showing incorrect shape or TRACON
 
-# [1.2.2-3-final]
+# [1.2.2-4]
+
+- Alaska AIRMETs were temporally disabled
+- Fixed all SIGMETs not showing on map if one of SIGMET types is failing to be loaded
+
+# [1.2.2-3]
 
 - METAR is now cached for 5 minutes instead of 10 minutes
 - Fixed next segment after SID color being purple instead of blue
