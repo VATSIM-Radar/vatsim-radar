@@ -216,8 +216,8 @@ const commType = computed<'Voice' | 'Receive Voice' | 'Text Only'>(() => {
 });
 
 const alternates = computed(() => {
-    const TALT = getFlightPlanParam('TALT')?.split(' ');
-    const RALT = getFlightPlanParam('RALT')?.split(' ');
+    const TALT = getFlightPlanParam('TALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
+    const RALT = getFlightPlanParam('RALT')?.split(' ')?.filter(x => !x.startsWith('/') && !x.endsWith('/'));
 
     return {
         alt: props.flightPlan?.alternate ?? null,
