@@ -158,6 +158,7 @@ let source: VectorSource;
 
 const types = ref(new Set<string | null | undefined>());
 
+const isMobile = useIsMobile();
 const localDisabled = computed(() => store.localSettings.filters?.layers?.sigmets?.disabled);
 
 const jsonFeatures = computed(() => {
@@ -185,7 +186,7 @@ function buildStyle(color: ColorsList, type: string) {
         }),
         text: new Text({
             text: `${ type }`,
-            font: 'bold 14px Montserrat',
+            font: `bold ${ isMobile.value ? 10 : 14 }px Montserrat`,
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.5)`,
             }),

@@ -1,63 +1,64 @@
 # Changelog
 
-# [1.2.3-rc.2]
+# [1.2.3-final]
 
-- Fixed RainViewer weather not loading on some zoom levels
+Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to make it performance focused - so Radar may start to work better on not-so-high end machines.
 
-# [1.2.3-rc.1]
+Please keep in mind: Navigraph will initialize for a very long time in this update. This is intended, please be patient - that saves you dozens MBs of memory.
+
+## Highlights
+
+📊 Airport Dashboard enhancements
+🛩️ Registration, alternates and voice rules in pilot overlay
+⚡ Performance and memory usage improvements
+✨ Bug fixes and quality of life improvements
+
+## Features and improvements
+
+- It is now possible to view VATSpy polygons on "other worlds" of map
+- Added ZMA Ocean Area duplicating logic by glott
+- Added 95% and 97.5% transparency settings for SIGMETs
+- Added information panel to airport dashboard in controller mode, showing current/previous QNH, ATIS info, as well as current/previous METAR
+- You can now disable route parsing on hover
+- Added ZOA NCT Area mapping logic by `csko` and ZMA Ocean Area logic by `glott` - see https://docs.vatsim-radar.com/guide/duplicating\
+- Added altitude correction to Speed & Altitude graph, so it now shows altitude according to QNH
+- Pilot info and airline name are now aligned in pilot overlay
+- Added registration, alternates (w/ takeoff/enroute) and Voice Rules to pilot overlay
+- Metar Request in pilot overlay will now include departure airport if clicked inside a prefile
+- Airport Dashboard now updates weather and NOTAMS every 5 minutes with an ability to fetch them manually
+- NOTAMs cache update has been lowered from 2 hours to 15 minutes
+- Alaska AIRMETs are put back into operation
+
+## Performance improvements
 
 - Slightly improved aircraft update performance
-- It is now possible to view VATSpy polygons on "other worlds" of map
-- Fixed CONVECTIVE SIGMETs not showing on map and SIGMETs color refresh by glott
-- Added ZMA Ocean Area duplicating logic by glott
-
-# [1.2.3-beta.5]
-
 - Reduced approach caching size
 - Improved route loading speed
-- Added 95% and 97.5% transparency settings for SIGMETs
-- Fixed an issue when you couldn't save map settings if you have changed bookings visibility
-- Max waypoint distance allowed has been increased to 700NM from 500NM. Let us know if this causes issues
-- Fixed airway getting parsed as full airway if route ends with it without second waypoint
-- Added information panel to airport dashboard in controller mode, showing current/previous QNH, ATIS info, as well as current/previous METAR
-
-# [1.2.3-beta.4]
-
 - Reduced VATGlasses memory usage when update is not needed
 - Skip VATGlasses update if not needed to improve memory usage and performance
 - Significantly (>100x times) reduced route parsing memory consumption in exchange for slow **first** Navigraph database init
-- Fixed NOTAM swipe on touch devices
 - Tracks data is no longer required for initialization - it will be loaded in background instead
+- Fixed unneeded flight data updating even when aircraft is standing still - this should slightly improve flight history service performance
+- Route does no longer depend on tracks loading - previously, if we had tracks slow load, route didn't load as well
+- Improved performance when updating aircraft in dashboard mode
+
+## Bug Fixes
+
+- Max waypoint distance allowed has been increased to 700NM from 500NM. Let us know if this causes issues
 - Once again fixed bookings not updating
+- Fixed RainViewer weather not loading on some zoom levels
+- Fixed CONVECTIVE SIGMETs not showing on map and SIGMETs color refresh by glott
+- Fixed an issue when you couldn't save map settings if you have changed bookings visibility
+- Fixed airway getting parsed as full airway if route ends with it without second waypoint
+- Fixed NOTAM swipe on touch devices
 - Fixed holdings not displayed for manual airport star selection
 - Insane aviation fact: magnetic declination exists! Holding patterns now respect it
 - Waypoint restrictions will stop hiding randomly and will always show when intended
 - FIR/ARTCC bookings will not show when they are disabled
 - Fixed edge cases when day title on events page was not displayed correctly when switching between local and GMT+0 timezones
 - Fixed pilot overlay crash when pilot is flying to an unknown airport
-- You can now disable route parsing on hover
-- Added ZOA NCT Area mapping logic by `csko` - see https://docs.vatsim-radar.com/guide/duplicating
-
-# [1.2.3-beta.3]
-
-- Fixed unneeded flight data updating even when aircraft is standing still - this should slightly improve flight history service performance
-- Route does no longer depend on tracks loading - previously, if we had tracks slow load, route didn't load as well
-- Added altitude correction to Speed & Altitude graph, so it now shows altitude according to QNH
-- Pilot info and airline name are now aligned in pilot overlay
-- Added registration, alternates (w/ takeoff/enroute) and Voice Rules to pilot overlay
 - Fixed airport aircraft list crashing
-- Metar Request in pilot overlay will now include departure airport if clicked inside a prefile
-- Airport Dashboard now updates weather and NOTAMS every 5 minutes with an ability to fetch them manually
-- NOTAMs cache update has been lowered from 2 hours to 15 minutes
-
-# [1.2.3-beta.2]
-
-- Alaska AIRMETs are put back into operation
 - Fixed aircraft route constantly disappearing on first open
-- Improved performance when updating aircraft in dashboard mode
-
-# [1.2.3-beta.1]
-
 - ATC total stats will now show the same number as stats page - time as supervisor is now excluded
 - Fixed some bookings showing as staffed
 - Fixed some bookings showing incorrect shape or TRACON
