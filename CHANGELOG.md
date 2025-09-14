@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.3-final]
+# [1.2.3]
 
 Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to make it performance focused - so Radar may start to work better on not-so-high end machines.
 
