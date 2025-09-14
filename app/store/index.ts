@@ -47,7 +47,7 @@ export interface SiteConfig {
 }
 
 export type VRInitStatusResult = boolean | 'notRequired' | 'loading' | 'failed';
-export type VRInitStatus = Record<'vatspy' | 'simaware' | 'tracks' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
+export type VRInitStatus = Record<'vatspy' | 'simaware' | 'navigraph' | 'airlines' | 'vatglasses' | 'updatesCheck' | 'dataGet' | 'status', VRInitStatusResult>;
 
 export const useStore = defineStore('index', {
     state: () => ({
@@ -117,7 +117,6 @@ export const useStore = defineStore('index', {
             navigraph: false,
             airlines: false,
             vatglasses: false,
-            tracks: false,
             updatesCheck: false,
             dataGet: false,
             status: false,

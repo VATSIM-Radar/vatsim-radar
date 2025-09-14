@@ -121,16 +121,15 @@ export const tracksExpired = computed(() => {
     return dataStore.time.value > closestTime ? closestTime : false;
 });
 
-export function checkForTracks() {
-    return initCheck('tracks', async ({ dataStore }) => {
-        if (!tracksExpired.value) return false;
+export async function checkForTracks() {
+    const dataStore = useDataStore();
+    if (!tracksExpired.value) return false;
 
-        dataStore.vatsim.tracks.value = (await $fetch<VatsimNattrak[]>(`/api/data/tracks?d=${ !dataStore.vatsim.tracks.value.length ? '0' : tracksExpired.value }`)).map(x => ({
-            ...x,
-            valid_from: x.valid_from ? new Date(x.valid_from) : null,
-            valid_to: x.valid_to ? new Date(x.valid_to) : null,
-        }));
-    });
+    dataStore.vatsim.tracks.value = (await $fetch<VatsimNattrak[]>(`/api/data/tracks?d=${ !dataStore.vatsim.tracks.value.length ? '0' : tracksExpired.value }`)).map(x => ({
+        ...x,
+        valid_from: x.valid_from ? new Date(x.valid_from) : null,
+        valid_to: x.valid_to ? new Date(x.valid_to) : null,
+    }));
 }
 
 export function checkForSimAware() {

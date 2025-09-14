@@ -113,8 +113,6 @@ export default defineEventHandler(async event => {
     for (const feature of (await airsigmet)?.features ?? []) {
         const properties = feature.properties;
 
-        console.log(feature);
-
         sigmets.features.push({
             ...feature,
             properties: {
