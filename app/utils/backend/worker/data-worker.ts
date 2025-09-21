@@ -195,6 +195,7 @@ defineCronJob('* * * * * *', async () => {
         });
 
         radarStorage.vatsim.data!.prefiles.forEach(prefile => {
+            if (!prefile) return;
             const newerData = radarStorage.vatsim.kafka.prefiles[prefile.callsign];
             if (!newerData || updateTimestamp > newerData.date) return;
 
