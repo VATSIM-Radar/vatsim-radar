@@ -10,7 +10,7 @@
 - Fixed parsing of callsigns such as BUMPY
 - Added direction, speed and altitudes to AIRSIGMETs
 - Fixed some airports bookings displaying with an incorrect color
-- Added https and vats.im hyperlinks highlight in ATIS
+- Added hyperlinks highlight in ATIS
 - Fixed arrival line flashing constantly when route parsing is off
 
 # [1.2.3-final]
