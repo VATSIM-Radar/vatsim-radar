@@ -72,6 +72,7 @@ export default defineNuxtConfig({
     experimental: {
         appManifest: true,
         asyncContext: true,
+        entryImportMap: false,
         clientFallback: false,
         defaults: {
             useAsyncData: {
