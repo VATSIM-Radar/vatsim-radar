@@ -89,9 +89,8 @@
                     v-for="atis in getATIS(controller)"
                     :key="atis"
                     class="atc__atis_line"
-                >
-                    {{ atis }}<br>
-                </li>
+                    v-html="`${ atis }<br>`"
+                />
             </ul>
             <common-atc-time-online
                 v-if="controller.logon_time"

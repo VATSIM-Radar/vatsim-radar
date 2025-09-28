@@ -291,6 +291,7 @@ const vatglassesActive = isVatGlassesActive;
 const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
     total: 'Total departures',
     totalMoving: 'Total departures (moving only)',
+    totalLanded: 'Total departures (not parked)',
     airborne: 'Airborne departures',
     ground: 'Departing (default)',
     groundMoving: 'Departing (moving only)',
@@ -300,6 +301,7 @@ const countersOptions: Record<Required<IUserMapSettings['airportsCounters']>['de
 const countersArrivalOptions: Record<Required<IUserMapSettings['airportsCounters']>['departuresMode'], string> = {
     total: 'Total arrivals',
     totalMoving: 'Total arrivals (moving only)',
+    totalLanded: 'Total arrivals (not parked)',
     airborne: 'Airborne arrivals',
     ground: 'Landed (default)',
     groundMoving: 'Landed (moving only)',

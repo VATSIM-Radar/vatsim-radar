@@ -159,8 +159,68 @@ export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | nu
     return showAirportOnMap(airport, map, (atc.facility === facilities.CTR || atc.facility === facilities.FSS) ? 8 : undefined);
 }
 
+const allowedDomains = ['vats.im', 'discord.gg', 'vatsca.org', 'vatger.de'];
+
+function addATISLinks(lines: string[]) {
+    const punctTrailRe = /[),.;:!?]+$/;
+
+    const hasAllowedDomain = (token: string) => {
+        const lower = token.toLowerCase();
+        return allowedDomains.some(d => lower.includes(d.toLowerCase()));
+    };
+
+    const fixBrokenHttpsInLine = (s: string) => s.replace(/https\s*\/\/\s*/gi, 'https://');
+
+    const makeAnchor = (href: string, originalToken: string, trail = '') => {
+        const url = new URL(href);
+        return `<a class="__link" href="${ href }" onclick="event.stopPropagation()" target="_blank" rel="noopener noreferrer">${ url.host }${ url.pathname === '/' ? '' : url.pathname }</a>${ trail }`;
+    };
+
+    const tryParseAndLink = (rawToken: string) => {
+        try {
+            const trail = (rawToken.match(punctTrailRe) || [''])[0];
+            const core = rawToken.slice(0, rawToken.length - trail.length);
+
+            // 1) если начинается с http(s), пробуем как есть
+            if (/^https?:\/\//i.test(core)) {
+                try {
+                    const u = new URL(core);
+                    return makeAnchor(u.toString(), rawToken, trail);
+                }
+                catch {
+                    return rawToken;
+                }
+            }
+
+            if (hasAllowedDomain(core)) {
+                try {
+                    const u = new URL(`https://${ core }`);
+                    return makeAnchor(u.toString(), rawToken, trail);
+                }
+                catch {
+                    return rawToken;
+                }
+            }
+
+            return rawToken;
+        }
+        catch {
+            return rawToken;
+        }
+    };
+
+    return lines.map(line => {
+        const fixed = fixBrokenHttpsInLine(line);
+
+        const parts = fixed.split(' ');
+        const linked = parts.map(tryParseAndLink);
+        return linked.join(' ');
+    });
+}
+
 export function getATIS(controller: VatsimShortenedController) {
-    const atis = controller.text_atis?.map(x => parseEncoding(x, controller.callsign)) ?? null;
+    let atis = controller.text_atis?.map(x => parseEncoding(x.replace(/<\/?[^>]+>/g, ''), controller.callsign)) ?? null;
+    if (atis) atis = addATISLinks(atis);
 
     if (!controller.isATIS) return atis;
     if (atis && atis.filter(x => x.replaceAll(' ', '').length > 20).length > atis.length - 2) return [atis.join(' ')];

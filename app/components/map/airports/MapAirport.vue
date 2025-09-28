@@ -465,6 +465,7 @@ onMounted(async () => {
                 iata: props.airport.iata,
                 id: 'circle',
                 type: 'circle',
+                controllers: props.arrAtc,
             });
 
             setBorderFeatureStyle(borderFeature);
