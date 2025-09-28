@@ -218,9 +218,9 @@ function addATISLinks(lines: string[]) {
     });
 }
 
-export function getATIS(controller: VatsimShortenedController) {
+export function getATIS(controller: VatsimShortenedController, parseLinks = true) {
     let atis = controller.text_atis?.map(x => parseEncoding(x.replace(/<\/?[^>]+>/g, ''), controller.callsign)) ?? null;
-    if (atis) atis = addATISLinks(atis);
+    if (atis && parseLinks) atis = addATISLinks(atis);
 
     if (!controller.isATIS) return atis;
     if (atis && atis.filter(x => x.replaceAll(' ', '').length > 20).length > atis.length - 2) return [atis.join(' ')];
