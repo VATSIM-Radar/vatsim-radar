@@ -95,7 +95,7 @@
                     v-if="atc.text_atis"
                     auto-expand
                     class="atc__sections_section"
-                    :text="getATIS(atc)?.join('\n')"
+                    :text="getATIS(atc, false)?.join('\n')"
                 >
                     ATC Information
                 </common-copy-info-block>

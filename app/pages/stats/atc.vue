@@ -66,7 +66,7 @@
                     v-if="overlayAtc.text_atis"
                     auto-expand
                     class="atc__sections_section"
-                    :text="getATIS(overlayAtc)?.join('\n')"
+                    :text="getATIS(overlayAtc, false)?.join('\n')"
                 >
                     ATIS
                 </common-copy-info-block>
