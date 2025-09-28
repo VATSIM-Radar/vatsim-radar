@@ -306,7 +306,23 @@ useHead(() => {
         },
         meta: [
             {
+                name: 'og:site_name',
+                content: 'VATSIM Radar',
+            },
+            {
+                name: 'og:type',
+                content: 'website',
+            },
+            {
+                name: 'og:locale',
+                content: 'en_US',
+            },
+            {
                 name: 'description',
+                content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
+            },
+            {
+                name: 'og:description',
                 content: 'Explore VATSIM Network in real-time, track pilots, check for controllers, view events - and more!',
             },
             {
