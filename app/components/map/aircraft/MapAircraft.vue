@@ -670,12 +670,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                 depLine = undefined;
             }
 
-            if (arrLine) {
-                arrLine.dispose();
-                linesSource.value?.removeFeature(arrLine);
-                arrLine = undefined;
-            }
-
             const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
 
             if (firstUpdate) {

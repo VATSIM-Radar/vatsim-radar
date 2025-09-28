@@ -83,6 +83,8 @@ export interface VatglassesSectorProperties {
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
+const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS'];
+
 async function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
     updatedVatglassesPositions = {};
@@ -165,6 +167,7 @@ async function updateVatglassesPositionsAndAirspaces() {
             for (const countryGroupId of sortedKeys) {
                 const countryGroup = vatglassesData[countryGroupId];
                 for (const vatglassesPositionId in countryGroup.positions) {
+                    if (ignoredPositions.includes(vatglassesPositionId)) continue;
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
                     if (vatglassesPosition.frequency && vatglassesPosition.frequency !== atc.frequency) continue;
                     if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;

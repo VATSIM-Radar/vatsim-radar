@@ -16,7 +16,7 @@ import {
 const visibilityKeys: Array<keyof UserMapSettingsVisibilityATC> = ['firs', 'approach', 'ground'];
 const groundHideKeys: Array<IUserMapSettings['groundTraffic']['hide']> = ['always', 'lowZoom', 'never'];
 const airportsModeKeys: Array<IUserMapSettings['airportsMode']> = ['staffedOnly', 'staffedAndGroundTraffic', 'all'];
-const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'ground', 'groundMoving', 'airborne', 'hide'];
+const counterModeKeys: Array<IUserMapSettings['airportsCounters']['arrivalsMode']> = ['total', 'totalMoving', 'totalLanded', 'ground', 'groundMoving', 'airborne', 'hide'];
 const prefilesModeKeys: Array<IUserMapSettings['airportsCounters']['horizontalCounter']> = ['total', 'prefiles', 'ground', 'groundMoving', 'hide'];
 const turnsKeys: Array<IUserMapSettings['colors']['turns']> = ['magma', 'inferno', 'rainbow', 'viridis'];
 const tracksKeys: Array<IUserMapSettings['tracks']['mode']> = ['arrivalsOnly', 'arrivalsAndLanded', 'departures', 'ground', 'allAirborne', 'all'];
@@ -335,7 +335,7 @@ export interface IUserMapSettings {
     airportsCounters: {
         showCounters?: boolean;
         syncDeparturesArrivals?: boolean;
-        departuresMode?: 'total' | 'totalMoving' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
+        departuresMode?: 'total' | 'totalMoving' | 'totalLanded' | 'airborne' | 'ground' | 'groundMoving' | 'hide';
         arrivalsMode?: IUserMapSettings['airportsCounters']['departuresMode'];
         horizontalCounter?: 'total' | 'prefiles' | 'ground' | 'groundMoving' | 'hide';
         disableTraining?: boolean;

@@ -1,5 +1,18 @@
 # Changelog
 
+# [1.2.3-1-final]
+
+- Disabled v1.2.3 update popup
+- Fixed Asia Center display in VATGlasses mode
+- Changed SIGMETs update rate to once per 5 minutes
+- Changed bookings, oceanic tracks and SIGMETs caching duration from 10 to 5 minutes
+- SIGMETs will now show in airport dashboard if enabled on main map
+- Fixed parsing of callsigns such as BUMPY
+- Added direction, speed and altitudes to AIRSIGMETs
+- Fixed some airports bookings displaying with an incorrect color
+- Added https and vats.im hyperlinks highlight in ATIS
+- Fixed arrival line flashing constantly when route parsing is off
+
 # [1.2.3-final]
 
 Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to make it performance focused - so Radar may start to work better on not-so-high end machines.

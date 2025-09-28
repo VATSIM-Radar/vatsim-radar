@@ -218,7 +218,7 @@ export const collapsingWithOverlay = (map: MaybeRef<Map | null>, pixel: Pixel, e
 };
 
 export function getAirlineFromCallsign(callsign: string, remarks?: string): RadarDataAirline | null {
-    const icao = /^(?<callsign>[A-Z]{0,3})[0-9]/.exec(callsign)?.groups?.callsign as string ?? null;
+    const icao = /^(?<callsign>[A-Z]+)[0-9]?/.exec(callsign)?.groups?.callsign as string ?? null;
     if (!icao) return null;
 
     const airline = useDataStore().airlines.value.all[icao] as RadarDataAirline | undefined;
@@ -342,6 +342,6 @@ export const geoJson = new GeoJSON({
     dataProjection: 'EPSG:4326',
 });
 
-export const updatePopupActive: false | string = '1.2.3';
+export const updatePopupActive: false | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 

@@ -52,6 +52,10 @@ export default defineEventHandler(async event => {
         validTimeFrom: string;
         validTimeTo: string;
         severity: number;
+        altitudeHi1: number;
+        altitudeHi2: number;
+        movementDir: number;
+        movementSpd: number;
         rawAirSigmet: string;
     }>>(`https://aviationweather.gov/api/data/airsigmet?format=geojson${ requestParam ? `&date=${ requestParam }` : '' }`).catch(console.error);
 
@@ -124,6 +128,10 @@ export default defineEventHandler(async event => {
                 timeTo: properties.validTimeTo,
                 qualifier: properties.severity,
                 raw: properties.rawAirSigmet,
+                base: properties.altitudeHi1,
+                top: properties.altitudeHi2,
+                dir: properties.movementDir?.toString(),
+                spd: properties.movementSpd,
                 dataType: 'airsigmet',
             },
         });
@@ -168,7 +176,7 @@ export default defineEventHandler(async event => {
         });
     }
 
-    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 30;
+    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 5;
     sigmets.validUntil = Date.now() + expireIn;
 
     await setRedisSync(key, JSON.stringify(sigmets), expireIn);
