@@ -140,6 +140,9 @@
                 flight-type="departure"
                 from="pilotOverlay"
             />
+            <common-block-title v-if="arrAirport && pilot.status?.includes('dep')">
+                {{arrAirport.icao}} procedures
+            </common-block-title>
             <airport-procedures
                 v-if="depAirport && arrAirport"
                 :aircraft="pilot"
@@ -260,6 +263,7 @@ import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 
 const props = defineProps({
     overlay: {
