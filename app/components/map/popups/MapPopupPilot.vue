@@ -134,10 +134,17 @@
             </common-toggle>
             <br>
             <airport-procedures
+                v-if="depAirport && arrAirport && pilot.status?.includes('dep')"
+                :aircraft="pilot"
+                :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
+                flight-type="departure"
+                from="pilotOverlay"
+            />
+            <airport-procedures
                 v-if="depAirport && arrAirport"
                 :aircraft="pilot"
                 :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
-                :flight-type="pilot.status?.includes('dep') ? 'departure' : 'arrival'"
+                flight-type="arrival"
                 from="pilotOverlay"
             />
         </template>

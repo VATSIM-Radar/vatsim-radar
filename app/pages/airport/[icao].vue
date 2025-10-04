@@ -323,7 +323,6 @@
 
 <script setup lang="ts">
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
 import AirportInfo from '~/components/views/airport/AirportInfo.vue';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
 import type { StoreOverlayAirport } from '~/store/map';
@@ -351,6 +350,7 @@ import { updateCachedProcedures } from '~/composables/navigraph';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 
 const route = useRoute();
 const router = useRouter();

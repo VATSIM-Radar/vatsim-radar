@@ -1,69 +1,8 @@
 import { handleH3Exception } from '~/utils/backend/h3';
 import { validateAirportIcao } from '~/utils/backend/vatsim';
-import { $fetch } from 'ofetch';
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import { getAirportNotams } from '~/utils/backend/notams';
 
-export interface VatsimAirportDataNotam {
-    number: string;
-    type: 'N' | 'R' | 'C';
-    issued: string;
-    effectiveFrom: string;
-    effectiveTo: string | 'PERM';
-    text: string;
-    formattedText?: string;
-    classification: 'INTL' | 'MIL' | 'DOM' | 'LMIL' | 'FDC';
-    schedule?: string;
-    id?: string;
-    series?: string;
-    affectedFIR?: string;
-    selectionCode?: string;
-    traffic?: string;
-    purpose?: string;
-    scope?: string;
-    minimumFL?: string;
-    maximumFL?: string;
-    location?: string;
-    icaoLocation?: string;
-    lastUpdated?: string;
-}
-
-interface FAAResponse {
-    pageSize: number;
-    pageNum: number;
-    totalCount: number;
-    totalPages: number;
-    items: {
-        properties: {
-            coreNOTAMData: {
-                notam: {
-                    id?: string;
-                    series?: string;
-                    number: string;
-                    type: string;
-                    issued: string;
-                    affectedFIR?: string;
-                    selectionCode?: string;
-                    traffic?: string;
-                    purpose?: string;
-                    scope?: string;
-                    minimumFL?: string;
-                    maximumFL?: string;
-                    location?: string;
-                    icaoLocation?: string;
-                    lastUpdated?: string;
-                    effectiveStart: string;
-                    effectiveEnd: string;
-                    text: string;
-                    classification: string;
-                    schedule?: string;
-                };
-                notamTranslation: {
-                    type: 'ICAO';
-                    formattedText: string;
-                }[];
-            };
-        };
-    }[];
-}
 
 export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[] | undefined> => {
     const config = useRuntimeConfig();
@@ -73,43 +12,7 @@ export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[
     if (!icao) return;
 
     try {
-        const notams: VatsimAirportDataNotam[] = [];
-
-        const url = new URL('https://external-api.faa.gov/notamapi/v1/notams');
-        url.searchParams.set('responseFormat', 'geoJson');
-        url.searchParams.set('icaoLocation', icao);
-        url.searchParams.set('sortBy', 'effectiveStartDate');
-        url.searchParams.set('sortOrder', 'Desc');
-        url.searchParams.set('pageSize', '1000');
-
-        const data = await $fetch<FAAResponse>(url.toString(), {
-            headers: {
-                client_id: config.FAA_NOTAMS_CLIENT_ID,
-                client_secret: config.FAA_NOTAMS_CLIENT_SECRET,
-            },
-        });
-
-        if (!Array.isArray(data?.items)) return [];
-
-        for (const notam of data.items) {
-            const data = notam.properties.coreNOTAMData.notam;
-
-            if (data.effectiveEnd !== 'PERM' && data.effectiveEnd.startsWith('20') && new Date(data.effectiveEnd).getTime() < Date.now()) continue;
-
-            notams.push({
-                number: data.number,
-                type: data.type as any,
-                issued: data.issued,
-                effectiveFrom: data.effectiveStart,
-                effectiveTo: data.effectiveEnd,
-                text: data.text,
-                formattedText: notam.properties.coreNOTAMData.notamTranslation?.[0]?.formattedText,
-                classification: data.classification as any,
-                schedule: data.schedule || undefined,
-            });
-        }
-
-        return notams;
+        return await getAirportNotams(icao);
     }
     catch (e) {
         handleH3Exception(event, e);

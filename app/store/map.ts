@@ -4,11 +4,11 @@ import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
 import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
 import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type { Coordinate } from 'ol/coordinate';
 import { ownFlight } from '~/composables/pilots';
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 
 export interface StoreOverlayDefault {
     id: string;

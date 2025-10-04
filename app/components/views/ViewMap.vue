@@ -272,7 +272,6 @@ import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/pilots';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
@@ -296,6 +295,7 @@ import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 
 defineProps({
     mode: {

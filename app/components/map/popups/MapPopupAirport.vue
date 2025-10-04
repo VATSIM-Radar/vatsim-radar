@@ -328,7 +328,8 @@ import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInf
 import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
-import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
+
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 
 const props = defineProps({
     overlay: {
