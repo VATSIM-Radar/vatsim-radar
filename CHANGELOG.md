@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.3-2-final]
+
+- Fixed **some** cyrillic ATC info not being parsed correctly
+- Updated auto-parsed domains whitelist: added vatsim-radar.com (lol), vatrus.info, uuww.ru, vatsim-scandinavia.org, vatcar.net. Current list also includes vats.im, discord.gg, vatsca.org, vatger.de
+- Arrival airport will now always be visible in Proc Aircraft tab, even when not departed yet
+- Fixed aircraft route sometimes appearing when on-hover parsing is disabled
+
 # [1.2.3-1]
 
 - Disabled v1.2.3 update popup

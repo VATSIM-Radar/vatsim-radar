@@ -81,13 +81,13 @@
 import { injectAirport } from '~/composables/airport';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
-import type { VatsimAirportDataNotam } from '~~/server/api/data/vatsim/airport/[icao]/notams';
 import type { NotamsSortBy } from '~/types/map';
 import type { SelectItem } from '~/types/components/select';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import { useStore } from '~/store';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 
 const data = injectAirport();
 const notamsList = computed(() => {
