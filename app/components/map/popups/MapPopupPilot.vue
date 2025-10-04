@@ -140,9 +140,12 @@
                 flight-type="departure"
                 from="pilotOverlay"
             />
-            <common-block-title v-if="arrAirport && pilot.status?.includes('dep')">
-                {{arrAirport.icao}} procedures
-            </common-block-title>
+            <template v-if="arrAirport && pilot.status?.includes('dep')">
+                <br><br>
+                <common-block-title>
+                    {{arrAirport!.icao}} procedures
+                </common-block-title>
+            </template>
             <airport-procedures
                 v-if="depAirport && arrAirport"
                 :aircraft="pilot"
