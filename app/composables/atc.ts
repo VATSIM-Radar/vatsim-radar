@@ -159,7 +159,7 @@ export async function showAtcOnMap(atc: VatsimShortenedController, map: Map | nu
     return showAirportOnMap(airport, map, (atc.facility === facilities.CTR || atc.facility === facilities.FSS) ? 8 : undefined);
 }
 
-const allowedDomains = ['vats.im', 'discord.gg', 'vatsca.org', 'vatger.de', 'vatsim-radar.com', 'uuww.ru', 'vatrus.info', 'vatsim-scandinavia.org', 'vatcar.net'];
+const allowedDomains = ['vats.im', 'discord.gg', 'vatsca.org', 'vatger.de', 'vatsim-radar.com', 'uuwv.ru', 'vatmap.ru', 'vatrus.info', 'vatsim-scandinavia.org', 'vatcar.net'];
 
 function addATISLinks(lines: string[]) {
     const punctTrailRe = /[),.;:!?]+$/;
