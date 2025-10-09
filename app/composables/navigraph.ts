@@ -323,6 +323,14 @@ export async function getFlightPlanWaypoints({
     const dataStore = useDataStore();
     const entries = flightPlan.split(' ').map(x => x.replace(replacementRegex, '')).filter(x => x && x !== 'DCT');
 
+    function deleteDoubleWaypoint(identifier: string) {
+        const previousWaypoint = waypoints[waypoints.length - 1];
+        let previousIdentifier = previousWaypoint.identifier;
+        if (previousWaypoint.airway) previousIdentifier = previousWaypoint.airway.value[2][previousWaypoint.airway.value[2].length - 1][0];
+
+        if (identifier === previousIdentifier) waypoints.splice(waypoints.length - 1, 1);
+    }
+
     let sidInit = false;
     let starInit = false;
 
@@ -481,6 +489,8 @@ export async function getFlightPlanWaypoints({
 
                     const enrouteTransition = procedure?.transitions.enroute.find(x => arrStar?.transitions.includes(x.name) || x.name === entries[entries.length - 2] || x.name === entries[entries.length - 3] || x.name === entries[entries.length - 4]);
                     if (enrouteTransition) {
+                        deleteDoubleWaypoint(enrouteTransition.waypoints[0].identifier);
+
                         waypoints.push(...enrouteTransition.waypoints.map(x => ({
                             title: procedure?.procedure.identifier,
                             identifier: x.identifier,
@@ -495,6 +505,8 @@ export async function getFlightPlanWaypoints({
                             speedLimit: x.speedLimit,
                         } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                     }
+
+                    deleteDoubleWaypoint(procedure?.waypoints[0].identifier ?? '');
 
                     waypoints.push(...procedure?.waypoints.map(x => ({
                         title: procedure?.procedure.identifier,
