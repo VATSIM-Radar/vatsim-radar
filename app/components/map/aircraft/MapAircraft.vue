@@ -915,9 +915,9 @@ async function delayedLinesDestroy() {
     clearLines();
 
     for (let i = 0; i < 5; i++) {
-        if (dataStore.visiblePilotsObj.value[String(props.aircraft?.cid)]) break;
         await sleep(3000);
         clearLines();
+        if (dataStore.visiblePilotsObj.value[String(props.aircraft?.cid)]) break;
     }
 }
 

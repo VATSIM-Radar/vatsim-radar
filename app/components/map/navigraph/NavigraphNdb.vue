@@ -25,7 +25,7 @@ let vordme: Feature[] = [];
 
 const extent = computed(() => mapStore.extent);
 
-watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.data], async () => {
+watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.version], async () => {
     source?.value.removeFeatures(ndb);
     ndb = [];
 

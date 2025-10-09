@@ -207,6 +207,7 @@ export type AirspaceCoordinate = [coordinate: Coordinate, boundaryVia: string, b
 export type ShortAirway = [identifier: string, type: string, waypoints: [identifier: string, inbound: number, outbound: number, longitude: number, latitude: number, flightLevel: NavDataFlightLevel, type?: string][]];
 
 export interface NavigraphNavDataShort {
+    version: string;
     vhf: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;

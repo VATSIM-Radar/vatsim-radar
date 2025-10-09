@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.2.3-3-final]
+
+- Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
+- Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
+- Fixed VORDME/NDB separate enable failing to load
+- Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
+- Fixed first STAR waypoint restrictions not showing
+
 # [1.2.3-2-final]
 
 - Fixed **some** cyrillic ATC info not being parsed correctly

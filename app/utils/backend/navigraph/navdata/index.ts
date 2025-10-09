@@ -17,11 +17,13 @@ import type {
 } from '~/utils/backend/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/backend/navigraph/navdata/star-sid';
 
-export async function processDatabase(db: sqlite3.Database) {
+export async function processDatabase(db: sqlite3.Database, version: string) {
     console.time('navigraph get');
 
     const fullData: Partial<NavigraphNavData> = {};
-    const shortData: Partial<NavigraphNavDataShort> = {};
+    const shortData: Partial<NavigraphNavDataShort> = {
+        version,
+    };
 
     const runways = await dbPartialRequest<{
         airport_identifier: string;
@@ -102,7 +104,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
         }
     }
 
-    return $fetch<Record<string, any>>(`${ config.NAVIGRAPH_HOST }/data/${ type }`);
+    return $fetch<NavigraphNavDataShort>(`${ config.NAVIGRAPH_HOST }/data/${ type }`);
 }
 
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full' | 'all') {

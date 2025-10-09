@@ -40,12 +40,14 @@ const navigraphData: {
 
 unsetRedisSync('navigraph-ready');
 defaultRedis.publish('update', 'navigraph-data');
+let updating = false;
 
 async function updateNavigraph() {
     try {
+        updating = true;
         if (navigraphData.versions.current !== radarStorage.navigraph.current || navigraphData.versions.outdated !== radarStorage.navigraph.outdated || process.env.NODE_ENV === 'development') {
-            const current = await processDatabase(navigraphCurrentDb!);
-            const outdated = await processDatabase(navigraphOutdatedDb!);
+            const current = await processDatabase(navigraphCurrentDb!, radarStorage.navigraph.current);
+            const outdated = await processDatabase(navigraphOutdatedDb!, radarStorage.navigraph.outdated);
 
             navigraphData.versions = radarStorage.navigraph;
 
@@ -64,6 +66,9 @@ async function updateNavigraph() {
     }
     catch (e) {
         console.error(e);
+    }
+    finally {
+        updating = false;
     }
 }
 
@@ -91,6 +96,12 @@ serve({
         if (!route) {
             return new Response('not found', {
                 status: 404,
+            });
+        }
+
+        if (updating) {
+            return new Response('not ready yet', {
+                status: 423,
             });
         }
 

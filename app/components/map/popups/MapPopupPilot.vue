@@ -149,7 +149,7 @@
             <airport-procedures
                 v-if="depAirport && arrAirport"
                 :aircraft="pilot"
-                :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
+                :airport="arrAirport!.icao"
                 flight-type="arrival"
                 from="pilotOverlay"
             />

@@ -294,6 +294,11 @@ async function update() {
                                     type: 'airways',
                                     dataType: 'navdata',
                                     kind: waypoint.kind,
+                                    altitude: waypoint.altitude,
+                                    altitude1: waypoint.altitude1,
+                                    altitude2: waypoint.altitude2,
+                                    speed: waypoint.speed,
+                                    speedLimit: waypoint.speedLimit,
                                 }));
                             }
                             continue;
