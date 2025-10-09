@@ -170,7 +170,7 @@
                             type="secondary"
                         >
                             <template #icon>
-                                <question-icon/>
+                                <docs-icon/>
                             </template>
                         </common-button>
                     </template>
@@ -275,7 +275,7 @@ import { useStore } from '~/store';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';
 import GithubIcon from 'assets/icons/header/github.svg?component';
 import SettingsIcon from 'assets/icons/kit/settings.svg?component';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import DocsIcon from 'assets/icons/basic/docs.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import SearchIcon from 'assets/icons/kit/search.svg?component';
