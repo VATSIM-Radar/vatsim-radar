@@ -673,7 +673,6 @@ async function toggleAirportLines(value = canShowLines.value) {
             }
 
             const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
-            const batchId = firstCollectionTimestamp || turns?.flightPlanTime || `${ props.aircraft.cid }-${ Date.now() }`;
 
             if (firstUpdate) {
                 clearLineFeatures();
@@ -683,7 +682,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 const toRemove = lineFeatures.value.filter(x => {
                     const properties = x.getProperties();
                     if (properties!.type === 'aircraft') return true;
-                    return properties!.batchId === batchId;
+                    return properties!.timestamp === firstCollectionTimestamp;
                 });
 
                 clearLineFeatures(toRemove);
@@ -721,7 +720,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                     const lineFeature = new Feature({
                         geometry,
                         timestamp: collection.features[0].properties!.timestamp,
-                        batchId,
                         color: collection.features[0].properties!.color,
                         type: 'aircraft',
                     });
@@ -768,7 +766,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                     const lineFeature = new Feature({
                         geometry,
                         timestamp: collection.features[0].properties!.timestamp,
-                        batchId,
                         color: collection.features[0].properties!.color,
                         type: 'airportLine',
                     });
@@ -834,7 +831,6 @@ async function toggleAirportLines(value = canShowLines.value) {
                     geometry: new MultiLineString(newFeatures),
                     color: collection.features[0].properties!.color,
                     timestamp: i === 0 && turnsFirstGroupTimestamp.value,
-                    batchId,
                 });
 
                 lineFeature.setStyle(styles);
