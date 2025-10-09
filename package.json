@@ -32,7 +32,7 @@
     "@pinia/nuxt": "^0.11.2",
     "@prisma/client": "^6.17.0",
     "@protomaps/basemaps": "^5.5.1",
-    "@sentry/nuxt": "^10.18.0",
+    "@sentry/nuxt": "^10.19.0",
     "@turf/bearing": "^7.2.0",
     "@turf/boolean-point-in-polygon": "^7.2.0",
     "@turf/difference": "^7.2.0",
