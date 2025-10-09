@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.3-3-final]
+# [1.2.3-3]
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
 - Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
@@ -8,7 +8,7 @@
 - Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
 - Fixed first STAR waypoint restrictions not showing
 
-# [1.2.3-2-final]
+# [1.2.3-2]
 
 - Fixed **some** cyrillic ATC info not being parsed correctly
 - Updated auto-parsed domains whitelist: added vatsim-radar.com (lol), vatrus.info, uuwv.ru, vatsim-scandinavia.org, vatcar.net. Current list also includes vats.im, discord.gg, vatsca.org, vatger.de
