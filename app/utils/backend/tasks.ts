@@ -33,7 +33,7 @@ import { watch } from 'chokidar';
 const redisSubscriber = getRedis();
 
 async function basicTasks() {
-    await defineCronJob('15 */2 * * *', initNavigraph).catch(console.error);
+    await defineCronJob('45 */2 * * *', initNavigraph).catch(console.error);
     await defineCronJob('15 * * * *', updateSimAware).catch(console.error);
     await defineCronJob('15 */2 * * *', updateVatglassesData).catch(console.error);
     await defineCronJob('15 * * * *', updateVatSpy).catch(console.error);

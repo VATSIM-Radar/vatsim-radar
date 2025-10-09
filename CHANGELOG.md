@@ -4,6 +4,8 @@
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
 - Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
+- Fixed VORDME/NDB separate enable failing to load
+- Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
 
 # [1.2.3-2-final]
 

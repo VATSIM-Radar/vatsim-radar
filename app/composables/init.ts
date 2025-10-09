@@ -239,8 +239,6 @@ export function checkForNavigraph() {
                     await clientDB.navigraphData.put(fetchedData[key as keyof typeof fetchedData] as any, key as any);
                 }
 
-                await clientDB.navigraphData.put(dataStore.versions.value?.navigraph?.[type] ?? '' as any, 'version');
-
                 await clientDB.navigraphData.put('1', 'inserted');
 
                 notRequired = false;

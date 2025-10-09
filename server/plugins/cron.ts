@@ -19,5 +19,5 @@ export default defineNitroPlugin(async app => {
         }
     });
 
-    await defineCronJob('15 */2 * * *', initNavigraph);
+    await defineCronJob('45 */2 * * *', initNavigraph);
 });
