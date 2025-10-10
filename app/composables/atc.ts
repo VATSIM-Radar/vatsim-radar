@@ -174,6 +174,14 @@ const allowedDomains = [
     'portugal-vacc.org',
     'vathk.com',
     'hq.vat-sea.com',
+    'chartfox.org',
+    'vatsim.uk',
+    'vatsim.fr',
+    'vatadria.com',
+    'rovacc.ro',
+    'idvacc.id',
+    'zjxartcc.org',
+    'twitch.tv',
 ];
 
 function addATISLinks(lines: string[]) {
