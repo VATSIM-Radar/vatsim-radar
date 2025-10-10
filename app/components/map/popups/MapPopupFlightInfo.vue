@@ -292,6 +292,7 @@ const getDistAndTime = computed(() => {
     }
     catch (e) {
         useRadarError(e);
+        console.log(distance);
         return null;
     }
 });

@@ -208,8 +208,8 @@ export type ShortAirway = [identifier: string, type: string, waypoints: [identif
 
 export interface NavigraphNavDataShort {
     version: string;
-    vhf: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
-    ndb: Record<string, [name: string, identifier: string, frequency: number, longitude: number, latitude: number]>;
+    vhf: Record<string, [identifier: string, name: string, ident: string | null, frequency: number, longitude: number, latitude: number]>;
+    ndb: Record<string, [identifier: string, name: string, frequency: number, longitude: number, latitude: number]>;
     holdings: Record<string, [waypoint: string, course: number, time: number | null, length: number | null, turns: NavigraphNavDataHolding['turns'], longitude: number, latitude: number, speed: number | null, regionCode: string, minLat: number | null, maxLat: number | null, type?: string]>;
     airways: Record<string, ShortAirway>;
     waypoints: Record<string, [identifier: string, longitude: number, latitude: number, type: string, terminal: boolean]>;
