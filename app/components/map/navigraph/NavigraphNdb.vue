@@ -33,7 +33,7 @@ watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.version], async (
     vordme = [];
 
     if (isNDBEnabled.value) {
-        ndb = Object.entries(await dataStore.navigraph.data('ndb') ?? {}).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
+        ndb = Object.entries(await dataStore.navigraph.data('ndb') ?? {}).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [ident, name, frequency, longitude, latitude]]) => new Feature({
             geometry: new Point([longitude, latitude]),
             key,
             ident,
@@ -46,11 +46,12 @@ watch([isNDBEnabled, isVorEnabled, extent, dataStore.navigraph.version], async (
     }
 
     if (isVorEnabled.value) {
-        vordme = Object.entries(await dataStore.navigraph.data('vhf') ?? {}).filter(([, x]) => isPointInExtent([x[3], x[4]], extent.value)).map(([key, [name, ident, frequency, longitude, latitude]]) => new Feature({
+        vordme = Object.entries(await dataStore.navigraph.data('vhf') ?? {}).filter(([, x]) => isPointInExtent([x[4], x[5]], extent.value)).map(([key, [ident, name, dme, frequency, longitude, latitude]]) => new Feature({
             geometry: new Point([longitude, latitude]),
             ident,
             key,
             name,
+            dme,
             frequency,
             dataType: 'navdata',
             type: 'vhf',

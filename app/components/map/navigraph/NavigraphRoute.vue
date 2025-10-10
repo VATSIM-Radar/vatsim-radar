@@ -274,8 +274,9 @@ async function update() {
                                 speed: waypoint.speed,
                                 speedLimit: waypoint.speedLimit,
 
-                                name: ndb?.[1][0] ?? vhf?.[1][0],
-                                ident: ndb?.[1][1] ?? vhf?.[1][1],
+                                name: ndb?.[1][1] ?? vhf?.[1][1],
+                                ident: ndb?.[1][0] ?? vhf?.[1][0],
+                                dme: vhf?.[1][2],
                                 frequency: ndb?.[1][2] ?? vhf?.[1][2],
                                 key: ndb?.[0] ?? vhf?.[0],
                             }));

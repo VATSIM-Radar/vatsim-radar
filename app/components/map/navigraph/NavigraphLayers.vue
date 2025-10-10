@@ -50,6 +50,7 @@
                         <div
                             v-for="field in ([
                                 ['Name', activeFeature.data.navaid.name],
+                                ['DME Ident', activeFeature.data.navaid.ident],
                                 ['Frequency', activeFeature.data.frequency],
                                 ['Magnetic Variation', `${ activeFeature.data.magneticVariation }°`],
                                 ['Elevation', `${ activeFeature.data.elevation } ft`],
