@@ -182,6 +182,7 @@ const allowedDomains = [
     'idvacc.id',
     'zjxartcc.org',
     'twitch.tv',
+    'map.vatsim.net',
 ];
 
 function addATISLinks(lines: string[]) {
