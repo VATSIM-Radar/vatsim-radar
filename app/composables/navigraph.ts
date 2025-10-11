@@ -176,6 +176,7 @@ export const enroutePath = useCookie<Record<string, EnroutePath> | null>('enrout
     path: '/',
     secure: true,
     sameSite: 'none',
+    maxAge: 60 * 60 * 24,
 });
 
 export const enrouteAircraftPath = useCookie<Record<string, {
@@ -185,6 +186,7 @@ export const enrouteAircraftPath = useCookie<Record<string, {
     path: '/',
     secure: true,
     sameSite: 'none',
+    maxAge: 60 * 60 * 24,
 });
 
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
@@ -702,8 +704,8 @@ export async function getFlightPlanWaypoints({
 
             if (previousWaypoint && (vhfs || ndbs || waypointsList)) {
                 const vhfWaypoint = previousWaypoint && Object.entries(vhfs ?? {}).sort((a, b) => {
-                    const aCoord = [a[1][3], a[1][4]];
-                    const bCoord = [b[1][3], b[1][4]];
+                    const aCoord = [a[1][4], a[1][5]];
+                    const bCoord = [b[1][4], b[1][5]];
 
                     return waypointDiff(previousWaypoint!, aCoord) - waypointDiff(previousWaypoint!, bCoord);
                 })[0];
@@ -729,7 +731,7 @@ export async function getFlightPlanWaypoints({
                 let coordinate: Coordinate = [0, 0];
 
                 const smallestCoordinates = [
-                    [[vhfWaypoint?.[1][3], vhfWaypoint?.[1][4]], 'vhf'],
+                    [[vhfWaypoint?.[1][4], vhfWaypoint?.[1][5]], 'vhf'],
                     [[ndbWaypoint?.[1][3], ndbWaypoint?.[1][4]], 'ndb'],
                     [[regularWaypoint?.[1][1], regularWaypoint?.[1][2]], 'waypoint'],
                 ] satisfies [Coordinate, string][];
@@ -747,12 +749,12 @@ export async function getFlightPlanWaypoints({
                         type = regularWaypoint[1][3];
                     }
                     else if (smallest[1] === 'vhf') {
-                        identifier = vhfWaypoint[1][1];
+                        identifier = vhfWaypoint[1][0];
                         key = vhfWaypoint[0];
                         kind = 'vhf';
                     }
                     else if (smallest[1] === 'ndb') {
-                        identifier = ndbWaypoint[1][1];
+                        identifier = ndbWaypoint[1][0];
                         key = ndbWaypoint[0];
                         kind = 'ndb';
                     }

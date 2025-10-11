@@ -48,7 +48,7 @@ export const processNavdataVHF: NavdataProcessFunction = async ({ fullData, shor
             coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
-        shortData.vhf[key] = [item.navaid_name, item.dme_ident || item.navaid_identifier, item.navaid_frequency, item.navaid_longitude ?? item.dme_longitude, item.navaid_latitude ?? item.dme_latitude];
+        shortData.vhf[key] = [item.navaid_identifier, item.navaid_name, item.dme_ident, item.navaid_frequency, item.navaid_longitude ?? item.dme_longitude, item.navaid_latitude ?? item.dme_latitude];
     }
 };
 
@@ -90,6 +90,6 @@ export const processNavdataNDB: NavdataProcessFunction = async ({ fullData, shor
             coordinates: [item.navaid_longitude, item.navaid_latitude],
         };
 
-        shortData.ndb[key] = [item.navaid_name, item.navaid_identifier, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
+        shortData.ndb[key] = [item.navaid_identifier, item.navaid_name, item.navaid_frequency, item.navaid_longitude, item.navaid_latitude];
     }
 };
