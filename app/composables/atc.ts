@@ -189,7 +189,7 @@ const allowedDomains = [
     'ztlartcc.org',
     'bvartcc.com',
     'zauartcc.org',
-    'clevlandcenter.org',
+    'clevelandcenter.org',
     'zdvartcc.org',
     'zfwartcc.net',
     'vhcf.net',
