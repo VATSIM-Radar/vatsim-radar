@@ -92,6 +92,8 @@ watch([isExpired, shouldSetCurrent], arr => {
     setUserLocalSettings({
         filters: { layers: { sigmets: { activeDate: 'current' } } },
     });
+
+    refresh();
 });
 
 const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
