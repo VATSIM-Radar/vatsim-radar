@@ -205,6 +205,10 @@ const allowedDomains = [
     'zlcartcc.org',
     'zseartcc.org',
     'vzdc.org',
+    'nyartcc.org',
+    'indiavacc.org',
+    'vat-sea.com',
+    'vatglasses.uk',
 ];
 
 function addATISLinks(lines: string[]) {
