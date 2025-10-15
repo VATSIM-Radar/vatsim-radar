@@ -192,7 +192,6 @@ const allowedDomains = [
     'clevelandcenter.org',
     'zdvartcc.org',
     'zfwartcc.net',
-    'vhcf.net',
     'houston.center',
     'flyindycenter.com',
     'zkcartcc.org',
