@@ -315,6 +315,7 @@ useHead({
     display: flex;
     flex-direction: column;
     gap: 32px;
+
     width: 100%;
     margin-bottom: 64px;
     padding-left: 32px;
@@ -322,8 +323,8 @@ useHead({
     &-row {
         display: flex;
         flex-direction: row;
-        align-items: center;
         gap: 64px;
+        align-items: center;
     }
 
     &-presets {
