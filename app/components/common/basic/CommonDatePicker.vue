@@ -145,19 +145,18 @@ const adjustTime = (isStart: boolean, minutes: number) => {
     .time-picker {
         display: flex;
         flex-direction: row;
-        gap: 5%;
+        gap: 16px;
         align-items: center;
-        justify-content: center;
 
         &-container {
             display: flex;
             gap: 5px;
             align-items: center;
-            justify-content: center;
         }
 
         &-between {
-            font-size: 50px;
+            font-size: 24px;
+            line-height: 1;
         }
     }
   </style>
