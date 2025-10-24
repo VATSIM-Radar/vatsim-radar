@@ -6351,7 +6351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/core@npm:14.0.0":
+"@vueuse/core@npm:14.0.0, @vueuse/core@npm:^14.0.0":
   version: 14.0.0
   resolution: "@vueuse/core@npm:14.0.0"
   dependencies:
@@ -6361,19 +6361,6 @@ __metadata:
   peerDependencies:
     vue: ^3.5.0
   checksum: 10c0/f82c8c7f8fcf62881982a98090bc4790eb0b781d8dec9f060b56759f0c252c681ad0e52aaebe59d82a97d54f180c3586524e905a92a2ab0a21d2d07a42af9299
-  languageName: node
-  linkType: hard
-
-"@vueuse/core@npm:^13.9.0":
-  version: 13.9.0
-  resolution: "@vueuse/core@npm:13.9.0"
-  dependencies:
-    "@types/web-bluetooth": "npm:^0.0.21"
-    "@vueuse/metadata": "npm:13.9.0"
-    "@vueuse/shared": "npm:13.9.0"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/f1e6c5e02584e018e53e0e5f93844afbcd33742c5a2454e57aaa3433e9068efbe84b7b423f34628738e28e3ba4bfe7d648f2edaae39706a236ae48bc1a22709b
   languageName: node
   linkType: hard
 
@@ -6433,13 +6420,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vueuse/metadata@npm:13.9.0":
-  version: 13.9.0
-  resolution: "@vueuse/metadata@npm:13.9.0"
-  checksum: 10c0/7e4620c6e5acbf8f2e5eba0db80a8de887f4816221b383e5d829ee833139d262b8a89e9709d58d7aacb263927ce2c55e262eb29372f784aa9138c8fa7a86506a
-  languageName: node
-  linkType: hard
-
 "@vueuse/metadata@npm:14.0.0":
   version: 14.0.0
   resolution: "@vueuse/metadata@npm:14.0.0"
@@ -6468,15 +6448,6 @@ __metadata:
   dependencies:
     vue: "npm:^3.5.13"
   checksum: 10c0/43a04cf44e3377ee7666787e597d45ddf83880d3e1835000201b0c471198ce83ad45e4f4a0182d68781c0a23c84a904aab253e4c6279400a235e0246b613bad2
-  languageName: node
-  linkType: hard
-
-"@vueuse/shared@npm:13.9.0":
-  version: 13.9.0
-  resolution: "@vueuse/shared@npm:13.9.0"
-  peerDependencies:
-    vue: ^3.5.0
-  checksum: 10c0/4820f71caab3c94bc88343270bb4408d8818baa9c0223e6f7499aeb05f9227a87724c15b792f2aaf308137ac996cccd93c0cbe338f7cf3ae50045981abc223a3
   languageName: node
   linkType: hard
 
@@ -17043,7 +17014,7 @@ __metadata:
     "@types/node": "npm:^24.9.1"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.0.7"
-    "@vueuse/core": "npm:^13.9.0"
+    "@vueuse/core": "npm:^14.0.0"
     "@vueuse/nuxt": "npm:^14.0.0"
     adm-zip: "npm:^0.5.16"
     aws-sdk: "npm:^2.1692.0"
