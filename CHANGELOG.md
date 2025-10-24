@@ -1,5 +1,13 @@
 # Changelog
 
+# [1.2.3-4]
+
+- You can now select airport dashboard page layout on small screens, tablets and mobile devices
+- Improved controller mode in mobile layout in airport dashboard
+- Selected aircraft in airport dashboard is now displayed properly (in a popup) on mobile devices
+- Added VATUSA ARTCC domains by SebPartof2
+- Resolve UI overlapping issues on Bookings page by Juncheng Lu
+
 # [1.2.3-3]
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
