@@ -15363,15 +15363,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:^0.8.16":
-  version: 0.8.16
-  resolution: "srvx@npm:0.8.16"
-  bin:
-    srvx: bin/srvx.mjs
-  checksum: 10c0/901669736c0bb7353775128c571c6d0745a260db36bcdfce3c3edc6502a7bddd66208ac7361c4f68e128252be2e95b69b18768576bca28381b76001ad90a808d
-  languageName: node
-  linkType: hard
-
 "srvx@npm:^0.8.9":
   version: 0.8.15
   resolution: "srvx@npm:0.8.15"
@@ -15380,6 +15371,15 @@ __metadata:
   bin:
     srvx: bin/srvx.mjs
   checksum: 10c0/50e42c7437535edf77ac1b50fee32f0b6c7d6400d39415622438a5514a798aecb12e544906a5dc9ca1b51a22529b1473679170c54cab206bd1a1c8b35ed8008c
+  languageName: node
+  linkType: hard
+
+"srvx@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "srvx@npm:0.9.1"
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/61d6728fad351bbabcf5806d8fd5a72770413881353a3b51d4b32353f5fa6e61bce796a5dc061523f9c2197a43e14332008716e5d5c802c060b02fccaa08c5c3
   languageName: node
   linkType: hard
 
@@ -17041,7 +17041,7 @@ __metadata:
     sass-embedded: "npm:^1.93.2"
     sharp: "npm:^0.34.4"
     sqlite3: "npm:^5.1.7"
-    srvx: "npm:^0.8.16"
+    srvx: "npm:^0.9.1"
     stylelint: "npm:^16.25.0"
     stylelint-config-clean-order: "npm:^7.0.0"
     stylelint-config-recommended-scss: "npm:^16.0.2"
