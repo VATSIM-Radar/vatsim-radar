@@ -4,7 +4,7 @@
             <template
                 v-if="!isMobile && !collapsed"
             >
-                <div class="picker-presets">
+                <div class="picker-row picker-row-top">
                     <div class="picker-presets-custom">
                         <div>Now</div> + <common-input-number
                             v-model="presetHours"
@@ -16,6 +16,14 @@
                             @click="changeRange('custom')"
                         >Apply</common-button>
                     </div>
+                    <common-date-picker
+                        v-model="dateRange"
+                        :use-local="store.mapSettings.bookingsLocalTimezone"
+                        @change="currentDateRange = 'custom'"
+                    />
+                </div>
+
+                <div class="picker-row picker-row-bottom">
                     <div class="picker-presets-fixed">
                         <common-button
                             :disabled="currentDateRange === 'today'"
@@ -33,29 +41,22 @@
                             @click="changeRange('today7Days')"
                         >Today + 7 Days</common-button>
                     </div>
-                </div>
-
-
-                <div class="picker-picker">
-                    <common-date-picker
-                        v-model="dateRange"
-                        :use-local="store.mapSettings.bookingsLocalTimezone"
-                        @change="currentDateRange = 'custom'"
-                    />
-                    <common-button
-                        primary-color="primary600"
-                        type="primary"
-                        @click="viewOnMap()"
-                    >
-                        View on Map
-                    </common-button>
-                    <common-toggle
-                        v-model="timelineUtc"
-                        class="picker-localtime"
-                        @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
-                    >
-                        Bookings local time
-                    </common-toggle>
+                    <div class="picker-actions">
+                        <common-button
+                            primary-color="primary600"
+                            type="primary"
+                            @click="viewOnMap()"
+                        >
+                            View on Map
+                        </common-button>
+                        <common-toggle
+                            v-model="timelineUtc"
+                            class="picker-localtime"
+                            @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
+                        >
+                            Bookings local time
+                        </common-toggle>
+                    </div>
                 </div>
             </template>
         </div>
@@ -313,26 +314,25 @@ useHead({
 .picker {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    gap: 32px;
 
     width: 100%;
     margin-bottom: 64px;
+    padding-left: 32px;
+
+    &-row {
+        display: flex;
+        flex-direction: row;
+        gap: 64px;
+        align-items: center;
+    }
 
     &-presets {
-        display: flex;
-        flex-direction: column;
-        gap: 32px;
-        align-items: start;
-        align-self: flex-start;
-
-        width: max-content;
-        padding-left: 64px;
-
         &-fixed {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
-            width: 100%;
+            gap: 16px;
+            align-items: center;
         }
 
         &-custom {
@@ -343,15 +343,15 @@ useHead({
         }
     }
 
-    &-picker {
-        position: absolute;
+    &-actions {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        gap: 16px;
         align-items: center;
     }
 
     &-localtime {
-        margin-top: 16px;
+        margin: 0;
     }
 }
 
