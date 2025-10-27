@@ -116,6 +116,7 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
             formattedText: formattedText,
             classification: data.classification as any,
             schedule: data.schedule || undefined,
+            scope: data.scope,
         });
 
         if (formatted && formattedText) notamsText.push(formattedText);
