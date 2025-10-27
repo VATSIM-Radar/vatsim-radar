@@ -31,6 +31,18 @@ In such case, controller is duplicated as-is, excluding **callsign** - this is b
 
 In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
+## ZMA TRACONs
+
+- Data is hard coded - allows opening or closing of ZMA's TRACONs based off various callsign/polygon definitions
+- Controller ATIS should include the following text for extending to work
+  - MIA TRACON: MIA_D_DEP
+  - TPA TRACON: TPA_L_APP
+  - PBI TRACON: PBI_B_DEP
+  - RSW TRACON: RSW_W_APP
+  - NQX RATCF: NQX_B_APP
+
+In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
+
 ## Other sector
 
 Contact us in Discord if you are duplicating your sectors internally, have this system documented, and want to make it work on VATSIM Radar.
