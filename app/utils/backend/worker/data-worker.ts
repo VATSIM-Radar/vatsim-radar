@@ -394,7 +394,7 @@ defineCronJob('* * * * * *', async () => {
 
             // ZOA NCT Area mapping logic
             const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
-            const areaMapping = {
+            const nctAreaMapping = {
                 'Area A': 'SJC_APP',
                 'Area B': 'SFO_APP',
                 'Area C': 'OAK_APP',
@@ -406,7 +406,30 @@ defineCronJob('* * * * * *', async () => {
             if (nctCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ').toLowerCase();
 
-                for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
+                for (const [areaText, targetCallsign] of Object.entries(nctAreaMapping)) {
+                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: targetCallsign,
+                        });
+                    }
+                }
+            }
+
+            // ZMA TRACON mapping logic
+            const zmaCallsignPattern = /^(MIA|ZMA)(_[A-Z]\d?)?_(CTR)$/;
+            const zmaAreaMapping = {
+                'MIA TRACON': 'MIA_D_DEP',
+                'TPA TRACON': 'TPA_L_APP',
+                'PBI TRACON': 'PBI_B_DEP',
+                'RSW TRACON': 'RSW_W_APP',
+                'NQX RATCF': 'NQX_B_APP',
+            };
+
+            if (zmaCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
+                const atisText = controller.text_atis.join(' ').toLowerCase();
+
+                for (const [areaText, targetCallsign] of Object.entries(zmaAreaMapping)) {
                     if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
                         radarStorage.vatsim.data.controllers.push({
                             ...controller,
