@@ -324,6 +324,7 @@ const mobileMenuOpened = ref(false);
         display: flex;
         gap: 32px;
         align-items: center;
+        margin-right: 32px;
     }
 
     &_right {

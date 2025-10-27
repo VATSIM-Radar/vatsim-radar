@@ -39,10 +39,7 @@
                     width="200px"
                 />
             </div>
-            <div
-                v-if="!isMobileOrTablet"
-                class="airport_header_section"
-            >
+            <div class="airport_header_section">
                 <common-select
                     v-model="mapMode"
                     :items="mapModes"
@@ -298,7 +295,7 @@
             />
             <transition name="airport_map_pilot--appear">
                 <airport-pilot
-                    v-if="selectedPilot"
+                    v-if="selectedPilot && !isMobileOrTablet"
                     :key="selectedPilot"
                     :cid="selectedPilot"
                     class="airport_map_pilot"
@@ -307,7 +304,7 @@
             </transition>
         </div>
         <common-popup
-            v-else-if="selectedPilot"
+            v-if="(mapLayouts[mapMode ?? 'default'].map === '0' || isMobileOrTablet) && selectedPilot"
             disabled
             :model-value="!!selectedPilot"
             @update:modelValue="!$event && (selectedPilot = null)"
@@ -364,8 +361,6 @@ const airport = computed(() => dataStore.vatspy.value?.data.keyAirports.realIcao
 const airportData = shallowRef<StoreOverlayAirport['data'] | null>(null);
 const atc = getATCForAirport(airportData as Ref<StoreOverlayAirport['data']>);
 const aircraft = getAircraftForAirport(airportData as Ref<StoreOverlayAirport['data']>);
-
-const isMobileOrTablet = useIsMobileOrTablet();
 
 provideAirport(airportData as Ref<StoreOverlayAirport['data']>);
 
@@ -518,8 +513,13 @@ const controllerMode = useCookie<boolean>('controller-mode', {
     default: () => false,
 });
 
+const isMobileOrTablet = useIsMobileOrTablet();
+
 function calculateMapLayout(height: number, type: 'dash' | 'map' | 'default' | 'alone') {
     if (height === 0) return '0';
+
+    if (isMobileOrTablet.value) return `${ height }vh`;
+
     let calculatedHeight = `calc(${ height }vh`;
     if (type === 'dash') calculatedHeight += ` - (32px + 56px) - 40px - ${ controllerMode.value ? '32px - 16px' : '0px' } - 16px)`;
     else if (type === 'map') calculatedHeight += ` - 16px)`;
@@ -976,6 +976,7 @@ await setupDataFetch({
     &__metar {
         display: flex;
         gap: 4px;
+        align-items: center;
 
         &_arrow {
             cursor: pointer;
@@ -985,6 +986,7 @@ await setupDataFetch({
             justify-content: center;
 
             width: 32px;
+            min-width: 32px;
             height: 32px;
             border-radius: 8px;
 
@@ -1024,8 +1026,8 @@ await setupDataFetch({
             display: flex;
             align-items: center;
 
-            height: 32px;
-            padding: 0 12px;
+            min-height: 32px;
+            padding: 4px 12px;
             border-radius: 8px;
 
             font-size:  12px;
@@ -1053,6 +1055,7 @@ await setupDataFetch({
 
             @include mobile {
                 flex-direction: row;
+                height: var(--dashboard-height);
 
                 .airport_column {
                     min-width: 400px;
@@ -1101,11 +1104,6 @@ await setupDataFetch({
             &:only-child {
                 flex: 1 0 auto;
                 max-height: var(--dashboard-height);
-            }
-
-            @include mobileOnly {
-                height: auto !important;
-                max-height: 50dvh !important;
             }
 
             :deep(.aircraft_nav_item:not(.aircraft_nav_item--active)) {
