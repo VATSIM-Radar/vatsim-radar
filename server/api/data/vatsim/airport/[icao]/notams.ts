@@ -12,7 +12,11 @@ export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[
     if (!icao) return;
 
     try {
-        return await getAirportNotams(icao);
+        const notams = await getAirportNotams(icao);
+
+        // Unless this is a FIR request, full filter is not needed
+        if (!notams[0]?.scope) return notams;
+        return notams.filter(x => !x.scope || x.scope.includes('A'));
     }
     catch (e) {
         handleH3Exception(event, e);
