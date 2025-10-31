@@ -31,6 +31,17 @@ In such case, controller is duplicated as-is, excluding **callsign** - this is b
 
 In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
+## ZDC Potomac Approach Areas
+
+- Data is hard coded - extending is allowed for DC, MTV, SHD, CHP, and MTV (APP, DEP or CTR)
+- Controller ATIS should include the following text for extending to work
+  - SHD: IAD_APP
+  - CHP: BWI_APP
+  - MTV: DCA_APP
+  - JRV: RIC_APP
+
+In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
+
 ## Other sector
 
 Contact us in Discord if you are duplicating your sectors internally, have this system documented, and want to make it work on VATSIM Radar.
