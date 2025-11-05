@@ -392,6 +392,31 @@ defineCronJob('* * * * * *', async () => {
                 }
             }
 
+            // ZMA TRACON mapping logic
+            const zmaCallsignPattern = /^(MIA|ZMA|TPA|PBI|RSW|NQX|HST)(_[A-Z]\d?)?_(CTR|TMU|APP|DEP)$/;
+            const zmaAreaMapping = {
+                'MIA TRACON': 'MIA_D_DEP',
+                'TPA TRACON': 'TPA_L_APP',
+                'PBI TRACON': 'PBI_B_DEP',
+                'RSW TRACON': 'RSW_W_APP',
+                'NQX RATCF': 'NQX_B_APP',
+                'NQX RAPCON': 'NQX_B_APP',
+                'HST RAPCON': 'HST_APP',
+            };
+
+            if (zmaCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
+                const atisText = controller.text_atis.join(' ').toLowerCase();
+
+                for (const [areaText, targetCallsign] of Object.entries(zmaAreaMapping)) {
+                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: targetCallsign,
+                        });
+                    }
+                }
+            }
+
             // ZOA NCT Area mapping logic
             const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
             const areaMapping = {
@@ -407,30 +432,6 @@ defineCronJob('* * * * * *', async () => {
                 const atisText = controller.text_atis.join(' ').toLowerCase();
 
                 for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
-                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
-                        radarStorage.vatsim.data.controllers.push({
-                            ...controller,
-                            callsign: targetCallsign,
-                        });
-                    }
-                }
-            }
-
-            // ZMA TRACON mapping logic
-            const zmaCallsignPattern = /^(MIA|ZMA)(_[A-Z]\d?)?_(CTR)$/;
-            const zmaAreaMapping = {
-                'MIA TRACON': 'MIA_D_DEP',
-                'TPA TRACON': 'TPA_L_APP',
-                'PBI TRACON': 'PBI_B_DEP',
-                'RSW TRACON': 'RSW_W_APP',
-                'NQX RATCF': 'NQX_B_APP',
-                'NQX RAPCON': 'NQX_B_APP',
-            };
-
-            if (zmaCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
-                const atisText = controller.text_atis.join(' ').toLowerCase();
-
-                for (const [areaText, targetCallsign] of Object.entries(zmaAreaMapping)) {
                     if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
                         radarStorage.vatsim.data.controllers.push({
                             ...controller,
