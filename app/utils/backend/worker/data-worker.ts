@@ -393,7 +393,7 @@ defineCronJob('* * * * * *', async () => {
             }
 
             // ZMA TRACON mapping logic
-            const zmaCallsignPattern = /^(MIA|ZMA|TPA|PBI|RSW|NQX|HST)(_[A-Z]\d?)?_(CTR|TMU|APP|DEP)$/;
+            const zmaCallsignPattern = /^(MIA|ZMA|TPA|PBI|RSW|NQX|HST|ZMO)(_[A-Z]\d?)?_(CTR|TMU|APP|DEP)$/;
             const zmaAreaMapping = {
                 'MIA TRACON': 'MIA_D_DEP',
                 'TPA TRACON': 'TPA_L_APP',
