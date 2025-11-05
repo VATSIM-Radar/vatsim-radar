@@ -40,6 +40,7 @@ In such case, controller is duplicated as-is, excluding **callsign** - this is b
   - PBI TRACON: PBI_B_DEP
   - RSW TRACON: RSW_W_APP
   - NQX RATCF: NQX_B_APP
+  - HST RAPCON: HST_APP
 
 In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
