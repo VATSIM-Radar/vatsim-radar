@@ -4349,14 +4349,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pinia/nuxt@npm:^0.11.2":
-  version: 0.11.2
-  resolution: "@pinia/nuxt@npm:0.11.2"
+"@pinia/nuxt@npm:^0.11.3":
+  version: 0.11.3
+  resolution: "@pinia/nuxt@npm:0.11.3"
   dependencies:
-    "@nuxt/kit": "npm:^3.9.0"
+    "@nuxt/kit": "npm:^4.2.0"
   peerDependencies:
-    pinia: ^3.0.3
-  checksum: 10c0/baf0c496ce81043f2881d5d00124517b14983638d1ee28061786d3a26d23a2f3b899a841b348ab8ebaaca65613640ddbaa560cefecda4f4f9ca0cf7a5815c750
+    pinia: ^3.0.4
+  checksum: 10c0/3aba259e997e0a332713c3a092339e5256f26325ec70640be438a225e7d3adc45443b03c4a36b37a5959d8610781fcd3a67d47dec3582aaef05e6579042240b7
   languageName: node
   linkType: hard
 
@@ -6549,7 +6549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/devtools-api@npm:^7.7.0, @vue/devtools-api@npm:^7.7.2":
+"@vue/devtools-api@npm:^7.7.0, @vue/devtools-api@npm:^7.7.7":
   version: 7.7.7
   resolution: "@vue/devtools-api@npm:7.7.7"
   dependencies:
@@ -13649,18 +13649,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pinia@npm:^3.0.3":
-  version: 3.0.3
-  resolution: "pinia@npm:3.0.3"
+"pinia@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "pinia@npm:3.0.4"
   dependencies:
-    "@vue/devtools-api": "npm:^7.7.2"
+    "@vue/devtools-api": "npm:^7.7.7"
   peerDependencies:
-    typescript: ">=4.4.4"
-    vue: ^2.7.0 || ^3.5.11
+    typescript: ">=4.5.0"
+    vue: ^3.5.11
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/486f464ce402e33c502caf564bebcd00c364e7d57432373f64201da0cdbbc96a6357fecb5ee09882228d3c17d400af1f0c9550ddf2d19f2ef2931860a427cc23
+  checksum: 10c0/4123efbf28c6d11f3dd052dbcf08da7ef85747fd3499807b9ca1d32dcda7807b2e68f9a7e31a06148b05093a9ebcd0c3b26e6a31b62775c6421429bd03265949
   languageName: node
   linkType: hard
 
@@ -17461,7 +17461,7 @@ __metadata:
     "@nuxt/devtools": "npm:^3.1.0"
     "@nuxt/eslint": "npm:^1.9.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
-    "@pinia/nuxt": "npm:^0.11.2"
+    "@pinia/nuxt": "npm:^0.11.3"
     "@prisma/client": "npm:^6.18.0"
     "@protomaps/basemaps": "npm:^5.5.2"
     "@sentry/nuxt": "npm:^10.22.0"
@@ -17513,7 +17513,7 @@ __metadata:
     nuxt: "npm:^4.2.1"
     ol: "npm:^10.6.1"
     ol-mapbox-style: "npm:^13.1.0"
-    pinia: "npm:^3.0.3"
+    pinia: "npm:^3.0.4"
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^6.18.0"
