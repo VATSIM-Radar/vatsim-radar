@@ -11631,12 +11631,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^16.4.1":
-  version: 16.4.1
-  resolution: "marked@npm:16.4.1"
+"marked@npm:^17.0.0":
+  version: 17.0.0
+  resolution: "marked@npm:17.0.0"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/2b5bc04db3453e493ea78758f1fe5006d725ec90aab9bf991242b0820a069d9748e2ac26fb0e2603848a409649c77900e599f3f66d251d0f7e5f606576090a54
+  checksum: 10c0/e7f02b59356e50d751f57e9715ca29c5da580459450ae2ba2e0cfb286dd972d57fdb7ad9945c742ceb91a0bf65d2ff9e2f2fdc4094ae2a8621173c9e4a00b4f8
   languageName: node
   linkType: hard
 
@@ -16999,7 +16999,7 @@ __metadata:
     kafkajs: "npm:^2.2.4"
     klona: "npm:^2.0.6"
     magvar: "npm:^2.0.1"
-    marked: "npm:^16.4.1"
+    marked: "npm:^17.0.0"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.1.3"

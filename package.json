@@ -64,7 +64,7 @@
     "kafkajs": "^2.2.4",
     "klona": "^2.0.6",
     "magvar": "^2.0.1",
-    "marked": "^16.4.1",
+    "marked": "^17.0.0",
     "merge-ranges": "^1.0.2",
     "metar-taf-parser": "^9.1.2",
     "nuxt": "^4.1.3",
