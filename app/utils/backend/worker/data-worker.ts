@@ -392,21 +392,25 @@ defineCronJob('* * * * * *', async () => {
                 }
             }
 
-            // ZOA NCT Area mapping logic
-            const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
-            const areaMapping = {
+            // ZOA/NCT Area/TRACON mapping logic
+            const zoaCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY|ZOA)(_[A-Z]\d?)?_(APP|DEP|CTR|TMU)$/;
+            const zoaAreaMapping = {
                 'Area A': 'SJC_APP',
                 'Area B': 'SFO_APP',
                 'Area C': 'OAK_APP',
                 'Area D': 'SFO_DEP',
                 'Area E': 'SMF_APP',
                 'Area R': 'RNO_APP',
+                'FAT TRACON': 'FAT_F_APP',
+                'NFL RAPCON': 'NFL_APP',
+                'NLC RAPCON': 'NLC_APP',
+                'SUU RAPCON': 'SUU_S_APP',
             };
 
-            if (nctCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
+            if (zoaCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
                 const atisText = controller.text_atis.join(' ').toLowerCase();
 
-                for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
+                for (const [areaText, targetCallsign] of Object.entries(zoaAreaMapping)) {
                     if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
                         radarStorage.vatsim.data.controllers.push({
                             ...controller,

@@ -20,6 +20,10 @@ In such case, controller is duplicated as-is, excluding **callsign** and **frequ
   - Area D: SFO_DEP
   - Area E: SMF_APP
   - Area R: RNO_APP
+  - FAT TRACON: FAT_F_APP
+  - NFL RAPCON: NFL_APP
+  - NLC RAPCON: NLC_APP
+  - SUU RAPCON: SUU_S_APP
 
 In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
