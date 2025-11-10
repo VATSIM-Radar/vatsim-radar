@@ -66,7 +66,7 @@ export default defineNuxtConfig({
         server: true,
     },
     pinia: {
-        storesDirs: ['./app/store/**'],
+        storesDirs: ['**/store/**'],
     },
     compatibilityDate: '2024-12-12',
     experimental: {

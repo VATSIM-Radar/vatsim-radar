@@ -275,6 +275,8 @@ watch(() => policy.value.sentry, val => {
     immediate: true,
 });
 
+const themeColor = getCurrentThemeHexColor('darkgray1000');
+
 useHead(() => {
     const theme = store.theme ?? 'default';
     const css = Object
@@ -285,8 +287,6 @@ useHead(() => {
         .filter(([key]) => key.endsWith('Rgb'))
         .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
         .join(';');
-
-    const themeColor = getCurrentThemeHexColor('darkgray1000');
 
     const script: ResolvableScript[] = [];
 
