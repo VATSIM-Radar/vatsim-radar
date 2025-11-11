@@ -149,5 +149,5 @@ model Notams {
   activeFrom  DateTime?
   activeTo    DateTime?
   dismissable Boolean
-  active      Boolean
+  active      Boolean   @default(false)
 }
