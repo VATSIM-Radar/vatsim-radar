@@ -416,6 +416,28 @@ defineCronJob('* * * * * *', async () => {
                 }
             }
 
+            const zdcCallsignPattern = /^(PCT|IAD|DCA|BWI|RIC|DC)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
+            const pctAreaMapping = {
+                SHD: 'IAD_APP',
+                CHP: 'BWI_APP',
+                MTV: 'DCA_APP',
+                JRV: 'RIC_APP',
+            };
+
+            if (zdcCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
+                const atisText = controller.text_atis.join(' ').toLowerCase();
+
+                for (const [areaText, targetCallsign] of Object.entries(pctAreaMapping)) {
+                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
+                        radarStorage.vatsim.data.controllers.push({
+                            ...controller,
+                            callsign: targetCallsign,
+                        });
+                    }
+                }
+            }
+
+
             const australiaSectors = allowedAustraliaSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
