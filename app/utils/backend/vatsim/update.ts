@@ -273,6 +273,36 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.status = 'enroute';
         }
 
+        // Departure Time Detection
+        if (extendedPilot.status !== 'depGate' && extendedPilot.status !== 'depTaxi') {
+            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+
+            if (oldPilot && oldPilot.actualDepartureTime) {
+                extendedPilot.actualDepartureTime = oldPilot.actualDepartureTime;
+            }
+
+            if (oldPilot && oldPilot.actualArrivalTime) {
+                extendedPilot.actualArrivalTime = oldPilot.actualArrivalTime;
+            }
+        }
+
+        if (extendedPilot.status === 'departed') {
+            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+
+            if (oldPilot && oldPilot.status === 'depTaxi') {
+                extendedPilot.actualDepartureTime = new Date().toISOString();
+            }
+        }
+
+        // Arrival Time Detection
+        if (extendedPilot.status === 'arrTaxi' || extendedPilot.status === 'arrGate') {
+            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+
+            if (oldPilot && oldPilot.status === 'arriving') {
+                extendedPilot.actualArrivalTime = new Date().toISOString();
+            }
+        }
+
         // Diversion Detection
         if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
             extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
@@ -422,14 +452,14 @@ function parseCoordinates(input: string) {
         // Преобразуем широту: 40.25 → 4025 (40°15′)
         const latDeg = Math.floor(lat);
         const latMin = Math.round((lat - latDeg) * 60);
-        const latStr = `${ latDeg.toString().padStart(2, '0') }${ latMin.toString().padStart(2, '0') }`;
+        const latStr = `${latDeg.toString().padStart(2, '0')}${latMin.toString().padStart(2, '0')}`;
 
         // Преобразуем долготу: 52.3 → 5230 (52°18′)
         const lonDeg = Math.floor(lon);
         const lonMin = Math.round((lon - lonDeg) * 60);
-        const lonStr = `${ lonDeg.toString().padStart(2, '0') }${ lonMin.toString().padStart(2, '0') }`;
+        const lonStr = `${lonDeg.toString().padStart(2, '0')}${lonMin.toString().padStart(2, '0')}`;
 
-        result.push(`${ latStr }/${ lonStr }`);
+        result.push(`${latStr}/${lonStr}`);
     }
 
     return result.join(' ');

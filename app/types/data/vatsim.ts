@@ -50,6 +50,8 @@ export interface VatsimExtendedPilot extends VatsimPilot {
     toGoTime?: number;
     firs?: string[];
     airport?: string;
+    actualDepartureTime?: string;
+    actualArrivalTime?: string;
     stepclimbs?: {
         waypoint: string;
         measurement: 'FT' | 'M';
@@ -75,10 +77,10 @@ export type VatsimPilotFlightPlan = Partial<{
     route: string;
     revision_id: number;
     assigned_transponder: string;
-    locked?: boolean;
-    diverted?: boolean;
-    diverted_arrival?: string;
-    diverted_origin?: string;
+    locked: boolean;
+    diverted: boolean;
+    diverted_arrival: string;
+    diverted_origin: string;
 }>;
 
 export interface VatsimController {

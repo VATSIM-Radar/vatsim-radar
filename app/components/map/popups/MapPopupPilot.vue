@@ -1,719 +1,498 @@
 <template>
-    <common-info-popup
-        v-if="overlay?.data?.pilot"
-        v-model:collapsed="overlay.collapsed"
-        class="pilot"
-        collapsible
-        :header-actions="store.config.airports ? ['sticky'] : ['sticky', 'track']"
-        max-height="100%"
-        model-value
-        :style="{ '--percent': `${ pilot.toGoPercent ?? 0 }%`, '--status-color': radarColors[getStatus.color] }"
-        :tabs="{
-            info: {
-                title: 'Info',
-                sections,
-            },
-            proc: {
-                title: 'Proc',
-                sections: [{
-                    key: 'procedures',
-                    title: `${ pilot.status?.includes('dep') ? depAirport?.icao : arrAirport?.icao } procedures`,
-                }],
-                disabled: !depAirport || !arrAirport,
-            },
-            atc: {
-                title: 'ATC',
-                sections: atcSections,
-                disabled: !atcSections.length,
-            },
-        }"
-        @update:modelValue="!$event ? [store.user && pilot.cid === ownFlight?.cid && (mapStore.closedOwnOverlay = true), mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id)] : undefined"
+    <div
+        class="flight-info"
+        :style="{ '--percent': `${ distance?.toGoPercent ?? 0 }%` , '--status-color': radarColors[getStatus.color] }"
     >
-        <template #title>
-            <div class="pilot-header pilot_header">
-                <div class="pilot-header_title">
-                    {{ pilot.callsign }}
-                </div>
-                <common-blue-bubble
-                    v-if="pilot.flight_plan?.flight_rules !== 'I'"
-                    class="pilot-header_type"
-                    size="M"
-                >
-                    VFR
-                </common-blue-bubble>
-                <div
-                    v-if="overlay.collapsed"
-                    class="pilot_header_status"
-                    :class="{ 'pilot_header_status--offline': isOffline }"
-                />
-                <div
-                    v-if="overlay.collapsed"
-                    class="pilot_header_line"
-                />
-            </div>
-        </template>
-        <template #action-sticky>
-            <map-popup-pin-icon :overlay="overlay"/>
-        </template>
-        <template #action-track>
-            <div
-                title="Track aircraft"
-                @click="props.overlay.data.tracked = !props.overlay.data.tracked"
+        <div class="flight-info_self">
+            <div class="flight-info_self_title">Pilot</div>
+            <common-info-block
+                :bottom-items="[...usePilotRating(pilot), stats ? stats.atc ? `${ stats.pilot ?? 0 }h pilot, ${ stats.atc }h atc` : `${ stats.pilot ?? 0 }h total time` : undefined]"
+                class="flight-info__card"
+                :top-items="[parseEncoding(pilot.name), pilot.cid, friend?.comment]"
             >
-                <track-icon
-                    class="pilot__track"
-                    :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
-                    width="16"
-                />
-            </div>
-        </template>
-        <template
-            v-if="vatGlassesActive"
-            #tab-atc
-        >
-            <common-notification cookie-name="vatglasses-atc-warning">
-                This data may not be reliable when VatGlasses integration is active. Refer to map instead.
-            </common-notification>
-        </template>
-        <template
-            v-for="i in ['center', 'atis', 'app', 'ground', 'ctaf']"
-            :key="i"
-            #[`atc-${i}`]="{ section }"
-        >
-            <div class="pilot__content __info-sections">
-                <!-- @vue-ignore -->
-                <common-controller-info
-                    class="pilot__controller"
-                    :controllers="section.controllers"
-                    max-height="auto"
-                    show-atis
-                    :show-facility="section.type === 'ground'"
-                    small
-                />
-                <common-button
-                    v-if="i === 'ctaf'"
-                    href="https://my.vatsim.net/learn/frequently-asked-questions/section/140"
-                    target="_blank"
-                    type="link"
-                >
-                    Learn more about CTAF trial
-                </common-button>
-            </div>
-        </template>
-        <template #flight>
-            <map-popup-flight-info
-                class="pilot__content __info-sections"
-                :is-offline="isOffline"
-                :pilot
-                @viewRoute="viewRoute()"
-            />
-        </template>
-        <template #graph>
-            <map-popup-flight-graph :pilot/>
-        </template>
-        <template
-            v-if="depAirport"
-            #procedures
-        >
-            <common-notification
-                v-if="overlay.data.fullRoute && store.user && !store.user.settings.showFullRoute"
-                cookie-name="full-route-tip"
-                type="info"
+                <template #top="{ item, index }">
+                    <common-spoiler
+                        :is-cid="index === 1"
+                        type="pilot"
+                    >
+                        <template v-if="index === 0 && !isNaN(Number(item)) && friend">
+                            {{friend.name}}
+                        </template>
+                        <template v-else>
+                            {{ item }}
+                        </template>
+                    </common-spoiler>
+                </template>
+            </common-info-block>
+            <common-button
+                v-if="showStats"
+                class="flight-info_self_stats"
+                :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
+                target="_blank"
+                type="link"
             >
-                Want to always show full route? Visit <a
-                    class="__link"
-                    href="#"
-                    @click.prevent="store.settingsPopup = true"
-                >settings</a>.
-            </common-notification>
-            <common-toggle
-                v-if="!store.localSettings.disableNavigraphRoute"
-                v-model="overlay.data.fullRoute"
+                <template #icon>
+                    <dashboard-icon/>
+                </template>
+            </common-button>
+            <common-favorite-list
+                v-if="store.user"
+                :cid="pilot.cid"
+                class="flight-info_self_favorite"
+                :name="pilot.name"
+            />
+        </div>
+        <div
+            v-if="airline"
+            class="flight-info_self"
+        >
+            <div class="flight-info_self_title">Airline</div>
+            <common-info-block
+                :bottom-items="[airline.icao, airline.callsign, airline.virtual ? '1' : null]"
+                class="flight-info__card flight-info__card--airline"
+                :top-items="[airline.name]"
             >
-                Show full route
-            </common-toggle>
-            <br>
-            <airport-procedures
-                v-if="depAirport && arrAirport && pilot.status?.includes('dep')"
-                :aircraft="pilot"
-                :airport="pilot.status?.includes('dep') ? depAirport!.icao : arrAirport!.icao"
-                flight-type="departure"
-                from="pilotOverlay"
-            />
-            <template v-if="arrAirport && pilot.status?.includes('dep')">
-                <br><br>
-                <common-block-title>
-                    {{arrAirport!.icao}} procedures
-                </common-block-title>
-            </template>
-            <airport-procedures
-                v-if="depAirport && arrAirport"
-                :aircraft="pilot"
-                :airport="arrAirport!.icao"
-                flight-type="arrival"
-                from="pilotOverlay"
-            />
-        </template>
-        <template #depRunways>
-            <map-airport-runway-selector :airport="depAirport!.icao"/>
-        </template>
-        <template #arrRunways>
-            <map-airport-runway-selector :airport="arrAirport!.icao"/>
-        </template>
-        <template #depBars>
-            <map-airport-bars-info :data="depBars!"/>
-        </template>
-        <template #arrBars>
-            <map-airport-bars-info :data="arrBars!"/>
-        </template>
-        <template #flightplan>
-            <map-popup-flight-plan
-                class="pilot__content __info-sections"
-                :flight-plan="pilot.flight_plan ?? null"
-                :status="pilot.status ?? null"
-                :stepclimbs="pilot.stepclimbs"
-            />
-        </template>
-        <template #actions>
-            <common-button-group>
-                <common-button
-                    :disabled="store.config.hideAllExternal"
-                    @click="overlay.data.tracked = !overlay.data.tracked"
-                >
-                    <template #icon>
-                        <track-icon
-                            class="pilot__track pilot__track--in-action"
-                            :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
-                        />
-                    </template>
-                    Track
-                </common-button>
-                <common-button
-                    :disabled="overlay.data.tracked || store.config.hideAllExternal"
-                    @click="showOnMap"
-                >
-                    <template #icon>
-                        <location-icon/>
-                    </template>
-                    Focus
-                </common-button>
-                <common-button
-                    :disabled="store.config.hideAllExternal"
-                    @click="viewRoute"
-                >
-                    <template #icon>
-                        <path-icon/>
-                    </template>
-                    Route
-                </common-button>
-                <common-button
-                    :href="`https://stats.vatsim.net/stats/${ pilot.cid }`"
-                    target="_blank"
-                >
-                    <template #icon>
-                        <stats-icon/>
-                    </template>
-                    Stats
-                </common-button>
-                <common-button @click="copy.copy(`${ config.public.DOMAIN }/?pilot=${ pilot.cid }`)">
-                    <template #icon>
-                        <share-icon/>
-                    </template>
-                    <template v-if="copy.copyState.value">
-                        Copied!
-                    </template>
+                <template #top="{ item }">
+                    <span :title="item as string">
+                        {{ item }}
+                    </span>
+                </template>
+                <template #bottom="{ item, index }">
+                    <common-bubble
+                        :is="airline.website ? 'a' : 'div'"
+                        v-if="index === 2"
+                        :href="airline.website"
+                        target="_blank"
+                    >
+                        Virtual Airline
+                    </common-bubble>
                     <template v-else>
-                        Link
+                        {{ item }}
                     </template>
-                </common-button>
-            </common-button-group>
-        </template>
-    </common-info-popup>
+                </template>
+            </common-info-block>
+        </div>
+        <common-info-block
+            :key="dataStore.vatsim.updateTimestamp.value.toString()"
+            class="flight-info__card"
+        >
+            <template #top>
+                <div class="flight-info__card_route">
+                    <div class="flight-info_self_departure-arrival-time-container">
+                        <div class="flight-info_self_departure-arrival-time-item">
+                            <div v-if="actualDepartureTime">
+                                <departing-plane width="14"/>
+                            </div>
+                            {{ actualDepartureTime }}
+                        </div>
+                        <div v-if="actualArrivalTime || getETA && pilot.status !== 'depTaxi' && pilot.status !== 'depGate'" class="flight-info_self_departure-arrival-time-item">
+                            {{ actualArrivalTime || getETA }}
+                            <div>
+                                <landing-plane width="14"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        :key="String(depAirport) + String(arrAirport) + getStatus.title"
+                        class="flight-info__card_route_header"
+                    >
+                        <component
+                            :is="(depAirport && !showStats) ? CommonButton : 'div'"
+                            class="flight-info__card_route_header_airport flight-info__card_route_header_airport--dep"
+                            type="link"
+                            @click="depAirport && mapStore.addAirportOverlay(depAirport.icao)"
+                        >
+                            {{
+                                (pilot.flight_plan?.departure || ((pilot.status === 'depTaxi' || pilot.status === 'depGate') && pilot.airport)) || ''
+                            }}
+                        </component>
+                        <div
+                            class="flight-info__card_route_header_status"
+                        >
+                            {{ getStatus.title }}
+                        </div>
+                        <component
+                            :is="(arrAirport && !showStats) ? CommonButton : 'div'"
+                            class="flight-info__card_route_header_airport flight-info__card_route_header_airport--arr"
+                            type="link"
+                            @click="arrAirport && mapStore.addAirportOverlay(arrAirport.icao)"
+                        >
+                            {{ pilot.flight_plan?.arrival || '' }}
+                        </component>
+                    </div>
+                    <div
+                        v-show="distance?.toGoPercent && !pilot.isOnGround && pilot.flight_plan?.aircraft_faa && svg"
+                        class="flight-info__card_route_line"
+                        :class="{
+                            'flight-info__card_route_line--start': distance?.toGoPercent && distance.toGoPercent < 10,
+                            'flight-info__card_route_line--end': distance?.toGoPercent && distance.toGoPercent > 90,
+                        }"
+                        v-html="svg ? reColorSvg(svg, 'neutral') : '<div></div>'"
+                    />
+                    <div class="flight-info__card_route_footer">
+                        <div class="flight-info__card_route_footer_left">
+                            {{
+                                (distance?.depDist && pilot.status !== 'depTaxi' && pilot.status !== 'depGate') ? `${ Math.round(distance.depDist) } NM,` : ''
+                            }} Online
+                            <span v-if="pilot.logon_time">
+                                {{ getLogonTime }}
+                            </span>
+                        </div>
+                        <div
+                            v-if="getRemainingDistAndTime"
+                            class="flight-info__card_route_footer_right"
+                        >
+                            {{ getRemainingDistAndTime }}
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </common-info-block>
+        <div class="flight-info__cols">
+            <common-info-block
+                :bottom-items="[`${ pilot.groundspeed ?? 0 } kts`]"
+                class="flight-info__card"
+                text-align="center"
+                title="Ground Speed"
+                :top-items="['GS']"
+            />
+            <common-info-block
+                :bottom-items="[`${ getPilotTrueAltitude(pilot) } ft`]"
+                class="flight-info__card"
+                text-align="center"
+                :title="pilot.altitude"
+                :top-items="['Altitude']"
+            />
+            <common-info-block
+                :bottom-items="[`${ pilot.heading }°`]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="['Heading']"
+            />
+        </div>
+        <div
+            v-if="pilot.transponder || pilot.flight_plan?.assigned_transponder"
+            class="flight-info__cols"
+        >
+            <common-info-block
+                :bottom-items="[
+                    `${ pilot.transponder || 'None' }`,
+                    canShowRightTransponder ? pilot.flight_plan?.assigned_transponder : undefined,
+                ]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="['Squawk']"
+            >
+                <template #top>
+                    <common-tooltip
+                        :location="pilot.frequencies.length ? 'right' : 'bottom'"
+                        width="150px"
+                    >
+                        <template #activator>
+                            <div class="flight-info__card_question">
+                                Squawk
+
+                                <question-icon width="14"/>
+                            </div>
+                        </template>
+
+                        The left value is currently set on the aircraft,<br> while the right value was assigned by ATC.
+
+                        <template v-if="!canShowRightTransponder">
+                            <br><br>
+
+                            You don't see the right value because it might be the same as the set value or a squawk may not have been assigned.
+                        </template>
+                    </common-tooltip>
+                </template>
+            </common-info-block>
+            <common-info-block
+                v-for="(frequency, index) in pilot.frequencies"
+                :key="frequency+index"
+                align-items="space-evenly"
+                :bottom-items="[frequency]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="[`COM${ index+1 }`]"
+            />
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import type { PropType, ShallowRef } from 'vue';
-import { useStore } from '~/store';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
-import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
-import type { VatsimExtendedPilot, VatsimShortenedController } from '~/types/data/vatsim';
-import TrackIcon from 'assets/icons/kit/track.svg?component';
-import LocationIcon from '@/assets/icons/kit/location.svg?component';
-import StatsIcon from '@/assets/icons/kit/stats.svg?component';
-import ShareIcon from '@/assets/icons/kit/share.svg?component';
-import PathIcon from '@/assets/icons/kit/path.svg?component';
-import type { Map } from 'ol';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { IFetchError } from 'ofetch';
-import { ownFlight, sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
-import type { StoreOverlayPilot } from '~/store/map';
-import { useMapStore } from '~/store/map';
-import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
-import { boundingExtent, getCenter } from 'ol/extent';
-import MapPopupPinIcon from '~/components/map/popups/MapPopupPinIcon.vue';
-import { useCopyText } from '~/composables';
+import { parseEncoding } from '~/utils/data';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
-import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import CommonBlueBubble from '~/components/common/basic/CommonBubble.vue';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
-import { getAirportRunways } from '~/utils/data/vatglasses-front';
-import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import {
+    fetchAircraftIcon,
+    getAircraftDistance,
+    getPilotStatus,
+    isPilotOnGround,
+    reColorSvg,
+} from '~/composables/pilots';
+import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import type { VatsimExtendedPilot } from '~/types/data/vatsim';
+import type { PropType } from 'vue';
+import { getHoursAndMinutes } from '~/utils';
+import { useMapStore } from '~/store/map';
+import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
+import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vue';
+import { getAirlineFromCallsign } from '~/composables';
+import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import { useStore } from '~/store';
+import { useRadarError } from '~/composables/errors';
+import DepartingPlane from '@/assets/icons/airport/departing.svg?component'
+import LandingPlane from '@/assets/icons/airport/landing.svg?component'
 
 const props = defineProps({
-    overlay: {
-        type: Object as PropType<StoreOverlayPilot>,
+    pilot: {
+        type: Object as PropType<VatsimExtendedPilot>,
         required: true,
+    },
+    isOffline: {
+        type: Boolean,
+        default: false,
+    },
+    showStats: {
+        type: Boolean,
+        default: false,
     },
 });
 
-const MapPopupFlightGraph = defineAsyncComponent(() => import('~/components/map/popups/MapPopupFlightGraph.vue'));
-
-const map = inject<ShallowRef<Map | null>>('map')!;
-const copy = useCopyText();
-
-const store = useStore();
 const dataStore = useDataStore();
 const mapStore = useMapStore();
-const config = useRuntimeConfig();
-const vatGlassesActive = isVatGlassesActive;
+const store = useStore();
 
-const pilot = computed(() => props.overlay.data.pilot);
-const airportInfo = computed(() => {
-    return props.overlay.data.airport;
+const getLogonTime = computed(() => {
+    return getHoursAndMinutes(new Date(props.pilot.logon_time || 0).getTime());
 });
-const isOffline = ref(false);
+
+const canShowRightTransponder = computed(() => {
+    return props.pilot.flight_plan?.assigned_transponder && props.pilot.flight_plan?.assigned_transponder !== props.pilot.transponder && props.pilot.flight_plan?.assigned_transponder !== '0000';
+});
 
 const depAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.departure ?? ''];
+    return getAirportByIcao(props.pilot.flight_plan?.departure);
 });
 
 const arrAirport = computed(() => {
-    return dataStore.vatspy.value?.data.keyAirports.realIcao[pilot.value.flight_plan?.arrival ?? ''];
+    return getAirportByIcao(props.pilot.flight_plan?.arrival);
 });
 
-const showOnMap = () => {
-    showPilotOnMap(pilot.value, map.value);
-};
+const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks));
+const friend = computed(() => store.friends.find(x => x.cid === props.pilot.cid));
 
-const viewRoute = () => {
-    if (!depAirport.value || !arrAirport.value) return;
-    const extent = boundingExtent([
-        [depAirport.value.lon, depAirport.value.lat],
-        [arrAirport.value.lon, arrAirport.value.lat],
-    ]);
+const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
+    hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
+    timeZone: 'UTC',
+    hour: '2-digit',
+    minute: '2-digit',
+}));
 
-    props.overlay.data.tracked = false;
+const actualDepartureTime = computed(() => 
+    props.pilot.actualDepartureTime && 'TOD: ' + datetime.value.format(Date.parse(props.pilot.actualDepartureTime)).toUpperCase() + 'Z'
+)
 
-    const view = map.value?.getView();
+const actualArrivalTime = computed(() => 
+    props.pilot.actualArrivalTime && 'TOA: ' + datetime.value.format(Date.parse(props.pilot.actualArrivalTime)).toUpperCase() + 'Z'
+)
 
-    view?.animate({
-        center: getCenter(extent),
-        resolution: view?.getResolutionForExtent(extent) * 1.8,
-    });
-};
+const distance = computed(() => getAircraftDistance(props.pilot));
 
-const atcSections = computed<InfoPopupSection[]>(() => {
-    const list = getAtcList.value?.slice() as InfoPopupSection[];
+const getETA = computed(() => {
+    try {
+        if (!distance.value?.toGoDist) return null;
 
-    if (depRunways.value && props.overlay.data.pilot.status?.startsWith('dep')) {
-        list.push({
-            key: 'depRunways',
-            title: `${ depAirport.value?.icao } Runways`,
-            collapsible: true,
-        });
+        const goTime = new Date(distance.value.toGoTime!);
+        let date = datetime.value.format(goTime).toUpperCase();
+        if (store.user?.settings.timeFormat === '12h') date += ' ';
+
+        return `ETA: ${ date }Z`;
     }
-
-    if (arrRunways.value) {
-        list.push({
-            key: 'arrRunways',
-            title: `${ arrAirport.value?.icao } Runways`,
-            collapsible: true,
-        });
+    catch (e) {
+        useRadarError(e);
+        console.log(distance);
+        return null;
     }
-
-    return list;
 });
 
-const depRunways = computed(() => depAirport.value ? getAirportRunways(depAirport.value.icao) : null);
-const arrRunways = computed(() => arrAirport.value ? getAirportRunways(arrAirport.value.icao) : null);
+const getRemainingDistAndTime = computed(() => {
+    try {
+        if (!distance.value?.toGoDist || !distance.value.toGoTime) return null;
 
-const depBars = computed(() => {
-    return depAirport.value && dataStore.vatsim.data.bars.value[depAirport.value.icao];
-});
+        const dist = Math.round(distance.value.toGoDist);
+        const goTime = new Date(distance.value.toGoTime!);
 
-const arrBars = computed(() => {
-    return arrAirport.value && dataStore.vatsim.data.bars.value[arrAirport.value.icao];
-});
-
-const sections = computed<InfoPopupSection[]>(() => {
-    const sections: InfoPopupSection[] = [
-        {
-            key: 'flight',
-            title: 'Flight Details',
-            collapsible: true,
-        },
-    ];
-
-    if (props.overlay.data.pilot.status !== 'depTaxi' && props.overlay.data.pilot.status !== 'depGate') {
-        sections.push({
-            key: 'graph',
-            title: 'Speed & Altitude graph',
-            collapsedDefault: true,
-            collapsedDefaultOnce: true,
-            collapsible: true,
-        });
+        if (isPilotOnGround(props.pilot)) return `Left: ${ dist } NM`;
+        return `Left: ${ dist } NM in ${ getTimeRemains(goTime) }`;
     }
-
-    sections.push({
-        key: 'flightplan',
-        title: 'Flight Plan',
-        collapsible: true,
-    });
-
-    if (depRunways.value && props.overlay.data.pilot.status?.startsWith('dep')) {
-        sections.push({
-            key: 'depRunways',
-            title: `${ depAirport.value?.icao } Runways`,
-            collapsible: true,
-        });
+    catch (e) {
+        useRadarError(e);
+        console.log(distance);
+        return null;
     }
-
-    if (arrRunways.value) {
-        sections.push({
-            key: 'arrRunways',
-            title: `${ arrAirport.value?.icao } Runways`,
-            collapsible: true,
-        });
-    }
-
-    if (depBars.value && props.overlay.data.pilot.status?.startsWith('dep')) {
-        sections.push({
-            key: 'depBars',
-            title: `${ depAirport.value?.icao } BARS`,
-            collapsible: true,
-            collapsedDefault: true,
-            collapsedDefaultOnce: true,
-        });
-    }
-
-    if (arrBars.value && props.overlay.data.pilot.status?.startsWith('arr')) {
-        sections.push({
-            key: 'arrBars',
-            title: `${ arrAirport.value?.icao } BARS`,
-            collapsible: true,
-            collapsedDefault: true,
-            collapsedDefaultOnce: true,
-        });
-    }
-
-    return sections;
-});
-
-type AtcPopupSection = InfoPopupSection & {
-    type: 'center' | 'app' | 'ground' | 'atis';
-    controllers: VatsimShortenedController[];
-};
-
-const facilities = useFacilitiesIds();
-
-const getAtcList = computed<AtcPopupSection[]>(() => {
-    const sections: AtcPopupSection[] = [];
-
-    const center = pilot.value.firs
-        ? dataStore.vatsim.data.firs.value.filter(x => pilot.value.firs!.includes(x.controller?.callsign ?? '')).map(x => x.controller!)
-        : null;
-
-    if (center?.length) {
-        sections.push({
-            type: 'center',
-            controllers: center,
-            title: 'Area Control',
-            key: 'atc-center',
-            collapsible: true,
-            collapsedDefault: true,
-            collapsedDefaultOnce: true,
-        });
-    }
-
-    const controls = pilot.value.airport ? dataStore.vatsim.data.locals.value.filter(x => x.airport?.icao === pilot.value.airport) : null;
-
-    if (controls?.length) {
-        const atis = controls.filter(x => x.isATIS).map(x => x.atc);
-        let ground = controls.filter(x => !x.isATIS && x.atc.facility !== facilities.APP).map(x => x.atc);
-        ground = sortControllersByPosition(ground);
-
-        const app = controls.filter(x => !x.isATIS && x.atc.facility === facilities.APP).map(x => x.atc);
-
-        if (atis.length) {
-            sections.push({
-                type: 'atis',
-                controllers: atis,
-                title: 'ATIS',
-                key: 'atc-atis',
-                collapsible: true,
-                collapsedDefault: true,
-                collapsedDefaultOnce: true,
-            });
-        }
-
-        if (ground.length) {
-            sections.push({
-                type: 'ground',
-                controllers: ground,
-                title: 'Local Control',
-                key: 'atc-ground',
-                collapsible: true,
-                collapsedDefault: true,
-                collapsedDefaultOnce: true,
-            });
-        }
-
-        if (app.length) {
-            sections.push({
-                type: 'app',
-                controllers: app,
-                title: 'Approach / Departure',
-                key: 'atc-app',
-                collapsible: true,
-                collapsedDefault: true,
-                collapsedDefaultOnce: true,
-            });
-        }
-    }
-
-    sections.sort((a, b) => {
-        if (pilot.value.airport) {
-            if (!pilot.value.isOnGround) {
-                if (a.type === 'app' && b.type === 'app') return 0;
-                if (a.type === 'app') return -1;
-                if (b.type === 'app') return 1;
-            }
-
-            if (pilot.value.status === 'departed') {
-                if (a.type === 'center' && b.type === 'center') return 0;
-                if (a.type === 'center') return -1;
-                if (b.type === 'center') return 1;
-            }
-
-            if ((a.type === 'ground' || a.type === 'atis') && (b.type === 'ground' || b.type === 'atis')) return 0;
-            if (a.type === 'ground' || a.type === 'atis') return -1;
-            if (b.type === 'ground' || b.type === 'atis') return 1;
-
-            if (a.type === 'app' && b.type === 'app') return 0;
-            return a.type === 'app' ? -1 : 1;
-        }
-
-        return 0;
-    });
-
-    if (!sections.length && airportInfo?.value?.ctafFreq) {
-        return [{
-            type: 'ground',
-            controllers: [
-                {
-                    cid: Math.random(),
-                    callsign: '',
-                    facility: -1,
-                    text_atis: null,
-                    name: '',
-                    logon_time: '',
-                    rating: 0,
-                    visual_range: 0,
-                    frequency: airportInfo.value?.ctafFreq,
-                },
-            ],
-            title: 'CTAF',
-            key: 'atc-ctaf',
-            collapsible: false,
-        }];
-    }
-
-    return sections;
 });
 
 const getStatus = computed(() => {
-    return getPilotStatus(pilot.value.status, isOffline.value);
+    return getPilotStatus(props.pilot.status, props.isOffline);
 });
 
-const loading = ref(false);
-
-watch(dataStore.vatsim.updateTimestamp, async () => {
-    if (loading.value) return;
-    try {
-        loading.value = true;
-        props.overlay.data.pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ props.overlay.key }`, {
-            timeout: 1000 * 15,
-        });
-        isOffline.value = false;
-    }
-    catch (e: IFetchError | any) {
-        if (e) {
-            isOffline.value = e.status === 404;
-        }
-    }
-    finally {
-        loading.value = false;
-    }
-});
-
-function handleMouseMove() {
-    if (!props.overlay.data.tracked) return;
-    map.value?.getView().animate({
-        center: [pilot.value.longitude, pilot.value.latitude],
-        duration: 300,
-    });
-}
-
-watch(() => [pilot.value.longitude, pilot.value.latitude].join(','), handleMouseMove);
-watch(() => props.overlay.data.tracked, val => {
-    handleMouseMove();
-    if (val) {
-        mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach(x => {
-            (x as StoreOverlayPilot).data.tracked = false;
-        });
-    }
-});
-
-function handlePointerDrag() {
-    props.overlay.data.tracked = false;
-}
+const svg = shallowRef<string | null>(null);
 
 onMounted(() => {
-    watch(() => pilot.value.airport, async icao => {
-        try {
-            if (airportInfo.value?.icao === icao) return;
-
-            if (icao) {
-                props.overlay.data.airport = await $fetch<VatsimAirportInfo>(`/api/data/vatsim/airport/${ icao }/info`);
-            }
-            else props.overlay.data.airport = undefined;
+    watch(() => props.pilot.flight_plan?.aircraft_short, async val => {
+        if (!val) {
+            svg.value = null;
+            return;
         }
-        catch { /* empty */ }
+
+        const icon = getAircraftIcon(props.pilot);
+        if (!icon) return;
+
+        svg.value = await fetchAircraftIcon(icon.icon);
     }, {
         immediate: true,
     });
-
-    map.value?.on('pointerdrag', handlePointerDrag);
-    map.value?.on('moveend', handleMouseMove);
 });
 
-onBeforeUnmount(() => {
-    map.value?.un('pointerdrag', handlePointerDrag);
-    map.value?.un('moveend', handleMouseMove);
-
-    if (enrouteAircraftPath.value) {
-        delete enrouteAircraftPath.value[props.overlay.key];
-    }
-});
+// eslint-disable-next-line vue/no-setup-props-reactivity-loss
+const { data: stats } = useLazyAsyncData(`stats-pilot-${ props.pilot.cid }`, () => getVATSIMMemberStats(props.pilot, 'both'));
 </script>
 
 <style scoped lang="scss">
-.pilot {
-    div.pilot_header {
-        &_status {
-            position: relative;
+.flight-info {
+    &_self {
+        display: flex;
+        gap: 16px;
+        align-items: center;
 
-            width: 8px;
-            height: 8px;
-            border-radius: 100%;
+        font-size: 13px;
+        font-weight: 700;
 
-            background: var(--status-color);
+        &_title {
+            min-width: 50px;
+        }
 
-            &:not(&--offline) {
-                @keyframes status {
-                    0% {
-                        transform: scale(0);
-                        opacity: 0;
-                    }
+        &_departure-arrival-time-container {
+            display: flex;
+            justify-content: space-between;
+        }
 
-                    60% {
-                        transform: scale(0);
-                        opacity: 0;
-                    }
+        &_departure-arrival-time-item {
+            font-weight: 400;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
 
-                    100% {
-                        transform: scale(1);
-                        opacity: 0.5;
+        .flight-info__card {
+            flex: 1 1 0;
+            width: 0;
+
+            &--airline {
+                :deep(.info-block_top) {
+                    flex-wrap: nowrap;
+
+                    .info-block__content {
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
                     }
                 }
+            }
+        }
+    }
 
-                &::before {
+    &__card {
+        &_question {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &_route {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 0 8px;
+
+            &_header {
+                display: flex;
+                gap: 8px;
+                justify-content: space-between;
+
+                &, & .button {
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+
+                &_status {
+                    font-size: 12px;
+                    color: var(--status-color);
+                }
+            }
+
+            &_line {
+                position: relative;
+                display: flex;
+                align-items: center;
+                height: 24px;
+
+                &::before, &::after {
                     content: '';
 
                     position: absolute;
-                    top: -2px;
-                    left: -2px;
 
-                    width: 12px;
-                    height: 12px;
-                    border-radius: 100%;
+                    width: 100%;
+                    height: 2px;
+                    border-radius: 4px;
 
-                    background: var(--status-color);
+                    background: $darkgray850;
+                }
 
-                    animation: status 1.4s alternate-reverse infinite;
+                &::after {
+                    width: var(--percent);
+                    background: $primary500;
+                }
+
+                :deep(svg) {
+                    position: relative;
+                    z-index: 1;
+                    left: var(--percent);
+                    transform: translateX(-50%) rotate(90deg);
+
+                    height: 24px;
+                }
+
+                &--start svg {
+                    transform: rotate(90deg);
                 }
             }
-        }
 
-        &_line {
-            position: absolute;
-            z-index: 1;
-            top: 0;
-            left: -16px;
+            &_footer {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                justify-content: space-between;
 
-            width: calc(100% + 32px);
-
-            &::before {
-                content: '';
-
-                position: absolute;
-                top: 0;
-                left: 0;
-
-                width: var(--percent);
-                height: 56px;
-                border-radius: 8px 0 0 8px;
-
-                background: $darkgray900;
+                font-size: 11px;
+                font-weight: 400;
             }
         }
     }
 
-    &__content {
-        position: relative;
-    }
+    &__cols {
+        display: flex;
+        gap: 4px;
 
-    &__controller {
-        position: relative;
-        z-index: 5;
-    }
-
-    &__track {
-        transition: 0.3s;
-
-        &--in-action {
-            transition-property: transform;
+        > * {
+            flex: 1 1 0;
+            width: 0;
         }
     }
-
-    &__track--tracked {
-        transform-origin: center;
-        transform: rotate(90deg);
-        color: $primary500;
-    }
-
-    :deep(.atc-popup), :deep(.atc-popup-container) {
-        padding: 0 !important;
-    }
-
 }
 </style>
