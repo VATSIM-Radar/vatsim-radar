@@ -6,7 +6,10 @@
             persistent
             :settings="{ position: tooltip, positioning: 'center-center' }"
         >
-            <div class="distance_tooltip">
+            <div
+                class="distance_tooltip"
+                :style="{ transform: `rotate(${ tooltipRotation }deg)` }"
+            >
                 {{currentResult}}
             </div>
         </map-overlay>
@@ -26,7 +29,7 @@ import VectorSource from 'ol/source/Vector';
 import type { EventsKey } from 'ol/events';
 import { getLength } from 'ol/sphere';
 import type { Geometry } from 'ol/geom';
-import { LineString } from 'ol/geom';
+import { LineString, Point } from 'ol/geom';
 import { unByKey } from 'ol/Observable';
 import VectorLayer from 'ol/layer/Vector';
 import { useStore } from '~/store';
@@ -41,6 +44,7 @@ const store = useStore();
 let drawing: Draw | null = null;
 
 const tooltip = ref<Coordinate | null>(null);
+const tooltipRotation = ref(0);
 const source = new VectorSource();
 const distanceSource = new VectorSource();
 let layer: VectorLayer | undefined;
@@ -78,6 +82,75 @@ const formatLength = function(line: Geometry) {
 };
 
 const GREAT_CIRCLE_POINTS = 128;
+const LABEL_SEGMENT_OFFSET = 1;
+
+
+/**
+ * we noralize the angle for the label, so if it's more than 90 degrees, we flip it
+ * this way the label is always readable otherwise if could be upside down if we measure anything over 90 deg
+ */
+
+function normalizeAngle(angleRad: number) {
+    let angle = angleRad;
+
+    if (angle > Math.PI / 2) angle -= Math.PI;
+    if (angle < -Math.PI / 2) angle += Math.PI;
+
+    return angle;
+}
+
+/** 
+ * function to get the midpoint coordinate and rotation for the label 
+ */
+
+function getMidpointOrientation(line: LineString) {
+    const coords = line.getCoordinates();
+
+    if (!coords.length) {
+        return {
+            coordinate: null,
+            angleRad: 0,
+        };
+    }
+    
+    // in order to calculate the angle we take a tiny sigment of the line assuming it's a straight lien
+    // center is the midpoint, delta is the value that is used to calculate before and after
+    // to make it more accurate for longer lines we do complex math (or not lol) to get more precise delta
+    // before & after are offsets from the midpoint
+
+    const center = line.getCoordinateAt(0.5);
+    const delta = Math.min(0.01, 1 / Math.max(line.getLength(), 1));
+
+    const before = line.getCoordinateAt(Math.max(0, 0.5 - delta));
+    const after = line.getCoordinateAt(Math.min(1, 0.5 + delta));
+
+    if (!center || !before || !after) {
+        return {
+            coordinate: center ?? null,
+            angleRad: 0,
+        };
+    }
+
+
+    //geodesic formula to calculate angle between two coordinates
+
+    const dx = after[0] - before[0];
+    const dy = after[1] - before[1];
+
+    if (dx === 0 && dy === 0) {
+        return {
+            coordinate: center,
+            angleRad: 0,
+        };
+    }
+
+    const angleRad = normalizeAngle(Math.atan2(dy, dx));
+
+    return {
+        coordinate: center,
+        angleRad,
+    };
+}
 
 function toGeodesicLine(start?: Coordinate, end?: Coordinate) {
     if (!start || !end) return null;
@@ -241,14 +314,15 @@ watch(() => mapStore.distance.pixel, pixel => {
             const geom = evt.target as LineString;
 
             currentResult.value = formatLength(geom);
-            const coordinates = geom.getCoordinates();
-            if (coordinates.length < 2) return;
+            const { coordinate, angleRad } = getMidpointOrientation(geom);
 
-            const firstCoordinate = coordinates[0];
-            const lastCoordinate = coordinates[coordinates.length - 1];
-            const middleCoordinate = coordinates[Math.floor(coordinates.length / 2)];
+            if (!coordinate) {
+                tooltipRotation.value = 0;
+                return;
+            }
 
-            tooltip.value = middleCoordinate ?? [(firstCoordinate[0] + lastCoordinate[0]) / 2, (firstCoordinate[1] + lastCoordinate[1]) / 2];
+            tooltip.value = coordinate;
+            tooltipRotation.value = -(angleRad * (180 / Math.PI));
         });
     });
 
@@ -273,6 +347,7 @@ watch(() => mapStore.distance.pixel, pixel => {
 
         sketch.value = null;
         tooltip.value = null;
+        tooltipRotation.value = 0;
 
         if (listener) {
             unByKey(listener);
@@ -306,20 +381,32 @@ watch(map, val => {
         zIndex: 6,
         source: distanceSource,
         style: function(val) {
+            const geometry = val.getGeometry();
+            const labelStyle = new Style();
+            if (geometry instanceof LineString) {
+                const { coordinate, angleRad } = getMidpointOrientation(geometry);
+
+                if (coordinate) {
+                    labelStyle.setGeometry(new Point(coordinate));
+                }
+
+                labelStyle.setText(new Text({
+                    text: val.getProperties().length,
+                    placement: 'point',
+                    textAlign: 'center',
+                    textBaseline: 'middle',
+                    font: '10px Montserrat',
+                    fill: new Fill({
+                        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
+                    }),
+                    padding: [2, 0, 2, 2],
+                    rotation: -angleRad,
+                }));
+            }
+
             return [
                 style,
-                new Style({
-                    text: new Text({
-                        text: val.getProperties().length,
-                        placement: 'point',
-                        textAlign: 'center',
-                        font: '10px Montserrat',
-                        fill: new Fill({
-                            color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
-                        }),
-                        padding: [2, 0, 2, 2],
-                    }),
-                }),
+                labelStyle,
             ];
         },
     });
@@ -348,6 +435,7 @@ onBeforeUnmount(() => {
     &_tooltip {
         user-select: none;
         font-size: 10px;
+        transform-origin: center;
     }
 }
 </style>
