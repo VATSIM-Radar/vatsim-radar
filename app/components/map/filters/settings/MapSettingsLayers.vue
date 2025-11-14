@@ -137,6 +137,18 @@
                 @update:modelValue="setUserMapSettings({ aircraftScale: $event as number })"
             />
         </div>
+        <common-toggle
+            class="__grid-info-sections_toggle"
+            :model-value="!!store.mapSettings.dynamicAircraftScale"
+            width="100%"
+            @update:modelValue="setUserMapSettings({ dynamicAircraftScale: $event })"
+        >
+            Dynamic sizing with zoom
+
+            <template #description>
+                Smoothly scales aircraft icons as you zoom in or out.
+            </template>
+        </common-toggle>
         <div class="__grid-info-sections __grid-info-sections--large-title">
             <div class="__grid-info-sections_title">
                 Airport default zoom level

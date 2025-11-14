@@ -154,6 +154,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     aircraftScale: val => {
         return isNumber(val, 1) && val > 0 && val < 5;
     },
+    dynamicAircraftScale: val => {
+        return typeof val === 'boolean';
+    },
     airportsMode: val => {
         return typeof val === 'string' && airportsModeKeys.includes(val as any);
     },
@@ -325,6 +328,7 @@ export interface IUserMapSettings {
         }>;
     }>;
     aircraftScale: number;
+    dynamicAircraftScale?: boolean;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
     tracks: {
         mode?: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
