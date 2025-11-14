@@ -35,6 +35,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { useStore } from '~/store';
 import greatCircle from '@turf/great-circle';
 import { point } from '@turf/helpers';
+import { transform } from 'ol/proj';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
@@ -99,14 +100,35 @@ function normalizeAngle(angleRad: number) {
     return angle;
 }
 
+
+/** 
+ * function to project coordinates for rotation calculation
+ */
+
+function projectForOrientation(coord?: Coordinate | null): Coordinate | null {
+    if (!coord) {
+        return null;
+    }
+
+    const projection = map.value?.getView().getProjection();
+
+    if (!projection) {
+        return coord;
+    }
+
+    if (projection.getCode() !== 'EPSG:4326') {
+        return transform(coord.slice() as Coordinate, 'EPSG:4326', projection);
+    }
+
+    return coord;
+}
+
 /** 
  * function to get the midpoint coordinate and rotation for the label 
  */
 
 function getMidpointOrientation(line: LineString) {
-    const coords = line.getCoordinates();
-
-    if (!coords.length) {
+    if (!line.getCoordinates().length) {
         return {
             coordinate: null,
             angleRad: 0,
@@ -131,11 +153,22 @@ function getMidpointOrientation(line: LineString) {
         };
     }
 
+    // project coordinates to the great circle for angle calculation
 
-    //geodesic formula to calculate angle between two coordinates
+    const beforeProjected = projectForOrientation(before);
+    const afterProjected = projectForOrientation(after);
 
-    const dx = after[0] - before[0];
-    const dy = after[1] - before[1];
+    if (!beforeProjected || !afterProjected) {
+        return {
+            coordinate: center,
+            angleRad: 0,
+        };
+    }
+
+    // geodesic formula for angle calculation -_-
+
+    const dx = afterProjected[0] - beforeProjected[0];
+    const dy = afterProjected[1] - beforeProjected[1];
 
     if (dx === 0 && dy === 0) {
         return {
