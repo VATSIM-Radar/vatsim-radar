@@ -19,6 +19,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
 import { useMapStore } from '~/store/map';
 import { Draw } from 'ol/interaction';
+import type { GeometryFunction } from 'ol/interaction/Draw';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import type { Coordinate } from 'ol/coordinate';
 import VectorSource from 'ol/source/Vector';
@@ -29,6 +30,8 @@ import { LineString } from 'ol/geom';
 import { unByKey } from 'ol/Observable';
 import VectorLayer from 'ol/layer/Vector';
 import { useStore } from '~/store';
+import greatCircle from '@turf/great-circle';
+import { point } from '@turf/helpers';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
@@ -74,6 +77,68 @@ const formatLength = function(line: Geometry) {
     return `${ u.value.toFixed(1) } ${ u.suffix }`;
 };
 
+const GREAT_CIRCLE_POINTS = 128;
+
+function toGeodesicLine(start?: Coordinate, end?: Coordinate) {
+    if (!start || !end) return null;
+
+    try {
+        const circle = greatCircle(point(start), point(end), { npoints: GREAT_CIRCLE_POINTS });
+        const coordinates = circle.geometry.type === 'LineString'
+            ? circle.geometry.coordinates as Coordinate[]
+            : (circle.geometry.type === 'MultiLineString'
+                ? (circle.geometry.coordinates as Coordinate[][]).flat()
+                : null);
+
+        if (!coordinates?.length) return null;
+
+        return new LineString(coordinates);
+    }
+    catch {
+        return new LineString([start, end]);
+    }
+}
+
+const createGeodesicGeometry: GeometryFunction = (coordinates, geometry) => {
+    let coords: Coordinate[] = [];
+
+    if (Array.isArray(coordinates)) {
+        const first = coordinates[0] as unknown;
+
+        if (Array.isArray(first)) {
+            const firstEntry = (first as unknown[])[0];
+
+            if (Array.isArray(firstEntry)) {
+                coords = (coordinates as Coordinate[][]).flat() as Coordinate[];
+            }
+            else {
+                coords = coordinates as Coordinate[];
+            }
+        }
+        else if (typeof first === 'number') {
+            coords = [coordinates as unknown as Coordinate];
+        }
+    }
+
+    const line = geometry instanceof LineString ? geometry : new LineString(coords);
+
+    if (coords.length < 2) {
+        line.setCoordinates(coords);
+        return line;
+    }
+
+    const geodesic = toGeodesicLine(coords[0], coords[coords.length - 1]);
+
+    if (geodesic) {
+        line.setCoordinates(geodesic.getCoordinates());
+    }
+    else {
+        line.setCoordinates(coords);
+    }
+
+    return line;
+};
+
 watch(() => store.localSettings.distance?.units, () => {
     features = [];
     updateItems();
@@ -100,7 +165,9 @@ function updateItems() {
                 continue;
             }
 
-            const geometry = new LineString(item.coordinates);
+            const coords = item.coordinates;
+            const geometry = coords.length >= 2 ? toGeodesicLine(coords[0], coords[coords.length - 1]) : null;
+            if (!geometry) continue;
 
             newFeatures.push(new Feature({
                 geometry,
@@ -122,7 +189,8 @@ function updateItems() {
             coordinate2 = [dataStore.vatsim.data.keyedPilots.value[item.targetAircraft].longitude, dataStore.vatsim.data.keyedPilots.value[item.targetAircraft].latitude];
         }
 
-        const geometry = new LineString([coordinate1, coordinate2]);
+        const geometry = coordinate1 && coordinate2 ? toGeodesicLine(coordinate1, coordinate2) : null;
+        if (!geometry) continue;
 
         newFeatures.push(new Feature({
             geometry,
@@ -161,6 +229,7 @@ watch(() => mapStore.distance.pixel, pixel => {
         minPoints: 2,
         condition: handleClick,
         style,
+        geometryFunction: createGeodesicGeometry,
     });
 
     let listener: EventsKey | undefined;
@@ -169,27 +238,32 @@ watch(() => mapStore.distance.pixel, pixel => {
         sketch.value = event.feature;
 
         listener = sketch.value.getGeometry()!.on('change', function(evt) {
-            const geom = evt.target;
+            const geom = evt.target as LineString;
 
             currentResult.value = formatLength(geom);
             const coordinates = geom.getCoordinates();
-            if (coordinates.length !== 2) return;
+            if (coordinates.length < 2) return;
 
             const firstCoordinate = coordinates[0];
-            const secondCoordinate = coordinates[1];
+            const lastCoordinate = coordinates[coordinates.length - 1];
+            const middleCoordinate = coordinates[Math.floor(coordinates.length / 2)];
 
-            tooltip.value = [(firstCoordinate[0] + secondCoordinate[0]) / 2, (firstCoordinate[1] + secondCoordinate[1]) / 2];
+            tooltip.value = middleCoordinate ?? [(firstCoordinate[0] + lastCoordinate[0]) / 2, (firstCoordinate[1] + lastCoordinate[1]) / 2];
         });
     });
 
     drawing.on('drawend', function() {
+        const drawnGeometry = sketch.value!.getGeometry() as LineString;
+        const drawnCoordinates = drawnGeometry.getCoordinates();
+        const endpoints = drawnCoordinates.length >= 2 ? [drawnCoordinates[0], drawnCoordinates[drawnCoordinates.length - 1]] : drawnCoordinates;
+
         // Save
         mapStore.distance.items.push({
             date: Date.now(),
-            length: formatLength(sketch.value!.getGeometry()!),
+            length: formatLength(drawnGeometry),
             initAircraft: mapStore.distance.initAircraft,
             targetAircraft: mapStore.distance.targetAircraft,
-            coordinates: (sketch.value!.getGeometry() as LineString)!.getCoordinates(),
+            coordinates: endpoints,
         });
 
         // Reset
