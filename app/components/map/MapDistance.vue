@@ -10,16 +10,18 @@
                 class="distance_tooltip"
                 :style="{ transform: `rotate(${ tooltipRotation }deg)` }"
             >
-                {{currentResult}}
+                {{ distanceDisplay }}
             </div>
         </map-overlay>
     </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
+import type { FeatureLike } from 'ol/Feature';
 import { useMapStore } from '~/store/map';
 import { Draw } from 'ol/interaction';
 import type { GeometryFunction } from 'ol/interaction/Draw';
@@ -52,8 +54,20 @@ let layer: VectorLayer | undefined;
 const sketch = shallowRef<null | Feature>(null);
 const currentResult = ref<string | null>(null);
 let features: Feature[] = [];
+const fromHeading = ref<string>('---');
+const toHeading = ref<string>('---');
 
-const style = new Style({
+type HeadingPair = {
+    from: string | null;
+    to: string | null;
+};
+
+const distanceDisplay = computed(() => {
+    const distance = currentResult.value ?? '';
+    return `${ distance }`;
+});
+
+const lineStyle = new Style({
     stroke: new Stroke({
         color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
         lineDash: [10, 10],
@@ -83,7 +97,7 @@ const formatLength = function(line: Geometry) {
 };
 
 const GREAT_CIRCLE_POINTS = 128;
-const LABEL_SEGMENT_OFFSET = 1;
+const HEADING_SAMPLE_STEP = 0.01;
 
 
 /**
@@ -99,6 +113,141 @@ function normalizeAngle(angleRad: number) {
 
     return angle;
 }
+
+function headingToString(value: number | null) {
+    if (value == null || Number.isNaN(value)) return '---';
+    return String(((Math.round(value) % 360) + 360) % 360).padStart(3, '0');
+}
+
+function sampleEndpointInfo(line: LineString, position: 'start' | 'end') {
+    const fraction = position === 'start' ? 0 : 1;
+    const neighborFraction = position === 'start'
+        ? Math.min(1, fraction + HEADING_SAMPLE_STEP)
+        : Math.max(0, fraction - HEADING_SAMPLE_STEP);
+
+    const anchor = line.getCoordinateAt(fraction);
+    const neighbor = line.getCoordinateAt(neighborFraction);
+
+    if (!anchor || !neighbor) return null;
+
+    const anchorProjected = projectForOrientation(anchor);
+    const neighborProjected = projectForOrientation(neighbor);
+
+    if (!anchorProjected || !neighborProjected) return null;
+
+    const dx = neighborProjected[0] - anchorProjected[0];
+    const dy = neighborProjected[1] - anchorProjected[1];
+
+    if (!dx && !dy) return null;
+
+    const rawAngle = Math.atan2(dy, dx);
+    const segmentLength = Math.hypot(dx, dy);
+
+    const directionX = dx / segmentLength;
+    const directionY = dy / segmentLength;
+    const offsetSign = position === 'start' ? -1 : 1;
+    const resolution = map.value?.getView().getResolution() ?? 1;
+    const offsetBase = Math.max(
+        segmentLength * HEADING_LABEL_FRACTION,
+        resolution * HEADING_LABEL_MIN_PIXELS,
+    );
+    const offsetMagnitude = offsetBase * offsetSign;
+    const labelProjected: Coordinate = [
+        anchorProjected[0] + directionX * offsetMagnitude * (position === 'start' ? 1 : -1),
+        anchorProjected[1] + directionY * offsetMagnitude * (position === 'start' ? 1 : -1),
+    ];
+    const labelCoordinate = unprojectFromOrientation(labelProjected) ?? anchor;
+
+    return {
+        coordinate: anchor,
+        labelCoordinate,
+        rotation: normalizeAngle(rawAngle),
+        direction: rawAngle,
+        heading: (Math.atan2(dx, dy) * (180 / Math.PI) + 360) % 360,
+    };
+}
+
+function calculateHeadingPair(line: LineString): HeadingPair {
+    const start = sampleEndpointInfo(line, 'start');
+    const end = sampleEndpointInfo(line, 'end');
+
+    return {
+        from: headingToString(start?.heading ?? null),
+        to: headingToString(end?.heading ?? null),
+    };
+}
+
+const HEADING_LABEL_FRACTION = 0.02;
+const HEADING_LABEL_MIN_PIXELS = 12;
+
+function makeHeadingStyles(type: 'start' | 'end', heading: string | null, info?: ReturnType<typeof sampleEndpointInfo> | null) {
+    if (!info || !heading || heading === '---') {
+        return [];
+    }
+
+    const fill = new Fill({
+        color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.9)`,
+    });
+
+    const baseText = {
+        textAlign: 'center' as CanvasTextAlign,
+        textBaseline: 'middle' as CanvasTextBaseline,
+        font: '10px Montserrat',
+        fill,
+        rotation: -info.rotation,
+    };
+
+    const headingValue = Number.parseInt(heading, 10);
+    const arrowText = '>';
+
+    const arrowStyle = new Style({
+        geometry: new Point(info.coordinate),
+        text: new Text({
+            ...baseText,
+            text: arrowText,
+            rotation: -info.direction,
+        }),
+    });
+
+    const labelCoordinate = info.labelCoordinate ?? info.coordinate;
+
+    const headingStyle = new Style({
+        geometry: new Point(labelCoordinate),
+        text: new Text({
+            ...baseText,
+            text: heading,
+        }),
+    });
+
+    return type === 'start' ? [headingStyle, arrowStyle] : [arrowStyle, headingStyle];
+}
+
+function buildHeadingStyles(line: LineString, headings?: HeadingPair | null) {
+    const resolvedHeadings = headings ?? calculateHeadingPair(line);
+    const styles: Style[] = [];
+
+    const startInfo = sampleEndpointInfo(line, 'start');
+    const endInfo = sampleEndpointInfo(line, 'end');
+
+    styles.push(...makeHeadingStyles('start', resolvedHeadings.from, startInfo));
+    styles.push(...makeHeadingStyles('end', resolvedHeadings.to, endInfo));
+
+    return styles;
+}
+
+const drawStyle = (feature: FeatureLike) => {
+    const geometry = feature.getGeometry();
+
+    if (!(geometry instanceof LineString)) {
+        return [lineStyle];
+    }
+
+    if (geometry.getCoordinates().length < 2) {
+        return [lineStyle];
+    }
+
+    return [lineStyle, ...buildHeadingStyles(geometry)];
+};
 
 
 /** 
@@ -118,6 +267,24 @@ function projectForOrientation(coord?: Coordinate | null): Coordinate | null {
 
     if (projection.getCode() !== 'EPSG:4326') {
         return transform(coord.slice() as Coordinate, 'EPSG:4326', projection);
+    }
+
+    return coord;
+}
+
+function unprojectFromOrientation(coord?: Coordinate | null): Coordinate | null {
+    if (!coord) {
+        return null;
+    }
+
+    const projection = map.value?.getView().getProjection();
+
+    if (!projection) {
+        return coord;
+    }
+
+    if (projection.getCode() !== 'EPSG:4326') {
+        return transform(coord.slice() as Coordinate, projection, 'EPSG:4326');
     }
 
     return coord;
@@ -183,6 +350,13 @@ function getMidpointOrientation(line: LineString) {
         coordinate: center,
         angleRad,
     };
+}
+
+function getBearingsForLine(line: LineString): HeadingPair {
+    const pair = calculateHeadingPair(line);
+    fromHeading.value = pair.from ?? '---';
+    toHeading.value = pair.to ?? '---';
+    return pair;
 }
 
 function toGeodesicLine(start?: Coordinate, end?: Coordinate) {
@@ -265,20 +439,17 @@ function updateItems() {
 
     for (const item of mapStore.distance.items) {
         if (!item.initAircraft && !item.targetAircraft) {
-            const exisingItem = features.find(x => x.getProperties().id === item.date);
-            if (exisingItem) {
-                newFeatures.push(exisingItem);
-                continue;
-            }
-
             const coords = item.coordinates;
             const geometry = coords.length >= 2 ? toGeodesicLine(coords[0], coords[coords.length - 1]) : null;
             if (!geometry) continue;
+
+            const headings = calculateHeadingPair(geometry);
 
             newFeatures.push(new Feature({
                 geometry,
                 id: item.date,
                 length: formatLength(geometry),
+                headings,
             }));
 
             continue;
@@ -298,10 +469,13 @@ function updateItems() {
         const geometry = coordinate1 && coordinate2 ? toGeodesicLine(coordinate1, coordinate2) : null;
         if (!geometry) continue;
 
+        const headings = calculateHeadingPair(geometry);
+
         newFeatures.push(new Feature({
             geometry,
             id: item.date,
             length: formatLength(geometry),
+            headings,
         }));
     }
 
@@ -334,7 +508,7 @@ watch(() => mapStore.distance.pixel, pixel => {
         maxPoints: 2,
         minPoints: 2,
         condition: handleClick,
-        style,
+        style: drawStyle,
         geometryFunction: createGeodesicGeometry,
     });
 
@@ -345,6 +519,8 @@ watch(() => mapStore.distance.pixel, pixel => {
 
         listener = sketch.value.getGeometry()!.on('change', function(evt) {
             const geom = evt.target as LineString;
+
+            getBearingsForLine(geom);
 
             currentResult.value = formatLength(geom);
             const { coordinate, angleRad } = getMidpointOrientation(geom);
@@ -381,7 +557,6 @@ watch(() => mapStore.distance.pixel, pixel => {
         sketch.value = null;
         tooltip.value = null;
         tooltipRotation.value = 0;
-
         if (listener) {
             unByKey(listener);
         }
@@ -415,9 +590,11 @@ watch(map, val => {
         source: distanceSource,
         style: function(val) {
             const geometry = val.getGeometry();
-            const labelStyle = new Style();
+            const stylesArr: Style[] = [lineStyle];
+
             if (geometry instanceof LineString) {
                 const { coordinate, angleRad } = getMidpointOrientation(geometry);
+                const labelStyle = new Style();
 
                 if (coordinate) {
                     labelStyle.setGeometry(new Point(coordinate));
@@ -435,12 +612,14 @@ watch(map, val => {
                     padding: [2, 0, 2, 2],
                     rotation: -angleRad,
                 }));
+
+                stylesArr.push(labelStyle);
+
+                const headings = val.getProperties().headings as HeadingPair | null;
+                stylesArr.push(...buildHeadingStyles(geometry, headings));
             }
 
-            return [
-                style,
-                labelStyle,
-            ];
+            return stylesArr;
         },
     });
     val.addLayer(layer);
