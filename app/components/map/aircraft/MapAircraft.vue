@@ -163,7 +163,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': store.mapSettings.aircraftScale ?? 1 }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': `${ aircraftScale }` }"
             :z-index="19"
         >
             <div
@@ -182,7 +182,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType, ShallowRef } from 'vue';
+import type { PropType, Ref, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
@@ -255,6 +255,7 @@ defineSlots<{ default: () => any }>();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
+const dynamicZoomEnabled = inject<Ref<boolean>>('aircraft-dynamic-zoom-enabled', ref(false));
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 const isInit = ref(false);
@@ -279,6 +280,44 @@ function degreesToRadians(degrees: number) {
     return degrees * (Math.PI / 180);
 }
 
+/**
+ * Calculates a scale multiplier for aircraft icons based on the current map zoom level.
+ * This allows icons to dynamically resize: smaller at low zoom (zoomed out) and larger at high zoom (zoomed in).
+ * The scaling is linear between defined zoom thresholds.
+ * @param zoom - The current map zoom level (e.g., from OpenLayers map view).
+ * @returns A multiplier (0.55 to 2.1) to apply to the base aircraft scale.
+ */
+function getZoomScaleMultiplier(zoom: number) {
+    if (typeof zoom !== 'number' || Number.isNaN(zoom)) return 1;
+
+    // Minimum zoom level where scaling starts (zoomed out, icons smaller)
+    const minZoom = 2;
+    // Baseline zoom level where scale is 1x (normal size)
+    const baselineZoom = 14.5;
+    // Maximum zoom level where scaling caps (zoomed in, icons larger)
+    const maxZoom = 24;
+    // Minimum scale multiplier (at minZoom, icons are 55% of base size)
+    const minMultiplier = 0.55;
+    // Baseline scale multiplier (at baselineZoom, icons are 100% of base size)
+    const baselineMultiplier = 1.2;
+    // Maximum scale multiplier (at maxZoom, icons are 210% of base size)
+    const maxMultiplier = 6;
+    // Clamp zoom to the defined range
+    const clampedZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
+
+    if (clampedZoom <= baselineZoom) {
+        // Interpolate between minZoom and baselineZoom
+        const ratio = (clampedZoom - minZoom) / (baselineZoom - minZoom);
+        const interpolated = (baselineMultiplier - minMultiplier) * ratio;
+        return minMultiplier + interpolated;
+    }
+
+    // Interpolate between baselineZoom and maxZoom
+    const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
+    const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
+    return baselineMultiplier + interpolated;
+}
+
 const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 
 const getCoordinates = computed(() => {
@@ -288,6 +327,13 @@ const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircr
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
 
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircraft.cid.toString()]);
+
+const aircraftScale = computed(() => {
+    const baseScale = store.mapSettings.aircraftScale ?? 1;
+    if (!dynamicZoomEnabled?.value) return baseScale;
+
+    return +(baseScale * getZoomScaleMultiplier(mapStore.zoom)).toFixed(3);
+});
 
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
@@ -336,6 +382,7 @@ const setStyle = async (iconFeature = feature, force = false) => {
         style,
         force,
         cid: props.aircraft.cid,
+        scale: aircraftScale.value,
     });
 
     iconFeature.changed();
@@ -442,7 +489,12 @@ async function setState(val?: string, oldVal?: string) {
 
 watch(changeState, setState);
 
-watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+watch(() => aircraftScale.value, (val, oldVal) => {
+    if (val === oldVal) return;
+    setStyle(undefined, true);
+});
+
+watch(() => store.mapSettings.heatmapLayer, () => {
     setStyle(undefined, true);
 });
 
