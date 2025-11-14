@@ -1,9 +1,8 @@
+/*
+  Warnings:
+
+  - Added the required column `active` to the `Notams` table without a default value. This is not possible if the table is not empty.
+
+*/
 -- AlterTable
-ALTER TABLE `Notams`
-    ADD COLUMN `active` BOOLEAN NULL;
-
-UPDATE `Notams`
-SET `active` = IFNULL(`active`, FALSE);
-
-ALTER TABLE `Notams`
-    MODIFY `active` BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE `Notams` ADD COLUMN `active` BOOLEAN NOT NULL;
