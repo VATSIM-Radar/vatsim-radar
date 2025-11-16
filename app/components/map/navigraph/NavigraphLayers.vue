@@ -460,7 +460,7 @@ watch(map, val => {
 
         const sidStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 0.5)`,
-            width: 6,
+            width: 5,
         });
 
         const enrouteStarStroke = new Stroke({
@@ -470,7 +470,7 @@ watch(map, val => {
 
         const starStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('success400').join(',') }, 0.5)`,
-            width: 6,
+            width: 5,
         });
 
         const enrouteApproachStroke = new Stroke({
@@ -480,7 +480,7 @@ watch(map, val => {
 
         const approachStroke = new Stroke({
             color: `rgba(${ getCurrentThemeRgbColor('warning600').join(',') }, 0.5)`,
-            width: 6,
+            width: 5,
         });
 
         const missApproachStroke = new Stroke({
@@ -489,6 +489,11 @@ watch(map, val => {
             lineJoin: 'round',
             lineDash: [6, 12],
         });
+
+        const strokesCache = {
+            self: {} as Record<string, Stroke>,
+            currentFlight: {} as Record<string, Stroke>,
+        };
 
         const westTrack = new Style({
             zIndex: 5,
@@ -689,12 +694,27 @@ watch(map, val => {
                     if (properties.kind === 'missedApproach') stroke = missApproachStroke;
 
                     if (properties.self) {
-                        stroke = new Stroke({
+                        strokesCache.self[properties.kind ?? 'default'] ||= new Stroke({
                             color: stroke.getColor(),
                             width: stroke.getWidth(),
                             lineDash: [4, 8],
                             lineJoin: 'round',
                         });
+
+                        stroke = strokesCache.self[properties.kind ?? 'default'];
+
+                        properties.kind = 'self';
+                    }
+
+                    if (properties.currentFlight) {
+                        strokesCache.currentFlight[properties.kind ?? 'default'] ||= new Stroke({
+                            color: stroke.getColor(),
+                            width: stroke.getWidth()! + 2,
+                            lineDash: stroke.getLineDash()!,
+                            lineJoin: stroke.getLineJoin(),
+                        });
+
+                        stroke = strokesCache.currentFlight[properties.kind ?? 'default'];
                     }
                 }
 

@@ -47,6 +47,7 @@ import type { PartialRecord } from '~/types';
 import type { UserList } from '~/utils/backend/handlers/lists';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
+import type { Coordinate } from 'ol/coordinate';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
@@ -131,6 +132,7 @@ const vatsim = {
     updateTimestamp: ref(''),
     updateTime: ref(0),
     localUpdateTime: ref(0),
+    selfCoordinate: ref<{ coordinate: Coordinate; heading: number; date: number } | null>(null),
     notam,
 };
 
@@ -170,6 +172,11 @@ export interface UseDataStore {
         updateTimestamp: Ref<string>;
         updateTime: Ref<number>;
         localUpdateTime: Ref<number>;
+        selfCoordinate: Ref<{
+            coordinate: Coordinate;
+            heading: number;
+            date: number;
+        } | null>;
     };
     simaware: ShallowRef<SimAwareAPIData | undefined>;
     vatglasses: ShallowRef<string>;

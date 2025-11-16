@@ -287,6 +287,7 @@ const config = useRuntimeConfig();
 const vatGlassesActive = isVatGlassesActive;
 
 const pilot = computed(() => props.overlay.data.pilot);
+const textCoords = computed(() => dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.longitude.toString() + dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.latitude);
 const airportInfo = computed(() => {
     return props.overlay.data.airport;
 });
@@ -565,22 +566,29 @@ watch(dataStore.vatsim.updateTimestamp, async () => {
     }
 });
 
-function handleMouseMove() {
+function focusOnAircraft() {
     if (!props.overlay.data.tracked) return;
+
+    let center = [dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.longitude ?? pilot.value.longitude, dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.latitude ?? pilot.value.latitude];
+
+    if (ownFlight.value?.cid === props.overlay.data.pilot.cid && dataStore.vatsim.selfCoordinate.value) center = dataStore.vatsim.selfCoordinate.value.coordinate;
+
     map.value?.getView().animate({
-        center: [pilot.value.longitude, pilot.value.latitude],
+        center,
         duration: 300,
     });
 }
 
-watch(() => [pilot.value.longitude, pilot.value.latitude].join(','), handleMouseMove);
+watch([textCoords, dataStore.vatsim.selfCoordinate], focusOnAircraft);
 watch(() => props.overlay.data.tracked, val => {
-    handleMouseMove();
+    focusOnAircraft();
     if (val) {
         mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach(x => {
             (x as StoreOverlayPilot).data.tracked = false;
         });
     }
+}, {
+    immediate: true,
 });
 
 function handlePointerDrag() {
@@ -603,12 +611,12 @@ onMounted(() => {
     });
 
     map.value?.on('pointerdrag', handlePointerDrag);
-    map.value?.on('moveend', handleMouseMove);
+    map.value?.on('moveend', focusOnAircraft);
 });
 
 onBeforeUnmount(() => {
     map.value?.un('pointerdrag', handlePointerDrag);
-    map.value?.un('moveend', handleMouseMove);
+    map.value?.un('moveend', focusOnAircraft);
 
     if (enrouteAircraftPath.value) {
         delete enrouteAircraftPath.value[props.overlay.key];

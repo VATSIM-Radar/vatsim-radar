@@ -70,6 +70,7 @@ function objectAssign(object: Record<string, any>, target: Record<string, any>) 
 let dataLatestFinished = 0;
 let dataInProgress = false;
 let dataProcessInProgress = false;
+let lastCheck = 0;
 
 let data: VatsimData | null = null;
 
@@ -679,18 +680,18 @@ defineCronJob('* * * * * *', async () => {
             }
         }
 
-        wss.clients.forEach(ws => {
-            ws.send('check');
-            // @ts-expect-error Non-standard field
-            ws.failCheck ??= ws.failCheck ?? 0;
-            // @ts-expect-error Non-standard field
-            ws.failCheck++;
+        if ((Date.now() - lastCheck) > 1000 * 15) {
+            lastCheck = Date.now();
+            wss.clients.forEach(ws => {
+                ws.send('check');
+                ws.failCheck ??= ws.failCheck ?? 0;
+                ws.failCheck++;
 
-            // @ts-expect-error Non-standard field
-            if (ws.failCheck >= 10) {
-                ws.terminate();
-            }
-        });
+                if (ws.failCheck >= 10) {
+                    ws.terminate();
+                }
+            });
+        }
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);

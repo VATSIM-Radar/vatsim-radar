@@ -406,14 +406,16 @@ async function checkAndAddOwnAircraft() {
         return;
     }
 
-    const shouldTrack = initialOwnCheck || (!route.query.center && !route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport && !route.query.bookmark);
+    const shouldTrack = initialOwnCheck || (!route.query.pilot && !route.query.controller && !route.query.atc && !route.query.airport && !route.query.bookmark);
 
-    if (isPilotOnGround(aircraft)) {
-        overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
-    }
-    else if (!initialSpawn) {
-        initialSpawn = true;
-        overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
+    if (!route.query.airport) {
+        if (isPilotOnGround(aircraft)) {
+            overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
+        }
+        else if (!initialSpawn) {
+            initialSpawn = true;
+            overlay = await mapStore.addPilotOverlay(aircraft.cid, shouldTrack);
+        }
     }
 
     initialSpawn = true;

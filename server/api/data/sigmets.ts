@@ -176,7 +176,7 @@ export default defineEventHandler(async event => {
         });
     }
 
-    const expireIn = requestDate?.getTime() ? (requestDate.getTime() - Date.now()) : 1000 * 60 * 5;
+    const expireIn = 1000 * 60 * 5;
     sigmets.validUntil = Date.now() + expireIn;
 
     await setRedisSync(key, JSON.stringify(sigmets), expireIn);

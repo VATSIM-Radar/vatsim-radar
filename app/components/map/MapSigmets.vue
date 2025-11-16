@@ -96,6 +96,16 @@ watch([isExpired, shouldSetCurrent], arr => {
     refresh();
 });
 
+watch(dataStore.vatsim.updateTimestamp, () => {
+    if (isExpired.value) {
+        setUserLocalSettings({
+            filters: { layers: { sigmets: { activeDate: 'current' } } },
+        });
+
+        refresh();
+    }
+});
+
 const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
     timeZone: 'UTC',
     hour: '2-digit',
