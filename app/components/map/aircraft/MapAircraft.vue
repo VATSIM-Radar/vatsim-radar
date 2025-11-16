@@ -284,14 +284,16 @@ const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 
 const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
-const getCoordinates = computed(() => {
-    if (isSelfFlight.value && dataStore.vatsim.selfCoordinate.value) {
-        if (Date.now() - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
-            dataStore.vatsim.selfCoordinate.value = null;
-            return [props.aircraft.longitude, props.aircraft.latitude];
-        }
-        return dataStore.vatsim.selfCoordinate.value.coordinate;
+
+function checkForExpiredCoordinate() {
+    if (dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.updateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
+        dataStore.vatsim.selfCoordinate.value = null;
+        return [props.aircraft.longitude, props.aircraft.latitude];
     }
+}
+
+const getCoordinates = computed(() => {
+    if (isSelfFlight.value && dataStore.vatsim.selfCoordinate.value) return dataStore.vatsim.selfCoordinate.value.coordinate;
     return [props.aircraft.longitude, props.aircraft.latitude];
 });
 
@@ -300,7 +302,7 @@ const getHeading = computed(() => {
     return props.aircraft.heading;
 });
 
-const textCoordinates = computed(() => JSON.stringify(getCoordinates.value));
+const textCoordinates = computed(() => JSON.stringify(getCoordinates.value) + props.aircraft.longitude + props.aircraft.latitude);
 
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircraft.cid.toString()]);
 
@@ -359,6 +361,10 @@ const setStyle = async (iconFeature = feature, force = false) => {
 let initActive = false;
 
 const init = async () => {
+    if (isSelfFlight.value) {
+        checkForExpiredCoordinate();
+    }
+
     if (!vectorSource.value || initActive) return;
 
     initActive = true;
