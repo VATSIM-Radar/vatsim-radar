@@ -10,18 +10,39 @@ Following rules only apply to specific regions / FIRs / ARTCC and allow for ATC 
 
 In such case, controller is duplicated as-is, excluding **callsign** and **frequency** - those are changed to target sector.
 
-## ZOA NCT
+## Hardcoded data
 
-- Data is hard coded - extending is allowed for NCT, SFO, OAK, SJC, SMF, RNO, MRY, MOD, BAY (APP, DEP or CTR)
-- Controller ATIS should include the following text for extending to work
-  - Area A: SJC_APP
-  - Area B: SFO_APP
-  - Area C: OAK_APP
-  - Area D: SFO_DEP
-  - Area E: SMF_APP
-  - Area R: RNO_APP
+Data is hard coded - extending is allowed for specified callsigns. Controller ATIS should include text of sections below for mapping to work.
 
-In such case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
+Example: Area A in ZOA/NCT ATIS will duplicate controller with `SJC_APP` callsign.
+
+In that case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
+
+### ZOA NCT
+
+Allowed for NCT, SFO, OAK, SJC, SMF, RNO, MRY, MOD, BAY (APP, DEP, CTR or TMU).
+
+- Area A: SJC_APP
+- Area B: SFO_APP
+- Area C: OAK_APP
+- Area D: SFO_DEP
+- Area E: SMF_APP
+- Area R: RNO_APP
+- FAT TRACON: FAT_F_APP
+- NFL RAPCON: NFL_APP
+- NLC RAPCON: NLC_APP
+- SUU RAPCON: SUU_S_APP
+
+## ZMA TRACONs
+
+Allows opening or closing of ZMA's TRACONs based off various callsign/polygon definitions
+
+- MIA TRACON: MIA_D_DEP
+- TPA TRACON: TPA_L_APP
+- PBI TRACON: PBI_B_DEP
+- RSW TRACON: RSW_W_APP
+- NQX RATCF: NQX_B_APP
+- HST RAPCON: HST_APP
 
 ## ZMA Ocean Area
 

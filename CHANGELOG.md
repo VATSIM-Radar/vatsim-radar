@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-beta.2]
+
+- Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
+
 # [1.2.4-beta.1]
 
 - Updated map tiles to 09 Nov 25 from 24 July 25
