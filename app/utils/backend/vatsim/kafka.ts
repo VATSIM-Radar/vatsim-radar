@@ -9,6 +9,7 @@ import type {
 import { KafkaClientType } from '~/types/data/vatsim-kafka';
 import { radarStorage } from '~/utils/backend/storage';
 import type { VatsimController, VatsimPilot, VatsimPilotFlightPlan } from '~/types/data/vatsim';
+import { sendWSEncodedData, wssPilots } from '~/utils/backend/vatsim/ws';
 
 export function kafkaAddClient(event: KafkaAddClient) {
     if (event.Type === KafkaClientType.Pilot) {
@@ -91,9 +92,13 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
     }
     else {
+        const positionChanged = (!pilot?.altitude || pilot.altitude < 25000) && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
+
         Object.assign(pilot, fields);
         pilot.date = Date.now();
         pilot.deleted = false;
+
+        if (positionChanged && pilot.callsign && wssPilots[pilot.callsign.toString()]) wssPilots[pilot.callsign.toString()].forEach(([, ws]) => sendWSEncodedData(`{"type": "update", "heading": ${ event.Heading }, "coordinates": [${ event.Longitude }, ${ event.Latitude }]}`, ws));
     }
 }
 

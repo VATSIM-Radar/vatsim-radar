@@ -348,6 +348,11 @@ export async function getFlightPlanWaypoints({
     let depRunway = selectedDeparture?.runways[0];
     let arrRunway = selectedArrival?.runways[0];
 
+    if (!arrRunway && selectedArrival?.approaches) {
+        const approaches = Object.values(selectedArrival?.approaches);
+        arrRunway = approaches[0]?.procedure?.procedure?.runway;
+    }
+
     const depSid = Object.values(selectedDeparture?.sids ?? {})[0];
     const arrStar = Object.values(selectedArrival?.stars ?? {})[0];
     const arrApproach = Object.values(selectedArrival?.approaches ?? {})[0];
@@ -478,7 +483,7 @@ export async function getFlightPlanWaypoints({
                     if (nextEntryTest && stars.some(x => x.identifier === nextEntryTest)) continue;
                 }
 
-                if (arrStar || star !== -1) {
+                if (arrStar || arrApproach || star !== -1) {
                     starInit = true;
 
                     const procedure = arrStar?.procedure ?? await getNavigraphAirportProcedure('stars', arrival, star);
@@ -508,7 +513,7 @@ export async function getFlightPlanWaypoints({
                         } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                     }
 
-                    deleteDoubleWaypoint(procedure?.waypoints[0].identifier ?? '');
+                    deleteDoubleWaypoint(procedure?.waypoints[0]?.identifier ?? '');
 
                     waypoints.push(...procedure?.waypoints.map(x => ({
                         title: procedure?.procedure.identifier,
@@ -530,7 +535,7 @@ export async function getFlightPlanWaypoints({
                         const fetchedProcedure = arrApproach
                             ? arrApproach.procedure
                             : procedure
-                                ? await getNavigraphAirportProcedure('approaches', arrival, arrivalProcedures.findIndex(x => x.name === (procedure as NavigraphNavDataApproachShort).name))
+                                ? await getNavigraphAirportProcedure('approaches', arrival, arrivalProcedures.findIndex(x => x.runway === (procedure as NavigraphNavDataApproachShort).runway && x.name === (procedure as NavigraphNavDataApproachShort).name))
                                 : null;
 
                         if (fetchedProcedure) {

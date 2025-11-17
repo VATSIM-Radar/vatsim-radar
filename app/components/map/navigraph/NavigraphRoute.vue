@@ -16,6 +16,7 @@ import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { ObjectWithGeometry } from 'ol/Feature';
+import { ownFlight } from '~/composables/pilots';
 
 defineSlots<{ default: () => any }>();
 
@@ -30,10 +31,19 @@ let skipUpdate = false;
 
 async function update() {
     const newFeatures: Record<string, Feature> = {};
+    let currentFlight = false;
 
     function addFeature(id: string, feature: () => ObjectWithGeometry) {
-        if (newFeatures[id]) return;
-        newFeatures[id] = new Feature(Object.assign(feature(), { id }));
+        if (newFeatures[id]) {
+            if (currentFlight) {
+                newFeatures[id].setProperties({
+                    ...newFeatures[id].getProperties(),
+                    currentFlight,
+                });
+            }
+            return;
+        }
+        newFeatures[id] = new Feature(Object.assign(feature(), { id, currentFlight }));
     }
 
     try {
@@ -41,6 +51,7 @@ async function update() {
 
         for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of pilots) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
+            currentFlight = cid === ownFlight.value?.cid;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
 
             const calculatedArrival = {
@@ -146,15 +157,17 @@ async function update() {
 
                 applyAircraftDistance(coordinate, newCoordinate);
 
-                addFeature(callsign, () => ({
-                    geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
-                    key: '',
-                    identifier: '',
-                    type: 'airways',
-                    dataType: 'navdata',
-                    self: true,
-                    kind,
-                }));
+                if (pilot.groundspeed >= 50) {
+                    addFeature(callsign, () => ({
+                        geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
+                        key: '',
+                        identifier: '',
+                        type: 'airways',
+                        dataType: 'navdata',
+                        self: true,
+                        kind,
+                    }));
+                }
 
                 firstWaypoint = true;
             };
@@ -324,7 +337,7 @@ async function update() {
                 }
             }
 
-            if (calculatedArrival.toGoDist > 0) {
+            if (calculatedArrival.toGoDist > 0 && dataStore.navigraphWaypoints.value[cid.toString()]) {
                 dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival = {
                     depDist: calculatedArrival.depDist,
                     toGoDist: calculatedArrival.toGoDist,

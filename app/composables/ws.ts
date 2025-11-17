@@ -7,6 +7,7 @@ async function decompressBlob(blob: Blob) {
 }
 
 let interval: NodeJS.Timeout | undefined;
+let wsRegistered: false | string = false;
 
 export function isTabVisible() {
     const item = localStorage.getItem('radar-visibility-check');
@@ -16,28 +17,11 @@ export function isTabVisible() {
 }
 
 export function initDataWebsocket(): () => void {
-    // const dataStore = useDataStore();
+    const dataStore = useDataStore();
     clearInterval(interval);
 
     const url = useIsDebug() ? `ws://${ location.hostname }:8880` : `wss://${ location.hostname }/ws`;
     const websocket = new WebSocket(url);
-    const localStorageItems = { ...localStorage };
-
-    localStorage.removeItem('turns');
-
-    for (const [key] of Object.entries(localStorageItems)) {
-        if (key.startsWith('turns-')) localStorage.removeItem(key);
-    }
-
-    interval = setInterval(() => {
-        const turns = localStorage.getItem('turns');
-        if (!turns) return;
-        const turnsData = new Set<number>(JSON.parse(turns) satisfies number[]);
-        turnsData.forEach(cid => websocket.send(JSON.stringify({
-            type: 'turns',
-            cid,
-        })));
-    }, 2000);
 
     websocket.addEventListener('open', () => {
         console.info('WebSocket was opened', new Date().toISOString());
@@ -45,6 +29,9 @@ export function initDataWebsocket(): () => void {
 
     websocket.addEventListener('close', () => {
         console.info('WebSocket was closed', new Date().toISOString());
+        wsRegistered = false;
+        dataStore.vatsim.selfCoordinate.value = null;
+
         clearInterval(interval);
     });
     websocket.addEventListener('error', console.error);
@@ -65,17 +52,32 @@ export function initDataWebsocket(): () => void {
         if (event.data === 'check') {
             websocket.send('alive');
             localStorage.setItem('radar-socket-date', Date.now().toString());
+
+            if (!wsRegistered && ownFlight.value) {
+                websocket.send(JSON.stringify({
+                    type: 'register',
+                    callsign: ownFlight.value.callsign,
+                }));
+                wsRegistered = ownFlight.value.callsign;
+            }
+
             return;
         }
 
         const data = await (await decompressBlob(event.data as Blob)).text();
 
+        if (!data.includes('"type"')) return;
+
         // const date = new Date().toISOString();
         const json = JSON.parse(data);
 
         if ('type' in json) {
-            if (json.type === 'turns') {
-                localStorage.setItem(`turns-${ json.cid }`, JSON.stringify(json.data));
+            if (json.type === 'update') {
+                dataStore.vatsim.selfCoordinate.value = {
+                    coordinate: json.coordinates,
+                    heading: json.heading,
+                    date: Date.now(),
+                };
             }
 
             return;
@@ -90,6 +92,8 @@ export function initDataWebsocket(): () => void {
     });
 
     return () => {
+        wsRegistered = false;
+        dataStore.vatsim.selfCoordinate.value = null;
         websocket.close();
         clearInterval(interval);
     };

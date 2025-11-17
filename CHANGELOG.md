@@ -1,5 +1,26 @@
 # Changelog
 
+# [1.2.4-beta.2]
+
+- Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
+
+# [1.2.4-beta.1]
+
+- Updated map tiles to 09 Nov 25 from 24 July 25
+- Other dependencies update to improve stability
+- Your predicted route is now thicker than other
+- Improved memory consumption of next waypoint dashed line render
+- Airport dashboard will no longer open aircraft card if your flight is active, making it more usable for regular flights
+- Predicted route line will no longer be added before you even departed to improve map readability
+- Fixed an issue when your aircraft was not tracked when it was supposed to on map first open
+- Reduced traffic consumption on "online" status check
+- People will now be marked as "online" in VATSIM Radar for ~2 minutes after they've left the tab, instead of 10 seconds
+- Implemented very fast updating of your own flight (below FL250)
+- Fixed some route parsing crashes
+- Fixed issue when STAR was selected without an approach, it selected random runway instead of needed one
+- You can now select approach without a star in Proc tab
+- Fixed SIGMETs not updating (once more lol)
+
 # [1.2.3-4-final]
 
 - You can now select airport dashboard page layout on small screens, tablets and mobile devices

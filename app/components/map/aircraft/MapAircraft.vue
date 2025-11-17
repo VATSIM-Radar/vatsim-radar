@@ -138,7 +138,7 @@
                             </template>
                         </common-info-block>
                         <common-info-block
-                            v-if="typeof pilot.heading === 'number' && !isShortInfo"
+                            v-if="typeof getHeading === 'number' && !isShortInfo"
                             text-align="center"
                         >
                             <template
@@ -147,7 +147,7 @@
                                 Heading
                             </template>
                             <template #bottom>
-                                {{ pilot.heading }}°
+                                {{ getHeading }}°
                             </template>
                         </common-info-block>
                     </div>
@@ -281,11 +281,28 @@ function degreesToRadians(degrees: number) {
 
 const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 
-const getCoordinates = computed(() => {
-    return [props.aircraft.longitude, props.aircraft.latitude];
-});
+
 const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
+
+function checkForExpiredCoordinate() {
+    if (dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.updateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
+        dataStore.vatsim.selfCoordinate.value = null;
+        return [props.aircraft.longitude, props.aircraft.latitude];
+    }
+}
+
+const getCoordinates = computed(() => {
+    if (isSelfFlight.value && dataStore.vatsim.selfCoordinate.value) return dataStore.vatsim.selfCoordinate.value.coordinate;
+    return [props.aircraft.longitude, props.aircraft.latitude];
+});
+
+const getHeading = computed(() => {
+    if (isSelfFlight.value && dataStore.vatsim.selfCoordinate.value) return dataStore.vatsim.selfCoordinate.value.heading;
+    return props.aircraft.heading;
+});
+
+const textCoordinates = computed(() => JSON.stringify(getCoordinates.value) + props.aircraft.longitude + props.aircraft.latitude);
 
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircraft.cid.toString()]);
 
@@ -331,7 +348,7 @@ const setStyle = async (iconFeature = feature, force = false) => {
     await loadAircraftIcon({
         feature: iconFeature,
         icon: icon.value.icon,
-        rotation: degreesToRadians(props.aircraft.heading ?? 0),
+        rotation: degreesToRadians(getHeading.value ?? 0),
         status: getStatus.value,
         style,
         force,
@@ -344,6 +361,10 @@ const setStyle = async (iconFeature = feature, force = false) => {
 let initActive = false;
 
 const init = async () => {
+    if (isSelfFlight.value) {
+        checkForExpiredCoordinate();
+    }
+
     if (!vectorSource.value || initActive) return;
 
     initActive = true;
@@ -357,7 +378,7 @@ const init = async () => {
             geometry: new Point(getCoordinates.value),
             status: getStatus.value,
             icon: icon.value.icon,
-            rotation: degreesToRadians(props.aircraft.heading ?? 0),
+            rotation: degreesToRadians(getHeading.value ?? 0),
         });
 
         const oldCoords = (feature?.getGeometry() as Point)?.getCoordinates();
@@ -418,6 +439,7 @@ const canShowLines = ref(false);
 const changeState = computed(() => {
     const values = [
         isInit.value,
+        JSON.stringify(getCoordinates.value),
         !!feature && !!(isPropsHovered.value || airportOverlayTracks.value || activeCurrentOverlay.value?.data.pilot.status),
         dataStore.vatsim.updateTimestamp.value,
     ];
@@ -457,7 +479,7 @@ const distance = computed(() => {
     if (!arrivalAirport) return null;
     return calculateDistanceInNauticalMiles(
         [arrivalAirport.lon, arrivalAirport.lat],
-        [props.aircraft.longitude, props.aircraft.latitude],
+        getCoordinates.value,
     );
 });
 
@@ -594,7 +616,7 @@ async function toggleAirportLines(value = canShowLines.value) {
         setPilotRoute(canShowRoute.value);
 
         if (!canShowRoute.value && arrivalAirport && props.isVisible && (!airportOverlayTracks.value || ((distance.value ?? 100) > 40 && pilot.value?.groundspeed && pilot.value.groundspeed > 50) || activeCurrentOverlay.value || isPropsHovered.value)) {
-            const start = point([props.aircraft?.longitude, props.aircraft?.latitude]);
+            const start = point(getCoordinates.value);
             const end = point([arrivalAirport.lon, arrivalAirport.lat]);
 
             const geometry = turfGeometryToOl(greatCircle(start, end));
@@ -712,7 +734,7 @@ async function toggleAirportLines(value = canShowLines.value) {
                 if (i === 0) {
                     const coordinates = [
                         collection.features[0].geometry.coordinates.slice(),
-                        [props.aircraft.longitude, props.aircraft.latitude],
+                        getCoordinates.value,
                     ];
                     const points = coordinates.map(x => point(x));
                     const geometry = turfGeometryToOl(greatCircle(points[0], points[1], { npoints: 8 }));
@@ -843,7 +865,7 @@ async function toggleAirportLines(value = canShowLines.value) {
 
             if (departureAirport && pilot.value?.depDist && pilot.value?.depDist > 20 && props.isVisible) {
                 const start = point([departureAirport.lon, departureAirport.lat]);
-                const end = point([props.aircraft?.longitude, props.aircraft?.latitude]);
+                const end = point(getCoordinates.value);
 
                 const geometry = turfGeometryToOl(greatCircle(start, end));
 
@@ -945,7 +967,7 @@ watch(isShowLabel, val => {
     }
 });
 
-const watcher = watch(dataStore.vatsim.updateTimestamp, init);
+const watcher = watch([dataStore.vatsim.updateTimestamp, textCoordinates], init);
 
 onBeforeUnmount(() => {
     watcher();

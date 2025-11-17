@@ -19,6 +19,7 @@ import { getLocalText, isDebug } from '~/utils/backend/debug';
 import { prisma } from '~/utils/backend/prisma';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
+import { duplicatingSettings } from '../vatsim/atc-duplicating';
 
 initWebsocket();
 initInfluxDB();
@@ -70,6 +71,7 @@ function objectAssign(object: Record<string, any>, target: Record<string, any>) 
 let dataLatestFinished = 0;
 let dataInProgress = false;
 let dataProcessInProgress = false;
+let lastCheck = 0;
 
 let data: VatsimData | null = null;
 
@@ -159,6 +161,13 @@ defineCronJob('* * * * * *', async () => {
     dataInProgress = false;
     dataLatestFinished = Date.now();
 });
+
+const testedCallsigns = new Set<string>();
+
+setInterval(() => {
+    // Memory leak prevention
+    testedCallsigns.clear();
+}, 1000 * 60 * 60);
 
 defineCronJob('* * * * * *', async () => {
     const vatspy = radarStorage.vatspy;
@@ -392,28 +401,26 @@ defineCronJob('* * * * * *', async () => {
                 }
             }
 
-            // ZOA NCT Area mapping logic
-            const nctCallsignPattern = /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY)(_[A-Z]\d?)?_(APP|DEP|CTR)$/;
-            const areaMapping = {
-                'Area A': 'SJC_APP',
-                'Area B': 'SFO_APP',
-                'Area C': 'OAK_APP',
-                'Area D': 'SFO_DEP',
-                'Area E': 'SMF_APP',
-                'Area R': 'RNO_APP',
-            };
+            if (!testedCallsigns.has(controller.callsign)) {
+                let match = false;
 
-            if (nctCallsignPattern.test(controller.callsign) && controller.text_atis?.length) {
-                const atisText = controller.text_atis.join(' ').toLowerCase();
+                for (const setting of duplicatingSettings) {
+                    if (controller.text_atis?.length && setting.regex.test(controller.callsign)) {
+                        match = true;
+                        const atisText = controller.text_atis.join(' ').toLowerCase();
 
-                for (const [areaText, targetCallsign] of Object.entries(areaMapping)) {
-                    if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
-                        radarStorage.vatsim.data.controllers.push({
-                            ...controller,
-                            callsign: targetCallsign,
-                        });
+                        for (const [areaText, targetCallsign] of Object.entries(setting.mapping)) {
+                            if (atisText.includes(areaText.toLowerCase()) && controller.callsign !== targetCallsign) {
+                                radarStorage.vatsim.data.controllers.push({
+                                    ...controller,
+                                    callsign: targetCallsign,
+                                });
+                            }
+                        }
                     }
                 }
+
+                if (controller.text_atis?.length && !match) testedCallsigns.add(controller.callsign);
             }
 
             const australiaSectors = allowedAustraliaSectors.filter(x => {
@@ -679,18 +686,18 @@ defineCronJob('* * * * * *', async () => {
             }
         }
 
-        wss.clients.forEach(ws => {
-            ws.send('check');
-            // @ts-expect-error Non-standard field
-            ws.failCheck ??= ws.failCheck ?? 0;
-            // @ts-expect-error Non-standard field
-            ws.failCheck++;
+        if ((Date.now() - lastCheck) > 1000 * 15) {
+            lastCheck = Date.now();
+            wss.clients.forEach(ws => {
+                ws.send('check');
+                ws.failCheck ??= ws.failCheck ?? 0;
+                ws.failCheck++;
 
-            // @ts-expect-error Non-standard field
-            if (ws.failCheck >= 10) {
-                ws.terminate();
-            }
-        });
+                if (ws.failCheck >= 10) {
+                    ws.terminate();
+                }
+            });
+        }
 
         await new Promise<void>((resolve, reject) => {
             const timeout = setTimeout(() => reject(new Error('Redis publish Failed by timeout')), 5000);
