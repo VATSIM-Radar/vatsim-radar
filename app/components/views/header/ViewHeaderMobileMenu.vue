@@ -76,8 +76,7 @@
                     </template>
                 </common-button>
                 <common-button
-                    href="https://docs.vatsim-radar.com"
-                    target="_blank"
+                    to="/about"
                     type="secondary"
                 >
                     <template #icon>
