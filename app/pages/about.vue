@@ -62,179 +62,168 @@
             <div class="about_list_title">
                 The Team
             </div>
-            <div class="about__list_container">
-                <div class="about__teams">
-                    <div class="about__teams_section">
-                        <div class="about__teams_section_label">Main Team</div>
-                        <div class="about__teams_grid">
-                            <div class="about__teams_member">
-                                <img
-                                    alt="Danila Rodichkin"
-                                    class="about__teams_member_avatar"
-                                    src="https://avatars.githubusercontent.com/u/10450717?v=4"
-                                >
-                                <div class="about__teams_member_name">Danila Rodichkin</div>
-                                <div class="about__teams_member_role">Founder</div>
-                                <a
-                                    class="about__teams_member_link"
-                                    href="https://github.com/daniluk4000"
-                                    rel="noopener"
-                                    target="_blank"
-                                >
-                                    <svg
-                                        fill="currentColor"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        width="16"
-                                    >
-                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                            <div class="about__teams_member">
-                                <img
-                                    alt="Xenia"
-                                    class="about__teams_member_avatar"
-                                    src="/people/xenia.jpg"
-                                >
-                                <div class="about__teams_member_name">Xenia</div>
-                                <div class="about__teams_member_role">Lead Designer</div>
-                                <a
-                                    class="about__teams_member_link"
-                                    href="https://www.behance.net/renelvah"
-                                    rel="noopener"
-                                    target="_blank"
-                                >
-                                    <svg
-                                        fill="currentColor"
-                                        height="16"
-                                        viewBox="0 0 24 24"
-                                        width="16"
-                                    >
-                                        <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="about__teams_section">
-                        <div class="about__teams_section_label">Major Contributors</div>
-                        <div class="about__teams_list">
-                            <div class="about__teams_contributor">
-                                <img
-                                    alt="Sergey Lukashenko"
-                                    class="about__teams_contributor_avatar"
-                                    src="/people/serega.jpg"
-                                >
-                                <div class="about__teams_contributor_info">
-                                    <div class="about__teams_contributor_name">Sergey Lukashenko</div>
-                                    <div class="about__teams_contributor_role">DevOps</div>
-                                </div>
-                            </div>
-                            <div class="about__teams_contributor">
-                                <div class="about__teams_contributor_avatar about__teams_contributor_avatar--placeholder">
-                                    IB
-                                </div>
-                                <div class="about__teams_contributor_info">
-                                    <div class="about__teams_contributor_name">Ivan Buev</div>
-                                    <div class="about__teams_contributor_role">Developer</div>
-                                </div>
-                            </div>
-                            <div class="about__teams_contributor">
-                                <img
-                                    alt="Mats Edvin Aarø"
-                                    class="about__teams_contributor_avatar"
-                                    src="https://avatars.githubusercontent.com/u/79384776?v=4"
-                                >
-                                <div class="about__teams_contributor_info">
-                                    <div class="about__teams_contributor_name">Mats Edvin Aarø</div>
-                                    <div class="about__teams_contributor_role">VATSIM Asst. VP Supervisors</div>
-                                </div>
-                                <a
-                                    class="about__teams_contributor_link"
-                                    href="https://github.com/DotWallop"
-                                    rel="noopener"
-                                    target="_blank"
-                                >
-                                    <svg
-                                        fill="currentColor"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        width="14"
-                                    >
-                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                            <div class="about__teams_contributor">
-                                <div class="about__teams_contributor_avatar about__teams_contributor_avatar--placeholder">
-                                    F
-                                </div>
-                                <div class="about__teams_contributor_info">
-                                    <div class="about__teams_contributor_name">Felix</div>
-                                    <div class="about__teams_contributor_role">Developer</div>
-                                </div>
-                                <a
-                                    class="about__teams_contributor_link"
-                                    href="https://github.com/FX5F"
-                                    rel="noopener"
-                                    target="_blank"
-                                >
-                                    <svg
-                                        fill="currentColor"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        width="14"
-                                    >
-                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                            <div class="about__teams_contributor">
-                                <img
-                                    alt="Noah Elijah Till"
-                                    class="about__teams_contributor_avatar"
-                                    src="/people/noah.jpg"
-                                >
-                                <div class="about__teams_contributor_info">
-                                    <div class="about__teams_contributor_name">Noah Elijah Till</div>
-                                    <div class="about__teams_contributor_role">Developer</div>
-                                </div>
-                                <a
-                                    class="about__teams_contributor_link"
-                                    href="https://github.com/MindCollaps"
-                                    rel="noopener"
-                                    target="_blank"
-                                >
-                                    <svg
-                                        fill="currentColor"
-                                        height="14"
-                                        viewBox="0 0 24 24"
-                                        width="14"
-                                    >
-                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="about__list about__list--membership">
-                    <div class="about__list_item">
-                        <div class="about__list_item_title">
-                            Support Us
-                        </div>
-                        <div class="about__list_item_text">
-                            VATSIM Radar is funded by generous members of the community. Help us keep the service running!
-                        </div>
-                        <common-button
-                            class="about__support_button"
-                            href="/support-us"
+            <div class="about__teams_section_label">Core Team</div>
+            <div class="about__teams_cards">
+                <div class="about__teams_card">
+                    <img
+                        alt="Danila Rodichkin"
+                        class="about__teams_card_avatar"
+                        src="https://avatars.githubusercontent.com/u/10450717?v=4"
+                    >
+                    <div class="about__teams_card_name">Danila Rodichkin</div>
+                    <div class="about__teams_card_role">Founder</div>
+                    <a
+                        class="about__teams_card_link"
+                        href="https://github.com/daniluk4000"
+                        rel="noopener"
+                        target="_blank"
+                    >
+                        <svg
+                            fill="currentColor"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            width="14"
                         >
-                            View Patreon Page
-                        </common-button>
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="about__teams_card">
+                    <img
+                        alt="Xenia"
+                        class="about__teams_card_avatar"
+                        src="/people/xenia.jpg"
+                    >
+                    <div class="about__teams_card_name">Xenia</div>
+                    <div class="about__teams_card_role">Lead Designer</div>
+                    <a
+                        class="about__teams_card_link"
+                        href="https://www.behance.net/renelvah"
+                        rel="noopener"
+                        target="_blank"
+                    >
+                        <svg
+                            fill="currentColor"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            width="14"
+                        >
+                            <path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="about__teams_section_label">Contributors</div>
+            <div class="about__teams_cards">
+                <div class="about__teams_card">
+                    <img
+                        alt="Sergey Lukashenko"
+                        class="about__teams_card_avatar"
+                        src="/people/serega.jpg"
+                    >
+                    <div class="about__teams_card_name">Sergey Lukashenko</div>
+                    <div class="about__teams_card_role">DevOps</div>
+                </div>
+
+                <div class="about__teams_card">
+                    <div class="about__teams_card_avatar about__teams_card_avatar--placeholder">
+                        IB
                     </div>
+                    <div class="about__teams_card_name">Ivan Buev</div>
+                    <div class="about__teams_card_role">Developer</div>
+                </div>
+
+                <div class="about__teams_card">
+                    <img
+                        alt="Mats Edvin Aarø"
+                        class="about__teams_card_avatar"
+                        src="https://avatars.githubusercontent.com/u/79384776?v=4"
+                    >
+                    <div class="about__teams_card_name">Mats Edvin Aarø</div>
+                    <div class="about__teams_card_role">VATSIM Asst. VP Supervisors</div>
+                    <a
+                        class="about__teams_card_link"
+                        href="https://github.com/DotWallop"
+                        rel="noopener"
+                        target="_blank"
+                    >
+                        <svg
+                            fill="currentColor"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            width="14"
+                        >
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="about__teams_card">
+                    <div class="about__teams_card_avatar about__teams_card_avatar--placeholder">
+                        F
+                    </div>
+                    <div class="about__teams_card_name">Felix</div>
+                    <div class="about__teams_card_role">Developer</div>
+                    <a
+                        class="about__teams_card_link"
+                        href="https://github.com/FX5F"
+                        rel="noopener"
+                        target="_blank"
+                    >
+                        <svg
+                            fill="currentColor"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            width="14"
+                        >
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="about__teams_card">
+                    <img
+                        alt="Noah Elijah Till"
+                        class="about__teams_card_avatar"
+                        src="/people/noah.jpg"
+                    >
+                    <div class="about__teams_card_name">Noah Elijah Till</div>
+                    <div class="about__teams_card_role">Developer</div>
+                    <a
+                        class="about__teams_card_link"
+                        href="https://github.com/MindCollaps"
+                        rel="noopener"
+                        target="_blank"
+                    >
+                        <svg
+                            fill="currentColor"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            width="14"
+                        >
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <div class="about__support">
+                <div class="about__support_content">
+                    <div class="about__support_title">
+                        Support Us
+                    </div>
+                    <div class="about__support_text">
+                        VATSIM Radar is funded by generous members of the community. Help us keep the service running!
+                    </div>
+                    <common-button
+                        class="about__support_button"
+                        href="/support-us"
+                    >
+                        View Patreon Page
+                    </common-button>
                 </div>
             </div>
         </div>
@@ -349,11 +338,11 @@ const store = useStore();
     }
 
     &_list {
-        margin-top: 32px;
+        margin-top: 24px;
         padding: 48px;
 
         @include mobile {
-            margin-top: 16px;
+            margin-top: 12px;
             padding: 16px;
         }
 
@@ -368,183 +357,6 @@ const store = useStore();
                 font-size: 24px;
             }
         }
-    }
-
-    &__list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        @include mobileOnly {
-            gap: 8px;
-        }
-
-        &_container {
-            display: grid;
-            grid-template-columns: 70% 28%;
-            gap: 16px;
-            align-items: flex-start;
-
-            @media (max-width: 1100px) {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        &--membership {
-            @include fromTablet {
-                position: sticky;
-                top: 70px; // Header height (56px + 16px padding) + spacing (8px)
-                align-self: flex-start;
-            }
-        }
-
-        &_item {
-            padding: 16px;
-            border-radius: 8px;
-            background: $darkgray900;
-
-            @include mobileOnly {
-                padding: 12px;
-            }
-
-            &--team {
-                padding: 24px;
-
-                @include mobileOnly {
-                    padding: 16px;
-                }
-            }
-
-            &_title {
-                margin-bottom: 16px;
-                font-size: 17px;
-                font-weight: 600;
-
-                @include mobileOnly {
-                    margin-bottom: 12px;
-                    font-size: 15px;
-                }
-            }
-
-            &_text {
-                margin-bottom: 16px;
-                font-size: 14px;
-                line-height: 1.6;
-                color: $lightgray150;
-            }
-
-            &_list {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-
-                &_tech {
-                    padding: 6px 12px;
-                    border-radius: 4px;
-
-                    font-size: 13px;
-                    font-weight: 500;
-
-                    background: $darkgray850;
-                }
-            }
-        }
-    }
-
-    &__team {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        &_member {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-
-            padding: 12px;
-            border-radius: 6px;
-
-            background: $darkgray850;
-
-            transition: background 0.2s;
-
-            &:hover {
-                background: $darkgray800;
-            }
-
-            &_avatar {
-                flex-shrink: 0;
-
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-
-                object-fit: cover;
-
-                &--placeholder {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    font-size: 14px;
-                    font-weight: 700;
-                    color: $primary500;
-
-                    background: $darkgray800;
-                }
-            }
-
-            &_info {
-                flex: 1;
-                min-width: 0;
-            }
-
-            &_name {
-                overflow: hidden;
-
-                font-size: 14px;
-                font-weight: 600;
-                color: $lightgray125;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            &_role {
-                overflow: hidden;
-
-                font-size: 12px;
-                color: $lightgray150;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            &_link {
-                display: flex;
-                flex-shrink: 0;
-                align-items: center;
-                justify-content: center;
-
-                width: 28px;
-                height: 28px;
-                border-radius: 4px;
-
-                color: $lightgray150;
-                text-decoration: none;
-
-                background: $darkgray900;
-
-                transition: all 0.2s;
-
-                &:hover {
-                    color: $lightgray125;
-                    background: $primary500;
-                }
-            }
-        }
-    }
-
-    &__support_button {
-        margin-top: 12px;
     }
 
     &__stack {
@@ -597,63 +409,56 @@ const store = useStore();
     }
 
     &__teams {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
+        &_section_label {
+            margin-bottom: 16px;
 
-        &_section {
-            padding: 24px;
-            border-radius: 8px;
-            background: $darkgray900;
+            font-size: 13px;
+            font-weight: 600;
+            color: $lightgray150;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
 
             @include mobile {
-                padding: 16px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-
-            &_label {
-                margin-bottom: 16px;
-
-                font-size: 13px;
-                font-weight: 600;
-                color: $lightgray150;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-
-                @include mobile {
-                    align-self: flex-start;
-                }
+                margin-bottom: 12px;
             }
         }
 
-        &_grid {
+        &_cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 16px;
+            margin-bottom: 32px;
 
             @include mobile {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
                 gap: 12px;
-                justify-items: center;
+                margin-bottom: 24px;
             }
         }
 
-        &_member {
+        &_card {
             display: flex;
             flex-direction: column;
             gap: 12px;
             align-items: center;
 
+            min-height: 200px;
             padding: 24px 16px;
+            border: 2px solid transparent;
+            border-radius: 8px;
 
-            text-align: center;
+            background: $darkgray900;
+
+            transition: all 0.2s ease;
 
             @include mobile {
-                padding: 16px 12px;
-                width: 100%;
-                max-width: 250px;
+                gap: 10px;
+                min-height: 180px;
+                padding: 20px 12px;
+            }
+
+            &:hover {
+                border-color: $primary500;
             }
 
             &_avatar {
@@ -661,6 +466,11 @@ const store = useStore();
                 height: 64px;
                 border-radius: 50%;
                 object-fit: cover;
+
+                @include mobile {
+                    width: 56px;
+                    height: 56px;
+                }
 
                 &--placeholder {
                     display: flex;
@@ -672,19 +482,36 @@ const store = useStore();
                     color: $primary500;
 
                     background: $darkgray800;
+
+                    @include mobile {
+                        font-size: 18px;
+                    }
                 }
             }
 
             &_name {
                 font-size: 15px;
                 font-weight: 600;
+                line-height: 1.3;
                 color: $lightgray125;
+                text-align: center;
+
+                @include mobile {
+                    font-size: 14px;
+                }
             }
 
             &_role {
-                margin-top: -8px;
+                margin-top: -6px;
+
                 font-size: 12px;
+                line-height: 1.3;
                 color: $lightgray150;
+                text-align: center;
+
+                @include mobile {
+                    font-size: 11px;
+                }
             }
 
             &_link {
@@ -700,9 +527,14 @@ const store = useStore();
                 color: $lightgray150;
                 text-decoration: none;
 
-                background: $darkgray900;
+                background: $darkgray850;
 
                 transition: all 0.2s;
+
+                @include mobile {
+                    width: 28px;
+                    height: 28px;
+                }
 
                 &:hover {
                     color: $lightgray125;
@@ -710,96 +542,45 @@ const store = useStore();
                 }
             }
         }
+    }
 
-        &_list {
+    &__support {
+        padding: 24px;
+        border-radius: 8px;
+        background: $darkgray900;
+
+        @include mobile {
+            padding: 16px;
+        }
+
+        &_content {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
+        }
+
+        &_title {
+            font-size: 17px;
+            font-weight: 600;
+            color: $lightgray125;
 
             @include mobile {
-                gap: 6px;
+                font-size: 15px;
             }
         }
 
-        &_contributor {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            padding: 12px;
+        &_text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: $lightgray150;
 
             @include mobile {
-                padding: 8px;
-                gap: 8px;
+                font-size: 13px;
             }
+        }
 
-            &_avatar {
-                flex-shrink: 0;
-
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-
-                object-fit: cover;
-
-                &--placeholder {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-
-                    font-size: 12px;
-                    font-weight: 700;
-                    color: $primary500;
-
-                    background: $darkgray800;
-                }
-            }
-
-            &_info {
-                flex: 1;
-                min-width: 0;
-            }
-
-            &_name {
-                overflow: hidden;
-
-                font-size: 14px;
-                font-weight: 600;
-                color: $lightgray125;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            &_role {
-                overflow: hidden;
-
-                font-size: 11px;
-                color: $lightgray150;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            &_link {
-                display: flex;
-                flex-shrink: 0;
-                align-items: center;
-                justify-content: center;
-
-                width: 24px;
-                height: 24px;
-                border-radius: 4px;
-
-                color: $lightgray150;
-                text-decoration: none;
-
-                background: $darkgray900;
-
-                transition: all 0.2s;
-
-                &:hover {
-                    color: $lightgray125;
-                    background: $primary500;
-                }
-            }
+        &_button {
+            align-self: flex-start;
         }
     }
 }
