@@ -608,6 +608,9 @@ const store = useStore();
 
             @include mobile {
                 padding: 16px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
             }
 
             &_label {
@@ -618,6 +621,10 @@ const store = useStore();
                 color: $lightgray150;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
+
+                @include mobile {
+                    align-self: flex-start;
+                }
             }
         }
 
@@ -628,6 +635,8 @@ const store = useStore();
 
             @include mobile {
                 grid-template-columns: 1fr;
+                gap: 12px;
+                justify-items: center;
             }
         }
 
@@ -640,6 +649,12 @@ const store = useStore();
             padding: 24px 16px;
 
             text-align: center;
+
+            @include mobile {
+                padding: 16px 12px;
+                width: 100%;
+                max-width: 250px;
+            }
 
             &_avatar {
                 width: 64px;
@@ -700,6 +715,10 @@ const store = useStore();
             display: flex;
             flex-direction: column;
             gap: 8px;
+
+            @include mobile {
+                gap: 6px;
+            }
         }
 
         &_contributor {
@@ -707,6 +726,11 @@ const store = useStore();
             gap: 12px;
             align-items: center;
             padding: 12px;
+
+            @include mobile {
+                padding: 8px;
+                gap: 8px;
+            }
 
             &_avatar {
                 flex-shrink: 0;
