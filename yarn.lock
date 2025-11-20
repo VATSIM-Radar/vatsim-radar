@@ -4182,18 +4182,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^6.19.0":
-  version: 6.19.0
-  resolution: "@prisma/client@npm:6.19.0"
+"@prisma/client-runtime-utils@npm:7.0.0":
+  version: 7.0.0
+  resolution: "@prisma/client-runtime-utils@npm:7.0.0"
+  checksum: 10c0/596eb1f41cb6d3adcbff9b4a8451c7919ae72e30f633ecf3d11dd1b687a535a59b0729b3ac91ca8d7b244c97fc1e4cbf7087f67a6c5197d3ce135a0cddc96e05
+  languageName: node
+  linkType: hard
+
+"@prisma/client@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "@prisma/client@npm:7.0.0"
+  dependencies:
+    "@prisma/client-runtime-utils": "npm:7.0.0"
   peerDependencies:
     prisma: "*"
-    typescript: ">=5.1.0"
+    typescript: ">=5.4.0"
   peerDependenciesMeta:
     prisma:
       optional: true
     typescript:
       optional: true
-  checksum: 10c0/c3173fae0195adc952ab47d30120b5ae397b71997b9b60c2ba78fb10a99d10bda2996869c311164a08311ae0bbde41b86806898e49648df3fe713fbe8cb4659e
+  checksum: 10c0/700f2596bbcbcddbfe47facd198458774a62fa65a591f12e188019b2790747a0b2b1962f526a8a5e2fa2c23a24af228017fe3fb54875576b4d63f15c5e414823
   languageName: node
   linkType: hard
 
@@ -17057,7 +17066,7 @@ __metadata:
     "@nuxt/eslint": "npm:^1.10.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.3"
-    "@prisma/client": "npm:^6.19.0"
+    "@prisma/client": "npm:^7.0.0"
     "@protomaps/basemaps": "npm:^5.7.0"
     "@sentry/nuxt": "npm:^10.25.0"
     "@stylistic/eslint-plugin": "npm:^5.5.0"
