@@ -246,7 +246,7 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
-export async function loadAircraftIcon({ feature, icon, status, style, rotation, force, cid }: {
+export async function loadAircraftIcon({ feature, icon, status, style, rotation, force, cid, scale }: {
     feature: Feature;
     icon: AircraftIcon;
     rotation: number;
@@ -254,10 +254,12 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     style: Style;
     force?: boolean;
     cid: number;
+    scale?: number;
 }) {
     if (icon === 'ball') rotation = 0;
 
     const store = useStore();
+    const resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
 
     const image = style.getImage();
 
@@ -281,7 +283,8 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         featureProperties.icon === icon &&
         featureProperties.hadList === !!list &&
         featureProperties.filterColor === filterColor &&
-        featureProperties.filterOpacity === filterOpacity) {
+        featureProperties.filterOpacity === filterOpacity &&
+        featureProperties.imageScale === resolvedScale) {
         image.setRotation(rotation);
     }
     else {
@@ -292,7 +295,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
 
             style.setImage(new Icon({
                 src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
-                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
+                width: radarIcons[icon].width * resolvedScale,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
@@ -305,7 +308,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
             const svg = await fetchAircraftIcon(icon);
             style.setImage(new Icon({
                 src: svgToDataURI(reColorSvg(svg, status, cid)),
-                width: radarIcons[icon].width * (store.mapSettings.aircraftScale ?? 1),
+                width: radarIcons[icon].width * resolvedScale,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
@@ -322,6 +325,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         hadList: !!list,
         filterColor,
         filterOpacity,
+        imageScale: resolvedScale,
     });
 }
 
