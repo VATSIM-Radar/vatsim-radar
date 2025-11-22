@@ -361,8 +361,7 @@ const features: Feature[] = [
 
         @include fromTablet {
             &--membership {
-                position: sticky;
-                top: 20px;
+                align-self: start;
 
                 &::after {
                     content: '';

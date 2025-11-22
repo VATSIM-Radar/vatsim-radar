@@ -158,24 +158,16 @@
                         <github-icon/>
                     </template>
                 </common-button>
-                <common-tooltip
-                    location="bottom"
-                    width="max-content"
+                <common-button
+                    href="https://docs.vatsim-radar.com"
+                    size="S"
+                    target="_blank"
+                    type="secondary"
                 >
-                    <template #activator>
-                        <common-button
-                            href="https://docs.vatsim-radar.com"
-                            size="S"
-                            target="_blank"
-                            type="secondary"
-                        >
-                            <template #icon>
-                                <docs-icon/>
-                            </template>
-                        </common-button>
+                    <template #icon>
+                        <docs-icon/>
                     </template>
-                    Documentation
-                </common-tooltip>
+                </common-button>
                 <common-tooltip
                     v-if="app.$pwa && !app.$pwa?.isPWAInstalled && app.$pwa?.showInstallPrompt"
                     location="bottom"
