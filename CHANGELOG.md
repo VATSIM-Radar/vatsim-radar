@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.2.4-beta.4]
+
+- Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535
+- Added headings to distance indicator by 1489535 - they also respect great circle from now on
+- Added About page and redesigned Privacy Policy by 1769455
+- Changed left & top menu icons by 1769455
+
 # [1.2.4-beta.3]
 
 - Fixed a crash when opening ?pilot=CID link, when pilot is offline
