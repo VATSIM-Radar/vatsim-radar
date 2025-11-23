@@ -1,7 +1,7 @@
 <template>
     <div class="footer-time-popup__content">
         <common-date-picker
-            v-model="bookingRange"
+            :model-value="bookingRange"
             :use-local="store.mapSettings.bookingsLocalTimezone"
         />
         <div class="footer-time-popup__arrows">

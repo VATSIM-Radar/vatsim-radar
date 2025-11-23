@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.4-beta.3]
+
+- Fixed a crash when opening ?pilot=CID link, when pilot is offline
+- Fixed some approach controllers info such as name or rating not updating until reload
+
 # [1.2.4-beta.2]
 
 - Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
