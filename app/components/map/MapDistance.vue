@@ -339,8 +339,8 @@ onBeforeUnmount(() => {
 .distance {
     &_tooltip {
         user-select: none;
-        font-size: 10px;
         transform-origin: center;
+        font-size: 10px;
     }
 }
 </style>
