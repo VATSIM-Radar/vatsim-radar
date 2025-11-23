@@ -9,7 +9,7 @@ import {
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder,
 } from 'discord.js';
 import { prisma } from '~/utils/backend/prisma';
-import { AuthType, DiscordStrategy } from '@prisma/client';
+import { AuthType, DiscordStrategy } from '#prisma';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';

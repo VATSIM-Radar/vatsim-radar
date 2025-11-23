@@ -1,6 +1,6 @@
 import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
-import { AuthType } from '@prisma/client';
+import { AuthType } from '#prisma';
 import { getVatsimRedirectUri } from '~/utils/backend/vatsim';
 
 export default defineEventHandler(async event => {

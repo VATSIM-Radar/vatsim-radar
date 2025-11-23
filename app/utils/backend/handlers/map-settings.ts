@@ -5,8 +5,8 @@ import { prisma } from '~/utils/backend/prisma';
 import { isObject, isNumber, MAX_MAP_PRESETS } from '~/utils/shared';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
-import type { UserPreset } from '@prisma/client';
-import { UserPresetType } from '@prisma/client';
+import type { UserPreset } from '#prisma';
+import { UserPresetType } from '#prisma';
 import {
     validateColor,
     validateRandomObjectKeys,

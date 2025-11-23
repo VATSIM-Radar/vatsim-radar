@@ -1,5 +1,5 @@
 import type { UserList, UserListLiveUser } from '~/utils/backend/handlers/lists';
-import type { UserTrackingListType } from '@prisma/client';
+import type { UserTrackingListType } from '#prisma';
 import { useStore } from '~/store';
 
 type AddUserListOther = Omit<UserList, 'type' | 'id'>;

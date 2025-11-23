@@ -1,4 +1,4 @@
-import { DiscordStrategy } from '@prisma/client';
+import { DiscordStrategy } from '#prisma';
 
 export function getDiscordName(foundStrategy: DiscordStrategy, vatsimId: string, fullName: string) {
     switch (foundStrategy) {
