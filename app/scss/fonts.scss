@@ -6,6 +6,7 @@ $variants: ExtraBold, SemiBold, Bold, Medium, Regular, Light;
         font-family: OpenSans;
         font-weight: $weight;
         font-style: normal;
+
         font-display: swap;
         src: url(@/assets/fonts/open-sans/OpenSans-#{$variant}.ttf);
     }
@@ -14,6 +15,7 @@ $variants: ExtraBold, SemiBold, Bold, Medium, Regular, Light;
         font-family: OpenSans;
         font-weight: $weight;
         font-style: italic;
+
         font-display: swap;
         src: url(@/assets/fonts/open-sans/OpenSans-#{$variant}Italic.ttf);
     }
@@ -29,6 +31,7 @@ $variants: Black, ExtraBold, Bold, SemiBold, Medium, Regular, Light, ExtraLight,
         font-family: Montserrat;
         font-weight: $weight;
         font-style: normal;
+
         font-display: swap;
         src: url(@/assets/fonts/montserrat/Montserrat-#{$variant}.ttf);
     }
@@ -37,6 +40,7 @@ $variants: Black, ExtraBold, Bold, SemiBold, Medium, Regular, Light, ExtraLight,
         font-family: Montserrat;
         font-weight: $weight;
         font-style: italic;
+
         font-display: swap;
         src: url(@/assets/fonts/montserrat/Montserrat-#{$variant}Italic.ttf);
     }
