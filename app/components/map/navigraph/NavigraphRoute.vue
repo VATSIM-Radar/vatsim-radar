@@ -338,7 +338,7 @@ async function update() {
             }
 
             if (calculatedArrival.toGoDist > 0 && dataStore.navigraphWaypoints.value[cid.toString()]) {
-                dataStore.navigraphWaypoints.value[cid.toString()]!.calculatedArrival = {
+                dataStore.navigraphWaypoints.value[cid.toString()].calculatedArrival = {
                     depDist: calculatedArrival.depDist,
                     toGoDist: calculatedArrival.toGoDist,
                     toGoTime: Date.now() + calculatedArrival.toGoTime,

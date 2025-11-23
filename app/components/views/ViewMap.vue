@@ -546,7 +546,7 @@ const restoreOverlays = async () => {
         let overlay = mapStore.overlays.find(x => x.key === cid);
 
         if (!overlay) {
-            overlay = await mapStore.addPilotOverlay(cid);
+            overlay = await mapStore.addPilotOverlay(cid).catch(console.error) ?? undefined;
         }
 
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {

@@ -312,7 +312,15 @@ let labelFeatures: Feature[] = [];
 let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
-const hoveredFeature = computed(() => arrFeatures.value.find(x => x.id === props.hoveredId));
+const hoveredFeature = computed(() => {
+    const feature = arrFeatures.value.find(x => x.id === props.hoveredId);
+    if (!feature) return null;
+
+    return {
+        ...feature,
+        controllers: feature.controllers.map(x => props.arrAtc?.find(y => y.cid === x.cid && x.callsign === y.callsign) ?? x),
+    };
+});
 
 function initAirport() {
     if (!('lon' in props.airport) || isPseudoAirport.value) return;
