@@ -340,7 +340,6 @@ const metars = computed(() => {
             &_textarea {
                 resize: vertical;
 
-                field-sizing: normal;
                 width: 100%;
                 padding: 8px;
                 border: none;
@@ -353,6 +352,8 @@ const metars = computed(() => {
                 background: $darkgray850;
                 outline: none;
                 box-shadow: none;
+
+                field-sizing: normal;
             }
         }
     }
