@@ -19,7 +19,7 @@ export function sleep(ms: number) {
 export function getHoursAndMinutes(date: number) {
     const diff = Math.abs(useDataStore().time.value - date) / (1000 * 60);
 
-    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
+    return `${(`0${Math.floor(diff / 60)}`).slice(-2)}:${(`0${Math.floor(diff % 60)}`).slice(-2)}`;
 }
 
 export async function copyText(text: string): Promise<void> {
@@ -107,4 +107,43 @@ export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
         logon_time: booking.atc.logon_time,
         text_atis: booking.atc.text_atis,
     };
+}
+
+/**
+ * Calculates a scale multiplier for aircraft icons based on the current map zoom level.
+ * This allows icons to dynamically resize: smaller at low zoom (zoomed out) and larger at high zoom (zoomed in).
+ * The scaling is linear between defined zoom thresholds.
+ * @param zoom - The current map zoom level (e.g., from OpenLayers map view).
+ * @returns A multiplier (0.55 to 2.1) to apply to the base aircraft scale.
+ */
+
+export function getZoomScaleMultiplier(zoom: number) {
+    if (typeof zoom !== 'number' || Number.isNaN(zoom)) return 1;
+
+    // Minimum zoom level where scaling starts (zoomed out, icons smaller)
+    const minZoom = 2;
+    // Baseline zoom level where scale is 1x (normal size)
+    const baselineZoom = 14.5;
+    // Maximum zoom level where scaling caps (zoomed in, icons larger)
+    const maxZoom = 24;
+    // Minimum scale multiplier (at minZoom, icons are 55% of base size)
+    const minMultiplier = 0.55;
+    // Baseline scale multiplier (at baselineZoom, icons are 100% of base size)
+    const baselineMultiplier = 1.2;
+    // Maximum scale multiplier (at maxZoom, icons are 210% of base size)
+    const maxMultiplier = 6;
+    // Clamp zoom to the defined range
+    const clampedZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
+
+    if (clampedZoom <= baselineZoom) {
+        // Interpolate between minZoom and baselineZoom
+        const ratio = (clampedZoom - minZoom) / (baselineZoom - minZoom);
+        const interpolated = (baselineMultiplier - minMultiplier) * ratio;
+        return minMultiplier + interpolated;
+    }
+
+    // Interpolate between baselineZoom and maxZoom
+    const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
+    const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
+    return baselineMultiplier + interpolated;
 }
