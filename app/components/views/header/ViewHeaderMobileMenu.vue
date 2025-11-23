@@ -81,7 +81,7 @@
                     type="secondary"
                 >
                     <template #icon>
-                        <question-icon/>
+                        <docs-icon/>
                     </template>
                 </common-button>
                 <common-button
@@ -156,7 +156,7 @@ import SettingsIcon from 'assets/icons/kit/settings.svg?component';
 import { useStore } from '~/store';
 import CommonAirac from '~/components/common/vatsim/CommonAirac.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
-import QuestionIcon from 'assets/icons/basic/question.svg?component';
+import DocsIcon from 'assets/icons/basic/docs.svg?component';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import LoadOnPcIcon from '~/assets/icons/kit/load-on-pc.svg?component';
 

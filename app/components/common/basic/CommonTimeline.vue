@@ -106,7 +106,7 @@
                                     class="id-icon"
                                 />
                                 <div
-                                    :ref="el => {
+                                    :ref="(el: Element | ComponentPublicInstance | null) => {
                                         if (el) idContainers[`${ colIndex }-${ rowIndex }`] = el as HTMLElement
                                     }"
                                     class="id-box-text"

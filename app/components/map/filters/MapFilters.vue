@@ -28,7 +28,7 @@
                 >
                     <common-button :type="selectedFilter === 'map' ? 'primary' : 'secondary'">
                         <template #icon>
-                            <map-icon/>
+                            <map-layers-icon/>
                         </template>
                     </common-button>
                     <common-control-block
@@ -52,9 +52,12 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'weather' }"
                     @click="selectFilter('weather')"
                 >
-                    <common-button :type="selectedFilter === 'weather' ? 'primary' : 'secondary'">
+                    <common-button
+                        icon-width="18px"
+                        :type="selectedFilter === 'weather' ? 'primary' : 'secondary'"
+                    >
                         <template #icon>
-                            <ground-icon/>
+                            <weather-icon/>
                         </template>
                     </common-button>
                     <common-control-block
@@ -163,7 +166,7 @@
                 >
                     <common-button :type="selectedFilter === 'settings' ? 'primary' : 'secondary'">
                         <template #icon>
-                            <layers-icon/>
+                            <settings-icon/>
                         </template>
                     </common-button>
                     <common-control-block
@@ -261,10 +264,10 @@
 <script setup lang="ts">
 import FilterIcon from '@/assets/icons/kit/filter.svg?component';
 import FiltersIcon from '@/assets/icons/kit/filters.svg?component';
-import MapIcon from '@/assets/icons/kit/map.svg?component';
+import MapLayersIcon from '@/assets/icons/kit/layers.svg?component';
 import ImportIcon from '@/assets/icons/kit/import.svg?component';
-import GroundIcon from '@/assets/icons/kit/mountains.svg?component';
-import LayersIcon from '@/assets/icons/kit/layers.svg?component';
+import WeatherIcon from '@/assets/icons/kit/weather.svg?component';
+import SettingsIcon from '@/assets/icons/kit/settings.svg?component';
 import DebugIcon from '@/assets/icons/kit/debug.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';

@@ -108,7 +108,7 @@
     "postcss-html": "^1.8.0",
     "sass-embedded": "^1.93.3",
     "stylelint": "^16.26.0",
-    "stylelint-config-clean-order": "^7.2.2",
+    "stylelint-config-clean-order": "^8.0.0",
     "stylelint-config-recommended-scss": "^16.0.2",
     "stylelint-config-recommended-vue": "^1.6.1",
     "stylelint-config-standard": "^39.0.1",
@@ -118,5 +118,5 @@
     "vite-plugin-eslint2": "^5.0.4",
     "vue-tsc": "3.1.5"
   },
-  "packageManager": "yarn@4.11.0"
+  "packageManager": "yarn@4.12.0"
 }

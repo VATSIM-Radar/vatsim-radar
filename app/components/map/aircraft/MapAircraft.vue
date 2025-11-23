@@ -163,7 +163,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': store.mapSettings.aircraftScale ?? 1 }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
             :z-index="19"
         >
             <div
@@ -173,7 +173,10 @@
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
-                <div class="aircraft-label_text">
+                <div
+                    class="aircraft-label_text"
+                    :style="{ 'scale': 1 / aircraftScale }"
+                >
                     {{ pilot.callsign }}
                 </div>
             </div>
@@ -306,6 +309,13 @@ const textCoordinates = computed(() => JSON.stringify(getCoordinates.value) + pr
 
 const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircraft.cid.toString()]);
 
+const aircraftScale = computed(() => {
+    const baseScale = store.mapSettings.aircraftScale ?? 1;
+    if (!isDynamicAircraftScale) return baseScale;
+
+    return +(baseScale * getZoomScaleMultiplier(mapStore.zoom)).toFixed(3);
+});
+
 const getStatus = computed<MapAircraftStatus>(() => {
     if (isSelfFlight.value || store.config.allAircraftGreen) return 'green';
     if (props.isHovered) return 'hover';
@@ -353,6 +363,7 @@ const setStyle = async (iconFeature = feature, force = false) => {
         style,
         force,
         cid: props.aircraft.cid,
+        scale: aircraftScale.value,
     });
 
     iconFeature.changed();
@@ -464,7 +475,12 @@ async function setState(val?: string, oldVal?: string) {
 
 watch(changeState, setState);
 
-watch([() => store.mapSettings.aircraftScale, () => store.mapSettings.heatmapLayer], () => {
+watch(aircraftScale, (val, oldVal) => {
+    if (val === oldVal) return;
+    setStyle(undefined, true);
+});
+
+watch(() => store.mapSettings.heatmapLayer, () => {
     setStyle(undefined, true);
 });
 
