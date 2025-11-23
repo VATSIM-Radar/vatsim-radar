@@ -53,13 +53,6 @@ const config = useRuntimeConfig();
 const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref<number | null>(null);
 const showAircraftLabel = ref<number[]>([]);
-const dynamicAircraftZoomEnabled = ref<boolean>(store.mapSettings.dynamicAircraftScale ?? false);
-
-provide('aircraft-dynamic-zoom-enabled', dynamicAircraftZoomEnabled);
-
-watch(() => store.mapSettings.dynamicAircraftScale, value => {
-    dynamicAircraftZoomEnabled.value = !!value;
-});
 
 // The next 3 functions are used to get data to and from the airport dashboard page. When an aircraft is selected it is sent to the airport dashboard so we can open the pilot overlay. We also receive the event from the dashboard when an aircraft is clicked in the dashboard, we then select it on the map.
 function receiveMessage(event: MessageEvent) {

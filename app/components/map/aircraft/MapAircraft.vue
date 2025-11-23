@@ -173,7 +173,10 @@
                 @mouseleave="hovered = false"
                 @mouseover="mapStore.canShowOverlay ? hovered = true : undefined"
             >
-                <div class="aircraft-label_text">
+                <div
+                    class="aircraft-label_text"
+                    :style="{ 'scale': 1 / aircraftScale }"
+                >
                     {{ pilot.callsign }}
                 </div>
             </div>
@@ -182,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType, Ref, ShallowRef } from 'vue';
+import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
 import type VectorSource from 'ol/source/Vector';
@@ -255,7 +258,6 @@ defineSlots<{ default: () => any }>();
 
 const vectorSource = inject<ShallowRef<VectorSource | null>>('vector-source')!;
 const linesSource = inject<ShallowRef<VectorSource | null>>('lines-source')!;
-const dynamicZoomEnabled = inject<Ref<boolean>>('aircraft-dynamic-zoom-enabled', ref(false));
 const hovered = ref(false);
 const hoveredOverlay = ref(false);
 const isInit = ref(false);
@@ -292,7 +294,7 @@ const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircr
 
 const aircraftScale = computed(() => {
     const baseScale = store.mapSettings.aircraftScale ?? 1;
-    if (!dynamicZoomEnabled?.value) return baseScale;
+    if (!store.mapSettings.dynamicAircraftScale) return baseScale;
 
     return +(baseScale * getZoomScaleMultiplier(mapStore.zoom)).toFixed(3);
 });
