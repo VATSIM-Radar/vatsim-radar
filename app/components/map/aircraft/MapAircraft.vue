@@ -451,7 +451,7 @@ async function setState(val?: string, oldVal?: string) {
 
 watch(changeState, setState);
 
-watch(() => aircraftScale.value, (val, oldVal) => {
+watch(aircraftScale, (val, oldVal) => {
     if (val === oldVal) return;
     setStyle(undefined, true);
 });
