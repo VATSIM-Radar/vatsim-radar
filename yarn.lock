@@ -14206,6 +14206,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-sorting@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "postcss-sorting@npm:9.1.0"
+  peerDependencies:
+    postcss: ^8.4.20
+  checksum: 10c0/1faea84bf00d85929228d297587798fa9c384a02966a28a942777b2de553a8186087cfdcd0aca3dd40e4b2793aee050792d807458db8cf4880867c98c7bf22fd
+  languageName: node
+  linkType: hard
+
 "postcss-svgo@npm:^7.1.0":
   version: 7.1.0
   resolution: "postcss-svgo@npm:7.1.0"
@@ -14236,7 +14245,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.6":
+"postcss@npm:^8.4.43, postcss@npm:^8.5.0, postcss@npm:^8.5.3, postcss@npm:^8.5.6":
   version: 8.5.6
   resolution: "postcss@npm:8.5.6"
   dependencies:
@@ -16350,6 +16359,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"stylelint-order@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "stylelint-order@npm:7.0.0"
+  dependencies:
+    postcss: "npm:^8.5.3"
+    postcss-sorting: "npm:^9.1.0"
+  peerDependencies:
+    stylelint: ^16.18.0
+  checksum: 10c0/202ea7f0ce44b272f0ee8745383e347520663ef3defb9478c2dae8f33378950e32138815d038228db49383cab7b111148b9b9521e409311a91047cfc4740d507
+  languageName: node
+  linkType: hard
+
 "stylelint-scss@npm:^6.12.1":
   version: 6.12.1
   resolution: "stylelint-scss@npm:6.12.1"
@@ -17631,6 +17652,7 @@ __metadata:
     stylelint-config-recommended-scss: "npm:^16.0.2"
     stylelint-config-recommended-vue: "npm:^1.6.1"
     stylelint-config-standard: "npm:^39.0.1"
+    stylelint-order: "npm:^7.0.0"
     svgo: "npm:^4.0.0"
     tsx: "npm:4.16.2"
     typescript: "npm:5.9.3"
