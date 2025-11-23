@@ -65,3 +65,8 @@ export const saveMapSettings = async (preset: UserMapSettings) => {
     await nextTick();
     setUserMapSettings(preset);
 };
+
+export const isDynamicAircraftScale = computed(() => {
+    const store = useStore();
+    return store.mapSettings.dynamicAircraftScale !== false;
+});

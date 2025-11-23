@@ -294,7 +294,7 @@ const pilot = computed(() => dataStore.vatsim.data.keyedPilots.value[props.aircr
 
 const aircraftScale = computed(() => {
     const baseScale = store.mapSettings.aircraftScale ?? 1;
-    if (!store.mapSettings.dynamicAircraftScale) return baseScale;
+    if (!isDynamicAircraftScale) return baseScale;
 
     return +(baseScale * getZoomScaleMultiplier(mapStore.zoom)).toFixed(3);
 });

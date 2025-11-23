@@ -139,7 +139,7 @@
         </div>
         <common-toggle
             class="__grid-info-sections_toggle"
-            :model-value="!!store.mapSettings.dynamicAircraftScale"
+            :model-value="store.mapSettings.dynamicAircraftScale !== false"
             width="100%"
             @update:modelValue="setUserMapSettings({ dynamicAircraftScale: $event })"
         >
