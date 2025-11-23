@@ -163,7 +163,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': `${ aircraftScale }` }"
+            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
             :z-index="19"
         >
             <div
