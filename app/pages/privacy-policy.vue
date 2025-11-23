@@ -248,7 +248,6 @@ const store = useStore();
 
     &_content {
         margin-top: 32px;
-        padding: 48px;
 
         @include mobile {
             margin-top: 16px;

@@ -220,9 +220,9 @@
                     </div>
                     <common-button
                         class="about__support_button"
-                        href="/support-us"
+                        to="/support-us"
                     >
-                        View Patreon Page
+                        Support Us
                     </common-button>
                 </div>
             </div>
@@ -236,7 +236,7 @@ import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
 
 useHead({
-    title: 'About VATSIM Radar',
+    title: 'About Us',
 });
 
 const store = useStore();
@@ -339,7 +339,6 @@ const store = useStore();
 
     &_list {
         margin-top: 24px;
-        padding: 48px;
 
         @include mobile {
             margin-top: 12px;

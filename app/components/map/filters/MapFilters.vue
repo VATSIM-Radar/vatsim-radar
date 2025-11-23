@@ -52,7 +52,10 @@
                     :class="{ 'filters_sections_section--selected': selectedFilter === 'weather' }"
                     @click="selectFilter('weather')"
                 >
-                    <common-button :type="selectedFilter === 'weather' ? 'primary' : 'secondary'">
+                    <common-button
+                        icon-width="18px"
+                        :type="selectedFilter === 'weather' ? 'primary' : 'secondary'"
+                    >
                         <template #icon>
                             <weather-icon/>
                         </template>
