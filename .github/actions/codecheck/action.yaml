@@ -10,12 +10,12 @@ runs:
     - name: Lint
       shell: sh
       run: yarn lint
-    - name: Prisma
-      shell: sh
-      run: DATABASE_URL=mysql://root:localhost@db:3306/radar?schema=public npx prisma generate
     - name: Prepare
       shell: sh
       run: yarn prepare
+    - name: Prisma
+      shell: sh
+      run: DATABASE_URL=mysql://root:localhost@db:3306/radar?schema=public npx prisma generate
     - name: Build package
       shell: sh
       run: yarn build
