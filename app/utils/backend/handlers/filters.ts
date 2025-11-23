@@ -1,10 +1,10 @@
-import type { UserPreset, UserTrackingList } from '@prisma/client';
+import type { UserPreset, UserTrackingList } from '#prisma';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 import type { H3Event } from 'h3';
 import { findUserWithListsByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
-import { UserPresetType } from '@prisma/client';
+import { UserPresetType } from '#prisma';
 import { isNumber, isObject, MAX_FILTER_ARRAY_VALUE, MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
 import { radarStorage } from '~/utils/backend/storage';
 import { validateColor, validateRandomObjectKeys, validateTransparency } from '~/utils/backend/handlers/index';

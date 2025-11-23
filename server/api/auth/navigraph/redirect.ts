@@ -1,7 +1,7 @@
 import { getNavigraphCodeChallenge, getNavigraphCodeVerifier, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
 import { prisma } from '~/utils/backend/prisma';
 import { randomUUID } from 'node:crypto';
-import { AuthType } from '@prisma/client';
+import { AuthType } from '#prisma';
 
 export default defineEventHandler(async event => {
     const config = useRuntimeConfig();

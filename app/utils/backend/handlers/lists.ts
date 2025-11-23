@@ -1,9 +1,9 @@
 import type { H3Event } from 'h3';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { filterUserLists, findUserByCookie } from '~/utils/backend/user';
-import type { UserTrackingList } from '@prisma/client';
+import type { UserTrackingList } from '#prisma';
 import { prisma } from '~/utils/backend/prisma';
-import { UserTrackingListType } from '@prisma/client';
+import { UserTrackingListType } from '#prisma';
 import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
 import { colorsList } from '~/utils/backend/styles';
 import type {

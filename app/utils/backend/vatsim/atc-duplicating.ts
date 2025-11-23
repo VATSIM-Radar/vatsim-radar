@@ -6,13 +6,14 @@ interface DuplicatingSetting {
     mapping: Record<string, string>;
 }
 
+// TODO: rewrite to list of prefixes/suffixes
 export const duplicatingSettings = [
     /**
      * @description ZOA/NCT Area/TRACON
      * @author 1275389
      */
     {
-        regex: /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY|ZOA)(_[A-Z]\d?)?_(APP|DEP|CTR|TMU)$/,
+        regex: /^(NCT|SFO|OAK|SJC|SMF|RNO|MRY|MOD|BAY|ZOA)(_\w{0,3})?_(APP|DEP|CTR|TMU)$/,
         mapping: {
             'Area A': 'SJC_APP',
             'Area B': 'SFO_APP',
@@ -31,7 +32,7 @@ export const duplicatingSettings = [
      * @author 1275389
      */
     {
-        regex: /^(MIA|ZMA|TPA|PBI|RSW|NQX|HST|ZMO)(_[A-Z]\d?)?_(CTR|TMU|APP|DEP)$/,
+        regex: /^(MIA|ZMA|TPA|PBI|RSW|NQX|HST|ZMO)(_\w{0,3})?_(CTR|TMU|APP|DEP)$$/,
         mapping: {
             'MIA TRACON': 'MIA_D_DEP',
             'TPA TRACON': 'TPA_L_APP',
@@ -47,7 +48,7 @@ export const duplicatingSettings = [
      * @author 1652726
      */
     {
-        regex: /^(PCT|IAD|DCA|BWI|RIC|DC)(_[A-Z]\d?)?_(APP|DEP|CTR)$/,
+        regex: /^(PCT|IAD|DCA|BWI|RIC|DC)(_\w{0,3})?_(APP|DEP|CTR)$/,
         mapping: {
             SHD: 'IAD_APP',
             CHP: 'BWI_APP',

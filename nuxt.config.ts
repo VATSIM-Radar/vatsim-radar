@@ -1,4 +1,8 @@
 import svgLoader from 'vite-svg-loader';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const _dirname = dirname(fileURLToPath(import.meta.url));
 
 function isDebug() {
     return process.env.VR_DEBUG === '1' || import.meta.dev || process.env.NODE_ENV === 'development';
@@ -53,6 +57,9 @@ export default defineNuxtConfig({
             : [
                 'ol',
             ],
+    },
+    alias: {
+        '#prisma': resolve(_dirname, '.nuxt/prisma/client'),
     },
     srcDir: 'app/',
     devtools: {

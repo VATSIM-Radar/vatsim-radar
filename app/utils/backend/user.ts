@@ -6,7 +6,7 @@ import type { RequiredDBUser } from '~/utils/db/user';
 import { getNavigraphGwtResult, refreshNavigraphToken } from '~/utils/backend/navigraph';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { UserList } from '~/utils/backend/handlers/lists';
-import type { UserTrackingList } from '@prisma/client';
+import type { UserTrackingList } from '#prisma';
 import { isNext } from '~/utils/backend/debug';
 
 export async function findUserByCookie(event: H3Event): Promise<RequiredDBUser | null> {

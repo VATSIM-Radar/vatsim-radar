@@ -274,7 +274,7 @@ import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import DragIcon from '@/assets/icons/kit/drag.svg?component';
-import type { UserPreset } from '@prisma/client';
+import type { UserPreset } from '#prisma';
 import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import equal from 'deep-equal';

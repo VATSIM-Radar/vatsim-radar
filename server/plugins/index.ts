@@ -1,7 +1,7 @@
 import { isDataReady } from '~/utils/backend/storage';
 import { prisma } from '~/utils/backend/prisma';
 import { defaultRedis, getRedisSync } from '~/utils/backend/redis';
-import { UserPresetType } from '@prisma/client';
+import { UserPresetType } from '#prisma';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { toLonLat } from 'ol/proj';
 

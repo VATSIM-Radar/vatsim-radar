@@ -1,13 +1,13 @@
-import type { UserPreset } from '@prisma/client';
 import type { H3Event } from 'h3';
 import { findUserByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
-import { UserPresetType } from '@prisma/client';
+import { UserPresetType } from '#prisma';
 import { isObject, MAX_BOOKMARKS } from '~/utils/shared';
 import { radarStorage } from '~/utils/backend/storage';
 import { validateRandomObjectKeys } from '~/utils/backend/handlers/index';
 import type { Coordinate } from 'ol/coordinate';
+import type { UserPreset } from '#prisma';
 
 export interface IUserBookmark {
     coords?: Coordinate;
