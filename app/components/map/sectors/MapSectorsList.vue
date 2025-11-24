@@ -200,7 +200,7 @@ watch(() => mapStore.distance.pixel, val => {
 
 const hideAtc = computed(() => isHideAtcType('firs'));
 
-watch([emptyFirsList, vectorSource, hideAtc, hideOnZoom], processEmptyFirs, {
+watch([emptyFirsList, vectorSource, hideAtc], processEmptyFirs, {
     immediate: true,
 });
 
