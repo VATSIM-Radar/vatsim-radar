@@ -316,7 +316,7 @@ const aircraftScale = computed(() => {
     if (!isDynamicAircraftScale) return baseScale;
 
     const iconWidth = radarIcons[icon.value.icon].width;
-    const lat = getCoordinates.value && getCoordinates.value[1];
+    const lat = getCoordinates.value?.[1];
     const pilotStatus = pilot.value.status;
     const isPilotOnGround = pilotStatus === 'depGate' || pilotStatus === 'depTaxi' || pilotStatus === 'arrTaxi' || pilotStatus === 'arrGate';
 
