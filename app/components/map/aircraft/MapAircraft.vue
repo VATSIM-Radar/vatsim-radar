@@ -163,7 +163,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
+            :style="{ '--imageHeight': `${ zoom.valueOf() > 16 ? 30 : radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
             :z-index="19"
         >
             <div
@@ -288,6 +288,8 @@ const isShortInfo = computed(() => store.mapSettings.shortAircraftView);
 const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircraft.icon] : getAircraftIcon(props.aircraft));
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
 
+const zoom = computed(() => mapStore.zoom);
+
 function checkForExpiredCoordinate() {
     if (dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.updateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
         dataStore.vatsim.selfCoordinate.value = null;
@@ -313,7 +315,12 @@ const aircraftScale = computed(() => {
     const baseScale = store.mapSettings.aircraftScale ?? 1;
     if (!isDynamicAircraftScale) return baseScale;
 
-    return +(baseScale * getZoomScaleMultiplier(mapStore.zoom)).toFixed(3);
+    const iconWidth = radarIcons[icon.value.icon].width;
+    const lat = getCoordinates.value && getCoordinates.value[1];
+    const pilotStatus = pilot.value.status;
+    const isPilotOnGround = pilotStatus === 'depGate' || pilotStatus === 'depTaxi' || pilotStatus === 'arrTaxi' || pilotStatus === 'arrGate';
+
+    return +(baseScale * getZoomScaleMultiplier(mapStore.zoom, baseScale, iconWidth, lat, isPilotOnGround)).toFixed(3);
 });
 
 const getStatus = computed<MapAircraftStatus>(() => {

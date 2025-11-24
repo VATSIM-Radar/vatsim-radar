@@ -19,7 +19,7 @@ export function sleep(ms: number) {
 export function getHoursAndMinutes(date: number) {
     const diff = Math.abs(useDataStore().time.value - date) / (1000 * 60);
 
-    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
+    return `${(`0${Math.floor(diff / 60)}`).slice(-2)}:${(`0${Math.floor(diff % 60)}`).slice(-2)}`;
 }
 
 export async function copyText(text: string): Promise<void> {
@@ -109,40 +109,92 @@ export function makeFakeAtc(booking: VatsimBooking): VatsimShortenedController {
     };
 }
 
-/**
- * Calculates a scale multiplier for aircraft icons based on the current map zoom level.
- * This allows icons to dynamically resize: smaller at low zoom (zoomed out) and larger at high zoom (zoomed in).
- * The scaling is linear between defined zoom thresholds.
- * @param zoom - The current map zoom level (e.g., from OpenLayers map view).
- * @returns A multiplier (0.55 to 2.1) to apply to the base aircraft scale.
- */
-
-export function getZoomScaleMultiplier(zoom: number) {
+export function getZoomScaleMultiplier(
+    zoom: number,
+    baseScale: number = 1,
+    iconPixelWidth?: number,
+    latitude: number = 0,
+    isPilotOnGround: boolean = false,
+    minVisiblePixels = 8,
+): number {
     if (typeof zoom !== 'number' || Number.isNaN(zoom)) return 1;
 
-    // Minimum zoom level where scaling starts (zoomed out, icons smaller)
+    if (typeof iconPixelWidth === 'number' && iconPixelWidth > 0) {
+        // meters-per-pixel estimate for Web Mercator at given latitude and zoom
+        const initialResolution = 156543.03392804097; // meters per pixel at zoom 0 (equator)
+        const metersPerPixel = (initialResolution * Math.cos(latitude * Math.PI / 180)) / Math.pow(2, zoom);
+
+        if (!metersPerPixel || metersPerPixel <= 0) return 1;
+
+        const desiredMeters = iconPixelWidth * 2;
+
+        const realMultiplier = desiredMeters / (iconPixelWidth * baseScale * metersPerPixel);
+
+        const clampedReal = Math.min(Math.max(realMultiplier, 0.01), 10);
+
+        const heuristicAtZoom = (() => {
+            const minZoom = 2;
+            const baselineZoom = 14.5;
+            const maxZoom = 24;
+            const minMultiplier = 0.55;
+            const baselineMultiplier = 1.2;
+            const maxMultiplier = 6;
+            const clampedZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
+
+            if (clampedZoom <= baselineZoom) {
+                const ratio = (clampedZoom - minZoom) / (baselineZoom - minZoom);
+                const interpolated = (baselineMultiplier - minMultiplier) * ratio;
+                return minMultiplier + interpolated;
+            }
+
+            const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
+            const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
+            return baselineMultiplier + interpolated;
+        })();
+
+        const thresholdZoom = 16;
+        const transitionRange = 1;
+
+        let resultMultiplier: number;
+        if (isPilotOnGround) {
+            if (zoom >= thresholdZoom) resultMultiplier = clampedReal;
+            else {
+                resultMultiplier = clampedReal * Math.min(((Math.pow((zoom - 16), 2) / 3) + 1), 4);
+            }
+        }
+        else if (zoom <= thresholdZoom) {
+            resultMultiplier = heuristicAtZoom;
+        }
+        else if (zoom > thresholdZoom && zoom < thresholdZoom + transitionRange) {
+            const tRaw = (zoom - thresholdZoom) / transitionRange;
+            const t = (tRaw * tRaw) * (3 - (2 * tRaw)); // smoothstep
+            resultMultiplier = (heuristicAtZoom * (1 - t)) + (clampedReal * t);
+        }
+        else {
+            resultMultiplier = clampedReal;
+        }
+
+        const minMultNeeded = minVisiblePixels / (iconPixelWidth * baseScale);
+        if (resultMultiplier < minMultNeeded) resultMultiplier = minMultNeeded;
+
+        return resultMultiplier;
+    }
+
+    // previous behaviour when icon width unknown
     const minZoom = 2;
-    // Baseline zoom level where scale is 1x (normal size)
     const baselineZoom = 14.5;
-    // Maximum zoom level where scaling caps (zoomed in, icons larger)
     const maxZoom = 24;
-    // Minimum scale multiplier (at minZoom, icons are 55% of base size)
     const minMultiplier = 0.55;
-    // Baseline scale multiplier (at baselineZoom, icons are 100% of base size)
     const baselineMultiplier = 1.2;
-    // Maximum scale multiplier (at maxZoom, icons are 210% of base size)
     const maxMultiplier = 6;
-    // Clamp zoom to the defined range
     const clampedZoom = Math.min(Math.max(zoom, minZoom), maxZoom);
 
     if (clampedZoom <= baselineZoom) {
-        // Interpolate between minZoom and baselineZoom
         const ratio = (clampedZoom - minZoom) / (baselineZoom - minZoom);
         const interpolated = (baselineMultiplier - minMultiplier) * ratio;
         return minMultiplier + interpolated;
     }
 
-    // Interpolate between baselineZoom and maxZoom
     const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
     const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
     return baselineMultiplier + interpolated;
