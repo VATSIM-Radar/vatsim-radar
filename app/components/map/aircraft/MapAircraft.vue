@@ -163,7 +163,7 @@
                 position: getCoordinates,
                 offset: [0, 0],
             }"
-            :style="{ '--imageHeight': `${ zoom.valueOf() > 16 ? 30 : radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
+            :style="{ '--imageHeight': `${ zoom > 16 ? 30 : radarIcons[icon.icon].height }px`, '--scale': aircraftScale }"
             :z-index="19"
         >
             <div
@@ -221,6 +221,7 @@ import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestin
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
 import type { Positioning } from 'ol/Overlay';
+import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
 
 const props = defineProps({
     aircraft: {
@@ -320,7 +321,7 @@ const aircraftScale = computed(() => {
     const pilotStatus = pilot.value.status;
     const isPilotOnGround = pilotStatus === 'depGate' || pilotStatus === 'depTaxi' || pilotStatus === 'arrTaxi' || pilotStatus === 'arrGate';
 
-    return +(baseScale * getZoomScaleMultiplier(mapStore.zoom, baseScale, iconWidth, lat, isPilotOnGround)).toFixed(3);
+    return +(baseScale * getZoomScaleMultiplier({zoom: mapStore.zoom, baseScale, iconPixelWidth: iconWidth, latitude: lat, isPilotOnGround})).toFixed(3);
 });
 
 const getStatus = computed<MapAircraftStatus>(() => {
