@@ -294,7 +294,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
 
             style.setImage(new Icon({
-                src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png?v=${ store.version }`,
+                src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.webp?v=${ store.version }`,
                 width: radarIcons[icon].width * resolvedScale,
                 rotation,
                 rotateWithView: true,
