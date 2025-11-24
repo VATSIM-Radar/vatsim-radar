@@ -19,7 +19,7 @@ export function sleep(ms: number) {
 export function getHoursAndMinutes(date: number) {
     const diff = Math.abs(useDataStore().time.value - date) / (1000 * 60);
 
-    return `${(`0${Math.floor(diff / 60)}`).slice(-2)}:${(`0${Math.floor(diff % 60)}`).slice(-2)}`;
+    return `${ (`0${ Math.floor(diff / 60) }`).slice(-2) }:${ (`0${ Math.floor(diff % 60) }`).slice(-2) }`;
 }
 
 export async function copyText(text: string): Promise<void> {
