@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-beta.5]
+- Improved dynamic aircraft scaling based on zoom level by 1489535 — airplanes on the ground are now scaled to their real-world size
+- Center and APP sectors disappear when zooming in by 1489535
+
 # [1.2.4-beta.4]
 
 - Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535
