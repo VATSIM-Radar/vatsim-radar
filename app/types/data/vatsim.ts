@@ -95,6 +95,9 @@ export interface VatsimController {
     logon_time: string;
     booking?: VatsimBookingAtc;
     isBooking?: boolean;
+    logon?: string;
+    isCpdlc?: boolean;
+    isPdc?: boolean;
 }
 
 export interface VatsimATIS extends VatsimController {

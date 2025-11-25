@@ -104,7 +104,7 @@ export interface VatglassesDynamicData {
             };
         };
         airspace: {
-            [key: string]: string [];
+            [key: string]: string[];
         };
     };
 }
@@ -193,6 +193,19 @@ export interface BARSShortItem {
 
 export type BARSShort = Record<string, BARSShortItem[]>;
 
+export interface HoppieClient {
+    logon: string;
+    callsign?: string;
+    onVatsim?: boolean;
+    isAtc?: boolean;
+    isCpdlc?: boolean;
+    isPdc?: boolean;
+}
+
+export type Hoppie = {
+    clients: HoppieClient[];
+};
+
 export interface VatsimStorage {
     data: VatsimData | null;
     regularData: VatsimShortenedData | null;
@@ -209,6 +222,7 @@ export interface VatsimStorage {
         atc: Record<string, Partial<VatsimData['controllers'][0]> & KafkaExtension>;
         prefiles: Record<string, Partial<VatsimData['prefiles'][0]> & KafkaExtension>;
     };
+    hoppie: Hoppie;
 }
 
 export interface RadarStorage {
@@ -285,6 +299,9 @@ export const radarStorage: RadarStorage = {
             pilots: {},
             atc: {},
             prefiles: {},
+        },
+        hoppie: {
+            clients: [],
         },
     },
     navigraph: {

@@ -135,6 +135,8 @@ export default defineNuxtConfig({
         FAA_NOTAMS_CLIENT_ID: process.env.FAA_NOTAMS_CLIENT_ID,
         FAA_NOTAMS_CLIENT_SECRET: process.env.FAA_NOTAMS_CLIENT_SECRET,
 
+        HOPPIE_ACARS_LOGON: process.env.HOPPIE_ACARS_LOGON,
+
         public: {
             DOMAIN: process.env.DOMAIN,
             IS_DOWN: process.env.IS_DOWN,
