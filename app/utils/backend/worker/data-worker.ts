@@ -712,13 +712,24 @@ defineCronJob('* * * * * *', async () => {
             };
         }) ?? [];
 
-        console.log(radarStorage.vatsim.hoppie.clients.filter(x => x.onVatsim));
-
         radarStorage.vatsim.notam = await prisma.notams.findFirst({
             where: {
                 active: true,
             },
         }) as RadarNotam | null;
+
+        radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.map(controller => {
+            const hoppieClient = radarStorage.vatsim.hoppie.clients.find(c => c.callsign === controller.callsign);
+
+            if (!hoppieClient) return controller;
+
+            return {
+                ...controller,
+                logon: hoppieClient?.logon,
+                isCpdlc: hoppieClient?.isCpdlc,
+                isPdc: hoppieClient?.isPdc,
+            };
+        });
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();
