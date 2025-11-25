@@ -654,6 +654,66 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.airports = await getAirportsList();
         radarStorage.vatsim.locals = radarStorage.vatsim.locals.filter(x => !x.atc.isBooking);
 
+        radarStorage.vatsim.hoppie.clients = radarStorage.vatsim.hoppie.clients.map(client => {
+            const pilot = radarStorage.vatsim.data?.pilots.some(pilot => pilot.callsign === client.logon) ?? false;
+
+            if (pilot) {
+                return {
+                    ...client,
+                    callsign: client.logon,
+                    onVatsim: true,
+                    isAtc: false,
+                    isCpdlc: false,
+                    isPdc: false,
+                };
+            }
+
+            const atcClient = {
+                onVatsim: false,
+                isAtc: false,
+                isCpdlc: false,
+                isPdc: false,
+            };
+
+            let callsign = undefined;
+
+            radarStorage.vatsim.data?.controllers.forEach(controller => {
+                const controllerAtis = controller.text_atis;
+
+                if (controllerAtis && controllerAtis.length > 0) {
+                    for (const atisLine of controllerAtis) {
+                        const includesCallsign = atisLine.includes(client.logon);
+                        const includesCpdlcRemarks = atisLine.includes('CPDLC') || atisLine.includes('LOGON');
+                        const includesPdcRemarks = atisLine.includes('PDC') || atisLine.includes('DCL');
+
+                        if (includesCallsign && includesCpdlcRemarks) {
+                            callsign = controller.callsign;
+                            atcClient.onVatsim = true;
+                            atcClient.isAtc = true;
+                            atcClient.isCpdlc = true;
+                            break;
+                        }
+
+                        if (includesCallsign && includesPdcRemarks) {
+                            callsign = controller.callsign;
+                            atcClient.onVatsim = true;
+                            atcClient.isAtc = true;
+                            atcClient.isPdc = true;
+                            break;
+                        }
+                    }
+                }
+            });
+
+            return {
+                ...client,
+                callsign,
+                ...atcClient,
+            };
+        }) ?? [];
+
+        console.log(radarStorage.vatsim.hoppie.clients.filter(x => x.onVatsim));
+
         radarStorage.vatsim.notam = await prisma.notams.findFirst({
             where: {
                 active: true,
@@ -711,6 +771,7 @@ defineCronJob('* * * * * *', async () => {
                 airports: radarStorage.vatsim.airports,
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
+                hoppie: radarStorage.vatsim.hoppie,
             } satisfies Omit<VatsimStorage, 'kafka' | 'australia'>), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);

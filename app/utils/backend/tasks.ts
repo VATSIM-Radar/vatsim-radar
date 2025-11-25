@@ -85,6 +85,19 @@ async function vatsimTasks() {
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
     await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
+    await defineCronJob('*/60 * * * * *', async () => {
+        const data = await $fetch<string>(`https://www.hoppie.nl/acars/system/connect.html?from=hoppie&to=server&type=ping&logon=${process.env.HOPPIE_ACARS_LOGON}&packet=ALL-CALLSIGNS`).catch(() => {});
+        // Response ok {CALLSIGN1 CALLSIGN2 CALLSIGN3 ...} or error {error description}
+        if (data) {
+            const match = data.match(/\{(.+)\}/);
+            if (data.includes('error')) {
+                console.error('Hoppie ACARS error:', data);
+            }
+            else if (match && match[1]) {
+                radarStorage.vatsim.hoppie.clients = match[1].split(' ').map(logon => ({ logon }));
+            }
+        }
+    });
 }
 
 let s3: S3 | undefined;
