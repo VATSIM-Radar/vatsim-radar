@@ -86,7 +86,7 @@ async function vatsimTasks() {
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
     await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
     await defineCronJob('*/60 * * * * *', async () => {
-        const data = await $fetch<string>(`https://www.hoppie.nl/acars/system/connect.html?from=hoppie&to=server&type=ping&logon=${process.env.HOPPIE_ACARS_LOGON}&packet=ALL-CALLSIGNS`).catch(() => {});
+        const data = await $fetch<string>(`https://www.hoppie.nl/acars/system/connect.html?from=hoppie&to=server&type=ping&logon=${ process.env.HOPPIE_ACARS_LOGON }&packet=ALL-CALLSIGNS`).catch(() => {});
         // Response ok {CALLSIGN1 CALLSIGN2 CALLSIGN3 ...} or error {error description}
         if (data) {
             const match = data.match(/\{(.+)\}/);
