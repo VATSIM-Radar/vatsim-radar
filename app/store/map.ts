@@ -30,6 +30,7 @@ export interface StoreOverlayPilot extends StoreOverlayDefault {
         pilot: VatsimExtendedPilot;
         airport?: VatsimAirportInfo;
         tracked?: boolean;
+        trackedMode?: 'none' | 'position' | 'heading';
         fullRoute?: boolean;
     };
 }
@@ -87,6 +88,7 @@ export const useMapStore = defineStore('map', {
 
         activeMobileOverlay: null as null | string,
         autoShowTracks: null as null | boolean,
+        followMode: 'none' as 'none' | 'position' | 'heading',
 
         distance: {
             pixel: null as Coordinate | null,
@@ -166,7 +168,13 @@ export const useMapStore = defineStore('map', {
 
                 const pilot = await $fetch<VatsimExtendedPilot>(`/api/data/vatsim/pilot/${ cid }`);
                 this.overlays = this.overlays.filter(x => x.type !== 'pilot' || x.sticky || store.user?.settings.toggleAircraftOverlays);
-                if (tracked) this.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+                if (tracked) {
+                    this.overlays.filter(x => x.type === 'pilot').forEach(x => {
+                        const d = (x as StoreOverlayPilot).data;
+                        d.tracked = false;
+                        d.trackedMode = 'none';
+                    });
+                }
                 await nextTick();
 
                 this.sendSelectedPilotToDashboard(+cid);
@@ -181,6 +189,7 @@ export const useMapStore = defineStore('map', {
                     data: {
                         pilot,
                         tracked,
+                        trackedMode: tracked ? 'position' : 'none',
                     },
                     type: 'pilot',
                     collapsed: store.user?.settings.toggleAircraftOverlays && this.overlays.some(x => x.type === 'pilot'),
