@@ -208,6 +208,7 @@ const allowedDomains = [
     'indiavacc.org',
     'vat-sea.com',
     'vatglasses.uk',
+    'bgvacc.org',
 ];
 
 function addATISLinks(lines: string[]) {
