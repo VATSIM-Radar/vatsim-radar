@@ -210,7 +210,7 @@ const allowedDomains = [
     'vatglasses.uk',
     'bgvacc.org',
     'vatsim.me',
-    'nyart.cc'
+    'nyart.cc',
 ];
 
 function addATISLinks(lines: string[]) {
