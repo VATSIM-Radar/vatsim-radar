@@ -289,7 +289,7 @@ const icon = computed(() => 'icon' in props.aircraft ? aircraftIcons[props.aircr
 const isSelfFlight = computed(() => props.aircraft?.cid === ownFlight.value?.cid);
 
 function checkForExpiredCoordinate() {
-    if (dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.updateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
+    if (dataStore.vatsim.selfCoordinate.value && dataStore.vatsim.localUpdateTime.value - dataStore.vatsim.selfCoordinate.value.date > 1000 * 5) {
         dataStore.vatsim.selfCoordinate.value = null;
         return [props.aircraft.longitude, props.aircraft.latitude];
     }
@@ -532,6 +532,7 @@ async function setPilotRoute(enabled: boolean) {
 
         dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()] = {
             pilot: pilot.value,
+            coordinates: getCoordinates.value,
             full: typeof activeCurrentOverlay.value?.data?.fullRoute === 'boolean' ? activeCurrentOverlay.value?.data?.fullRoute : !!store.user?.settings.showFullRoute,
             calculatedArrival: dataStore.navigraphWaypoints.value[props.aircraft.cid.toString()]?.calculatedArrival,
             disableHoldings: store.localSettings.navigraphRouteAirportOverlay?.holds === false && !activeCurrentOverlay.value && !props.isHovered,

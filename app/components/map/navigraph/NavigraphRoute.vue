@@ -49,7 +49,7 @@ async function update() {
     try {
         const pilots = Object.values(dataStore.navigraphWaypoints.value);
 
-        for (let { waypoints, pilot, full, disableLabels, disableWaypoints } of pilots) {
+        for (let { waypoints, pilot, full, disableLabels, disableWaypoints, coordinates: coordinate } of pilots) {
             const { heading: bearing, groundspeed: speed, cid, arrival: _arrival, callsign } = pilot;
             currentFlight = cid === ownFlight.value?.cid;
             const extendedPilot = (mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid.toString()) as StoreOverlayPilot | undefined)?.data.pilot;
@@ -65,8 +65,6 @@ async function update() {
             const arrival = _arrival!;
 
             const arrived = pilot.status === 'arrTaxi' || pilot.status === 'arrGate';
-
-            const coordinate = [pilot.longitude, pilot.latitude];
 
             waypoints = waypoints.slice(0);
 

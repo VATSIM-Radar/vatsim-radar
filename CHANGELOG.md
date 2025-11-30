@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.4-beta.5]
+
+- (QA) Fixed fast updates issues
+- Aircraft icon will now move together with map, not fall behind
+- Fixed presets sorting not working
+- Duplicated controllers are now hidden from ATC online stats
+- Duplicated controllers now show with a dashed line
+- Added bgvacc.org, vatsm.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
+
 # [1.2.4-beta.4]
 
 - Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535

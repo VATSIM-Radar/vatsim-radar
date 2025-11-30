@@ -92,7 +92,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
     }
     else {
-        const positionChanged = (!pilot?.altitude || pilot.altitude < 25000) && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
+        const positionChanged = pilot.altitude && pilot.altitude < 25000 && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
 
         Object.assign(pilot, fields);
         pilot.date = Date.now();

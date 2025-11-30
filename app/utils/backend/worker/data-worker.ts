@@ -397,6 +397,7 @@ defineCronJob('* * * * * *', async () => {
                     radarStorage.vatsim.data.controllers.push({
                         ...controller,
                         callsign: `ZMO_${ controllerSplit[1] }_CTR`,
+                        duplicated: true,
                     });
                 }
             }
@@ -414,6 +415,7 @@ defineCronJob('* * * * * *', async () => {
                                 radarStorage.vatsim.data.controllers.push({
                                     ...controller,
                                     callsign: targetCallsign,
+                                    duplicated: true,
                                 });
                             }
                         }
@@ -444,6 +446,7 @@ defineCronJob('* * * * * *', async () => {
                     ...controller,
                     callsign: sector.callsign,
                     frequency: sector.frequency,
+                    duplicated: true,
                 });
             }
         }

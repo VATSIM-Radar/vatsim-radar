@@ -45,7 +45,7 @@
             <common-controller-info
                 ref="controllerInfo"
                 absolute
-                :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)]"
+                :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)].filter(x => isDuplicated || !x.duplicated)"
                 show-atis
             >
                 <template #title>
@@ -141,12 +141,17 @@ const getATCFullName = computed(() => {
     return `${ prop.name } ${ country.callsign ?? 'Center' }`;
 });
 
+const isDuplicated = computed(() => {
+    return !locals.value.length ? globals.value.every(x => x.controller.duplicated) : locals.value.every(x => x.controller.duplicated);
+});
+
 const init = () => {
     if (!vectorSource.value) return;
 
     try {
         const localFeatureType = makeLocalFeatureType();
         const rootFeatureType = (isHovered.value && globals.value.length) ? 'hovered-root' : 'root';
+        const dashed = isDuplicated.value;
 
         if (!localFeature) {
             localFeature = geoJson.readFeature({
@@ -154,15 +159,17 @@ const init = () => {
                 id: undefined,
                 properties: {
                     ...(props.fir.feature.properties ?? {}),
+                    dashed,
                     type: localFeatureType,
                 },
             }) as Feature<any>;
 
             vectorSource.value.addFeature(localFeature);
         }
-        else if (localFeature && localFeature.getProperties().type !== localFeatureType) {
+        else if (localFeature && (localFeature.getProperties().type !== localFeatureType || localFeature.getProperties().dashed !== dashed)) {
             localFeature.setProperties({
                 type: localFeatureType,
+                dashed,
             });
         }
 
@@ -173,14 +180,16 @@ const init = () => {
                 properties: {
                     ...(props.fir.feature.properties ?? {}),
                     type: rootFeatureType,
+                    dashed,
                 },
             }) as Feature<any>;
 
             vectorSource.value.addFeature(rootFeature);
         }
-        else if (rootFeature && rootFeature.getProperties().type !== rootFeatureType) {
+        else if (rootFeature && (rootFeature.getProperties().type !== rootFeatureType || localFeature.getProperties().dashed !== dashed)) {
             rootFeature.setProperties({
                 type: rootFeatureType,
+                dashed,
             });
         }
         else if (rootFeature && (!globals.value.length || locals.value.length)) {

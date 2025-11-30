@@ -194,7 +194,7 @@ export const useStore = defineStore('index', {
                 }
 
                 for (const atc of dataStore.vatsim.data.locals.value) {
-                    if (atc.atc.isATIS) continue;
+                    if (atc.atc.isATIS || atc.atc.duplicated) continue;
                     if (listsUsers.has(atc.atc.cid)) {
                         foundUsers[atc.atc.cid] = {
                             type: 'atc',
@@ -216,7 +216,7 @@ export const useStore = defineStore('index', {
                 }
 
                 for (const atc of dataStore.vatsim.data.firs.value) {
-                    if (atc.controller.isATIS) continue;
+                    if (atc.controller.isATIS || atc.controller.duplicated) continue;
                     if (listsUsers.has(atc.controller.cid)) {
                         foundUsers[atc.controller.cid] = {
                             type: atc.controller.rating === 1 ? 'sup' : 'atc',

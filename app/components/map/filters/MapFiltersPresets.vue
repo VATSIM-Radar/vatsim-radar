@@ -57,9 +57,9 @@
 
             <template v-if="presets.length">
                 <vue-draggable
+                    v-model="localPresets"
                     class="presets__drag-container"
                     handle=".presets__drag"
-                    :model-value="localPresets"
                     :on-change="sortPresets"
                 >
                     <div
