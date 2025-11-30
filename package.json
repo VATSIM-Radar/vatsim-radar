@@ -54,7 +54,7 @@
     "aws-sdk": "^2.1692.0",
     "chardet": "^2.1.1",
     "chart.js": "^4.5.1",
-    "chokidar": "^4.0.3",
+    "chokidar": "^5.0.0",
     "croner": "^9.1.0",
     "deep-equal": "^2.2.3",
     "dexie": "^4.2.1",
