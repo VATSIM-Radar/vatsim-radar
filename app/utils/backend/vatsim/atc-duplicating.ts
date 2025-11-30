@@ -21,6 +21,7 @@ export const duplicatingSettings = [
             'Area D': 'SFO_DEP',
             'Area E': 'SMF_APP',
             'Area R': 'RNO_APP',
+            'NCT TRACON': 'NCT_APP',
             'FAT TRACON': 'FAT_F_APP',
             'NFL RAPCON': 'NFL_APP',
             'NLC RAPCON': 'NLC_APP',
