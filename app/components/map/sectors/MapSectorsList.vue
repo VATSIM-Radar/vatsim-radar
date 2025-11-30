@@ -1,5 +1,5 @@
 <template>
-    <template v-if="!hideAtc">
+    <template v-if="!hideAtc && !hideOnZoom">
         <map-sector
             v-for="(sector, index) in firs.filter(x => x.atc?.length || x.booking)"
             :key="sector.fir.feature.id as string + index"
@@ -8,7 +8,7 @@
         />
     </template>
 
-    <template v-if="!hideAtc && vatGlassesActive && !store.bookingOverride">
+    <template v-if="!hideAtc && vatGlassesActive && !store.bookingOverride && !hideOnZoom">
         <template
             v-for="(countryEntries, countryId) in dataStore.vatglassesActivePositions.value"
             :key="countryId"
@@ -108,6 +108,7 @@ let emptyFirs: Feature[] = [];
 provide('vector-source', vectorSource);
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const store = useStore();
 
 const sectorsAtClick = shallowRef<VatglassesSectorProperties[]>([]);
@@ -189,7 +190,9 @@ function processEmptyFirs() {
     vectorSource.value?.addFeatures(emptyFirs);
 }
 
-const mapStore = useMapStore();
+const hideOnZoom = computed(() => {
+    return mapStore.zoom > 13;
+});
 
 watch(() => mapStore.distance.pixel, val => {
     if (val) vatglassesPopupIsShown.value = false;
