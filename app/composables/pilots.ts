@@ -4,7 +4,7 @@ import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
-import { Icon, Stroke, Style } from 'ol/style';
+import { Icon, Stroke, Style, Text, Fill } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
@@ -259,7 +259,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
     if (icon === 'ball') rotation = 0;
 
     const store = useStore();
-    const resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
+    let resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
 
     const image = style.getImage();
 
@@ -277,6 +277,34 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         }
     }
 
+    if (resolvedScale > 4) resolvedScale = 4;
+
+    const text = style.getText();
+    const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 3 + 6;
+    const shouldShowText = useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
+    const textValue = shouldShowText ? undefined : featureProperties.callsign;
+
+    const declutter = ownFlight.value?.cid !== cid;
+
+    if (!text) {
+        style.setText(new Text({
+            text: featureProperties.callsign ?? '',
+            font: '600 11px Montserrat',
+            declutterMode: declutter ? 'declutter' : 'none',
+            fill: new Fill({
+                color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
+            }),
+            offsetY,
+        }));
+    }
+    else if (textValue !== text.getText()) {
+        text.setText(featureProperties.callsign);
+    }
+
+    const textFill = text!.getFill()!;
+
+    text?.setOffsetY(offsetY);
+
     if (!force &&
         image &&
         featureProperties.imageStatus === status &&
@@ -288,12 +316,15 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         image.setRotation(rotation);
     }
     else {
+        textFill.setColor(getAircraftStatusColor(status, cid));
+
         if ((status === 'default' || status === 'ground') && !list) {
             let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
 
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
 
             style.setImage(new Icon({
+                declutterMode: 'none',
                 src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.webp?v=${ store.version }`,
                 width: radarIcons[icon].width * resolvedScale,
                 rotation,
@@ -307,6 +338,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         else {
             const svg = await fetchAircraftIcon(icon);
             style.setImage(new Icon({
+                declutterMode: 'none',
                 src: svgToDataURI(reColorSvg(svg, status, cid)),
                 width: radarIcons[icon].width * resolvedScale,
                 rotation,
@@ -417,13 +449,12 @@ export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 25, exitOn
 
     if (collapsingWithOverlay(map, pixel)) return []; // The mouse is over an relevant overlay, we don't want to return any pilot
 
-    return dataStore.visiblePilots.value.filter(x => {
-        const pilotPixel = aircraftCoordsToPixel(map, x);
-        if (!pilotPixel) return false;
+    const featuresFilter = map.getFeaturesAtPixel(pixel, {
+        hitTolerance: tolerance, // we use 6 instead of 5 because of the aircraft icons size, it is just for cosmetic reasons
+        layerFilter: layer => layer.getProperties().type === 'aircraft',
+    });
 
-        return Math.abs(pilotPixel[0] - pixel[0]) < tolerance &&
-            Math.abs(pilotPixel[1] - pixel[1]) < tolerance;
-    }) ?? [];
+    return featuresFilter.map(x => dataStore.vatsim.data.keyedPilots.value[x.getProperties().id]).filter(x => x);
 }
 
 export function aircraftCoordsToPixel(map: Map, aircraft: VatsimMandatoryPilot): Pixel | null {

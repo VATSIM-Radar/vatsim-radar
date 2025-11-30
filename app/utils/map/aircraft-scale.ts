@@ -91,5 +91,7 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
 
     const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
     const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
-    return baselineMultiplier + interpolated;
+    const result = baselineMultiplier + interpolated;
+    if (iconPixelWidth && result > iconPixelWidth * 4) return iconPixelWidth * 4;
+    return result;
 }

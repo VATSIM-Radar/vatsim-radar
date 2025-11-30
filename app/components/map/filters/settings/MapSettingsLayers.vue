@@ -143,7 +143,7 @@
             width="100%"
             @update:modelValue="setUserMapSettings({ dynamicAircraftScale: $event })"
         >
-            Dynamic sizing with zoom
+            Dynamic zoom
 
             <template #description>
                 Smoothly scales aircraft icons as you zoom in or out.
