@@ -211,6 +211,7 @@ const allowedDomains = [
     'bgvacc.org',
     'vatsim.me',
     'nyart.cc',
+    'vatsim-petersburg.com',
 ];
 
 function addATISLinks(lines: string[]) {

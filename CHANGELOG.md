@@ -7,7 +7,7 @@
 - Fixed presets sorting not working
 - Duplicated controllers are now hidden from ATC online stats
 - Duplicated controllers now show with a dashed line
-- Added bgvacc.org, vatsm.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
+- Added bgvacc.org, vatsim.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
 
 # [1.2.4-beta.4]
 
