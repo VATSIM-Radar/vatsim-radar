@@ -80,6 +80,12 @@ const isExpired = computed(() => {
     return data.value?.validUntil && data.value.validUntil < dataStore.time.value;
 });
 
+watchEffect(() => {
+    if (data.value?.validUntil) {
+        console.log(`Sigmets valid until ${ new Date(data.value?.validUntil).toISOString() }`);
+    }
+});
+
 const shouldSetCurrent = computed(() => {
     return store.localSettings.filters?.layers?.sigmets?.activeDate && store.localSettings.filters?.layers?.sigmets?.activeDate !== 'current' && new Date(store.localSettings.filters?.layers?.sigmets?.activeDate).getTime() < dataStore.time.value;
 });

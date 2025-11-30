@@ -131,6 +131,8 @@ export async function initNavigraph() {
 
     if (currentCycle === cycles.current && outdatedCycle === cycles.outdated) return;
 
+    console.log(`Cycle updated`, cycles.current, currentCycle, cycles.outdated, outdatedCycle);
+
     cycles.current = currentCycle;
     cycles.outdated = outdatedCycle;
 

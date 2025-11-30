@@ -102,7 +102,7 @@
         >
             <common-controller-info
                 ref="approachPopup"
-                :controllers="hoveredFeature.controllers"
+                :controllers="isDuplicatedOnly(hoveredFeature.controllers) ? hoveredFeature.controllers : hoveredFeature.controllers.filter(x => !x.duplicated)"
                 show-atis
             >
                 <template #title>
@@ -287,6 +287,12 @@ const isAppOnlyBooking = (atc: VatsimShortenedController | VatsimShortenedContro
     return atc.every(x => x && x.facility === facilities.APP && x.booking) && !isVatGlassesActive.value;
 };
 
+const isDuplicatedOnly = (atc: VatsimShortenedController | VatsimShortenedController[]) => {
+    if (!Array.isArray(atc)) atc = [atc];
+
+    return atc.every(x => x && x.duplicated);
+};
+
 function createFacility(facilityId: number, booking: VatsimBooking | undefined): Facility {
     return {
         facility: facilityId,
@@ -388,6 +394,8 @@ function setBorderFeatureStyle(feature: Feature) {
         stroke: new Stroke({
             color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
+            lineDash: isDuplicatedOnly(feature.getProperties().controllers) ? [4, 6] : undefined,
+            lineJoin: 'round',
         }),
     }));
 }

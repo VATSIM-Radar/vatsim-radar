@@ -461,6 +461,7 @@ watch(map, val => {
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
+            updateWhileAnimating: true,
             properties: {
                 type: 'aircraft',
             },

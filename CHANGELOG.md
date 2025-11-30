@@ -1,8 +1,18 @@
 # Changelog
 
-# [1.2.4-beta.5]
+# [1.2.4-beta.6]
+
 - Improved dynamic aircraft scaling based on zoom level by 1489535 — airplanes on the ground are now scaled to their real-world size
 - Center and APP sectors disappear when zooming in by 1489535
+
+# [1.2.4-beta.5]
+
+- (QA) Fixed fast updates issues
+- Aircraft icon will now move together with map, not fall behind
+- Fixed presets sorting not working
+- Duplicated controllers are now hidden from ATC online stats
+- Duplicated controllers now show with a dashed line
+- Added bgvacc.org, vatsim.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
 
 # [1.2.4-beta.4]
 

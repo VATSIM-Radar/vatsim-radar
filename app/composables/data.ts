@@ -192,6 +192,7 @@ export interface UseDataStore {
     airlines: ShallowRef<RadarDataAirlinesAllList>;
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
+        coordinates: Coordinate;
         calculatedArrival?: Pick<VatsimExtendedPilot, 'toGoTime' | 'toGoDist' | 'toGoPercent' | 'stepclimbs' | 'depDist'>;
         full: boolean;
         disableHoldings?: boolean;
@@ -273,9 +274,7 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
 
 export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     time.value = mandatoryData.serverTime;
-    if (vatsim.updateTime.value !== mandatoryData.timestampNum) {
-        vatsim.localUpdateTime.value = Date.now();
-    }
+    vatsim.localUpdateTime.value = Date.now();
     vatsim.updateTime.value = mandatoryData.timestampNum;
 
     if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));

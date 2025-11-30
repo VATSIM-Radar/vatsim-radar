@@ -312,6 +312,19 @@ function updateMap(map: Map | null) {
             zIndex: 3,
         });
 
+        const localStyleDashed = new Style({
+            fill: new Fill({
+                color: firColor || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.07)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
+                width: 1,
+                lineDash: [4, 6],
+                lineJoin: 'round',
+            }),
+            zIndex: 3,
+        });
+
         const localBookingStyle = new Style({
             fill: new Fill({
                 color: bookingsColor || `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.07)`,
@@ -330,6 +343,19 @@ function updateMap(map: Map | null) {
             stroke: new Stroke({
                 color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
                 width: 1,
+            }),
+            zIndex: 3,
+        });
+
+        const rootStyleDashed = new Style({
+            fill: new Fill({
+                color: uirColor || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 0.07)`,
+            }),
+            stroke: new Stroke({
+                color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
+                width: 1,
+                lineDash: [4, 6],
+                lineJoin: 'round',
             }),
             zIndex: 3,
         });
@@ -396,16 +422,18 @@ function updateMap(map: Map | null) {
                 type: 'sectors',
             },
             style: function(feature) {
-                const type = feature.getProperties().type;
+                const { type, dashed } = feature.getProperties();
 
                 switch (type) {
                     case 'default':
                         return defaultStyle;
                     case 'local':
+                        if (dashed) return localStyleDashed;
                         return localStyle;
                     case 'local-booking':
                         return localBookingStyle;
                     case 'root':
+                        if (dashed) return rootStyleDashed;
                         return rootStyle;
                     case 'hovered':
                         return hoveredStyle;
