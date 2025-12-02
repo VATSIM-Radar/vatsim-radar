@@ -111,10 +111,6 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full' | 'all') {
     const { type, airport, group, index } = getRouterParams(event);
 
-    const next = isNext();
-
-    if (next) console.time('procedure');
-
     if (type !== 'outdated') {
         const user = await findAndRefreshFullUserByCookie(event);
 
@@ -127,8 +123,6 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
         }
     }
 
-    if (next) console.timeLog('procedure', 'user');
-
     const key = type === 'outdated' ? type : 'current';
 
     const config = useRuntimeConfig();
@@ -139,8 +133,5 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
     }
     catch (e) {
         handleH3Exception(event, e);
-    }
-    finally {
-        if (next) console.timeEnd('procedure');
     }
 }

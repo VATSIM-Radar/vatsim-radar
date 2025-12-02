@@ -79,6 +79,9 @@ export interface UserSettings {
 
 export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = true): Promise<FullUser | null> {
     const cookie = getCookie(event, 'access-token');
+    const next = isNext();
+
+    if (next) console.time('user');
 
     const token = await prisma.userToken.findFirst({
         select: {
@@ -117,10 +120,13 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
         },
     });
 
+    if (next) console.timeLog('user', 'token');
+
     if (token) {
         if (token.accessTokenExpire.getTime() < Date.now()) {
             if (refresh) {
                 await getDBUserToken(event, token.user, token);
+                if (next) console.timeLog('user', 'refresh');
             }
             else {
                 handleH3Error({
@@ -135,7 +141,9 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
         if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now() && refresh) {
             try {
                 const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
+                if (next) console.timeLog('user', 'navigraphRefresh');
                 const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
+                if (next) console.timeLog('user', 'navigraphJwt');
 
                 const hasFms = !!jwt.subscriptions?.includes('fmsdata');
                 const hasCharts = !!jwt.subscriptions?.includes('charts');
@@ -151,6 +159,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
                         hasCharts,
                     },
                 });
+                if (next) console.timeLog('user', 'navigrahUpdate');
                 token.user.navigraph.hasFms = hasFms;
                 token.user.navigraph.hasCharts = hasCharts;
             }
@@ -164,6 +173,12 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             }
         }
 
+        console.timeLog('user', 'beforeReturn');
+
+        const lists = await filterUserLists(token.user.lists as unknown as UserList[]);
+
+        if (next) console.timeEnd('user');
+
         return {
             id: token.user.id,
             hasFms: token.user.navigraph?.hasFms ?? null,
@@ -175,7 +190,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             privateMode: token.user.privateMode,
             privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
             isSup: token.user.isSup,
-            lists: await filterUserLists(token.user.lists as unknown as UserList[]),
+            lists,
         };
     }
     return null;
