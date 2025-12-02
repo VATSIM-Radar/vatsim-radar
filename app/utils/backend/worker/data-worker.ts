@@ -693,7 +693,7 @@ defineCronJob('* * * * * *', async () => {
             lastCheck = Date.now();
             wss.clients.forEach(ws => {
                 ws.send('check');
-                ws.failCheck ??= ws.failCheck ?? 0;
+                ws.failCheck ||= 0;
                 ws.failCheck++;
 
                 if (ws.failCheck >= 10) {

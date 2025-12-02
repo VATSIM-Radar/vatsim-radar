@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-beta.6]
+
+- (QA) Fast update now only happens below 100GS
+
 # [1.2.4-beta.5]
 
 - (QA) Fixed fast updates issues
