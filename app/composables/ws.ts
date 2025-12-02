@@ -79,6 +79,7 @@ export function initDataWebsocket(): () => void {
                     date: Date.now(),
                 };
             }
+            else if (json.type === 'updatePaused') dataStore.vatsim.selfCoordinate.value = null;
 
             return;
         }
