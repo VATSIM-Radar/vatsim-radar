@@ -16,7 +16,6 @@ import type {
     NavigraphNavDataShort,
 } from '~/utils/backend/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/backend/navigraph/navdata/star-sid';
-import { isNext } from '~/utils/backend/debug';
 
 export async function processDatabase(db: sqlite3.Database, version: string) {
     console.time('navigraph get');
