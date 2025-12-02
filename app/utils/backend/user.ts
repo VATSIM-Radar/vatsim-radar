@@ -82,109 +82,134 @@ export interface UserSettings {
 export async function findAndRefreshUserByCookie(event: H3Event, refresh: boolean | undefined, includeLists: true): Promise<FullUser | null>;
 export async function findAndRefreshUserByCookie(event: H3Event, refresh?: boolean, includeLists?: false): Promise<ShortUser | null>;
 export async function findAndRefreshUserByCookie(event: H3Event, refresh = true, includeLists = false): Promise<FullUser | ShortUser | null> {
-    const cookie = getCookie(event, 'access-token');
+    try {
+        const cookie = getCookie(event, 'access-token');
 
-    const token = await prisma.userToken.findFirst({
-        select: {
-            id: true,
-            user: {
-                select: {
-                    id: true,
-                    settings: true,
-                    navigraph: {
-                        select: {
-                            accessToken: true,
-                            accessTokenExpire: true,
-                            refreshToken: true,
-                            hasFms: true,
-                            hasCharts: true,
+        const next = isNext();
+        if (next) console.time('user');
+
+        const token = await prisma.userToken.findFirst({
+            select: {
+                id: true,
+                user: {
+                    select: {
+                        id: true,
+                        settings: true,
+                        navigraph: {
+                            select: {
+                                accessToken: true,
+                                accessTokenExpire: true,
+                                refreshToken: true,
+                                hasFms: true,
+                                hasCharts: true,
+                            },
                         },
-                    },
-                    vatsim: {
-                        select: {
-                            id: true,
-                            fullName: true,
+                        vatsim: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                            },
                         },
+                        discordId: true,
+                        lists: true,
+                        privateMode: true,
+                        privateUntil: true,
+                        isSup: true,
                     },
-                    discordId: true,
-                    lists: true,
-                    privateMode: true,
-                    privateUntil: true,
-                    isSup: true,
                 },
+                accessTokenExpire: true,
+                refreshMaxDate: true,
             },
-            accessTokenExpire: true,
-            refreshMaxDate: true,
-        },
-        where: {
-            accessToken: cookie ?? '',
-        },
-    });
+            where: {
+                accessToken: cookie ?? '',
+            },
+        });
 
-    if (token) {
-        if (token.accessTokenExpire.getTime() < Date.now()) {
-            if (refresh) {
-                await getDBUserToken(event, token.user, token);
-            }
-            else {
-                handleH3Error({
-                    event,
-                    statusCode: 401,
-                });
+        if (next) console.timeLog('user', 'get');
 
-                return null;
+        if (token) {
+            if (token.accessTokenExpire.getTime() < Date.now()) {
+                if (refresh) {
+                    await getDBUserToken(event, token.user, token);
+                }
+                else {
+                    handleH3Error({
+                        event,
+                        statusCode: 401,
+                    });
+
+                    return null;
+                }
             }
+
+            if (next) console.timeLog('user', 'token');
+
+            if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now() && refresh) {
+                try {
+                    const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
+                    const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
+
+                    const hasFms = !!jwt.subscriptions?.includes('fmsdata');
+                    const hasCharts = !!jwt.subscriptions?.includes('charts');
+                    await prisma.navigraphUser.update({
+                        where: {
+                            userId: token.user.id,
+                        },
+                        data: {
+                            accessToken: refreshedToken.access_token,
+                            accessTokenExpire: new Date(Date.now() + (refreshedToken.expires_in * 1000)),
+                            refreshToken: refreshedToken.refresh_token,
+                            hasFms,
+                            hasCharts,
+                        },
+                    });
+                    token.user.navigraph.hasFms = hasFms;
+                    token.user.navigraph.hasCharts = hasCharts;
+                }
+                catch {
+                    await prisma.navigraphUser.delete({
+                        where: {
+                            userId: token.user.id,
+                        },
+                    });
+                    token.user.navigraph = null;
+                }
+            }
+
+            if (next) console.timeLog('user', 'navigraph');
+
+            const lists = includeLists ? await filterUserLists(token.user.lists as unknown as UserList[]) : undefined;
+
+            if (next) console.timeLog('user', 'lists');
+
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const settings = (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string));
+
+            console.timeLog('user', 'settings');
+
+            const returnData = {
+                id: token.user.id,
+                hasFms: token.user.navigraph?.hasFms ?? null,
+                hasCharts: token.user.navigraph?.hasCharts ?? null,
+                cid: token.user.vatsim!.id,
+                fullName: token.user.vatsim!.fullName,
+                settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
+                discordId: token.user.discordId,
+                privateMode: token.user.privateMode,
+                privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
+                isSup: token.user.isSup,
+                lists,
+            };
+
+            if (next) console.timeEnd('user');
+
+            return returnData;
         }
-
-        if (token.user.navigraph && token.user.navigraph.accessTokenExpire.getTime() < Date.now() && refresh) {
-            try {
-                const refreshedToken = await refreshNavigraphToken(token.user.navigraph.refreshToken);
-                const jwt = await getNavigraphGwtResult(refreshedToken.access_token);
-
-                const hasFms = !!jwt.subscriptions?.includes('fmsdata');
-                const hasCharts = !!jwt.subscriptions?.includes('charts');
-                await prisma.navigraphUser.update({
-                    where: {
-                        userId: token.user.id,
-                    },
-                    data: {
-                        accessToken: refreshedToken.access_token,
-                        accessTokenExpire: new Date(Date.now() + (refreshedToken.expires_in * 1000)),
-                        refreshToken: refreshedToken.refresh_token,
-                        hasFms,
-                        hasCharts,
-                    },
-                });
-                token.user.navigraph.hasFms = hasFms;
-                token.user.navigraph.hasCharts = hasCharts;
-            }
-            catch {
-                await prisma.navigraphUser.delete({
-                    where: {
-                        userId: token.user.id,
-                    },
-                });
-                token.user.navigraph = null;
-            }
-        }
-
-        const lists = includeLists ? await filterUserLists(token.user.lists as unknown as UserList[]) : undefined;
-
-        return {
-            id: token.user.id,
-            hasFms: token.user.navigraph?.hasFms ?? null,
-            hasCharts: token.user.navigraph?.hasCharts ?? null,
-            cid: token.user.vatsim!.id,
-            fullName: token.user.vatsim!.fullName,
-            settings: (typeof token.user.settings === 'object' ? token.user.settings : JSON.parse(token.user.settings as string)) as UserSettings,
-            discordId: token.user.discordId,
-            privateMode: token.user.privateMode,
-            privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
-            isSup: token.user.isSup,
-            lists,
-        };
+        return null;
     }
-    return null;
+    finally {
+        console.timeEnd('user');
+    }
 }
 
 export async function filterUserLists(_lists: Array<UserTrackingList | UserList>): Promise<UserList[]> {
