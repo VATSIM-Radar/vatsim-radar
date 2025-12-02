@@ -14,7 +14,7 @@ export default defineNitroPlugin(app => {
 
         if ((!config.ACCESS_BY_DISCORD_ROLES || !isPage) && (event.path.startsWith('/api/auth') || (event.path.startsWith('/api/data') && !event.path.includes('navigraph')))) return;
 
-        event.context.user = await findAndRefreshUserByCookie(event, undefined, true);
+        event.context.user = await findAndRefreshUserByCookie(event, undefined, isPage as true);
 
         try {
             const originHeader = getRequestHeader(event, 'origin') ?? getRequestHeader(event, 'referer');
