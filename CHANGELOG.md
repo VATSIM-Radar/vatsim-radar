@@ -3,6 +3,7 @@
 # [1.2.4-beta.6]
 
 - (QA) Fast update now only happens below 100GS
+- Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends lists, or for next users
 
 # [1.2.4-beta.5]
 

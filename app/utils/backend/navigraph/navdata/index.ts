@@ -2,7 +2,7 @@ import type sqlite3 from 'sqlite3';
 import { dbPartialRequest } from '~/utils/backend/navigraph/db';
 import type { H3Event } from 'h3';
 import { handleH3Error, handleH3Exception, validateDataReady } from '~/utils/backend/h3';
-import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
+import { findAndRefreshUserByCookie } from '~/utils/backend/user';
 import { processNavdataNDB, processNavdataVHF } from '~/utils/backend/navigraph/navdata/vordme';
 import {
     processNavdataAirways,
@@ -93,7 +93,7 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
     const config = useRuntimeConfig();
 
     if (type === 'current') {
-        const user = await findAndRefreshFullUserByCookie(event);
+        const user = await findAndRefreshUserByCookie(event);
 
         if (!user || !user.hasFms) {
             return handleH3Error({
@@ -111,7 +111,7 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
     const { type, airport, group, index } = getRouterParams(event);
 
     if (type !== 'outdated') {
-        const user = await findAndRefreshFullUserByCookie(event);
+        const user = await findAndRefreshUserByCookie(event);
 
         if (!user || !user.hasFms) {
             return handleH3Error({
