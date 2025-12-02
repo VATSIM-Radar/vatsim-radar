@@ -36,7 +36,7 @@
 - Fixed an issue when your aircraft was not tracked when it was supposed to on map first open
 - Reduced traffic consumption on "online" status check
 - People will now be marked as "online" in VATSIM Radar for ~2 minutes after they've left the tab, instead of 10 seconds
-- Implemented very fast updating of your own flight (below FL250)
+- Implemented very fast updating of your own flight (below FL250 and 100GS)
 - Fixed some route parsing crashes
 - Fixed issue when STAR was selected without an approach, it selected random runway instead of needed one
 - You can now select approach without a star in Proc tab

@@ -93,191 +93,209 @@ function handleError(message: string, statusCode = 404) {
 serve({
     port: 3000,
     fetch(request) {
-        const path = request.url.split(':3000')[1];
-        const method = request.method;
-        const route = findRoute<{ type: string }>(router, method, path);
-        if (!route) {
-            return new Response('not found', {
-                status: 404,
-            });
-        }
+        try {
+            const path = request.url.split(':3000')[1];
+            const method = request.method;
 
-        if (updating) {
-            return new Response('not ready yet', {
-                status: 423,
-            });
-        }
+            console.time('log');
 
-        if (route.data.type === 'item') {
-            const { type, key, data } = route.params!;
-
-            const object = navigraphData.full[type as 'current' | 'outdated']?.[data as keyof NavigraphNavData];
-            if (!object) {
-                return handleError('Data object not found');
+            const route = findRoute<{ type: string }>(router, method, path);
+            if (!route) {
+                return new Response('not found', {
+                    status: 404,
+                });
             }
 
-            const item = object[key as keyof typeof object];
-            if (!item) {
-                return handleError('Item not found for this key');
+            console.timeLog('log', 'find');
+
+            if (updating) {
+                return new Response('not ready yet', {
+                    status: 423,
+                });
             }
 
-            return new Response(JSON.stringify(item), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-        }
+            if (route.data.type === 'item') {
+                const { type, key, data } = route.params!;
 
-        if (route.data.type === 'data') {
-            const { type } = route.params!;
+                const object = navigraphData.full[type as 'current' | 'outdated']?.[data as keyof NavigraphNavData];
+                if (!object) {
+                    return handleError('Data object not found');
+                }
 
-            const params = request.url.split('?')[1];
-            const keys = params ? params.split('keys=')[1]?.split('&')[0] : '';
-            const requestedKeys = keys ? keys.split(',') : [];
+                const item = object[key as keyof typeof object];
+                if (!item) {
+                    return handleError('Item not found for this key');
+                }
 
-            const data = navigraphData?.short[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
-
-            if (!requestedKeys?.length) {
-                return new Response(JSON.stringify(data), {
+                return new Response(JSON.stringify(item), {
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
             }
 
-            const newObj: Partial<NavigraphNavDataShort> = {};
+            if (route.data.type === 'data') {
+                const { type } = route.params!;
 
-            for (const key of requestedKeys) {
-                // @ts-expect-error dynamic assigment
-                newObj[key] = data[key];
-            }
+                const params = request.url.split('?')[1];
+                const keys = params ? params.split('keys=')[1]?.split('&')[0] : '';
+                const requestedKeys = keys ? keys.split(',') : [];
 
-            return new Response(JSON.stringify(newObj), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-        }
+                const data = navigraphData?.short[type as 'current' | 'outdated'];
+                if (!data) {
+                    return handleError('Data not initialized');
+                }
 
-        function getShortStar(star: NavDataProcedure<NavigraphNavDataStar>): NavigraphNavDataStarShort {
-            return {
-                identifier: star.procedure.identifier,
-                runways: star.procedure.runways,
-                transitions: {
-                    runway: star.transitions.runway.map(x => x.name),
-                    enroute: star.transitions.enroute.map(x => x.name),
-                },
-            };
-        }
+                if (!requestedKeys?.length) {
+                    return new Response(JSON.stringify(data), {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                }
 
-        function getShortApproach(star: NavDataProcedure<NavigraphNavDataApproach>): NavigraphNavDataApproachShort {
-            return {
-                name: star.procedure.procedureName,
-                runway: star.procedure.runway,
-                transitions: star.transitions.map(x => x.name),
-            };
-        }
+                const newObj: Partial<NavigraphNavDataShort> = {};
 
-        if (route.data.type === 'allProcedures') {
-            const { type, airport } = route.params!;
+                for (const key of requestedKeys) {
+                    // @ts-expect-error dynamic assigment
+                    newObj[key] = data[key];
+                }
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
-
-            const stars = data.stars[airport];
-            const sids = data.sids[airport];
-            const approaches = data.approaches[airport];
-
-            if (!stars && !sids && !approaches) return handleError('Not found');
-
-            return new Response(JSON.stringify({
-                stars: stars?.map(x => getShortStar(x)) ?? [],
-                sids: sids?.map(x => getShortStar(x)) ?? [],
-                approaches: approaches?.map(x => getShortApproach(x)) ?? [],
-            }), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-        }
-
-        if (route.data.type === 'procedures') {
-            const { type, airport, group } = route.params!;
-
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
-            }
-
-            const _procedures = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
-
-            if (!_procedures) return handleError('Not found');
-
-            if (group !== 'approaches') {
-                const procedures = _procedures as NavDataProcedure<NavigraphNavDataStar>[];
-
-                return new Response(JSON.stringify(procedures.map(x => getShortStar(x))), {
+                return new Response(JSON.stringify(newObj), {
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
             }
-            else {
-                const procedures = _procedures as NavDataProcedure<NavigraphNavDataApproach>[];
 
-                return new Response(JSON.stringify(procedures.map(x => getShortApproach(x))), {
+            function getShortStar(star: NavDataProcedure<NavigraphNavDataStar>): NavigraphNavDataStarShort {
+                return {
+                    identifier: star.procedure.identifier,
+                    runways: star.procedure.runways,
+                    transitions: {
+                        runway: star.transitions.runway.map(x => x.name),
+                        enroute: star.transitions.enroute.map(x => x.name),
+                    },
+                };
+            }
+
+            function getShortApproach(star: NavDataProcedure<NavigraphNavDataApproach>): NavigraphNavDataApproachShort {
+                return {
+                    name: star.procedure.procedureName,
+                    runway: star.procedure.runway,
+                    transitions: star.transitions.map(x => x.name),
+                };
+            }
+
+            if (route.data.type === 'allProcedures') {
+                const { type, airport } = route.params!;
+
+                const data = navigraphData?.full[type as 'current' | 'outdated'];
+                if (!data) {
+                    return handleError('Data not initialized');
+                }
+
+                const stars = data.stars[airport];
+                const sids = data.sids[airport];
+                const approaches = data.approaches[airport];
+
+                console.timeLog('log', 'allProc');
+
+                if (!stars && !sids && !approaches) return handleError('Not found');
+
+                return new Response(JSON.stringify({
+                    stars: stars?.map(x => getShortStar(x)) ?? [],
+                    sids: sids?.map(x => getShortStar(x)) ?? [],
+                    approaches: approaches?.map(x => getShortApproach(x)) ?? [],
+                }), {
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
             }
-        }
 
-        if (route.data.type === 'procedure') {
-            const { type, airport, group, index } = route.params!;
+            if (route.data.type === 'procedures') {
+                const { type, airport, group } = route.params!;
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
+                const data = navigraphData?.full[type as 'current' | 'outdated'];
+                if (!data) {
+                    return handleError('Data not initialized');
+                }
+
+                const _procedures = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
+
+                console.timeLog('log', 'proc');
+
+                if (!_procedures) return handleError('Not found');
+
+                if (group !== 'approaches') {
+                    const procedures = _procedures as NavDataProcedure<NavigraphNavDataStar>[];
+
+                    return new Response(JSON.stringify(procedures.map(x => getShortStar(x))), {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                }
+                else {
+                    const procedures = _procedures as NavDataProcedure<NavigraphNavDataApproach>[];
+
+                    return new Response(JSON.stringify(procedures.map(x => getShortApproach(x))), {
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                }
             }
 
-            const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport]?.[+index];
+            if (route.data.type === 'procedure') {
+                const { type, airport, group, index } = route.params!;
 
-            if (!procedure) return handleError('Not found');
+                const data = navigraphData?.full[type as 'current' | 'outdated'];
+                if (!data) {
+                    return handleError('Data not initialized');
+                }
 
-            return new Response(JSON.stringify(procedure), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-        }
+                const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport]?.[+index];
 
+                if (!procedure) return handleError('Not found');
 
-        if (route.data.type === 'allProcedure') {
-            const { type, airport, group } = route.params!;
+                console.timeLog('log', 'singleProc');
 
-            const data = navigraphData?.full[type as 'current' | 'outdated'];
-            if (!data) {
-                return handleError('Data not initialized');
+                return new Response(JSON.stringify(procedure), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
             }
 
-            const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
 
-            if (!procedure) return handleError('Not found');
+            if (route.data.type === 'allProcedure') {
+                const { type, airport, group } = route.params!;
 
-            return new Response(JSON.stringify(procedure), {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+                const data = navigraphData?.full[type as 'current' | 'outdated'];
+                if (!data) {
+                    return handleError('Data not initialized');
+                }
+
+                const procedure = data[group as 'stars' | 'sids' | 'approaches']?.[airport];
+
+                console.timeLog('log', 'allSingleProc');
+
+                if (!procedure) return handleError('Not found');
+
+                return new Response(JSON.stringify(procedure), {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+            }
+
+            return handleError('Not found');
         }
-
-        return handleError('Not found');
+        finally {
+            console.timeEnd('log');
+        }
     },
 });
 

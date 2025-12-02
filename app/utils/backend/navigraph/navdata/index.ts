@@ -16,6 +16,7 @@ import type {
     NavigraphNavDataShort,
 } from '~/utils/backend/navigraph/navdata/types';
 import { processNavdataIap, processNavdataSid, processNavdataStar } from '~/utils/backend/navigraph/navdata/star-sid';
+import { isNext } from '~/utils/backend/debug';
 
 export async function processDatabase(db: sqlite3.Database, version: string) {
     console.time('navigraph get');
@@ -110,6 +111,10 @@ export async function getShortNavData(event: H3Event, type: 'current' | 'outdate
 export async function getNavDataProcedure(event: H3Event, request: 'short' | 'full' | 'all') {
     const { type, airport, group, index } = getRouterParams(event);
 
+    const next = isNext();
+
+    if (next) console.time('procedure');
+
     if (type !== 'outdated') {
         const user = await findAndRefreshFullUserByCookie(event);
 
@@ -122,6 +127,8 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
         }
     }
 
+    if (next) console.timeLog('procedure', 'user');
+
     const key = type === 'outdated' ? type : 'current';
 
     const config = useRuntimeConfig();
@@ -132,5 +139,8 @@ export async function getNavDataProcedure(event: H3Event, request: 'short' | 'fu
     }
     catch (e) {
         handleH3Exception(event, e);
+    }
+    finally {
+        if (next) console.timeEnd('procedure');
     }
 }
