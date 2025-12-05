@@ -281,14 +281,14 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
 
     const text = style.getText();
     const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 3 + 6;
-    const shouldShowText = useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
-    const textValue = shouldShowText ? undefined : featureProperties.callsign;
+    const hideText = useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
+    const textValue = hideText ? undefined : featureProperties.callsign;
 
     const declutter = ownFlight.value?.cid !== cid;
 
     if (!text) {
         style.setText(new Text({
-            text: featureProperties.callsign ?? '',
+            text: textValue,
             font: '600 11px Montserrat',
             declutterMode: declutter ? 'declutter' : 'none',
             fill: new Fill({
@@ -298,7 +298,7 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         }));
     }
     else if (textValue !== text.getText()) {
-        text.setText(featureProperties.callsign);
+        text.setText(textValue);
     }
 
     const textFill = text!.getFill()!;

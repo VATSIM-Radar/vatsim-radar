@@ -328,6 +328,8 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
 
 let activePilotHover: null | number = null;
 
+const isMobileOrTablet = useIsMobileOrTablet();
+
 async function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
@@ -336,7 +338,7 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
 
     activePilotHover = features[0]?.cid ?? null;
 
-    if (features.length !== 1 || !mapStore.canShowOverlay) {
+    if (!features.length || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAircraft.value = null;
         }
@@ -367,7 +369,9 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
         isManualHover.value = null;
         hoveredAircraft.value = null;
         await nextTick();
-        hoveredAircraft.value = features[0].cid;
+        if (!isMobileOrTablet.value) {
+            hoveredAircraft.value = features[0].cid;
+        }
         mapStore.mapCursorPointerTrigger = 1;
     }
 

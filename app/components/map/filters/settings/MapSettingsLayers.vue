@@ -146,7 +146,7 @@
             Dynamic zoom
 
             <template #description>
-                Smoothly scales aircraft icons as you zoom in or out.
+                Smoothly scales aircraft icons as you zoom in or out - and shows close to real aircraft size when on ground.
             </template>
         </common-toggle>
         <div class="__grid-info-sections __grid-info-sections--large-title">
