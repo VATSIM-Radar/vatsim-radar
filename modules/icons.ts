@@ -58,15 +58,15 @@ export default defineNuxtModule(async (_, nuxt) => {
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
-                width: width * 2,
+                width: width * 4,
             });
 
-            const info = await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }${ iconKey }.png`));
+            const info = await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }${ iconKey }.webp`));
 
             fullList[icon as AircraftIcon] = {
                 icon: icon as AircraftIcon,
                 width: width,
-                height: info.height / 2,
+                height: info.height / 4,
             };
         }
 
@@ -77,10 +77,10 @@ export default defineNuxtModule(async (_, nuxt) => {
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
-                width: width * 2,
+                width: width * 5,
             });
 
-            await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }-white${ iconKey }.png`));
+            await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }-white${ iconKey }.webp`));
         }
 
         let svg = optimize(iconContents, {
