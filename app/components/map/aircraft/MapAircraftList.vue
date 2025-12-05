@@ -7,7 +7,6 @@
             :can-show-tracks="showTracks[aircraft.cid.toString()]?.show ?? null"
             :is-hovered="hoveredAircraft === aircraft.cid"
             :is-visible="showTracks[aircraft.cid.toString()]?.isShown ?? true"
-            :show-label="showAircraftLabel.includes(aircraft.cid)"
             @manualHide="[isManualHover === aircraft.cid && (isManualHover = null)]"
             @manualHover="[isManualHover = aircraft.cid, setHoveredAircraft(aircraft)]"
         />
@@ -52,7 +51,6 @@ const config = useRuntimeConfig();
 
 const hoveredAircraft = ref<number | null>(null);
 const isManualHover = ref<number | null>(null);
-const showAircraftLabel = ref<number[]>([]);
 
 // The next 3 functions are used to get data to and from the airport dashboard page. When an aircraft is selected it is sent to the airport dashboard so we can open the pilot overlay. We also receive the event from the dashboard when an aircraft is clicked in the dashboard, we then select it on the map.
 function receiveMessage(event: MessageEvent) {
@@ -330,18 +328,17 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
 
 let activePilotHover: null | number = null;
 
+const isMobileOrTablet = useIsMobileOrTablet();
+
 async function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
 
-    let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
-
-    // we have more than one aircraft within the tolerance, so we need to find the closest one
-    if (features.length > 1) features = getPilotsForPixel(map.value!, eventPixel, 10, true)?.slice(0, 1) ?? [];
+    const features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
     activePilotHover = features[0]?.cid ?? null;
 
-    if (features.length !== 1 || !mapStore.canShowOverlay) {
+    if (!features.length || !mapStore.canShowOverlay) {
         if (!isManualHover.value) {
             hoveredAircraft.value = null;
         }
@@ -372,7 +369,9 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
         isManualHover.value = null;
         hoveredAircraft.value = null;
         await nextTick();
-        hoveredAircraft.value = features[0].cid;
+        if (!isMobileOrTablet.value) {
+            hoveredAircraft.value = features[0].cid;
+        }
         mapStore.mapCursorPointerTrigger = 1;
     }
 
@@ -390,11 +389,9 @@ async function handleClick(e: MapBrowserEvent<any>) {
     if (mapStore.openingOverlay || store.mapSettings.heatmapLayer || (isManualHover.value && !store.isTouch)) return;
 
     const eventPixel = map.value!.getPixelFromCoordinate(e.coordinate);
-    let features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
+    const features = getPilotsForPixel(map.value!, eventPixel, undefined, true) ?? [];
 
     if (features.length < 1) return;
-
-    if (features.length > 1) features = getPilotsForPixel(map.value!, eventPixel, 10, true)?.slice(0, 1) ?? [];
 
     // here we deselect all aircraft when the user clicks on the map and at the click position is no aircraft - used at the airport dashboard to deselect all aircraft
     if (!hoveredAircraft.value && store.config.hideOverlays) {
@@ -425,15 +422,6 @@ async function handleClick(e: MapBrowserEvent<any>) {
 
 function handleMoveEnd() {
     setVisiblePilots();
-
-    if (store.mapSettings.visibility?.pilotLabels || dataStore.visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100) || dataStore.visiblePilots.value.length === 0) {
-        if (showAircraftLabel.value.length) {
-            showAircraftLabel.value = [];
-        }
-        return;
-    }
-
-    showAircraftLabel.value = dataStore.visiblePilots.value.filter(feature => getPilotsForPixel(map.value!, aircraftCoordsToPixel(map.value!, feature)!).length === 1).map(x => x.cid);
 }
 
 attachMoveEnd(handleMoveEnd);
@@ -462,6 +450,7 @@ watch(map, val => {
         vectorLayer = new VectorLayer<any>({
             source: vectorSource.value,
             updateWhileAnimating: true,
+            declutter: true,
             properties: {
                 type: 'aircraft',
             },
