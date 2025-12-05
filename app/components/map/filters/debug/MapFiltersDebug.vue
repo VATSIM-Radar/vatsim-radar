@@ -304,6 +304,7 @@ onMounted(() => {
                 latitude: mapCenter![1],
             },
             full: true,
+            coordinates: [mapCenter![0], mapCenter![1]],
             waypoints: await getFlightPlanWaypoints({
                 flightPlan,
                 departure,

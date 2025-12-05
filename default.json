@@ -5,7 +5,6 @@
   ],
   "enabledManagers": [
     "npm",
-    "bun",
     "yarn"
   ],
   "prConcurrentLimit": 0,
@@ -113,7 +112,7 @@
     "commitMessageTopic": "{{prettyDepType}} {{depName}}"
   },
   "constraints": {
-    "node": "^20 || ^22"
+    "node": "^22 || ^24"
   },
   "updateLockFiles": true
 }

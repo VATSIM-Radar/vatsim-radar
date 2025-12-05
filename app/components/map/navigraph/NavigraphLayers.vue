@@ -693,28 +693,32 @@ watch(map, val => {
                     if (properties.kind === 'approaches') stroke = enrouteApproachStroke;
                     if (properties.kind === 'missedApproach') stroke = missApproachStroke;
 
+                    let selfSuffix = '';
+                    const kind = properties.kind ?? 'default';
+
                     if (properties.self) {
-                        strokesCache.self[properties.kind ?? 'default'] ||= new Stroke({
+                        strokesCache.self[kind] ||= new Stroke({
                             color: stroke.getColor(),
                             width: stroke.getWidth(),
                             lineDash: [4, 8],
                             lineJoin: 'round',
                         });
 
-                        stroke = strokesCache.self[properties.kind ?? 'default'];
+                        stroke = strokesCache.self[kind];
 
                         properties.kind = 'self';
+                        selfSuffix = 'self';
                     }
 
                     if (properties.currentFlight) {
-                        strokesCache.currentFlight[properties.kind ?? 'default'] ||= new Stroke({
+                        strokesCache.currentFlight[kind + selfSuffix] ||= new Stroke({
                             color: stroke.getColor(),
                             width: stroke.getWidth()! + 2,
                             lineDash: stroke.getLineDash()!,
                             lineJoin: stroke.getLineJoin(),
                         });
 
-                        stroke = strokesCache.currentFlight[properties.kind ?? 'default'];
+                        stroke = strokesCache.currentFlight[kind + selfSuffix];
                     }
                 }
 

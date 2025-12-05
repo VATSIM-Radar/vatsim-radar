@@ -95,6 +95,7 @@ serve({
     fetch(request) {
         const path = request.url.split(':3000')[1];
         const method = request.method;
+
         const route = findRoute<{ type: string }>(router, method, path);
         if (!route) {
             return new Response('not found', {

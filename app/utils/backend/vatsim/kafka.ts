@@ -35,10 +35,10 @@ export function kafkaAddClient(event: KafkaAddClient) {
 }
 
 export function kafkaRemoveClient(event: KafkaRmClient) {
-    /* const item = radarStorage.vatsim.kafka.pilots.find(x => x.callsign === event.Callsign) ||
-        radarStorage.vatsim.kafka.atc.find(x => x.callsign === event.Callsign);
-
-    if (item) item.deleted = true;*/
+    if (event.Callsign && wssPilots[event.Callsign]) {
+        wssPilots[event.Callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
+        updatedPilots.delete(event.Callsign);
+    }
 }
 
 export function kafkaUpdateController(event: KafkaAD) {
@@ -64,6 +64,8 @@ export function kafkaUpdateController(event: KafkaAD) {
         controller.deleted = false;
     }
 }
+
+const updatedPilots = new Set<string>();
 
 export function kafkaUpdatePilot(event: KafkaPD) {
     let pilot = radarStorage.vatsim.kafka.pilots[event.Callsign];
@@ -92,13 +94,22 @@ export function kafkaUpdatePilot(event: KafkaPD) {
         radarStorage.vatsim.kafka.pilots[event.Callsign] = pilot;
     }
     else {
-        const positionChanged = pilot.altitude && pilot.altitude < 25000 && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
+        const positionChanged = pilot.altitude && pilot.groundspeed && pilot.groundspeed < 100 && pilot.altitude < 25000 && (pilot.latitude !== fields.latitude || pilot.longitude !== fields.longitude);
 
         Object.assign(pilot, fields);
         pilot.date = Date.now();
         pilot.deleted = false;
 
-        if (positionChanged && pilot.callsign && wssPilots[pilot.callsign.toString()]) wssPilots[pilot.callsign.toString()].forEach(([, ws]) => sendWSEncodedData(`{"type": "update", "heading": ${ event.Heading }, "coordinates": [${ event.Longitude }, ${ event.Latitude }]}`, ws));
+        if (pilot.callsign && wssPilots[pilot.callsign]) {
+            if (positionChanged) {
+                wssPilots[pilot.callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "update", "heading": ${ event.Heading }, "coordinates": [${ event.Longitude }, ${ event.Latitude }]}`, ws));
+                updatedPilots.add(pilot.callsign);
+            }
+            else if (updatedPilots.has(pilot.callsign)) {
+                wssPilots[pilot.callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
+                updatedPilots.delete(pilot.callsign);
+            }
+        }
     }
 }
 

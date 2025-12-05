@@ -1,5 +1,5 @@
 import { handleH3Error } from '~/utils/backend/h3';
-import { findAndRefreshFullUserByCookie } from '~/utils/backend/user';
+import { findAndRefreshUserByCookie } from '~/utils/backend/user';
 import { getNavigraphGates, getNavigraphLayout, getNavigraphRunways } from '~/utils/backend/navigraph';
 import type {
     NavigraphAirportData,
@@ -27,7 +27,7 @@ const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
 };
 
 export default defineEventHandler(async (event): Promise<NavigraphAirportData | undefined> => {
-    const user = await findAndRefreshFullUserByCookie(event);
+    const user = await findAndRefreshUserByCookie(event);
 
     const icao = getRouterParam(event, 'icao');
 

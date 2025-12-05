@@ -65,6 +65,8 @@ export interface FullUser {
     isSup: boolean;
 }
 
+export type ShortUser = Omit<FullUser, 'lists'> & { lists?: undefined };
+
 export interface UserSettings {
     autoFollow?: boolean;
     autoZoom?: boolean;
@@ -77,7 +79,9 @@ export interface UserSettings {
     favoriteSort?: 'newest' | 'oldest' | 'abcAsc' | 'abcDesc' | 'cidAsc' | 'cidDesc';
 }
 
-export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = true): Promise<FullUser | null> {
+export async function findAndRefreshUserByCookie(event: H3Event, refresh: boolean | undefined, includeLists: true): Promise<FullUser | null>;
+export async function findAndRefreshUserByCookie(event: H3Event, refresh?: boolean, includeLists?: false): Promise<ShortUser | null>;
+export async function findAndRefreshUserByCookie(event: H3Event, refresh = true, includeLists = false): Promise<FullUser | ShortUser | null> {
     const cookie = getCookie(event, 'access-token');
 
     const token = await prisma.userToken.findFirst({
@@ -164,6 +168,8 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             }
         }
 
+        const lists = includeLists ? await filterUserLists(token.user.lists as unknown as UserList[]) : undefined;
+
         return {
             id: token.user.id,
             hasFms: token.user.navigraph?.hasFms ?? null,
@@ -175,7 +181,7 @@ export async function findAndRefreshFullUserByCookie(event: H3Event, refresh = t
             privateMode: token.user.privateMode,
             privateUntil: token.user.privateUntil ? token.user.privateUntil.toISOString() : token.user.privateUntil,
             isSup: token.user.isSup,
-            lists: await filterUserLists(token.user.lists as unknown as UserList[]),
+            lists,
         };
     }
     return null;
