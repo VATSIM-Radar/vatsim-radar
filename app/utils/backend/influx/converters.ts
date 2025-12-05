@@ -204,15 +204,15 @@ export function getShortInfluxDataForPilots() {
     const data = radarStorage.vatsim.data!.pilots.filter(x => x.cid && x.callsign).map(pilot => {
         const previousPilot = previousShortData[pilot.cid];
 
-        const previousAltitude = !newPilotsData[pilot.cid]?.previousAltitude ||
-        (Math.abs(newPilotsData[pilot.cid].previousAltitude - getPilotTrueAltitude(pilot)) > 500)
+        const previousAltitude = !previousShortData[pilot.cid]?.previousAltitude ||
+        (Math.abs(previousShortData[pilot.cid].previousAltitude - getPilotTrueAltitude(pilot)) > 500)
             ? getPilotTrueAltitude(pilot)
-            : newPilotsData[pilot.cid].previousAltitude;
+            : previousShortData[pilot.cid].previousAltitude;
 
         if (previousPilot && !shouldUpdatePilot(pilot, previousPilot)) {
             newPilotsData[pilot.cid] = {
                 previousLogTime: previousPilot.previousLogTime,
-                pilot,
+                pilot: previousPilot.pilot,
                 previousAltitude,
             };
             return;
