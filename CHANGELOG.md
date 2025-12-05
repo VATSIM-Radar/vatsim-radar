@@ -6,7 +6,7 @@
 - Center and APP sectors will now disappear when zooming in by 1489535
 - Reworked aircraft callsign render and interaction
 - Fixed dynamic zoom switch
-- You can now hover precisely on aircraft even in "crowded" soace
+- You can now hover precisely on aircraft even in "crowded" space
   
 # [1.2.4-beta.7]
 
