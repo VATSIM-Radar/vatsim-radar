@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-beta.9]
+
+- Fixed first approach waypoint not showing constraints
+
 # [1.2.4-beta.8]
 
 - (QA) Improved dynamic aircraft scaling based on zoom level by 1489535 — airplanes on the ground are now scaled to their real-world size

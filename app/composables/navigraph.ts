@@ -544,6 +544,8 @@ export async function getFlightPlanWaypoints({
                         if (fetchedProcedure) {
                             const transition = fetchedProcedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === entries[entries.length - 2]);
                             if (transition) {
+                                deleteDoubleWaypoint(transition?.waypoints[0]?.identifier ?? '');
+
                                 waypoints.push(...transition.waypoints.map(x => ({
                                     identifier: x.identifier,
                                     coordinate: x.coordinate,
@@ -558,6 +560,7 @@ export async function getFlightPlanWaypoints({
                                 } satisfies NavigraphNavDataEnrouteWaypointPartial)));
                             }
 
+                            deleteDoubleWaypoint(fetchedProcedure?.waypoints[0]?.identifier ?? '');
                             waypoints.push(...fetchedProcedure.waypoints.map(x => ({
                                 identifier: x.identifier,
                                 coordinate: x.coordinate,
