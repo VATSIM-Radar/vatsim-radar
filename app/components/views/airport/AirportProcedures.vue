@@ -340,9 +340,9 @@ const transitionsList = computed(() => {
     const approaches = Object.values(selectedAirport.value!.approaches);
 
     return {
-        sids: sids.filter((x, index) => !sids.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions.enroute) === JSON.stringify(x.procedure.transitions.enroute))),
-        stars: stars.filter((x, index) => !stars.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions.enroute) === JSON.stringify(x.procedure.transitions.enroute))),
-        approaches: approaches.filter((x, index) => !approaches.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions) === JSON.stringify(x.procedure.transitions))),
+        sids: sids.filter((x, index) => x.procedure.transitions.enroute.length > 0 && !sids.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions.enroute) === JSON.stringify(x.procedure.transitions.enroute))),
+        stars: stars.filter((x, index) => x.procedure.transitions.enroute.length > 0 && !stars.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions.enroute) === JSON.stringify(x.procedure.transitions.enroute))),
+        approaches: approaches.filter((x, index) => x.procedure.transitions.length > 0 && !approaches.some((y, yIndex) => yIndex < index && JSON.stringify(y.procedure.transitions) === JSON.stringify(x.procedure.transitions))),
     };
 });
 
