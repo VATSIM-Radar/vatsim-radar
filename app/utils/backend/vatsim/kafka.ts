@@ -105,7 +105,7 @@ export function kafkaUpdatePilot(event: KafkaPD) {
                 wssPilots[pilot.callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "update", "heading": ${ event.Heading }, "coordinates": [${ event.Longitude }, ${ event.Latitude }]}`, ws));
                 updatedPilots.add(pilot.callsign);
             }
-            else if(updatedPilots.has(pilot.callsign)) {
+            else if (updatedPilots.has(pilot.callsign)) {
                 wssPilots[pilot.callsign].forEach(([, ws]) => sendWSEncodedData(`{"type": "updatePaused"}`, ws));
                 updatedPilots.delete(pilot.callsign);
             }
