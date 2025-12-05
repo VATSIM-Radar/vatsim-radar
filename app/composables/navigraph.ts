@@ -328,9 +328,12 @@ export async function getFlightPlanWaypoints({
     function deleteDoubleWaypoint(identifier: string) {
         const previousWaypoint = waypoints[waypoints.length - 1];
         let previousIdentifier = previousWaypoint.identifier;
-        if (previousWaypoint.airway) previousIdentifier = previousWaypoint.airway.value[2][previousWaypoint.airway.value[2].length - 1][0];
+        if (previousWaypoint.airway) {
+            previousIdentifier = previousWaypoint.airway.value[2][previousWaypoint.airway.value[2].length - 1][0];
 
-        if (identifier === previousIdentifier) waypoints.splice(waypoints.length - 1, 1);
+            if (identifier === previousIdentifier) previousWaypoint.airway.value[2].splice(previousWaypoint.airway.value[2].length - 1, 1);
+        }
+        else if (identifier === previousIdentifier) waypoints.splice(waypoints.length - 1, 1);
     }
 
     let sidInit = false;
