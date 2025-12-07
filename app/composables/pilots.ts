@@ -246,6 +246,10 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
+function getMaxRotatedHeight(width: number, height: number): number {
+    return Math.sqrt((width * width) + (height * height));
+}
+
 export async function loadAircraftIcon({ feature, icon, status, style: styles, rotation, force, cid, scale, onGround }: {
     feature: Feature;
     icon: AircraftIcon;
@@ -283,14 +287,14 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     if (resolvedScale > 4) resolvedScale = 4;
 
     let text = textStyle.getText();
-    const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 12 + 2;
-    const hideText = resolvedScale < 0.5 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
-    const textValue = hideText ? undefined : featureProperties.callsign;
+    const offsetY = ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
 
-    const declutter = ownFlight.value?.cid !== cid && useMapStore().zoom < 17;
+    const declutter = ownFlight.value?.cid !== cid && useMapStore().zoom < 18;
     const declutterMode = declutter ? 'declutter' : 'none';
 
     const scaledWidth = radarIcons[icon].width * resolvedScale;
+    const hideText = scaledWidth < 10 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
+    const textValue = hideText ? undefined : featureProperties.callsign;
 
     if (!text || text.getDeclutterMode() !== declutterMode) {
         textStyle.setText(new Text({
