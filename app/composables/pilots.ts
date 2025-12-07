@@ -282,26 +282,29 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
     if (resolvedScale > 4) resolvedScale = 4;
 
-    const text = textStyle.getText();
+    let text = textStyle.getText();
     const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 12 + 2;
     const hideText = resolvedScale < 0.5 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
     const textValue = hideText ? undefined : featureProperties.callsign;
 
     const declutter = ownFlight.value?.cid !== cid && useMapStore().zoom < 17;
+    const declutterMode = declutter ? 'declutter' : 'none';
 
     const scaledWidth = radarIcons[icon].width * resolvedScale;
 
-    if (!text) {
+    if (!text || text.getDeclutterMode() !== declutterMode) {
         textStyle.setText(new Text({
             text: textValue,
             font: '600 11px Montserrat',
-            declutterMode: declutter ? 'declutter' : 'none',
+            declutterMode,
             textBaseline: 'middle',
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
             }),
             offsetY: Math.ceil(offsetY),
         }));
+
+        text = textStyle.getText();
     }
     else if (textValue !== text.getText()) {
         text.setText(textValue);
