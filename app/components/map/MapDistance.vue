@@ -103,11 +103,11 @@ const drawStyle = (feature: FeatureLike) => {
         return [lineStyle];
     }
 
-    if (geometry.getCoordinates().length < 2) {
+    if (geometry.getCoordinates().length < 2 || mapStore.distance.initAircraft || mapStore.distance.targetAircraft) {
         return [lineStyle];
     }
 
-    return [lineStyle, ...buildHeadingStyles(map, geometry)];
+    return [lineStyle, ...buildHeadingStyles({ map, geometry, drawing: true })];
 };
 
 watch(() => store.localSettings.distance?.units, () => {
@@ -160,13 +160,10 @@ function updateItems() {
         const geometry = coordinate1 && coordinate2 ? toGeodesicLine(coordinate1, coordinate2) : null;
         if (!geometry) continue;
 
-        const headings = calculateHeadingPair(map, geometry);
-
         newFeatures.push(new Feature({
             geometry,
             id: item.date,
             length: formatLength(geometry),
-            headings,
         }));
     }
 
@@ -309,7 +306,9 @@ watch(map, val => {
                 stylesArr.push(labelStyle);
 
                 const headings = val.getProperties().headings as HeadingPair | null;
-                stylesArr.push(...buildHeadingStyles(map, geometry, headings));
+                if (headings) {
+                    stylesArr.push(...buildHeadingStyles({ map, geometry, headings }));
+                }
             }
 
             return stylesArr;

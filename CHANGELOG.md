@@ -5,6 +5,8 @@
 - Updated map tiles to 07 Dec 25 from 24 July 25
 - (QA) Updated zoom transition threshold in air to 14 instead of 16
 - It's now much easier to click on aircraft that is close to airport name
+- Country boundaries have been removed in favor of VATSpy sector display
+- All boundaries have been removed from "light" layer
 
 # [1.2.4-beta.9]
 

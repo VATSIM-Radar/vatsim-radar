@@ -1,5 +1,6 @@
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
+import type { Options as TextOptions } from 'ol/style/Text';
 import type { Coordinate } from 'ol/coordinate';
 import { LineString, Point } from 'ol/geom';
 import greatCircle from '@turf/great-circle';
@@ -128,7 +129,7 @@ export function calculateHeadingPair(map: ShallowRef<Map | null>, line: LineStri
     };
 }
 
-export function makeHeadingStyles(type: 'start' | 'end', heading: string | null, info?: ReturnType<typeof sampleEndpointInfo> | null) {
+export function makeHeadingStyles(type: 'start' | 'end', heading: string | null, info?: ReturnType<typeof sampleEndpointInfo> | null, drawing = false) {
     if (!info || !heading || heading === '---') {
         return [] as Style[];
     }
@@ -143,7 +144,10 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
         font: '10px Montserrat',
         fill,
         rotation: -info.rotation,
-    } as any;
+        offsetX: drawing && type === 'end'
+            ? info.heading > 180 ? 10 : -10
+            : 0,
+    } satisfies TextOptions;
 
     const arrowText = '>';
 
@@ -169,15 +173,20 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
     return type === 'start' ? [headingStyle, arrowStyle] : [arrowStyle, headingStyle];
 }
 
-export function buildHeadingStyles(map: ShallowRef<Map | null>, line: LineString, headings?: HeadingPair | null) {
+export function buildHeadingStyles({ map, headings, geometry: line, drawing}: {
+    map: ShallowRef<Map | null>;
+    geometry: LineString;
+    headings?: HeadingPair | null;
+    drawing?: boolean;
+}) {
     const resolvedHeadings = headings ?? calculateHeadingPair(map, line);
     const styles: Style[] = [];
 
     const startInfo = sampleEndpointInfo(map, line, 'start');
     const endInfo = sampleEndpointInfo(map, line, 'end');
 
-    styles.push(...makeHeadingStyles('start', resolvedHeadings.from, startInfo));
-    styles.push(...makeHeadingStyles('end', resolvedHeadings.to, endInfo));
+    styles.push(...makeHeadingStyles('start', resolvedHeadings.from, startInfo, drawing));
+    styles.push(...makeHeadingStyles('end', resolvedHeadings.to, endInfo, drawing));
 
     return styles;
 }

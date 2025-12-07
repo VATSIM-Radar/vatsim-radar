@@ -246,22 +246,25 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     return svg;
 }
 
-export async function loadAircraftIcon({ feature, icon, status, style, rotation, force, cid, scale }: {
+export async function loadAircraftIcon({ feature, icon, status, style: styles, rotation, force, cid, scale, onGround }: {
     feature: Feature;
     icon: AircraftIcon;
     rotation: number;
     status: MapAircraftStatus;
-    style: Style;
+    style: Style[];
     force?: boolean;
+    onGround?: boolean;
     cid: number;
     scale?: number;
 }) {
     if (icon === 'ball') rotation = 0;
 
+    const [textStyle, imageStyle] = styles;
+
     const store = useStore();
     let resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
 
-    const image = style.getImage();
+    const image = imageStyle.getImage();
 
     const featureProperties = feature.getProperties() ?? {};
     const list = getUserList(cid);
@@ -279,18 +282,21 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
 
     if (resolvedScale > 4) resolvedScale = 4;
 
-    const text = style.getText();
-    const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 3 + 6;
-    const hideText = useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
+    const text = textStyle.getText();
+    const offsetY = ((radarIcons[icon].height * resolvedScale) / 2) + 12 + 2;
+    const hideText = resolvedScale < 0.5 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
     const textValue = hideText ? undefined : featureProperties.callsign;
 
-    const declutter = ownFlight.value?.cid !== cid;
+    const declutter = ownFlight.value?.cid !== cid && useMapStore().zoom < 17;
+
+    const scaledWidth = radarIcons[icon].width * resolvedScale;
 
     if (!text) {
-        style.setText(new Text({
+        textStyle.setText(new Text({
             text: textValue,
             font: '600 11px Montserrat',
             declutterMode: declutter ? 'declutter' : 'none',
+            textBaseline: 'middle',
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
             }),
@@ -323,10 +329,10 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
 
             if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
 
-            style.setImage(new Icon({
-                declutterMode: 'none',
+            imageStyle.setImage(new Icon({
+                declutterMode: 'obstacle',
                 src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.webp?v=${ store.version }`,
-                width: radarIcons[icon].width * resolvedScale,
+                width: scaledWidth,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop
@@ -337,10 +343,11 @@ export async function loadAircraftIcon({ feature, icon, status, style, rotation,
         }
         else {
             const svg = await fetchAircraftIcon(icon);
-            style.setImage(new Icon({
-                declutterMode: 'none',
+
+            imageStyle.setImage(new Icon({
+                declutterMode: 'obstacle',
                 src: svgToDataURI(reColorSvg(svg, status, cid)),
-                width: radarIcons[icon].width * resolvedScale,
+                width: scaledWidth,
                 rotation,
                 rotateWithView: true,
                 // @ts-expect-error Custom prop

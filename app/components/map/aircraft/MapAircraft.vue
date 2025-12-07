@@ -322,10 +322,13 @@ const handleMouseEnter = (event: MouseEvent) => {
 const setStyle = async (force = false) => {
     if (!feature) return;
 
-    let style = getFeatureStyle(feature);
+    let style = getFeatureStyle<Style[]>(feature);
 
-    if (!style) {
-        style = new Style();
+    if (!style?.length) {
+        style = [
+            new Style(),
+            new Style(),
+        ];
         feature.setStyle(style);
     }
 
@@ -338,6 +341,7 @@ const setStyle = async (force = false) => {
         force,
         cid: props.aircraft.cid,
         scale: aircraftScale.value,
+        onGround: isOnGround.value,
     });
 
     feature.changed();
