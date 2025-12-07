@@ -312,7 +312,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
     const textFill = text!.getFill()!;
 
-    text?.setOffsetY(offsetY);
+    text?.setOffsetY(Math.ceil(offsetY));
 
     if (!force &&
         image &&
