@@ -394,7 +394,7 @@ function setBorderFeatureStyle(feature: Feature) {
         stroke: new Stroke({
             color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
             width: 2,
-            lineDash: isDuplicatedOnly(feature.getProperties().controllers) ? [4, 6] : undefined,
+            lineDash: isDuplicatedOnly(feature.getProperties().controllers) ? [16, 4] : undefined,
             lineJoin: 'round',
         }),
     }));

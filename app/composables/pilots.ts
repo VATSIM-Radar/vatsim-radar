@@ -300,7 +300,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
             }),
-            offsetY,
+            offsetY: Math.ceil(offsetY),
         }));
     }
     else if (textValue !== text.getText()) {

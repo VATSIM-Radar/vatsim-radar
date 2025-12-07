@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-rc.2]
+
+- Fixed issues that some aircraft labels got hidden when they shouldn't
+
 # [1.2.4-rc.1]
 
 - Updated map tiles to 07 Dec 25 from 24 July 25
