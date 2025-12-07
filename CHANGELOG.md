@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.4-beta.10]
+
+- Updated map tiles to 07 Dec 25 from 24 July 25
+- (QA) Updated zoom transition threshold in air to 14 instead of 16
+- It's now much easier to click on aircraft that is close to airport name
+
 # [1.2.4-beta.9]
 
 - Fixed first approach waypoint not showing constraints

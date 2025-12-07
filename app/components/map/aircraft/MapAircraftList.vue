@@ -301,7 +301,7 @@ watch(dataStore.vatsim.updateTimestamp, () => {
 
 function airportExistsAtPixel(eventPixel: Pixel) {
     const featuresAirport = map.value!.getFeaturesAtPixel(eventPixel, {
-        hitTolerance: 15, // we use 6 instead of 5 because of the aircraft icons size, it is just for cosmetic reasons
+        hitTolerance: 0,
         layerFilter: layer => layer.getProperties().type === 'airports',
     }).filter(x => x.getProperties().type !== 'background');
 

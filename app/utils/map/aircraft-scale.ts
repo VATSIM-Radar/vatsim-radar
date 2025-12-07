@@ -46,21 +46,22 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
             return baselineMultiplier + interpolated;
         })();
 
-        const thresholdZoom = 16;
+        const thresholdZoomGround = 16;
+        const thresholdZoomAir = 14;
         const transitionRange = 1;
 
         let resultMultiplier: number;
         if (isPilotOnGround) {
-            if (zoom >= thresholdZoom) resultMultiplier = clampedReal;
+            if (zoom >= thresholdZoomGround) resultMultiplier = clampedReal;
             else {
                 resultMultiplier = clampedReal * Math.min(((Math.pow((zoom - 16), 2) / 3) + 1), 4);
             }
         }
-        else if (zoom <= thresholdZoom) {
+        else if (zoom <= thresholdZoomAir) {
             resultMultiplier = heuristicAtZoom;
         }
-        else if (zoom > thresholdZoom && zoom < thresholdZoom + transitionRange) {
-            const tRaw = (zoom - thresholdZoom) / transitionRange;
+        else if (zoom > thresholdZoomAir && zoom < thresholdZoomAir + transitionRange) {
+            const tRaw = (zoom - thresholdZoomAir) / transitionRange;
             const t = (tRaw * tRaw) * (3 - (2 * tRaw)); // smoothstep
             resultMultiplier = (heuristicAtZoom * (1 - t)) + (clampedReal * t);
         }
