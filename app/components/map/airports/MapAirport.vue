@@ -524,7 +524,8 @@ onMounted(async () => {
             }
         }
         else {
-            const leftAtc = props.arrAtc.filter(x => !props.features.some(y => y.controllers.some(y => y.cid === x.cid)));
+            const dupOnly = isDuplicatedOnly(props.arrAtc);
+            const leftAtc = props.arrAtc.filter(x => (dupOnly || !x.duplicated) && !props.features.some(y => y.controllers.some(y => y.cid === x.cid && y.callsign === x.callsign)));
 
             for (const {
                 id,
