@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.4-beta.10]
+# [1.2.4-rc.1]
 
 - Updated map tiles to 07 Dec 25 from 24 July 25
 - (QA) Updated zoom transition threshold in air to 14 instead of 16
