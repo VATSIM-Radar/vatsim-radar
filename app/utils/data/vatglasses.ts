@@ -83,7 +83,11 @@ export interface VatglassesSectorProperties {
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
-const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS'];
+const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', ['56', 'NY']];
+
+function checkIgnoredPosition(id: string, callsign: string) {
+    return ignoredPositions.some(x => typeof x === 'string' ? id === x : x[0] === id && callsign.startsWith(x[1]));
+}
 
 async function updateVatglassesPositionsAndAirspaces() {
     const newVatglassesActivePositions: VatglassesActivePositions = {};
@@ -167,7 +171,7 @@ async function updateVatglassesPositionsAndAirspaces() {
             for (const countryGroupId of sortedKeys) {
                 const countryGroup = vatglassesData[countryGroupId];
                 for (const vatglassesPositionId in countryGroup.positions) {
-                    if (ignoredPositions.includes(vatglassesPositionId)) continue;
+                    if (checkIgnoredPosition(vatglassesPositionId, atc.callsign)) continue;
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
                     if (vatglassesPosition.frequency && vatglassesPosition.frequency !== atc.frequency) continue;
                     if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;

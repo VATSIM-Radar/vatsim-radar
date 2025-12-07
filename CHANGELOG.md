@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-rc.3]
+
+- NY_CTR has finally been excluded from VATGlasses display
+
 # [1.2.4-rc.2]
 
 - Fixed issues that some aircraft labels got hidden when they shouldn't
