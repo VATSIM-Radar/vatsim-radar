@@ -114,7 +114,7 @@ const update: Update = {
     features: [
         {
             title: 'v1.2.4 OPEN BETA!',
-            description: `Hey guys! For the first time, we are doing Open Beta of newest update. We really need feedback on some of its features, so please join us in <a href="/discord" target="_blank">Discord</a> to report them!<br><br>We really need testing on:`,
+            description: `Hey guys! For the first time, we are doing Open Beta of newest update. We really need feedback on some of its features, so please join us in <a href="/discord" target="_blank">Discord</a> to provide it!<br><br>We really need testing on:`,
             list: [
                 'Dynamic aircraft size. How does it feel? How does it look on the ground?',
                 'Aircraft callsign render has been reworked. Is it good for you?<br> Does clicking work well on both <strong>PC and Mobile</strong>?',
