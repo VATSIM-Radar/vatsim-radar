@@ -4,7 +4,6 @@
     "daniluk4000"
   ],
   "enabledManagers": [
-    "npm",
     "yarn"
   ],
   "prConcurrentLimit": 0,
@@ -104,8 +103,7 @@
   "extends": [
     ":automergeDisabled",
     ":dependencyDashboard",
-    "group:recommended",
-    "replacements:all"
+    "group:recommended"
   ],
   "rangeStrategy": "bump",
   "npm": {
