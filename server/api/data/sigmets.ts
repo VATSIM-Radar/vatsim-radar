@@ -54,6 +54,8 @@ export default defineEventHandler(async event => {
         severity: number;
         altitudeHi1: number;
         altitudeHi2: number;
+        altitudeLow1: number;
+        altitudeLow2: number;
         movementDir: number;
         movementSpd: number;
         rawAirSigmet: string;
@@ -128,8 +130,8 @@ export default defineEventHandler(async event => {
                 timeTo: properties.validTimeTo,
                 qualifier: properties.severity,
                 raw: properties.rawAirSigmet,
-                base: properties.altitudeHi1,
-                top: properties.altitudeHi2,
+                base: properties.altitudeLow1 ?? properties.altitudeLow2,
+                top: properties.altitudeHi1 ?? properties.altitudeHi2,
                 dir: properties.movementDir?.toString(),
                 spd: properties.movementSpd,
                 dataType: 'airsigmet',

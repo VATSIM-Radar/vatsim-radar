@@ -291,6 +291,7 @@ async function initLayer() {
             'address_label',
             'roads_other',
             'boundaries_country',
+            'pois',
         ];
 
         const excludedRegex: RegExp[] = [

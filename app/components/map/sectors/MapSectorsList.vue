@@ -322,7 +322,7 @@ function updateMap(map: Map | null) {
             stroke: new Stroke({
                 color: `rgba(${ firColorRaw || getCurrentThemeRgbColor('success500').join(',') }, 0.5)`,
                 width: 1,
-                lineDash: [16, 4],
+                lineDash: [8, 5],
                 lineJoin: 'round',
             }),
             zIndex: 3,
@@ -357,7 +357,7 @@ function updateMap(map: Map | null) {
             stroke: new Stroke({
                 color: `rgba(${ uirColorRaw || getCurrentThemeRgbColor('info400').join(',') }, 0.5)`,
                 width: 1,
-                lineDash: [16, 4],
+                lineDash: [8, 5],
                 lineJoin: 'round',
             }),
             zIndex: 3,

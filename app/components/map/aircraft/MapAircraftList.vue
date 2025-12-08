@@ -74,17 +74,17 @@ const showTracks = shallowRef<Record<string, { show: 'short' | 'full'; pilot: Va
 const hoverDelay = computed(() => (store.mapSettings.aircraftHoverDelay === undefined || store.mapSettings.aircraftHoverDelay === true) ? 400 : store.mapSettings.aircraftHoverDelay);
 
 const getShownPilots = computed(() => {
-    if (store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide) return dataStore.visiblePilots.value;
-
-    if (store.mapSettings.groundTraffic.hide === 'lowZoom' && mapStore.zoom > 11) return dataStore.visiblePilots.value;
-    if (store.mapSettings.groundTraffic.hide !== 'always' && store.mapSettings.groundTraffic.hide !== 'lowZoom') return dataStore.visiblePilots.value;
+    const groundTrafficHide = store.mapSettings.groundTraffic?.hide ?? 'lowZoom';
+    if (groundTrafficHide === 'never') return dataStore.visiblePilots.value;
+    if (groundTrafficHide === 'lowZoom' && mapStore.zoom > 11) return dataStore.visiblePilots.value;
+    if (groundTrafficHide !== 'always' && groundTrafficHide !== 'lowZoom') return dataStore.visiblePilots.value;
 
     const pilots = dataStore.visiblePilots.value;
     const me = ownFlight.value;
 
     let arrivalAirport = '';
 
-    if (me?.arrival && !store.mapSettings.groundTraffic.excludeMyArrival) {
+    if (me?.arrival && !store.mapSettings.groundTraffic?.excludeMyArrival) {
         arrivalAirport = me.arrival;
     }
 
@@ -93,7 +93,7 @@ const getShownPilots = computed(() => {
     for (const airport of dataStore.vatsim.data.airports.value) {
         if (airport.icao === arrivalAirport) continue;
 
-        if (me && !store.mapSettings.groundTraffic.excludeMyLocation) {
+        if (me && !store.mapSettings.groundTraffic?.excludeMyLocation) {
             const check = airport.aircraft.groundDep?.includes(me.cid) || airport.aircraft.groundArr?.includes(me.cid) || airport.aircraft.prefiles?.includes(me.cid);
             if (check) continue;
         }
@@ -328,7 +328,7 @@ function traconLabelExistsAtPixel(eventPixel: Pixel) {
 
 let activePilotHover: null | number = null;
 
-const isMobileOrTablet = useIsMobileOrTablet();
+const isMobile = useIsMobile();
 
 async function handlePointerMove(e: MapBrowserEvent<any>) {
     if (store.mapSettings.heatmapLayer) return;
@@ -369,7 +369,7 @@ async function handlePointerMove(e: MapBrowserEvent<any>) {
         isManualHover.value = null;
         hoveredAircraft.value = null;
         await nextTick();
-        if (!isMobileOrTablet.value) {
+        if (!isMobile.value) {
             hoveredAircraft.value = features[0].cid;
         }
         mapStore.mapCursorPointerTrigger = 1;

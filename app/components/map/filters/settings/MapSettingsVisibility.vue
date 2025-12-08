@@ -89,8 +89,8 @@
             <common-select
                 :items="[
                     { text: 'Hide all', value: 'always' },
-                    { text: 'Hide if zoomed out', value: 'lowZoom' },
-                    { text: 'Show all (default)', value: 'never' },
+                    { text: 'Hide if zoomed out (default)', value: 'lowZoom' },
+                    { text: 'Show all', value: 'never' },
                 ]"
                 :model-value="store.mapSettings.groundTraffic?.hide ?? null"
                 placeholder="Ground traffic mode"
@@ -99,7 +99,7 @@
 
             <div class="__section-group">
                 <common-toggle
-                    :disabled="!store.user || store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide"
+                    :disabled="!store.user || store.mapSettings.groundTraffic?.hide === 'never'"
                     :model-value="store.mapSettings.groundTraffic?.excludeMyLocation === true"
                     @update:modelValue="setUserMapSettings({ groundTraffic: { excludeMyLocation: $event } })"
                 >
@@ -110,7 +110,7 @@
                     </template>
                 </common-toggle>
                 <common-toggle
-                    :disabled="!store.user || store.mapSettings.groundTraffic?.hide === 'never' || !store.mapSettings.groundTraffic?.hide"
+                    :disabled="!store.user || store.mapSettings.groundTraffic?.hide === 'never'"
                     :model-value="store.mapSettings.groundTraffic?.excludeMyArrival === true"
                     @update:modelValue="setUserMapSettings({ groundTraffic: { excludeMyArrival: $event } })"
                 >
