@@ -346,11 +346,11 @@ onBeforeUnmount(() => {
         .__grid-info-sections {
             gap: 0 !important;
 
-          &:not(:only-child) {
-            padding: 8px;
-            border-radius: 8px;
-            background: $darkgray850;
-          }
+            &:not(:only-child) {
+                padding: 8px;
+                border-radius: 8px;
+                background: $darkgray850;
+            }
         }
     }
 }
