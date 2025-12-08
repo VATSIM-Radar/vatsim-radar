@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.4-rc.4]
+
+- New icons from DotWallop (finally!): PA39, CS50, FOX (More coming!!)
+- Model matched E6 -> B703
+
 # [1.2.4-rc.3]
 
 - NY_CTR has finally been excluded from VATGlasses display
