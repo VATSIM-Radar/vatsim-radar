@@ -2,7 +2,15 @@
 
 # [1.2.4-rc.4]
 
+<<<<<<< HEAD
 - New icons from DotWallop (finally!): PA39, CS50, FOX (More coming!!)
+=======
+<<<<<<< HEAD
+- New icons from DotWallop (finally!): PA39, CS50, FOX, UH1 (More coming!!)
+=======
+- New icons from DotWallop (finally!): PA39, CS50, FOX (More coming!!)
+>>>>>>> f36dbeb5 (Added CS50, FOX, PA39, model matched E6->B703)
+>>>>>>> 688a5be3 (Added CS50, FOX, PA39, UH1 - model matched E6->B703)
 - Model matched E6 -> B703
 
 # [1.2.4-rc.3]
