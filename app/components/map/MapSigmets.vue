@@ -133,6 +133,10 @@ const openSigmet = ref<{
 const sigmetFields = (sigmet: Sigmet['properties']): [string, string | number][] => {
     const fields: [string, string][] = [];
 
+    if (store.localSettings?.filters?.layers?.sigmets?.raw && sigmet.raw && (sigmet.dataType === 'sigmet' || sigmet.dataType === 'airsigmet')) {
+        return [['', sigmet.raw]];
+    }
+
     if (sigmet.region || sigmet.regionName) fields.push(['Region / FIR', `${ sigmet.region || sigmet.regionName || '' }`]);
     if (sigmet.type || sigmet.hazard) fields.push(['Hazard / Type', `${ sigmet.hazard ?? '' } ${ sigmet.type ? ` / ${ sigmet.type }` : '' }`]);
     if (sigmet.qualifier) fields.push(['Qualifier', `${ sigmet.qualifier ?? '' }`]);
@@ -341,9 +345,12 @@ onBeforeUnmount(() => {
 
         .__grid-info-sections {
             gap: 0 !important;
-            padding: 8px;
-            border-radius: 8px;
-            background: $darkgray850;
+
+            &:not(:only-child) {
+                padding: 8px;
+                border-radius: 8px;
+                background: $darkgray850;
+            }
         }
     }
 }

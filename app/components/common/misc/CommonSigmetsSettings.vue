@@ -29,6 +29,12 @@
         >
             AIRMETs
         </common-toggle>
+        <common-toggle
+            :model-value="!!store.localSettings?.filters?.layers?.sigmets?.raw"
+            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { raw: $event } } } })"
+        >
+            Show raw SIGMET data only
+        </common-toggle>
     </div>
 </template>
 

@@ -1,9 +1,16 @@
 # Changelog
 
-# [1.2.4-rc.4]
+# [1.2.4-rc.5]
 
 - New icons from DotWallop (finally!): PA39, CS50, FOX, UH1 (More coming!!)
 - Model matched E6 -> B703
+
+# [1.2.4-rc.4]
+
+- (QA) Fixed unable to hover over aircraft issue
+- (QA) Removed Pizza Hut from detailed map layer
+- You can now choose to show raw SIGMET data only when clicking on them
+- Default ground traffic mode is now "hide if zoomed out" instead of "show all"
 
 # [1.2.4-rc.3]
 
