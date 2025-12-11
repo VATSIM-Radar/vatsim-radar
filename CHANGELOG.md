@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.4-final]
+# [1.2.4]
 
 This was supposed to be a small update. I have failed. Again.
 
@@ -59,7 +59,7 @@ This was supposed to be a small update. I have failed. Again.
 - NY_CTR has finally been excluded from VATGlasses display
 - Fixed procedures resetting on page reload
 
-# [1.2.3-4-final]
+# [1.2.3-4]
 
 - You can now select airport dashboard page layout on small screens, tablets and mobile devices
 - Improved controller mode in mobile layout in airport dashboard
@@ -67,7 +67,7 @@ This was supposed to be a small update. I have failed. Again.
 - Added VATUSA ARTCC domains by SebPartof2
 - Resolve UI overlapping issues on Bookings page by Juncheng Lu
 
-# [1.2.3-3-final]
+# [1.2.3-3]
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
 - Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
@@ -75,7 +75,7 @@ This was supposed to be a small update. I have failed. Again.
 - Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
 - Fixed first STAR waypoint restrictions not showing
 
-# [1.2.3-2-final]
+# [1.2.3-2]
 
 - Fixed **some** cyrillic ATC info not being parsed correctly
 - Updated auto-parsed domains whitelist: added vatsim-radar.com (lol), vatrus.info, uuwv.ru, vatsim-scandinavia.org,
@@ -83,7 +83,7 @@ This was supposed to be a small update. I have failed. Again.
 - Arrival airport will now always be visible in Proc Aircraft tab, even when not departed yet
 - Fixed aircraft route sometimes appearing when on-hover parsing is disabled
 
-# [1.2.3-1-final]
+# [1.2.3-1]
 
 - Disabled v1.2.3 update popup
 - Fixed Asia Center display in VATGlasses mode
@@ -96,7 +96,7 @@ This was supposed to be a small update. I have failed. Again.
 - Added hyperlinks highlight in ATIS
 - Fixed arrival line flashing constantly when route parsing is off
 
-# [1.2.3-final]
+# [1.2.3]
 
 Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to
 make it performance focused - so Radar may start to work better on not-so-high end machines.
