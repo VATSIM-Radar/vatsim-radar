@@ -1,5 +1,9 @@
 # Changelog
 
+# [1.2.4-rc.5]
+
+- (QA) Added minimal aircraft size on various zoom levels
+
 # [1.2.4-rc.4]
 
 - (QA) Fixed unable to hover over aircraft issue

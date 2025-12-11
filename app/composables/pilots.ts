@@ -272,6 +272,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
     const featureProperties = feature.getProperties() ?? {};
     const list = getUserList(cid);
+    const zoom = useMapStore().zoom;
 
     const filter = getFilteredAircraftSettings(cid);
     let filterColor: string | undefined;
@@ -286,13 +287,24 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
     if (resolvedScale > 4) resolvedScale = 4;
 
+    let scaledWidth = radarIcons[icon].width * resolvedScale;
+    let minWidth: number;
+
+    if (zoom < 5) minWidth = 10;
+    else if (zoom < 10) minWidth = 15;
+    else minWidth = 20;
+
+    if (!onGround && scaledWidth < minWidth) {
+        scaledWidth = minWidth;
+        resolvedScale = scaledWidth / radarIcons[icon].width;
+    }
+
     let text = textStyle.getText();
     const offsetY = ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
 
-    const declutter = ownFlight.value?.cid !== cid && useMapStore().zoom < 18;
+    const declutter = ownFlight.value?.cid !== cid && zoom < 18;
     const declutterMode = declutter ? 'declutter' : 'none';
 
-    const scaledWidth = radarIcons[icon].width * resolvedScale;
     const hideText = scaledWidth < 10 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
     const textValue = hideText ? undefined : featureProperties.callsign;
 
