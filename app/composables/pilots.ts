@@ -424,20 +424,20 @@ export function getAircraftLineStyle(color: string | number | null | undefined, 
 export const useShowPilotStats = () => {
     const store = useStore();
 
-    store.showPilotStats = useCookie<boolean>('show-pilot-stats', {
+    const cookie = useCookie<boolean>('show-pilot-stats', {
         sameSite: 'none',
         secure: true,
-    }).value ?? false;
+        watch: false,
+    });
+
+    store.showPilotStats = cookie.value ?? false;
 
     return computed({
         get() {
             return store.showPilotStats;
         },
         set(value: boolean) {
-            useCookie<boolean>('show-pilot-stats', {
-                sameSite: 'none',
-                secure: true,
-            }).value = value;
+            cookie.value = value;
             store.showPilotStats = value;
         },
     });

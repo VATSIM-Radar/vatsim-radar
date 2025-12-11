@@ -10,6 +10,9 @@ export default defineConfig({
         ['link', { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }],
         ['link', { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }],
     ],
+    markdown: {
+        toc: {level: [1, 2]}
+    },
     themeConfig: {
         outline: {
             level: [2, 3],
@@ -40,12 +43,12 @@ export default defineConfig({
                         link: 'https://github.com/VATSIM-Radar/vatsim-radar/issues/new/choose',
                     },
                     {
-                        text: 'Next Changelog',
-                        link: 'https://github.com/VATSIM-Radar/vatsim-radar/blob/next/CHANGELOG.md',
+                        text: 'Changelog',
+                        link: '/changelog',
                     },
                     {
-                        text: 'Production Changelog',
-                        link: 'https://github.com/VATSIM-Radar/vatsim-radar/blob/main/CHANGELOG.md',
+                        text: 'Next Changelog',
+                        link: 'https://github.com/VATSIM-Radar/vatsim-radar/blob/next/CHANGELOG.md',
                     },
                 ],
             },
@@ -66,6 +69,10 @@ export default defineConfig({
                     {
                         text: 'Features',
                         link: '/introduction/features/',
+                    },
+                    {
+                        text: 'Changelog',
+                        link: '/changelog',
                     },
                 ],
             },

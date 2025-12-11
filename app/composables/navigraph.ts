@@ -172,22 +172,12 @@ export interface EnroutePath {
     setBy: DataStoreNavigraphProceduresAirport['setBy'];
 }
 
-export const enroutePath = useCookie<Record<string, EnroutePath> | null>('enroute-path', {
-    path: '/',
-    secure: true,
-    sameSite: 'none',
-    maxAge: 60 * 60 * 24,
-});
+export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null);
 
-export const enrouteAircraftPath = useCookie<Record<string, {
+export const enrouteAircraftPath = useStorageLocal<Record<string, {
     departure: EnroutePath;
     arrival: EnroutePath;
-}> | null>('enroute-aircraft-path', {
-    path: '/',
-    secure: true,
-    sameSite: 'none',
-    maxAge: 60 * 60 * 24,
-});
+}> | null>('enroute-aircraft-path', {});
 
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const latMatch = input.match(latRegex);
@@ -904,8 +894,6 @@ export async function updateCachedProcedures() {
                 selectedAirport.setBy = value.departure.setBy;
 
                 selectedAirport.sids = await getCachedSids(procedures.value!, value.departure.icao!, value.departure.sids);
-                selectedAirport.stars = await getCachedStars(procedures.value!, value.departure.icao!, value.departure.stars);
-                selectedAirport.approaches = await getCachedApproaches(procedures.value!, value.departure.icao!, value.departure.approaches);
             }
 
             if (value.arrival.icao) {
@@ -916,7 +904,6 @@ export async function updateCachedProcedures() {
                 selectedAirport.runways = value.arrival.runways;
                 selectedAirport.setBy = value.arrival.setBy;
 
-                selectedAirport.sids = await getCachedSids(procedures.value!, value.arrival.icao!, value.arrival.sids);
                 selectedAirport.stars = await getCachedStars(procedures.value!, value.arrival.icao!, value.arrival.stars);
                 selectedAirport.approaches = await getCachedApproaches(procedures.value!, value.arrival.icao!, value.arrival.approaches);
             }

@@ -1,8 +1,8 @@
-import type { CookieRef } from '#app';
 import { isVatGlassesActive, activeRunwayChanged, getVGData } from '~/utils/data/vatglasses';
 import type { VatglassesAirportRunways } from '~/utils/data/vatglasses';
+import type { RemovableRef } from '@vueuse/shared';
 
-let runwayCookie: CookieRef<Record<string, string>> | undefined;
+let runwayState: RemovableRef<Record<string, string>> | undefined;
 
 export function getAirportRunways(icao: string): VatglassesAirportRunways | null {
     const dataStore = useDataStore();
@@ -10,15 +10,10 @@ export function getAirportRunways(icao: string): VatglassesAirportRunways | null
 
     if (!runways || !isVatGlassesActive.value) return null;
 
-    runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-        default: () => ({}),
-    });
+    runwayState ??= useStorageLocal<Record<string, string>>('vg-runways', {});
 
-    if (runwayCookie.value[icao] && runways.active !== runwayCookie.value[icao]) {
-        setAirportActiveRunway(icao, runwayCookie.value[icao]);
+    if (runwayState.value[icao] && runways.active !== runwayState.value[icao]) {
+        setAirportActiveRunway(icao, runwayState.value[icao]);
     }
 
     return runways;
@@ -31,17 +26,12 @@ export async function setAirportActiveRunway(icao: string, active: string) {
 
     if (!vatglassesData || !runways) return null;
 
-    runwayCookie ??= useCookie<Record<string, string>>('vg-runways', {
-        path: '/',
-        sameSite: 'none',
-        secure: true,
-        default: () => ({}),
-    });
+    runwayState ??= useStorageLocal<Record<string, string>>('vg-runways', {});
 
-    runwayCookie.value[icao] = active;
-    triggerRef(runwayCookie);
+    runwayState.value[icao] = active;
+    triggerRef(runwayState);
 
-    runways.active = runwayCookie.value[icao];
+    runways.active = runwayState.value[icao];
     triggerRef(dataStore.vatglassesActiveRunways);
     return activeRunwayChanged(icao);
 }

@@ -151,6 +151,7 @@ const dataStore = useDataStore();
 const multiple = useCookie<boolean>('navdata-multiple', {
     path: '/',
     secure: true,
+    watch: false,
     sameSite: 'none',
 });
 

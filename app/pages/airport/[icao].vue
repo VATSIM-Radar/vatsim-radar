@@ -504,12 +504,14 @@ type MapMode = 'default' | 'dashBigMapBig' | 'dashSmallMapBig' | 'dashBigMapSmal
 const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     sameSite: 'none',
     secure: true,
+    watch: false,
     default: () => null,
 });
 
 const controllerMode = useCookie<boolean>('controller-mode', {
     sameSite: 'none',
     secure: true,
+    watch: false,
     default: () => false,
 });
 
@@ -623,6 +625,7 @@ const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     sameSite: 'none',
     secure: true,
     default: () => false,
+    watch: false,
 });
 
 const showPilotStats = useShowPilotStats();

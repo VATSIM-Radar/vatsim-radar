@@ -1,28 +1,35 @@
+---
+outline: [1, 3]
+---
+
 # Changelog
 
-# [1.2.4-rc.5]
+::: details TOC
+[[toc]]
+:::
+
+# 1.2.4.rc.5
 
 - (QA) Added minimal aircraft size on various zoom levels
 - Fixed procedures resetting on page reload
 - Reordered booking calendar time options by 1532684
-- Added changelog into https://docs.vatsim-radar.com/changelog
 
-# [1.2.4-rc.4]
+# 1.2.4.rc.4
 
 - (QA) Fixed unable to hover over aircraft issue
 - (QA) Removed Pizza Hut from detailed map layer
 - You can now choose to show raw SIGMET data only when clicking on them
 - Default ground traffic mode is now "hide if zoomed out" instead of "show all"
 
-# [1.2.4-rc.3]
+# 1.2.4.rc.3
 
 - NY_CTR has finally been excluded from VATGlasses display
 
-# [1.2.4-rc.2]
+# 1.2.4.rc.2
 
 - Fixed issues that some aircraft labels got hidden when they shouldn't
 
-# [1.2.4-rc.1]
+# 1.2.4.rc.1
 
 - Updated map tiles to 07 Dec 25 from 24 July 25
 - (QA) Updated zoom transition threshold in air to 14 instead of 16
@@ -30,31 +37,31 @@
 - Country boundaries have been removed in favor of VATSpy sector display
 - All boundaries have been removed from "light" layer
 
-# [1.2.4-beta.9]
+# 1.2.4.beta.9
 
 - Fixed first approach waypoint not showing constraints
 
-# [1.2.4-beta.8]
+# 1.2.4.beta.8
 
 - (QA) Improved dynamic aircraft scaling based on zoom level by 1489535 — airplanes on the ground are now scaled to their real-world size
 - Center and APP sectors will now disappear when zooming in by 1489535
 - Reworked aircraft callsign render and interaction
 - Fixed dynamic zoom switch
 - You can now hover precisely on aircraft even in "crowded" space
-  
-# [1.2.4-beta.7]
+
+# 1.2.4.beta.7
 
 - (QA) Fixed dashed line becoming not dashed for own flight
 - Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when applicable
 - Fixed airway waypoints disappearing, if star starts right after airway
 
-# [1.2.4-beta.6]
+# 1.2.4.beta.6
 
 - (QA) Fast update now only happens below 100GS
 - Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends
   lists, or for next users
 
-# [1.2.4-beta.5]
+# 1.2.4.beta.5
 
 - (QA) Fixed fast updates issues
 - Aircraft icon will now move together with map, not fall behind
@@ -63,23 +70,23 @@
 - Duplicated controllers now show with a dashed line
 - Added bgvacc.org, vatsim.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
 
-# [1.2.4-beta.4]
+# 1.2.4.beta.4
 
 - Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535
 - Added headings to distance indicator by 1489535 - they also respect great circle from now on
 - Added About page and redesigned Privacy Policy by 1769455
 - Changed left & top menu icons by 1769455
 
-# [1.2.4-beta.3]
+# 1.2.4.beta.3
 
 - Fixed a crash when opening ?pilot=CID link, when pilot is offline
 - Fixed some approach controllers info such as name or rating not updating until reload
 
-# [1.2.4-beta.2]
+# 1.2.4.beta.2
 
 - Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
 
-# [1.2.4-beta.1]
+# 1.2.4.beta.1
 
 - Updated map tiles to 09 Nov 25 from 24 July 25
 - Other dependencies update to improve stability
@@ -97,7 +104,7 @@
 - You can now select approach without a star in Proc tab
 - Fixed SIGMETs not updating (once more lol)
 
-# [1.2.3-4-final]
+# 1.2.3.4
 
 - You can now select airport dashboard page layout on small screens, tablets and mobile devices
 - Improved controller mode in mobile layout in airport dashboard
@@ -105,7 +112,7 @@
 - Added VATUSA ARTCC domains by SebPartof2
 - Resolve UI overlapping issues on Bookings page by Juncheng Lu
 
-# [1.2.3-3-final]
+# 1.2.3.3
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
 - Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
@@ -113,7 +120,7 @@
 - Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
 - Fixed first STAR waypoint restrictions not showing
 
-# [1.2.3-2-final]
+# 1.2.3.2
 
 - Fixed **some** cyrillic ATC info not being parsed correctly
 - Updated auto-parsed domains whitelist: added vatsim-radar.com (lol), vatrus.info, uuwv.ru, vatsim-scandinavia.org,
@@ -121,7 +128,7 @@
 - Arrival airport will now always be visible in Proc Aircraft tab, even when not departed yet
 - Fixed aircraft route sometimes appearing when on-hover parsing is disabled
 
-# [1.2.3-1-final]
+# 1.2.3.1
 
 - Disabled v1.2.3 update popup
 - Fixed Asia Center display in VATGlasses mode
@@ -134,7 +141,7 @@
 - Added hyperlinks highlight in ATIS
 - Fixed arrival line flashing constantly when route parsing is off
 
-# [1.2.3-final]
+# 1.2.3
 
 Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to
 make it performance focused - so Radar may start to work better on not-so-high end machines.
@@ -205,12 +212,12 @@ patient - that saves you dozens MBs of memory.
 - Fixed some bookings showing as staffed
 - Fixed some bookings showing incorrect shape or TRACON
 
-# [1.2.2-4]
+# 1.2.2.4
 
 - Alaska AIRMETs were temporally disabled
 - Fixed all SIGMETs not showing on map if one of SIGMET types is failing to be loaded
 
-# [1.2.2-3]
+# 1.2.2.3
 
 - METAR is now cached for 5 minutes instead of 10 minutes
 - Fixed next segment after SID color being purple instead of blue
@@ -218,17 +225,17 @@ patient - that saves you dozens MBs of memory.
 - If your supervisor friend is flying or controlling while SUPing, it will now be shown in friend list
 - Renamed ATIS NOT AVAIL in ATC popup to INFO NOT AVAIL
 
-# [1.2.2-2-final]
+# 1.2.2.2
 
 - Fixed SELCAL sometimes parsing as virtual airline name
 - Fixed rare cases when VATGlasses approach controllers not displaying on map
 
-# [1.2.2-1]
+# 1.2.2.1
 
 - Fixed some cases when you were unable to save map settings
 - It is now much, much easier to click on an aircraft on mobile
 
-# [1.2.2]
+# 1.2.2
 
 This update is focused on bug fixes and small improvements.
 
@@ -249,7 +256,7 @@ This update is focused on bug fixes and small improvements.
 - VATGlasses will no longer open if you click on an aircraft
 - You can no longer add yourself as a friend :(((
 
-# [1.2.1-1]
+# 1.2.1.1
 
 I flew to EDDF yesterday. While it was fun, I have also noticed significant performance issues. This patch tends to fix
 them - let me know if you see any changes, and also lmk about performance issues you experience in general.
@@ -258,7 +265,7 @@ them - let me know if you see any changes, and also lmk about performance issues
 - Fixed constant holdings calculation to be once per second instead of dozens per second to improve performance
 - Fixed performance drop when aircraft list is open - e.g. airport overlay or dashboard
 
-# [1.2.1]
+# 1.2.1
 
 Welcome to quality of life VATSIM Radar update! This update adds new features and fixes many issues.
 
@@ -314,13 +321,13 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - Fixed weather layer not updating automatically
 - Fixed aircraft lines sometimes not clearing up - it should also happen faster now
 
-# [1.2.0-1-final]
+# 1.2.0.1
 
 - Fixed airway transition to another region airway with same name could result in route looking weird
 - Added a way to disable waypoints in "Airport Tracks"
 - Fixed weird holdings font
 
-# [1.2.0-final]
+# 1.2.0
 
 ## Highlights
 
@@ -426,19 +433,19 @@ tool. Like, please.
 - Fixed very old and rare issue with "ghost" aircraft
 - Fixed minor visual issue with aircraft icon inside flight progress in pilot overlay
 
-# [1.1.2-4]
+# 1.1.2.4
 
 - When Navigraph has some issues with AMDB, gates will no longer disappear from map
 - Reset Navigraph cache for airports: some airports were not showing Airport Layout on map
 - Fixed colors sometimes shifting for airports layouts
 
-# [1.1.2-2-final]
+# 1.1.2.2
 
 - Added VATGlasses multiple controllers per position support
 - Added admins to stats page
 - Fixed VATGlasses combined not doing anything if automatic VG detection is enabled
 
-# [1.1.2-1]
+# 1.1.2.1
 
 - Now when you open shared filter it is not saved to active filter when you open page without shared filter in
   parameters
@@ -446,7 +453,7 @@ tool. Like, please.
 - If you have active preset it will now show as small dot under filter menu
 - Removed not needed scroll when friends exceed 4. This is definetly the case today!
 
-# [1.1.2]
+# 1.1.2
 
 ## Features and Improvements
 
@@ -481,7 +488,7 @@ tool. Like, please.
 - Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can
   now only be done via sorting icon, as it should have been from the start
 
-# [1.1.1]
+# 1.1.1
 
 ## Highlights
 
@@ -517,7 +524,7 @@ tool. Like, please.
 - Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
 - Fixed traffic heatmap. Why did no one tell me it's broken?
 
-# [1.1.0]
+# 1.1.0
 
 Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow
 community.
@@ -605,15 +612,15 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Fixed an issue when controller ATIS was appearing incorrectly in VG mode
 - Fixed R44 icon size
 
-# [1.0.3-2]
+# 1.0.3.2
 
 - Fixed an issue when you could not set more than one filter parameter at once. Very sorry about that
 
-# [1.0.3-1]
+# 1.0.3.1
 
 - Fixed gates not showing up for some airports when using Navigraph
 
-# [1.0.3]
+# 1.0.3
 
 - New icons from DotWallop (P180, BA11, DH88, F28, J328)
 - Added model matching (B3XM)
@@ -621,7 +628,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Fixed sectors sometimes not rendering on mobile devices
 - Improved rendering performance for mobile devices
 
-# [1.0.2]
+# 1.0.2
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so
   if you experience performance issues after this update - switch to Basic layer instead
@@ -634,13 +641,13 @@ You can also sort by various columns, and filter map by some of the data you cho
   in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
   or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
-# [1.0.1-1]
+# 1.0.1.1
 
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)
 - Improved VATGlasses stability for incorrect HEX colors
 
-# [1.0.1-final]
+# 1.0.1
 
 Welcome a small VATSIM Radar quality of life update.
 
@@ -673,7 +680,7 @@ Welcome a small VATSIM Radar quality of life update.
 - Fixed FSS errors in VATGlasses mode by Felix
 - Fixed error when disabling Airports Layouts also made gates data worse
 
-# [1.0.0-1-final]
+# 1.0.0.1
 
 - Added Virtual Airlines remarks parsing (CS/Callsign/Name, CS/Callsign, WEB/website)
 - Fixed an error when event showed as active even if it has ended by @MicahBCode
@@ -681,7 +688,7 @@ Welcome a small VATSIM Radar quality of life update.
 - Fixed VATGlasses positions popup width
 - Fixed featured airports open in mobile version together with airport overlay
 
-# [1.0.0]
+# 1.0.0
 
 This update marks an important milestone for VATSIM Radar.
 
@@ -781,13 +788,13 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Fixed inability to re-select default opacity for OSM/Satellite layers
 - Fixed BECMG active time display
 
-# [0.5.1-1-final]
+# 0.5.1.1
 
 - You can now once again hover over aircraft overlay in resized window
 - Fixed search window sometimes lagging and taking whole screen height
 - Increased map settings height on mobile devices
 
-# [0.5.1-final]
+# 0.5.1
 
 ## Notable changes
 
@@ -818,7 +825,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Fixed an issue with infinite zoom while switching between tracked aircraft
 - Fixed A35K model matching
 
-# [0.5.0.1-final]
+# 0.5.0.1
 
 A small hotfix with an issue when you could not save your map preset, if:
 
@@ -826,7 +833,7 @@ A small hotfix with an issue when you could not save your map preset, if:
 - You pressed exclude my location without excluding arrival for airports hide
 - You had the same local preset as the one you import
 
-# [0.5.0]
+# 0.5.0
 
 ## Highlights
 
@@ -932,12 +939,12 @@ Made by Thorsten.
 - Fixed some Australian airports showing twice on map
 - Fixed Australian extending feature to now rely on controller ATIS
 
-# [0.4.5-1]
+# 0.4.5.1
 
 - Added schedule to NOTAMS when available
 - Fixed an error when NOTAMS were appearing very slowly in Airport Dashboard
 
-# [0.4.5]
+# 0.4.5
 
 This is a small release with important bug fixes and improvements.
 
@@ -967,7 +974,7 @@ This is a small release with important bug fixes and improvements.
 - Fixed an issue when flight details were never shown in "Dashboard Only" mode of Airport Dashboard
 - Fixed duplicated Center word for some UIRs
 
-# [0.4.4]
+# 0.4.4
 
 Big thanks to Felix and DotWallop for making this release possible!
 
@@ -1067,7 +1074,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - Improved great circle support for transoceanic flights that had disconnects
 
-# [0.4.3]
+# 0.4.3
 
 - Slighty improved update browser performance
 - Optimized turns render for very big aircraft list
@@ -1077,7 +1084,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed aircraft blinking when updating
 - Several map update performance improvements
 
-# [0.4.2]
+# 0.4.2
 
 Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle
 support - and much more.
@@ -1126,7 +1133,7 @@ support - and much more.
 - Fixed an issue when sometimes data was not updating every 15 seconds
 - Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
 
-# [0.4.1]
+# 0.4.1
 
 - Increased rate for Navigraph AIRAC updates
 - Added transparency settings for OSM and satellite layers

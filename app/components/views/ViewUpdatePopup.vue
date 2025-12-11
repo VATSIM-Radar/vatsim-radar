@@ -113,20 +113,9 @@ const update: Update = {
     type: 'minor',
     features: [
         {
-            title: 'v1.2.4 OPEN BETA!',
-            description: `Hey guys! For the first time, we are doing Open Beta of newest update. We really need feedback on some of its features, so please join us in <a href="/discord" target="_blank">Discord</a> to provide it!<br><br>We really need testing on:`,
-            list: [
-                'Dynamic aircraft size. How does it feel? How does it look on the ground?',
-                'Aircraft callsign render has been reworked. Is it good for you?<br> Does clicking work well on both <strong>PC and Mobile</strong>?',
-                'When connected on ground, how do you feel about your aircraft updating speed?',
-                'Is performance okay for you? Improved, degraded?',
-                'Read other highlights in tab below',
-            ],
-        },
-        {
             title: 'Welcome to quality of life VATSIM Radar update!',
-            description: 'This update adds new features and fixes many issues. Visit our <a href="/discord" target="_blank">Discord</a> for a full changelog',
-            image: images['../../assets/update/quality.png'],
+            description: 'This update adds new features and fixes many issues. Visit <a href="https://docs.vatsim-radar.com/changelog" target="_blank">docs</a> for a full changelog',
+            image: images['../../assets/update/real-size.png'],
             list: [
                 'Long-time requested dynamic aircraft zoom by psergienko',
                 'Headings/great circle on distance tool by psergienko',
