@@ -1,5 +1,5 @@
 ---
-outline: [1, 3]
+outline: [2, 3]
 ---
 
 # Changelog
@@ -8,9 +8,9 @@ outline: [1, 3]
 [[toc]]
 :::
 
-# 1.2.4
+## 1.2.4
 
-## Highlights
+### Highlights
 
 - Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535
 - Added headings to distance indicator by 1489535 - they also respect great circle from now on
@@ -19,7 +19,7 @@ outline: [1, 3]
 - Implemented very fast updating of your own flight (below FL250 and 100GS)
 - New icons from DotWallop (finally!): PA39, CS50, FOX, UH1 (More coming!!)
 
-## Features and improvements
+### Features and improvements
 
 - People will now be marked as "online" in VATSIM Radar for ~2 minutes after they've left the tab, instead of 10 seconds
 - Reduced traffic consumption on "online" status check
@@ -48,7 +48,7 @@ outline: [1, 3]
 - Model matched E6 -> B703
 - Max map zoom has been limited to 20
 
-## Bug fixes
+### Bug fixes
 
 - You can now select approach without a star in Proc tab
 - Fixed SIGMETs not updating (once more lol)
@@ -65,7 +65,7 @@ outline: [1, 3]
 - NY_CTR has finally been excluded from VATGlasses display
 - Fixed procedures resetting on page reload
 
-# 1.2.3.4
+## 1.2.3.4
 
 - You can now select airport dashboard page layout on small screens, tablets and mobile devices
 - Improved controller mode in mobile layout in airport dashboard
@@ -73,7 +73,7 @@ outline: [1, 3]
 - Added VATUSA ARTCC domains by SebPartof2
 - Resolve UI overlapping issues on Bookings page by Juncheng Lu
 
-# 1.2.3.3
+## 1.2.3.3
 
 - Fixed departure airport displaying in Proc tab when arrival should be displ,ayed
 - Added beluxvacc.org, portugal-vacc.org, vathk.com, hq.vat-sea.com to whitelist
@@ -81,7 +81,7 @@ outline: [1, 3]
 - Fixed incorrect AIRAC for Navigraph, added fixes to prevent such issues in future
 - Fixed first STAR waypoint restrictions not showing
 
-# 1.2.3.2
+## 1.2.3.2
 
 - Fixed **some** cyrillic ATC info not being parsed correctly
 - Updated auto-parsed domains whitelist: added vatsim-radar.com (lol), vatrus.info, uuwv.ru, vatsim-scandinavia.org,
@@ -89,7 +89,7 @@ outline: [1, 3]
 - Arrival airport will now always be visible in Proc Aircraft tab, even when not departed yet
 - Fixed aircraft route sometimes appearing when on-hover parsing is disabled
 
-# 1.2.3.1
+## 1.2.3.1
 
 - Disabled v1.2.3 update popup
 - Fixed Asia Center display in VATGlasses mode
@@ -102,7 +102,7 @@ outline: [1, 3]
 - Added hyperlinks highlight in ATIS
 - Fixed arrival line flashing constantly when route parsing is off
 
-# 1.2.3
+## 1.2.3
 
 Welcome to newest VATSIM Radar release! I didn't plan to make it this huge so sorry about that. I have also decided to
 make it performance focused - so Radar may start to work better on not-so-high end machines.
@@ -110,14 +110,14 @@ make it performance focused - so Radar may start to work better on not-so-high e
 Please keep in mind: Navigraph will initialize for a very long time in this update. This is intended, please be
 patient - that saves you dozens MBs of memory.
 
-## Highlights
+### Highlights
 
 - 📊 Airport Dashboard enhancements
 - 🛩️ Registration, alternates and voice rules in pilot overlay
 - ⚡ Performance and memory usage improvements
 - ✨ Bug fixes and quality of life improvements
 
-## Features and improvements
+### Features and improvements
 
 - It is now possible to view VATSpy polygons on "other worlds" of map
 - Added ZMA Ocean Area duplicating logic by glott
@@ -135,7 +135,7 @@ patient - that saves you dozens MBs of memory.
 - NOTAMs cache update has been lowered from 2 hours to 15 minutes
 - Alaska AIRMETs are put back into operation
 
-## Performance improvements
+### Performance improvements
 
 - Slightly improved aircraft update performance
 - Reduced approach caching size
@@ -151,7 +151,7 @@ patient - that saves you dozens MBs of memory.
 - Improved performance when updating aircraft in dashboard mode
 - Add airport data cleanup when zooming out
 
-## Bug Fixes
+### Bug Fixes
 
 - Max waypoint distance allowed has been increased to 700NM from 500NM. Let us know if this causes issues
 - Once again fixed bookings not updating
@@ -173,12 +173,12 @@ patient - that saves you dozens MBs of memory.
 - Fixed some bookings showing as staffed
 - Fixed some bookings showing incorrect shape or TRACON
 
-# 1.2.2.4
+## 1.2.2.4
 
 - Alaska AIRMETs were temporally disabled
 - Fixed all SIGMETs not showing on map if one of SIGMET types is failing to be loaded
 
-# 1.2.2.3
+## 1.2.2.3
 
 - METAR is now cached for 5 minutes instead of 10 minutes
 - Fixed next segment after SID color being purple instead of blue
@@ -186,17 +186,17 @@ patient - that saves you dozens MBs of memory.
 - If your supervisor friend is flying or controlling while SUPing, it will now be shown in friend list
 - Renamed ATIS NOT AVAIL in ATC popup to INFO NOT AVAIL
 
-# 1.2.2.2
+## 1.2.2.2
 
 - Fixed SELCAL sometimes parsing as virtual airline name
 - Fixed rare cases when VATGlasses approach controllers not displaying on map
 
-# 1.2.2.1
+## 1.2.2.1
 
 - Fixed some cases when you were unable to save map settings
 - It is now much, much easier to click on an aircraft on mobile
 
-# 1.2.2
+## 1.2.2
 
 This update is focused on bug fixes and small improvements.
 
@@ -217,7 +217,7 @@ This update is focused on bug fixes and small improvements.
 - VATGlasses will no longer open if you click on an aircraft
 - You can no longer add yourself as a friend :(((
 
-# 1.2.1.1
+## 1.2.1.1
 
 I flew to EDDF yesterday. While it was fun, I have also noticed significant performance issues. This patch tends to fix
 them - let me know if you see any changes, and also lmk about performance issues you experience in general.
@@ -226,11 +226,11 @@ them - let me know if you see any changes, and also lmk about performance issues
 - Fixed constant holdings calculation to be once per second instead of dozens per second to improve performance
 - Fixed performance drop when aircraft list is open - e.g. airport overlay or dashboard
 
-# 1.2.1
+## 1.2.1
 
 Welcome to quality of life VATSIM Radar update! This update adds new features and fixes many issues.
 
-## Highlights
+### Highlights
 
 - You can now view bookings via map footer, by Felix
 - Added Speed & Altitude graph to pilot overlay
@@ -244,7 +244,7 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - Added natTrak direction filter and indicator, inactive routes parsing support
 - Add "Locked by ATC" label to locked flight plans
 
-## Features and Improvements
+### Features and Improvements
 
 - Updated "Basic" map layer
 - Default map layer has been updated to 20250724 from 20250622
@@ -263,7 +263,7 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - Added support for 7601 emergency squawk code
 - Added an ability to modify or disable new hovering system
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed Navigraph AIRAC sometimes loading old AIRAC data
 - Fixed an issue when Proc for previous flight were not unloaded for a new one
@@ -282,15 +282,15 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - Fixed weather layer not updating automatically
 - Fixed aircraft lines sometimes not clearing up - it should also happen faster now
 
-# 1.2.0.1
+## 1.2.0.1
 
 - Fixed airway transition to another region airway with same name could result in route looking weird
 - Added a way to disable waypoints in "Airport Tracks"
 - Fixed weird holdings font
 
-# 1.2.0
+## 1.2.0
 
-## Highlights
+### Highlights
 
 - 🧭️ Navigational Data on map (provided by Jeppesen and Navigraph)
 - ✈️ Predicted aircraft route
@@ -300,7 +300,7 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 - 🌦️ Weather request
 - 🗺️ New map layers
 
-### Navigational Data
+#### Navigational Data
 
 Available under "Navigraph" section of Map Layer settings, you can now toggle to view Waypoints, Airways, NDB, VORDME,
 and Holdings on map.
@@ -314,7 +314,7 @@ great and most complicated addition we had to VATSIM Radar in a long time.
 
 Also, as part of this change, you can toggle natTrak oceanic routes.
 
-### Predicted aircraft route
+#### Predicted aircraft route
 
 This has been one of most requested features of all time. Now, when you hover on aircraft, you can see it's actual
 predicted route.
@@ -326,7 +326,7 @@ And not only that - ETA is now also calculated based on actual route to be flown
 
 As usual, you can disable this inside Map Layers menu.
 
-### Distance measurement tool
+#### Distance measurement tool
 
 In map bottom left corner, you can spot a small ruler icon. Click on it to activate long-requested distance measurement
 tool!
@@ -337,7 +337,7 @@ as switch units to kilometers.
 Of course, you can click on aircraft to view separation between two of them - but please, don't use this as superivising
 tool. Like, please.
 
-## Other significant features
+### Other significant features
 
 - Added observers page
 - Added shared cockpit support
@@ -346,7 +346,7 @@ tool. Like, please.
   Also added Ground elevation layer
 - Applied performance and memory usage optimizations
 
-## Features and Improvements
+### Features and Improvements
 
 - Improved supports for screens that are small on screen height - for example, in horizontal view mode
 - Removed scale indicator on mobile to save space
@@ -371,7 +371,7 @@ tool. Like, please.
 - Default map layers have been updated from March 22 to June 22 version
 - New icon: C160 from DotWallop
 
-## Bookings improvements by MindCollaps
+### Bookings improvements by MindCollaps
 
 - Changed design of booking page - especially in lightmode by MindCollaps
 - Added search bar and sorting to bookings page
@@ -386,7 +386,7 @@ tool. Like, please.
 - Only visible airport bookings will be displayed on the map
 - You can press enter the booking page to confirm a custom Now + Hours value
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed filtered aircraft settings sometimes being reset
 - Fixed filtered aircraft color not displaying correctly
@@ -394,19 +394,19 @@ tool. Like, please.
 - Fixed very old and rare issue with "ghost" aircraft
 - Fixed minor visual issue with aircraft icon inside flight progress in pilot overlay
 
-# 1.1.2.4
+## 1.1.2.4
 
 - When Navigraph has some issues with AMDB, gates will no longer disappear from map
 - Reset Navigraph cache for airports: some airports were not showing Airport Layout on map
 - Fixed colors sometimes shifting for airports layouts
 
-# 1.1.2.2
+## 1.1.2.2
 
 - Added VATGlasses multiple controllers per position support
 - Added admins to stats page
 - Fixed VATGlasses combined not doing anything if automatic VG detection is enabled
 
-# 1.1.2.1
+## 1.1.2.1
 
 - Now when you open shared filter it is not saved to active filter when you open page without shared filter in
   parameters
@@ -414,9 +414,9 @@ tool. Like, please.
 - If you have active preset it will now show as small dot under filter menu
 - Removed not needed scroll when friends exceed 4. This is definetly the case today!
 
-# 1.1.2
+## 1.1.2
 
-## Features and Improvements
+### Features and Improvements
 
 - Improved performance when VATGlasses is enabled
 - Added VATSpy/SimAware TRACON geojson debug tool
@@ -435,7 +435,7 @@ tool. Like, please.
 - Added VATGlasses online-only color support
 - Added diverted flight filter
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed VATGlasses crashing for anonymous users
 - Fixed "A" button disappearing for VG level
@@ -449,16 +449,16 @@ tool. Like, please.
 - Fixed an issue when you couldn't activate any preset because it always tried to get sorted (touch screens). Sort can
   now only be done via sorting icon, as it should have been from the start
 
-# 1.1.1
+## 1.1.1
 
-## Highlights
+### Highlights
 
 - Added VATGlasses dynamic sectors support
 - Implemented BARS integration. Status will be displayed in Airport Overlay Info tab, Pilot Overlay (at the bottom when
   on ground), and also directly on map for Navigraph users
 - Added VATGlasses to footer in active flight, so you can change levels to plan ahead and switch back to auto-level
 
-## Features and Improvements
+### Features and Improvements
 
 - Added separate VATSIM General Discord link
 - Added "Install App" button to header
@@ -472,7 +472,7 @@ tool. Like, please.
 - Removed estimate time for aircraft taxiing on ground
 - Max users per favorite list increased to 200
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed scale being above menu on mobile
 - Fixed rare issue when overlays were not showing up
@@ -485,12 +485,12 @@ tool. Like, please.
 - Fixed an issue when VATGlasses combined mode popup was suddenly closing on controller name hover
 - Fixed traffic heatmap. Why did no one tell me it's broken?
 
-# 1.1.0
+## 1.1.0
 
 Welcome to newest VATSIM Radar update! This one is packed with a bunch of features that were requested from our fellow
 community.
 
-## Highlights
+### Highlights
 
 - 🌩️ SIGMETs / AIRMETs (US)
 - 📅 ATC Bookings
@@ -499,7 +499,7 @@ community.
 - 📂 Presets Sorting
 - ✅ UI/UX Improvements and bug fixes
 
-### SIGMETs
+#### SIGMETs
 
 Enable SIGMETs for main map - or view them on separate page. You can also hide different types and click on SIGMETs to
 show additional details.
@@ -508,7 +508,7 @@ AIRMETs are also available for US. You can enable SIGMETs on map in Map Layers m
 
 This data was provided by [Aviation Weather Center](https://aviationweather.gov/).
 
-### Bookings (BETA)
+#### Bookings (BETA)
 
 Developed by Noah Elijah Till, Bookings are finally available in VATSIM Radar!
 
@@ -519,14 +519,14 @@ They are also displayed on map (TWR and below) 1 hour before they come online.
 
 This feature should now be considered BETA - more improvements are coming later.
 
-### Live Stats
+#### Live Stats
 
 With this long-time requested SimAware feature, you can view top Airports, Airlines, Aircraft, Routes, as well as
 ATC/Pilots online.
 
 You can also sort by various columns, and filter map by some of the data you choose.
 
-## Features and Improvements
+### Features and Improvements
 
 - Favorite count in a single list was increased to 200 from 50
 - Updated default map layer data
@@ -556,7 +556,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Added Map Setting that prevents VR to update center/zoom in address bar
 - Removed duplicate ATC from VATGlasses popup
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed favorite add if it was exceeding max count
 - Increased emergency color priority over enabled tracks
@@ -573,15 +573,15 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Fixed an issue when controller ATIS was appearing incorrectly in VG mode
 - Fixed R44 icon size
 
-# 1.0.3.2
+## 1.0.3.2
 
 - Fixed an issue when you could not set more than one filter parameter at once. Very sorry about that
 
-# 1.0.3.1
+## 1.0.3.1
 
 - Fixed gates not showing up for some airports when using Navigraph
 
-# 1.0.3
+## 1.0.3
 
 - New icons from DotWallop (P180, BA11, DH88, F28, J328)
 - Added model matching (B3XM)
@@ -589,7 +589,7 @@ You can also sort by various columns, and filter map by some of the data you cho
 - Fixed sectors sometimes not rendering on mobile devices
 - Improved rendering performance for mobile devices
 
-# 1.0.2
+## 1.0.2
 
 - New map layers, replacing CartoDB, and available in Light and Detailed variants. This layer renders on your device, so
   if you experience performance issues after this update - switch to Basic layer instead
@@ -602,17 +602,17 @@ You can also sort by various columns, and filter map by some of the data you cho
   in [GNG DB](https://gng.aero-nav.com/AERONAV/icao_fhairlines?action=get&oper=grid&_search=false&nd=${Date.now()}&rows=10000&page=1&sidx=icao&sord=asc)
   or [VR Data](https://github.com/VATSIM-Radar/data/blob/main/custom-data/airlines.json)
 
-# 1.0.1.1
+## 1.0.1.1
 
 - New icons from DotWallop (BE9L, C402, RV10, EVOT, PA34, PA44)
 - Added model matching (BE9T, EVOP, P8)
 - Improved VATGlasses stability for incorrect HEX colors
 
-# 1.0.1
+## 1.0.1
 
 Welcome a small VATSIM Radar quality of life update.
 
-## Highlights
+### Highlights
 
 - Layouts option will now always show in visibility to highlight that you can have it if you link Navigraph
 - You can now switch timezones in events page
@@ -622,7 +622,7 @@ Welcome a small VATSIM Radar quality of life update.
   `CS=JERSEY=VFLYBE`)
 - Added event separate page. Share events direct link if you like ;)
 
-## Features and Improvements
+### Features and Improvements
 
 - Corrected model matching (BAe 146/Avro RJ series, BCS3)
 - Disabled v1 update popup
@@ -636,12 +636,12 @@ Welcome a small VATSIM Radar quality of life update.
 - Since we don't collapse ATIS anymore, ATC popup will open with max width, just like any other popup
 - Improved events page opening speed
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed FSS errors in VATGlasses mode by Felix
 - Fixed error when disabling Airports Layouts also made gates data worse
 
-# 1.0.0.1
+## 1.0.0.1
 
 - Added Virtual Airlines remarks parsing (CS/Callsign/Name, CS/Callsign, WEB/website)
 - Fixed an error when event showed as active even if it has ended by @MicahBCode
@@ -649,7 +649,7 @@ Welcome a small VATSIM Radar quality of life update.
 - Fixed VATGlasses positions popup width
 - Fixed featured airports open in mobile version together with airport overlay
 
-# 1.0.0
+## 1.0.0
 
 This update marks an important milestone for VATSIM Radar.
 
@@ -658,7 +658,7 @@ services.
 
 Well, we do now.
 
-## Highlights
+### Highlights
 
 - 👓 VATGlasses integration: developed by community member Felix
 - 🛣️ Airports Layouts: taxiway maps for Navigraph Unlimited subscribers
@@ -668,7 +668,7 @@ Well, we do now.
 - 🛠️ Quality of Life: new aircraft icons, airline name in popup, and many more UI/UX changes & improvements, as well as
   bug fixes
 
-### VATGlasses
+#### VATGlasses
 
 VATGlasses is a tool familiar to many, especially flying in complex European airspace. From now on, VATSIM Radar has
 integration with their data!
@@ -679,7 +679,7 @@ You can also select active airports if there are some directly from pilot popup 
 
 Thanks to Felix for developing this integration.
 
-### Airports Layouts
+#### Airports Layouts
 
 Airports Layouts is a feature for Navigraph Unlimited subscribers that allows you to view airport map for large
 airports.
@@ -691,7 +691,7 @@ Visibility.
 And for those of you who didn’t buy Navigraph Unlimited yet - here are
 the [Subscription options](https://navigraph.com/pricing?utm_source=vatsimradar&utm_medium=referral&utm_campaign=subscribe).
 
-### Filters
+#### Filters
 
 Meet filters - inspired by VATSpy and FlightRadar 24 fitlers, they allow you to filter things out of map.
 
@@ -700,21 +700,21 @@ ratings, positions, and more.
 
 You can also save your filters, and share them - even for those who are not logged in.
 
-### Friends
+#### Friends
 
 An amazing feature that allows you to favorite your friends - and track them on map.
 
 You can even make a different lists with different colors for easier tracking!
 
-### Bookmarks
+#### Bookmarks
 
 That one is simple: bookmark any location on a map to your list. You can also "favorite" an airport coordinate!
 
 Bookmarks are also shareable with anyone. By the way, you can add a key binding for any bookmark!
 
-## Features and Improvements
+### Features and Improvements
 
-### New Features
+#### New Features
 
 - Added airline display into pilot popup
 - Added active flight tracking button
@@ -723,7 +723,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - New icons from DotWallop: A139-189, AN2, AS32-50, ATP, B06, B190, C310, DV20, E145, F2TH, F900, FAxx, IL76, L410,
   LJ35, PC6T, SF34, SF50, SU95, TEX2, TOR, YK40
 
-### UI/UX Improvements
+#### UI/UX Improvements
 
 - Added basic VatSpy-like theme with no country borders etc. Very traffic effective
 - Sectors borders and Airport Layouts are now drawn on x2 distance from your visible area
@@ -740,7 +740,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Pilots stats in aircraft list will now be colored depending on their hours
 - CTRL+F will now open VATSIM Radar's search box
 
-### Bug Fixes
+#### Bug Fixes
 
 - Fixed search window sometimes lagging and taking whole screen height
 - Fixed error when you couldn't switch fast between airports - nothing happened when you clicked on map
@@ -749,15 +749,15 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Fixed inability to re-select default opacity for OSM/Satellite layers
 - Fixed BECMG active time display
 
-# 0.5.1.1
+## 0.5.1.1
 
 - You can now once again hover over aircraft overlay in resized window
 - Fixed search window sometimes lagging and taking whole screen height
 - Increased map settings height on mobile devices
 
-# 0.5.1
+## 0.5.1
 
-## Notable changes
+### Notable changes
 
 - Removed orientation restriction for PWA apps. Those who installed VATSIM Radar on their devices and faced this issue
   may have to reinstall the app
@@ -766,7 +766,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - New aircraft icons from DotWallop
 - Added model matching for C310 (as C172 for now)
 
-## Features and Improvements
+### Features and Improvements
 
 - You can now change colors of aircraft on ground separately from airborne
 - Map last updated now turns red after 1 minute not updated, not 20 seconds
@@ -776,7 +776,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Clicking on search result in search will not result in it's closing
 - Reduced aircraft icon maximum default size from 40px to 35px
 
-## Bug fixes
+### Bug fixes
 
 - Simple departure line will no longer be drawn if aircraft is not visible
 - Fixed an issue when tracks sometimes were not appearing in airport dashboard
@@ -786,7 +786,7 @@ Bookmarks are also shareable with anyone. By the way, you can add a key binding 
 - Fixed an issue with infinite zoom while switching between tracked aircraft
 - Fixed A35K model matching
 
-# 0.5.0.1
+## 0.5.0.1
 
 A small hotfix with an issue when you could not save your map preset, if:
 
@@ -794,9 +794,9 @@ A small hotfix with an issue when you could not save your map preset, if:
 - You pressed exclude my location without excluding arrival for airports hide
 - You had the same local preset as the one you import
 
-# 0.5.0
+## 0.5.0
 
-## Highlights
+### Highlights
 
 - ⚙️ Map Settings: personalize the map with great variation of options
 - 🔍 Search Feature: effortlessly find airports, controllers, or pilots
@@ -806,13 +806,13 @@ A small hotfix with an issue when you could not save your map preset, if:
 - 📱 Mobile-Friendly Design: seamlessly use VATSIM Radar on phones and tablets
 - ✨ Quality of life: enjoy new aircraft icons, community-driven enhancements, and bug fixes
 
-### Map Settings
+#### Map Settings
 
 Added Map Settings into Filters menu.
 
 Available settings:
 
-#### General
+##### General
 
 - Enable Traffic Heatmap to get beautiful screenshots of active map areas
 - Highlight aircraft squawking 7700/7600
@@ -820,7 +820,7 @@ Available settings:
 - Change what is displayed in airports counters
 - Disable training counter
 
-#### Visibility
+##### Visibility
 
 - Hide almost any layer on map
 - Hide unstaffed ("random") airports from map
@@ -828,24 +828,24 @@ Available settings:
 - Change how many tracks are displayed on map, and toggle tracks for departures, all traffic, etc
 - Hide ground aircraft if zoomed out - or all of them
 
-#### Colors
+##### Colors
 
 Change colors or transparency for almost anything you see on map
 
-#### Manage
+##### Manage
 
 - Save your settings to database (up to 5 presets per user)
 - Apply settings from old presets
 - Export presets to share with friend
 - Import presets to apply shared settings
 
-### Search
+#### Search
 
 - Search by airports, atc or pilots - including FAA LID, IATA, ICAO, and CIDs
 - Remove search results to for example only search for pilots
 - Control how many results are displayed
 
-### Events page
+#### Events page
 
 Made by Thorsten.
 
@@ -854,9 +854,9 @@ Made by Thorsten.
 - Prefile routes on VATSIM or SimBrief - or copy them to clickboard
 - Open participating airports from event block
 
-## Features and improvements
+### Features and improvements
 
-### Features
+#### Features
 
 - You can now copy and save current map location via browser URL
 - You can now copy and save most of Airport Dashboard settings via browser URL
@@ -867,7 +867,7 @@ Made by Thorsten.
 - Added ability to toggle arrivals tracks for airport dashboard
 - Added training counter
 
-### Improvements
+#### Improvements
 
 - Reduced minimal and increased maximum size for aircraft icons. You will now notice more significant difference between
   aircraft sizes
@@ -877,7 +877,7 @@ Made by Thorsten.
 - Added copy button to controller frequencies
 - Max showed tracks limit is now 50
 
-### UI/UX
+#### UI/UX
 
 - METAR and TAF in Airport Dashboard have been merged in order to get a better look on NOTAMS
 - Approaches are now drawn above aircraft
@@ -886,7 +886,7 @@ Made by Thorsten.
 - Improved TRACON label behaviour by Felix
 - Removed overlay zoom restriction
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed an issue when overlapping approaches could make impossible to open controller info on one of them
 - Fixed an issue when plane was not unselecting in airport dashboard
@@ -900,23 +900,23 @@ Made by Thorsten.
 - Fixed some Australian airports showing twice on map
 - Fixed Australian extending feature to now rely on controller ATIS
 
-# 0.4.5.1
+## 0.4.5.1
 
 - Added schedule to NOTAMS when available
 - Fixed an error when NOTAMS were appearing very slowly in Airport Dashboard
 
-# 0.4.5
+## 0.4.5
 
 This is a small release with important bug fixes and improvements.
 
-## New Features
+### New Features
 
 - NOTAMs comeback
 - Added sort by select to NOTAMs list
 - Airport dot is now clickable
 - Added time remains to pilot card and overlay
 
-## Improvements
+### Improvements
 
 - Users who left all tabs are no longer counted in users counter in map footer
 - Requests will no longer fire for unactive tabs
@@ -925,7 +925,7 @@ This is a small release with important bug fixes and improvements.
 - Unstaffed airport name label is now centered on dot and not ICAO name
 - Aircraft label is now always shown for your aircraft only, and hidden if needed for those you selected
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed an issue when aircraft type change (for example, after flight plan upload) didn't change map icon
 - You can no longer close update popup without updating
@@ -935,11 +935,11 @@ This is a small release with important bug fixes and improvements.
 - Fixed an issue when flight details were never shown in "Dashboard Only" mode of Airport Dashboard
 - Fixed duplicated Center word for some UIRs
 
-# 0.4.4
+## 0.4.4
 
 Big thanks to Felix and DotWallop for making this release possible!
 
-## Highlights
+### Highlights
 
 - 🌍 Featured Airports popup
 - 🇦🇺 Australia extending sectors support
@@ -949,31 +949,31 @@ Big thanks to Felix and DotWallop for making this release possible!
 - ✨ Many UI/UX improvements
 - 🔧 Bug fixes to TRACON rendering - and much more
 
-### Featured Airports
+#### Featured Airports
 
 - View airports with much traffic from all around the world
 - View quiet, yet staffed airports to find interesting places to go, learn to fly, or support lonely controller in your
   area
 - Filter by visible only to view this stats in specific area
 
-### New aircraft icons
+#### New aircraft icons
 
 - Updated helicopter icons matching
 - Added new aircraft icons, thanks to DotWallop: A345, A346, A3ST, A400, AN24, B1, B2, B37(8,9)M, BCS1, C152, C17, C172,
   C208, C25C, DA40, DC10, DC3, DH8(A,B,C,D), DHC(2,6,7), EC45, EH10, F(14,15,16,18,22,35), GLID, KODI, SHIP, BALL, A10,
   A748, BE58, C130, C700, C750, CL60, E135, F117, G2CA
 
-### Arrival rate
+#### Arrival rate
 
 View Arrival Rate for airport with 15 minutes splits in Airport Dashboard and Overlay!
 
-### Carto Vector layer
+#### Carto Vector layer
 
 Added new Map Layer - Carto Vector Mode! Rendered in your browser with more bright dark theme
 
-## Features and improvements
+### Features and improvements
 
-### Noticeable features
+#### Noticeable features
 
 - Added airport arrival rate
 - You can now switch to departed aircraft in airport overlay
@@ -983,7 +983,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Brand new Patreon page has been added to highlight our fellow supporters and our goals
 - Removed MapBox and Jawg map layers, added Carto Vector layer
 
-### UI/UX
+#### UI/UX
 
 - Reworked approach labels placement to always be on the line
 - Unstaffed airport ICAO is now also drawn above aircraft
@@ -1001,7 +1001,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - You will now be able to zoom over controller popup if it has no scroll
 - Pilot overlay will now close if you hover over right side of header, right of pilot's callsign
 
-### Improvements
+#### Improvements
 
 - Pilot select in Airport Dashboard will now also open pilot in dashboard itself
 - Added airports names to aircraft on-hover popup
@@ -1016,7 +1016,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Pilots without flight plan will now be noticeable in airport's departures popup
 - Added Github releases workflow to easily track new versions
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed some of SimAware tracons rendered as circles, like CHI_Z_APP
 - Fixed some of SimAware tracons that had labels rendering in ocean without any tracon displayed
@@ -1035,7 +1035,7 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed an issue when SQUAWK info tooltip was misaligned if pilot didn't have any frequencies tuned
 - Improved great circle support for transoceanic flights that had disconnects
 
-# 0.4.3
+## 0.4.3
 
 - Slighty improved update browser performance
 - Optimized turns render for very big aircraft list
@@ -1045,12 +1045,12 @@ Added new Map Layer - Carto Vector Mode! Rendered in your browser with more brig
 - Fixed aircraft blinking when updating
 - Several map update performance improvements
 
-# 0.4.2
+## 0.4.2
 
 Welcome to newest VATSIM Radar release! It comes packed with new map and weather layers, as well as great circle
 support - and much more.
 
-## Noticeable changes
+### Noticeable changes
 
 - Added COM1 to airport pilots list, as well as pilot on-hover information
 - New setting: Fast open multiple aircraft. Behavior from 0.4.1 was an unintended bug, but since many people really
@@ -1058,17 +1058,17 @@ support - and much more.
 - You can now use middle mouse click to center map in direction you want
 - Added great circle support for aircraft lines
 
-### Map Layers
+#### Map Layers
 
 - Added Radar layers (will now be used as default)
 
-### Map Filters
+#### Map Filters
 
 - Added Weather Layers 2.0. Your previous weather settings have been reset due to this change
 - Added OpenWeather branding to weather popup to thank this amazing service
 - Added "default" setting to transparency settings
 
-## Features and improvements
+### Features and improvements
 
 - Pilots connected mid-flight will now have track line connected with airport
 - Added server time to airport dashboard
@@ -1082,7 +1082,7 @@ support - and much more.
 - Changed aircraft history track line colors. For example, purple is not that bright anymore
 - Increased missclick protection from 15 to 30 pixels to improve labels readability and lower labels overlapping
 
-## Bug Fixes
+### Bug Fixes
 
 - Fixed an issue when route&remarks would collapse each update
 - Fixed an issue when your connection with same flight plan as before but different callsign could result in flight
@@ -1094,7 +1094,7 @@ support - and much more.
 - Fixed an issue when sometimes data was not updating every 15 seconds
 - Fixed an issue when sometimes labels were showing for all ground aircraft even when they shouldn't
 
-# 0.4.1
+## 0.4.1
 
 - Increased rate for Navigraph AIRAC updates
 - Added transparency settings for OSM and satellite layers
@@ -1115,9 +1115,9 @@ FYI to OBS folks: apply this CSS to edit heights:
 
 Here 60 and 40vh represent percents of your overlay height.
 
-# 0.4.0
+## 0.4.0
 
-## Highlights
+### Highlights
 
 - 🛫 Airport Dashboard
 - 🗺️ Aircraft History Turns
@@ -1126,7 +1126,7 @@ Here 60 and 40vh represent percents of your overlay height.
 - 🚀 Performance Improvements
 - ✔️ UI/UX improvements and bug fixes
 
-### Airport Dashboard
+#### Airport Dashboard
 
 Brand-new Airport Dashboard is now available via permanent link on `/airport/icao` (can also be opened from airport
 popup).
@@ -1142,7 +1142,7 @@ Dashboard is equipped for both pilots and controllers, with features that all of
 
 We would also love feedback from all of you on this <3
 
-### Aircraft History Turns
+#### Aircraft History Turns
 
 You can now see history of turns for any aircraft on map - colored almost like on FL24 for you to identify descend or
 approx current aircraft altitude level just by looking at this line.
@@ -1152,7 +1152,7 @@ Turns are available when you open overlay or hover on aircraft.
 They are also currently available if you toggle airport arriving tracks - but that's experimental, and we might disable
 this in future for performance reasons (or make this Patreon feature!).
 
-### Map Layers & Weather
+#### Map Layers & Weather
 
 Following new layers have been added:
 
@@ -1171,7 +1171,7 @@ We had more plans for layers actually... but it turned out most layers are paid.
 Since we can't afford paying for layers & weather now, you can support us on recently opened
 Patreon: https://www.patreon.com/vatsimradar24
 
-### New Aircraft Icons
+#### New Aircraft Icons
 
 Following aircraft icons have been hand-crafted for you - and our model matching has been updated to match new icons for
 aircraft that don't have own yet.
@@ -1191,9 +1191,9 @@ aircraft that don't have own yet.
 - A319/A321 matching has been fixed
 - Updated icons for 772, 773
 
-## Other stuff
+### Other stuff
 
-### Features and Improvements
+#### Features and Improvements
 
 - You can now toggle pilot stats in airports aircraft view (remembered for current session)
 - Added share, focus and dashboard buttons to airport overlay
@@ -1211,7 +1211,7 @@ aircraft that don't have own yet.
 - Navigraph AIRAC in bottom left corner is now clickable with useful info about how and why you need upgrading
 - Redesigned ground aircraft filter
 
-### Performance improvements and technical stuff
+#### Performance improvements and technical stuff
 
 - Significantly improved default CartoDB map layer loading performance
 - Reworked aircraft icon render - we are now able to change icon colors to be anything we want, not just predefined pngs
@@ -1219,7 +1219,7 @@ aircraft that don't have own yet.
 - Improved performance when moving map (will be significant on low zoom levels)
 - Airports points will no longer render on >100+ airports are on screen. This should improve performance on slow devices
 
-### Bug Fixes
+#### Bug Fixes
 
 - Fixed issue with SimAware labels displaying incorrect names (JFK -> N90)
 - Aircraft in arrivals list will now show departing instead of enroute, if it's still on the ground
@@ -1231,7 +1231,7 @@ aircraft that don't have own yet.
 - Improved 1251 encoding detection
 - Fixed fill of hovered approach facility not covering whole area
 
-## What's next?
+### What's next?
 
 On Friday myself & I will go on vacation which will last for a week. For that time, I will still try to fix critical
 bugs that may occur - but nothing else.
@@ -1242,7 +1242,7 @@ improvements from suggestions section maybe.
 Stage 2 is almost finished, at we'll have a prioritization session before we start Stage 3, and QA members list will be
 extended. Stay tuned!
 
-# 0.3.5
+## 0.3.5
 
 This is a small fix update while we still develop 0.4.0.
 
@@ -1251,7 +1251,7 @@ This is a small fix update while we still develop 0.4.0.
 - ATC popup will stop displaying random countries for some controllers
 - Restored Discord icon in header
 
-# 0.3.4
+## 0.3.4
 
 - Updated roadmap
 - Vatsim has been uppercased to VATSIM everywhere
@@ -1262,35 +1262,35 @@ This is a small fix update while we still develop 0.4.0.
 
 And also previous changelogs missed that you can now open ATC card to view ATC stats. Give it a try!
 
-# 0.3.3
+## 0.3.3
 
 - "View route" button will now reset "tracked" state
 - Map will no longer autofocus on you if your aircraft has already arrived
 - Flight plan will now also show planned EOBT and enroute
 
-# 0.3.2
+## 0.3.2
 
 I made this whole update in ~1.5 hours. Coffee magic I guess.
 
-## Features and improvements
+### Features and improvements
 
 - Site colors have been updated a bit
 - Added scroll to roadmap items
 - Airports codes in overlay aircraft route are now also clickable
 - Added map controls to bottom left corner
 
-## Bug fixes
+### Bug fixes
 
 - Fixed duplicate airports for cases like SY_GND/SY-E_GND
 - Fixed SUEO_CTR FIR display. New algo may cause new problems - please report if you see them and remember to compare
   firs display to VatSpy
 
-## Settings
+### Settings
 
 - New setting: auto-show airport overlay tracks for arriving aircraft
 - Reordered settings: Navigraph account link got higher
 
-## Airport popup
+### Airport popup
 
 - Added toggle for arriving aircraft tracks. They will only be visible for aircraft that are in sight
 - Added tabs
@@ -1299,7 +1299,7 @@ I made this whole update in ~1.5 hours. Coffee magic I guess.
 - Removed remaining time for ground aircraft
 - Removed ETA for arrived aircraft
 
-# 0.3.1
+## 0.3.1
 
 - Once again improved encoding detection for cyrillic
 - Added remaining dist and ETA to airport's aircraft list
@@ -1308,20 +1308,20 @@ I made this whole update in ~1.5 hours. Coffee magic I guess.
 - Increased border of approach sectors so it's now harder to miss them
 - Name of approach sector is now the same color as sector's border
 
-# 0.3.0
+## 0.3.0
 
 This update adds airport overlay that you can use to get all possible info about airport you may need.
 
 As always, remember to check Roadmap to get a hint of what's coming next! Stage 2 is getting closer to its end.
 
-## Highlights
+### Highlights
 
 - 🛫 Airport Overlay: click on any airport to view its info
 - 🔄 Redesign of approach sector label
 - 📡 ATIS encoding parsing improvements
 - 🔧 UX improvements and bug fixes
 
-## Airport Overlay
+### Airport Overlay
 
 You can now click on any airport to view all of its available information.
 
@@ -1343,7 +1343,7 @@ Planned in future updates:
 - Add tracks to all of this airport traffic
 - With all pilots' stats on single screen
 
-## Features and improvements
+### Features and improvements
 
 - You will no longer see an alert when copying something - instead you'll notice text change
 - Reduced traffic consumption when some FSS is online or controller has multiple sectors
@@ -1354,7 +1354,7 @@ Planned in future updates:
 - Reduced area sectors name size
 - Removed decimals on pilot flown & remaining miles
 
-## Bug fixes
+### Bug fixes
 
 - Updated ATIS encoding parse algorithm
 - Moved Boeings 74* icons to B739 icon
@@ -1363,21 +1363,21 @@ Planned in future updates:
 - Pilot offline status should now properly reset after (s)he's back online
 - Fixed error when aircraft was not listed in arrivals if arrival airport was same as departure
 
-# 0.2.7
+## 0.2.7
 
 - Added runways on map. Their numbers and existence depend on your Navigraph subscription (you can see used AIRAC cycle
   for them in footer)
 - You will now see Navigraph Data instead of Ultimate in Settings popup if you only bought data. This is cosmetic change
   only to reflect reality more
 
-## Privacy features
+### Privacy features
 
 - Removed full name from header
 - Completely removed name from settings
 - Added ability to customize name shown in header using settings
 - You can now rename yourself in Discord using `/rename` command
 
-# 0.2.6
+## 0.2.6
 
 This is a little update while we develop bigger one.
 
@@ -1387,7 +1387,7 @@ I would also like to welcome all newjoiners - don't forget to `/verify` and repo
 - Boeing 747 family will now be displayed as a340 instead of a320 (since they don't have their own icon yet)
 - Replaced icon in pilot overlay popup in yet another attempt to stop it from crashing
 
-# 0.2.5
+## 0.2.5
 
 - Added favicon
 - Fixed error when sometimes overlay could break on aircraft type change
@@ -1396,7 +1396,7 @@ I would also like to welcome all newjoiners - don't forget to `/verify` and repo
 - Improved sort of ATC on departure: approach should now be higher than area atc when on ground
 - Fixed ground airport detection when another airport is close to flight plan airport
 
-# 0.2.4
+## 0.2.4
 
 - Minified ATC airport card
 - Added shadow for Area ATC card in light theme
@@ -1407,7 +1407,7 @@ I would also like to welcome all newjoiners - don't forget to `/verify` and repo
 - Fixed error when your hover overlay could be replaced by approach controller overlay for no reason
 - Removed CartoDB labels to make map more clear. There will be a setting to enable them back in future
 
-# 0.2.3
+## 0.2.3
 
 This release summaries all hotfixes that was made today. Sorry for last days release spam :)
 
@@ -1422,7 +1422,7 @@ This release summaries all hotfixes that was made today. Sorry for last days rel
 - Fixes for light theme
 - You would now be able to see approach label from much higher zoom. Tell me how if it looks horrible for you!
 
-# 0.2.2
+## 0.2.2
 
 - Added accurate TMA approach sectors based on SimAware TRACON project
 - Added light theme support. If you're using light theme on your PC, it will auto-detect it on first load
@@ -1430,30 +1430,30 @@ This release summaries all hotfixes that was made today. Sorry for last days rel
 - Traffic consumption has been reduced a bit
 - Fixed SOLENT radar display (as well as some other similar fake airports)
 
-# 0.2.1
+## 0.2.1
 
 - Removed to go percent if aircraft is on ground
 - Added country name to flightplan airport
 - Fixed error when aircraft icon was not updated in overlay when switching between aircraft
 - Fixed error when overlay could become broken when switching between aircraft
 
-# 0.2.0
+## 0.2.0
 
 This update is a huge step forward for VATSIM Radar. Packed with many bugfixes and new features, this update aims to
 improve your flight experience - please give it a shot!
 
 Closest feature after this one should be TMA approach sectors.
 
-## Highlights
+### Highlights
 
 - 👨‍✈️ Pilot overlay (both flight and prefiles)
 - ✈️ Different aircraft icons
 - 🎯 Accuracy improvements for uirs, firs and ground aircraft detection
 - 🔧 Bug fixes and improvements
 
-## Changelog
+### Changelog
 
-### Pilot overlay
+#### Pilot overlay
 
 You are now able to click on any aircraft (or flightplan prefile!) to enable it's overlay. From here you can open pilot
 on map, open VATSIM stats and more:
@@ -1473,7 +1473,7 @@ This card can be auto-opened, pinned and tracked for your own flight - you can e
 
 P.S. You are also able to open this from airport counters popup - including prefiles!
 
-### Features
+#### Features
 
 - Added new aircraft icons: A124, A225, A300, A310, A318-321, A332, A333, A342, A343, A359, A35K, A388, B703, B712,
   B731-739, B772-773, B788-789, B78X, CONC, DC6, MD11, MD8x, T134-144-154
@@ -1489,7 +1489,7 @@ P.S. You are also able to open this from airport counters popup - including pref
 - Your own flight is now always highlighted as green on map
 - Updated roadmap. Check it out!
 
-### Bug fixes
+#### Bug fixes
 
 - Increased aircraft on ground zone detection
 - Fixed Africa oceanic FIR display
@@ -1502,12 +1502,12 @@ P.S. You are also able to open this from airport counters popup - including pref
 - Fixed cases when some of UIR (FSS) sectors would not display
 - Fixed local controller display when also global (fss) controller is in operation in same sector
 
-# 0.1.3
+## 0.1.3
 
 First of all, I want to thank everyone for joining this server and leaving great feedback about VATSIM Radar. Have a
 great weekend and CTP!
 
-## Bug fixes
+### Bug fixes
 
 - Diverted to non-planned airport will now also be displayed in ground aircraft list
 - Aircraft altitude will no longer be modified using VATSIM QNH when below FL100
@@ -1517,16 +1517,16 @@ great weekend and CTP!
 - Fixed PHNL harassment when it's existence could entirely break map update or map displayed two PHNL airports instead
   of one
 
-## Technical changes
+### Technical changes
 
 - Added Navigraph to bottom right copyrights
 - Added pretty Discord link on `/discord` route
 
-# 0.1.2
+## 0.1.2
 
 This is maintenance release, mostly aimed to fix bug with no ATC displayed for airports without traffic.
 
-## Bug fixes and changes
+### Bug fixes and changes
 
 - 404 page now shows 404 layout instead of 500
 - Airports with ATC but without traffic are now displayed
@@ -1536,39 +1536,39 @@ This is maintenance release, mostly aimed to fix bug with no ATC displayed for a
 - Fixed broken hover animation when airport only have one local facility (for example, atis and nothing else)
 - Renamed Prefiles title to "Flightplan Prefiles" for better understanding
 
-# 0.1.1
+## 0.1.1
 
-## Changes
+### Changes
 
 - Roadmap redesign
 - Icons in header
 - 404/500 pages
 - Service version in footer
 
-### Improved zoom experience
+#### Improved zoom experience
 
 - Overlays should stop opening when hovering on very busy map area
 - Overlays will stop opening when you're zooming or moving map
 
-## Bug fixes
+### Bug fixes
 
 - ATIS is no longer displayed as TWR in airport facility overlay
 
-## Technical features
+### Technical features
 
 - You can now see release number in discord changelog
 - Removed generic favicon while we wait for proper one
 
-# 0.1.0
+## 0.1.0
 
 This is initial release to test changelog generation and general CI/CD flow. Service is still pending VATSIM approval to
 announce proper testing.
 
-## New features
+### New features
 
 - Aircraft altitude is now converted using its QNH
 
-## Technical features
+### Technical features
 
 - Initial Changelog release
 - Prepared Discord bot verification
