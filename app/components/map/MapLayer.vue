@@ -290,7 +290,6 @@ async function initLayer() {
             'landuse_zoo',
             'address_label',
             'roads_other',
-            'boundaries_country',
             'pois',
         ];
 
