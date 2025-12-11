@@ -150,6 +150,7 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
         '@vueuse/nuxt',
         '@sentry/nuxt/module',
+        '@nuxt/image',
     ],
     sentry: {
         sourceMapsUploadOptions: {

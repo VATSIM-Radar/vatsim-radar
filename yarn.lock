@@ -2463,6 +2463,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/accept-negotiator@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@fastify/accept-negotiator@npm:2.0.1"
+  checksum: 10c0/b68386f8b3b69c73f79a54983bd86afc752c4373897ec1ad798356a325a69224ebd003c1aa47e11fc40b46f23bf2384ebb3907fe44214af806cc8ff6af913f18
+  languageName: node
+  linkType: hard
+
 "@gar/promisify@npm:^1.0.1":
   version: 1.1.3
   resolution: "@gar/promisify@npm:1.1.3"
@@ -3310,6 +3317,28 @@ __metadata:
     vite-plugin-eslint2:
       optional: true
   checksum: 10c0/c9cbd2990297328a1efb36ad68250853046528eebbb328d3bd0fe7ed46c4049e436fa620b0b1558f237ceaeaae1bf4ee31ce933415678a9adaa3b348306f844f
+  languageName: node
+  linkType: hard
+
+"@nuxt/image@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@nuxt/image@npm:2.0.0"
+  dependencies:
+    "@nuxt/kit": "npm:^4.2.0"
+    consola: "npm:^3.4.2"
+    defu: "npm:^6.1.4"
+    h3: "npm:^1.15.4"
+    image-meta: "npm:^0.2.2"
+    ipx: "npm:^3.1.1"
+    knitwork: "npm:^1.2.0"
+    ohash: "npm:^2.0.11"
+    pathe: "npm:^2.0.3"
+    std-env: "npm:^3.10.0"
+    ufo: "npm:^1.6.1"
+  dependenciesMeta:
+    ipx:
+      optional: true
+  checksum: 10c0/fbb938fb5d4fe5985756a0172a528b1103fb533cd1382ded66c798af81ef7ee8f26ac2b5e2165e2faee13e4365fc75d079c799698128e8f4bd6f8fbf4278c392
   languageName: node
   linkType: hard
 
@@ -7974,7 +8003,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^2.20.0":
+"commander@npm:^2.20.0, commander@npm:^2.20.3":
   version: 2.20.3
   resolution: "commander@npm:2.20.3"
   checksum: 10c0/74c781a5248c2402a0a3e966a0a2bba3c054aad144f5c023364be83265e796b20565aa9feff624132ff629aa64e16999fa40a743c10c12f7c61e96a794b99288
@@ -8261,6 +8290,13 @@ __metadata:
   bin:
     cssesc: bin/cssesc
   checksum: 10c0/6bcfd898662671be15ae7827120472c5667afb3d7429f1f917737f3bf84c4176003228131b643ae74543f17a394446247df090c597bb9a728cce298606ed0aa7
+  languageName: node
+  linkType: hard
+
+"cssfilter@npm:0.0.10":
+  version: 0.0.10
+  resolution: "cssfilter@npm:0.0.10"
+  checksum: 10c0/478a227a616fb6e9bb338eb95f690df141b86231ec737cbea574484f31a09a51db894b4921afc4987459dae08d584355fd689ff2a7a7c7a74de4bb4c072ce553
   languageName: node
   linkType: hard
 
@@ -10459,7 +10495,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"h3@npm:^1.12.0, h3@npm:^1.15.4":
+"h3@npm:^1.12.0, h3@npm:^1.15.3, h3@npm:^1.15.4":
   version: 1.15.4
   resolution: "h3@npm:1.15.4"
   dependencies:
@@ -10791,7 +10827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"image-meta@npm:^0.2.2":
+"image-meta@npm:^0.2.1, image-meta@npm:^0.2.2":
   version: 0.2.2
   resolution: "image-meta@npm:0.2.2"
   checksum: 10c0/4c821b9f09e5117f4aab2864e07d8aea9e1079a432f2d93ec79aafbdc4fbd164451388bb6d6c0a1f1e3b5b5838e42533b0feedba05fab2e1a6c0242c559ca40b
@@ -10931,6 +10967,32 @@ __metadata:
   version: 10.1.0
   resolution: "ip-address@npm:10.1.0"
   checksum: 10c0/0103516cfa93f6433b3bd7333fa876eb21263912329bfa47010af5e16934eeeff86f3d2ae700a3744a137839ddfad62b900c7a445607884a49b5d1e32a3d7566
+  languageName: node
+  linkType: hard
+
+"ipx@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "ipx@npm:3.1.1"
+  dependencies:
+    "@fastify/accept-negotiator": "npm:^2.0.1"
+    citty: "npm:^0.1.6"
+    consola: "npm:^3.4.2"
+    defu: "npm:^6.1.4"
+    destr: "npm:^2.0.5"
+    etag: "npm:^1.8.1"
+    h3: "npm:^1.15.3"
+    image-meta: "npm:^0.2.1"
+    listhen: "npm:^1.9.0"
+    ofetch: "npm:^1.4.1"
+    pathe: "npm:^2.0.3"
+    sharp: "npm:^0.34.3"
+    svgo: "npm:^4.0.0"
+    ufo: "npm:^1.6.1"
+    unstorage: "npm:^1.16.1"
+    xss: "npm:^1.0.15"
+  bin:
+    ipx: bin/ipx.mjs
+  checksum: 10c0/d39d1a2cfb9e77abee19f178085666f01fc0ba67e9a9f26a129969a0351df38a964091872eb71dcced42ba7d502cd99e61e167a6140b552e0ec8bada26065706
   languageName: node
   linkType: hard
 
@@ -15564,7 +15626,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sharp@npm:^0.34.5":
+"sharp@npm:^0.34.3, sharp@npm:^0.34.5":
   version: 0.34.5
   resolution: "sharp@npm:0.34.5"
   dependencies:
@@ -17360,7 +17422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unstorage@npm:^1.17.1, unstorage@npm:^1.17.3":
+"unstorage@npm:^1.16.1, unstorage@npm:^1.17.1, unstorage@npm:^1.17.3":
   version: 1.17.3
   resolution: "unstorage@npm:1.17.3"
   dependencies:
@@ -17582,6 +17644,7 @@ __metadata:
     "@navigraph/amdb": "npm:^1.1.0"
     "@nuxt/devtools": "npm:^3.1.1"
     "@nuxt/eslint": "npm:^1.12.1"
+    "@nuxt/image": "npm:2.0.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.3"
     "@prisma/adapter-mariadb": "npm:^7.1.0"
@@ -18592,6 +18655,18 @@ __metadata:
   version: 11.0.1
   resolution: "xmlbuilder@npm:11.0.1"
   checksum: 10c0/74b979f89a0a129926bc786b913459bdbcefa809afaa551c5ab83f89b1915bdaea14c11c759284bb9b931e3b53004dbc2181e21d3ca9553eeb0b2a7b4e40c35b
+  languageName: node
+  linkType: hard
+
+"xss@npm:^1.0.15":
+  version: 1.0.15
+  resolution: "xss@npm:1.0.15"
+  dependencies:
+    commander: "npm:^2.20.3"
+    cssfilter: "npm:0.0.10"
+  bin:
+    xss: bin/xss
+  checksum: 10c0/9b31bee62a208f78e2b7bc8154e3ee87d980f4661dc4ab850ce6f4de7bc50eb152f0bdc13fa759ff8ab6d9bfdf8c0d79cf9f6f86249872b92181912309bccd08
   languageName: node
   linkType: hard
 

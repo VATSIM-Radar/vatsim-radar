@@ -250,6 +250,8 @@ function getMaxRotatedHeight(width: number, height: number): number {
     return Math.sqrt((width * width) + (height * height));
 }
 
+let img: ReturnType<typeof useImage> | undefined;
+
 export async function loadAircraftIcon({ feature, icon, status, style: styles, rotation, force, cid, scale, onGround }: {
     feature: Feature;
     icon: AircraftIcon;
@@ -262,6 +264,8 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     scale?: number;
 }) {
     if (icon === 'ball') rotation = 0;
+
+    img ||= useImage();
 
     const [textStyle, imageStyle] = styles;
 
@@ -285,15 +289,17 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
         }
     }
 
-    // if (resolvedScale > 12) resolvedScale = 12;
+    if (resolvedScale > 10) resolvedScale = 10;
 
     let scaledWidth = radarIcons[icon].width * resolvedScale;
-    let minWidth: number;
+    let minWidth: number = 0;
 
-    if (zoom < 5) minWidth = 5;
-    else if (zoom < 6.5) minWidth = 10;
-    else if (zoom < 8) minWidth = 15;
-    else minWidth = 20;
+    if (zoom > 3) {
+        if (zoom < 5) minWidth = 5;
+        if (zoom < 6) minWidth = 7;
+        else if (zoom < 7) minWidth = 10;
+        else minWidth = 15;
+    }
 
     if (!onGround && scaledWidth < minWidth) {
         scaledWidth = minWidth;
@@ -351,7 +357,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
             imageStyle.setImage(new Icon({
                 declutterMode: 'obstacle',
-                src: `/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.webp?v=${ store.version }`,
+                src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 }/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }-${ store.version }.webp`,
                 width: scaledWidth,
                 rotation,
                 rotateWithView: true,
