@@ -53,10 +53,11 @@ export function initDataWebsocket(): () => void {
             websocket.send('alive');
             localStorage.setItem('radar-socket-date', Date.now().toString());
 
-            if (!wsRegistered && ownFlight.value) {
+            if (ownFlight.value && wsRegistered !== ownFlight.value.callsign) {
                 websocket.send(JSON.stringify({
                     type: 'register',
                     callsign: ownFlight.value.callsign,
+                    oldCallsign: wsRegistered,
                 }));
                 wsRegistered = ownFlight.value.callsign;
             }

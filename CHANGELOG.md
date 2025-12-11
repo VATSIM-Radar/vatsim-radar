@@ -4,6 +4,7 @@
 
 - New icons from DotWallop (finally!): PA39, CS50, FOX, UH1 (More coming!!)
 - Model matched E6 -> B703
+- (QA) Added minimal aircraft size on various zoom levels
 
 # [1.2.4-rc.4]
 
