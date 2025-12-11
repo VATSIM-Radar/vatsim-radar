@@ -7,9 +7,9 @@
         <div class="footer-time-popup__arrows">
             <common-button
                 size="S"
-                @click="shiftRange(-1, 'hour')"
+                @click="shiftRange(-24, 'hour')"
             >
-                - 1h
+                - 24h
             </common-button>
             <common-button
                 size="S"
@@ -19,9 +19,9 @@
             </common-button>
             <common-button
                 size="S"
-                @click="shiftRange(-24, 'hour')"
+                @click="shiftRange(-1, 'hour')"
             >
-                - 24h
+                - 1h
             </common-button>
             <common-button
                 class="footer-time-popup__apply"
