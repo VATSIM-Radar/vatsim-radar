@@ -250,8 +250,6 @@ function getMaxRotatedHeight(width: number, height: number): number {
     return Math.sqrt((width * width) + (height * height));
 }
 
-let img: ReturnType<typeof useImage> | undefined;
-
 export async function loadAircraftIcon({ feature, icon, status, style: styles, rotation, force, cid, scale, onGround }: {
     feature: Feature;
     icon: AircraftIcon;
@@ -264,8 +262,6 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     scale?: number;
 }) {
     if (icon === 'ball') rotation = 0;
-
-    img ||= useImage();
 
     const [textStyle, imageStyle] = styles;
 
