@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.4-final]
+# [1.2.4]
 
 This was supposed to be a small update. I have failed. Again.
 
