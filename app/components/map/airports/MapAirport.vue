@@ -646,7 +646,7 @@ onMounted(async () => {
                 if (style.getText()?.getFill()?.getColor() !== color) {
                     existingFeature.setStyle(new Style({
                         text: new Text({
-                            font: '12px Montserrat',
+                            font: '11px Montserrat',
                             text: gate.name || gate.gate_identifier,
                             textAlign: 'center',
                             fill: new Fill({
@@ -661,6 +661,7 @@ onMounted(async () => {
                             rotation: toRadians(0),
                             padding: [2, 0, 2, 2],
                         }),
+                        zIndex: gate.trulyOccupied ? 2 : gate.maybeOccupied ? 1 : 0,
                     }));
                 }
             }
@@ -672,7 +673,7 @@ onMounted(async () => {
 
                 feature.setStyle(new Style({
                     text: new Text({
-                        font: '12px Montserrat',
+                        font: '11px Montserrat',
                         text: gate.name || gate.gate_identifier,
                         textAlign: 'center',
                         fill: new Fill({
@@ -685,8 +686,9 @@ onMounted(async () => {
                             color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
                         }),
                         rotation: toRadians(0),
-                        padding: [2, 0, 2, 2],
+                        padding: [2, 0, 1, 2],
                     }),
+                    zIndex: gate.trulyOccupied ? 2 : gate.maybeOccupied ? 1 : 0,
                 }));
                 gatesFeatures.push(feature);
                 gatesSource.value?.addFeature(feature);

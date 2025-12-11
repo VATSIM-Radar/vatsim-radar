@@ -47,6 +47,7 @@ outline: [2, 3]
 - Added changelog into https://docs.vatsim-radar.com/changelog - view it for cool VR history
 - Model matched E6 -> B703
 - Max map zoom has been limited to 20
+- Improved gates rendering performance - their font is also smaller now
 
 ### Bug fixes
 

@@ -55,7 +55,7 @@ let vectorLayer: VectorLayer<any>;
 let airportsLayer: VectorLayer<any>;
 let airportVectorLayer: VectorImageLayer<any>;
 let airportLabelVectorLayer: VectorImageLayer<any>;
-let gatesLayer: VectorLayer<any>;
+let gatesLayer: VectorImageLayer<any>;
 
 const vectorSource = shallowRef<VectorSource | null>(null);
 const airportsSource = shallowRef<VectorSource | null>(null);
@@ -316,8 +316,9 @@ watch(map, val => {
             wrapX: false,
         });
 
-        gatesLayer = new VectorLayer<any>({
+        gatesLayer = new VectorImageLayer<any>({
             source: gatesSource.value,
+            declutter: true,
             properties: {
                 type: 'airport-layer',
             },
@@ -828,16 +829,13 @@ async function setVisibleAirports() {
             }
 
             airportsData.value = originalAirportsData.value.map(data => {
-                const gatesWithPixel = isHideMapObject('gates')
+                const gates = isHideMapObject('gates')
                     ? []
-                    : data.gates.map(x => ({
-                        ...x,
-                        pixel: map.value!.getPixelFromCoordinate([x.gate_longitude, x.gate_latitude]),
-                    }));
+                    : data.gates;
 
                 return {
                     airport: data.airport,
-                    gates: gatesWithPixel.filter((x, xIndex) => !gatesWithPixel.some((y, yIndex) => yIndex < xIndex && (Math.abs(y.pixel?.[0] - x.pixel?.[0]) < 15 && Math.abs(y.pixel?.[1] - x.pixel?.[1]) < 15))),
+                    gates,
                     runways: data.runways,
                     layout: data.layout,
                 };
