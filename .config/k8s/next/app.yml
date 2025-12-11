@@ -40,7 +40,7 @@ spec:
       imagePullSecrets:
         - name: ghcr-login-secret
       nodeSelector:
-        doks.digitalocean.com/node-pool: next
+        doks.digitalocean.com/node-pool: main
 ---
 apiVersion: v1
 kind: Service
