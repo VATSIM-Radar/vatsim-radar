@@ -65,7 +65,7 @@ export default defineNuxtModule(async (_, nuxt) => {
                 width: width * scaleCoefficient,
             });
 
-            const info = await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }${ iconKey }.webp`));
+            const info = await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }${ iconKey }.png`));
 
             fullList[icon as AircraftIcon] = {
                 icon: icon as AircraftIcon,
@@ -84,7 +84,7 @@ export default defineNuxtModule(async (_, nuxt) => {
                 width: width * scaleCoefficient,
             });
 
-            await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }-white${ iconKey }.webp`));
+            await sharpIcon.withMetadata().png().toFile(join(publicPath, `${ icon }-white${ iconKey }.png`));
         }
 
         let svg = optimize(iconContents, {

@@ -348,7 +348,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
 
             imageStyle.setImage(new Icon({
                 declutterMode: 'obstacle',
-                src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.webp`,
+                src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
                 width: scaledWidth,
                 rotation,
                 rotateWithView: true,
