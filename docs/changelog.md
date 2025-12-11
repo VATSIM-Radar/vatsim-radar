@@ -8,101 +8,62 @@ outline: [1, 3]
 [[toc]]
 :::
 
-# 1.2.4.rc.5
+# 1.2.4
 
-- (QA) Added minimal aircraft size on various zoom levels
-- Fixed procedures resetting on page reload
-- Reordered booking calendar time options by 1532684
-
-# 1.2.4.rc.4
-
-- (QA) Fixed unable to hover over aircraft issue
-- (QA) Removed Pizza Hut from detailed map layer
-- You can now choose to show raw SIGMET data only when clicking on them
-- Default ground traffic mode is now "hide if zoomed out" instead of "show all"
-
-# 1.2.4.rc.3
-
-- NY_CTR has finally been excluded from VATGlasses display
-
-# 1.2.4.rc.2
-
-- Fixed issues that some aircraft labels got hidden when they shouldn't
-
-# 1.2.4.rc.1
-
-- Updated map tiles to 07 Dec 25 from 24 July 25
-- (QA) Updated zoom transition threshold in air to 14 instead of 16
-- It's now much easier to click on aircraft that is close to airport name
-- Country boundaries have been removed in favor of VATSpy sector display
-- All boundaries have been removed from "light" layer
-
-# 1.2.4.beta.9
-
-- Fixed first approach waypoint not showing constraints
-
-# 1.2.4.beta.8
-
-- (QA) Improved dynamic aircraft scaling based on zoom level by 1489535 — airplanes on the ground are now scaled to their real-world size
-- Center and APP sectors will now disappear when zooming in by 1489535
-- Reworked aircraft callsign render and interaction
-- Fixed dynamic zoom switch
-- You can now hover precisely on aircraft even in "crowded" space
-
-# 1.2.4.beta.7
-
-- (QA) Fixed dashed line becoming not dashed for own flight
-- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when applicable
-- Fixed airway waypoints disappearing, if star starts right after airway
-
-# 1.2.4.beta.6
-
-- (QA) Fast update now only happens below 100GS
-- Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends
-  lists, or for next users
-
-# 1.2.4.beta.5
-
-- (QA) Fixed fast updates issues
-- Aircraft icon will now move together with map, not fall behind
-- Fixed presets sorting not working
-- Duplicated controllers are now hidden from ATC online stats
-- Duplicated controllers now show with a dashed line
-- Added bgvacc.org, vatsim.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
-
-# 1.2.4.beta.4
+## Highlights
 
 - Added (and enabled by default) long requested dynamic aircraft scaling based on zoom level by 1489535
 - Added headings to distance indicator by 1489535 - they also respect great circle from now on
 - Added About page and redesigned Privacy Policy by 1769455
 - Changed left & top menu icons by 1769455
+- Implemented very fast updating of your own flight (below FL250 and 100GS)
+- New icons from DotWallop (finally!): PA39, CS50, FOX, UH1 (More coming!!)
 
-# 1.2.4.beta.3
+## Features and improvements
 
-- Fixed a crash when opening ?pilot=CID link, when pilot is offline
-- Fixed some approach controllers info such as name or rating not updating until reload
-
-# 1.2.4.beta.2
-
-- Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
-
-# 1.2.4.beta.1
-
-- Updated map tiles to 09 Nov 25 from 24 July 25
-- Other dependencies update to improve stability
-- Your predicted route is now thicker than other
-- Improved memory consumption of next waypoint dashed line render
+- People will now be marked as "online" in VATSIM Radar for ~2 minutes after they've left the tab, instead of 10 seconds
+- Reduced traffic consumption on "online" status check
+- Predicted route line will no longer be added before you even departed to improve map readability
 - Airport dashboard will no longer open aircraft card if your flight is active, making it more usable for regular
   flights
-- Predicted route line will no longer be added before you even departed to improve map readability
-- Fixed an issue when your aircraft was not tracked when it was supposed to on map first open
-- Reduced traffic consumption on "online" status check
-- People will now be marked as "online" in VATSIM Radar for ~2 minutes after they've left the tab, instead of 10 seconds
-- Implemented very fast updating of your own flight (below FL250 and 100GS)
-- Fixed some route parsing crashes
-- Fixed issue when STAR was selected without an approach, it selected random runway instead of needed one
+- Improved memory consumption of next waypoint dashed line render
+- Updated map tiles to 09 Nov 25 from 24 July 25
+- Your predicted route is now thicker than other
+- Implemented ZMA TRACON, ZOA TRACON and ZDC PCT area duplication logic
+- Added bgvacc.org, vatsim.me, nyart.cc (thanks emiledeloof) and vatsim-petersburg.com to domain whitelist
+- Duplicated controllers are now hidden from ATC online stats
+- Duplicated controllers now show with a dashed line
+- Aircraft icon will now move together with map, not fall behind
+- Slightly improved performance for loading any Navigraph Data or Airport Data - noticeable for users with heavy friends
+  lists, or for next users
+- Added transitions select even if only one transition is available - so you can toggle it, or turn if off, when applicable
+- You can now hover precisely on aircraft even in "crowded" space
+- All boundaries have been removed from "light" layer
+- It's now much easier to click on aircraft that is close to airport name
+- Updated map tiles to 07 Dec 25 from 24 July 25
+- You can now choose to show raw SIGMET data only when clicking on them
+- Default ground traffic mode is now "hide if zoomed out" instead of "show all"
+- Reordered booking calendar time options by 1532684
+- Added changelog into https://docs.vatsim-radar.com/changelog - view it for cool VR history
+- Model matched E6 -> B703
+- Max map zoom has been limited to 20
+
+## Bug fixes
+
 - You can now select approach without a star in Proc tab
 - Fixed SIGMETs not updating (once more lol)
+- Fixed some route parsing crashes
+- Fixed issue when STAR was selected without an approach, it selected random runway instead of needed one
+- Fixed an issue when your aircraft was not tracked when it was supposed to on map first open
+- Fixed a crash when opening ?pilot=CID link, when pilot is offline
+- Fixed some approach controllers info such as name or rating not updating until reload
+- Fixed presets sorting not working
+- Fixed airway waypoints disappearing, if star starts right after airway
+- Reworked aircraft callsign render and interaction
+- Center and APP sectors will now disappear when zooming in by 1489535
+- Fixed first approach waypoint not showing constraints
+- NY_CTR has finally been excluded from VATGlasses display
+- Fixed procedures resetting on page reload
 
 # 1.2.3.4
 
@@ -151,10 +112,10 @@ patient - that saves you dozens MBs of memory.
 
 ## Highlights
 
-📊 Airport Dashboard enhancements
-🛩️ Registration, alternates and voice rules in pilot overlay
-⚡ Performance and memory usage improvements
-✨ Bug fixes and quality of life improvements
+- 📊 Airport Dashboard enhancements
+- 🛩️ Registration, alternates and voice rules in pilot overlay
+- ⚡ Performance and memory usage improvements
+- ✨ Bug fixes and quality of life improvements
 
 ## Features and improvements
 
@@ -331,13 +292,13 @@ Welcome to quality of life VATSIM Radar update! This update adds new features an
 
 ## Highlights
 
-🧭️ Navigational Data on map (provided by Jeppesen and Navigraph)
-✈️ Predicted aircraft route
-📅 Bookings improvements
-📏 Distance measurement tool
-👨‍✈️ Shared cockpit support
-🌦️ Weather request
-🗺️ New map layers
+- 🧭️ Navigational Data on map (provided by Jeppesen and Navigraph)
+- ✈️ Predicted aircraft route
+- 📅 Bookings improvements
+- 📏 Distance measurement tool
+- 👨‍✈️ Shared cockpit support
+- 🌦️ Weather request
+- 🗺️ New map layers
 
 ### Navigational Data
 
@@ -531,12 +492,12 @@ community.
 
 ## Highlights
 
-🌩️ SIGMETs / AIRMETs (US)
-📅 ATC Bookings
-📊 Live Stats
-📥 Friends Import
-📂 Presets Sorting
-✅ UI/UX Improvements and bug fixes
+- 🌩️ SIGMETs / AIRMETs (US)
+- 📅 ATC Bookings
+- 📊 Live Stats
+- 📥 Friends Import
+- 📂 Presets Sorting
+- ✅ UI/UX Improvements and bug fixes
 
 ### SIGMETs
 

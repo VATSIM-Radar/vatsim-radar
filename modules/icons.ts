@@ -16,6 +16,7 @@ export default defineNuxtModule(async (_, nuxt) => {
     const iconsPath = resolver.resolve('../public/icons');
     const waypointsPath = resolver.resolve('../public/icons/waypoints');
     const compressedPath = resolver.resolve('../public/icons/compressed');
+    const scaleCoefficient = 10;
 
     const waypoints = ['compulsory-fly-by', 'compulsory-rep', 'final-approach-fix', 'fly-by', 'fly-over', 'on-request'];
     const regular = ['ndb', 'vordme'];
@@ -57,8 +58,11 @@ export default defineNuxtModule(async (_, nuxt) => {
             }
 
             const sharpIcon = sharp(Buffer.from(iconContent));
+
+            if (icon === 'a20n') console.log(width, width * scaleCoefficient);
+
             sharpIcon.resize({
-                width: width * 4,
+                width: width * scaleCoefficient,
             });
 
             const info = await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }${ iconKey }.webp`));
@@ -66,7 +70,7 @@ export default defineNuxtModule(async (_, nuxt) => {
             fullList[icon as AircraftIcon] = {
                 icon: icon as AircraftIcon,
                 width: width,
-                height: info.height / 4,
+                height: info.height / scaleCoefficient,
             };
         }
 
@@ -77,7 +81,7 @@ export default defineNuxtModule(async (_, nuxt) => {
 
             const sharpIcon = sharp(Buffer.from(iconContent));
             sharpIcon.resize({
-                width: width * 5,
+                width: width * scaleCoefficient,
             });
 
             await sharpIcon.withMetadata().webp().toFile(join(publicPath, `${ icon }-white${ iconKey }.webp`));

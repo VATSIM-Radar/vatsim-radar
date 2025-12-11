@@ -1,4 +1,6 @@
 // meters-per-pixel estimate for Web Mercator at given latitude and zoom
+import { MAX_MAP_ZOOM } from '~/utils/shared';
+
 const INITIAL_RESOLUTION = 156543.03392804097;
 
 type GetZoomScaleMultiplier = {
@@ -24,12 +26,12 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
 
         const realMultiplier = desiredMeters / (iconPixelWidth * baseScale * metersPerPixel);
 
-        const clampedReal = Math.min(Math.max(realMultiplier, 0.01), 10);
+        const clampedReal = Math.min(Math.max(realMultiplier, 0.01), 20);
 
         const heuristicAtZoom = (() => {
             const minZoom = 2;
             const baselineZoom = 14.5;
-            const maxZoom = 24;
+            const maxZoom = MAX_MAP_ZOOM;
             const minMultiplier = 0.55;
             const baselineMultiplier = 1.2;
             const maxMultiplier = 6;
@@ -78,7 +80,7 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
     // previous behaviour when icon width unknown
     const minZoom = 2;
     const baselineZoom = 14.5;
-    const maxZoom = 24;
+    const maxZoom = MAX_MAP_ZOOM;
     const minMultiplier = 0.55;
     const baselineMultiplier = 1.2;
     const maxMultiplier = 6;
@@ -93,6 +95,6 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
     const ratio = (clampedZoom - baselineZoom) / (maxZoom - baselineZoom);
     const interpolated = (maxMultiplier - baselineMultiplier) * ratio;
     const result = baselineMultiplier + interpolated;
-    if (iconPixelWidth && result > iconPixelWidth * 4) return iconPixelWidth * 4;
+    if (iconPixelWidth && result > iconPixelWidth * 6) return iconPixelWidth * 6;
     return result;
 }

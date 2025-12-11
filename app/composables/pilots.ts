@@ -285,13 +285,14 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
         }
     }
 
-    if (resolvedScale > 4) resolvedScale = 4;
+    // if (resolvedScale > 12) resolvedScale = 12;
 
     let scaledWidth = radarIcons[icon].width * resolvedScale;
     let minWidth: number;
 
-    if (zoom < 5) minWidth = 10;
-    else if (zoom < 10) minWidth = 15;
+    if (zoom < 5) minWidth = 5;
+    else if (zoom < 6.5) minWidth = 10;
+    else if (zoom < 8) minWidth = 15;
     else minWidth = 20;
 
     if (!onGround && scaledWidth < minWidth) {

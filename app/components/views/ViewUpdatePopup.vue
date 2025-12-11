@@ -113,11 +113,12 @@ const update: Update = {
     type: 'minor',
     features: [
         {
-            title: 'Welcome to quality of life VATSIM Radar update!',
+            title: 'Welcome to newest VATSIM Radar update!',
             description: 'This update adds new features and fixes many issues. Visit <a href="https://docs.vatsim-radar.com/changelog" target="_blank">docs</a> for a full changelog',
-            image: images['../../assets/update/real-size.png'],
+            image: images['../../assets/update/presentation.png'],
+            imageRatio: '1920 / 1080',
             list: [
-                'Long-time requested dynamic aircraft zoom by psergienko',
+                'Added (and enabled by default) long requested dynamic aircraft scaling by psergienko',
                 'Headings/great circle on distance tool by psergienko',
                 'Fast self flight updating when on ground',
                 'About page/Privacy Policy redesign/updated icons in menu by 1769455',

@@ -18,6 +18,7 @@ export const MAX_LISTS_USERS = 200;
 export const MAX_FILTERS = 5;
 export const MAX_BOOKMARKS = 20;
 export const MAX_FILTER_ARRAY_VALUE = 30;
+export const MAX_MAP_ZOOM = 20;
 
 export function isFetchError<T>(error: unknown): error is FetchError<T> {
     return !!error && typeof error === 'object' && 'request' in error && 'response' in error;

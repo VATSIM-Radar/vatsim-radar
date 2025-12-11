@@ -296,6 +296,7 @@ import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
 import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import { MAX_MAP_ZOOM } from '~/utils/shared';
 
 defineProps({
     mode: {
@@ -967,7 +968,7 @@ await setupDataFetch({
                 center,
                 zoom,
                 minZoom: 2,
-                maxZoom: 24,
+                maxZoom: MAX_MAP_ZOOM,
                 multiWorld: false,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
