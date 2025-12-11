@@ -290,12 +290,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     let scaledWidth = radarIcons[icon].width * resolvedScale;
     let minWidth: number = 0;
 
-    if (zoom > 3) {
-        if (zoom < 5) minWidth = 5;
-        if (zoom < 6) minWidth = 7;
-        else if (zoom < 7) minWidth = 10;
-        else minWidth = 15;
-    }
+    if (zoom > 8) minWidth = 15;
 
     if (!onGround && scaledWidth < minWidth) {
         scaledWidth = minWidth;
@@ -303,12 +298,12 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     }
 
     let text = textStyle.getText();
-    const offsetY = ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
 
     const declutter = ownFlight.value?.cid !== cid && zoom < 18;
     const declutterMode = declutter ? 'declutter' : 'none';
 
     const hideText = scaledWidth < 10 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
+    const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
     const textValue = hideText ? undefined : featureProperties.callsign;
 
     if (!text || text.getDeclutterMode() !== declutterMode) {
@@ -468,7 +463,7 @@ export function getTimeRemains(eta: Date): string | null {
     return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
 }
 
-export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 25, exitOnAnyOverlay = false) {
+export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 5, exitOnAnyOverlay = false) {
     if (!pixel || isHideMapObject('pilots')) return [];
 
     const mapStore = useMapStore();

@@ -279,7 +279,7 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     const size = standardCoef * coef;
 
     if (!strict) {
-        if (size < 15) return 15;
+        if (size < 12) return 12;
         if (size > 35) return 35;
     }
 
