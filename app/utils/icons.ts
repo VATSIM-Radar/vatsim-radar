@@ -1,6 +1,17 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'sw3'
+    | 'shrk'
+    | 's76'
+    | 'pts1'
+    | 'il22'
+    | 'il20'
+    | 'il18'
+    | 'fdct'
+    | 'e300'
+    | 'b36t'
+    | 'aest'
     | 'uh1'
     | 'fox'
     | 'pa39'
@@ -294,6 +305,50 @@ type AircraftIcons = {
 };
 
 export const aircraftIcons: AircraftIcons = {
+    sw3: {
+        icon: 'sw3',
+        width: getAircraftSizeByCoef(0.29),
+    },
+    shrk: {
+        icon: 'shrk',
+        width: getAircraftSizeByCoef(0.13),
+    },
+    s76: {
+        icon: 's76',
+        width: getAircraftSizeByCoef(0.22),
+    },
+    pts1: {
+        icon: 'pts1',
+        width: getAircraftSizeByCoef(0.09),
+    },
+    il22: {
+        icon: 'il22',
+        width: getAircraftSizeByCoef(0.38),
+    },
+    il20: {
+        icon: 'il20',
+        width: getAircraftSizeByCoef(0.62),
+    },
+    il18: {
+        icon: 'il18',
+        width: getAircraftSizeByCoef(0.62),
+    },
+    fdct: {
+        icon: 'fdct',
+        width: getAircraftSizeByCoef(0.14),
+    },
+    e300: {
+        icon: 'e300',
+        width: getAircraftSizeByCoef(0.13),
+    },
+    b36t: {
+        icon: 'b36t',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    aest: {
+        icon: 'aest',
+        width: getAircraftSizeByCoef(0.19),
+    },
     uh1: {
         icon: 'uh1',
         width: getAircraftSizeByCoef(0.17),
@@ -1390,6 +1445,14 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'IL38':
+            return aircraftIcons.il18;
+        case 'PTS2':
+            return aircraftIcons.pts1;
+        case 'FD2E':
+        case 'FDF2':
+        case 'FDMC':
+            return aircraftIcons.fdct;
         case 'UH1Y':
             return aircraftIcons.uh1;
         case 'E6':
@@ -1917,6 +1980,17 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'PA39':
         case 'FOX':
         case 'UH1':
+        case 'AEST':
+        case 'B36T':
+        case 'E300':
+        case 'FDCT':
+        case 'IL18':
+        case 'IL20':
+        case 'IL22':
+        case 'PTS1':
+        case 'S76':
+        case 'SHRK':
+        case 'SW3':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
