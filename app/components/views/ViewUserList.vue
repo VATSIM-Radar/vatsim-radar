@@ -229,7 +229,7 @@ onBeforeUnmount(() => {
 });
 
 const getUsers = computed(() => {
-    return props.list?.users ?? props.users ?? [];
+    return (props.list?.users ?? props.users ?? []).filter(x => !x.hidden || store.user?.isSup);
 });
 
 onMounted(() => {
