@@ -29,7 +29,7 @@
             <div class="users_user-container">
                 <div
                     class="users_user_status"
-                    :class="{ 'users_user_status--online': user.type !== 'offline', 'users_user_status--hidden': user.hidden }"
+                    :class="{ 'users_user_status--online': user.type !== 'offline', 'users_user_status--hidden': user.hidden && store.user?.isSup }"
                 />
                 <div class="users_user_info">
                     <div class="users_user_info_name">
