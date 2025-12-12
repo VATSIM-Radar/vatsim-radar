@@ -1615,7 +1615,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'X49':
         case 'YNHL':
         case 'ZA6':
-            return aircraftIcons.h160;
+        case 'HELO':
+        case 'HELI':
+            return aircraftIcons.b407;
         case 'B461':
         case 'RJ70':
         case 'RJ85':
