@@ -84,7 +84,7 @@ export function initWebsocket() {
             wssPilots[ws.callsign].push([ws.registerDate, ws]);
         });
         ws.on('close', () => {
-            if (ws.callsign) {
+            if (ws.callsign && wssPilots[ws.callsign]) {
                 if (wssPilots[ws.callsign].length === 1) delete wssPilots[ws.callsign];
                 else wssPilots[ws.callsign] = wssPilots[ws.callsign].filter(x => x[0] === ws.registerDate!);
             }
