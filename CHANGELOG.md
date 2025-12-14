@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.4-1-final]
+
+- Fixed overlapping issues with own callsign and callsign nearby
+- Improved NOAA switch as fallback source when VATSIM METAR is outdated
+
 # [1.2.4-final]
 
 This was supposed to be a small update. I have failed. Again.
