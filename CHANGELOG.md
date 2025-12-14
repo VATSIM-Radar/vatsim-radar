@@ -1,5 +1,14 @@
 # Changelog
 
+# [1.2.4-1]
+
+- New icons from DotWallop: AEST, B36T, E300, FDCT (CTLS), IL18, PTS1/2, S76, SHRK, SW3
+- Model matching added for similar airframes.
+- Default helicopter model changed to B407
+- Added generic "HELO" and "HELI" designators
+- Fixed overlapping issues with own callsign and callsign nearby
+- Improved NOAA switch as fallback source when VATSIM METAR is outdated
+
 # [1.2.4]
 
 This was supposed to be a small update. I have failed. Again.
