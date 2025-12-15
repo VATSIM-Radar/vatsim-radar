@@ -55,7 +55,7 @@
                             {{ pilot.callsign }}
                         </td>
                         <td>
-                            {{ pilot.name }}
+                            {{ parseEncoding(pilot.name) }}
                         </td>
                         <td>
                             {{ pilot.altitude }}
@@ -86,6 +86,7 @@
 <script setup lang="ts">
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
+import { parseEncoding } from '~/utils/data';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 
 const { data: pilots, refresh } = useAsyncData('sup-pilots', () => $fetch<VatsimExtendedPilot[]>('/api/data/vatsim/data/pilots'));
