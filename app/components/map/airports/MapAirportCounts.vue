@@ -81,7 +81,7 @@
                                 v-else-if="item === pilot.name"
                                 type="pilot"
                             >
-                                {{ pilot.name }}
+                                {{ parseEncoding(pilot.name) }}
                             </common-spoiler>
                             <div
                                 v-else
@@ -108,6 +108,7 @@ import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import type { PartialRecord } from '~/types';
 import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store';
+import { parseEncoding } from '~/utils/data';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
 
 const props = defineProps({
