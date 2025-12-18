@@ -20,6 +20,7 @@ import { prisma } from '~/utils/backend/prisma';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import { duplicatingSettings } from '../vatsim/atc-duplicating';
+import { getTransceiverData } from '~/utils/backend/vatsim';
 
 initWebsocket();
 initInfluxDB();
@@ -375,6 +376,8 @@ defineCronJob('* * * * * *', async () => {
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
+
+            controller.frequencies = getTransceiverData(controller.callsign, true).frequencies;
 
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;

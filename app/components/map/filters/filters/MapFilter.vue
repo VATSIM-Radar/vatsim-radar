@@ -213,6 +213,13 @@
                 ATC
             </common-block-title>
             <template v-if="!collapsedStates.atc">
+                <common-toggle
+                    v-if="useIsDebug()"
+                    :model-value="!!store.filter.atc?.notTunedUp"
+                    @update:modelValue="setUserFilter({ atc: { notTunedUp: $event } })"
+                >
+                    Primary freq not tuned up
+                </common-toggle>
                 <map-filter-columns>
                     <template #col1>
                         <map-filter-box

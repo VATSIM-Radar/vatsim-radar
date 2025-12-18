@@ -6,7 +6,7 @@ import type {
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
     VatsimSubDivision, VatsimTransceiver,
-    VatsimBooking, VatsimNattrak,
+    VatsimBooking, VatsimNattrak, VatsimTransceiverFrequency,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';
 import type { MapAirport } from '~/types/map';
@@ -201,7 +201,7 @@ export interface VatsimStorage {
     firs: VatSpyDataFeature[];
     locals: VatSpyDataLocalATC[];
     airports: MapAirport[];
-    transceivers: VatsimTransceiver[];
+    transceivers: Record<string, VatsimTransceiverFrequency[]>;
     notam: RadarNotam | null;
     australia: AustraliaSector[];
     kafka: {
@@ -278,7 +278,7 @@ export const radarStorage: RadarStorage = {
         firs: [],
         locals: [],
         airports: [],
-        transceivers: [],
+        transceivers: {},
         australia: [],
         notam: null,
         kafka: {

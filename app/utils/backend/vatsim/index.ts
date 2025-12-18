@@ -174,15 +174,15 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
 }
 
 export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
-    const transceiver = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
+    const transceiver = radarStorage.vatsim.transceivers[callsign];
 
-    if (!transceiver || transceiver?.transceivers.length === 0) {
+    if (!transceiver || transceiver?.length === 0) {
         return {
             frequencies: [],
         };
     }
 
-    const frequencies = transceiver.transceivers.map(x => {
+    const frequencies = transceiver.map(x => {
         let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
 
         if (!frequency.includes('.')) {
@@ -200,8 +200,8 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
 
     return {
         frequencies: [...new Set(frequencies)],
-        groundAlt: transceiver.transceivers[0].heightAglM,
-        seaAlt: transceiver.transceivers[0].heightMslM,
+        groundAlt: transceiver[0].heightAglM,
+        seaAlt: transceiver[0].heightMslM,
     };
 }
 

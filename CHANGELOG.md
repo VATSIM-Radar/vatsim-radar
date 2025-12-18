@@ -10,6 +10,9 @@
 - Deicing pads are now less bright in Navigraph Layouts
 - Fixed deicing pads overlapping with taxiway labels
 - Min zoom to view labels for Navigraph Labels has been changed from 15 to 14.5
+- For debug purposes, added ATC frequencies into ATC popup
+- Removed tabs from ATC popup
+- Now showing an error "Not tuned up!" in controller info in case controller doesn't listen to primary frequency
 
 # [1.2.4-1-final]
 

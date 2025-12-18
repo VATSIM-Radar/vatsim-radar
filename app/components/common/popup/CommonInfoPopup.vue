@@ -47,7 +47,7 @@
             >
                 <slot name="prepend"/>
                 <common-tabs
-                    v-if="tabs"
+                    v-if="tabs && Object.values(tabs).length > 1"
                     v-model="activeTab"
                     class="info-popup_content_tabs"
                     :tabs="tabs"
