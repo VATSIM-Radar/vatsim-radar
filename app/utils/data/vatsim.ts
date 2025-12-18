@@ -110,6 +110,8 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
             };
         }
 
+        if ('isSimAware' in airport && atc.facility !== facilities.APP) atc.facility = facilities.APP;
+
         return {
             atc: {
                 ...atc,

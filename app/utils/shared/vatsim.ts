@@ -134,6 +134,9 @@ export const supportedNavigraphLayouts: AmdbLayerName[] = [
     'taxiwayshoulder',
     'verticallinestructure',
     'verticalpolygonalstructure',
+    'hotspot',
+    'paintedcenterline',
+    'verticalpointstructure',
 ];
 
 export enum NotamType {

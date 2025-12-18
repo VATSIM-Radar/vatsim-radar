@@ -8,6 +8,7 @@ import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import { useFacilitiesIds } from '~/utils/data/vatsim';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -81,16 +82,19 @@ export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: s
     const secondName = splittedName[1];
 
     let prefix: string | undefined;
-    let simaware = isApp && simawareData?.features.find(x => {
+    let simaware = simawareData?.features.find(x => {
         const suffix = getTraconSuffix(x);
+        if (!isApp && !suffix) return false;
         prefix = getTraconPrefixes(x).find(x => x === regularName);
+
         return !!prefix && (!suffix || callsign.endsWith(suffix));
     });
 
-    if (isApp && !simaware && secondName) {
+    if (!simaware && secondName) {
         for (let i = 0; i < secondName.length; i++) {
             simaware = simawareData?.features.find(x => {
                 const suffix = getTraconSuffix(x);
+                if (!isApp && !suffix) return false;
                 prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
                 return !!prefix && (!suffix || callsign.endsWith(suffix));
             });
@@ -100,6 +104,7 @@ export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: s
         if (!simaware) {
             simaware = simawareData?.features.find(x => {
                 const suffix = getTraconSuffix(x);
+                if (!isApp && !suffix) return false;
                 prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
                 return !!prefix && (!suffix || callsign.endsWith(suffix));
             });

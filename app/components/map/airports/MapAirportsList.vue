@@ -296,7 +296,7 @@ watch(map, val => {
                 type: 'airport-layer',
             },
             imageRatio: store.isTouch ? 1 : 2,
-            minZoom: 15,
+            minZoom: 14.5,
             style: function(feature) {
                 const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
@@ -429,6 +429,8 @@ export interface AirportsList {
 }
 
 const vatGlassesActive = isVatGlassesActive;
+
+const airportOverlays = computed(() => mapStore.overlays.filter(x => x.type === 'airport').map(x => x.key));
 
 const getAirportsList = computed(() => {
     const facilities = useFacilitiesIds();
@@ -730,7 +732,7 @@ const getAirportsList = computed(() => {
         }
     }
 
-    const list = airports.filter(x => x.localAtc.length || x.arrAtc.length || x.aircraftCids.length);
+    const list = airports.filter(x => x.localAtc.length || x.arrAtc.length || x.aircraftCids.length || airportOverlays.value.includes(x.airport.icao));
     // eslint-disable-next-line vue/no-side-effects-in-computed-properties
     dataStore.vatsim.parsedAirports.value = list;
 
@@ -774,7 +776,20 @@ async function setVisibleAirports() {
         extent[2] += 0.9;
         extent[3] += 0.9;
 
-        airportsList.value = vatAirportsList.value.map(x => {
+        const airports = [...vatAirportsList.value];
+
+        for (const airport of airportOverlays.value) {
+            if (!airports.some(x => x.icao === airport)) {
+                airports.push({
+                    icao: airport,
+                    isPseudo: false,
+                    isSimAware: false,
+                    aircraft: {},
+                });
+            }
+        }
+
+        airportsList.value = airports.map(x => {
             const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ?? dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
             let airport = x.isSimAware ? vatAirport || x : vatAirport;
             if (!x.isSimAware && airport?.icao !== x.icao) {
@@ -795,7 +810,7 @@ async function setVisibleAirports() {
                     return {
                         vatspyAirport: airport,
                         vatsimAirport: x,
-                        visible: intersects(extent, feature.getGeometry()!.getExtent()),
+                        visible: airportOverlays.value.includes(airport.icao) || intersects(extent, feature.getGeometry()!.getExtent()),
                     };
                 }
             }
@@ -805,7 +820,7 @@ async function setVisibleAirports() {
             return {
                 vatspyAirport: airport,
                 vatsimAirport: x,
-                visible: isPointInExtent(coordinates, extent),
+                visible: airportOverlays.value.includes(airport.icao) || isPointInExtent(coordinates, extent),
             };
         }).filter(x => !!x) ?? [];
 

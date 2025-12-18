@@ -22,6 +22,8 @@ const allowedProperties: PartialRecord<AmdbLayerName, string[]> = {
     finalapproachandtakeoffarea: ['idrwy'],
     verticalpolygonalstructure: ['plysttyp', 'ident'],
     deicingarea: ['ident'],
+    hotspot: ['idhot'],
+    apronelement: ['idapron'],
 } satisfies {
     [K in AmdbLayerName]?: (keyof AmdbResponseStructure[K]['features'][number]['properties'])[]
 };
@@ -126,7 +128,14 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
         const _layout = layout as NavigraphLayout;
 
         Object.entries(_layout).forEach(([key, value]) => {
-            const property = allowedProperties[key as AmdbLayerName];
+            if (key === 'hotspot') {
+                value.features = value.features.map(feature => {
+                    feature.geometry = feature.properties?.centroid;
+                    return feature;
+                }).filter(x => x.geometry);
+            }
+
+            /* const property = allowedProperties[key as AmdbLayerName];
             if (!property?.length) value.features.forEach(feature => feature.properties = {});
             else {
                 value.features.forEach(feature => {
@@ -134,7 +143,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                         if (!property.includes(i)) delete feature.properties[i];
                     }
                 });
-            }
+            }*/
         });
     }
 

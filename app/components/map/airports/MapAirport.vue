@@ -747,7 +747,7 @@ onMounted(async () => {
                     airport: props.airport.icao,
                 });
 
-                if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline') {
+                if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline' || key === 'deicingarea') {
                     labelSource.value?.addFeature(feature);
                     labelFeatures.push(feature);
                 }
@@ -768,7 +768,7 @@ onMounted(async () => {
         });
         runwaysFeatures = [];
 
-        if (!val?.length) return;
+        if (!val?.length || layout.value?.runwayelement?.features?.length) return;
 
         runwaysFeatures = val.map(feature => {
             const runwayFeature = new Feature({

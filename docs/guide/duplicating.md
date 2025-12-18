@@ -18,31 +18,7 @@ Example: Area A in ZOA/NCT ATIS will duplicate controller with `SJC_APP` callsig
 
 In that case, controller is duplicated as-is, excluding **callsign** - this is being changed to target sector.
 
-### ZOA NCT
-
-Allowed for NCT, SFO, OAK, SJC, SMF, RNO, MRY, MOD, BAY (APP, DEP, CTR or TMU).
-
-- Area A: SJC_APP
-- Area B: SFO_APP
-- Area C: OAK_APP
-- Area D: SFO_DEP
-- Area E: SMF_APP
-- Area R: RNO_APP
-- FAT TRACON: FAT_F_APP
-- NFL RAPCON: NFL_APP
-- NLC RAPCON: NLC_APP
-- SUU RAPCON: SUU_S_APP
-
-## ZMA TRACONs
-
-Allows opening or closing of ZMA's TRACONs based off various callsign/polygon definitions
-
-- MIA TRACON: MIA_D_DEP
-- TPA TRACON: TPA_L_APP
-- PBI TRACON: PBI_B_DEP
-- RSW TRACON: RSW_W_APP
-- NQX RATCF: NQX_B_APP
-- HST RAPCON: HST_APP
+Common ATC duplicating rules can be found or edited here: https://github.com/VATSIM-Radar/vatsim-radar/blob/next/app/utils/backend/vatsim/atc-duplicating.ts
 
 ## ZMA Ocean Area
 

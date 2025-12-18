@@ -5542,6 +5542,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/centroid@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "@turf/centroid@npm:7.3.1"
+  dependencies:
+    "@turf/helpers": "npm:7.3.1"
+    "@turf/meta": "npm:7.3.1"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/13ef4fcb6cbfd0769098f508e926c30e46450a981a3a49f2bbca013a8f83d753dd26ba56fbc1bd3c9bd46fb0d940fb90e7483d05608cc8d935961eabf6046833
+  languageName: node
+  linkType: hard
+
 "@turf/circle@npm:7.3.1":
   version: 7.3.1
   resolution: "@turf/circle@npm:7.3.1"
@@ -17655,6 +17667,7 @@ __metadata:
     "@stylistic/stylelint-plugin": "npm:^4.0.0"
     "@turf/bearing": "npm:^7.3.1"
     "@turf/boolean-point-in-polygon": "npm:^7.3.1"
+    "@turf/centroid": "npm:^7.3.1"
     "@turf/difference": "npm:^7.3.1"
     "@turf/distance": "npm:^7.3.1"
     "@turf/great-circle": "npm:^7.3.1"

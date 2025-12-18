@@ -1,5 +1,16 @@
 # Changelog
 
+# [1.2.4-2-rc.1]
+
+- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project
+- Fixed pilot encoding being incorrect in some places
+- Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
+- Fixed runway markings for Navigraph Layouts
+- Added apron names for Navigraph Layouts
+- Deicing pads are now less bright in Navigraph Layouts
+- Fixed deicing pads overlapping with taxiway labels
+- Min zoom to view labels for Navigraph Labels has been changed from 15 to 14.5
+
 # [1.2.4-1-final]
 
 - New icons from DotWallop: AEST, B36T, E300, FDCT (CTLS), IL18, PTS1/2, S76, SHRK, SW3
