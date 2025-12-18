@@ -5,7 +5,7 @@ import type {
     VatsimEvent, VatsimExtendedPilot,
     VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData,
     VatsimShortenedData,
-    VatsimSubDivision, VatsimTransceiver,
+    VatsimSubDivision,
     VatsimBooking, VatsimNattrak, VatsimTransceiverFrequency,
 } from '~/types/data/vatsim';
 import type { VatDataVersions } from '~/types/data';

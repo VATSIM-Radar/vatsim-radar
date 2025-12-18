@@ -332,22 +332,24 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
         text-align: center;
     }
 
-  &__frequencies {
-    display: flex;
-    gap: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    user-select: text;
+    &__frequencies {
+        user-select: text;
+
+        display: flex;
+        gap: 4px;
+
+        font-size: 12px;
+        font-weight: 600;
 
 
-    &_item {
-      order: 2;
+        &_item {
+            order: 2;
 
-      &--primary {
-        color: $primary500;
-        order: 1;
-      }
+            &--primary {
+                order: 1;
+                color: $primary500;
+            }
+        }
     }
-  }
 }
 </style>

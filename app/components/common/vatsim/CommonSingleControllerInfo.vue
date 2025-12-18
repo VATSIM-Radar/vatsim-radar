@@ -272,11 +272,11 @@ const isCopied = (key: string) => {
         align-items: center;
         color: $primary400;
 
-      &_error {
-        color: $error300;
-        font-size: 10px;
-        font-weight: normal;
-      }
+        &_error {
+            font-size: 10px;
+            font-weight: normal;
+            color: $error300;
+        }
     }
 
     &__time {

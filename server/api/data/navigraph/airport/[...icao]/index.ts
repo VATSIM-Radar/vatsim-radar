@@ -135,7 +135,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                 }).filter(x => x.geometry);
             }
 
-            /* const property = allowedProperties[key as AmdbLayerName];
+            const property = allowedProperties[key as AmdbLayerName];
             if (!property?.length) value.features.forEach(feature => feature.properties = {});
             else {
                 value.features.forEach(feature => {
@@ -143,7 +143,7 @@ export default defineEventHandler(async (event): Promise<NavigraphAirportData | 
                         if (!property.includes(i)) delete feature.properties[i];
                     }
                 });
-            }*/
+            }
         });
     }
 

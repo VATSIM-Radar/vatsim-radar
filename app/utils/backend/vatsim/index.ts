@@ -8,7 +8,6 @@ import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
-import { useFacilitiesIds } from '~/utils/data/vatsim';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
