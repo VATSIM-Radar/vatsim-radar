@@ -57,7 +57,7 @@ export const duplicatingSettings = [
             JRV: 'RIC_APP',
         },
     },
-	 /**
+     /**
      * @description ZLA/SCT/L30 Area/TRACON
      * @author 845421
      */
@@ -70,7 +70,7 @@ export const duplicatingSettings = [
             'Area 4': 'SNA_APP',
             'Area 5': 'SAN_APP',
             'Area 6': 'LAX_DEP',
-			'Springs': 'PSP_APP',
+            'Springs': 'PSP_APP',
             'SCT TRACON': 'SCT_APP',
 			'L30 TRACON': 'LAS_APP',
             'BFL TRACON': 'BFL_APP',
@@ -78,8 +78,8 @@ export const duplicatingSettings = [
             'NYL CERAP': 'NYL_APP',
             'NTD RAPCON': 'NTD_APP',
 			'LSV RAPCON': 'LSV_APP',
-			'JCF': 'JCF_APP',
-			'Sport Control': 'EDW_APP'
+            'JCF': 'JCF_APP',
+            'Sport Control': 'EDW_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
