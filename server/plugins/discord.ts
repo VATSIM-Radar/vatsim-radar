@@ -271,7 +271,8 @@ export default defineNitroPlugin(async app => {
                 return;
             }
             if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && (interaction.commandName === 'next-stats' || interaction.commandName === 'next-hidden-stats')) {
-                await sendStats(interaction, interaction.commandName === 'next-hidden-stats', true);
+                await sendStats(interaction, interaction.commandName === 'next-hidden-stats', interaction.channelId!, true);
+                return;
             }
 
             if (interaction.guildId !== discordServerId) return;
@@ -443,7 +444,7 @@ export default defineNitroPlugin(async app => {
                 }
             }
             else if (interaction.commandName === 'stats' || interaction.commandName === 'hidden-stats') {
-                await sendStats(interaction, interaction.commandName === 'hidden-stats');
+                await sendStats(interaction, interaction.commandName === 'hidden-stats', interaction.channelId!);
 
                 return;
             }
