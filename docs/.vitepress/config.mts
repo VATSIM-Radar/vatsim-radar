@@ -58,6 +58,12 @@ export default defineConfig({
                     {
                         text: 'About Us',
                         link: '/introduction/about',
+                        items: [
+                            {
+                                text: 'State of Radar 2025',
+                                link: '/blog/state-of-radar-2025',
+                            },
+                        ],
                     },
                     {
                         text: 'FAQ',
