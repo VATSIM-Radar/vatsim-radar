@@ -196,9 +196,9 @@ export default defineNitroPlugin(async app => {
         await interaction.reply({
             content: `### <@${ interaction.user.id }> VATSIM Radar stats
                         
-                        - ID: ${ existingUser.id }
-                        - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-                        - Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
+- ID: ${ existingUser.id }
+- Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
+- Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
             ephemeral,
         });
     }
