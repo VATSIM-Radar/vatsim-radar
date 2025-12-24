@@ -1,3 +1,4 @@
+import type { ChatInputCommandInteraction } from 'discord.js';
 import {
     ActionRowBuilder,
     Client,
@@ -14,7 +15,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { getDiscordName } from '~/utils/backend/discord';
-import type { UserPresetType } from '@prisma/client';
+import type { UserPresetType } from '#prisma';
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
@@ -64,6 +65,14 @@ export default defineNitroPlugin(async app => {
             description: 'View your Radar ID and stats (privately... you know, just in case)',
         },
         {
+            name: 'next-hidden-stats',
+            description: 'View your Radar Next (only QA/Patreon) ID and stats (privately... you know, just in case)',
+        },
+        {
+            name: 'next-stats',
+            description: 'Share with everyone your Radar Next (only QA/Patreon) ID and stats!',
+        },
+        {
             name: 'stats',
             description: 'Share with everyone your Radar ID and stats!',
         },
@@ -75,6 +84,124 @@ export default defineNitroPlugin(async app => {
     ];
 
     const rest = new REST({ version: '10' }).setToken(config.DISCORD_TOKEN);
+
+    const verifyStrategy = new StringSelectMenuBuilder()
+        .setCustomId('verify')
+        .setPlaceholder('Please choose channel name strategy')
+        .addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Full name')
+                .setDescription('Displays your full name and CID')
+                .setValue('FULL_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('First name')
+                .setDescription('Displays first name and CID')
+                .setValue('FIRST_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('CID only')
+                .setDescription('Displays nothing but your VATSIM CID')
+                .setValue('CID_ONLY'),
+        );
+
+    const verifyStatsStrategy = new StringSelectMenuBuilder()
+        .setCustomId('verify')
+        .setPlaceholder('You are not verified! Please choose channel name strategy')
+        .addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Full name')
+                .setDescription('Displays your full name and CID')
+                .setValue('FULL_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('First name')
+                .setDescription('Displays first name and CID')
+                .setValue('FIRST_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('CID only')
+                .setDescription('Displays nothing but your VATSIM CID')
+                .setValue('CID_ONLY'),
+        );
+
+    const renameStrategy = new StringSelectMenuBuilder()
+        .setCustomId('rename')
+        .setPlaceholder('Please choose channel name strategy')
+        .addOptions(
+            new StringSelectMenuOptionBuilder()
+                .setLabel('Full name')
+                .setDescription('Displays your full name and CID')
+                .setValue('FULL_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('First name')
+                .setDescription('Displays first name and CID')
+                .setValue('FIRST_NAME'),
+            new StringSelectMenuOptionBuilder()
+                .setLabel('CID only')
+                .setDescription('Displays nothing but your VATSIM CID')
+                .setValue('CID_ONLY'),
+        );
+
+    const verifyRow = new ActionRowBuilder().addComponents(verifyStrategy);
+    const verifyStatsRow = new ActionRowBuilder().addComponents(verifyStatsStrategy);
+    const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
+
+    async function sendStats(interaction: ChatInputCommandInteraction, ephemeral: boolean, isNext = false) {
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                discordId: interaction.user.id,
+            },
+            select: {
+                id: true,
+                vatsim: true,
+                presets: true,
+                lists: true,
+            },
+        });
+
+        if (!existingUser) {
+            if (isNext) {
+                await interaction.reply({
+                    content: 'You are not a Radar Next user',
+                    ephemeral: true,
+                });
+            }
+            else {
+                await interaction.reply({
+                // @ts-expect-error Type error from Discord
+                    components: [verifyStatsRow],
+                    ephemeral: true,
+                });
+            }
+            return;
+        }
+
+        const presets: Record<UserPresetType, number> = {
+            MAP_SETTINGS: 0,
+            BOOKMARK: 0,
+            DASHBOARD_BOOKMARK: 0,
+            FILTER: 0,
+        };
+
+        for (const preset of existingUser.presets) {
+            presets[preset.type]++;
+        }
+
+        const mapSettingsText = presets.MAP_SETTINGS ? `${ presets.MAP_SETTINGS }` : `zero. You could save at least one, you know`;
+        const filtersText = presets.FILTER ? `\n- Filters saved: ${ presets.FILTER }. Good feature by the way!` : '';
+        const bookmarksText = presets.BOOKMARK ? `\n- Bookmarks created: ${ presets.BOOKMARK }. At least some knows you could use them!` : '';
+
+        const friendsCount = (existingUser.lists.find(x => x.type === 'FRIENDS')?.users as unknown[])?.length ?? 0;
+        const lists = existingUser.lists.filter(x => x.type !== 'FRIENDS');
+        const listsFriends = lists.reduce((acc, value) => acc + ((value.users as unknown[])?.length), 0);
+        const otherListsText = (lists.length && listsFriends) ? `\nOther lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
+
+        await interaction.reply({
+            content: `### <@${ interaction.user.id }> VATSIM Radar stats
+                        
+                        - ID: ${ existingUser.id }
+                        - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
+                        - Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
+            ephemeral,
+        });
+    }
 
     try {
         (async () => {
@@ -93,45 +220,6 @@ export default defineNitroPlugin(async app => {
         discordClient.on('clientReady', () => {
             console.log(`Logged in as ${ discordClient.user?.tag }!`);
         });
-
-        const verifyStrategy = new StringSelectMenuBuilder()
-            .setCustomId('verify')
-            .setPlaceholder('Please choose channel name strategy')
-            .addOptions(
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('Full name')
-                    .setDescription('Displays your full name and CID')
-                    .setValue('FULL_NAME'),
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('First name')
-                    .setDescription('Displays first name and CID')
-                    .setValue('FIRST_NAME'),
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('CID only')
-                    .setDescription('Displays nothing but your VATSIM CID')
-                    .setValue('CID_ONLY'),
-            );
-
-        const renameStrategy = new StringSelectMenuBuilder()
-            .setCustomId('rename')
-            .setPlaceholder('Please choose channel name strategy')
-            .addOptions(
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('Full name')
-                    .setDescription('Displays your full name and CID')
-                    .setValue('FULL_NAME'),
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('First name')
-                    .setDescription('Displays first name and CID')
-                    .setValue('FIRST_NAME'),
-                new StringSelectMenuOptionBuilder()
-                    .setLabel('CID only')
-                    .setDescription('Displays nothing but your VATSIM CID')
-                    .setValue('CID_ONLY'),
-            );
-
-        const verifyRow = new ActionRowBuilder().addComponents(verifyStrategy);
-        const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
 
         discordClient.on('interactionCreate', async (interaction): Promise<any> => {
             if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'qa-verify') {
@@ -172,6 +260,9 @@ export default defineNitroPlugin(async app => {
                     ephemeral: true,
                 });
                 return;
+            }
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && (interaction.commandName === 'next-stats' || interaction.commandName === 'next-hidden-stats')) {
+                await sendStats(interaction, interaction.commandName === 'next-hidden-stats', true);
             }
 
             if (interaction.guildId !== discordServerId) return;
@@ -240,64 +331,6 @@ export default defineNitroPlugin(async app => {
                             });
                         }
                     }
-                }
-                else if (interaction.customId === 'stats' || interaction.customId === 'hidden-stats') {
-                    const existingUser = await prisma.user.findFirst({
-                        where: {
-                            discordId: interaction.user.id,
-                        },
-                        select: {
-                            id: true,
-                            vatsim: true,
-                            presets: true,
-                            lists: true,
-                        },
-                    });
-
-                    if (!existingUser) {
-                        await interaction.reply({
-                            content: `Your Discord is not connected to VATSIM Database. Let's verify!`,
-                            ephemeral: true,
-                        });
-
-                        await interaction.reply({
-                            // @ts-expect-error Type error from Discord
-                            components: [verifyRow],
-                            ephemeral: true,
-                        });
-                        return;
-                    }
-
-                    const presets: Record<UserPresetType, number> = {
-                        MAP_SETTINGS: 0,
-                        BOOKMARK: 0,
-                        DASHBOARD_BOOKMARK: 0,
-                        FILTER: 0,
-                    };
-
-                    for (const preset of existingUser.presets) {
-                        presets[preset.type]++;
-                    }
-
-                    const mapSettingsText = presets.MAP_SETTINGS ? `${ presets.MAP_SETTINGS }` : `zero. You could save at least one, you know`;
-                    const filtersText = presets.FILTER ? `\n- Filters saved: ${ presets.FILTER }. Good feature by the way!` : '';
-                    const bookmarksText = presets.BOOKMARK ? `\n- Bookmarks created: ${ presets.BOOKMARK }. At least some knows you could use them!` : '';
-
-                    const friendsCount = (existingUser.lists.find(x => x.type === 'FRIENDS')?.users as unknown[])?.length ?? 0;
-                    const lists = existingUser.lists.filter(x => x.type !== 'FRIENDS');
-                    const listsFriends = lists.reduce((acc, value) => acc + ((value.users as unknown[])?.length), 0);
-                    const otherListsText = (lists.length && listsFriends) ? `\nOther lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
-
-                    await interaction.reply({
-                        content: `### <@${ interaction.user.id }> VATSIM Radar stats
-                        
-                        - ID: ${ existingUser.id }
-                        - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-                        - Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
-                        ephemeral: interaction.customId === 'stats',
-                    });
-
-                    return;
                 }
                 else if (interaction.customId === 'verify') {
                     const existingUser = await prisma.user.findFirst({
@@ -399,6 +432,11 @@ export default defineNitroPlugin(async app => {
                         ephemeral: true,
                     });
                 }
+            }
+            else if (interaction.commandName === 'stats' || interaction.commandName === 'hidden-stats') {
+                await sendStats(interaction, interaction.commandName === 'hidden-stats');
+
+                return;
             }
             else if (interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
                 const release = await discordClient.channels.fetch(discordReleasesChannelId);
