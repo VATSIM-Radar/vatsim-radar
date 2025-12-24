@@ -191,7 +191,7 @@ export default defineNitroPlugin(async app => {
         const friendsCount = (existingUser.lists.find(x => x.type === 'FRIENDS')?.users as unknown[])?.length ?? 0;
         const lists = existingUser.lists.filter(x => x.type !== 'FRIENDS');
         const listsFriends = lists.reduce((acc, value) => acc + ((value.users as unknown[])?.length), 0);
-        const otherListsText = (lists.length && listsFriends) ? `\nOther lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
+        const otherListsText = (lists.length && listsFriends) ? `\n- Other lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
 
         await interaction.reply({
             content: `### <@${ interaction.user.id }> VATSIM Radar stats
