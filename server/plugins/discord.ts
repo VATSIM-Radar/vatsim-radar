@@ -207,7 +207,7 @@ export default defineNitroPlugin(async app => {
                         
 - ID: ${ existingUser.id }
 - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-- Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
+- Friends saved: ${ friendsCount || `0` }${ otherListsText }`,
             ephemeral,
         });
     }
