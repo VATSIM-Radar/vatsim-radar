@@ -143,7 +143,7 @@ export default defineNitroPlugin(async app => {
     const verifyStatsRow = new ActionRowBuilder().addComponents(verifyStatsStrategy);
     const renameRow = new ActionRowBuilder().addComponents(renameStrategy);
 
-    async function sendStats(interaction: ChatInputCommandInteraction, ephemeral: boolean, isNext = false) {
+    async function sendStats(interaction: ChatInputCommandInteraction, ephemeral: boolean, channel: string, isNext = false) {
         const existingUser = await prisma.user.findFirst({
             where: {
                 discordId: interaction.user.id,
@@ -170,6 +170,15 @@ export default defineNitroPlugin(async app => {
                     ephemeral: true,
                 });
             }
+            return;
+        }
+
+        if(channel !== '1246152355850752020') {
+            await interaction.reply({
+                content: `Use me here: <#1246152355850752020>`,
+                ephemeral: true,
+            })
+
             return;
         }
 
