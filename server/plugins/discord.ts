@@ -194,11 +194,11 @@ export default defineNitroPlugin(async app => {
         const otherListsText = (lists.length && listsFriends) ? `\nOther lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
 
         await interaction.reply({
-            content: `### <@${ interaction.user.id }> VATSIM Radar stats
+            content: `### <@${ interaction.user.id }> VATSIM Radar${ isNext ? ' Next' : '' } stats
                         
 - ID: ${ existingUser.id }
 - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-- Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
+- Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }${ isNext ? '\n\nBig thanks for being a part of Radar Next team!' : '' }`,
             ephemeral,
         });
     }
