@@ -193,7 +193,7 @@ export default defineNitroPlugin(async app => {
             presets[preset.type]++;
         }
 
-        const mapSettingsText = presets.MAP_SETTINGS ? `${ presets.MAP_SETTINGS }` : `zero. You could save at least one, you know`;
+        const mapSettingsText = presets.MAP_SETTINGS ? `${ presets.MAP_SETTINGS }` : `zero. Remember to save your settings, so they are available on any device!`;
         const filtersText = presets.FILTER ? `\n- Filters saved: ${ presets.FILTER }. Good feature by the way!` : '';
         const bookmarksText = presets.BOOKMARK ? `\n- Bookmarks created: ${ presets.BOOKMARK }. At least some knows you could use them!` : '';
 
@@ -207,7 +207,7 @@ export default defineNitroPlugin(async app => {
                         
 - ID: ${ existingUser.id }
 - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
-- Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }${ isNext ? '\n\nBig thanks for being a part of Radar Next team!' : '' }`,
+- Friends saved: ${ friendsCount || `0` }${ otherListsText }${ isNext ? '\n\nBig thanks for being a part of Radar Next team!' : '' }`,
             ephemeral,
         });
     }
