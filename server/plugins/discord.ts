@@ -14,6 +14,7 @@ import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
 import { getDiscordName } from '~/utils/backend/discord';
+import type { UserPresetType } from '@prisma/client';
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });
 
@@ -57,6 +58,14 @@ export default defineNitroPlugin(async app => {
         {
             name: 'rename',
             description: 'Change your shown name',
+        },
+        {
+            name: 'hidden-stats',
+            description: 'View your Radar ID and stats (privately... you know, just in case)',
+        },
+        {
+            name: 'stats',
+            description: 'Share with everyone your Radar ID and stats!',
         },
         {
             name: 'release',
@@ -231,6 +240,64 @@ export default defineNitroPlugin(async app => {
                             });
                         }
                     }
+                }
+                else if (interaction.customId === 'stats' || interaction.customId === 'hidden-stats') {
+                    const existingUser = await prisma.user.findFirst({
+                        where: {
+                            discordId: interaction.user.id,
+                        },
+                        select: {
+                            id: true,
+                            vatsim: true,
+                            presets: true,
+                            lists: true,
+                        },
+                    });
+
+                    if (!existingUser) {
+                        await interaction.reply({
+                            content: `Your Discord is not connected to VATSIM Database. Let's verify!`,
+                            ephemeral: true,
+                        });
+
+                        await interaction.reply({
+                            // @ts-expect-error Type error from Discord
+                            components: [verifyRow],
+                            ephemeral: true,
+                        });
+                        return;
+                    }
+
+                    const presets: Record<UserPresetType, number> = {
+                        MAP_SETTINGS: 0,
+                        BOOKMARK: 0,
+                        DASHBOARD_BOOKMARK: 0,
+                        FILTER: 0,
+                    };
+
+                    for (const preset of existingUser.presets) {
+                        presets[preset.type]++;
+                    }
+
+                    const mapSettingsText = presets.MAP_SETTINGS ? `${ presets.MAP_SETTINGS }` : `zero. You could save at least one, you know`;
+                    const filtersText = presets.FILTER ? `\n- Filters saved: ${ presets.FILTER }. Good feature by the way!` : '';
+                    const bookmarksText = presets.BOOKMARK ? `\n- Bookmarks created: ${ presets.BOOKMARK }. At least some knows you could use them!` : '';
+
+                    const friendsCount = (existingUser.lists.find(x => x.type === 'FRIENDS')?.users as unknown[])?.length ?? 0;
+                    const lists = existingUser.lists.filter(x => x.type !== 'FRIENDS');
+                    const listsFriends = lists.reduce((acc, value) => acc + ((value.users as unknown[])?.length), 0);
+                    const otherListsText = (lists.length && listsFriends) ? `\nOther lists created: ${ lists.length } with ${ listsFriends } folks inside of them` : '';
+
+                    await interaction.reply({
+                        content: `### <@${ interaction.user.id }> VATSIM Radar stats
+                        
+                        - ID: ${ existingUser.id }
+                        - Map settings saved: ${ mapSettingsText }${ filtersText }${ bookmarksText }
+                        - Friends saved: ${ friendsCount || `0. That's... not much` }${ otherListsText }`,
+                        ephemeral: interaction.customId === 'stats',
+                    });
+
+                    return;
                 }
                 else if (interaction.customId === 'verify') {
                     const existingUser = await prisma.user.findFirst({
