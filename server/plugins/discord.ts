@@ -173,11 +173,11 @@ export default defineNitroPlugin(async app => {
             return;
         }
 
-        if(channel !== '1246152355850752020') {
+        if (channel !== '1246152355850752020') {
             await interaction.reply({
                 content: `Use me here: <#1246152355850752020>`,
                 ephemeral: true,
-            })
+            });
 
             return;
         }
