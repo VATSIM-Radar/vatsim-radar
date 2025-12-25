@@ -51,7 +51,7 @@ async function updateNavigraph() {
             const current = await processDatabase(navigraphCurrentDb!, radarStorage.navigraph.current);
             const outdated = await processDatabase(navigraphOutdatedDb!, radarStorage.navigraph.outdated);
 
-            navigraphData.versions = radarStorage.navigraph;
+            navigraphData.versions = { ...radarStorage.navigraph };
 
             navigraphData.full.current = current.full;
             navigraphData.short.current = current.short;
