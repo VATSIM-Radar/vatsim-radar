@@ -5010,41 +5010,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry-internal/browser-utils@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry-internal/browser-utils@npm:10.32.0"
+"@sentry-internal/browser-utils@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry-internal/browser-utils@npm:10.32.1"
   dependencies:
-    "@sentry/core": "npm:10.32.0"
-  checksum: 10c0/c8cb0c5e09ab23c0c42092a2a42bf89bc85f2c4b7c03083e3a444c855f09947cd36a512e4b72bed077c72f716f7a1e3854aeabcc38c8a28d216ec5eadb506319
+    "@sentry/core": "npm:10.32.1"
+  checksum: 10c0/0c3a79c7f524df27c8382b2d58c84231da45c0ea86de8e2abe7752c12a24781196310402603929bbc8fb8d7d084f32ccd59ff2f72b781bc9d23a57eef223c038
   languageName: node
   linkType: hard
 
-"@sentry-internal/feedback@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry-internal/feedback@npm:10.32.0"
+"@sentry-internal/feedback@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry-internal/feedback@npm:10.32.1"
   dependencies:
-    "@sentry/core": "npm:10.32.0"
-  checksum: 10c0/4df5f31712240cfca0457ed268015a4a4c5e0f7749655549780e38a56a683cc62932e77628764bcba53ae6a5c205547dbf9a57d67d3166fc219bba42f622af7c
+    "@sentry/core": "npm:10.32.1"
+  checksum: 10c0/868a20e4b97b5e607cdb59134dd9ff878246ce1875e33000e8ab8bc9cc24f2b1f562c55468ac3017cd5747bdb958819b22132baeed79267bcee94ef7685c9a7e
   languageName: node
   linkType: hard
 
-"@sentry-internal/replay-canvas@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry-internal/replay-canvas@npm:10.32.0"
+"@sentry-internal/replay-canvas@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry-internal/replay-canvas@npm:10.32.1"
   dependencies:
-    "@sentry-internal/replay": "npm:10.32.0"
-    "@sentry/core": "npm:10.32.0"
-  checksum: 10c0/7a1e19e8cf0fffd14c2e3f516bbc8e6f49a579a3b2a38e6ddf1d5e54656ce8bde0d5bb848c141afde2aeae11f89452acd0148177e50051a7405d09a72f216a41
+    "@sentry-internal/replay": "npm:10.32.1"
+    "@sentry/core": "npm:10.32.1"
+  checksum: 10c0/7912b4f85b81dd67eb2bfb42366c5b4af23ebfaf5ea466ae9274b651f9f87aadc0f896ef697a8001730c05cefa5e87bbfcab6221cc5a523a90e9c0053d4fb60e
   languageName: node
   linkType: hard
 
-"@sentry-internal/replay@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry-internal/replay@npm:10.32.0"
+"@sentry-internal/replay@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry-internal/replay@npm:10.32.1"
   dependencies:
-    "@sentry-internal/browser-utils": "npm:10.32.0"
-    "@sentry/core": "npm:10.32.0"
-  checksum: 10c0/98be334be7cc58dac1247c1564b5323d448a34d91b199fc369c52e54f8263d0512a46cce6651f5ad4a5fbe735bf871b35754fe3d02fe84cd2caa583524ae069e
+    "@sentry-internal/browser-utils": "npm:10.32.1"
+    "@sentry/core": "npm:10.32.1"
+  checksum: 10c0/61286db228c6003d1bf46d60f79e1d91e536591af00ca728bba2af35d29d3a47489e293a0cc55deca5f67d62739ac38577bcb9f817f992671f95337a3c75f655
   languageName: node
   linkType: hard
 
@@ -5055,16 +5055,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/browser@npm:10.32.0"
+"@sentry/browser@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/browser@npm:10.32.1"
   dependencies:
-    "@sentry-internal/browser-utils": "npm:10.32.0"
-    "@sentry-internal/feedback": "npm:10.32.0"
-    "@sentry-internal/replay": "npm:10.32.0"
-    "@sentry-internal/replay-canvas": "npm:10.32.0"
-    "@sentry/core": "npm:10.32.0"
-  checksum: 10c0/1123200e144d59c5dac02f3382f3b8b73f117cc68806a9b758f766d2be0c61719d6e905d1f7d915415b24ac94df8fa030aac318cd6add9128520e8bf27afcd21
+    "@sentry-internal/browser-utils": "npm:10.32.1"
+    "@sentry-internal/feedback": "npm:10.32.1"
+    "@sentry-internal/replay": "npm:10.32.1"
+    "@sentry-internal/replay-canvas": "npm:10.32.1"
+    "@sentry/core": "npm:10.32.1"
+  checksum: 10c0/660b07e6d9ac3f4ff9cd02893284738c49348353d029d031bcb35aed6eaca60b9c0c984ba3f89fad5554e78dbee96dec1757e5782269a78e589dc690baac5e79
   languageName: node
   linkType: hard
 
@@ -5180,35 +5180,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/cloudflare@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/cloudflare@npm:10.32.0"
+"@sentry/cloudflare@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/cloudflare@npm:10.32.1"
   dependencies:
     "@opentelemetry/api": "npm:^1.9.0"
-    "@sentry/core": "npm:10.32.0"
+    "@sentry/core": "npm:10.32.1"
   peerDependencies:
     "@cloudflare/workers-types": ^4.x
   peerDependenciesMeta:
     "@cloudflare/workers-types":
       optional: true
-  checksum: 10c0/414e152f0ecdacd558b74f16a4bf53cb305c1a901f5c1d4a70fcb7d0e61de9215f85df03d4d0af50552d31a3b8eced8b9ba69a70923d93f88144a4f0331e244c
+  checksum: 10c0/e8be9a024504768bc0e90a38e639f3ad0d4c8f377b8e1b2ff1fe7e0e1e7122f5b6d9f1dd06950dc63b6b1588e7fcad7c9a2a6f6c2020da97d8e492dad3ca805c
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/core@npm:10.32.0"
-  checksum: 10c0/0c1b14e48626846fd78aebe973e5a58757532222c1c14274d28588922cd836d4d50fecb71db468bdf64b3209a741c8277fb60c12d4b0cfd80d90ec88ab39a683
+"@sentry/core@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/core@npm:10.32.1"
+  checksum: 10c0/47cbbb82cb5c1841033d5a08c3edf9686516c85d799de13f9b1981fc705aaf2a9b441576ffb50e89d4554fbee3b41f73a11cb32547129c6f504dad55db985187
   languageName: node
   linkType: hard
 
-"@sentry/node-core@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/node-core@npm:10.32.0"
+"@sentry/node-core@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/node-core@npm:10.32.1"
   dependencies:
     "@apm-js-collab/tracing-hooks": "npm:^0.3.1"
-    "@sentry/core": "npm:10.32.0"
-    "@sentry/opentelemetry": "npm:10.32.0"
+    "@sentry/core": "npm:10.32.1"
+    "@sentry/opentelemetry": "npm:10.32.1"
     import-in-the-middle: "npm:^2"
   peerDependencies:
     "@opentelemetry/api": ^1.9.0
@@ -5218,13 +5218,13 @@ __metadata:
     "@opentelemetry/resources": ^1.30.1 || ^2.1.0 || ^2.2.0
     "@opentelemetry/sdk-trace-base": ^1.30.1 || ^2.1.0 || ^2.2.0
     "@opentelemetry/semantic-conventions": ^1.37.0
-  checksum: 10c0/563a35a5a8709ddf4114fde9a8cce35e39c698c33039b85df426263511283c214515ed33ee4dd921334e36f9f5e740fedd9a31d4301cc6a45dc2e851fef77c3b
+  checksum: 10c0/d204532c14af761e90c45fc8451261fa781d454fca93f4706ca66be4c49b1980c0fa05493783cf0d0034ad0992b2f05e3c3c7b2ff917cc8f3fcb867fb1fddf18
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/node@npm:10.32.0"
+"@sentry/node@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/node@npm:10.32.1"
   dependencies:
     "@opentelemetry/api": "npm:^1.9.0"
     "@opentelemetry/context-async-hooks": "npm:^2.2.0"
@@ -5256,45 +5256,45 @@ __metadata:
     "@opentelemetry/sdk-trace-base": "npm:^2.2.0"
     "@opentelemetry/semantic-conventions": "npm:^1.37.0"
     "@prisma/instrumentation": "npm:6.19.0"
-    "@sentry/core": "npm:10.32.0"
-    "@sentry/node-core": "npm:10.32.0"
-    "@sentry/opentelemetry": "npm:10.32.0"
+    "@sentry/core": "npm:10.32.1"
+    "@sentry/node-core": "npm:10.32.1"
+    "@sentry/opentelemetry": "npm:10.32.1"
     import-in-the-middle: "npm:^2"
     minimatch: "npm:^9.0.0"
-  checksum: 10c0/46673d6d387c8d08f9c59115f492928c37258ec66288017bc0673a0dd6d2813df3b6ede95c2f0e32d91f8588216d84f99d0aea8377283d5908a1a8dd81eb189b
+  checksum: 10c0/f3f8a4efdb8c1a5cd8ec1a61beb195a456955baa5df41a1fd1eda1a1a36c8f3e95301669b9cb2055e1e75370d0f5b5bc65df8765c8d76aadfd584586cf1b4bc4
   languageName: node
   linkType: hard
 
-"@sentry/nuxt@npm:^10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/nuxt@npm:10.32.0"
+"@sentry/nuxt@npm:^10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/nuxt@npm:10.32.1"
   dependencies:
     "@nuxt/kit": "npm:^3.13.2"
-    "@sentry/browser": "npm:10.32.0"
-    "@sentry/cloudflare": "npm:10.32.0"
-    "@sentry/core": "npm:10.32.0"
-    "@sentry/node": "npm:10.32.0"
+    "@sentry/browser": "npm:10.32.1"
+    "@sentry/cloudflare": "npm:10.32.1"
+    "@sentry/core": "npm:10.32.1"
+    "@sentry/node": "npm:10.32.1"
     "@sentry/rollup-plugin": "npm:^4.6.1"
     "@sentry/vite-plugin": "npm:^4.6.1"
-    "@sentry/vue": "npm:10.32.0"
+    "@sentry/vue": "npm:10.32.1"
   peerDependencies:
     nuxt: ">=3.7.0 || 4.x"
-  checksum: 10c0/7d2948c30e5bc8101f95bc666c6d469119d80abe7abdec91671ba3760a2f6746f2b62c89f83cca8bb54da8ef02cd38739b68c2752d9fd4a74d7f5d7c27799ad0
+  checksum: 10c0/7c00be99cdb32691a0c04d7b375a0c42bb14ad55236c616fd4a7277f2b2477b4141b10de92645b87a3f445866810b9a57b864b7fd94a3ee171ba2b049b5a74ac
   languageName: node
   linkType: hard
 
-"@sentry/opentelemetry@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/opentelemetry@npm:10.32.0"
+"@sentry/opentelemetry@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/opentelemetry@npm:10.32.1"
   dependencies:
-    "@sentry/core": "npm:10.32.0"
+    "@sentry/core": "npm:10.32.1"
   peerDependencies:
     "@opentelemetry/api": ^1.9.0
     "@opentelemetry/context-async-hooks": ^1.30.1 || ^2.1.0 || ^2.2.0
     "@opentelemetry/core": ^1.30.1 || ^2.1.0 || ^2.2.0
     "@opentelemetry/sdk-trace-base": ^1.30.1 || ^2.1.0 || ^2.2.0
     "@opentelemetry/semantic-conventions": ^1.37.0
-  checksum: 10c0/339c8980e324424cb294048cb0e32ce9bf47a8144a0e095ee0894b7fe3636494adabdd057b6b522e87b154b8f0a5b6e7facedc1bf9680b2dd84eb800b4f43d65
+  checksum: 10c0/48bffb7a519528a1dc3d06682e58c95cc00ffb5c3a0b816ba8e1556bab6c2930db446a08ca72ba7cae452ca84daecb38eebe0f557d49e759cd639cf9ef68ab07
   languageName: node
   linkType: hard
 
@@ -5320,12 +5320,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/vue@npm:10.32.0":
-  version: 10.32.0
-  resolution: "@sentry/vue@npm:10.32.0"
+"@sentry/vue@npm:10.32.1":
+  version: 10.32.1
+  resolution: "@sentry/vue@npm:10.32.1"
   dependencies:
-    "@sentry/browser": "npm:10.32.0"
-    "@sentry/core": "npm:10.32.0"
+    "@sentry/browser": "npm:10.32.1"
+    "@sentry/core": "npm:10.32.1"
   peerDependencies:
     "@tanstack/vue-router": ^1.64.0
     pinia: 2.x || 3.x
@@ -5335,7 +5335,7 @@ __metadata:
       optional: true
     pinia:
       optional: true
-  checksum: 10c0/1a31bf38197b370393d840ab85c4c995e150a63c68d2c4dcedc7f457efae89ad044b01b377a59337748406134227adc19a127dcd0aa86bdcb1d4c3f458355666
+  checksum: 10c0/9749b965ecb89ebf366f45dc6dbfa3a18c4322e8672debce7fcbf811ea7195db3665b69d07da13492996e9162a3c4d9e2c6705da01c69dcdacc4c2a808e1d6c3
   languageName: node
   linkType: hard
 
@@ -13200,15 +13200,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:^13.1.1":
-  version: 13.1.1
-  resolution: "ol-mapbox-style@npm:13.1.1"
+"ol-mapbox-style@npm:^13.2.0":
+  version: 13.2.0
+  resolution: "ol-mapbox-style@npm:13.2.0"
   dependencies:
     "@maplibre/maplibre-gl-style-spec": "npm:^23.1.0"
     mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/f47003cf718edf162e2287a8671e26b2870d314359b1747053834214848f6362583ce42c073c96b690728c2ab51986e9b48baffb41937733857affdbfe3931ee
+  checksum: 10c0/b36ba1d45edb5c9f886a9698ad7050d80b556fa97f93b3f2326196779838d701f879bfc06bf956d1d2847411c7a4cf3ca0184ce8325c9de27026b3c10e422a04
   languageName: node
   linkType: hard
 
@@ -15163,163 +15163,163 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass-embedded-all-unknown@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-all-unknown@npm:1.97.0"
+"sass-embedded-all-unknown@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-all-unknown@npm:1.97.1"
   dependencies:
-    sass: "npm:1.97.0"
+    sass: "npm:1.97.1"
   conditions: (!cpu=arm | !cpu=arm64 | !cpu=riscv64 | !cpu=x64)
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-android-arm64@npm:1.97.0"
+"sass-embedded-android-arm64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-android-arm64@npm:1.97.1"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-arm@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-android-arm@npm:1.97.0"
+"sass-embedded-android-arm@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-android-arm@npm:1.97.1"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-android-riscv64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-android-riscv64@npm:1.97.0"
+"sass-embedded-android-riscv64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-android-riscv64@npm:1.97.1"
   conditions: os=android & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-android-x64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-android-x64@npm:1.97.0"
+"sass-embedded-android-x64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-android-x64@npm:1.97.1"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-arm64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-darwin-arm64@npm:1.97.0"
+"sass-embedded-darwin-arm64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-darwin-arm64@npm:1.97.1"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-darwin-x64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-darwin-x64@npm:1.97.0"
+"sass-embedded-darwin-x64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-darwin-x64@npm:1.97.1"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-arm64@npm:1.97.0"
+"sass-embedded-linux-arm64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-arm64@npm:1.97.1"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-arm@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-arm@npm:1.97.0"
+"sass-embedded-linux-arm@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-arm@npm:1.97.1"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-musl-arm64@npm:1.97.0"
+"sass-embedded-linux-musl-arm64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-musl-arm64@npm:1.97.1"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-arm@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-musl-arm@npm:1.97.0"
+"sass-embedded-linux-musl-arm@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-musl-arm@npm:1.97.1"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-riscv64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-musl-riscv64@npm:1.97.0"
+"sass-embedded-linux-musl-riscv64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-musl-riscv64@npm:1.97.1"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-musl-x64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-musl-x64@npm:1.97.0"
+"sass-embedded-linux-musl-x64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-musl-x64@npm:1.97.1"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-riscv64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-riscv64@npm:1.97.0"
+"sass-embedded-linux-riscv64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-riscv64@npm:1.97.1"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"sass-embedded-linux-x64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-linux-x64@npm:1.97.0"
+"sass-embedded-linux-x64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-linux-x64@npm:1.97.1"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded-unknown-all@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-unknown-all@npm:1.97.0"
+"sass-embedded-unknown-all@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-unknown-all@npm:1.97.1"
   dependencies:
-    sass: "npm:1.97.0"
+    sass: "npm:1.97.1"
   conditions: (!os=android | !os=darwin | !os=linux | !os=win32)
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-arm64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-win32-arm64@npm:1.97.0"
+"sass-embedded-win32-arm64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-win32-arm64@npm:1.97.1"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"sass-embedded-win32-x64@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded-win32-x64@npm:1.97.0"
+"sass-embedded-win32-x64@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded-win32-x64@npm:1.97.1"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"sass-embedded@npm:^1.97.0":
-  version: 1.97.0
-  resolution: "sass-embedded@npm:1.97.0"
+"sass-embedded@npm:^1.97.1":
+  version: 1.97.1
+  resolution: "sass-embedded@npm:1.97.1"
   dependencies:
     "@bufbuild/protobuf": "npm:^2.5.0"
     buffer-builder: "npm:^0.2.0"
     colorjs.io: "npm:^0.5.0"
     immutable: "npm:^5.0.2"
     rxjs: "npm:^7.4.0"
-    sass-embedded-all-unknown: "npm:1.97.0"
-    sass-embedded-android-arm: "npm:1.97.0"
-    sass-embedded-android-arm64: "npm:1.97.0"
-    sass-embedded-android-riscv64: "npm:1.97.0"
-    sass-embedded-android-x64: "npm:1.97.0"
-    sass-embedded-darwin-arm64: "npm:1.97.0"
-    sass-embedded-darwin-x64: "npm:1.97.0"
-    sass-embedded-linux-arm: "npm:1.97.0"
-    sass-embedded-linux-arm64: "npm:1.97.0"
-    sass-embedded-linux-musl-arm: "npm:1.97.0"
-    sass-embedded-linux-musl-arm64: "npm:1.97.0"
-    sass-embedded-linux-musl-riscv64: "npm:1.97.0"
-    sass-embedded-linux-musl-x64: "npm:1.97.0"
-    sass-embedded-linux-riscv64: "npm:1.97.0"
-    sass-embedded-linux-x64: "npm:1.97.0"
-    sass-embedded-unknown-all: "npm:1.97.0"
-    sass-embedded-win32-arm64: "npm:1.97.0"
-    sass-embedded-win32-x64: "npm:1.97.0"
+    sass-embedded-all-unknown: "npm:1.97.1"
+    sass-embedded-android-arm: "npm:1.97.1"
+    sass-embedded-android-arm64: "npm:1.97.1"
+    sass-embedded-android-riscv64: "npm:1.97.1"
+    sass-embedded-android-x64: "npm:1.97.1"
+    sass-embedded-darwin-arm64: "npm:1.97.1"
+    sass-embedded-darwin-x64: "npm:1.97.1"
+    sass-embedded-linux-arm: "npm:1.97.1"
+    sass-embedded-linux-arm64: "npm:1.97.1"
+    sass-embedded-linux-musl-arm: "npm:1.97.1"
+    sass-embedded-linux-musl-arm64: "npm:1.97.1"
+    sass-embedded-linux-musl-riscv64: "npm:1.97.1"
+    sass-embedded-linux-musl-x64: "npm:1.97.1"
+    sass-embedded-linux-riscv64: "npm:1.97.1"
+    sass-embedded-linux-x64: "npm:1.97.1"
+    sass-embedded-unknown-all: "npm:1.97.1"
+    sass-embedded-win32-arm64: "npm:1.97.1"
+    sass-embedded-win32-x64: "npm:1.97.1"
     supports-color: "npm:^8.1.1"
     sync-child-process: "npm:^1.0.2"
     varint: "npm:^6.0.0"
@@ -15362,13 +15362,13 @@ __metadata:
       optional: true
   bin:
     sass: dist/bin/sass.js
-  checksum: 10c0/dda7e0ac8195c0f0a8f49467770ebaf0f4837650a921f32c519ff0cccf86fdcd904be8e41e083e7c859abfcd7df89ba96fc982a266a166070d6315e66c9b0f06
+  checksum: 10c0/1d6e90d1a98a379dcae764c93cf8840eba23b526829bc8e6d54bd4e3c4cca8eba55aad15c78bb3723fead54a73dec199b73cde7715f7e9b2aede31fd1825770a
   languageName: node
   linkType: hard
 
-"sass@npm:1.97.0":
-  version: 1.97.0
-  resolution: "sass@npm:1.97.0"
+"sass@npm:1.97.1":
+  version: 1.97.1
+  resolution: "sass@npm:1.97.1"
   dependencies:
     "@parcel/watcher": "npm:^2.4.1"
     chokidar: "npm:^4.0.0"
@@ -15379,7 +15379,7 @@ __metadata:
       optional: true
   bin:
     sass: sass.js
-  checksum: 10c0/4c0e2596131054089beeeb6e98f7318beb909c4775187690656cbb85a45153d04eecd970e6a4431fe47dc94f9749cf8d58c9c5e59055d2cae39f4887a4bb6104
+  checksum: 10c0/c389d5d6405869b49fa2291e8328500fe7936f3b72136bc2c338bee6e7fec936bb9a48d77a1310dea66aa4669ba74ae6b82a112eb32521b9b36d740138a39ea0
   languageName: node
   linkType: hard
 
@@ -17583,7 +17583,7 @@ __metadata:
     "@prisma/adapter-mariadb": "npm:^7.2.0"
     "@prisma/client": "npm:^7.2.0"
     "@protomaps/basemaps": "npm:^5.7.0"
-    "@sentry/nuxt": "npm:^10.32.0"
+    "@sentry/nuxt": "npm:^10.32.1"
     "@stylistic/eslint-plugin": "npm:^5.6.1"
     "@stylistic/stylelint-plugin": "npm:^4.0.0"
     "@turf/bearing": "npm:^7.3.1"
@@ -17629,13 +17629,13 @@ __metadata:
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.2.2"
     ol: "npm:^10.7.0"
-    ol-mapbox-style: "npm:^13.1.1"
+    ol-mapbox-style: "npm:^13.2.0"
     pinia: "npm:^3.0.4"
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.0"
     prisma: "npm:^7.2.0"
     rou3: "npm:^0.7.12"
-    sass-embedded: "npm:^1.97.0"
+    sass-embedded: "npm:^1.97.1"
     sharp: "npm:^0.34.5"
     sqlite3: "npm:^5.1.7"
     srvx: "npm:^0.9.8"
