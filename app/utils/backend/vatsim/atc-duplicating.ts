@@ -57,10 +57,10 @@ export const duplicatingSettings = [
             JRV: 'RIC_APP',
         },
     },
-     /**
-     * @description ZLA/SCT/L30 Area/TRACON
-     * @author 845421
-     */
+    /**
+    * @description ZLA/SCT/L30 Area/TRACON
+    * @author 845421
+    */
     {
         regex: /^(SCT|LAX|BUR|ONT|SNA|PSP|SAN|LAS|ZLA)(_\w{0,3})?_(APP|DEP|CTR|TMU)$/,
         mapping: {
