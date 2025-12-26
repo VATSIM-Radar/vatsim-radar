@@ -110,7 +110,7 @@ export async function findAtcAirport(atc: VatsimShortenedController): Promise<Va
 
     store.updateATCTracons = true;
     await new Promise(resolve => watch(dataStore.vatsim.parsedAirports, resolve, { once: true }));
-    const airport = dataStore.vatsim.parsedAirports.value.find(x => x.arrAtc.some(x => x.callsign === atc.callsign));
+    const airport = dataStore.vatsim.parsedAirports.value.find(x => x.arrAtc.some((x: { callsign: string }) => x.callsign === atc.callsign));
     store.updateATCTracons = false;
     if (airport) return airport.airport;
 
@@ -132,7 +132,11 @@ export async function showAirportOnMap(airport: VatSpyData['airports'][0], map: 
     const view = map?.getView();
     if (!airport) return;
 
-    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => {
+        const d = (x as StoreOverlayPilot).data;
+        d.tracked = false;
+        d.trackedMode = 'none';
+    });
     await nextTick();
 
     zoom = zoom ?? store.mapSettings.defaultAirportZoomLevel ?? 14;

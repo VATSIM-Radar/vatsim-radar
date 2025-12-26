@@ -58,11 +58,11 @@
         <template #action-track>
             <div
                 title="Track aircraft"
-                @click="props.overlay.data.tracked = !props.overlay.data.tracked"
+                @click="cycleOverlayTrackMode(props.overlay)"
             >
                 <track-icon
                     class="pilot__track"
-                    :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
+                    :class="{ 'pilot__track--tracked': (props.overlay?.data.trackedMode && props.overlay.data.trackedMode !== 'none') || props.overlay?.data.tracked }"
                     width="16"
                 />
             </div>
@@ -178,12 +178,12 @@
             <common-button-group>
                 <common-button
                     :disabled="store.config.hideAllExternal"
-                    @click="overlay.data.tracked = !overlay.data.tracked"
+                    @click="cycleOverlayTrackMode(overlay)"
                 >
                     <template #icon>
                         <track-icon
                             class="pilot__track pilot__track--in-action"
-                            :class="{ 'pilot__track--tracked': props.overlay?.data.tracked }"
+                            :class="{ 'pilot__track--tracked': (overlay?.data.trackedMode && overlay.data.trackedMode !== 'none') || overlay?.data.tracked }"
                         />
                     </template>
                     Track
@@ -286,6 +286,14 @@ const mapStore = useMapStore();
 const config = useRuntimeConfig();
 const vatGlassesActive = isVatGlassesActive;
 
+function cycleOverlayTrackMode(overlay: StoreOverlayPilot) {
+    if (!overlay || !overlay.data) return;
+    const cur = overlay.data.trackedMode ?? (overlay.data.tracked ? 'position' : 'none');
+    const next = cur === 'none' ? 'position' : cur === 'position' ? 'heading' : 'none';
+    overlay.data.trackedMode = next as any;
+    overlay.data.tracked = next !== 'none';
+}
+
 const pilot = computed(() => props.overlay.data.pilot);
 const textCoords = computed(() => dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.longitude.toString() + dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.latitude);
 const airportInfo = computed(() => {
@@ -313,6 +321,7 @@ const viewRoute = () => {
     ]);
 
     props.overlay.data.tracked = false;
+    props.overlay.data.trackedMode = 'none';
 
     const view = map.value?.getView();
 
@@ -584,7 +593,9 @@ watch(() => props.overlay.data.tracked, val => {
     focusOnAircraft();
     if (val) {
         mapStore.overlays.filter(x => x.type === 'pilot' && x.data.tracked && x.key !== pilot.value.cid.toString()).forEach(x => {
-            (x as StoreOverlayPilot).data.tracked = false;
+            const d = (x as StoreOverlayPilot).data;
+            d.tracked = false;
+            d.trackedMode = 'none';
         });
     }
 }, {
@@ -593,6 +604,7 @@ watch(() => props.overlay.data.tracked, val => {
 
 function handlePointerDrag() {
     props.overlay.data.tracked = false;
+    props.overlay.data.trackedMode = 'none';
 }
 
 onMounted(() => {

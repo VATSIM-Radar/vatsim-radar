@@ -71,6 +71,18 @@
                 <rotate-clockwise/>
             </template>
         </common-button>
+        <common-button
+            v-if="showFollowControl"
+            class="controls_item"
+            size="S"
+            :title="followTitle"
+            :type="mapStore.followMode === 'none' ? 'secondary-flat' : 'primary'"
+            @click="cycleFollowMode"
+        >
+            <template #icon>
+                <location-icon/>
+            </template>
+        </common-button>
     </div>
 </template>
 
@@ -87,12 +99,15 @@ import { toDegrees, toRadians } from 'ol/math';
 import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useStore } from '~/store';
+import { ownFlight } from '~/composables/pilots';
+import LocationIcon from '@/assets/icons/kit/location.svg?component';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const store = useStore();
 const mapStore = useMapStore();
 const view = computed(() => map.value?.getView());
 const isMobile = useIsMobile();
+const showFollowControl = computed(() => !!store.user && !!ownFlight.value);
 
 const setZoom = (increase: boolean) => {
     if (!view.value || view.value.getAnimating()) return;
@@ -132,6 +147,43 @@ const setRotate = (increase: boolean | 'reset') => {
         duration: 300,
     });
 };
+
+const modes: ('none' | 'position' | 'heading')[] = ['none', 'position', 'heading'];
+
+const followTitle = computed(() => {
+    const mode = mapStore.followMode ?? 'none';
+    if (mode === 'none') return 'Follow: off';
+    if (mode === 'position') return 'Follow position (no rotation)';
+    return 'Follow position + heading (rotate)';
+});
+
+async function cycleFollowMode() {
+    const cur = mapStore.followMode ?? 'none';
+    const idx = modes.indexOf(cur);
+    const next = modes[(idx + 1) % modes.length];
+    mapStore.followMode = next;
+
+    if (next !== 'none') {
+        const of = ownFlight.value;
+        if (of && of.cid) {
+            const cid = String(of.cid);
+            const existing = mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid) as StoreOverlayPilot | undefined;
+            if (existing && existing.data) {
+                existing.data.trackedMode = next;
+            }
+        }
+    }
+    else {
+        const of = ownFlight.value;
+        if (of && of.cid) {
+            const cid = String(of.cid);
+            const existing = mapStore.overlays.find(x => x.type === 'pilot' && x.key === cid) as StoreOverlayPilot | undefined;
+            if (existing && existing.data) {
+                existing.data.trackedMode = 'none';
+            }
+        }
+    }
+}
 </script>
 
 <style scoped lang="scss">
