@@ -747,7 +747,7 @@ onMounted(async () => {
                     airport: props.airport.icao,
                 });
 
-                if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline' || key === 'deicingarea') {
+                if (key === 'taxiwayintersectionmarking' || key === 'taxiwayguidanceline' || key === 'deicingarea' || key === 'finalapproachandtakeoffarea') {
                     labelSource.value?.addFeature(feature);
                     labelFeatures.push(feature);
                 }

@@ -399,6 +399,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     }),
                     rotateWithView: true,
                 }),
+                zIndex: 2,
             });
         },
 
