@@ -57,4 +57,20 @@ export const duplicatingSettings = [
             JRV: 'RIC_APP',
         },
     },
+    /**
+     * @description ZHU TRACONs
+     * @author 1010912
+     */
+    {
+        regex: /^HOU_\d{2}_CTR$/,
+        mapping: {
+            BTR: 'BTR_APP',
+            CRP: 'CRP_APP',
+            MSY: 'MSY_APP',
+            LCH: 'LCH_APP',
+            LFT: 'LFT_APP',
+            GPT: 'GPT_APP',
+            MOB: 'MOB_APP',
+        },
+    },    
 ] satisfies DuplicatingSetting[];
