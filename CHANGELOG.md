@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.4-2-rc.2]
+
+- (QA) Added TWR title to Tower TRACON approaches, unless they have an ID different from airport's ICAO. Also label has a different stroke now
+- Added missing helipads to Navigraph Data
+- Fixed "infinite" Navigraph Data popup once and for all
+
 # [1.2.4-2-rc.1]
 
 - Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project

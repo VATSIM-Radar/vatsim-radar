@@ -287,6 +287,12 @@ const isAppOnlyBooking = (atc: VatsimShortenedController | VatsimShortenedContro
     return atc.every(x => x && x.facility === facilities.APP && x.booking) && !isVatGlassesActive.value;
 };
 
+const isTWROnly = (atc: VatsimShortenedController | VatsimShortenedController[]) => {
+    if (!Array.isArray(atc)) atc = [atc];
+
+    return atc.every(x => x && x.isTWR);
+};
+
 const isDuplicatedOnly = (atc: VatsimShortenedController | VatsimShortenedController[]) => {
     if (!Array.isArray(atc)) atc = [atc];
 
@@ -401,11 +407,15 @@ function setBorderFeatureStyle(feature: Feature) {
 }
 
 function setLabelFeatureStyle(feature: Feature) {
+    const isTWR = isTWROnly(feature.getProperties().controllers);
+
     const style = [
         new Style({
             text: new Text({
                 font: 'bold 10px Montserrat',
-                text: feature.getProperties()?._traconId || airportName.value,
+                text: isTWR
+                    ? (!feature.getProperties()?._traconId || feature.getProperties()?._traconId === airportName.value) ? 'TWR' : feature.getProperties()?._traconId
+                    : feature.getProperties()?._traconId || airportName.value,
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
@@ -416,6 +426,8 @@ function setLabelFeatureStyle(feature: Feature) {
                 }),
                 backgroundStroke: new Stroke({
                     width: 2,
+                    lineDash: isTWR ? [4, 8] : undefined,
+                    lineJoin: 'round',
                     color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
                 }),
                 padding: [3, 1, 2, 3],

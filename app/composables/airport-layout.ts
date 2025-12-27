@@ -138,7 +138,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             return new Style({
                 fill: apronElementDefaultStyle.getFill()!,
-                zIndex: apronElementDefaultStyle.getZIndex(),
+                zIndex: 2,
                 text: new Text({
                     text: feature.getProperties().idapron,
                     font: '10px Montserrat',

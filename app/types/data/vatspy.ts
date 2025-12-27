@@ -30,6 +30,7 @@ export interface VatSpyData {
         isPseudo: boolean;
         isIata?: boolean;
         isSimAware?: boolean;
+        isTWR?: boolean;
     }[];
     keyAirports: {
         icao: VatSpyKeyAirport;
