@@ -116,6 +116,13 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         zIndex: 2,
     });
 
+    const apronElementDefaultStyle = new Style({
+        fill: new Fill({
+            color: `rgba(${ themeStyles.apron850[theme] }, 1)`,
+        }),
+        zIndex: -1,
+    });
+
     return {
         parkingstandarea: new Style({
             fill: new Fill({
@@ -126,12 +133,23 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             }),
             zIndex: 2,
         }),
-        apronelement: new Style({
-            fill: new Fill({
-                color: `rgba(${ themeStyles.apron850[theme] }, 1)`,
-            }),
-            zIndex: -1,
-        }),
+        apronelement: feature => {
+            if (!feature.getProperties().idapron) return apronElementDefaultStyle;
+
+            return new Style({
+                fill: apronElementDefaultStyle.getFill()!,
+                zIndex: 2,
+                text: new Text({
+                    text: feature.getProperties().idapron,
+                    font: '10px Montserrat',
+                    placement: 'point',
+                    fill: new Fill({
+                        color: `rgba(${ themeStyles.taxiwayWhiteText[theme] }, 0.6)`,
+                    }),
+                    padding: [4, 4, 4, 4],
+                }),
+            });
+        },
         frequencyarea: new Style({
             fill: new Fill({
                 color: `rgba(${ themeStyles.apron875[theme] }, 1)`,
@@ -140,7 +158,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         }),
         arrestinggearlocation: new Style({
             stroke: new Stroke({
-                color: `rgba(${ getCurrentThemeRgbColor('info500').join(',') }, 1)`,
+                color: `rgba(${ themeStyles.taxiway[theme] }, 1)`,
             }),
         }),
         constructionarea: new Style({
@@ -152,7 +170,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         deicingarea: feature => {
             const options: StyleOptions = {
                 fill: new Fill({
-                    color: `rgba(${ themeStyles.deicing[theme] }, 0.3)`,
+                    color: `rgba(${ themeStyles.deicing[theme] }, 0.1)`,
                 }),
                 zIndex: 3,
             };
@@ -252,7 +270,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                             color: `rgba(${ textColor }, 0.6)`,
                         }),
                         textBaseline: 'middle',
-                        padding: [25, 25, 25, 25],
+                        padding: [14, 14, 14, 14],
                     }),
                     zIndex: 4,
                 }));
@@ -337,12 +355,6 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 }),
                 rotation: toRadians(feature.getProperties().brngtrue),
                 rotateWithView: true,
-                backgroundFill: new Fill({
-                    color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,
-                }),
-                backgroundStroke: new Stroke({
-                    color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.15)`,
-                }),
                 padding: [2, 0, 2, 2],
             }),
             zIndex: 6,
@@ -356,6 +368,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             fill: new Fill({
                 color: themeStyles.runwayMarking[theme],
             }),
+            zIndex: 1,
         }),
         runwayshoulder: new Style({
             fill: new Fill({
@@ -386,6 +399,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     }),
                     rotateWithView: true,
                 }),
+                zIndex: 2,
             });
         },
 

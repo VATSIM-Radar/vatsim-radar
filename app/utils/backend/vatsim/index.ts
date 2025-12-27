@@ -8,6 +8,7 @@ import type { IVatsimTransceiver } from '~/types/data/vatsim';
 import { handleH3Error } from '~/utils/backend/h3';
 import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import { getVATSIMIdentHeaders } from '~/utils/backend';
+import type { PartialRecord } from '~/types';
 
 export function getVatsimRedirectUri() {
     return `${ useRuntimeConfig().public.DOMAIN }/api/auth/vatsim`;
@@ -80,31 +81,33 @@ export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: s
     const callsignAirport = splittedName[0];
     const secondName = splittedName[1];
 
-    let prefix: string | undefined;
-    let simaware = isApp && simawareData?.features.find(x => {
-        const suffix = getTraconSuffix(x);
-        prefix = getTraconPrefixes(x).find(x => x === regularName);
-        return !!prefix && (!suffix || callsign.endsWith(suffix));
-    });
+    const foundAirports: PartialRecord<'surely' | 'partial' | 'maybe', SimAwareData['features'][0]> = {};
 
-    if (isApp && !simaware && secondName) {
-        for (let i = 0; i < secondName.length; i++) {
-            simaware = simawareData?.features.find(x => {
-                const suffix = getTraconSuffix(x);
-                prefix = getTraconPrefixes(x).find(x => x === regularName.substring(0, regularName.length - 1 - i));
-                return !!prefix && (!suffix || callsign.endsWith(suffix));
-            });
-            if (simaware) break;
+    for (const feature of simawareData?.features ?? []) {
+        const suffix = getTraconSuffix(feature);
+        if (!isApp && !suffix) continue;
+        if (suffix && !callsign.endsWith(suffix)) continue;
+        const prefixes = getTraconPrefixes(feature);
+
+        if (!foundAirports.surely && prefixes.some(x => x === regularName)) {
+            foundAirports.surely = feature;
+            break;
         }
 
-        if (!simaware) {
-            simaware = simawareData?.features.find(x => {
-                const suffix = getTraconSuffix(x);
-                prefix = getTraconPrefixes(x).find(x => x === callsignAirport);
-                return !!prefix && (!suffix || callsign.endsWith(suffix));
-            });
+        if (!foundAirports.partial && secondName) {
+            for (let i = 0; i < secondName.length; i++) {
+                const prefix = prefixes.some(x => x === regularName.substring(0, regularName.length - 1 - i));
+                if (prefix) {
+                    foundAirports.partial = feature;
+                    break;
+                }
+            }
         }
+
+        if (!foundAirports.maybe && prefixes.some(x => x === callsignAirport)) foundAirports.maybe = feature;
     }
+
+    const simaware = foundAirports.surely ?? foundAirports.partial ?? foundAirports.maybe;
 
     let vatspy = vatspyData?.keyAirports.realIata[callsignAirport] || vatspyData?.keyAirports.iata[callsignAirport];
     const icao = vatspyData?.keyAirports.realIcao[callsignAirport] || vatspyData?.keyAirports.icao[callsignAirport];
@@ -118,6 +121,7 @@ export function findAirportSomewhere({ callsign, vatspy: vatspyData, simaware: s
         vatspy = {
             ...vatspy,
             isSimAware: true,
+            isTWR: !isApp,
         };
     }
     else if (vatspy && isIata && icao && icao.iata !== vatspy.iata) {
@@ -169,15 +173,15 @@ export async function getVatsimAirportInfo(icao: string): Promise<VatsimAirportI
 }
 
 export function getTransceiverData(callsign: string, fullFrequency?: boolean): IVatsimTransceiver {
-    const transceiver = radarStorage.vatsim.transceivers.find(x => x.callsign === callsign);
+    const transceiver = radarStorage.vatsim.transceivers[callsign];
 
-    if (!transceiver || transceiver?.transceivers.length === 0) {
+    if (!transceiver || transceiver?.length === 0) {
         return {
             frequencies: [],
         };
     }
 
-    const frequencies = transceiver.transceivers.map(x => {
+    const frequencies = transceiver.map(x => {
         let frequency = parseFloat((x.frequency / 1000000).toFixed(3)).toString();
 
         if (!frequency.includes('.')) {
@@ -195,8 +199,8 @@ export function getTransceiverData(callsign: string, fullFrequency?: boolean): I
 
     return {
         frequencies: [...new Set(frequencies)],
-        groundAlt: transceiver.transceivers[0].heightAglM,
-        seaAlt: transceiver.transceivers[0].heightMslM,
+        groundAlt: transceiver[0].heightAglM,
+        seaAlt: transceiver[0].heightMslM,
     };
 }
 

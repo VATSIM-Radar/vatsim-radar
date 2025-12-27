@@ -110,6 +110,13 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
             };
         }
 
+        const isSimAware = 'isSimAware' in airport ? !!airport.isSimAware : (!('icao' in airport) || !!airport.isSimAware);
+
+        if (isSimAware && atc.facility !== facilities.APP) {
+            atc.isTWR = atc.facility === facilities.TWR;
+            atc.facility = facilities.APP;
+        }
+
         return {
             atc: {
                 ...atc,
@@ -119,7 +126,7 @@ export const getLocalATC = (): VatSpyDataLocalATC[] => {
                 icao: 'icao' in airport ? airport.icao : airport.properties!.id,
                 iata: 'icao' in airport ? airport.iata : undefined,
                 isPseudo: !('icao' in airport),
-                isSimAware: 'isSimAware' in airport ? !!airport.isSimAware : (!('icao' in airport) || !!airport.isSimAware),
+                isSimAware,
             },
             isATIS: atc.callsign.endsWith('ATIS'),
         };

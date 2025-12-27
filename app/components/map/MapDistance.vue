@@ -276,7 +276,7 @@ function handleMapClick(e: MapBrowserEvent<any>) {
 watch(map, val => {
     if (!val || layer) return;
     layer = new VectorLayer({
-        zIndex: 6,
+        zIndex: 7,
         source: distanceSource,
         style: function(val) {
             const geometry = val.getGeometry();

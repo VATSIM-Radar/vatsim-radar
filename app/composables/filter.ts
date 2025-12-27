@@ -202,7 +202,7 @@ export function hasActiveATCFilter() {
     if (!store.activeFilter.users?.atc?.value?.length &&
         !store.activeFilter.users?.lists?.length &&
         !store.activeFilter.users?.cids?.length &&
-        (!Object.values(store.activeFilter.atc ?? {}).some(x => x.length))
+        (!Object.values(store.activeFilter.atc ?? {}).some(x => Array.isArray(x) ? x.length : x))
     ) return false;
 
     return true;
@@ -212,6 +212,7 @@ function filterController(atc: VatsimShortenedController): boolean {
     const store = useStore();
 
     if (!filterUser(atc)) return false;
+    if (store.activeFilter.atc?.notTunedUp && (atc.frequencies?.some(x => x === atc.frequency) || atc.isATIS)) return false;
     if (store.activeFilter.atc?.ratings?.length && !store.activeFilter.atc.ratings.some(x => atc.rating === x)) return false;
     if (store.activeFilter.atc?.facilities?.length && !store.activeFilter.atc.facilities.some(x => atc.facility === x || (atc.isATIS && x === -1))) return false;
 

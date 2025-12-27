@@ -96,6 +96,8 @@ export interface VatsimController {
     booking?: VatsimBookingAtc;
     isBooking?: boolean;
     duplicated?: boolean;
+    frequencies?: string[];
+    isTWR?: boolean;
 }
 
 export interface VatsimATIS extends VatsimController {
@@ -302,16 +304,18 @@ export type VatsimMemberStats = Record<
     number
 >;
 
+export interface VatsimTransceiverFrequency {
+    id: number;
+    frequency: number;
+    latDeg: number;
+    lonDeg: number;
+    heightMslM: number;
+    heightAglM: number;
+}
+
 export interface VatsimTransceiver {
     callsign: string;
-    transceivers: {
-        id: number;
-        frequency: number;
-        latDeg: number;
-        lonDeg: number;
-        heightMslM: number;
-        heightAglM: number;
-    }[];
+    transceivers: VatsimTransceiverFrequency[];
 }
 
 export interface IVatsimTransceiver {

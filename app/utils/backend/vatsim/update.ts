@@ -360,10 +360,12 @@ export async function updateTransceivers() {
     if (transceiversInProgress) return;
     try {
         transceiversInProgress = true;
-        radarStorage.vatsim.transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
+        const transceivers = await $fetch<VatsimTransceiver[]>('https://data.vatsim.net/v3/transceivers-data.json', {
             timeout: 1000 * 30,
             headers: getVATSIMIdentHeaders(),
         });
+
+        radarStorage.vatsim.transceivers = Object.fromEntries(transceivers.map(x => [x.callsign, x.transceivers]));
     }
     catch (e) {
         console.error(e);

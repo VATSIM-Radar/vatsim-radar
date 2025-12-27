@@ -11,12 +11,7 @@
         :tabs="{
             info: {
                 title: 'Info',
-                sections: [{ key: 'data' }, { key: 'atis' }],
-            },
-            pilots: {
-                title: 'Pilots',
-                sections: [{ key: 'pilots' }],
-                disabled: true,
+                sections: getSections,
             },
         }"
         @update:modelValue="!$event ? mapStore.overlays = mapStore.overlays.filter(x => x.id !== overlay.id) : undefined"
@@ -87,6 +82,24 @@
                     :controller="atc"
                     full
                 />
+            </div>
+        </template>
+        <template #frequencies>
+            <common-notification
+                cookie-name="atc-frequencies"
+                type="info"
+            >
+                Those are frequencies this ATC is listening to - you should only contact this ATC on primary frequency, unless instructed otherwise (highlighted with blue)
+            </common-notification>
+            <div class="atc__frequencies">
+                <div
+                    v-for="frequency in atc.frequencies?.filter((x, index) => !atc?.frequencies?.some((y, yIndex) => x === y && yIndex < index))"
+                    :key="frequency"
+                    class="atc__frequencies_item"
+                    :class="{ 'atc__frequencies_item--primary': atc.frequency === frequency }"
+                >
+                    {{frequency}}
+                </div>
             </div>
         </template>
         <template #atis>
@@ -189,6 +202,7 @@ import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import type { InfoPopupSection } from '~/components/common/popup/CommonInfoPopup.vue';
 import { getVATSIMMemberStats } from '~/composables/data';
 import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
@@ -196,6 +210,7 @@ import CommonFavoriteList from '~/components/common/vatsim/CommonFavoriteList.vu
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import { useStore } from '~/store';
 import type { VatSpyAirport } from '~/types/data/vatspy';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 const props = defineProps({
     overlay: {
@@ -220,6 +235,14 @@ const atc = computed(() => {
 
 const pilots = computed(() => {
     return dataStore.vatsim.data.pilots.value.filter(x => x.frequencies.some(x => atc.value?.frequency.startsWith(x))).sort((a, b) => a.callsign.localeCompare(b.callsign));
+});
+
+const getSections = computed<InfoPopupSection[]>(() => {
+    const sections: InfoPopupSection[] = [{ key: 'data' }, { key: 'atis' }];
+
+    if (atc.value?.frequencies?.length) sections.splice(1, 0, { key: 'frequencies', title: 'Frequencies' });
+
+    return sections;
 });
 
 const airport = shallowRef<null | VatSpyAirport>(null);
@@ -307,6 +330,26 @@ const { data: stats } = useLazyAsyncData(`stats-atc-${ atc.value?.cid ?? Math.ra
         font-weight: 600;
         color: $error500;
         text-align: center;
+    }
+
+    &__frequencies {
+        user-select: text;
+
+        display: flex;
+        gap: 4px;
+
+        font-size: 12px;
+        font-weight: 600;
+
+
+        &_item {
+            order: 2;
+
+            &--primary {
+                order: 1;
+                color: $primary500;
+            }
+        }
     }
 }
 </style>

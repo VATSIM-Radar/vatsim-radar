@@ -60,6 +60,12 @@
                 >
                     <template v-if="!isCopied(controller.callsign)  && !controller.booking">
                         {{ item }}
+                        <div
+                            v-if="!controller.isATIS && !controller.frequencies?.some(x => x === controller.frequency)"
+                            class="atc__frequency_error"
+                        >
+                            Not tuned up!
+                        </div>
 
                         <save-icon width="12"/>
                     </template>
@@ -265,6 +271,12 @@ const isCopied = (key: string) => {
         gap: 4px;
         align-items: center;
         color: $primary400;
+
+        &_error {
+            font-size: 10px;
+            font-weight: normal;
+            color: $error300;
+        }
     }
 
     &__time {

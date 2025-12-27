@@ -33,6 +33,7 @@ export interface IUserFilter {
         routes: string[];
     }>;
     atc: Partial<{
+        notTunedUp: boolean;
         ratings: number[];
         facilities: number[];
     }>;
@@ -118,8 +119,9 @@ const initValidators = async (lists: UserTrackingList[] = []): Promise<Record<ke
         },
         atc: val => {
             if (!isObject(val)) return false;
-            if (!validateRandomObjectKeys(val, ['ratings', 'facilities'])) return false;
+            if (!validateRandomObjectKeys(val, ['ratings', 'facilities', 'notTunedUp'])) return false;
 
+            if ('notTunedUp' in val && typeof val.notTunedUp !== 'boolean') return false;
             if ('ratings' in val && (!Array.isArray(val.ratings) || val.ratings.length > MAX_FILTER_ARRAY_VALUE || !val.ratings.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
             if ('facilities' in val && (!Array.isArray(val.facilities) || val.facilities.length > MAX_FILTER_ARRAY_VALUE || !val.facilities.every(x => isNumber(x) && x < 1000 && x > 0))) return false;
 

@@ -20,6 +20,7 @@ import { prisma } from '~/utils/backend/prisma';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import { duplicatingSettings } from '../vatsim/atc-duplicating';
+import { getTransceiverData } from '~/utils/backend/vatsim';
 
 initWebsocket();
 initInfluxDB();
@@ -181,6 +182,35 @@ defineCronJob('* * * * * *', async () => {
 
         const updateTimestamp = new Date(radarStorage.vatsim.data.general.update_timestamp).getTime();
         radarStorage.vatsim.data.general.update_timestamp = new Date().toISOString();
+
+        /* radarStorage.vatsim.data!.pilots.push({
+            callsign: 'test',
+            cid: 1,
+            heading: 203,
+            groundspeed: 140,
+            altitude: 0,
+            frequencies: [],
+            last_updated: "",
+            logon_time: "2025-12-27T18:35:44.876Z",
+            military_rating: 0,
+            name: "Test",
+            pilot_rating: 0,
+            qnh_i_hg: 0,
+            qnh_mb: 0,
+            server: "",
+            transponder: "",
+            flight_plan: {
+                aircraft: 'B742/H-SDFHIRWXY/L',
+                aircraft_faa: 'H/B742/Z',
+                aircraft_short: 'B742',
+                departure: 'PHNL',
+                arrival: 'NSFA',
+                altitude: '31000',
+                route: 'OPIHI3 CARRP DCT DATBE/N0449F400 G347 PUPIS A592 SAMVU SAMVU2B',
+            },
+            longitude: -160.23102,
+            latitude: 17.56167
+        })*/
 
         radarStorage.vatsim.data!.pilots.forEach(pilot => {
             const newerData = radarStorage.vatsim.kafka.pilots[pilot.callsign];
@@ -375,6 +405,8 @@ defineCronJob('* * * * * *', async () => {
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
+
+            controller.frequencies = getTransceiverData(controller.callsign, true).frequencies;
 
             const controllerSplit = controller.callsign.split('_');
             if (controllerSplit.length <= 1) continue;

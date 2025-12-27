@@ -315,6 +315,8 @@ onMounted(() => {
         };
 
         triggerRef(dataStore.navigraphWaypoints);
+        await nextTick();
+        console.log(dataStore.navigraphWaypoints);
     };
 });
 
