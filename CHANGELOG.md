@@ -1,24 +1,25 @@
 # Changelog
 
-# [1.2.4-2-rc.2]
+# [1.2.4-2-final]
 
-- (QA) Added TWR title to Tower TRACON approaches, unless they have an ID different from airport's ICAO. Also label has a different stroke now
-- Added missing helipads to Navigraph Data
-- Fixed "infinite" Navigraph Data popup once and for all
+This release is focused on a small bug fixes and improvements, including Navigraph Layouts.
 
-# [1.2.4-2-rc.1]
-
-- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project
-- Fixed pilot encoding being incorrect in some places
-- Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
 - Fixed runway markings for Navigraph Layouts
+- Added missing helipads to Navigraph Layouts
 - Added apron names for Navigraph Layouts
 - Deicing pads are now less bright in Navigraph Layouts
+- Fixed an issue when distance flown was bigger than intended, leading to [funny bugs](https://github.com/VATSIM-Radar/vatsim-radar/issues/1309) in edge cases
+- Distance tool layer will now have priority over route line
+- Fixed "infinite" Navigraph Data updating once and for all
+- Added missing support for _TWR sectors showing their sector, if defined on SimAware TRACON project (new sectors are not accepted until further notice, but existing will be supported now)
+- Fixed pilot encoding being incorrect in some places by 1849614
+- Airport will now always be visible in case overlay is opened, even if no ATC/traffic is present here
 - Fixed deicing pads overlapping with taxiway labels
 - Min zoom to view labels for Navigraph Labels has been changed from 15 to 14.5
-- For debug purposes, added ATC frequencies into ATC popup
+- For debug/atc purposes, added ATC frequencies into ATC popup
 - Removed tabs from ATC popup
 - Now showing an error "Not tuned up!" in controller info in case controller doesn't listen to primary frequency
+- Add SCT/ZLA to ATC Duplicating
 
 # [1.2.4-1-final]
 

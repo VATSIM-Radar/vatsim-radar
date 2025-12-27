@@ -136,6 +136,8 @@ async function update() {
                 if (!foundWaypoint && calculatedArrival.stepclimbs.length) calculatedArrival.stepclimbs = calculatedArrival.stepclimbs.filter(x => x.waypoint !== waypoint);
             }
 
+            let lastAppliedDepDistance = 0;
+
             function applyAircraftDistance(coord1: Coordinate, coord2: Coordinate) {
                 const distance = calculateDistanceInNauticalMiles(coord1, coord2);
 
@@ -145,7 +147,10 @@ async function update() {
                 }
                 else {
                     calculatedArrival.depDist += distance;
+                    lastAppliedDepDistance = distance;
                 }
+
+                return distance;
             }
 
             const waypointForCid = dataStore.navigraphWaypoints.value[cid.toString()];
@@ -153,7 +158,11 @@ async function update() {
             const onFirstWaypoint = (newCoordinate: Coordinate, kind: string) => {
                 if (firstWaypoint) return;
 
-                applyAircraftDistance(coordinate, newCoordinate);
+                const appliedDistance = applyAircraftDistance(coordinate, newCoordinate);
+
+                if (lastAppliedDepDistance) {
+                    calculatedArrival.depDist -= appliedDistance;
+                }
 
                 if (pilot.groundspeed >= 50) {
                     addFeature(callsign, () => ({
