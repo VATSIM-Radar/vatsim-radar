@@ -57,4 +57,29 @@ export const duplicatingSettings = [
             JRV: 'RIC_APP',
         },
     },
+    /**
+    * @description ZLA/SCT/L30 Area/TRACON
+    * @author 845421
+    */
+    {
+        regex: /^(SCT|LAX|BUR|ONT|SNA|PSP|SAN|LAS|ZLA)(_\w{0,3})?_(APP|DEP|CTR|TMU)$/,
+        mapping: {
+            'Area 1': 'BUR_APP',
+            'Area 2': 'LAX_APP',
+            'Area 3': 'ONT_APP',
+            'Area 4': 'SNA_APP',
+            'Area 5': 'SAN_APP',
+            'Area 6': 'LAX_DEP',
+            Springs: 'PSP_APP',
+            'SCT TRACON': 'SCT_APP',
+            'L30 TRACON': 'LAS_APP',
+            'BFL TRACON': 'BFL_APP',
+            'SBA TRACON': 'SBA_APP',
+            'NYL CERAP': 'NYL_APP',
+            'NTD RAPCON': 'NTD_APP',
+            'LSV RAPCON': 'LSV_APP',
+            JCF: 'JCF_APP',
+            'Sport Control': 'EDW_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
