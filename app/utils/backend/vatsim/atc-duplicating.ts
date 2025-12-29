@@ -82,4 +82,15 @@ export const duplicatingSettings = [
             'Sport Control': 'EDW_APP',
         },
     },
+    /**
+    * @description LECB Area
+    * @author 1558357
+    */
+    {
+        regex: /^LECB_RW\d?_CTR$/,
+        mapping: {
+            'BCN': 'LEBL_APP',
+            'LEIB': 'LEIB_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
