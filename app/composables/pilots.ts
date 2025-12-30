@@ -425,8 +425,8 @@ export const useShowPilotStats = () => {
 
     const cookie = useCookie<boolean>('show-pilot-stats', {
         sameSite: 'none',
+        path: '/',
         secure: true,
-        watch: false,
     });
 
     store.showPilotStats = cookie.value ?? false;
