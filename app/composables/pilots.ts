@@ -427,6 +427,7 @@ export const useShowPilotStats = () => {
         sameSite: 'none',
         path: '/',
         secure: true,
+        default: () => false,
     });
 
     store.showPilotStats = cookie.value ?? false;
