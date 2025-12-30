@@ -12,7 +12,7 @@ import type { IDBNavigraphProcedures } from '~/utils/client-db';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
-import {StorageSerializers } from '@vueuse/core';
+import { StorageSerializers } from '@vueuse/core';
 import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
 import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
@@ -173,15 +173,15 @@ export interface EnroutePath {
     setBy: DataStoreNavigraphProceduresAirport['setBy'];
 }
 
-export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, {serializer: StorageSerializers.object});
+export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, { serializer: StorageSerializers.object });
 
 // @ts-expect-error Checking for an invalid local storage
-if(typeof window !== 'undefined' && enroutePath.value === '[object Object]') enroutePath.value = null;
+if (typeof window !== 'undefined' && enroutePath.value === '[object Object]') enroutePath.value = null;
 
 export const enrouteAircraftPath = useStorageLocal<Record<string, {
     departure: EnroutePath;
     arrival: EnroutePath;
-}> | null>('enroute-aircraft-path', {}, undefined, {serializer: StorageSerializers.object});
+}> | null>('enroute-aircraft-path', {}, undefined, { serializer: StorageSerializers.object });
 
 export function getPreciseCoord(input: string): [Coordinate, string] | null {
     const latMatch = input.match(latRegex);
