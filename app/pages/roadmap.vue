@@ -324,6 +324,10 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
+                title: 'Day/Night line',
+                status: 'completed',
+            },
+            {
                 title: 'NOTAMs grouping',
                 status: 'completed',
             },
@@ -364,7 +368,6 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             'PIPEPs',
             'Stream Deck integration',
-            'Day/Night line',
             'Map settings market',
             'Google Play app',
             'ATC/Booking notification for active flight',
