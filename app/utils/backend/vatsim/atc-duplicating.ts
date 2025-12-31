@@ -89,35 +89,40 @@ export const duplicatingSettings = [
     {
         regex: /^(NY)(_\w{0,3})?_(CTR)$/,
         mapping: {
-            'N90': 'NY_APP',
-            'EWR': 'EWR_APP',
-            'LGA': 'LGA_APP',
-            'JFK': 'JFK_APP',
-            'ISP': 'ISP_APP',
-            'CSK': 'SWF_APP',
-            'LIB': 'NY_LW_DEP',
-            'PHL': 'PHL_N_APP',
-            'ABE': 'ABE_APP',
-            'AVP': 'AVP_S_APP',
-            'BDA': 'BDA_CTR',
-            'BGM': 'BGM_L_APP',
-            'ELM': 'ELM_S_APP',
-            'MDT': 'MDT_APP',
-            'WRI': 'WRI_APP',            
+            N90: 'NY_APP',
+            EWR: 'EWR_APP',
+            LGA: 'LGA_APP',
+            JFK: 'JFK_APP',
+            ISP: 'ISP_APP',
+            CSK: 'SWF_APP',
+            LIB: 'NY_LW_DEP',
+            PHL: 'PHL_N_APP',
+            ABE: 'ABE_APP',
+            AVP: 'AVP_S_APP',
+            BDA: 'BDA_CTR',
+            BGM: 'BGM_L_APP',
+            ELM: 'ELM_S_APP',
+            MDT: 'MDT_APP',
+            WRI: 'WRI_APP',
         },
     },
+    /**
+     * @description ZNY/N90 Center and TRACONs
+     * @author 1590802 and 1084329
+     */
     {
         regex: /^(NY|EWR|LGA|JFK)(_\w{0,3})?_(APP|DEP)$/,
         mapping: {
-            'N90': 'NY_APP',
-            'EWR': 'EWR_APP',
-            'LGA': 'LGA_APP',
-            'JFK': 'JFK_APP',
-            'ISP': 'ISP_APP',
-            'CSK': 'SWF_APP',
-            'LIB': 'NY_LW_DEP',
+            N90: 'NY_APP',
+            EWR: 'EWR_APP',
+            LGA: 'LGA_APP',
+            JFK: 'JFK_APP',
+            ISP: 'ISP_APP',
+            CSK: 'SWF_APP',
+            LIB: 'NY_LW_DEP',
         },
     },
+    /**
     * @description LECB Area
     * @author 1558357
     */
