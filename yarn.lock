@@ -5890,6 +5890,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/ol-ext@npm:@siedlerchr/types-ol-ext@latest":
+  version: 3.6.5
+  resolution: "@siedlerchr/types-ol-ext@npm:3.6.5"
+  peerDependencies:
+    jspdf: ^3.0.2
+  checksum: 10c0/ad340cf64745173e7e92818d6a1ca8ccb4678947d5a32b2365eca516497e6ea9802d4638bfb77b3ae71f7f721e5dd5fecbbbdd81ff3ca08ba314e1968756759a
+  languageName: node
+  linkType: hard
+
 "@types/parse-path@npm:^7.0.0":
   version: 7.0.3
   resolution: "@types/parse-path@npm:7.0.3"
@@ -13231,6 +13240,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ol-ext@npm:^4.0.37":
+  version: 4.0.37
+  resolution: "ol-ext@npm:4.0.37"
+  peerDependencies:
+    ol: ">= 5.3.0"
+  checksum: 10c0/7329085e7661de905bb49a0d8104cd10db92ab896af6615826cb38443bb48c1f91e06f5fa3b00f3e47dfeb98eecea1c9226596975e26fb9911c391ccc86c27fe
+  languageName: node
+  linkType: hard
+
 "ol-mapbox-style@npm:^13.2.0":
   version: 13.2.0
   resolution: "ol-mapbox-style@npm:13.2.0"
@@ -17643,6 +17661,7 @@ __metadata:
     "@types/jsonwebtoken": "npm:^9.0.10"
     "@types/merge-ranges": "npm:^1.0.2"
     "@types/node": "npm:^25.0.3"
+    "@types/ol-ext": "npm:@siedlerchr/types-ol-ext@latest"
     "@types/ws": "npm:^8.18.1"
     "@vite-pwa/nuxt": "npm:^1.1.0"
     "@vueuse/core": "npm:^14.1.0"
@@ -17669,6 +17688,7 @@ __metadata:
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.2.2"
     ol: "npm:^10.7.0"
+    ol-ext: "npm:^4.0.37"
     ol-mapbox-style: "npm:^13.2.0"
     pinia: "npm:^3.0.4"
     postcss: "npm:^8.5.6"

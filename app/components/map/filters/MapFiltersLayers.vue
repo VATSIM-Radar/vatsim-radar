@@ -96,13 +96,25 @@
                 </template>
             </map-filter-columns>
 
-            <common-toggle
-                :disabled="!radarIsDefault"
-                :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
-                @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
-            >
-                Show labels
-            </common-toggle>
+            <map-filter-columns>
+                <template #col1>
+                    <common-toggle
+                        :disabled="!radarIsDefault"
+                        :model-value="store.localSettings.filters?.layers?.layerLabels ?? true"
+                        @update:modelValue="setUserLocalSettings({ filters: { layers: { layerLabels: $event } } })"
+                    >
+                        Show labels
+                    </common-toggle>
+                </template>
+                <template #col2>
+                    <common-toggle
+                        :model-value="!!store.localSettings.filters?.layers?.terminator"
+                        @update:modelValue="setUserLocalSettings({ filters: { layers: { terminator: $event } } })"
+                    >
+                        Day/Night line
+                    </common-toggle>
+                </template>
+            </map-filter-columns>
 
             <common-notification
                 cookie-name="layers-tutorial"
