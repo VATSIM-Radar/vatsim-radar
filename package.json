@@ -1,6 +1,6 @@
 {
   "name": "vatsim-radar",
-  "version": "1.2.4-2-final",
+  "version": "1.2.4-3-rc.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -75,7 +75,7 @@
     "rou3": "^0.7.12",
     "sharp": "^0.34.5",
     "sqlite3": "^5.1.7",
-    "srvx": "^0.9.8",
+    "srvx": "^0.10.0",
     "svgo": "^4.0.0",
     "ua-parser-js": "2.0.7",
     "vite-plugin-pwa": "^1.2.0",
@@ -111,7 +111,7 @@
     "stylelint-config-recommended-scss": "^16.0.2",
     "stylelint-config-recommended-vue": "^1.6.1",
     "stylelint-config-standard": "^39.0.1",
-    "stylelint-order": "^7.0.0",
+    "stylelint-order": "^7.0.1",
     "tsx": "4.16.2",
     "typescript": "5.9.3",
     "vite-plugin-eslint2": "^5.0.4",

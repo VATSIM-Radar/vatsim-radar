@@ -115,7 +115,17 @@ export const duplicatingSettings = [
             'JFK': 'JFK_APP',
             'ISP': 'ISP_APP',
             'CSK': 'SWF_APP',
-            'LIB': 'NY_LW_DEP',       
+            'LIB': 'NY_LW_DEP',
+        },
+    },
+    * @description LECB Area
+    * @author 1558357
+    */
+    {
+        regex: /^LECB_RW\d?_CTR$/,
+        mapping: {
+            BCN: 'LEBL_APP',
+            LEIB: 'LEIB_APP',
         },
     },
 ] satisfies DuplicatingSetting[];

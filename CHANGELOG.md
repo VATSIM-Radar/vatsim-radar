@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.4-3-rc.1]
+
+- Fixed map crash after airports procedures have been opened, but nothing was selected
+- Fixed "show pilot stats" toggle not being saved
+
 # [1.2.4-2-final]
 
 This release is focused on a small bug fixes and improvements, including Navigraph Layouts.
