@@ -89,8 +89,8 @@ export const duplicatingSettings = [
     {
         regex: /^LECB_RW\d?_CTR$/,
         mapping: {
-            'BCN': 'LEBL_APP',
-            'LEIB': 'LEIB_APP',
+            BCN: 'LEBL_APP',
+            LEIB: 'LEIB_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
