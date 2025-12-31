@@ -61,7 +61,7 @@
                     <template v-if="!isCopied(controller.callsign)  && !controller.booking">
                         {{ item }}
                         <div
-                            v-if="!controller.isATIS && !controller.frequencies?.some(x => x === controller.frequency)"
+                            v-if="!controller.isATIS && !controller.frequencies?.some(x => x === controller.frequency || x[1] === '.')"
                             class="atc__frequency_error"
                         >
                             Not tuned up!
