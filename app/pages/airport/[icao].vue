@@ -506,6 +506,7 @@ const mapMode = useCookie<MapMode | null>('dashboard-map-mode', {
     secure: true,
     watch: false,
     default: () => null,
+    path: '/',
 });
 
 const controllerMode = useCookie<boolean>('controller-mode', {
@@ -513,6 +514,7 @@ const controllerMode = useCookie<boolean>('controller-mode', {
     secure: true,
     watch: false,
     default: () => false,
+    path: '/',
 });
 
 const isMobileOrTablet = useIsMobileOrTablet();
@@ -626,6 +628,7 @@ const arrivalTracks = useCookie<boolean>('controller-arrival-tracks', {
     secure: true,
     default: () => false,
     watch: false,
+    path: '/',
 });
 
 const showPilotStats = useShowPilotStats();

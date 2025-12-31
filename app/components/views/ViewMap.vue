@@ -93,6 +93,10 @@
             </div>
             <client-only v-if="ready">
                 <map-layer :key="(store.theme ?? 'default')"/>
+                <map-terminator
+                    v-if="store.localSettings.filters?.layers?.terminator"
+                    :key="(store.theme ?? 'default') + 'terminator'"
+                />
                 <map-sigmets v-if="store.localSettings.filters?.layers?.sigmets?.enabled"/>
                 <map-filters v-if="!store.config.hideHeader"/>
             </client-only>
@@ -297,6 +301,7 @@ import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
+import MapTerminator from '~/components/map/MapTerminator.vue';
 
 defineProps({
     mode: {

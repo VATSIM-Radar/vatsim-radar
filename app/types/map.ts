@@ -97,6 +97,8 @@ interface IUserLocalSettings {
             layerLabels?: boolean;
             layerVector?: boolean;
             relativeIndicator?: boolean | Units;
+            terminator?: boolean;
+            terminatorDayNightLine?: boolean;
             sigmets?: {
                 enabled?: boolean;
                 activeDate?: string;

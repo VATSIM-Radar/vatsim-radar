@@ -8,6 +8,14 @@ outline: [2, 3]
 [[toc]]
 :::
 
+# 1.2.4.3
+
+- Fixed map crash after airports procedures have been opened, but nothing was selected
+- Fixed "show pilot stats" toggle not being saved
+- Add day/night layer (terminator) to "Map layers" settings. More customization options will be available later
+- Add LECB Area mapping to ATC duplication settings by 1558357
+- Add ZNY and N90 to ATC Duplication by 1590802
+
 ## 1.2.4.2
 
 This release is focused on a small bug fixes and improvements, including Navigraph Layouts.
