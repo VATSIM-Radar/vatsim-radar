@@ -350,8 +350,20 @@ const handleUserTrack = () => {
     }
 
     const overlay = myOverlay.value;
-    if (!overlay) mapStore.addPilotOverlay(ownFlight.value!.cid, true);
-    else overlay.data.tracked = !overlay.data.tracked;
+    if (!overlay) {
+        mapStore.addPilotOverlay(ownFlight.value!.cid, true).then(o => {
+            if (o) {
+                (o as StoreOverlayPilot).data.trackedMode = 'position';
+                (o as StoreOverlayPilot).data.tracked = true;
+            }
+        }).catch(() => {});
+    }
+    else {
+        const cur = overlay.data.trackedMode ?? (overlay.data.tracked ? 'position' : 'none');
+        const next = cur === 'none' ? 'position' : cur === 'position' ? 'heading' : 'none';
+        overlay.data.trackedMode = next as any;
+        overlay.data.tracked = next !== 'none';
+    }
 };
 
 const importPreset = async () => {
