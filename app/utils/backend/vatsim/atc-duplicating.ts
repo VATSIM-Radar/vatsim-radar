@@ -133,4 +133,26 @@ export const duplicatingSettings = [
             LEIB: 'LEIB_APP',
         },
     },
+    /**
+    * @description ZHU Center and TRACONs
+    * @author 1010912
+    */
+    {
+        regex: /^HOU_\d{2}_CTR$/,
+        mapping: {
+            I90: 'I90_D_APP',
+            AUS: 'AUS_W_APP',
+            BTR: 'BTR_W_APP',
+            CRP: 'CRP_N_APP',
+            GPT: 'GPT_W_APP',
+            LCH: 'LCH_E_APP',
+            LFT: 'LFT_W_APP',
+            MOB: 'MOB_W_APP',
+            MSY: 'MSY_W_APP',
+            SAT: 'SAT_N_APP',
+            DLF: 'DLF_E_APP',
+            NQI: 'NQI_APP',
+            POE: 'POE_APP',
+        },
+    },    
 ] satisfies DuplicatingSetting[];
