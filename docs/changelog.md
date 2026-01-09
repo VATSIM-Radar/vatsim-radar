@@ -15,6 +15,7 @@ outline: [2, 3]
 - Add day/night layer (terminator) to "Map layers" settings. More customization options will be available later
 - Add LECB Area mapping to ATC duplication settings by 1558357
 - Add ZNY and N90 to ATC Duplication by 1590802
+- Fixed "Not tuned up" message on NAT controllers. A proper solution will be implemented later
 
 ## 1.2.4.2
 
