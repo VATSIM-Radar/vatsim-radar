@@ -198,6 +198,7 @@ export interface VatsimStorage {
     regularData: VatsimShortenedData | null;
     mandatoryData: VatsimMandatoryData | null;
     extendedPilots: VatsimExtendedPilot[];
+    extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
     firs: VatSpyDataFeature[];
     locals: VatSpyDataLocalATC[];
     airports: MapAirport[];
@@ -240,7 +241,6 @@ export interface RadarStorage {
     navigraphSetUp: boolean;
     patreonInfo: PatreonInfo | null;
     airlines: RadarDataAirlinesAllList;
-    extendedPilotsMap: { [key: string]: VatsimExtendedPilot };
 }
 
 export const radarStorage: RadarStorage = {
@@ -275,6 +275,7 @@ export const radarStorage: RadarStorage = {
         regularData: null,
         mandatoryData: null,
         extendedPilots: [],
+        extendedPilotsMap: {},
         firs: [],
         locals: [],
         airports: [],
@@ -298,7 +299,6 @@ export const radarStorage: RadarStorage = {
         virtual: {},
         all: {},
     },
-    extendedPilotsMap: {},
 };
 
 export function isDataReady(): boolean {
