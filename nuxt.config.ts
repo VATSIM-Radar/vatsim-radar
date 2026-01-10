@@ -51,6 +51,13 @@ export default defineNuxtConfig({
             ],
         },
     },
+    build: {
+        transpile: process.env.NODE_ENV === 'development'
+            ? []
+            : [
+                'ol',
+            ],
+    },
     alias: {
         '#prisma': resolve(_dirname, '.nuxt/prisma/client'),
     },
