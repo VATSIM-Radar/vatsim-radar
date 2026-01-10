@@ -464,6 +464,7 @@ import type { UserFilter } from '~/utils/backend/handlers/filters';
 import { sendUserPreset } from '~/composables/fetchers';
 import equal from 'deep-equal';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 const tab = ref('filter');

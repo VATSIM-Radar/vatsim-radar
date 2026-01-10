@@ -328,6 +328,7 @@ import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 import { XMLParser } from 'fast-xml-parser';
 import { MAX_LISTS_USERS } from '~/utils/shared';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const props = defineProps({
     list: {

@@ -82,6 +82,7 @@ import { useMapStore } from '~/store/map';
 import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import { getATCTime } from '~/composables/atc';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

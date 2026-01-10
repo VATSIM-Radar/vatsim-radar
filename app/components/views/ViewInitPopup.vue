@@ -56,6 +56,7 @@ import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 

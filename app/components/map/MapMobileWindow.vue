@@ -108,6 +108,7 @@ import { useStore } from '~/store';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
+import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

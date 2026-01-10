@@ -292,6 +292,7 @@ import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.
 import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

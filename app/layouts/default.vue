@@ -180,6 +180,7 @@ import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 defineSlots<{ default: () => any }>();
 

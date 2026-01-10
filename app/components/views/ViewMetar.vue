@@ -163,6 +163,7 @@ import StarIcon from '@/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

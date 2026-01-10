@@ -302,6 +302,16 @@ import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import MapTerminator from '~/components/map/MapTerminator.vue';
+import MapScale from '~/components/map/MapScale.vue';
+import MapLayer from '~/components/map/MapLayer.vue';
+import MapSigmets from '~/components/map/MapSigmets.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import MapFilters from '~/components/map/filters/MapFilters.vue';
+import MapWeather from '~/components/map/MapWeather.vue';
+import MapAirportsList from '~/components/map/airports/MapAirportsList.vue';
+import MapDistance from '~/components/map/MapDistance.vue';
+import MapControls from '~/components/map/MapControls.vue';
+import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
 
 defineProps({
     mode: {

@@ -73,6 +73,8 @@ import { Fill, Stroke, Style, Text } from 'ol/style';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import MapOverlay from '~/components/map/MapOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 

@@ -292,6 +292,7 @@ import CommonBubble from '~/components/common/basic/CommonBubble.vue';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import MapPopupFooterBooking from '~/components/map/MapFooterBooking.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 const dataStore = useDataStore();

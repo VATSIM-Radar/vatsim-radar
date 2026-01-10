@@ -20,7 +20,6 @@
             />
         </template>
 
-
         <map-overlay
             v-model="vatglassesPopupIsShown"
             class="vatglasses-overlay"
@@ -101,6 +100,8 @@ import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleC
 import type { VatsimBooking } from '~/types/data/vatsim';
 import { useMapStore } from '~/store/map';
 import { MultiPolygon } from 'ol/geom';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import MapOverlay from '~/components/map/MapOverlay.vue';
 
 let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);

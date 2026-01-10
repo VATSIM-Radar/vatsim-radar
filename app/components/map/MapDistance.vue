@@ -42,6 +42,7 @@ import {
     createGeodesicGeometry,
 } from '~/utils/map/distance';
 import type { HeadingPair } from '~/utils/map/distance';
+import MapOverlay from '~/components/map/MapOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();

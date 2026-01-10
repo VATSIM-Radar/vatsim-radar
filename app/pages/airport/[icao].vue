@@ -348,6 +348,7 @@ import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import CommonButton from '~/components/common/basic/CommonButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const route = useRoute();
 const router = useRouter();

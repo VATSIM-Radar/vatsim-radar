@@ -86,6 +86,7 @@
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
 import { showUpdatePopup, updatePopupActive } from '~/composables';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 interface UpdateFeature {
     title: string;

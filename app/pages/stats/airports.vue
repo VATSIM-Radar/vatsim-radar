@@ -72,6 +72,7 @@ import { provideAirport } from '~/composables/airport';
 import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/views/airport/AirportControllers.vue';
 import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

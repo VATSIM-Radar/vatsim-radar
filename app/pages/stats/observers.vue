@@ -85,6 +85,7 @@ import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
 import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
 import { getPilotStatus } from '~/composables/pilots';
 import { getATCTime } from '~/composables/atc';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

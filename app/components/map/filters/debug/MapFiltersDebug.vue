@@ -206,6 +206,9 @@ import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import MapFiltersDebugClear from '~/components/map/filters/debug/MapFiltersDebugClear.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import MapFiltersDebugUpload from '~/components/map/filters/debug/MapFiltersDebugUpload.vue';
 
 const files = reactive({
     vatspy: {

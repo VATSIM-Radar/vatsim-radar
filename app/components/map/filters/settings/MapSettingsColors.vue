@@ -198,6 +198,7 @@ import type { PartialRecord } from '~/types';
 import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { backupMapSettings } from '~/composables/settings';
 import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();
 

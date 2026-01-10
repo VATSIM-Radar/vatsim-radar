@@ -50,6 +50,8 @@ import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { useMapStore } from '~/store/map';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import MapOverlay from '~/components/map/MapOverlay.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

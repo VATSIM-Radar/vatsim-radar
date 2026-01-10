@@ -279,6 +279,7 @@ import { useStore } from '~/store';
 import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import equal from 'deep-equal';
 import { VueDraggable } from 'vue-draggable-plus';
+import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const props = defineProps({
     presets: {

@@ -225,6 +225,8 @@ import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
 import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
 import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
 import type { VatsimNattrakClient } from '~/types/data/vatsim';
+import MapOverlay from '~/components/map/MapOverlay.vue';
+import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;
