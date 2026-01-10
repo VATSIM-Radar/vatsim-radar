@@ -4,7 +4,7 @@ import type { InfluxGeojson } from '~/utils/backend/influx/converters';
 import { radarStorage } from '~/utils/backend/storage';
 import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
 
-export default defineEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
+export default cachedEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
     if (!process.env.INFLUX_URL) return;
 
     try {
@@ -65,4 +65,7 @@ export default defineEventHandler(async (event): Promise<InfluxGeojson | null | 
 
         console.error(e);
     }
+}, {
+    maxAge: 15,
+    staleMaxAge: 30,
 });
