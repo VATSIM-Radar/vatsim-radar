@@ -45,16 +45,23 @@ export const duplicatingSettings = [
         },
     },
     /**
-     * @description ZDC PCT
+     * @description ZDC Center and PCT
      * @author 1652726
      */
     {
         regex: /^(PCT|IAD|DCA|BWI|RIC|DC)(_\w{0,3})?_(APP|DEP|CTR)$/,
         mapping: {
+            PCT: 'PCT_APP',
             SHD: 'IAD_APP',
             CHP: 'BWI_APP',
             MTV: 'DCA_APP',
             JRV: 'RIC_APP',
+            ORF: 'ORF_APP',
+            RDU: 'RDU_APP',
+            ROA: 'ROA_APP',
+            ACY: 'ACY_APP',
+            ILM: 'ILM_APP',
+            FAY: 'FAY_APP',
         },
     },
     /**

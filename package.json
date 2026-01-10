@@ -6,7 +6,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
-    "dev:debug": "node --inspect=0.0.0.0:9229 node_modules/.bin/nuxt dev",
+    "dev:debug": "node --enable-source-maps --inspect=0.0.0.0:9229 node_modules/nuxt/bin/nuxt.mjs dev",
     "start:next": "docker pull ghcr.io/vatsim-radar/vatsim-radar/next-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml up",
     "start:prod": "docker pull ghcr.io/vatsim-radar/vatsim-radar/production-prebuilt:latest && docker compose -f docker-compose.prebuilt.yml -f docker-compose.prebuilt-prod.yml up",
     "prepare": "nuxt prepare",
