@@ -277,7 +277,7 @@ export async function updateVatsimExtendedPilots() {
         if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
             extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
             extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
-            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+            const oldPilot = radarStorage.vatsim.extendedPilotsMap[extendedPilot.cid];
             const arrival = extendedPilot.flight_plan?.arrival;
             const oldFlightPlan = oldPilot?.flight_plan;
 
@@ -332,7 +332,7 @@ export async function updateVatsimExtendedPilots() {
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 
-    radarStorage.extendedPilotsMap = updatePilots;
+    radarStorage.vatsim.extendedPilotsMap = updatePilots;
 }
 
 const xmlParser = new XMLParser({

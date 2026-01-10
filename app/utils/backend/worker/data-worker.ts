@@ -741,6 +741,7 @@ defineCronJob('* * * * * *', async () => {
                 regularData: radarStorage.vatsim.regularData,
                 mandatoryData: radarStorage.vatsim.mandatoryData,
                 extendedPilots: radarStorage.vatsim.extendedPilots,
+                extendedPilotsMap: radarStorage.vatsim.extendedPilotsMap,
                 firs: radarStorage.vatsim.firs,
                 locals: radarStorage.vatsim.locals,
                 airports: radarStorage.vatsim.airports,
