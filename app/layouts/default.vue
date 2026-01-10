@@ -171,12 +171,12 @@ import { checkAndSetMapPreset } from '~/composables/presets';
 import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
 
 import type { ThemesList } from '~/utils/backend/styles';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
 import * as Sentry from '@sentry/nuxt';
-import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
+import CommonCheckbox from '~/components/ui/inputs/CommonCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';

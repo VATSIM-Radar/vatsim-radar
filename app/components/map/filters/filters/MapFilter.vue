@@ -441,24 +441,24 @@
 </template>
 
 <script setup lang="ts">
-import CommonTabs from '~/components/common/basic/CommonTabs.vue';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonTabs from '~/components/ui/data/CommonTabs.vue';
+import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
 import MapFilterBox from '~/components/map/filters/filters/MapFilterBox.vue';
 import { useStore } from '~/store';
 import { klona } from 'klona/json';
 import { backupUserFilter, setUserActiveFilter, setUserFilter } from '~/composables/fetchers/filters';
 import type { SelectItem } from '~/types/components/select';
 import type { RadarDataAirline } from '~/utils/backend/storage';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import CommonNotification from '~/components/ui/data/CommonNotification.vue';
 import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonRadioGroup from '~/components/ui/inputs/CommonRadioGroup.vue';
+import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
+import CommonSelect from '~/components/ui/inputs/CommonSelect.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
-import CommonColor from '~/components/common/basic/CommonColor.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonColor from '~/components/ui/inputs/CommonColor.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
 import { MAX_FILTERS, parseFilterAltitude } from '~/utils/shared';
-import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonButtonGroup from '~/components/ui/buttons/CommonButtonGroup.vue';
 import MapFiltersPresets from '~/components/map/filters/MapFiltersPresets.vue';
 import type { UserFilter } from '~/utils/backend/handlers/filters';
 import { sendUserPreset } from '~/composables/fetchers';

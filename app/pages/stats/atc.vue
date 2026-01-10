@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
+import CommonTable from '~/components/ui/data/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import { useMapStore } from '~/store/map';
 import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';

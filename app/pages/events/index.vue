@@ -34,7 +34,7 @@ import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import CommonEventCard from '~/components/common/vatsim/CommonEventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
 import { useStore } from '~/store';
 
 const { data, refresh } = await useAsyncData('events', async () => {

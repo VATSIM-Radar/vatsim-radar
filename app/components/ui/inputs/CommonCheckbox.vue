@@ -14,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import CheckIcon from '@/assets/icons/kit/check.svg?component';
+import CheckIcon from '~/assets/icons/kit/check.svg?component';
 
 defineProps({
     revert: {

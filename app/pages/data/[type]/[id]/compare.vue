@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import CommonRadioGroup from '~/components/ui/inputs/CommonRadioGroup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import type { ShallowRef } from 'vue';
 import { Feature } from 'ol';
@@ -70,7 +70,7 @@ import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
 import type { ColorsList } from '~/utils/backend/styles';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
 import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';

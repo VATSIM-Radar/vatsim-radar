@@ -189,15 +189,15 @@
 </template>
 
 <script setup lang="ts">
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonColor from '~/components/common/basic/CommonColor.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonColor from '~/components/ui/inputs/CommonColor.vue';
 import { useStore } from '~/store';
 import { aircraftSvgColors } from '~/composables/pilots';
 import type { MapAircraftStatus } from '~/composables/pilots';
 import type { PartialRecord } from '~/types';
-import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
 import { backupMapSettings } from '~/composables/settings';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonSelect from '~/components/ui/inputs/CommonSelect.vue';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 
 const store = useStore();

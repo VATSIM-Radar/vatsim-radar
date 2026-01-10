@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts" setup>
-import CommonContainer from '~/components/common/basic/CommonContainer.vue';
+import CommonContainer from '~/components/ui/CommonContainer.vue';
 
 defineProps({
     container: {

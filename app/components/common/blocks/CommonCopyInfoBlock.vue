@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { useCopyText } from '~/composables';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
 
 const props = defineProps({
     text: {

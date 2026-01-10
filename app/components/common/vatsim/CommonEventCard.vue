@@ -40,7 +40,7 @@
 <script setup lang="ts">
 import type { VatsimEvent } from '~/types/data/vatsim';
 import CommonEventDetails from '~/components/common/vatsim/CommonEventDetails.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
 import { useStore } from '~/store';
 
 const props = defineProps({

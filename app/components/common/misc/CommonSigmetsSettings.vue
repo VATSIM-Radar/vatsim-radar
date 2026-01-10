@@ -42,7 +42,7 @@
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import type { SigmetType } from '~/types/map';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
 import MapFilterTransparency from '~/components/map/filters/MapFilterTransparency.vue';
 
 const store = useStore();

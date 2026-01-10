@@ -158,10 +158,10 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonButton from '~/components/ui/buttons/CommonButton.vue';
 import StarIcon from '@/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '@/assets/icons/kit/star-filled.svg?component';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 

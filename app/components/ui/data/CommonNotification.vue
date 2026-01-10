@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import CloseIcon from '@/assets/icons/basic/close.svg?component';
+import CloseIcon from '~/assets/icons/basic/close.svg?component';
 
 defineProps({
     cookieName: {

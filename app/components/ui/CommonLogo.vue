@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import LogoIcon from '@/assets/icons/basic/logo.svg?component';
+import LogoIcon from '~/assets/icons/basic/logo.svg?component';
 
 defineProps({
     width: {

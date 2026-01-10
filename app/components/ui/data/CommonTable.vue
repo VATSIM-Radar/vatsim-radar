@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import SortIcon from '@/assets/icons/kit/sort.svg?component';
+import SortIcon from '~/assets/icons/kit/sort.svg?component';
 
 export interface TableHeader<T = unknown> {
     key: string;
