@@ -45,16 +45,23 @@ export const duplicatingSettings = [
         },
     },
     /**
-     * @description ZDC PCT
+     * @description ZDC Center and PCT
      * @author 1652726
      */
     {
         regex: /^(PCT|IAD|DCA|BWI|RIC|DC)(_\w{0,3})?_(APP|DEP|CTR)$/,
         mapping: {
+            PCT: 'PCT_APP',
             SHD: 'IAD_APP',
             CHP: 'BWI_APP',
             MTV: 'DCA_APP',
             JRV: 'RIC_APP',
+            ORF: 'ORF_APP',
+            RDU: 'RDU_APP',
+            ROA: 'ROA_APP',
+            ACY: 'ACY_APP',
+            ILM: 'ILM_APP',
+            FAY: 'FAY_APP',
         },
     },
     /**
@@ -133,4 +140,26 @@ export const duplicatingSettings = [
             LEIB: 'LEIB_APP',
         },
     },
+    /**
+    * @description ZHU Center and TRACONs
+    * @author 1010912
+    */
+    {
+        regex: /^HOU_\d{2}_CTR$/,
+        mapping: {
+            I90: 'I90_D_APP',
+            AUS: 'AUS_W_APP',
+            BTR: 'BTR_W_APP',
+            CRP: 'CRP_N_APP',
+            GPT: 'GPT_W_APP',
+            LCH: 'LCH_E_APP',
+            LFT: 'LFT_W_APP',
+            MOB: 'MOB_W_APP',
+            MSY: 'MSY_W_APP',
+            SAT: 'SAT_N_APP',
+            DLF: 'DLF_E_APP',
+            NQI: 'NQI_APP',
+            POE: 'POE_APP',
+        },
+    }
 ] satisfies DuplicatingSetting[];
