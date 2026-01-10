@@ -13,6 +13,14 @@ const saPreset: SiteConfig = {
     showCornerLogo: true,
 };
 
+const iframePreset: SiteConfig = {
+    hideAirports: false,
+    hideSectors: false,
+    hideHeader: true,
+    hideFooter: true,
+    showCornerLogo: true,
+};
+
 const idPreset: SiteConfig = {
     theme: 'default',
     hideHeader: true,
@@ -114,6 +122,9 @@ export function checkAndSetMapPreset() {
     }
     else if (query.preset === 'car') {
         preset = carPreset;
+    }
+    else if (query.preset === 'embed') {
+        preset = iframePreset;
     }
     else if (query.preset === 'col') {
         preset = colPreset;

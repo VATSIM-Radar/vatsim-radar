@@ -12,6 +12,7 @@ const iframeWhitelist = [
     'vatsim-petersburg.com',
     'vatsim-radar.com',
     'wfhub.local',
+    'oav.gr',
 ];
 
 export async function useIframeHeader() {
