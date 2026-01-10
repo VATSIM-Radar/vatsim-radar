@@ -161,5 +161,5 @@ export const duplicatingSettings = [
             NQI: 'NQI_APP',
             POE: 'POE_APP',
         },
-    }
+    },
 ] satisfies DuplicatingSetting[];
