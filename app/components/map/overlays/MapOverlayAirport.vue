@@ -320,7 +320,7 @@ import type { TooltipCloseMethod } from '~/components/ui/data/UiTooltip.vue';
 import type { Map } from 'ol';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
-import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
@@ -329,7 +329,7 @@ import { useRadarError } from '~/composables/errors';
 import MapAirportBarsInfo from '~/components/map/airports/MapAirportBarsInfo.vue';
 import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 
-import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 const props = defineProps({
     overlay: {

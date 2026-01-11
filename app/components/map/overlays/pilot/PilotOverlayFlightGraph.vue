@@ -12,7 +12,7 @@
 import type { PropType } from 'vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import { useStore } from '~/store';
-import type { InfluxGeojson } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
 import {
     Chart as ChartJS,
     Tooltip,

@@ -278,13 +278,13 @@ import type {
     MapWeatherLayer,
 } from '~/types/map';
 import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';
-import type { IUserMapSettings, UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import type { IUserMapSettings, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import { MAX_FILTERS, MAX_MAP_PRESETS } from '~/utils/shared';
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
 import { saveMapSettings } from '~/composables/settings';
 import { sendUserPreset } from '~/composables/fetchers';
 import { setUserFilter } from '~/composables/fetchers/filters';
-import type { IUserFilter } from '~/utils/backend/handlers/filters';
+import type { IUserFilter } from '~/utils/server/handlers/filters';
 import LocationIcon from '~/assets/icons/kit/location.svg?component';
 import { klona } from 'klona/json';
 import { useMapStore } from '~/store/map';

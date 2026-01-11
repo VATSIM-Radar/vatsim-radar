@@ -1,7 +1,7 @@
-import { handleH3Exception } from '~/utils/backend/h3';
-import { validateAirportIcao } from '~/utils/backend/vatsim';
-import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
-import { getAirportNotams } from '~/utils/backend/notams';
+import { handleH3Exception } from '~/utils/server/h3';
+import { validateAirportIcao } from '~/utils/server/vatsim';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
+import { getAirportNotams } from '~/utils/server/notams';
 
 
 export default defineEventHandler(async (event): Promise<VatsimAirportDataNotam[] | undefined> => {

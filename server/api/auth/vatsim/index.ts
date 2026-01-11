@@ -1,11 +1,11 @@
-import { prisma } from '~/utils/backend/prisma';
-import { handleH3Exception } from '~/utils/backend/h3';
+import { prisma } from '~/utils/server/prisma';
+import { handleH3Exception } from '~/utils/server/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
-import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/backend/vatsim';
-import { findUserByCookie } from '~/utils/backend/user';
+import { vatsimAuthOrRefresh, vatsimGetUser } from '~/utils/server/vatsim';
+import { findUserByCookie } from '~/utils/server/user';
 import { discordClient } from '~~/server/plugins/discord';
 import { PermissionFlagsBits } from 'discord.js';
-import { getDiscordName } from '~/utils/backend/discord';
+import { getDiscordName } from '~/utils/server/discord';
 
 export default defineEventHandler(async event => {
     try {

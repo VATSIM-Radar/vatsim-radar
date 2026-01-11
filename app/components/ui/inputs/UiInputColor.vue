@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import UiTooltip from '~/components/ui/data/UiTooltip.vue';
-import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
+import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';

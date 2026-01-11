@@ -13,10 +13,10 @@ import type {
     RadarDataAirlinesAllList, Sigmets,
     SimAwareAPIData,
     VatglassesDynamicAPIData,
-} from '~/utils/backend/storage';
+} from '~/utils/server/storage';
 import { View } from 'ol';
-import { clientDB } from '~/utils/client-db';
-import type { ClientNavigraphData } from '~/utils/client-db';
+import { clientDB } from '~/composables/render/idb';
+import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
@@ -35,7 +35,7 @@ import type {
     NavDataProcedure,
     NavigraphGetData,
     NavigraphNavData, NavigraphNavDataApproach, NavigraphNavDataEnrouteWaypointPartial, NavigraphNavDataStar,
-} from '~/utils/backend/navigraph/navdata/types';
+} from '~/utils/server/navigraph/navdata/types';
 import {
     checkForAirlines,
     checkForData, checkForTracks,
@@ -44,7 +44,7 @@ import {
     getVatglassesDynamic,
 } from '~/composables/init';
 import type { PartialRecord } from '~/types';
-import type { UserList } from '~/utils/backend/handlers/lists';
+import type { UserList } from '~/utils/server/handlers/lists';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 import type { Coordinate } from 'ol/coordinate';

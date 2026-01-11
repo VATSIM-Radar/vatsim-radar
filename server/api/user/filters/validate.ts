@@ -1,3 +1,3 @@
-import { handleFiltersEvent } from '~/utils/backend/handlers/filters';
+import { handleFiltersEvent } from '~/utils/server/handlers/filters';
 
 export default defineEventHandler(handleFiltersEvent);

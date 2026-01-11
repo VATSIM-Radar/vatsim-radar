@@ -218,7 +218,7 @@ import CircleStyle from 'ol/style/Circle';
 import type { FeatureLike } from 'ol/Feature';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
-import type { NavigraphGetData, NavigraphNavData } from '~/utils/backend/navigraph/navdata/types';
+import type { NavigraphGetData, NavigraphNavData } from '~/utils/server/navigraph/navdata/types';
 import { useMapStore } from '~/store/map';
 import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
 import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';

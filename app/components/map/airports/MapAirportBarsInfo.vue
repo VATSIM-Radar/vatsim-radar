@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BARSShortItem } from '~/utils/backend/storage';
+import type { BARSShortItem } from '~/utils/server/storage';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 defineProps({

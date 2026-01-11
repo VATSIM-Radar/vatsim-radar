@@ -1,4 +1,4 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from '~/utils/server/storage';
 
 export default defineEventHandler(event => {
     return radarStorage.airlines;

@@ -42,7 +42,7 @@
 import type { PropType } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import { NuxtLink } from '#components';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import { radarColors } from '#build/radar/colors';
 
 const props = defineProps({

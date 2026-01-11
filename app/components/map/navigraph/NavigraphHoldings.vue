@@ -10,7 +10,7 @@ import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import type { Coordinate } from 'ol/coordinate';
 import { useMapStore } from '~/store/map';
-import type { NavDataFlightLevel } from '~/utils/backend/navigraph/navdata/types';
+import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types';
 import { debounce } from '~/utils/shared';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';

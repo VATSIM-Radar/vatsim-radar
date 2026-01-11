@@ -347,7 +347,7 @@ import { updateCachedProcedures } from '~/composables/navigraph';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
-import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const route = useRoute();

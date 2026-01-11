@@ -22,7 +22,7 @@
 import { useStore } from '~/store';
 import DarkTheme from 'assets/icons/header/dark-theme.svg?component';
 import LightTheme from 'assets/icons/header/light-theme.svg?component';
-import type { ThemesList } from '~/utils/backend/styles';
+import type { ThemesList } from '~/utils/server/styles';
 
 const store = useStore();
 

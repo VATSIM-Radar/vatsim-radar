@@ -87,7 +87,7 @@ import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import { useStore } from '~/store';
 import CalendarIcon from '~/assets/icons/kit/event.svg?component';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
-import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 const data = injectAirport();
 const notamsList = computed(() => {

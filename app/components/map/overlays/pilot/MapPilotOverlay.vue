@@ -257,7 +257,7 @@ import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
+import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
 import { getAirportRunways } from '~/utils/data/vatglasses-front';
 import MapAirportRunwaySelector from '~/components/map/airports/MapAirportRunwaySelector.vue';

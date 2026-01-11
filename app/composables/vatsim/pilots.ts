@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
 import { Icon, Stroke, Style, Text, Fill } from 'ol/style';
 import { useStore } from '~/store';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import { getUserList } from '~/composables/fetchers/lists';

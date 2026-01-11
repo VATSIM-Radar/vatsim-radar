@@ -312,7 +312,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserListLive, UserListUser } from '~/utils/backend/handlers/lists';
+import type { UserListLive, UserListUser } from '~/utils/server/handlers/lists';
 import UiInputColor from '~/components/ui/inputs/UiInputColor.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';

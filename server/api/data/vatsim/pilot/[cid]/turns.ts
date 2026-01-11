@@ -1,8 +1,8 @@
-import { handleH3Error } from '~/utils/backend/h3';
+import { handleH3Error } from '~/utils/server/h3';
 
-import type { InfluxGeojson } from '~/utils/backend/influx/converters';
-import { radarStorage } from '~/utils/backend/storage';
-import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson } from '~/utils/server/influx/converters';
+import { radarStorage } from '~/utils/server/storage';
+import { getInfluxOnlineFlightTurnsGeojson } from '~/utils/server/influx/converters';
 
 export default cachedEventHandler(async (event): Promise<InfluxGeojson | null | undefined> => {
     if (!process.env.INFLUX_URL) return;

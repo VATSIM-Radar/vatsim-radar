@@ -147,7 +147,7 @@
 </template>
 
 <script setup lang="ts">
-import { useHeaderMenu, useOnlineCounters } from '~/composables/map/navigation';
+import { useHeaderMenu, useOnlineCounters } from '~/composables/map';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThemeSwitcher.vue';
 import DiscordIcon from 'assets/icons/header/discord.svg?component';

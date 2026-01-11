@@ -56,7 +56,7 @@
 import UiTable from '~/components/ui/data/UiTable.vue';
 import type { TableSort } from '~/components/ui/data/UiTable.vue';
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
-import type { RadarDataAirline } from '~/utils/backend/storage';
+import type { RadarDataAirline } from '~/utils/server/storage';
 import StatsTabs from '~/components/views/StatsTabs.vue';
 
 const dataStore = useDataStore();

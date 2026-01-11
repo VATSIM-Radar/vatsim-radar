@@ -50,7 +50,7 @@ import UiTabs from '~/components/ui/data/UiTabs.vue';
 import QuickSettingsVisibility from '~/components/map/settings/quick-settings/QuickSettingsVisibility.vue';
 import QuickSettingsLayers from '~/components/map/settings/quick-settings/QuickSettingsLayers.vue';
 import QuickSettingsColors from '~/components/map/settings/quick-settings/QuickSettingsColors.vue';
-import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import type { UserMapSettings } from '~/utils/server/handlers/map-settings';
 import { useStore } from '~/store';
 import { saveMapSettings } from '~/composables/settings';
 import { MAX_MAP_PRESETS } from '~/utils/shared';

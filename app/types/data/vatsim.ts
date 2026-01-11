@@ -1,8 +1,8 @@
 import type { VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import type { MapAirport } from '~/types/map';
 import type { AircraftIcon } from '~/utils/icons';
-import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
-import type { BARSShort } from '~/utils/backend/storage';
+import type { UserMapSettingsColor } from '~/utils/server/handlers/map-settings';
+import type { BARSShort } from '~/utils/server/storage';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 

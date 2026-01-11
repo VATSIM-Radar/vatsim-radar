@@ -6,9 +6,9 @@ import type {
     NavigraphNavDataShortProcedures,
     NavigraphNavDataStar,
     NavigraphNavDataStarShort, ShortAirway,
-} from '~/utils/backend/navigraph/navdata/types';
-import { clientDB } from '~/utils/client-db';
-import type { IDBNavigraphProcedures } from '~/utils/client-db';
+} from '~/utils/server/navigraph/navdata/types';
+import { clientDB } from '~/composables/render/idb';
+import type { IDBNavigraphProcedures } from '~/composables/render/idb';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';

@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import type { SigmetType } from '~/types/map';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';

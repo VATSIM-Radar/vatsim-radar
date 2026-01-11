@@ -374,7 +374,7 @@ import { useStore } from '~/store';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';
 import type { SelectItem } from '~/types/components/select';
-import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
+import type { IUserMapSettings } from '~/utils/server/handlers/map-settings';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 const store = useStore();

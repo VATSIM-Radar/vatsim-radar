@@ -1,3 +1,3 @@
-import { handleListsEvent } from '~/utils/backend/handlers/lists';
+import { handleListsEvent } from '~/utils/server/handlers/lists';
 
 export default defineEventHandler(handleListsEvent);

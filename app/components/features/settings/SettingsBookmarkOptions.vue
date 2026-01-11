@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UserBookmark, UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmark, UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiColumnsDisplay from '~/components/ui/data/UiColumnsDisplay.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';

@@ -170,7 +170,7 @@ import ViewFooter from '~/components/features/footer/ViewFooter.vue';
 import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
-import type { ThemesList } from '~/utils/backend/styles';
+import type { ThemesList } from '~/utils/server/styles';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';

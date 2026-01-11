@@ -1,6 +1,6 @@
 import type { Coordinate } from 'ol/coordinate';
 import { toRadians } from 'ol/math';
-import type { UserMapSettingsTurns } from '~/utils/backend/handlers/map-settings';
+import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function calculateDistanceInNauticalMiles([lon1, lat1]: Coordinate, [lon2, lat2]: Coordinate): number {
     const earthRadiusInNauticalMiles = 3440.065;

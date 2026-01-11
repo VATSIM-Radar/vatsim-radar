@@ -103,7 +103,7 @@ import MapFilters from '~/components/map/settings/filters/MapFilters.vue';
 import { MAX_BOOKMARKS } from '~/utils/shared';
 import MapFiltersPresets from '~/components/map/settings/filters/MapFiltersPresets.vue';
 import { sendUserPreset, showBookmark } from '~/composables/fetchers';
-import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import SettingsBookmarkOptions from '~/components/features/settings/SettingsBookmarkOptions.vue';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';

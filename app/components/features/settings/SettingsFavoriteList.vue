@@ -63,7 +63,7 @@ import type { PropType } from 'vue';
 import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import type { UserListLive } from '~/utils/backend/handlers/lists';
+import type { UserListLive } from '~/utils/server/handlers/lists';
 import { MAX_LISTS_USERS } from '~/utils/shared';
 
 const props = defineProps({

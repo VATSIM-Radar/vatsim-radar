@@ -198,7 +198,7 @@ import { showPilotOnMap } from '~/composables/vatsim/pilots';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
-import type { UserListLive, UserListLiveUser } from '~/utils/backend/handlers/lists';
+import type { UserListLive, UserListLiveUser } from '~/utils/server/handlers/lists';
 import { useStore } from '~/store';
 import { useMapStore } from '~/store/map';
 import type { ShallowRef } from 'vue';

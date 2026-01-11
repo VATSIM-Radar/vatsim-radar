@@ -10,13 +10,12 @@ import type {
     VatglassesAPIData,
     VatglassesData,
     VatglassesSector,
-} from '~/utils/backend/storage.js';
+} from '~/utils/server/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
-import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
+import type { WorkerDataStore } from '~/utils/server/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
-import { clientDB } from '~/utils/client-db';
-import { initIDBData } from '~/composables/render/idb-init';
+import {clientDB, initIDBData} from '~/composables/render/idb';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;

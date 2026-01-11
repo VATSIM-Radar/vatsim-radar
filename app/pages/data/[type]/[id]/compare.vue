@@ -68,7 +68,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { Coordinate } from 'ol/coordinate';

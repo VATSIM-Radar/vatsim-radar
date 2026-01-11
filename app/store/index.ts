@@ -1,24 +1,24 @@
 import { defineStore } from 'pinia';
-import type { FullUser } from '~/utils/backend/user';
+import type { FullUser } from '~/utils/server/user';
 import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
-import type { ThemesList } from '~/utils/backend/styles';
+import type { ThemesList } from '~/utils/server/styles';
 import type { VatDataVersions } from '~/types/data';
 import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
-import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import type { UserMapPreset, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type {
     UserListLive,
     UserListLiveUser,
     UserListLiveUserPilot,
-} from '~/utils/backend/handlers/lists';
-import type { UserFilter, UserFilterPreset } from '~/utils/backend/handlers/filters';
+} from '~/utils/server/handlers/lists';
+import type { UserFilter, UserFilterPreset } from '~/utils/server/handlers/filters';
 import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
-import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
 
 export interface SiteConfig {

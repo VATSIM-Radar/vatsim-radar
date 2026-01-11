@@ -2,7 +2,7 @@ import type { VatsimLiveDataShort, VatsimShortenedAircraft, VatsimShortenedContr
 import { useStore } from '~/store';
 import { parseFilterAltitude } from '~/utils/shared';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
-import type { IUserFilterOthers } from '~/utils/backend/handlers/filters';
+import type { IUserFilterOthers } from '~/utils/server/handlers/filters';
 
 export function hasActivePilotFilter() {
     const store = useStore();

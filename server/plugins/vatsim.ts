@@ -1,5 +1,5 @@
-import { radarStorage } from '~/utils/backend/storage';
-import { getRedis } from '~/utils/backend/redis';
+import { radarStorage } from '~/utils/server/storage';
+import { getRedis } from '~/utils/server/redis';
 
 export default defineNitroPlugin(app => {
     const redisSubscriber = getRedis();

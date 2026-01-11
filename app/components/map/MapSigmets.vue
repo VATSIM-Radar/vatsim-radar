@@ -40,11 +40,11 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
-import type { Sigmet, Sigmets } from '~/utils/backend/storage';
+import type { Sigmet, Sigmets } from '~/utils/server/storage';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import type { Coordinate } from 'ol/coordinate';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';

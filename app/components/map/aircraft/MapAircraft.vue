@@ -188,7 +188,7 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Feature as GeoFeature, Point as GeoPoint, Position } from 'geojson';
-import type { InfluxGeojson, InfluxGeojsonFeatureCollection } from '~/utils/backend/influx/converters';
+import type { InfluxGeojson, InfluxGeojsonFeatureCollection } from '~/utils/server/influx/converters';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';

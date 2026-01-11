@@ -10,7 +10,6 @@ import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import type { TileJSON } from 'ol/source';
 import { XYZ } from 'ol/source';
-import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
@@ -21,6 +20,7 @@ import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import {buildAttributions} from "~/composables/map";
 
 defineSlots<{ default: () => any }>();
 

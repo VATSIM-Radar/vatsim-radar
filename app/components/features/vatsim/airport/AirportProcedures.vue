@@ -111,11 +111,11 @@ import {
     getNavigraphAirportProcedures, enroutePath,
 } from '#imports';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '#imports';
-import type { IDBNavigraphProcedures } from '~/utils/client-db';
+import type { IDBNavigraphProcedures } from '~/composables/render/idb';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
-import type { NavigraphNavDataApproach, NavigraphNavDataStar } from '~/utils/backend/navigraph/navdata/types';
+import type { NavigraphNavDataApproach, NavigraphNavDataStar } from '~/utils/server/navigraph/navdata/types';
 
 const props = defineProps({
     airport: {

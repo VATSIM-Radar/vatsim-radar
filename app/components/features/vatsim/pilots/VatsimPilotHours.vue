@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 
 const props = defineProps({
     hours: {
