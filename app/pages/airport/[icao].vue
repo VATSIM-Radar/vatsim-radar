@@ -321,7 +321,7 @@
 <script setup lang="ts">
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
 import AirportInfo from '~/components/features/vatsim/airport/AirportInfo.vue';
-import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
+import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/vatsim/airport';
 import type { StoreOverlayAirport } from '~/store/map';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
@@ -337,7 +337,7 @@ import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import type { SelectItem } from '~/types/components/select';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
-import { useShowPilotStats } from '~/composables/pilots';
+import { useShowPilotStats } from '~/composables/vatsim/pilots';
 import AirportPilot from '~/components/features/vatsim/airport/AirportPilot.vue';
 import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
 import UiTabs from '~/components/ui/data/UiTabs.vue';

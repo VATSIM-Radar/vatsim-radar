@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { getArrivalRate } from '~/composables/airport';
+import { getArrivalRate } from '~/composables/vatsim/airport';
 import Clock0Icon from '~/assets/icons/airport/clock_0to15.svg?component';
 import Clock1Icon from '~/assets/icons/airport/clock_15to30.svg?component';
 import Clock2Icon from '~/assets/icons/airport/clock_30to45.svg?component';

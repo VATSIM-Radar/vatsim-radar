@@ -5,7 +5,7 @@ import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/
 import type {
     MapAircraftKeys,
 } from '~/types/map';
-import { getAircraftDistance } from '~/composables/pilots';
+import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import { debounce } from '~/utils/shared';
 
 /**

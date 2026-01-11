@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import TriangleLeftIcon from 'assets/icons/basic/triangle-left.svg?component';
 import type { PropType } from 'vue';
-import type { ClickOutsideOptions } from '~/composables/click-outside';
+import type { ClickOutsideOptions } from '~/composables/map/click-outside';
 
 
 const props = defineProps({

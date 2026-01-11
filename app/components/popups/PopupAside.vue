@@ -40,7 +40,7 @@
 import type { PropType } from 'vue';
 import type { TooltipLocation } from '~/components/ui/data/UiTooltip.vue';
 import CloseIcon from '~/assets/icons/basic/close.svg?component';
-import { useClickOutside } from '~/composables/click-outside';
+import { useClickOutside } from '~/composables/map/click-outside';
 
 const props = defineProps({
     location: {

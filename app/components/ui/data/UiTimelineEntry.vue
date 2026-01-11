@@ -49,7 +49,7 @@ import type { PropType } from 'vue';
 import type { TimelineEntry } from '~/types/data/timeline';
 import UiScrollText from './UiScrollText.vue';
 import UiTooltip from './UiTooltip.vue';
-import { makeBookingTime } from '~/composables/bookings';
+import { makeBookingTime } from '~/composables/vatsim/bookings';
 import { useStore } from '~/store';
 
 const props = defineProps({

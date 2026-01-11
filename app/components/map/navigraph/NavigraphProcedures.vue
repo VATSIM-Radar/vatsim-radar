@@ -10,7 +10,7 @@ import { LineString, Point } from 'ol/geom';
 import type { Coordinate } from 'ol/coordinate';
 import greatCircle from '@turf/great-circle';
 import type { NavigraphNavDataAirportWaypoint } from '~/utils/backend/navigraph/navdata/types';
-import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
 
 defineSlots<{ default: () => any }>();
 

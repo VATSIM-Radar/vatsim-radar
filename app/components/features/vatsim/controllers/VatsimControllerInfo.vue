@@ -139,9 +139,9 @@ import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers/VatsimControllerTimeOnline.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SaveIcon from '~/assets/icons/kit/save.svg?component';
-import { getStringColorFromSettings } from '~/composables/colors';
+import { getStringColorFromSettings } from '~/composables/settings/colors';
 import { useStore } from '~/store';
-import { findAtcByCallsign } from '~/composables/atc';
+import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 
 const props = defineProps({
     controller: {

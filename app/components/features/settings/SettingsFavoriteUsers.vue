@@ -194,7 +194,7 @@
 import StarIcon from '~/assets/icons/kit/star.svg?component';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';
 import StatsIcon from '~/assets/icons/kit/stats.svg?component';
-import { showPilotOnMap } from '~/composables/pilots';
+import { showPilotOnMap } from '~/composables/vatsim/pilots';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';

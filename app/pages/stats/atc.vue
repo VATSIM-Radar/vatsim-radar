@@ -81,7 +81,7 @@ import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import { useMapStore } from '~/store/map';
 import StatsTabs from '~/components/views/StatsTabs.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
-import { getATCTime } from '~/composables/atc';
+import { getATCTime } from '~/composables/vatsim/controllers';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const dataStore = useDataStore();

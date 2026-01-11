@@ -192,8 +192,8 @@
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiInputColor from '~/components/ui/inputs/UiInputColor.vue';
 import { useStore } from '~/store';
-import { aircraftSvgColors } from '~/composables/pilots';
-import type { MapAircraftStatus } from '~/composables/pilots';
+import { aircraftSvgColors } from '~/composables/vatsim/pilots';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import type { PartialRecord } from '~/types';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
 import { backupMapSettings } from '~/composables/settings';

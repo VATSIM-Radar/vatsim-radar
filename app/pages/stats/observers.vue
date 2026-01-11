@@ -83,8 +83,8 @@ import { useMapStore } from '~/store/map';
 import StatsTabs from '~/components/views/StatsTabs.vue';
 import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
 import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlayFlightPlan.vue';
-import { getPilotStatus } from '~/composables/pilots';
-import { getATCTime } from '~/composables/atc';
+import { getPilotStatus } from '~/composables/vatsim/pilots';
+import { getATCTime } from '~/composables/vatsim/controllers';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const dataStore = useDataStore();

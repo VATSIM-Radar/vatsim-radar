@@ -78,7 +78,7 @@
 </template>
 
 <script setup lang="ts">
-import { injectAirport } from '~/composables/airport';
+import { injectAirport } from '~/composables/vatsim/airport';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import type { NotamsSortBy } from '~/types/map';

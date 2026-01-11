@@ -17,7 +17,7 @@ import type {
 import { View } from 'ol';
 import { clientDB } from '~/utils/client-db';
 import type { ClientNavigraphData } from '~/utils/client-db';
-import { checkForWSData } from '~/composables/ws';
+import { checkForWSData } from '~/composables/render/ws';
 import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import {
@@ -26,7 +26,7 @@ import {
 
 } from '~/utils/data/vatglasses';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
-import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/filter';
+import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/settings/filter';
 import { useGeographic } from 'ol/proj';
 import { useRadarError } from '~/composables/errors';
 

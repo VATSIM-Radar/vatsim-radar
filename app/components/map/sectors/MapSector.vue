@@ -65,11 +65,11 @@ import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
-import { getAirportCountry } from '~/composables/airport';
+import { getAirportCountry } from '~/composables/vatsim/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
-import { vgFallbackKeys } from '~/composables/data';
+import { vgFallbackKeys } from '~/composables/render/storage';
 
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';

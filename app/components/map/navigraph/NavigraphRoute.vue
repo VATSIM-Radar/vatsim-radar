@@ -16,7 +16,7 @@ import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { ObjectWithGeometry } from 'ol/Feature';
-import { ownFlight } from '~/composables/pilots';
+import { ownFlight } from '~/composables/vatsim/pilots';
 
 defineSlots<{ default: () => any }>();
 

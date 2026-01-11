@@ -51,7 +51,7 @@ import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import { useStore } from '~/store';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
-import { ownFlight } from '~/composables/pilots';
+import { ownFlight } from '~/composables/vatsim/pilots';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 
 defineProps({

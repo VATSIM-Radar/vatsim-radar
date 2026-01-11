@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { getATCTime } from '~/composables/atc';
+import { getATCTime } from '~/composables/vatsim/controllers';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import type { PropType } from 'vue';
 

@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import AirportMetarBlocks from '~/components/features/vatsim/airport/AirportMetarBlocks.vue';
 import { parseTAFAsForecast } from 'metar-taf-parser';
-import { injectAirport } from '~/composables/airport';
+import { injectAirport } from '~/composables/vatsim/airport';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 
 const props = defineProps({

@@ -3,7 +3,7 @@ import { findUserByCookie } from '~/utils/backend/user';
 import { freezeH3Request, handleH3Error, handleH3Exception, unfreezeH3Request } from '~/utils/backend/h3';
 import { prisma } from '~/utils/backend/prisma';
 import { isObject, isNumber, MAX_MAP_PRESETS } from '~/utils/shared';
-import type { MapAircraftStatus } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import type { PartialRecord } from '~/types';
 import type { UserPreset } from '#prisma';
 import { UserPresetType } from '#prisma';

@@ -16,7 +16,7 @@ import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
 import { clientDB } from '~/utils/client-db';
-import { initIDBData } from '~/composables/idb-init';
+import { initIDBData } from '~/composables/render/idb-init';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -772,7 +772,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         mode = 'local';
         dataStore = useDataStore();
         store = useStore();
-        const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
+        const { default: combinedWorker } = await import('~/composables/render/combination-worker.ts?worker');
         worker = new combinedWorker();
 
         await updateVatglassesStateLocal(true);

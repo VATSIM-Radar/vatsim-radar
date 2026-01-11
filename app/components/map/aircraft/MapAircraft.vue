@@ -165,14 +165,14 @@ import type VectorSource from 'ol/source/Vector';
 import { Feature } from 'ol';
 import { Stroke, Style } from 'ol/style';
 import { LineString, MultiLineString, Point } from 'ol/geom';
-import type { MapAircraftStatus } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import {
     getAircraftStatusColor,
     isPilotOnGround,
     loadAircraftIcon,
     ownFlight,
     usePilotRating,
-} from '~/composables/pilots';
+} from '~/composables/vatsim/pilots';
 import { sleep, turfGeometryToOl } from '~/utils';
 import { aircraftIcons } from '~/utils/icons';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';

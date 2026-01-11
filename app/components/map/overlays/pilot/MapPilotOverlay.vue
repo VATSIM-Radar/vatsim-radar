@@ -246,7 +246,7 @@ import type { Map } from 'ol';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { IFetchError } from 'ofetch';
 import { ownFlight, sortControllersByPosition, useFacilitiesIds } from '#imports';
-import { getPilotStatus, showPilotOnMap } from '~/composables/pilots';
+import { getPilotStatus, showPilotOnMap } from '~/composables/vatsim/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlayFlightPlan.vue';

@@ -14,7 +14,7 @@ import { isFetchError } from '~/utils/shared';
 import type { Coordinate } from 'ol/coordinate';
 import { StorageSerializers } from '@vueuse/core';
 import distance from '@turf/distance';
-import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/data';
+import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
 import type { VatsimNattrak, VatsimNattrakClient } from '~/types/data/vatsim';
 
 export type NavigraphDataAirportKeys = 'sids' | 'stars' | 'approaches';

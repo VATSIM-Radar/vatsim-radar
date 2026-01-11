@@ -214,7 +214,7 @@ import {
     getPilotStatus,
     isPilotOnGround,
     reColorSvg,
-} from '~/composables/pilots';
+} from '~/composables/vatsim/pilots';
 import { getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';

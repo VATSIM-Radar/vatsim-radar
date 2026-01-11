@@ -12,7 +12,7 @@ import greatCircle from '@turf/great-circle';
 import { useMapStore } from '~/store/map';
 import type { ObjectWithGeometry } from 'ol/Feature';
 import type { Coordinate } from 'ol/coordinate';
-import { checkFlightLevel } from '~/composables/data';
+import { checkFlightLevel } from '~/composables/render/storage';
 
 defineSlots<{ default: () => any }>();
 

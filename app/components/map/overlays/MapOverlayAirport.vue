@@ -299,9 +299,9 @@ import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]
 import DepartingIcon from '@/assets/icons/airport/departing.svg?component';
 import GroundIcon from '@/assets/icons/airport/ground.svg?component';
 import ArrivingIcon from '@/assets/icons/airport/landing.svg?component';
-import { getPilotStatus } from '../../../composables/pilots';
+import { getPilotStatus } from '../../../composables/vatsim/pilots';
 import { useStore } from '~/store';
-import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
+import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/vatsim/airport';
 import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
 import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
 import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';

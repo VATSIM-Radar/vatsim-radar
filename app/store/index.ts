@@ -5,7 +5,7 @@ import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 import type { ThemesList } from '~/utils/backend/styles';
 import type { VatDataVersions } from '~/types/data';
 import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
-import { setVatsimDataStore } from '~/composables/data';
+import { setVatsimDataStore } from '~/composables/render/storage';
 import { useMapStore } from '~/store/map';
 import type { Coordinate } from 'ol/coordinate';
 import type { UserMapPreset, UserMapSettings } from '~/utils/backend/handlers/map-settings';

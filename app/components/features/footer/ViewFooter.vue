@@ -284,7 +284,7 @@
 import { useStore } from '~/store';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import PopupAside from '~/components/popups/PopupAside.vue';
-import { useOnlineCounters } from '~/composables/navigation';
+import { useOnlineCounters } from '~/composables/map/navigation';
 import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 import NavigationAirac from '~/components/features/navigation/NavigationAirac.vue';
 import QuickSettingsVatGlassesLevel from '~/components/map/settings/quick-settings/QuickSettingsVatGlassesLevel.vue';

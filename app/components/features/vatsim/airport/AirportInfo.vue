@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang="ts">
-import { injectAirport } from '~/composables/airport';
+import { injectAirport } from '~/composables/vatsim/airport';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 
 const data = injectAirport();

@@ -85,7 +85,7 @@ import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings
 import type { SelectItem } from '~/types/components/select';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
-import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/colors';
+import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/settings/colors';
 import { hexColorRegex } from '~/utils/shared';
 import ResetIcon from '~/assets/icons/kit/reset.svg?component';
 

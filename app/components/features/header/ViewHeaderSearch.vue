@@ -213,9 +213,9 @@ import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { useMapStore } from '~/store/map';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
-import type { MapAircraftStatus } from '~/composables/pilots';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import UiSelect from '~/components/ui/inputs/UiSelect.vue';
-import { showAirportOnMap } from '~/composables/atc';
+import { showAirportOnMap } from '~/composables/vatsim/controllers';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 

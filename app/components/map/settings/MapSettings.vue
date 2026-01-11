@@ -291,7 +291,7 @@ import { useMapStore } from '~/store/map';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import UiBlockTitle from '~/components/ui/text/UiBlockTitle.vue';
-import { observerFlight, ownFlight, skipObserver } from '~/composables/pilots';
+import { observerFlight, ownFlight, skipObserver } from '~/composables/vatsim/pilots';
 
 const MapFiltersLayers = defineAsyncComponent(() => import('~/components/map/settings/filters/MapFiltersLayers.vue'));
 const MapFiltersTraffic = defineAsyncComponent(() => import('~/components/map/settings/filters/MapFiltersTraffic.vue'));

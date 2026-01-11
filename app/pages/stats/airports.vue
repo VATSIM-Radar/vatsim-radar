@@ -68,7 +68,7 @@ import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { MapAirport } from '~/types/map';
 import type { VatSpyAirport } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
-import { provideAirport } from '~/composables/airport';
+import { provideAirport } from '~/composables/vatsim/airport';
 import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
 import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
 import StatsTabs from '~/components/views/StatsTabs.vue';

@@ -196,14 +196,14 @@ import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers
 import LocationIcon from '@/assets/icons/kit/location.svg?component';
 import DashboardIcon from '@/assets/icons/kit/dashboard.svg?component';
 import type { Map } from 'ol';
-import { findAtcAirport, showAtcOnMap } from '~/composables/atc';
+import { findAtcAirport, showAtcOnMap } from '~/composables/vatsim/controllers';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import UiButtonGroup from '~/components/ui/buttons/UiButtonGroup.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { InfoPopupSection } from '~/components/popups/PopupOverlay.vue';
-import { getVATSIMMemberStats } from '~/composables/data';
+import { getVATSIMMemberStats } from '~/composables/render/storage';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import SettingsFavoriteList from '~/components/features/settings/SettingsFavoriteList.vue';

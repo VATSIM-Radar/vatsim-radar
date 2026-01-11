@@ -167,7 +167,7 @@
 import { useStore } from '~/store';
 import ViewHeader from '~/components/features/header/ViewHeader.vue';
 import ViewFooter from '~/components/features/footer/ViewFooter.vue';
-import { checkAndSetMapPreset } from '~/composables/presets';
+import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
 import type { ThemesList } from '~/utils/backend/styles';

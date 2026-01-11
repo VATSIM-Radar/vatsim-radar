@@ -1,5 +1,5 @@
 import type { UserMapSettingsColor, UserMapSettingsColors } from '~/utils/backend/handlers/map-settings';
-import { getCurrentThemeRgbColor } from '~/composables/index';
+import { getCurrentThemeRgbColor } from '~/composables';
 import { useStore } from '~/store';
 
 export function shortHexToLong(hex: string) {

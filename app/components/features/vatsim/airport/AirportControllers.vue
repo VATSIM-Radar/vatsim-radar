@@ -28,7 +28,7 @@
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
-import { getATCForAirport, injectAirport } from '~/composables/airport';
+import { getATCForAirport, injectAirport } from '~/composables/vatsim/airport';
 
 const data = injectAirport();
 const showAtis = ref(false);

@@ -8,14 +8,14 @@ import { Icon, Stroke, Style, Text, Fill } from 'ol/style';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/backend/styles';
 import { colorPresets } from '~/utils/shared/flight';
-import { getColorFromSettings, hexToRgb } from '~/composables/colors';
+import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import { getUserList } from '~/composables/fetchers/lists';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
 import type { Pixel } from 'ol/pixel';
 import { isHideMapObject } from '~/composables/settings';
-import { collapsingWithOverlay } from '~/composables/index';
+import { collapsingWithOverlay } from '~/composables';
 
 export function usePilotRating(pilot: VatsimShortenedAircraft, short = false): string[] {
     const dataStore = useDataStore();

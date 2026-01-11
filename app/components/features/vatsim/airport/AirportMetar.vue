@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import AirportMetarBlocks from '~/components/features/vatsim/airport/AirportMetarBlocks.vue';
-import { injectAirport } from '~/composables/airport';
+import { injectAirport } from '~/composables/vatsim/airport';
 import { parseMetar } from 'metar-taf-parser';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';

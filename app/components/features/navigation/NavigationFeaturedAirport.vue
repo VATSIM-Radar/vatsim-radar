@@ -77,7 +77,7 @@
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import DepartingIcon from '~/assets/icons/airport/departing.svg?component';
 import ArrivingIcon from '~/assets/icons/airport/landing.svg?component';
-import { getControllerPositionColor, showAirportOnMap, useFacilitiesIds } from '~/composables/atc';
+import { getControllerPositionColor, showAirportOnMap, useFacilitiesIds } from '~/composables/vatsim/controllers';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';

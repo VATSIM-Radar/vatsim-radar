@@ -275,7 +275,7 @@ import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import ViewHeaderSearch from '~/components/features/header/ViewHeaderSearch.vue';
 import ViewHeaderSettings from '~/components/features/header/ViewHeaderSettings.vue';
 import ViewHeaderPopups from '~/components/features/header/ViewHeaderPopups.vue';
-import { useHeaderMenu } from '~/composables/navigation';
+import { useHeaderMenu } from '~/composables/map/navigation';
 import ViewHeaderMobileMenu from '~/components/features/header/ViewHeaderMobileMenu.vue';
 import ViewHeaderThemeSwitcher from '~/components/features/header/ViewHeaderThemeSwitcher.vue';
 import StarFilledIcon from '~/assets/icons/kit/star-filled.svg?component';

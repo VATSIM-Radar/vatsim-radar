@@ -12,7 +12,7 @@ import type {
     VatglassesAPIData,
     VatglassesDynamicAPIData,
 } from '~/utils/backend/storage';
-import type { UseDataStore } from '~/composables/data';
+import type { UseDataStore } from '~/composables/render/storage';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';
