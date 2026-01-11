@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { TooltipLocation } from '~/components/ui/data/CommonTooltip.vue';
+import type { TooltipLocation } from '~/components/common/basic/CommonTooltip.vue';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import { useClickOutside } from '~/composables/click-outside';
 

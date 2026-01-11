@@ -50,8 +50,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 
 export interface DateRange {
     from: Date;

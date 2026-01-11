@@ -105,7 +105,7 @@ import { useMapStore } from '~/store/map';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
 import { useStore } from '~/store';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import ViewFavorite from '~/components/views/ViewFavorite.vue';
 import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';

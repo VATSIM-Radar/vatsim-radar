@@ -278,18 +278,18 @@
 </template>
 
 <script setup lang="ts">
-import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import { useStore } from '~/store';
 import type { IUserMapSettings } from '~/utils/backend/handlers/map-settings';
-import CommonSelect from '~/components/ui/inputs/CommonSelect.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 import type { SelectItem } from '~/types/components/select';
-import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { backupMapSettings } from '~/composables/settings';
 import MapSettingsVatGlassesLevel from '~/components/map/filters/settings/MapSettingsVatGlassesLevel.vue';
 import { resetUserMapSettings } from '~/composables/fetchers/map-settings';
 import MapFilterColumns from '~/components/map/filters/filters/MapFilterColumns.vue';
-import CommonNotification from '~/components/ui/data/CommonNotification.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';

@@ -313,18 +313,18 @@
 
 <script setup lang="ts">
 import type { UserListLive, UserListUser } from '~/utils/backend/handlers/lists';
-import CommonColor from '~/components/ui/inputs/CommonColor.vue';
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
-import CommonNotification from '~/components/ui/data/CommonNotification.vue';
+import CommonColor from '~/components/common/basic/CommonColor.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 import { useStore } from '~/store';
-import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
-import CommonButtonGroup from '~/components/ui/buttons/CommonButtonGroup.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
 import ViewUserList from '~/components/views/ViewUserList.vue';
-import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import { useFileDownload } from '~/composables/settings';
-import CommonSelect from '~/components/ui/inputs/CommonSelect.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
 
 import { XMLParser } from 'fast-xml-parser';
 import { MAX_LISTS_USERS } from '~/utils/shared';

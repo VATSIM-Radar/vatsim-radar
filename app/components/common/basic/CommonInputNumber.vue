@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 
 defineProps({
     inputAttrs: {

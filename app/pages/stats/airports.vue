@@ -62,8 +62,8 @@
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/ui/data/CommonTable.vue';
-import type { TableSort } from '~/components/ui/data/CommonTable.vue';
+import CommonTable from '~/components/common/basic/CommonTable.vue';
+import type { TableSort } from '~/components/common/basic/CommonTable.vue';
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import type { MapAirport } from '~/types/map';
 import type { VatSpyAirport } from '~/types/data/vatspy';

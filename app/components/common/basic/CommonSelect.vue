@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { SelectItem, SelectItemValueType } from '~/types/components/select';
-import CommonCheckbox from '~/components/ui/inputs/CommonCheckbox.vue';
+import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
 import type { PropType } from 'vue';
 
 const props = defineProps({

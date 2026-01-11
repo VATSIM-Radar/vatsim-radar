@@ -179,8 +179,8 @@
 <script setup lang="ts">
 import type { TimelineEntry, TimelineHeader, TimelineIdentifier } from '~/types/data/timeline';
 import type { PropType } from 'vue';
-import FoldIcon from '~/assets/icons/kit/fold.svg?component';
-import UnfoldIcon from '~/assets/icons/kit/unfold.svg?component';
+import FoldIcon from '@/assets/icons/kit/fold.svg?component';
+import UnfoldIcon from '@/assets/icons/kit/unfold.svg?component';
 import CommonTimelineEntry from './CommonTimelineEntry.vue';
 import CommonScrollText from './CommonScrollText.vue';
 import { useStore } from '~/store';

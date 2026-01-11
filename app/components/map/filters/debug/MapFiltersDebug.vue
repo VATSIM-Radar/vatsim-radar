@@ -198,14 +198,14 @@
 </template>
 
 <script setup lang="ts">
-import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 import type { VatsimController } from '~/types/data/vatsim';
 import MapFiltersDebugController from '~/components/map/filters/debug/MapFiltersDebugController.vue';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
-import CommonButtonGroup from '~/components/ui/buttons/CommonButtonGroup.vue';
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
+import CommonButtonGroup from '~/components/common/basic/CommonButtonGroup.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import MapFiltersDebugClear from '~/components/map/filters/debug/MapFiltersDebugClear.vue';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
 import MapFiltersDebugUpload from '~/components/map/filters/debug/MapFiltersDebugUpload.vue';

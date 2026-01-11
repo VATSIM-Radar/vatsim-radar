@@ -80,14 +80,14 @@
 </template>
 
 <script setup lang="ts">
-import CommonTooltip from '~/components/ui/data/CommonTooltip.vue';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import type { UserMapSettingsColor } from '~/utils/backend/handlers/map-settings';
 import type { SelectItem } from '~/types/components/select';
-import CommonSelect from '~/components/ui/inputs/CommonSelect.vue';
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
+import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
 import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/colors';
 import { hexColorRegex } from '~/utils/shared';
-import ResetIcon from '~/assets/icons/kit/reset.svg?component';
+import ResetIcon from '@/assets/icons/kit/reset.svg?component';
 
 defineProps({
     defaultColor: {

@@ -263,20 +263,20 @@
 </template>
 
 <script setup lang="ts">
-import CommonInputText from '~/components/ui/inputs/CommonInputText.vue';
-import CommonButton from '~/components/ui/buttons/CommonButton.vue';
+import CommonInputText from '~/components/common/basic/CommonInputText.vue';
+import CommonButton from '~/components/common/basic/CommonButton.vue';
 import { useFileDownload } from '~/composables/settings';
-import CommonBlockTitle from '~/components/ui/text/CommonBlockTitle.vue';
+import CommonBlockTitle from '~/components/common/blocks/CommonBlockTitle.vue';
 import SaveIcon from 'assets/icons/kit/save.svg?component';
 import ExportIcon from 'assets/icons/kit/load.svg?component';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
-import CommonTooltip from '~/components/ui/data/CommonTooltip.vue';
+import CommonTooltip from '~/components/common/basic/CommonTooltip.vue';
 import ShareIcon from '@/assets/icons/kit/share.svg?component';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import DragIcon from '@/assets/icons/kit/drag.svg?component';
 import type { UserPreset } from '#prisma';
 import { useStore } from '~/store';
-import CommonToggle from '~/components/ui/inputs/CommonToggle.vue';
+import CommonToggle from '~/components/common/basic/CommonToggle.vue';
 import equal from 'deep-equal';
 import { VueDraggable } from 'vue-draggable-plus';
 import CommonPopup from '~/components/common/popup/CommonPopup.vue';
