@@ -20,7 +20,7 @@ import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import {buildAttributions} from "~/composables/map";
+import { buildAttributions } from '~/composables/map';
 
 defineSlots<{ default: () => any }>();
 

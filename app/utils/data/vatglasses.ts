@@ -15,7 +15,7 @@ import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
 import type { WorkerDataStore } from '~/utils/server/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
-import {clientDB, initIDBData} from '~/composables/render/idb';
+import { clientDB, initIDBData } from '~/composables/render/idb';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;

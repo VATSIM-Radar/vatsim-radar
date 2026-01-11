@@ -1,7 +1,7 @@
-import type {VatSpyAPIData} from '~/types/data/vatspy';
-import type {Table} from 'dexie';
+import type { VatSpyAPIData } from '~/types/data/vatspy';
+import type { Table } from 'dexie';
 import Dexie from 'dexie';
-import type {RadarDataAirlinesAllList, SimAwareAPIData, VatglassesAPIData,} from '~/utils/server/storage';
+import type { RadarDataAirlinesAllList, SimAwareAPIData, VatglassesAPIData } from '~/utils/server/storage';
 
 import type {
     NavDataProcedure,
@@ -61,7 +61,7 @@ export function initIDBData<T>(getFunction: () => Promise<T>): () => Promise<T> 
     let data: T | null = null;
     let gettingData = false;
 
-    return async function () {
+    return async function() {
         if (typeof window === 'undefined') throw new Error('Server interval set');
 
         if (gettingData) {
@@ -95,7 +95,8 @@ export function initIDBData<T>(getFunction: () => Promise<T>): () => Promise<T> 
             gettingData = false;
 
             return data;
-        } catch (e) {
+        }
+        catch (e) {
             gettingData = false;
 
             throw e;
