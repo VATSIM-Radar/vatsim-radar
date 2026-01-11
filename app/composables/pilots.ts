@@ -51,7 +51,11 @@ export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExte
     const view = map?.getView();
     const mapStore = useMapStore();
 
-    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => (x as StoreOverlayPilot).data.tracked = false);
+    mapStore.overlays.filter(x => x.type === 'pilot').forEach(x => {
+        const d = (x as StoreOverlayPilot).data;
+        d.tracked = false;
+        d.trackedMode = 'none';
+    });
     await nextTick();
 
     view?.animate({

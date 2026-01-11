@@ -277,7 +277,7 @@ import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/compo
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
-import { toDegrees } from 'ol/math';
+import { toDegrees, toRadians } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
 import CommonLogo from '~/components/common/basic/CommonLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
@@ -556,8 +556,8 @@ const restoreOverlays = async () => {
         }
 
         if (overlay && overlay.type === 'pilot' && overlay?.data.pilot) {
-            mapStore.overlays.map(x => x.type === 'pilot' && (x.data.tracked = false));
-            overlay.data.tracked = true;
+            mapStore.overlays.map(x => x.type === 'pilot' && (x.data.trackedMode = 'none'));
+            overlay.data.trackedMode = 'position';
             showPilotOnMap(overlay.data.pilot, map.value, getRouteZoom() ?? undefined);
         }
     }
@@ -1044,14 +1044,133 @@ await setupDataFetch({
 
         await restoreOverlays();
 
+        let programmaticMove = false;
+        let followStop: (() => void) | null = null;
+        let prevViewSnapshot: { center: any; zoom: number | undefined; rotation: number | undefined } | null = null;
+
         map.value.on('movestart', () => {
+            if (programmaticMove) {
+                programmaticMove = false;
+                return;
+            }
+
             moving = true;
             mapStore.moving = true;
+
+            const tracked = mapStore.overlays.find(x => x.type === 'pilot' && (x as StoreOverlayPilot).data?.trackedMode && (x as StoreOverlayPilot).data.trackedMode !== 'none') as StoreOverlayPilot;
+            if (tracked) {
+                tracked.data.trackedMode = 'none';
+            }
         });
+
         map.value.on('moveend', async () => {
             moving = false;
             handleMoveEnd();
         });
+
+        const trackedOverlay = computed(() => mapStore.overlays.find(x => x.type === 'pilot' && ((x as StoreOverlayPilot).data?.trackedMode && (x as StoreOverlayPilot).data.trackedMode !== 'none')) as (StoreOverlayPilot | undefined));
+
+        const stopExistingFollow = () => {
+            if (followStop) {
+                followStop();
+                followStop = null;
+
+                if (prevViewSnapshot && map.value) {
+                    const view = map.value.getView();
+                    programmaticMove = true;
+                    view.animate({
+                        center: prevViewSnapshot.center ?? view.getCenter(),
+                        zoom: prevViewSnapshot.zoom ?? view.getZoom(),
+                        rotation: prevViewSnapshot.rotation ?? view.getRotation(),
+                        duration: 800,
+                    });
+                    prevViewSnapshot = null;
+                }
+            }
+        };
+
+        watch(() => mapStore.followMode, mode => {
+            if (mode === 'none') {
+                const tracked = mapStore.overlays.find(x => x.type === 'pilot' && (x as StoreOverlayPilot).data?.trackedMode && (x as StoreOverlayPilot).data.trackedMode !== 'none') as (StoreOverlayPilot | undefined);
+                if (tracked) {
+                    tracked.data.trackedMode = 'none';
+                }
+                else {
+                    stopExistingFollow();
+                }
+            }
+        });
+
+        watch(trackedOverlay, overlay => {
+            stopExistingFollow();
+            if (!overlay || !map.value) return;
+
+            const cid = Number(overlay.key);
+            const dataStoreLocal = dataStore;
+            const view = map.value!.getView();
+
+            const computeZoomForPilot = (pilot: any) => {
+                // Rely on groundspeed
+                const gs = Number(pilot.groundspeed ?? 0);
+
+                // interpolation function
+                const interpolate = (x: number, x0: number, x1: number, y0: number, y1: number) => {
+                    if (x1 === x0) return y0;
+                    const t = Math.max(0, Math.min(1, (x - x0) / (x1 - x0)));
+                    return (y0 + ((y1 - y0) * t));
+                };
+
+                // defined knots groundspeed in knots > zoom:
+                // 0 -> 16.2
+                // 5 -> 15.8
+                // 20 -> 15.2
+                // 30 -> 15.0
+                // 60 -> 13.8
+                // 100 -> 13.0
+                // 200 -> 11.0
+                // 800 -> 8.0
+
+                if (gs <= 0) return 16.2;
+                if (gs <= 5) return interpolate(gs, 0, 5, 16.2, 15.8);
+                if (gs <= 20) return interpolate(gs, 5, 20, 15.8, 15.2);
+                if (gs <= 30) return interpolate(gs, 20, 30, 15.2, 15.0);
+                if (gs <= 60) return interpolate(gs, 30, 60, 15.0, 13.8);
+                if (gs <= 100) return interpolate(gs, 60, 100, 13.8, 13.0);
+                if (gs <= 200) return interpolate(gs, 100, 200, 13.0, 11.0);
+
+                return interpolate(Math.min(gs, 800), 200, 800, 11.0, 8.0);
+            };
+
+            if (!prevViewSnapshot) {
+                prevViewSnapshot = { center: view.getCenter(), zoom: view.getZoom(), rotation: view.getRotation() };
+            }
+
+            followStop = watch(() => {
+                const foundPilot = dataStoreLocal.vatsim.data.keyedPilots.value?.[cid.toString()];
+                if (foundPilot) return { lon: foundPilot.longitude, lat: foundPilot.latitude, heading: foundPilot.heading, groundspeed: foundPilot.groundspeed };
+
+                const mandatoryData = dataStoreLocal.vatsim.mandatoryData.value;
+                if (mandatoryData) {
+                    const m = mandatoryData.pilots.find(p => p.cid === cid);
+                    if (m) return { lon: m.longitude, lat: m.latitude, heading: m.heading, groundspeed: 0 };
+                }
+
+                return null;
+            }, pos => {
+                if (!pos || !map.value) return;
+
+                const rotation = toRadians(-(pos.heading ?? 0));
+                const zoom = computeZoomForPilot(pos);
+
+                programmaticMove = true;
+                // decide rotation based on trackedMode
+                const overlayMode = overlay.data?.trackedMode ?? mapStore.followMode;
+                const animOpts = { center: [pos.lon, pos.lat], zoom, duration: 1000 } as { center: Coordinate; zoom: number; rotation?: number; duration: number };
+                if (overlayMode === 'heading') animOpts.rotation = rotation;
+
+                view.animate(animOpts);
+            }, { immediate: true });
+        }, { immediate: true });
 
         if (filterId.value) {
             const filter = await $fetch<UserFilterPreset>(`/api/user/filters/${ filterId.value }`).catch(() => {});
