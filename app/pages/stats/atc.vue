@@ -1,12 +1,12 @@
 <template>
-    <common-page-block container>
+    <ui-page-container container>
         <template #title>
             ATC
         </template>
 
-        <view-stats-tabs page-title="ATC"/>
+        <stats-tabs page-title="ATC"/>
 
-        <common-table
+        <ui-table
             clickable
             :data="list"
             :headers="[
@@ -47,9 +47,9 @@
                     View on map
                 </a>
             </template>
-        </common-table>
+        </ui-table>
 
-        <common-popup
+        <popup-fullscreen
             :model-value="!!overlayData"
             width="600px"
             @update:modelValue="!$event && (mapStore.overlays = [])"
@@ -62,27 +62,27 @@
                 v-if="overlayAtc"
                 class="__info-sections"
             >
-                <common-copy-info-block
+                <ui-copy-info
                     v-if="overlayAtc.text_atis"
                     auto-expand
                     class="atc__sections_section"
                     :text="getATIS(overlayAtc, false)?.join('\n')"
                 >
                     ATIS
-                </common-copy-info-block>
+                </ui-copy-info>
             </div>
-        </common-popup>
-    </common-page-block>
+        </popup-fullscreen>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import { useMapStore } from '~/store/map';
-import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
-import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
+import StatsTabs from '~/components/views/StatsTabs.vue';
+import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import { getATCTime } from '~/composables/atc';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

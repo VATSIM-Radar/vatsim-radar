@@ -1,6 +1,6 @@
 <template>
     <view-map mode="map">
-        <common-info-popup
+        <popup-overlay
             class="compare"
             disabled
             max-height="100%"
@@ -11,22 +11,22 @@
                 Settings
             </template>
             <template #content>
-                <common-radio-group
+                <ui-radio-group
                     v-model="showConfig"
                     :items="[{ value: 'all' }, { value: 'previous' }, { value: 'changed' }, { value: 'added' }, { value: 'removed' }]"
                 />
-                <common-toggle v-model="hideUnchanged">
+                <ui-toggle v-model="hideUnchanged">
                     Hide unchanged
-                </common-toggle>
+                </ui-toggle>
             </template>
-        </common-info-popup>
-        <map-overlay
+        </popup-overlay>
+        <map-html-overlay
             v-if="openProps"
             :settings="{ position: openProps.pixel, stopEvent: true }"
             :z-index="5"
             @update:modelValue="openProps = null"
         >
-            <common-popup-block
+            <popup-map-info
                 class="props"
                 @mouseleave="openProps = null"
             >
@@ -53,15 +53,15 @@
                         </div>
                     </div>
                 </div>
-            </common-popup-block>
-        </map-overlay>
+            </popup-map-info>
+        </map-html-overlay>
     </view-map>
 </template>
 
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
+import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { ShallowRef } from 'vue';
 import { Feature } from 'ol';
 import type { Map, MapBrowserEvent } from 'ol';
@@ -70,11 +70,11 @@ import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
 import type { ColorsList } from '~/utils/backend/styles';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
-import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
-import MapOverlay from '~/components/map/MapOverlay.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 

@@ -49,7 +49,7 @@
                     :class="{ 'map_popups_list--empty': !mapStore.overlays.length }"
                 >
                     <transition-group name="map_popups_popup--appear">
-                        <map-popup
+                        <map-overlays
                             v-for="overlay in mapStore.overlays"
                             :key="overlay.id+overlay.key"
                             class="map_popups_popup"
@@ -68,7 +68,7 @@
             <map-controls v-if="!store.config.hideAllExternal"/>
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
-                    <view-selected-procedures/>
+                    <map-selected-procedures/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
                     <map-sectors-list
                         v-if="!store.config.hideSectors"
@@ -84,7 +84,7 @@
                         href="https://vatsim-radar.com"
                         target="_blank"
                     >
-                        <common-logo
+                        <branding-logo
                             font-size="14px"
                             width="50px"
                         />
@@ -98,9 +98,9 @@
                     :key="(store.theme ?? 'default') + 'terminator'"
                 />
                 <map-sigmets v-if="store.localSettings.filters?.layers?.sigmets?.enabled"/>
-                <map-filters v-if="!store.config.hideHeader"/>
+                <map-settings v-if="!store.config.hideHeader"/>
             </client-only>
-            <common-popup
+            <popup-fullscreen
                 v-if="route.query"
                 v-model="isDiscord"
             >
@@ -109,17 +109,17 @@
                 </template>
 
                 You have successfully verified in VATSIM Radar Discord.
-            </common-popup>
-            <common-popup :model-value="store.presetImport.preset === false">
+            </popup-fullscreen>
+            <popup-fullscreen :model-value="store.presetImport.preset === false">
                 <template #title>Preset Import</template>
                 Preset import failed. That could be because preset name length is more than 30 symbols, invalid JSON, or an error in yours or ours network.
                 <template #actions>
-                    <common-button @click="store.presetImport.preset = null">
+                    <ui-button @click="store.presetImport.preset = null">
                         Thanks, I guess?
-                    </common-button>
+                    </ui-button>
                 </template>
-            </common-popup>
-            <common-popup
+            </popup-fullscreen>
+            <popup-fullscreen
                 :model-value="!!store.presetImport.preset && typeof store.presetImport.preset === 'object'"
                 width="600px"
             >
@@ -127,28 +127,28 @@
 
                 Warning: preset import will overwrite your current preset.<br><br>
 
-                <common-input-text
+                <ui-input-text
                     v-if="store.user"
                     v-model="store.presetImport.name"
                     placeholder="Enter a name for new preset"
                 />
 
                 <template #actions>
-                    <common-button
+                    <ui-button
                         type="secondary-875"
                         @click="store.presetImport.preset = null"
                     >
                         Cancel import
-                    </common-button>
-                    <common-button
+                    </ui-button>
+                    <ui-button
                         :disabled="!store.presetImport.name && !!store.user"
                         @click="store.presetImport.save!()"
                     >
                         Import preset
-                    </common-button>
+                    </ui-button>
                 </template>
-            </common-popup>
-            <common-popup
+            </popup-fullscreen>
+            <popup-fullscreen
                 :model-value="!!store.presetImport.error"
                 @update:modelValue="$event === false && (store.presetImport.error = $event)"
             >
@@ -159,19 +159,19 @@
                 You are trying to save preset with same name as you already have.<br> Do you maybe want to override it?
 
                 <template #actions>
-                    <common-button
+                    <ui-button
                         hover-color="error700"
                         primary-color="error500"
                         @click="typeof store.presetImport.error === 'function' && store.presetImport.error().then(() => store.presetImport.error = false)"
                     >
                         Overwrite my old preset
-                    </common-button>
-                    <common-button @click="store.presetImport.error = false">
+                    </ui-button>
+                    <ui-button @click="store.presetImport.error = false">
                         I'll rename it
-                    </common-button>
+                    </ui-button>
                 </template>
-            </common-popup>
-            <common-popup
+            </popup-fullscreen>
+            <popup-fullscreen
                 v-model="mapStore.distance.tutorial"
                 width="600px"
             >
@@ -197,19 +197,19 @@
                     <li>
                         This tool disables double click to zoom. Need to use both Distance Tool and click to zoom? Enable CTRL+Click!
 
-                        <common-toggle
+                        <ui-toggle
                             :model-value="!!store.localSettings.distance?.ctrlClick"
                             @update:modelValue="setUserLocalSettings({ distance: { ctrlClick: $event } })"
                         >
                             CTRL+Click instead of double click
-                        </common-toggle>
+                        </ui-toggle>
                     </li>
                     <li>
                         You can change CTRL+Click action and displayed units in Map layer settings (second icon on left filters screen)
                     </li>
                 </ol>
-            </common-popup>
-            <common-popup
+            </popup-fullscreen>
+            <popup-fullscreen
                 v-if="observerFlight && canShowObserver"
                 :model-value="canShowObserver"
                 width="700px"
@@ -225,7 +225,7 @@
 
                 <br><br>
 
-                <common-toggle
+                <ui-toggle
                     v-model="skipObserver.value"
                     align-left
                 >
@@ -234,20 +234,20 @@
                     <template #description>
                         You will be able to change this later by clicking on track icon below filters in the left
                     </template>
-                </common-toggle>
+                </ui-toggle>
 
                 <template #actions>
-                    <common-button
+                    <ui-button
                         type="secondary"
                         @click="[mapStore.selectedCid = false, observerCookie = false]"
                     >
                         No, thanks
-                    </common-button>
-                    <common-button @click="[mapStore.selectedCid = observerFlight.cid, observerCookie = observerFlight.cid]">
+                    </ui-button>
+                    <ui-button @click="[mapStore.selectedCid = observerFlight.cid, observerCookie = observerFlight.cid]">
                         Yes, connect me and {{observerFlight.callsign}}
-                    </common-button>
+                    </ui-button>
                 </template>
-            </common-popup>
+            </popup-fullscreen>
         </template>
         <client-only v-else-if="mode === 'sigmets' && ready">
             <map-layer/>
@@ -270,7 +270,7 @@ import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/data';
-import MapPopup from '~/components/map/popups/MapPopup.vue';
+import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
 import { useMapStore } from '~/store/map';
 import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/pilots';
@@ -279,10 +279,10 @@ import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]
 import { boundingExtent, buffer, getCenter } from 'ol/extent';
 import { toDegrees } from 'ol/math';
 import type { Coordinate } from 'ol/coordinate';
-import CommonLogo from '~/components/common/basic/CommonLogo.vue';
+import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import type { UserFilterPreset } from '~/utils/backend/handlers/filters';
 import type { UserBookmarkPreset } from '~/utils/backend/handlers/bookmarks';
 import { showBookmark } from '~/composables/fetchers';
@@ -290,10 +290,10 @@ import { fromLonLat, toLonLat, transformExtent } from 'ol/proj';
 import NavigraphLayers from '~/components/map/navigraph/NavigraphLayers.vue';
 import { useRadarError } from '~/composables/errors';
 import { getPilotTrueAltitude, NotamType } from '~/utils/shared/vatsim';
-import ViewSelectedProcedures from '~/components/views/ViewSelectedProcedures.vue';
+import MapSelectedProcedures from '~/components/map/MapSelectedProcedures.vue';
 import { defaults } from 'ol/interaction';
 import PointerInteraction from 'ol/interaction/Pointer';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import LayerGroup from 'ol/layer/Group';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
 import AnnounceIcon from '~/assets/icons/kit/announce.svg?component';
@@ -305,8 +305,8 @@ import MapTerminator from '~/components/map/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
 import MapLayer from '~/components/map/MapLayer.vue';
 import MapSigmets from '~/components/map/MapSigmets.vue';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
-import MapFilters from '~/components/map/filters/MapFilters.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
+import MapSettings from '~/components/map/settings/MapSettings.vue';
 import MapWeather from '~/components/map/MapWeather.vue';
 import MapAirportsList from '~/components/map/airports/MapAirportsList.vue';
 import MapDistance from '~/components/map/MapDistance.vue';

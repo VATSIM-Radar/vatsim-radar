@@ -1,5 +1,5 @@
 <template>
-    <common-page-block class="privacy-policy">
+    <ui-page-container class="privacy-policy">
         <div
             class="privacy-policy_hero"
             :class="{ 'privacy-policy_hero--light': store.getCurrentTheme === 'light' }"
@@ -158,11 +158,11 @@
                 </li>
             </ol>
         </div>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import { useStore } from '~/store';
 
 useHead({

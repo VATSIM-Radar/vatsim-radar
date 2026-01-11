@@ -311,7 +311,7 @@ function airportExistsAtPixel(eventPixel: Pixel) {
 function traconLabelExistsAtPixel(eventPixel: Pixel) {
     const features = map.value!.getFeaturesAtPixel(eventPixel, {
         hitTolerance: 0,
-        layerFilter: layer => layer.getProperties().type === 'arr-atc',
+        layerFilter: layer => layer.getProperties().type === 'arr-controllers',
     });
 
     if (features.length > 0) {

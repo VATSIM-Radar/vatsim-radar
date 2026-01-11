@@ -17,7 +17,7 @@
                         {{ icao }}
                     </div>
                     <div class="airport_header__title_refresh">
-                        <common-button
+                        <ui-button
                             :disabled="loadingData"
                             icon-width="16px"
                             title="Refresh weather / NOTAMs"
@@ -27,12 +27,12 @@
                             <template #icon>
                                 <rotate-clockwise/>
                             </template>
-                        </common-button>
+                        </ui-button>
                     </div>
                 </div>
             </div>
             <div class="airport_header_section">
-                <common-select
+                <ui-select
                     v-model="aircraftMode"
                     :items="aircraftModes"
                     placeholder="Filter Map Aircraft"
@@ -40,7 +40,7 @@
                 />
             </div>
             <div class="airport_header_section">
-                <common-select
+                <ui-select
                     v-model="mapMode"
                     :items="mapModes"
                     placeholder="Page Layout"
@@ -48,20 +48,20 @@
                 />
             </div>
             <div class="airport_header_section">
-                <common-toggle v-model="controllerMode">
+                <ui-toggle v-model="controllerMode">
                     Controller Mode
-                </common-toggle>
+                </ui-toggle>
             </div>
             <div class="airport_header_section">
-                <common-toggle v-model="arrivalTracks">
+                <ui-toggle v-model="arrivalTracks">
                     Arrival Tracks
-                </common-toggle>
+                </ui-toggle>
             </div>
             <div
                 v-if="controllerMode"
                 class="airport_header_section"
             >
-                <common-select
+                <ui-select
                     v-model="displayedColumns"
                     :items="displayableColumns"
                     multiple
@@ -74,11 +74,11 @@
                 v-if="controllerMode"
                 class="airport_header_section"
             >
-                <common-toggle
+                <ui-toggle
                     v-model="showPilotStats"
                 >
                     Show pilot stats
-                </common-toggle>
+                </ui-toggle>
             </div>
         </div>
         <div
@@ -164,7 +164,7 @@
                     class="airport_column_data"
                 >
                     <div class="airport_column__title">
-                        <common-tabs
+                        <ui-tabs
                             v-model="airportTab"
                             :tabs="{ info: { title: 'Airport Info' }, proc: { title: 'Procedures' } }"
                         />
@@ -181,7 +181,7 @@
                     class="airport_column_data"
                 >
                     <div class="airport_column__title">
-                        <common-tabs
+                        <ui-tabs
                             v-model="weatherTab"
                             :tabs="{ metar: { title: 'METAR' }, taf: { title: 'TAF' } }"
                         />
@@ -214,9 +214,9 @@
                         <div class="airport_column__title_text">
                             Active Controllers
                         </div>
-                        <common-bubble class="airport_column__title_aside">
+                        <ui-bubble class="airport_column__title_aside">
                             {{ atc.length }}
-                        </common-bubble>
+                        </ui-bubble>
                     </div>
                     <airport-controllers v-if="ready"/>
                 </div>
@@ -258,19 +258,19 @@
                                 v-if="column.key === 'arrivals'"
                                 class="airport__aircraft-title_interval"
                             >
-                                <map-popup-rate
+                                <vatsim-traffic-rate
                                     :aircraft="aircraft"
                                     :icon-color="radarColors.warning500"
                                     :text-color="radarColors.warning500"
                                     :use-opacity="store.theme === 'default'"
                                 />
                             </div>
-                            <common-bubble
+                            <ui-bubble
                                 class="airport__aircraft-title_bubble"
                                 :class="{ 'airport__aircraft-title_bubble--dark': column.darkColor }"
                             >
                                 {{ aircraft?.[column.key]?.length ?? 0 }}
-                            </common-bubble>
+                            </ui-bubble>
                         </div>
                     </div>
                     <airport-aircraft
@@ -303,7 +303,7 @@
                 />
             </transition>
         </div>
-        <common-popup
+        <popup-fullscreen
             v-if="(mapLayouts[mapMode ?? 'default'].map === '0' || isMobileOrTablet) && selectedPilot"
             disabled
             :model-value="!!selectedPilot"
@@ -314,41 +314,41 @@
                 class="airport_map_pilot airport_map_pilot--popup"
                 @update:modelValue="selectedPilot = null"
             />
-        </common-popup>
+        </popup-fullscreen>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import AirportInfo from '~/components/views/airport/AirportInfo.vue';
+import AirportInfo from '~/components/features/vatsim/airport/AirportInfo.vue';
 import { getAircraftForAirport, getATCForAirport, provideAirport } from '~/composables/airport';
 import type { StoreOverlayAirport } from '~/store/map';
-import AirportMetar from '~/components/views/airport/AirportMetar.vue';
-import AirportTaf from '~/components/views/airport/AirportTaf.vue';
-import AirportNotams from '~/components/views/airport/AirportNotams.vue';
+import AirportMetar from '~/components/features/vatsim/airport/AirportMetar.vue';
+import AirportTaf from '~/components/features/vatsim/airport/AirportTaf.vue';
+import AirportNotams from '~/components/features/vatsim/airport/AirportNotams.vue';
 import { parseMetar } from 'metar-taf-parser';
 import type { IAltimeter } from 'metar-taf-parser';
-import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import UiBubble from '~/components/ui/data/UiBubble.vue';
 import type { Ref } from 'vue';
-import AirportAircraft from '~/components/views/airport/AirportAircraft.vue';
-import AirportControllers from '~/components/views/airport/AirportControllers.vue';
+import AirportAircraft from '~/components/features/vatsim/airport/AirportAircraft.vue';
+import AirportControllers from '~/components/features/vatsim/airport/AirportControllers.vue';
 import { useStore } from '~/store';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import UiSelect from '~/components/ui/inputs/UiSelect.vue';
 import type { SelectItem } from '~/types/components/select';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { MapAircraftKeys, MapAircraftMode } from '~/types/map';
 import { useShowPilotStats } from '~/composables/pilots';
-import AirportPilot from '~/components/views/airport/AirportPilot.vue';
-import MapPopupRate from '~/components/map/popups/MapPopupRate.vue';
-import CommonTabs from '~/components/common/basic/CommonTabs.vue';
+import AirportPilot from '~/components/features/vatsim/airport/AirportPilot.vue';
+import VatsimTrafficRate from '~/components/features/vatsim/airport/VatsimTrafficRate.vue';
+import UiTabs from '~/components/ui/data/UiTabs.vue';
 import { useRadarError } from '~/composables/errors';
-import AirportProcedures from '~/components/views/airport/AirportProcedures.vue';
+import AirportProcedures from '~/components/features/vatsim/airport/AirportProcedures.vue';
 import { updateCachedProcedures } from '~/composables/navigraph';
 import RotateClockwise from '@/assets/icons/kit/rotate-clockwise.svg?component';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const route = useRoute();
 const router = useRouter();

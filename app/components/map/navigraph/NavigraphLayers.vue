@@ -15,14 +15,14 @@
             v-if="store.localSettings.natTrak?.enabled"
             :key="JSON.stringify(store.localSettings.natTrak)"
         />
-        <map-overlay
+        <map-html-overlay
             v-if="activeFeature"
             model-value
             :settings="{ position: activeFeature!.coords, stopEvent: true }"
             :z-index="8"
             @update:modelValue="activeFeature = null"
         >
-            <common-popup-block
+            <popup-map-info
                 @mouseleave="activeFeature = null"
             >
                 <template #title>
@@ -191,15 +191,15 @@
                                 </template>
                             </div>
                         </div>
-                        <common-copy-info-block
+                        <ui-copy-info
                             :text="activeFeature.data.last_routeing"
                         >
                             Route
-                        </common-copy-info-block>
+                        </ui-copy-info>
                     </div>
                 </div>
-            </common-popup-block>
-        </map-overlay>
+            </popup-map-info>
+        </map-html-overlay>
     </div>
 </template>
 
@@ -223,10 +223,10 @@ import { useMapStore } from '~/store/map';
 import NavigraphProcedures from '~/components/map/navigraph/NavigraphProcedures.vue';
 import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
 import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
-import CommonCopyInfoBlock from '~/components/common/blocks/CommonCopyInfoBlock.vue';
+import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import type { VatsimNattrakClient } from '~/types/data/vatsim';
-import MapOverlay from '~/components/map/MapOverlay.vue';
-import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);
 let navigraphLayer: VectorImageLayer<any> | undefined;

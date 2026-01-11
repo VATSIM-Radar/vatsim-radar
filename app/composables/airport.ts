@@ -22,7 +22,7 @@ export function injectAirport(): Ref<StoreOverlayAirport['data']> {
 }
 
 export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
-    const injected = inject<MaybeRef<VatsimShortenedController[]> | null>('airport-atc', null);
+    const injected = inject<MaybeRef<VatsimShortenedController[]> | null>('airport-controllers', null);
 
     const comp = computed((): VatsimShortenedController[] => {
         if (injected) return toValue(injected);
@@ -51,7 +51,7 @@ export const getATCForAirport = (data: Ref<StoreOverlayAirport['data']>) => {
         return list;
     });
 
-    if (getCurrentInstance() && !injected) provide('airport-atc', comp);
+    if (getCurrentInstance() && !injected) provide('airport-controllers', comp);
 
     return comp;
 };

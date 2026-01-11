@@ -490,11 +490,11 @@ export async function updateBookings() {
             subdivision: '',
         };
 
-        const atc = makeFakeAtc(fakeBooking);
+        const controllers = makeFakeAtc(fakeBooking);
 
         bookings.push({
             ...fakeBooking,
-            atc,
+            controllers,
             start: start.getTime(),
             end: end.getTime(),
             division: undefined,

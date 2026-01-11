@@ -1,12 +1,12 @@
 <template>
-    <map-overlay
+    <map-html-overlay
         v-if="openSigmet"
         class="sigmets-overlay"
         :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
         :z-index="5"
         @update:modelValue="openSigmet = null"
     >
-        <common-popup-block
+        <popup-map-info
             class="sigmets"
             @mouseleave="openSigmet = null"
         >
@@ -33,8 +33,8 @@
                     </div>
                 </div>
             </div>
-        </common-popup-block>
-    </map-overlay>
+        </popup-map-info>
+    </map-html-overlay>
 </template>
 
 <script setup lang="ts">
@@ -50,8 +50,8 @@ import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { useMapStore } from '~/store/map';
-import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
-import MapOverlay from '~/components/map/MapOverlay.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

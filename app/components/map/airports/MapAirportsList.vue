@@ -227,7 +227,7 @@ watch(map, val => {
             source: vectorSource.value,
             zIndex: 7,
             properties: {
-                type: 'arr-atc',
+                type: 'arr-controllers',
             },
         });
 

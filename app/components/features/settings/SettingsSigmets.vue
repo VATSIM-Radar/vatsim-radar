@@ -1,0 +1,144 @@
+<template>
+    <div class="sigmets-settings">
+        <settings-transparency
+            class="sigmets-settings_transparency"
+            setting="sigmets"
+        />
+        <client-only>
+            <div
+                v-for="(button, key) in buttons"
+                :key="key"
+                class="sigmets-settings_btn"
+                :class="{
+                    'sigmets-settings_btn--dark': button.color.startsWith('lightgray'),
+                    'sigmets-settings_btn--active': !store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key),
+                }"
+                :style="{ '--color': getCurrentThemeRgbColor(button.color).join(',') }"
+                @click="setUserLocalSettings({ filters: { layers: { sigmets: {
+                    disabled: store.localSettings?.filters?.layers?.sigmets?.disabled?.includes(key)
+                        ? store.localSettings?.filters?.layers?.sigmets?.disabled.filter(x => x !== key)
+                        : [...store.localSettings?.filters?.layers?.sigmets?.disabled ?? [], key],
+                } } } })"
+            >
+                {{ button.text }}
+            </div>
+        </client-only>
+        <ui-toggle
+            :model-value="store.localSettings?.filters?.layers?.sigmets?.showAirmets !== false"
+            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { showAirmets: $event } } } })"
+        >
+            AIRMETs
+        </ui-toggle>
+        <ui-toggle
+            :model-value="!!store.localSettings?.filters?.layers?.sigmets?.raw"
+            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { raw: $event } } } })"
+        >
+            Show raw SIGMET data only
+        </ui-toggle>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { useStore } from '~/store';
+import type { ColorsList } from '~/utils/backend/styles';
+import type { SigmetType } from '~/types/map';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';
+
+const store = useStore();
+
+interface Button {
+    text: string;
+    color: ColorsList;
+}
+
+const buttons: Record<SigmetType, Button> = {
+    CONV: {
+        text: 'CONV',
+        color: 'error500',
+    },
+    TS: {
+        text: 'TS',
+        color: 'error300',
+    },
+    ICE: {
+        text: 'ICE',
+        color: 'primary300',
+    },
+    FZLVL: {
+        text: 'FZLVL',
+        color: 'primary500',
+    },
+    TURB: {
+        text: 'TURB',
+        color: 'warning700',
+    },
+    MTW: {
+        text: 'MTW',
+        color: 'warning600',
+    },
+    WIND: {
+        text: 'WIND',
+        color: 'lightgray200',
+    },
+    WS: {
+        text: 'WS',
+        color: 'lightgray150',
+    },
+    IFR: {
+        text: 'IFR',
+        color: 'info700',
+    },
+    OBSC: {
+        text: 'OBSC',
+        color: 'info500',
+    },
+    VA: {
+        text: 'VA',
+        color: 'darkgray800',
+    },
+};
+</script>
+
+<style scoped lang="scss">
+.sigmets-settings{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    &_transparency {
+        width: 100%;
+    }
+
+    &_btn {
+        cursor: pointer;
+
+        padding: 4px;
+        border: 1px solid rgb(var(--color));
+        border-radius: 8px;
+
+        font-family: $defaultFont;
+        font-size: 12px;
+        font-weight: 600;
+        color: $lightgray100Orig;
+
+        background: transparent;
+
+        transition: 0.3s;
+
+        &--dark.sigmets-settings_btn--active {
+            color: $darkgray1000Orig;
+        }
+
+        @include hover {
+            &:hover {
+                background: rgb(var(--color), 0.2);
+            }
+        }
+
+        &--active {
+            background: rgb(var(--color)) !important;
+        }
+    }
+}
+</style>

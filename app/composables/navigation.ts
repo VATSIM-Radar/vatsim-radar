@@ -84,7 +84,7 @@ export const useHeaderMenu = () => computed<HeaderItem[]>(() => {
                 },
                 {
                     text: 'ATC',
-                    path: '/stats/atc',
+                    path: '/stats/controllers',
                 },
                 {
                     text: 'Observers',

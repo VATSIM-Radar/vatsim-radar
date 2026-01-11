@@ -1,5 +1,5 @@
 <template>
-    <map-overlay
+    <map-html-overlay
         v-if="!hide && Object.values(getAircraftCounters).some(x => x.length)"
         :active-z-index="21"
         persistent
@@ -22,7 +22,7 @@
             >
                 {{ item?.length ?? 0 }}
             </div>
-            <common-popup-block
+            <popup-map-info
                 v-if="hoveredAircraft.length"
                 class="airport-counts__airplanes"
             >
@@ -47,7 +47,7 @@
                     </div>
                 </template>
                 <div class="airport-counts__airplanes_list">
-                    <common-info-block
+                    <ui-text-block
                         v-for="pilot in hoveredAircraft"
                         :key="pilot.cid"
                         is-button
@@ -77,12 +77,12 @@
                                 </span>
                                 {{ item }}
                             </template>
-                            <common-spoiler
+                            <ui-spoiler
                                 v-else-if="item === pilot.name"
                                 type="pilot"
                             >
                                 {{ parseEncoding(pilot.name) }}
-                            </common-spoiler>
+                            </ui-spoiler>
                             <div
                                 v-else
                                 class="airport-counts__popup-info"
@@ -90,11 +90,11 @@
                                 {{ item }}
                             </div>
                         </template>
-                    </common-info-block>
+                    </ui-text-block>
                 </div>
-            </common-popup-block>
+            </popup-map-info>
         </div>
-    </map-overlay>
+    </map-html-overlay>
 </template>
 
 <script setup lang="ts">
@@ -102,14 +102,14 @@ import type { PropType } from 'vue';
 import type { MapAircraft, MapAircraftKeys } from '~/types/map';
 import type { VatSpyData } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
-import MapOverlay from '~/components/map/MapOverlay.vue';
-import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import type { PartialRecord } from '~/types';
 import type { VatsimShortenedAircraft, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store';
 import { parseEncoding } from '~/utils/data';
-import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 
 const props = defineProps({
     airport: {

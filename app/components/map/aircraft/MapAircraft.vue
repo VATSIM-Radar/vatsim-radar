@@ -3,7 +3,7 @@
         <slot/>
     </template>
     <template v-else>
-        <map-overlay
+        <map-html-overlay
             class="aircraft-overlay"
             :model-value="props.isHovered"
             :settings="{
@@ -15,7 +15,7 @@
             :z-index="20"
             @update:overlay="mapStore.openPilotOverlay = !!$event"
         >
-            <common-popup-block
+            <popup-map-info
                 v-if="pilot && !store.isTouch"
                 class="aircraft-hover"
                 @mouseleave="hoveredOverlay = false"
@@ -37,52 +37,52 @@
                     v-if="pilot.frequencies.length >= 1 && !isShortInfo"
                     #titleAppend
                 >
-                    <common-bubble
+                    <ui-bubble
                         class="aircraft-hover__frequency"
                         type="primary-flat"
                     >
                         {{ pilot.frequencies[0] }}
-                    </common-bubble>
-                    <common-bubble
+                    </ui-bubble>
+                    <ui-bubble
                         v-if="pilot.frequencies[1] && store.config.airport"
                         class="aircraft-hover__frequency"
                         type="primary-flat"
                     >
                         {{ pilot.frequencies[1] }}
-                    </common-bubble>
-                    <common-bubble
+                    </ui-bubble>
+                    <ui-bubble
                         v-if="pilot.transponder && store.config.airport"
                         class="aircraft-hover__frequency"
                         type="primary-flat"
                     >
                         {{ pilot.transponder }}
-                    </common-bubble>
+                    </ui-bubble>
                 </template>
                 <div class="aircraft-hover_body">
-                    <common-info-block v-if="isShortInfo">
+                    <ui-text-block v-if="isShortInfo">
                         <template #top>
                             {{pilot.callsign}}
                             <template v-if="pilot.aircraft_faa">
                                 - {{pilot.aircraft_faa}}
                             </template>
                             <template v-if="pilot.frequencies.length >= 1 && isShortInfo">
-                                - <common-bubble
+                                - <ui-bubble
                                     class="aircraft-hover__frequency"
                                     type="primary-flat"
                                 >
                                     {{ pilot.frequencies[0] }}
-                                </common-bubble>
+                                </ui-bubble>
                             </template>
                         </template>
-                    </common-info-block>
-                    <common-info-block
+                    </ui-text-block>
+                    <ui-text-block
                         class="aircraft-hover__pilot"
                         is-button
                         :top-items="[pilot.name, friend?.comment]"
                         @click="mapStore.addPilotOverlay(aircraft.cid.toString())"
                     >
                         <template #top="{ index,item }">
-                            <common-spoiler
+                            <ui-spoiler
                                 v-if="index === 0"
                                 type="pilot"
                             >
@@ -92,7 +92,7 @@
                                 <template v-else>
                                     {{ parseEncoding(pilot.name) }}
                                 </template>
-                            </common-spoiler>
+                            </ui-spoiler>
                             <template v-else>
                                 {{item}}
                             </template>
@@ -103,13 +103,13 @@
                         >
                             {{ usePilotRating(pilot).join(' | ') }}
                         </template>
-                    </common-info-block>
-                    <common-pilot-destination
+                    </ui-text-block>
+                    <vatsim-pilot-destination
                         :pilot
                         :short="isShortInfo"
                     />
                     <div class="aircraft-hover_sections">
-                        <common-info-block
+                        <ui-text-block
                             v-if="typeof pilot.groundspeed === 'number'"
                             text-align="center"
                         >
@@ -122,8 +122,8 @@
                             <template #bottom>
                                 {{ pilot.groundspeed }} kts
                             </template>
-                        </common-info-block>
-                        <common-info-block
+                        </ui-text-block>
+                        <ui-text-block
                             v-if="typeof pilot.altitude === 'number'"
                             text-align="center"
                         >
@@ -136,8 +136,8 @@
                             <template #bottom>
                                 {{ getPilotTrueAltitude(pilot) }} ft
                             </template>
-                        </common-info-block>
-                        <common-info-block
+                        </ui-text-block>
+                        <ui-text-block
                             v-if="typeof getHeading === 'number' && !isShortInfo"
                             text-align="center"
                         >
@@ -149,11 +149,11 @@
                             <template #bottom>
                                 {{ getHeading }}°
                             </template>
-                        </common-info-block>
+                        </ui-text-block>
                     </div>
                 </div>
-            </common-popup-block>
-        </map-overlay>
+            </popup-map-info>
+        </map-html-overlay>
     </template>
 </template>
 
@@ -181,17 +181,17 @@ import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
-import MapOverlay from '~/components/map/MapOverlay.vue';
-import CommonPopupBlock from '~/components/common/popup/CommonPopupBlock.vue';
-import CommonInfoBlock from '~/components/common/blocks/CommonInfoBlock.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import { point } from '@turf/helpers';
 import greatCircle from '@turf/great-circle';
 import type { Feature as GeoFeature, Point as GeoPoint, Position } from 'geojson';
 import type { InfluxGeojson, InfluxGeojsonFeatureCollection } from '~/utils/backend/influx/converters';
-import CommonBubble from '~/components/common/basic/CommonBubble.vue';
-import CommonPilotDestination from '~/components/common/vatsim/CommonPilotDestination.vue';
-import CommonSpoiler from '~/components/common/vatsim/CommonSpoiler.vue';
+import UiBubble from '~/components/ui/data/UiBubble.vue';
+import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
+import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
 import type { Positioning } from 'ol/Overlay';
 import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';

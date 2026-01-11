@@ -1,5 +1,5 @@
 <template>
-    <common-popup
+    <popup-fullscreen
         disabled
         :model-value="store.initStatus.status !== false"
         width="600px"
@@ -7,12 +7,12 @@
         <template #title>
             VATSIM Radar initialization
         </template>
-        <common-notification
+        <ui-notification
             v-if="store.initStatus.navigraph === 'loading'"
             type="info"
         >
             Navigraph database is updating, this can take up to a minute...
-        </common-notification>
+        </ui-notification>
         <div class="init-items">
             <div
                 v-for="(item, key) in shownKeys"
@@ -33,11 +33,11 @@
             v-if="retries"
             #actions
         >
-            <common-button @click="retry">
+            <ui-button @click="retry">
                 Retry
-            </common-button>
+            </ui-button>
         </template>
-    </common-popup>
+    </popup-fullscreen>
 </template>
 
 <script setup lang="ts">
@@ -54,9 +54,9 @@ import {
 } from '~/composables/init';
 import CheckIcon from '@/assets/icons/kit/check.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
-import CommonPopup from '~/components/common/popup/CommonPopup.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const store = useStore();
 

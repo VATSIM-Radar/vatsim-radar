@@ -130,7 +130,7 @@ async function updateVatglassesPositionsAndAirspaces() {
         let first = 0; // used for debug
         const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
-            // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
+            // In data.firs it is called controller, in data.locals it is called controllers, so we have to get the correct one
             let atc = null;
             if ('controller' in fir) {
                 atc = fir.controller;
@@ -718,7 +718,7 @@ async function initVatglassesCombined() {
 
                     if (localPosition) {
                         if (serverPosition.sectorsCombined) {
-                            // overwrite the property atc of the combined sectors with the atc from the local server data. I don't know if it would be a problem if we use the atc data from the server, but to make it consistent that the atc property is always a reference to the local data, we overwrite it here
+                            // overwrite the property controllers of the combined sectors with the controllers from the local server data. I don't know if it would be a problem if we use the controllers data from the server, but to make it consistent that the controllers property is always a reference to the local data, we overwrite it here
                             for (const sector of serverPosition.sectorsCombined) {
                                 if (sector.properties) {
                                     sector.properties.atc = localPosition.atc;

@@ -1,5 +1,5 @@
 <template>
-    <common-page-block
+    <ui-page-container
         class="about"
     >
         <div
@@ -208,21 +208,21 @@
                     <div class="about__support_text">
                         VATSIM Radar is funded by generous members of the community. Help us keep the service running!
                     </div>
-                    <common-button
+                    <ui-button
                         class="about__support_button"
                         to="/support-us"
                     >
                         Support Us
-                    </common-button>
+                    </ui-button>
                 </div>
             </div>
         </div>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 
 useHead({

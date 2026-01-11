@@ -1,5 +1,5 @@
 <template>
-    <common-page-block>
+    <ui-page-container>
         <div class="roadmap">
             <div class="roadmap_runway">
                 <div class="roadmap_runway_start">
@@ -98,11 +98,11 @@
                 </div>
             </div>
         </div>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
 
@@ -224,7 +224,7 @@ const roadmap = reactive<Roadmap[]>([
                 status: 'completed',
             },
             {
-                title: 'Settings (hide atc/aircraft/gates/etc)',
+                title: 'Settings (hide controllers/aircraft/gates/etc)',
                 status: 'completed',
             },
             {
@@ -349,7 +349,7 @@ const roadmap = reactive<Roadmap[]>([
                 description: 'Popular over time etc',
             },
             'Images or aircraft type, airline + operator',
-            'Flights/atc sessions history, VATSIM user page',
+            'Flights/controllers sessions history, VATSIM user page',
             'History of events / events traffic',
             {
                 title: 'Proper Github local setup',

@@ -1,7 +1,7 @@
 <template>
     <slot v-if="isPrimaryAirport"/>
     <template v-else>
-        <map-overlay
+        <map-html-overlay
             v-if="localAtc.length && 'lon' in airport && !isPseudoAirport"
             :active-z-index="21"
             persistent
@@ -40,7 +40,7 @@
                         }}
                     </div>
                 </div>
-                <common-controller-info
+                <vatsim-controllers-list
                     v-if="hoveredFacility && mapStore.canShowOverlay"
                     ref="atcPopup"
                     absolute
@@ -64,9 +64,9 @@
                             }}
                         </template>
                     </template>
-                </common-controller-info>
+                </vatsim-controllers-list>
             </div>
-        </map-overlay>
+        </map-html-overlay>
         <map-airport-counts
             v-if="'lon' in airport && !isPseudoAirport && !store.bookingOverride"
             :aircraft="aircraft"
@@ -75,7 +75,7 @@
             :hide="!isVisible"
             :offset="localAtc.length ? [localATCOffsetX, 0] : [25, 'isIata' in props.airport && props.airport.isIata ? -30 : -10]"
         />
-        <map-overlay
+        <map-html-overlay
             v-if="!localAtc.length && 'lon' in airport && !isPseudoAirport && isVisible"
             class="airport__square"
             persistent
@@ -91,8 +91,8 @@
                     :style="{ '--color': getAirportColor }"
                 />
             </div>
-        </map-overlay>
-        <map-overlay
+        </map-html-overlay>
+        <map-html-overlay
             v-if="hoveredFeature && !hoveredFacility"
             model-value
             :settings="{ position: hoveredPixel!, positioning: 'top-center', stopEvent: approachScroll }"
@@ -100,7 +100,7 @@
             @mouseleave="$emit('manualHide')"
             @mouseover="$emit('manualHover')"
         >
-            <common-controller-info
+            <vatsim-controllers-list
                 ref="approachPopup"
                 :controllers="isDuplicatedOnly(hoveredFeature.controllers) ? hoveredFeature.controllers : hoveredFeature.controllers.filter(x => !x.duplicated)"
                 show-atis
@@ -110,8 +110,8 @@
                         hoveredFeature.feature.getProperties()?.name ?? `${ 'name' in airport ? airport.name : airport.icao } Approach/Departure`
                     }}
                 </template>
-            </common-controller-info>
-        </map-overlay>
+            </vatsim-controllers-list>
+        </map-html-overlay>
     </template>
 </template>
 
@@ -132,8 +132,8 @@ import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 import { useStore } from '~/store';
-import MapOverlay from '~/components/map/MapOverlay.vue';
-import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
 import { getSelectedColorFromSettings } from '~/composables/colors';
@@ -215,11 +215,11 @@ const hoveredController = ref<boolean>(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
-    return atcPopup.value?.$el.querySelector('.atc-popup_list');
+    return atcPopup.value?.$el.querySelector('.controllers-popup_list');
 }));
 
 const approachScroll = useScrollExists(computed(() => {
-    return approachPopup.value?.$el.querySelector('.atc-popup_list');
+    return approachPopup.value?.$el.querySelector('.controllers-popup_list');
 }));
 
 const hoveredFacilities = computed(() => {
