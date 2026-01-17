@@ -277,7 +277,7 @@ export async function updateVatsimExtendedPilots() {
         if (extendedPilot.status === 'departed' || extendedPilot.status === 'climbing' ||
             extendedPilot.status === 'cruising' || extendedPilot.status === 'enroute' ||
             extendedPilot.status === 'descending' || extendedPilot.status === 'arriving') {
-            const oldPilot = radarStorage.extendedPilotsMap[extendedPilot.cid];
+            const oldPilot = radarStorage.vatsim.extendedPilotsMap[extendedPilot.cid];
             const arrival = extendedPilot.flight_plan?.arrival;
             const oldFlightPlan = oldPilot?.flight_plan;
 
@@ -332,7 +332,7 @@ export async function updateVatsimExtendedPilots() {
         radarStorage.vatsim.extendedPilots.push(extendedPilot);
     }
 
-    radarStorage.extendedPilotsMap = updatePilots;
+    radarStorage.vatsim.extendedPilotsMap = updatePilots;
 }
 
 const xmlParser = new XMLParser({
@@ -463,6 +463,8 @@ export async function updateBookings() {
             const start = new Date(booking.start + 'Z').getTime();
             const end = new Date(booking.end + 'Z').getTime();
 
+            if (isNaN(start) || isNaN(end) || end - start < 0 || end - start > 1000 * 60 * 60 * 24 * 2) return null;
+
             return {
                 ...booking,
                 division: division,
@@ -471,7 +473,7 @@ export async function updateBookings() {
                 start: start,
                 end: end,
             };
-        }) as VatsimBooking[];
+        }).filter(x => x) as VatsimBooking[];
 
         /*
         const start = new Date();

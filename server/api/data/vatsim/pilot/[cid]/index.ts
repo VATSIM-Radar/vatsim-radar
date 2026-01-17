@@ -13,7 +13,7 @@ export default defineEventHandler(async (event): Promise<VatsimExtendedPilot | u
         return;
     }
 
-    const pilot = radarStorage.vatsim.extendedPilots.find(x => x.cid === +cid);
+    const pilot = radarStorage.vatsim.extendedPilotsMap[cid];
     if (!pilot) {
         handleH3Error({
             event,

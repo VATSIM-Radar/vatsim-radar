@@ -8,7 +8,7 @@
 - Add LECB Area mapping to ATC duplication settings by 1558357
 - Add ZNY and N90 to ATC Duplication by 1590802
 
-# [1.2.4-2-final]
+# [1.2.4-2]
 
 This release is focused on a small bug fixes and improvements, including Navigraph Layouts.
 
@@ -29,7 +29,7 @@ This release is focused on a small bug fixes and improvements, including Navigra
 - Now showing an error "Not tuned up!" in controller info in case controller doesn't listen to primary frequency
 - Add SCT/ZLA to ATC Duplicating
 
-# [1.2.4-1-final]
+# [1.2.4-1]
 
 - New icons from DotWallop: AEST, B36T, E300, FDCT (CTLS), IL18, PTS1/2, S76, SHRK, SW3
 - Model matching added for similar airframes.
@@ -38,7 +38,7 @@ This release is focused on a small bug fixes and improvements, including Navigra
 - Fixed overlapping issues with own callsign and callsign nearby
 - Improved NOAA switch as fallback source when VATSIM METAR is outdated
 
-# [1.2.4-final]
+# [1.2.4]
 
 This was supposed to be a small update. I have failed. Again.
 
