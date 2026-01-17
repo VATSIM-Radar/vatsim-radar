@@ -463,6 +463,8 @@ export async function updateBookings() {
             const start = new Date(booking.start + 'Z').getTime();
             const end = new Date(booking.end + 'Z').getTime();
 
+            if (isNaN(start) || isNaN(end) || end - start < 0 || end - start > 1000 * 60 * 60 * 24 * 2) return null;
+
             return {
                 ...booking,
                 division: division,
@@ -471,7 +473,7 @@ export async function updateBookings() {
                 start: start,
                 end: end,
             };
-        }) as VatsimBooking[];
+        }).filter(x => x) as VatsimBooking[];
 
         /*
         const start = new Date();
