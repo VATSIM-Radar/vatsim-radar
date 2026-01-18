@@ -167,7 +167,7 @@ const close = async () => {
         gap: 0.3em;
         align-items: center;
 
-        font-family: $openSansFont;
+
         font-size: 17px;
         line-height: 100%;
         color: $lightgray150;
@@ -202,7 +202,6 @@ const close = async () => {
         }
 
         &_title {
-            font-family: $openSansFont;
             font-size: 14px;
             font-weight: 700;
             color: $lightgray150;

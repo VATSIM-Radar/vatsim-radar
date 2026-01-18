@@ -542,7 +542,7 @@ const weatherLayers: RadioItemGroup<MapWeatherLayer | 'false'>[] = [
         padding: 8px 4px;
         border-radius: 4px;
 
-        font-family: $openSansFont;
+
         font-size: 14px;
         font-weight: 600;
         color: $lightgray150Orig;

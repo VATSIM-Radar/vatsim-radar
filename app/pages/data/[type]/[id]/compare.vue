@@ -178,7 +178,7 @@ watch(map, val => {
                 return new Style({
                     text: new Text({
                         text: properties.id,
-                        font: 'bold 12px Montserrat',
+                        font: 'bold 12px LibreFranklin',
                         fill: new Fill({
                             color: `rgba(${ radarColors[`${ properties.fill as ColorsList }Rgb`].join(',') }, 0.5)`,
                         }),

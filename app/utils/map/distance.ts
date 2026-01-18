@@ -141,7 +141,7 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
     const baseText = {
         textAlign: 'center' satisfies CanvasTextAlign,
         textBaseline: 'middle' satisfies CanvasTextBaseline,
-        font: '10px Montserrat',
+        font: '10px LibreFranklin',
         fill,
         rotation: -info.rotation,
         offsetX: drawing && type === 'end'

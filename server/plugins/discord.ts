@@ -77,8 +77,8 @@ export default defineNitroPlugin(async app => {
             description: 'Share with everyone your Radar ID and stats!',
         },
         {
-            name: 'release',
-            description: 'Release changelog of VATSIM Radar',
+            name: 'dev-release',
+            description: 'Release dev changelog of VATSIM Radar',
             default_member_permissions: PermissionFlagsBits.ManageMessages.toString(),
         },
     ];
@@ -275,7 +275,7 @@ export default defineNitroPlugin(async app => {
                 return;
             }
 
-            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'dev-release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
                 const release = await discordClient.channels.fetch(discordReleasesChannelId);
                 if (release && 'send' in release) {
                     await release.send({

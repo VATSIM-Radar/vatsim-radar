@@ -108,7 +108,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         }),
         text: new Text({
             text: 'H',
-            font: 'bold 14px Montserrat',
+            font: 'bold 14px LibreFranklin',
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
             }),
@@ -141,7 +141,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 zIndex: 2,
                 text: new Text({
                     text: feature.getProperties().idapron,
-                    font: '10px Montserrat',
+                    font: '10px LibreFranklin',
                     placement: 'point',
                     fill: new Fill({
                         color: `rgba(${ themeStyles.taxiwayWhiteText[theme] }, 0.6)`,
@@ -180,7 +180,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     text: feature.getProperties().ident,
                     placement: 'line',
                     textBaseline: 'bottom',
-                    font: 'bold 12px Montserrat',
+                    font: 'bold 12px LibreFranklin',
                     fill: new Fill({
                         color: `rgba(${ themeStyles.deicing[theme] }, 1)`,
                     }),
@@ -220,7 +220,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             if (feature.getProperties().idlin) {
                 style.setText(new Text({
                     text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
-                    font: 'bold 10px Montserrat',
+                    font: 'bold 10px LibreFranklin',
                     placement: 'line',
                     fill: new Fill({
                         color: `rgba(${ themeStyles.taxiwayWhiteText[theme] }, 0.6)`,
@@ -264,7 +264,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 styles.push(new Style({
                     text: new Text({
                         text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
-                        font: 'bold 12px Montserrat',
+                        font: 'bold 12px LibreFranklin',
                         // placement: 'line',
                         fill: new Fill({
                             color: `rgba(${ textColor }, 0.6)`,
@@ -291,7 +291,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
             if (properties.idlin) {
                 options.text = new Text({
                     text: properties.idlin.replace(taxiwayNameRegex, ''),
-                    font: 'bold 12px Montserrat',
+                    font: 'bold 12px LibreFranklin',
                     placement: 'line',
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, 0.6)`,
@@ -349,7 +349,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         runwaythreshold: feature => new Style({
             text: new Text({
                 text: feature.getProperties().idthr,
-                font: 'bold 12px Montserrat',
+                font: 'bold 12px LibreFranklin',
                 fill: new Fill({
                     color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                 }),
@@ -393,7 +393,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 }),
                 text: new Text({
                     text: feature.getProperties().idrwy,
-                    font: '14px Montserrat',
+                    font: '14px LibreFranklin',
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
                     }),
@@ -417,7 +417,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     }),
                     text: new Text({
                         text: feature.getProperties().ident,
-                        font: 'bold 10px Montserrat',
+                        font: 'bold 10px LibreFranklin',
                         textAlign: 'center',
                         justify: 'center',
                         textBaseline: 'middle',
@@ -435,7 +435,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 }),
                 text: new Text({
                     text: feature.getProperties().ident,
-                    font: '10px Montserrat',
+                    font: '10px LibreFranklin',
                     textAlign: 'center',
                     justify: 'center',
                     textBaseline: 'middle',

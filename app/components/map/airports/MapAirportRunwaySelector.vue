@@ -116,7 +116,7 @@ const getRunways = computed<Runway[]>(() => {
 
             padding: 4px;
 
-            font-family: $openSansFont;
+
             font-size: 14px;
             font-weight: 600;
             color: $lightgray0;

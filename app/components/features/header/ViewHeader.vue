@@ -4,7 +4,7 @@
             <nuxt-link
                 class="header__logo"
                 no-prefetch
-                to="/public"
+                to="/"
             >
                 <branding-logo/>
             </nuxt-link>
@@ -329,7 +329,6 @@ const mobileMenuOpened = ref(false);
     }
 
     &__user {
-        font-family: $openSansFont;
         font-size: 14px;
         font-weight: 700;
         color: $primary500;

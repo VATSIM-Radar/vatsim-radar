@@ -473,7 +473,7 @@ onMounted(async () => {
             border: 1px solid varToRgba('lightgray125', 0.15);
             border-radius: 4px;
 
-            font-family: $openSansFont;
+
             font-size: 12px;
             font-weight: 600;
 

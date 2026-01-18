@@ -143,7 +143,7 @@ const retry = async () => {
         padding: 8px;
         border-radius: 4px;
 
-        font-family: $openSansFont;
+
         font-size: 14px;
         font-weight: 500;
         line-height: 100%;

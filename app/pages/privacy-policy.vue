@@ -205,7 +205,6 @@ const store = useStore();
         }
 
         &_title {
-            font-family: $openSansFont;
             font-size: 40px;
             font-weight: 700;
 
@@ -304,8 +303,6 @@ const store = useStore();
 
         &_title {
             margin-bottom: 16px;
-
-            font-family: $openSansFont;
             font-size: 24px;
             font-weight: 700;
             color: $lightgray125;

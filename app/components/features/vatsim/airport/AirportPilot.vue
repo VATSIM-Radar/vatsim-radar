@@ -142,7 +142,6 @@ onMounted(() => {
         color: $lightgray150;
 
         &_title {
-            font-family: $openSansFont;
             font-size: 17px;
             font-weight: 700;
             line-height: 100%;

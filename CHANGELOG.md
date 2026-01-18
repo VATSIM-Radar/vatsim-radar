@@ -5,6 +5,7 @@
 ## Redesign
 
 - New logo (favicon will be adjusted later)
+- New font (all website font sizes/weights will be adjusted later)
 
 ## Developer changes
 
