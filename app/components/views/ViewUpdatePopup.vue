@@ -202,7 +202,6 @@ const close = async () => {
         }
 
         &_title {
-
             font-size: 14px;
             font-weight: 700;
             color: $lightgray150;

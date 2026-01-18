@@ -426,7 +426,6 @@ const send = async (key: DataKey) => {
         }
 
         &_title {
-
             font-weight: bold;
         }
     }
