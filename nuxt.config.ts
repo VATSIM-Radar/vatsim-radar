@@ -26,27 +26,29 @@ export default defineNuxtConfig({
                     href: '/apple-touch-icon.png',
                 },
                 {
+                    rel: 'shortcut icon',
+                    href: '/favicon.ico',
+                },
+                {
                     rel: 'icon',
-                    type: 'image/png',
-                    sizes: '32x32',
-                    href: '/favicon-32x32.png',
+                    type: 'image/svg+xml',
+                    href: '/favicon.svg',
                 },
                 {
                     rel: 'icon',
                     type: 'image/png',
-                    sizes: '16x16',
-                    href: '/favicon-16x16.png',
-                },
-                {
-                    rel: 'mask-icon',
-                    href: '/safari-pinned-tab.svg',
-                    color: '#3b6cec',
+                    sizes: '96x96',
+                    href: '/favicon-96x96.png',
                 },
             ],
             meta: [
                 {
                     name: 'viewport',
                     content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no',
+                },
+                {
+                    name: 'apple-mobile-web-app-title',
+                    content: 'VATSIM Radar',
                 },
             ],
         },
@@ -229,12 +231,12 @@ export default defineNuxtConfig({
             },
             icons: [
                 {
-                    src: 'android-chrome-192x192.png',
+                    src: 'web-app-manifest-192x192.png',
                     sizes: '192x192',
                     type: 'image/png',
                 },
                 {
-                    src: 'android-chrome-512x512.png',
+                    src: 'web-app-manifest-512x512.png',
                     sizes: '512x512',
                     type: 'image/png',
                 },
