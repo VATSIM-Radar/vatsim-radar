@@ -42,7 +42,7 @@
         border-bottom: 1px solid varToRgba('lightgray150', 0.2);
 
         &_text {
-            font-family: $openSansFont;
+
             font-size: 17px;
             font-weight: 700;
             line-height: 100%;

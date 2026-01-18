@@ -212,7 +212,7 @@ onMounted(() => {
                 padding: 4px;
                 border-radius: 4px;
 
-                font-family: $openSansFont;
+
                 font-size: 12px;
                 font-weight: 600;
                 line-height: 100%;

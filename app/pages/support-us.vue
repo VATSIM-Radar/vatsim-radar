@@ -237,7 +237,7 @@ const features: Feature[] = [
         }
 
         &_title {
-            font-family: $openSansFont;
+
             font-size: 40px;
             font-weight: 700;
 
@@ -323,7 +323,7 @@ const features: Feature[] = [
 
         &_title {
             margin-bottom: 32px;
-            font-family: $openSansFont;
+
             font-size: 32px;
             font-weight: 700;
 

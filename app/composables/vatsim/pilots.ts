@@ -306,7 +306,7 @@ export async function loadAircraftIcon({ feature, icon, status, style: styles, r
     if (!text) {
         textStyle.setText(new Text({
             text: textValue,
-            font: '600 11px Montserrat',
+            font: '600 11px LibreFranklin',
             declutterMode: 'declutter',
             textBaseline: 'middle',
             fill: new Fill({

@@ -554,7 +554,6 @@ html, body {
     font-family: $defaultFont;
     color: $lightgray150;
     text-size-adjust: 100%;
-
     color-scheme: dark;
     background: $darkgray1000;
 

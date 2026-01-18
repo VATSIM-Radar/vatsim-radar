@@ -1,49 +1,42 @@
-$weight: 800;
-$variants: ExtraBold, SemiBold, Bold, Medium, Regular, Light;
-
-@each $variant in $variants {
-    @font-face {
-        font-family: OpenSans;
-        font-weight: $weight;
-        font-style: normal;
-
-        font-display: swap;
-        src: url(@/assets/fonts/open-sans/OpenSans-#{$variant}.ttf);
-    }
-
-    @font-face {
-        font-family: OpenSans;
-        font-weight: $weight;
-        font-style: italic;
-
-        font-display: swap;
-        src: url(@/assets/fonts/open-sans/OpenSans-#{$variant}Italic.ttf);
-    }
-
-    $weight: $weight - 100;
-}
-
 $weight: 900;
 $variants: Black, ExtraBold, Bold, SemiBold, Medium, Regular, Light, ExtraLight, Thin;
 
 @each $variant in $variants {
     @font-face {
-        font-family: Montserrat;
+        font-family: LibreFranklin;
         font-weight: $weight;
         font-style: normal;
 
         font-display: swap;
-        src: url(@/assets/fonts/montserrat/Montserrat-#{$variant}.ttf);
+        src: url(@/assets/fonts/libre-franklin/LibreFranklin-#{$variant}.ttf);
     }
 
     @font-face {
-        font-family: Montserrat;
+        font-family: LibreFranklin;
         font-weight: $weight;
         font-style: italic;
 
         font-display: swap;
-        src: url(@/assets/fonts/montserrat/Montserrat-#{$variant}Italic.ttf);
+        src: url(@/assets/fonts/libre-franklin/LibreFranklin-#{$variant}Italic.ttf);
     }
 
     $weight: $weight - 100;
+}
+
+@font-face {
+    font-family: Jura;
+    font-weight: normal;
+    font-style: normal;
+
+    font-display: swap;
+    src: url("@/assets/fonts/Jura/Jura-Regular.ttf");
+}
+
+@font-face {
+    font-family: Jura;
+    font-weight: 500;
+    font-style: normal;
+
+    font-display: swap;
+    src: url("@/assets/fonts/Jura/Jura-SemiBold.ttf");
 }

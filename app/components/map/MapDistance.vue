@@ -296,7 +296,7 @@ watch(map, val => {
                     placement: 'point',
                     textAlign: 'center',
                     textBaseline: 'middle',
-                    font: '10px Montserrat',
+                    font: '10px LibreFranklin',
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
                     }),

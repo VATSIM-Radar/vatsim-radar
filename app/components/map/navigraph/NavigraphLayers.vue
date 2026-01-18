@@ -500,7 +500,7 @@ watch(map, val => {
         const westTrack = new Style({
             zIndex: 5,
             text: new Text({
-                font: '15px Montserrat',
+                font: '15px LibreFranklin',
                 text: `←`,
                 placement: 'line',
                 keepUpright: true,
@@ -516,7 +516,7 @@ watch(map, val => {
         const eastTrack = new Style({
             zIndex: 5,
             text: new Text({
-                font: '15px Montserrat',
+                font: '15px LibreFranklin',
                 text: `→`,
                 placement: 'line',
                 keepUpright: true,
@@ -544,7 +544,7 @@ watch(map, val => {
                     }),
                     new Style({
                         text: new Text({
-                            font: '8px Montserrat',
+                            font: '8px LibreFranklin',
                             text,
                             offsetX: 15,
                             offsetY: 2,
@@ -569,7 +569,7 @@ watch(map, val => {
                     }),
                     new Style({
                         text: new Text({
-                            font: '8px Montserrat',
+                            font: '8px LibreFranklin',
                             text,
                             offsetX: 15,
                             offsetY: 2,
@@ -666,7 +666,7 @@ watch(map, val => {
                     new Style({
                         text: showWaypointsLabels.value || properties.type === 'waypoint'
                             ? new Text({
-                                font: '8px Montserrat',
+                                font: '8px LibreFranklin',
                                 text,
                                 offsetX: 12,
                                 textBaseline: 'middle',
@@ -730,7 +730,7 @@ watch(map, val => {
                         zIndex: 5,
                         text: showAirwaysLabels.value
                             ? new Text({
-                                font: 'bold 10px Montserrat',
+                                font: 'bold 10px LibreFranklin',
                                 text: `${ properties.identifier }`,
                                 placement: 'line',
                                 keepUpright: true,
@@ -759,7 +759,7 @@ watch(map, val => {
                     stroke: holdingStroke,
                     zIndex: 5,
                     text: new Text({
-                        font: 'bold 10px Montserrat',
+                        font: 'bold 10px LibreFranklin',
                         text: `${ properties.course }° ${ properties.turns }`,
                         maxAngle: 0,
                         placement: 'line',
@@ -777,7 +777,7 @@ watch(map, val => {
                 if (properties.procedure === 'sid') {
                     return new Style({
                         text: properties.name && new Text({
-                            font: '7px Montserrat',
+                            font: '7px LibreFranklin',
                             text: `${ properties.name }`,
                             textBaseline: 'middle',
                             padding: [2, 2, 2, 2],
@@ -796,7 +796,7 @@ watch(map, val => {
                 if (properties.procedure === 'star') {
                     return new Style({
                         text: properties.name && new Text({
-                            font: '7px Montserrat',
+                            font: '7px LibreFranklin',
                             text: `${ properties.name }`,
                             textBaseline: 'middle',
                             padding: [2, 2, 2, 2],
