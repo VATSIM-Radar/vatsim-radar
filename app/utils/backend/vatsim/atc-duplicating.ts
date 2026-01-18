@@ -162,4 +162,29 @@ export const duplicatingSettings = [
             POE: 'POE_APP',
         },
     },
+        /**
+    * @description ZJX Center and TRACONs
+    * @author 1487925
+    */
+    {
+        regex: /^(F11|ZJX|DAB|JAX|VAD|TLH|PAM|VPS|OZR|P31|SAV|NBC|CHS|SSC|CAE|MYR|FLO)(_\w{0,3})?_(CTR|TMU|APP|DEP)$$/,
+        mapping: {
+            F11: 'MCO_E_APP',
+            DAB: 'DAB_N_APP',
+            JAX: 'JAX_S_APP',
+            VAD: 'VAD_APP',
+            TLH: 'TLH_W_APP',
+            PAM: 'PAM_APP',
+            VPS: 'VPS_S_APP',
+            OZR: 'OZR_APP',
+            P31: 'PNS_E_APP',
+            SAV: 'SAV_N_APP',
+            NBC: 'NBC_APP',
+            CHS: 'CHS_W_APP',
+            SSC: 'SSC_APP',
+            CAE: 'CAE_N_APP',
+            MYR: 'MYR_E_APP',
+            FLO: "FLO_APP",
+        },
+    },
 ] satisfies DuplicatingSetting[];
