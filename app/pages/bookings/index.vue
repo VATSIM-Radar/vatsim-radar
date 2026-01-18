@@ -1,22 +1,22 @@
 <template>
-    <common-page-block>
+    <ui-page-container>
         <div class="picker">
             <template
                 v-if="!isMobile && !collapsed"
             >
                 <div class="picker-row picker-row-top">
                     <div class="picker-presets-custom">
-                        <div>Now</div> + <common-input-number
+                        <div>Now</div> + <ui-input-number
                             v-model="presetHours"
                             placeholder="4"
                             @keyup.enter="changeRange('custom')"
-                        /> Hours <common-button
+                        /> Hours <ui-button
                             hover-color="success700"
                             primary-color="success400"
                             @click="changeRange('custom')"
-                        >Apply</common-button>
+                        >Apply</ui-button>
                     </div>
-                    <common-date-picker
+                    <ui-date-picker
                         v-model="dateRange"
                         :use-local="store.mapSettings.bookingsLocalTimezone"
                         @change="currentDateRange = 'custom'"
@@ -25,68 +25,68 @@
 
                 <div class="picker-row picker-row-bottom">
                     <div class="picker-presets-fixed">
-                        <common-button
+                        <ui-button
                             :disabled="currentDateRange === 'today'"
                             primary-color="primary600"
                             @click="changeRange('today')"
-                        >Today</common-button>
-                        <common-button
+                        >Today</ui-button>
+                        <ui-button
                             :disabled="currentDateRange === 'todayTomorrow'"
                             primary-color="primary600"
                             @click="changeRange('todayTomorrow')"
-                        >Today + Tomorrow</common-button>
-                        <common-button
+                        >Today + Tomorrow</ui-button>
+                        <ui-button
                             :disabled="currentDateRange === 'today7Days'"
                             primary-color="primary600"
                             @click="changeRange('today7Days')"
-                        >Today + 7 Days</common-button>
+                        >Today + 7 Days</ui-button>
                     </div>
                     <div class="picker-actions">
-                        <common-button
+                        <ui-button
                             primary-color="primary600"
                             type="primary"
                             @click="viewOnMap()"
                         >
                             View on Map
-                        </common-button>
-                        <common-toggle
+                        </ui-button>
+                        <ui-toggle
                             v-model="timelineUtc"
                             class="picker-localtime"
                             @update:modelValue="setUserMapSettings({ bookingsLocalTimezone: $event })"
                         >
                             Bookings local time
-                        </common-toggle>
+                        </ui-toggle>
                     </div>
                 </div>
             </template>
         </div>
         <div class="booking-sort-container">
-            <common-button
+            <ui-button
                 :disabled="sortMode === 'airport'"
                 hover-color="info700"
                 primary-color="info500"
                 @click="sortMode = 'airport'"
             >
                 Sort by Airport
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 :disabled="sortMode === 'date'"
                 hover-color="info700"
                 primary-color="info500"
                 @click="sortMode = 'date'"
             >
                 Sort by Date
-            </common-button>
-            <common-input-text
+            </ui-button>
+            <ui-input-text
                 v-model="searchString"
                 class="booking-sort-search"
             >
                 <template #icon>
                     <search-icon width="16"/>
                 </template>
-            </common-input-text>
+            </ui-input-text>
         </div>
-        <common-timeline
+        <ui-timeline
             v-if="bookingsData"
             collapsed
             :end="dateRange.to"
@@ -96,23 +96,23 @@
             :start="dateRange.from"
             :utc="!timelineUtc"
         />
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
 import SearchIcon from '@/assets/icons/kit/search.svg?component';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { TimelineEntry, TimelineIdentifier } from '~/types/data/timeline';
-import CommonTimeline from '~/components/common/basic/CommonTimeline.vue';
-import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiTimeline from '~/components/ui/data/UiTimeline.vue';
+import UiDatePicker from '~/components/ui/inputs/UiDatePicker.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
-import type { DateRange } from '~/components/common/basic/CommonDatePicker.vue';
+import type { DateRange } from '~/components/ui/inputs/UiDatePicker.vue';
 import type { Reactive } from 'vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import CommonInputNumber from '~/components/common/basic/CommonInputNumber.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiInputNumber from '~/components/ui/inputs/UiInputNumber.vue';
 
 const collapsed = ref(false);
 const isMobile = useIsMobile();

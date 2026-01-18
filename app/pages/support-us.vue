@@ -1,5 +1,5 @@
 <template>
-    <common-page-block
+    <ui-page-container
         v-if="data"
         class="support"
     >
@@ -42,19 +42,19 @@
                 </div>
             </div>
             <div  class="support_hero_cta">
-                <common-button
+                <ui-button
                     href="https://patreon.com/vatsimradar24"
                     target="_blank"
                 >
                     Become a Supporter on Patreon
-                </common-button>
-                <common-button
+                </ui-button>
+                <ui-button
                     href="https://boosty.to/vatsimradar24"
                     target="_blank"
                     type="secondary-875"
                 >
                     Support us on Boosty
-                </common-button>
+                </ui-button>
             </div>
         </div>
         <div class="support_list">
@@ -70,9 +70,9 @@
                         :class="[`support__list_item--type-${ feature.key }`]"
                     >
                         <div class="support__list_item_title">
-                            <common-bubble class="support__list_item_title_count">
+                            <ui-bubble class="support__list_item_title_count">
                                 {{feature.patrons.value.length}}
-                            </common-bubble>
+                            </ui-bubble>
                             <div class="support__list_item_title_text">
                                 {{feature.title}}
                             </div>
@@ -125,13 +125,13 @@
                     </div>
                 </div>
             </div>
-        </div></common-page-block>
+        </div></ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonBubble from '~/components/common/basic/CommonBubble.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiBubble from '~/components/ui/data/UiBubble.vue';
 import { useStore } from '~/store';
 import type { PatreonInfo } from '~/types/data/patreon';
 import { useRadarError } from '~/composables/errors';

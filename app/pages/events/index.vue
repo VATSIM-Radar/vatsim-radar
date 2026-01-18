@@ -1,16 +1,16 @@
 <template>
-    <common-page-block>
+    <ui-page-container>
         <template #title>VATSIM Events</template>
 
         <client-only>
-            <common-toggle
+            <ui-toggle
                 v-if="offset"
                 align-left
                 :model-value="!!store.localSettings.eventsLocalTimezone"
                 @update:modelValue="setUserLocalSettings({ eventsLocalTimezone: $event })"
             >
                 Use Zulu time instead of  {{ timezone.format(new Date()).slice(4, 100) }}
-            </common-toggle>
+            </ui-toggle>
 
             <template
                 v-for="(events, day) in groupedEventData"
@@ -18,7 +18,7 @@
             >
                 <h2 class="common-event__title">{{ getDate(events![0].start_time) }}</h2>
 
-                <common-event-card
+                <event-card
                     v-for="event in events"
                     :key="event.id"
                     class="common-event"
@@ -26,15 +26,15 @@
                 />
             </template>
         </client-only>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
-import CommonEventCard from '~/components/common/vatsim/CommonEventCard.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
+import EventCard from '~/components/features/events/EventCard.vue';
 import type { VatsimEventData } from '~~/server/api/data/vatsim/events';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { useStore } from '~/store';
 
 const { data, refresh } = await useAsyncData('events', async () => {

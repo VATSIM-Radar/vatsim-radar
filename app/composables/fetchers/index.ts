@@ -1,7 +1,7 @@
 import { useStore } from '~/store';
 import { toRaw } from 'vue';
 import { isFetchError } from '~/utils/shared';
-import type { UserBookmark } from '~/utils/backend/handlers/bookmarks';
+import type { UserBookmark } from '~/utils/server/handlers/bookmarks';
 import type { Map } from 'ol';
 
 export async function sendUserPreset<T extends Record<string, any>>(name: string, json: T, prefix: string, retryMethod: () => Promise<any>) {

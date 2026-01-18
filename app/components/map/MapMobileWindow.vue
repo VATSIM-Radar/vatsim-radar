@@ -6,7 +6,7 @@
             :class="{ 'mobile-window--procedures': hasProcedures }"
             :style="{ '--collapsed-height': `${ overlaysHeight }px` }"
         >
-            <common-info-popup
+            <popup-overlay
                 v-if="store.featuredAirportsOpen"
                 max-height="unset"
                 model-value
@@ -19,8 +19,8 @@
                 <template #content>
                     <map-featured-airports/>
                 </template>
-            </common-info-popup>
-            <common-info-popup
+            </popup-overlay>
+            <popup-overlay
                 v-else-if="store.menuFriendsOpen"
                 max-height="unset"
                 model-value
@@ -31,10 +31,10 @@
                     Favorite
                 </template>
                 <template #content>
-                    <view-favorite/>
+                    <navigation-favorite/>
                 </template>
-            </common-info-popup>
-            <map-popup
+            </popup-overlay>
+            <map-overlays
                 v-else-if="overlay && !overlay.collapsed"
                 class="mobile-window_popup"
                 max-height="auto"
@@ -48,7 +48,7 @@
         :class="{ 'mobile-overlays--procedures': hasProcedures }"
     >
         <transition-group name="mobile-overlays--appear">
-            <common-button
+            <ui-button
                 v-for="item in mapStore.overlays"
                 :key="item.id"
                 size="S"
@@ -95,19 +95,20 @@
                         <close-icon width="12"/>
                     </div>
                 </div>
-            </common-button>
+            </ui-button>
         </transition-group>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useMapStore } from '~/store/map';
-import MapPopup from '~/components/map/popups/MapPopup.vue';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
+import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import { useStore } from '~/store';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import CloseIcon from 'assets/icons/basic/close.svg?component';
-import ViewFavorite from '~/components/views/ViewFavorite.vue';
+import NavigationFavorite from '~/components/features/navigation/NavigationFavorite.vue';
+import MapFeaturedAirports from '~/components/map/MapFeaturedAirports.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

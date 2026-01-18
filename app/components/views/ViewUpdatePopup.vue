@@ -1,5 +1,5 @@
 <template>
-    <common-popup
+    <popup-fullscreen
         v-if="!store.config.hideHeader && update.active !== false"
         model-value
         @update:modelValue="close"
@@ -79,13 +79,14 @@
                 </div>
             </div>
         </div>
-    </common-popup>
+    </popup-fullscreen>
 </template>
 
 <script setup lang="ts">
 import ArrowTopIcon from 'assets/icons/kit/arrow-top.svg?component';
 import { useStore } from '~/store';
 import { showUpdatePopup, updatePopupActive } from '~/composables';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 interface UpdateFeature {
     title: string;

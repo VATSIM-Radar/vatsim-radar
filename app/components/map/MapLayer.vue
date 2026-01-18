@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { MapLayoutLayerExternal } from '~/types/map';
@@ -10,7 +6,6 @@ import type { Map } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import type { TileJSON } from 'ol/source';
 import { XYZ } from 'ol/source';
-import { buildAttributions } from '~/utils/map';
 import type { PartialRecord } from '~/types';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
@@ -21,8 +16,7 @@ import { isProductionMode } from '~/utils/shared';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-
-defineSlots<{ default: () => any }>();
+import { buildAttributions } from '~/composables/map';
 
 const store = useStore();
 

@@ -1,6 +1,6 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { getDiffPolygons, getSimAwareData, getVatSpyData } from '~/utils/backend/debug/data-get';
-import { vatspyDataToGeojson } from '~/utils/backend/vatsim/vatspy';
+import { handleH3Error } from '~/utils/server/h3';
+import { getDiffPolygons, getSimAwareData, getVatSpyData } from '~/utils/server/debug/data-get';
+import { vatspyDataToGeojson } from '~/utils/server/vatsim/vatspy';
 
 export default defineEventHandler(async event => {
     const { type, id } = getRouterParams(event);

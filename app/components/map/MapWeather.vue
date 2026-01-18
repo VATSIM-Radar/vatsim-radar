@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
@@ -10,8 +6,6 @@ import TileLayer from 'ol/layer/Tile';
 import { XYZ } from 'ol/source';
 import type { UrlFunction } from 'ol/Tile';
 import type { MapWeatherLayer } from '~/types/map';
-
-defineSlots<{ default: () => any }>();
 
 const store = useStore();
 

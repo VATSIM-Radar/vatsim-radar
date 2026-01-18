@@ -1,12 +1,12 @@
 <template>
-    <map-overlay
+    <map-html-overlay
         v-if="openSigmet"
         class="sigmets-overlay"
         :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
         :z-index="5"
         @update:modelValue="openSigmet = null"
     >
-        <common-popup-block
+        <popup-map-info
             class="sigmets"
             @mouseleave="openSigmet = null"
         >
@@ -33,23 +33,25 @@
                     </div>
                 </div>
             </div>
-        </common-popup-block>
-    </map-overlay>
+        </popup-map-info>
+    </map-html-overlay>
 </template>
 
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
-import type { Sigmet, Sigmets } from '~/utils/backend/storage';
+import type { Sigmet, Sigmets } from '~/utils/server/storage';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style';
-import type { ColorsList } from '~/utils/backend/styles';
+import type { ColorsList } from '~/utils/server/styles';
 import type { Coordinate } from 'ol/coordinate';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { useMapStore } from '~/store/map';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
 const store = useStore();
 const mapStore = useMapStore();

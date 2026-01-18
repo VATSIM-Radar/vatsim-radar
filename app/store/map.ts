@@ -2,13 +2,13 @@ import { defineStore } from 'pinia';
 import type { Extent } from 'ol/extent';
 import type { VatsimExtendedPilot, VatsimPrefile } from '~/types/data/vatsim';
 import { useStore } from '~/store/index';
-import { findAtcByCallsign } from '~/composables/atc';
+import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
+import type { VatsimAirportInfo } from '~/utils/server/vatsim';
 import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type { Coordinate } from 'ol/coordinate';
-import { ownFlight } from '~/composables/pilots';
-import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
+import { ownFlight } from '~/composables/vatsim/pilots';
+import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 
 export interface StoreOverlayDefault {
     id: string;

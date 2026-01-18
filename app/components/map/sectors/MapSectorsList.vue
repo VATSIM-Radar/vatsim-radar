@@ -20,8 +20,7 @@
             />
         </template>
 
-
-        <map-overlay
+        <map-html-overlay
             v-model="vatglassesPopupIsShown"
             class="vatglasses-overlay"
             :settings="{
@@ -32,7 +31,7 @@
             :z-index="20"
         >
 
-            <common-popup-block
+            <popup-map-info
                 class="atc-popup"
                 @mouseleave="vatglassesPopupIsShown = false"
             >
@@ -51,7 +50,7 @@
                                 <span class="atc-popup_level">{{ getPositionLevel(sector.max) }}</span>
                             </template>
 
-                            <common-single-controller-info
+                            <vatsim-controller-info
                                 v-for="controller in sector.atc"
                                 :key="controller.cid"
                                 :controller
@@ -64,7 +63,7 @@
                             </template>
                         </template>
                         <template v-else>
-                            <common-single-controller-info
+                            <vatsim-controller-info
                                 v-for="controller in sector.atc"
                                 :key="controller.cid"
                                 :controller
@@ -74,8 +73,8 @@
                         </template>
                     </div>
                 </div>
-            </common-popup-block>
-        </map-overlay>
+            </popup-map-info>
+        </map-html-overlay>
     </template>
 </template>
 
@@ -97,10 +96,12 @@ import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 
 import type { Pixel } from 'ol/pixel';
-import CommonSingleControllerInfo from '~/components/common/vatsim/CommonSingleControllerInfo.vue';
+import VatsimControllerInfo from '~/components/features/vatsim/controllers/VatsimControllerInfo.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import { useMapStore } from '~/store/map';
 import { MultiPolygon } from 'ol/geom';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
 let vectorLayer: VectorImageLayer<any> | undefined;
 const vectorSource = shallowRef<VectorSource | null>(null);

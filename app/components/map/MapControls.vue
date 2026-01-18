@@ -4,7 +4,7 @@
         class="controls"
     >
         <template v-if="!isMobile">
-            <common-button
+            <ui-button
                 v-if="!isMobile"
                 class="controls_item"
                 size="S"
@@ -14,8 +14,8 @@
                 <template #icon>
                     <ruler-icon/>
                 </template>
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 class="controls_item"
                 :disabled="mapStore.zoom >= view.getMaxZoom()"
                 size="S"
@@ -25,8 +25,8 @@
                 <template #icon>
                     <plus-icon/>
                 </template>
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 class="controls_item"
                 :disabled="mapStore.zoom <= view.getMinZoom()"
                 size="S"
@@ -36,8 +36,8 @@
                 <template #icon>
                     <minus-icon/>
                 </template>
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 class="controls_item"
                 size="S"
                 type="secondary-flat"
@@ -46,9 +46,9 @@
                 <template #icon>
                     <rotate-counterclockwise/>
                 </template>
-            </common-button>
+            </ui-button>
         </template>
-        <common-button
+        <ui-button
             v-if="!isMobile || mapStore.rotation !== 0"
             class="controls_item"
             :disabled="mapStore.rotation === 0"
@@ -59,8 +59,8 @@
             <template #icon>
                 <rotate-reset/>
             </template>
-        </common-button>
-        <common-button
+        </ui-button>
+        <ui-button
             v-if="!isMobile"
             class="controls_item"
             size="S"
@@ -70,7 +70,7 @@
             <template #icon>
                 <rotate-clockwise/>
             </template>
-        </common-button>
+        </ui-button>
     </div>
 </template>
 
@@ -85,7 +85,7 @@ import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import { toDegrees, toRadians } from 'ol/math';
 import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';
 
 const map = inject<ShallowRef<Map | null>>('map')!;

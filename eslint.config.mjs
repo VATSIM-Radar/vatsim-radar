@@ -157,6 +157,9 @@ export default withNuxt([
                 },
             ],
             'vue/no-unused-refs': 'error',
+            'vue/no-undef-components': ['error', {
+                ignorePatterns: ['nuxt', 'client-only'],
+            }],
             'vue/no-v-html': 'off',
             'vue/require-default-prop': 'off',
             'vue/html-closing-bracket-spacing': [

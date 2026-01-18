@@ -1,15 +1,9 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import VectorLayer from 'ol/layer/Vector';
 import DayNight from 'ol-ext/source/DayNight';
 import { Circle, Fill, Stroke, Style } from 'ol/style';
-
-defineSlots<{ default: () => any }>();
 
 const store = useStore();
 const map = inject<ShallowRef<Map | null>>('map')!;

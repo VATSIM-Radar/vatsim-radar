@@ -1,12 +1,12 @@
 <template>
-    <common-page-block class="notams">
+    <ui-page-container class="notams">
         <template #title>
             Internal NOTAMs management. Please leave
         </template>
         <!-- @vue-ignore -->
-        <common-button @click="[activeNotam = { active: true, dismissable: false }, editActive = true]">
+        <ui-button @click="[activeNotam = { active: true, dismissable: false }, editActive = true]">
             Create
-        </common-button>
+        </ui-button>
         <div
             v-for="notam in notams"
             :key="notam.id"
@@ -16,21 +16,21 @@
                 {{notam.text}}
             </div>
             <div class="notams_notam_actions">
-                <common-toggle
+                <ui-toggle
                     v-model="notam.active"
                     @update:modelValue="saveActiveNotam(notam)"
                 >
                     Active
-                </common-toggle>
-                <common-button
+                </ui-toggle>
+                <ui-button
                     size="S"
                     @click="[activeNotam=notam, editActive = true]"
                 >
                     <template #icon>
                         <edit-icon/>
                     </template>
-                </common-button>
-                <common-button
+                </ui-button>
+                <ui-button
                     primary-color="error500"
                     size="S"
                     @click="[activeNotam=notam, deleteActive = true]"
@@ -38,10 +38,10 @@
                     <template #icon>
                         <close-icon/>
                     </template>
-                </common-button>
+                </ui-button>
             </div>
         </div>
-        <common-popup
+        <popup-fullscreen
             v-if="activeNotam"
             v-model="editActive"
             width="600px"
@@ -50,45 +50,45 @@
                 Edit
             </template>
             <div class="__info-sections">
-                <common-input-text v-model="activeNotam.text">
+                <ui-input-text v-model="activeNotam.text">
                     Text
-                </common-input-text>
-                <common-select
+                </ui-input-text>
+                <ui-select
                     v-model="activeNotam.type"
                     :items="[{ value: NotamType.ERROR }, { value: NotamType.WARNING }, { value: NotamType.ANNOUNCEMENT }]"
                 >
                     <template #label>
                         Type
                     </template>
-                </common-select>
-                <common-toggle v-model="activeNotam.active">
+                </ui-select>
+                <ui-toggle v-model="activeNotam.active">
                     Active
-                </common-toggle>
-                <common-toggle v-model="activeNotam.dismissable">
+                </ui-toggle>
+                <ui-toggle v-model="activeNotam.dismissable">
                     Dismissable
-                </common-toggle>
-                <common-input-text
+                </ui-toggle>
+                <ui-input-text
                     input-type="datetime-local"
                     :model-value="activeNotam.activeFrom?.slice(0, 16)"
                     @update:modelValue="activeNotam.activeFrom = $event ? new Date($event!).toISOString() : null"
                 >
                     activeFrom
-                </common-input-text>
-                <common-input-text
+                </ui-input-text>
+                <ui-input-text
                     input-type="datetime-local"
                     :model-value="activeNotam.activeTo?.slice(0, 16)"
                     @update:modelValue="activeNotam.activeTo = $event ? new Date($event!).toISOString() : null"
                 >
                     activeTo
-                </common-input-text>
+                </ui-input-text>
             </div>
             <template #actions>
-                <common-button @click="() => saveActiveNotam()">
+                <ui-button @click="() => saveActiveNotam()">
                     Save
-                </common-button>
+                </ui-button>
             </template>
-        </common-popup>
-        <common-popup
+        </popup-fullscreen>
+        <popup-fullscreen
             v-if="activeNotam"
             v-model="deleteActive"
         >
@@ -96,27 +96,28 @@
                 Delete
             </template>
             <template #actions>
-                <common-button @click="deleteActiveNotam">
+                <ui-button @click="deleteActiveNotam">
                     Delete
-                </common-button>
-                <common-button @click="deleteActive = false">
+                </ui-button>
+                <ui-button @click="deleteActive = false">
                     Cancel
-                </common-button>
+                </ui-button>
             </template>
-        </common-popup>
-    </common-page-block>
+        </popup-fullscreen>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import EditIcon from 'assets/icons/kit/edit.svg?component';
 import CloseIcon from '@/assets/icons/basic/close.svg?component';
 import { NotamType } from '~/utils/shared/vatsim';
 import type { RadarNotam } from '~/utils/shared/vatsim';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonInputText from '~/components/common/basic/CommonInputText.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
-import CommonSelect from '~/components/common/basic/CommonSelect.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiInputText from '~/components/ui/inputs/UiInputText.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
+import UiSelect from '~/components/ui/inputs/UiSelect.vue';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const { data: notams, refresh } = await useAsyncData('internal-notams', () => $fetch<RadarNotam[]>('/api/data/notams/0'), {
     server: false,

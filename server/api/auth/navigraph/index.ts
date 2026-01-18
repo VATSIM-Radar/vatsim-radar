@@ -1,9 +1,9 @@
 import { ofetch } from 'ofetch';
-import { prisma } from '~/utils/backend/prisma';
-import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/backend/navigraph';
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
+import { prisma } from '~/utils/server/prisma';
+import { getNavigraphGwtResult, getNavigraphRedirectUri } from '~/utils/server/navigraph';
+import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
 import { createDBUser, getDBUserToken } from '~/utils/db/user';
-import { findUserByCookie } from '~/utils/backend/user';
+import { findUserByCookie } from '~/utils/server/user';
 
 export default defineEventHandler(async event => {
     try {

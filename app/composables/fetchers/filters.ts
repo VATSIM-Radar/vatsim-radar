@@ -1,5 +1,5 @@
 import { useStore } from '~/store';
-import type { UserFilter } from '~/utils/backend/handlers/filters';
+import type { UserFilter } from '~/utils/server/handlers/filters';
 import { useFileDownload } from '~/composables/settings';
 import { customDefu } from '~/composables';
 

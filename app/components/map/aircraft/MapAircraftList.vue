@@ -31,7 +31,7 @@ import { isHideMapObject } from '~/composables/settings';
 import { Heatmap } from 'ol/layer';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { Coordinate } from 'ol/coordinate';
-import { ownFlight } from '~/composables/pilots';
+import { ownFlight } from '~/composables/vatsim/pilots';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -311,7 +311,7 @@ function airportExistsAtPixel(eventPixel: Pixel) {
 function traconLabelExistsAtPixel(eventPixel: Pixel) {
     const features = map.value!.getFeaturesAtPixel(eventPixel, {
         hitTolerance: 0,
-        layerFilter: layer => layer.getProperties().type === 'arr-atc',
+        layerFilter: layer => layer.getProperties().type === 'arr-controllers',
     });
 
     if (features.length > 0) {

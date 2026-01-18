@@ -1,10 +1,10 @@
 <template>
-    <common-page-block>
+    <ui-page-container>
         <template #title>DotWallop personal page</template>
 
-        <common-checkbox v-model="nonAddedOnly">
+        <ui-checkbox v-model="nonAddedOnly">
             Non-added only
-        </common-checkbox>
+        </ui-checkbox>
 
         <table v-if="data?.pilots">
             <tbody>
@@ -24,13 +24,13 @@
                 </tr>
             </tbody>
         </table>
-    </common-page-block>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatsimLiveData } from '~/types/data/vatsim';
-import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
+import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 
 const nonAddedOnly = ref(false);
 

@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
@@ -17,8 +13,6 @@ const props = defineProps({
         required: true,
     },
 });
-
-defineSlots<{ default: () => any }>();
 
 const store = useStore();
 

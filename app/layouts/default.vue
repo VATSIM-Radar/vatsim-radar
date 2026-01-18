@@ -14,7 +14,7 @@
             <nuxt-loading-indicator color="rgb(var(--primary500))"/>
             <slot/>
         </div>
-        <common-popup
+        <popup-fullscreen
             v-if="store.updateRequired || $pwa?.needRefresh"
             v-model="updateRequired"
             disabled
@@ -24,16 +24,16 @@
             A new VATSIM Radar update is available! Please reload the page to apply the update.
 
             <template #actions>
-                <common-button @click="reload">
+                <ui-button @click="reload">
                     Apply and reload
-                </common-button>
+                </ui-button>
             </template>
-        </common-popup>
+        </popup-fullscreen>
         <div
             v-if="!store.config.hideFooter"
             class="app_footer"
         >
-            <view-map-footer v-if="route.path === '/'"/>
+            <view-footer v-if="route.path === '/'"/>
             <div
                 v-else
                 class="app_footer_info"
@@ -57,19 +57,19 @@
                     </div>
                 </div>
                 <div class="app_consent_actions">
-                    <common-button
+                    <ui-button
                         type="secondary-875"
                         @click="consentChoose = true"
                     >
                         Customize
-                    </common-button>
-                    <common-button @click="policy.accepted = 1">
+                    </ui-button>
+                    <ui-button @click="policy.accepted = 1">
                         Accept All
-                    </common-button>
+                    </ui-button>
                 </div>
             </div>
         </client-only>
-        <common-popup
+        <popup-fullscreen
             :model-value="consentChoose || store.cookieCustomize"
             @update:modelValue="[consentChoose = false, store.cookieCustomize = false]"
         >
@@ -79,12 +79,12 @@
 
             <div class="app_consent_things __info-sections">
                 <div class="app_consent_item app_consent_item--enabled app_consent_item--disabled">
-                    <common-checkbox
+                    <ui-checkbox
                         class="app_consent_item_checkbox"
                         model-value
                     >
                         Required Data
-                    </common-checkbox>
+                    </ui-checkbox>
                     <div class="app_consent_item_text">
                         Cookies, storage. Learn more:
                         <a
@@ -101,13 +101,13 @@
                     :class="{ 'app_consent_item--enabled': policy.rum }"
                     @click="policy.rum = !policy.rum"
                 >
-                    <common-checkbox
+                    <ui-checkbox
                         v-model="policy.rum"
                         class="app_consent_checkbox"
                         @click.stop
                     >
                         CloudFlare Beacon
-                    </common-checkbox>
+                    </ui-checkbox>
                     <div class="app_consent_item_text">
                         Privacy-focused script to collect page load performance -
                         <a
@@ -123,13 +123,13 @@
                     :class="{ 'app_consent_item--enabled': policy.sentry }"
                     @click="policy.sentry = !policy.sentry"
                 >
-                    <common-checkbox
+                    <ui-checkbox
                         v-model="policy.sentry"
                         class="app_consent_checkbox app_consent_checkbox--disabled"
                         @click.stop
                     >
                         Sentry Error Reporting
-                    </common-checkbox>
+                    </ui-checkbox>
                     <div class="app_consent_item_text">
                         This setting allows us to also send your VATSIM CID and request IP address to Sentry, as well as browser performance data. Error reporting is always enabled - but anonymous if this is not selected
                     </div>
@@ -137,27 +137,27 @@
             </div>
 
             <template #actions>
-                <common-button
+                <ui-button
                     v-if="store.cookieCustomize"
                     @click="store.cookieCustomize = false"
                 >
                     Save
-                </common-button>
+                </ui-button>
                 <template v-else>
-                    <common-button
+                    <ui-button
                         type="secondary"
                         @click="consentChoose = false"
                     >
                         Cancel
-                    </common-button>
-                    <common-button @click="[policy.accepted = 1, consentChoose = false]">
+                    </ui-button>
+                    <ui-button @click="[policy.accepted = 1, consentChoose = false]">
                         Agree
-                    </common-button>
+                    </ui-button>
                 </template>
             </template>
-        </common-popup>
+        </popup-fullscreen>
     </div>
-    <restricted-auth
+    <view-restricted-auth
         v-else
         v-once
     />
@@ -165,21 +165,22 @@
 
 <script lang="ts" setup>
 import { useStore } from '~/store';
-import ViewHeader from '~/components/views/header/ViewHeader.vue';
-import ViewMapFooter from '~/components/views/ViewMapFooter.vue';
-import { checkAndSetMapPreset } from '~/composables/presets';
-import RestrictedAuth from '~/components/views/RestrictedAuth.vue';
+import ViewHeader from '~/components/features/header/ViewHeader.vue';
+import ViewFooter from '~/components/features/footer/ViewFooter.vue';
+import { checkAndSetMapPreset } from '~/composables/map/presets';
+import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
-import type { ThemesList } from '~/utils/backend/styles';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
+import type { ThemesList } from '~/utils/server/styles';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import type { ResolvableScript } from '@unhead/vue';
 import * as Sentry from '@sentry/nuxt';
-import CommonCheckbox from '~/components/common/basic/CommonCheckbox.vue';
+import UiCheckbox from '~/components/ui/inputs/UiCheckbox.vue';
 import ViewInitPopup from '~/components/views/ViewInitPopup.vue';
 import { showUpdatePopup } from '~/composables';
 import { isFetchError } from '~/utils/shared';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 defineSlots<{ default: () => any }>();
 
@@ -190,7 +191,7 @@ const consentChoose = ref(false);
 const { $pwa } = useNuxtApp();
 
 const ViewUpdatePopup = defineAsyncComponent(() => import('~/components/views/ViewUpdatePopup.vue'));
-const ViewMetar = defineAsyncComponent(() => import('~/components/views/ViewMetar.vue'));
+const ViewMetar = defineAsyncComponent(() => import('~/components/popups/PopupMetar.vue'));
 
 const reload = () => {
     if ($pwa?.needRefresh) {

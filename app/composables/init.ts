@@ -2,17 +2,17 @@ import { useMapStore } from '~/store/map';
 import type { VatDataVersions } from '~/types/data';
 import type { VRInitStatus, VRInitStatusResult } from '~/store';
 import { useStore } from '~/store';
-import type { IDBAirlinesData } from '~/utils/client-db';
-import { clientDB } from '~/utils/client-db';
+import type { IDBAirlinesData } from '~/composables/render/idb';
+import { clientDB } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
-import type { NavigraphNavDataShort } from '~/utils/backend/navigraph/navdata/types';
+import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
     RadarDataAirlinesAllList,
     SimAwareAPIData,
     VatglassesAPIData,
     VatglassesDynamicAPIData,
-} from '~/utils/backend/storage';
-import type { UseDataStore } from '~/composables/data';
+} from '~/utils/server/storage';
+import type { UseDataStore } from '~/composables/render/storage';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimNattrak } from '~/types/data/vatsim';

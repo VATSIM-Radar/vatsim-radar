@@ -1,7 +1,7 @@
 import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit';
 import type { PartialRecord } from '~/types';
-import type { ColorsList, ThemesList } from '~/utils/backend/styles';
-import { colorsList, themesList } from '~/utils/backend/styles';
+import type { ColorsList, ThemesList } from '~/utils/server/styles';
+import { colorsList, themesList } from '~/utils/server/styles';
 
 function colorToRgb(hex: string): [r: number, g: number, b: number] {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {

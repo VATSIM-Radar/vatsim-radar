@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
@@ -9,8 +5,6 @@ import { Point } from 'ol/geom';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
 import { useMapStore } from '~/store/map';
-
-defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 

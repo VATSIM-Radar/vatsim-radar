@@ -9,12 +9,12 @@ import {
     Routes,
     StringSelectMenuBuilder, StringSelectMenuOptionBuilder,
 } from 'discord.js';
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 import { AuthType, DiscordStrategy } from '#prisma';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'path';
-import { getDiscordName } from '~/utils/backend/discord';
+import { getDiscordName } from '~/utils/server/discord';
 import type { UserPresetType } from '#prisma';
 
 export const discordClient = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] });

@@ -1,6 +1,6 @@
 <template>
     <div class="distance">
-        <map-overlay
+        <map-html-overlay
             v-if="tooltip"
             model-value
             persistent
@@ -12,7 +12,7 @@
             >
                 {{ distanceDisplay }}
             </div>
-        </map-overlay>
+        </map-html-overlay>
     </div>
 </template>
 
@@ -42,6 +42,7 @@ import {
     createGeodesicGeometry,
 } from '~/utils/map/distance';
 import type { HeadingPair } from '~/utils/map/distance';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();

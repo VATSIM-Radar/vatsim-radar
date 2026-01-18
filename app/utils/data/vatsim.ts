@@ -1,9 +1,9 @@
 import type { VatsimShortenedAircraft, VatsimShortenedController } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature, VatSpyDataLocalATC } from '~/types/data/vatspy';
-import { radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from '~/utils/server/storage';
 import type { MapAircraftKeys, MapAirport } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate';
-import { findAirportSomewhere } from '~/utils/backend/vatsim';
+import { findAirportSomewhere } from '~/utils/server/vatsim';
 
 export const useFacilitiesIds = () => {
     return {

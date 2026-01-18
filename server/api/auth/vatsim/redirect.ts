@@ -1,7 +1,7 @@
-import { prisma } from '~/utils/backend/prisma';
+import { prisma } from '~/utils/server/prisma';
 import { randomUUID } from 'node:crypto';
 import { AuthType } from '#prisma';
-import { getVatsimRedirectUri } from '~/utils/backend/vatsim';
+import { getVatsimRedirectUri } from '~/utils/server/vatsim';
 
 export default defineEventHandler(async event => {
     const config = useRuntimeConfig();

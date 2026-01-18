@@ -61,6 +61,11 @@ export default defineNuxtConfig({
     alias: {
         '#prisma': resolve(_dirname, '.nuxt/prisma/client'),
     },
+    hooks: {
+        'components:dirs': dirs => {
+            dirs.length = 0;
+        },
+    },
     srcDir: 'app/',
     devtools: {
         enabled: false,

@@ -1,6 +1,6 @@
 <template>
     <slot v-if="!controllers.length || store.mapSettings.visibility?.atcLabels"/>
-    <map-overlay
+    <map-html-overlay
         v-else
         :active-z-index="20"
         model-value
@@ -42,7 +42,7 @@
             v-if="isHovered"
             #popup
         >
-            <common-controller-info
+            <vatsim-controllers-list
                 ref="controllerInfo"
                 absolute
                 :controllers="[...locals.map(x => x.controller!), ...globals.map(x => x.controller!)].filter(x => isDuplicated || !x.duplicated)"
@@ -51,9 +51,9 @@
                 <template #title>
                     {{ getATCFullName }}
                 </template>
-            </common-controller-info>
+            </vatsim-controllers-list>
         </template>
-    </map-overlay>
+    </map-html-overlay>
 </template>
 
 <script setup lang="ts">
@@ -63,13 +63,13 @@ import type VectorSource from 'ol/source/Vector';
 import type { Feature } from 'ol';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
-import CommonControllerInfo from '~/components/common/vatsim/CommonControllerInfo.vue';
-import MapOverlay from '~/components/map/MapOverlay.vue';
-import { getAirportCountry } from '~/composables/airport';
+import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
+import { getAirportCountry } from '~/composables/vatsim/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
-import { vgFallbackKeys } from '~/composables/data';
+import { vgFallbackKeys } from '~/composables/render/storage';
 
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
@@ -90,7 +90,7 @@ defineSlots<{ default: () => any }>();
 const controllerInfo = ref<{ $el: HTMLDivElement } | null>(null);
 
 const hasScroll = useScrollExists(computed(() => {
-    return controllerInfo.value?.$el.querySelector('.atc-popup_list');
+    return controllerInfo.value?.$el.querySelector('.controllers-popup_list');
 }));
 
 const mapStore = useMapStore();
