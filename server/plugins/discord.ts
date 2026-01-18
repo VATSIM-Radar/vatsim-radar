@@ -275,6 +275,19 @@ export default defineNitroPlugin(async app => {
                 return;
             }
 
+            if (interaction.guildId === discordInternalServerId && interaction.isChatInputCommand() && interaction.commandName === 'release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
+                const release = await discordClient.channels.fetch(discordReleasesChannelId);
+                if (release && 'send' in release) {
+                    await release.send({
+                        content: parseMarkdown()!,
+                    });
+                    await interaction.reply({
+                        content: 'OK',
+                        ephemeral: true,
+                    });
+                }
+            }
+
             if (interaction.guildId !== discordServerId) return;
 
             if (config.public.IS_DOWN === 'true') {
@@ -447,18 +460,6 @@ export default defineNitroPlugin(async app => {
                 await sendStats(interaction, interaction.commandName === 'hidden-stats', interaction.channelId!);
 
                 return;
-            }
-            else if (interaction.commandName === 'dev-release' && interaction.memberPermissions?.has(PermissionFlagsBits.ManageMessages)) {
-                const release = await discordClient.channels.fetch(discordReleasesChannelId);
-                if (release && 'send' in release) {
-                    await release.send({
-                        content: parseMarkdown()!,
-                    });
-                    await interaction.reply({
-                        content: 'OK',
-                        ephemeral: true,
-                    });
-                }
             }
         });
 
