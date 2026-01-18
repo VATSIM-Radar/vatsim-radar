@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
@@ -14,8 +10,6 @@ import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types'
 import { debounce } from '~/utils/shared';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
-
-defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 

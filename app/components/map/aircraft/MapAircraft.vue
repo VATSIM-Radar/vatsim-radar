@@ -181,7 +181,7 @@ import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
 import { parseEncoding } from '../../../utils/data';
 import { getFeatureStyle } from '~/composables';
-import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';

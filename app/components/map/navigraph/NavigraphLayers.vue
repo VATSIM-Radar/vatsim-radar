@@ -225,7 +225,7 @@ import NavigraphRoute from '~/components/map/navigraph/NavigraphRoute.vue';
 import NavigraphNat from '~/components/map/navigraph/NavigraphNat.vue';
 import UiCopyInfo from '~/components/ui/text/UiCopyInfo.vue';
 import type { VatsimNattrakClient } from '~/types/data/vatsim';
-import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 
 const navigraphSource = shallowRef<VectorSource | null>(null);

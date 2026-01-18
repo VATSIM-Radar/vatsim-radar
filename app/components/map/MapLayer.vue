@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { MapLayoutLayerExternal } from '~/types/map';
@@ -21,8 +17,6 @@ import { layers, namedFlavor } from '@protomaps/basemaps';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { buildAttributions } from '~/composables/map';
-
-defineSlots<{ default: () => any }>();
 
 const store = useStore();
 

@@ -64,7 +64,7 @@ import type { Feature } from 'ol';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
-import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import { getAirportCountry } from '~/composables/vatsim/airport';
 import { useScrollExists } from '~/composables';
 import { useStore } from '~/store';

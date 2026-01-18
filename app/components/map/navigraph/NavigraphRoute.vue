@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
@@ -17,8 +13,6 @@ import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { ObjectWithGeometry } from 'ol/Feature';
 import { ownFlight } from '~/composables/vatsim/pilots';
-
-defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 

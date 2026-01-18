@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
@@ -13,8 +9,6 @@ import { useMapStore } from '~/store/map';
 import type { ObjectWithGeometry } from 'ol/Feature';
 import type { Coordinate } from 'ol/coordinate';
 import { checkFlightLevel } from '~/composables/render/storage';
-
-defineSlots<{ default: () => any }>();
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 

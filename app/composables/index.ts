@@ -1,7 +1,7 @@
 import type { Coordinate } from 'ol/coordinate';
 import { containsCoordinate } from 'ol/extent';
 import { useStore } from '~/store';
-import type { ShallowRef } from 'vue';
+import type { ComputedGetter, DebuggerOptions, ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
@@ -345,3 +345,43 @@ export const geoJson = new GeoJSON({
 export const updatePopupActive: false | string = false;
 export const showUpdatePopup = computed(() => !useStore().config.hideHeader && !!updatePopupActive && useStore().user?.settings.seenVersion !== updatePopupActive && localStorage.getItem('seen-version') !== updatePopupActive);
 
+export function isServer() {
+    return typeof window === 'undefined';
+}
+
+export function safeRef<T = any>(value: T): Ref<T> {
+    if (isServer()) {
+        return {
+            value,
+            __v_isRef: true,
+        } as unknown as Ref<T>;
+    }
+
+    return ref<T>(value) as Ref<T>;
+}
+
+export function safeComputed<T>(
+    getter: ComputedGetter<T>,
+    debugOptions?: DebuggerOptions,
+): ComputedRef<T> {
+    if (isServer()) {
+        return {
+            get value() {
+                return getter();
+            },
+            __v_isRef: true,
+        } as unknown as ComputedRef<T>;
+    }
+
+    return computed<T>(getter, debugOptions) as ComputedRef<T>;
+}
+
+export function globalComputed<T>(
+    getter: ComputedGetter<T>,
+    debugOptions?: DebuggerOptions,
+): () => ComputedRef<T> {
+    if (isServer()) return () => safeComputed(() => getter());
+
+    const _computed = computed<T>(getter, debugOptions) as ComputedRef<T>;
+    return () => _computed;
+}

@@ -74,7 +74,7 @@ import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { Coordinate } from 'ol/coordinate';
 import { Point } from 'ol/geom';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 

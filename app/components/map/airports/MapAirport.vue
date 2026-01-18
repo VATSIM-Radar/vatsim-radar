@@ -132,7 +132,7 @@ import { getCurrentThemeRgbColor, useScrollExists } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { AirportTraconFeature } from '~/components/map/airports/MapAirportsList.vue';
 import { useStore } from '~/store';
-import MapHtmlOverlay from '~/components/map/MapHTMLOverlay.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import { toRadians } from 'ol/math';
