@@ -1,8 +1,8 @@
-import type { Sigmets } from '~/utils/backend/storage';
-import { handleH3Error } from '~/utils/backend/h3';
-import { getRedisSync, setRedisSync } from '~/utils/backend/redis';
+import type { Sigmets } from '~/utils/server/storage';
+import { handleH3Error } from '~/utils/server/h3';
+import { getRedisSync, setRedisSync } from '~/utils/server/redis';
 import { addLeadingZero } from '~/utils/shared';
-import { isDebug } from '~/utils/backend/debug';
+import { isDebug } from '~/utils/server/debug';
 
 export default defineEventHandler(async event => {
     let date = getQuery(event).date;

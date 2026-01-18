@@ -1,16 +1,16 @@
 <template>
-    <common-page-block v-if="data">
+    <ui-page-container v-if="data">
         <template #title>
             {{ data.name }}
         </template>
-        <common-event-details :event="data"/>
-    </common-page-block>
+        <event-details :event="data"/>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatsimEvent } from '~/types/data/vatsim';
-import CommonEventDetails from '~/components/common/vatsim/CommonEventDetails.vue';
+import EventDetails from '~/components/features/events/EventDetails.vue';
 
 const route = useRoute();
 

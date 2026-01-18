@@ -1,4 +1,4 @@
-import { radarStorage } from '~/utils/backend/storage';
+import { radarStorage } from '~/utils/server/storage';
 
 export default defineEventHandler(async event => {
     const query = getQuery(event);

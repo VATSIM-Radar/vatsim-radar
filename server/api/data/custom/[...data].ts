@@ -1,5 +1,5 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { getLocalText, isDebug, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/backend/debug';
+import { handleH3Error } from '~/utils/server/h3';
+import { getLocalText, isDebug, removeLocalFile, removeLocalFolder, saveLocalFile } from '~/utils/server/debug';
 
 export default defineEventHandler(async event => {
     if (!isDebug()) {

@@ -1,8 +1,8 @@
-import { radarStorage } from '~/utils/backend/storage';
-import type { VatsimAirportInfo } from '~/utils/backend/vatsim';
-import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/backend/vatsim';
-import { getAirportWeather } from '~/utils/backend/vatsim/weather';
-import { getFirsPolygons } from '~/utils/backend/vatsim/vatspy';
+import { radarStorage } from '~/utils/server/storage';
+import type { VatsimAirportInfo } from '~/utils/server/vatsim';
+import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/server/vatsim';
+import { getAirportWeather } from '~/utils/server/vatsim/weather';
+import { getFirsPolygons } from '~/utils/server/vatsim/vatspy';
 import type { VatsimBooking } from '~/types/data/vatsim';
 
 export interface VatsimAirportData {

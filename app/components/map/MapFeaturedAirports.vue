@@ -1,6 +1,6 @@
 <template>
     <div class="__info-sections featured-airports">
-        <common-tabs
+        <ui-tabs
             v-model="featuredTab"
             mobile-vertical
             :tabs="{
@@ -18,7 +18,7 @@
         </small>
 
         <div class="__info-sections featured-airports_list">
-            <common-airport-card
+            <navigation-featured-airport
                 v-for="(airport, index) in (featuredTab === 'popular' ? popularAirports : quietAirports)"
                 :key="airport.airport.icao + index"
                 :airport="airport"
@@ -27,7 +27,7 @@
         </div>
 
         <div class="featured-airports_footer">
-            <common-toggle
+            <ui-toggle
                 :model-value="store.localSettings.traffic?.showTotalDeparturesInFeaturedAirports ?? false"
                 @update:modelValue="setUserLocalSettings({ traffic: { showTotalDeparturesInFeaturedAirports: $event } })"
             >
@@ -35,21 +35,21 @@
                 <template #description>
                     Including airborne
                 </template>
-            </common-toggle>
-            <common-toggle v-model="store.featuredVisibleOnly">
+            </ui-toggle>
+            <ui-toggle v-model="store.featuredVisibleOnly">
                 Visible only
                 <template #description>
                     Filter by current map area
                 </template>
-            </common-toggle>
+            </ui-toggle>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import CommonAirportCard from '~/components/common/vatsim/CommonAirportCard.vue';
-import CommonTabs from '~/components/common/basic/CommonTabs.vue';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import NavigationFeaturedAirport from '~/components/features/navigation/NavigationFeaturedAirport.vue';
+import UiTabs from '~/components/ui/data/UiTabs.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import { useStore } from '~/store';
 import distance from '@turf/distance';
 

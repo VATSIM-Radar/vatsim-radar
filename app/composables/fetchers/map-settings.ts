@@ -1,5 +1,5 @@
 import { useStore } from '~/store';
-import type { UserMapSettings } from '~/utils/backend/handlers/map-settings';
+import type { UserMapSettings } from '~/utils/server/handlers/map-settings';
 import type { UserLocalSettings } from '~/types/map';
 import { customDefu } from '~/composables';
 

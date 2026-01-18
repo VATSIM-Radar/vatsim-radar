@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
-import { prisma } from '~/utils/backend/prisma';
-import { isNext } from '~/utils/backend/debug';
+import { prisma } from '~/utils/server/prisma';
+import { isNext } from '~/utils/server/debug';
 
 export default defineEventHandler(async (event: H3Event) => {
     const id = getRouterParam(event, 'id');

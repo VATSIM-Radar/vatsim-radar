@@ -1,18 +1,18 @@
 <template>
     <div class="pilots">
-        <common-page-block>
+        <ui-page-container>
             <template #title>
                 Pilots
             </template>
 
-            <common-toggle
+            <ui-toggle
                 align-left
                 :disabled="!store.user"
                 :model-value="!!store.user?.isSup"
                 @update:modelValue="setSupStatus"
             >
                 I'm a supervisor
-            </common-toggle>
+            </ui-toggle>
 
             <table>
                 <thead>
@@ -79,15 +79,15 @@
                     </tr>
                 </tbody>
             </table>
-        </common-page-block>
+        </ui-page-container>
     </div>
 </template>
 
 <script setup lang="ts">
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import { parseEncoding } from '~/utils/data';
-import CommonToggle from '~/components/common/basic/CommonToggle.vue';
+import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 
 const { data: pilots, refresh } = useAsyncData('sup-pilots', () => $fetch<VatsimExtendedPilot[]>('/api/data/vatsim/data/pilots'));
 

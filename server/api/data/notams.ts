@@ -1,5 +1,5 @@
-import { handleH3Error } from '~/utils/backend/h3';
-import { getAirportNotams } from '~/utils/backend/notams';
+import { handleH3Error } from '~/utils/server/h3';
+import { getAirportNotams } from '~/utils/server/notams';
 
 export default defineEventHandler(async event => {
     const query = getQuery(event);

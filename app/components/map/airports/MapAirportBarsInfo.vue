@@ -1,6 +1,6 @@
 <template>
     <div class="bars">
-        <common-notification
+        <ui-notification
             class="bars_title"
             cookie-name="bars-in-use"
             type="info"
@@ -10,7 +10,7 @@
                 href="https://vats.im/bars"
                 target="_blank"
             >Learn more</a>
-        </common-notification>
+        </ui-notification>
         <div class="bars_list __info-sections">
             <div
                 v-for="item in data"
@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import type { BARSShortItem } from '~/utils/backend/storage';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import type { BARSShortItem } from '~/utils/server/storage';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 defineProps({
     data: {

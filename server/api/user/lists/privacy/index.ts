@@ -1,8 +1,8 @@
 import type { H3Event, H3Error } from 'h3';
-import { prisma } from '~/utils/backend/prisma';
-import { isNext } from '~/utils/backend/debug';
+import { prisma } from '~/utils/server/prisma';
+import { isNext } from '~/utils/server/debug';
 import { MAX_LISTS_USERS } from '~/utils/shared';
-import { handleH3Error } from '~/utils/backend/h3';
+import { handleH3Error } from '~/utils/server/h3';
 
 // TODO: use on next after prod release
 export default defineEventHandler(async (event: H3Event): Promise<Record<string, boolean> | void | H3Error<any>> => {

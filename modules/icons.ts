@@ -6,7 +6,7 @@ import { join } from 'path';
 import sharp from 'sharp';
 import type { PartialRecord } from '~/types';
 import { optimize } from 'svgo';
-import { colorsList } from '~/utils/backend/styles';
+import { colorsList } from '~/utils/server/styles';
 
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);

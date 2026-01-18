@@ -1,7 +1,3 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector';
@@ -10,7 +6,6 @@ import { buildNATWaypoints } from '~/composables/navigraph';
 import greatCircle from '@turf/great-circle';
 import { Point } from 'ol/geom';
 
-defineSlots<{ default: () => any }>();
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const store = useStore();
 const dataStore = useDataStore();

@@ -1,29 +1,29 @@
 <template>
     <div class="footer-time-popup__content">
-        <common-date-picker
+        <ui-date-picker
             :model-value="bookingRange"
             :use-local="store.mapSettings.bookingsLocalTimezone"
         />
         <div class="footer-time-popup__arrows">
-            <common-button
+            <ui-button
                 size="S"
                 @click="shiftRange(-24, 'hour')"
             >
                 - 24h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(-6, 'hour')"
             >
                 - 6h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(-1, 'hour')"
             >
                 - 1h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 class="footer-time-popup__apply"
                 :hover-color="bookingChanged ? 'warning400' : 'primary400'"
                 :primary-color="bookingChanged ? 'warning500' : 'primary500'"
@@ -32,25 +32,25 @@
                 @click="applyBookingTimes"
             >
                 Apply
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(1, 'hour')"
             >
                 + 1h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(6, 'hour')"
             >
                 + 6h
-            </common-button>
-            <common-button
+            </ui-button>
+            <ui-button
                 size="S"
                 @click="shiftRange(24, 'hour')"
             >
                 + 24h
-            </common-button>
+            </ui-button>
         </div>
     </div>
 </template>
@@ -59,9 +59,9 @@
 import { reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from '~/store';
-// import CommonControlBlock from '~/components/common/blocks/CommonControlBlock.vue';
-import CommonButton from '~/components/common/basic/CommonButton.vue';
-import CommonDatePicker from '~/components/common/basic/CommonDatePicker.vue';
+// import PopupAside from '~/components/common/blocks/PopupAside.vue';
+import UiButton from '~/components/ui/buttons/UiButton.vue';
+import UiDatePicker from '~/components/ui/inputs/UiDatePicker.vue';
 
 // const props = defineProps({
 //     show: Boolean,

@@ -10,13 +10,12 @@ import type {
     VatglassesAPIData,
     VatglassesData,
     VatglassesSector,
-} from '~/utils/backend/storage.js';
+} from '~/utils/server/storage.js';
 import { combineSectors, splitSectors } from '~/utils/data/vatglasses-helper';
-import type { WorkerDataStore } from '../backend/worker/vatglasses-worker';
+import type { WorkerDataStore } from '~/utils/server/worker/vatglasses-worker';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { computed } from 'vue';
-import { clientDB } from '~/utils/client-db';
-import { initIDBData } from '~/composables/idb-init';
+import { clientDB, initIDBData } from '~/composables/render/idb';
 
 let dataStore: UseDataStore;
 let workerDataStore: WorkerDataStore;
@@ -130,7 +129,7 @@ async function updateVatglassesPositionsAndAirspaces() {
         let first = 0; // used for debug
         const firs = dataStore?.vatsim?.data?.firs.value ?? radarStorage?.vatsim?.firs;
         for (const fir of [...firs, ...arrivalController]) { // this has an entry for each center controller connected. const fir is basically a center controller
-            // In data.firs it is called controller, in data.locals it is called atc, so we have to get the correct one
+            // In data.firs it is called controller, in data.locals it is called controllers, so we have to get the correct one
             let atc = null;
             if ('controller' in fir) {
                 atc = fir.controller;
@@ -718,7 +717,7 @@ async function initVatglassesCombined() {
 
                     if (localPosition) {
                         if (serverPosition.sectorsCombined) {
-                            // overwrite the property atc of the combined sectors with the atc from the local server data. I don't know if it would be a problem if we use the atc data from the server, but to make it consistent that the atc property is always a reference to the local data, we overwrite it here
+                            // overwrite the property controllers of the combined sectors with the controllers from the local server data. I don't know if it would be a problem if we use the controllers data from the server, but to make it consistent that the controllers property is always a reference to the local data, we overwrite it here
                             for (const sector of serverPosition.sectorsCombined) {
                                 if (sector.properties) {
                                     sector.properties.atc = localPosition.atc;
@@ -772,7 +771,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         mode = 'local';
         dataStore = useDataStore();
         store = useStore();
-        const { default: combinedWorker } = await import('~/composables/combination-worker.ts?worker');
+        const { default: combinedWorker } = await import('~/composables/render/combination-worker.ts?worker');
         worker = new combinedWorker();
 
         await updateVatglassesStateLocal(true);

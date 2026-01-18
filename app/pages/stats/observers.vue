@@ -1,12 +1,12 @@
 <template>
-    <common-page-block container>
+    <ui-page-container container>
         <template #title>
             Observers
         </template>
 
-        <view-stats-tabs/>
+        <stats-tabs/>
 
-        <common-table
+        <ui-table
             clickable
             :data="dataStore.vatsim.data.observers.value"
             :headers="[
@@ -49,9 +49,9 @@
                     View on map
                 </a>
             </template>
-        </common-table>
+        </ui-table>
 
-        <common-popup
+        <popup-fullscreen
             :model-value="!!overlayData"
             width="600px"
             @update:modelValue="!$event && (mapStore.overlays = [])"
@@ -61,30 +61,31 @@
             </template>
 
             <div class="__info-sections">
-                <map-popup-flight-info
+                <pilot-overlay-flight-info
                     class="__info-sections"
                     :pilot="overlayData!.pilot!"
                 />
-                <map-popup-flight-plan
+                <pilot-overlay-flight-plan
                     class="__info-sections"
                     :flight-plan="overlayData?.pilot?.flight_plan ?? null"
                     :status="overlayData!.pilot.status"
                     :stepclimbs="overlayData!.pilot.stepclimbs"
                 />
             </div>
-        </common-popup>
-    </common-page-block>
+        </popup-fullscreen>
+    </ui-page-container>
 </template>
 
 <script setup lang="ts">
-import CommonTable from '~/components/common/basic/CommonTable.vue';
-import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
+import UiTable from '~/components/ui/data/UiTable.vue';
+import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import { useMapStore } from '~/store/map';
-import ViewStatsTabs from '~/components/views/ViewStatsTabs.vue';
-import MapPopupFlightInfo from '~/components/map/popups/MapPopupFlightInfo.vue';
-import MapPopupFlightPlan from '~/components/map/popups/MapPopupFlightPlan.vue';
-import { getPilotStatus } from '~/composables/pilots';
-import { getATCTime } from '~/composables/atc';
+import StatsTabs from '~/components/views/StatsTabs.vue';
+import PilotOverlayFlightInfo from '~/components/map/overlays/pilot/PilotOverlayFlightInfo.vue';
+import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlayFlightPlan.vue';
+import { getPilotStatus } from '~/composables/vatsim/pilots';
+import { getATCTime } from '~/composables/vatsim/controllers';
+import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 
 const dataStore = useDataStore();
 const mapStore = useMapStore();

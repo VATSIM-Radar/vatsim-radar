@@ -1,5 +1,5 @@
-import { radarStorage } from '~/utils/backend/storage';
-import { validateDataReady } from '~/utils/backend/h3';
+import { radarStorage } from '~/utils/server/storage';
+import { validateDataReady } from '~/utils/server/h3';
 
 let cachedVatspy: null | typeof radarStorage.vatspy = null;
 

@@ -46,7 +46,7 @@ import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } 
 import VectorLayer from 'ol/layer/Vector';
 import type { FeatureLike } from 'ol/Feature';
 import VectorImageLayer from 'ol/layer/VectorImage';
-import { airportLayoutStyles } from '~/composables/airport-layout';
+import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import type { AmdbLayerName } from '@navigraph/amdb';
 
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
@@ -227,7 +227,7 @@ watch(map, val => {
             source: vectorSource.value,
             zIndex: 7,
             properties: {
-                type: 'arr-atc',
+                type: 'arr-controllers',
             },
         });
 

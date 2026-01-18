@@ -3,7 +3,7 @@
         mode="sigmets"
         @map="$emit('map', $event)"
     >
-        <common-info-popup
+        <popup-overlay
             v-model:collapsed="collapsed"
             class="date"
             collapsible
@@ -17,7 +17,7 @@
             </template>
             <template #content>
                 <div class="__info-sections">
-                    <common-radio-group
+                    <ui-radio-group
                         :items="sigmetDatesList"
                         :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
                         @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
@@ -25,9 +25,9 @@
                         <template #label>
                             Active date
                         </template>
-                    </common-radio-group>
+                    </ui-radio-group>
 
-                    <common-sigmets-settings/>
+                    <settings-sigmets/>
 
                     <div class="__partner-info date_info">
                         <div class="__partner-info_image">
@@ -46,16 +46,16 @@
                     </div>
                 </div>
             </template>
-        </common-info-popup>
+        </popup-overlay>
     </view-map>
 </template>
 
 <script setup lang="ts">
 import ViewMap from '~/components/views/ViewMap.vue';
-import CommonRadioGroup from '~/components/common/basic/CommonRadioGroup.vue';
+import UiRadioGroup from '~/components/ui/inputs/UiRadioGroup.vue';
 import { useStore } from '~/store';
-import CommonSigmetsSettings from '~/components/common/misc/CommonSigmetsSettings.vue';
-import CommonInfoPopup from '~/components/common/popup/CommonInfoPopup.vue';
+import SettingsSigmets from '~/components/features/settings/SettingsSigmets.vue';
+import PopupOverlay from '~/components/popups/PopupOverlay.vue';
 import type { MapEvent } from '~/app.vue';
 
 defineEmits({

@@ -1,4 +1,4 @@
-import { initClientDB } from '~/utils/client-db';
+import { initClientDB } from '~/composables/render/idb';
 
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 

@@ -1,4 +1,4 @@
-import { initInfluxDB } from '~/utils/backend/influx/influx';
+import { initInfluxDB } from '~/utils/server/influx/influx';
 
 export default defineNitroPlugin(app => {
     initInfluxDB();

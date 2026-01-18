@@ -1,11 +1,11 @@
 <template>
     <div class="runways-container">
-        <common-notification
+        <ui-notification
             cookie-name="vatglasses-runways"
             type="info"
         >
             In this block you can select active runway config<br> for VatGlasses sectors
-        </common-notification>
+        </ui-notification>
         <div
             v-if="runways?.potential.length"
             class="runways"
@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { getAirportRunways, setAirportActiveRunway } from '~/utils/data/vatglasses-front';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 const props = defineProps({
     airport: {

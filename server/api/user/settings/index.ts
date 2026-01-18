@@ -1,7 +1,7 @@
-import type { UserSettings } from '~/utils/backend/user';
-import { findUserByCookie } from '~/utils/backend/user';
-import { handleH3Error, handleH3Exception } from '~/utils/backend/h3';
-import { prisma } from '~/utils/backend/prisma';
+import type { UserSettings } from '~/utils/server/user';
+import { findUserByCookie } from '~/utils/server/user';
+import { handleH3Error, handleH3Exception } from '~/utils/server/h3';
+import { prisma } from '~/utils/server/prisma';
 
 const sortOptions: UserSettings['favoriteSort'][] = ['newest', 'oldest', 'abcAsc', 'abcDesc', 'cidAsc', 'cidDesc'];
 const timeOptions: UserSettings['timeFormat'][] = ['24h', '12h'];
