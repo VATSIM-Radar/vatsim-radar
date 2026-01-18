@@ -77,8 +77,8 @@ export default defineNitroPlugin(async app => {
             description: 'Share with everyone your Radar ID and stats!',
         },
         {
-            name: 'dev-release',
-            description: 'Release dev changelog of VATSIM Radar',
+            name: 'release',
+            description: 'Release changelog of VATSIM Radar',
             default_member_permissions: PermissionFlagsBits.ManageMessages.toString(),
         },
     ];
