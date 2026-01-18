@@ -329,7 +329,6 @@ const mobileMenuOpened = ref(false);
     }
 
     &__user {
-
         font-size: 14px;
         font-weight: 700;
         color: $primary500;

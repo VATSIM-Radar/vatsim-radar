@@ -237,7 +237,6 @@ const features: Feature[] = [
         }
 
         &_title {
-
             font-size: 40px;
             font-weight: 700;
 
@@ -323,7 +322,6 @@ const features: Feature[] = [
 
         &_title {
             margin-bottom: 32px;
-
             font-size: 32px;
             font-weight: 700;
 
