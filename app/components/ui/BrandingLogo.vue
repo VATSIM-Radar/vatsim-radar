@@ -2,7 +2,18 @@
     <div
         class="logo"
     >
-        <logo-icon class="logo_icon"/>
+        <img
+            v-if="store.getCurrentTheme === 'light'"
+            alt=""
+            class="logo_icon"
+            src="~/assets/icons/basic/logo-light.svg"
+        >
+        <img
+            v-else
+            alt=""
+            class="logo_icon"
+            src="~/assets/icons/basic/logo.svg"
+        >
         <div class="logo_text">
             VATSIM<br>
             Radar
@@ -11,8 +22,6 @@
 </template>
 
 <script setup lang="ts">
-import LogoIcon from '~/assets/icons/basic/logo.svg?component';
-
 defineProps({
     width: {
         type: String,
@@ -23,6 +32,8 @@ defineProps({
         default: '12px',
     },
 });
+
+const store = useStore();
 </script>
 
 <style scoped lang="scss">
