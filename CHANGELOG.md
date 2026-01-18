@@ -2,6 +2,10 @@
 
 # [2.0.0-alpha.1]
 
+## Redesign
+
+- New logo (favicon will be adjusted later)
+
 ## Developer changes
 
 - Reworked components and methods structure
