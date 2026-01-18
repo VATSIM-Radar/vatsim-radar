@@ -1,6 +1,6 @@
 # Changelog
 
-# [1.2.4-3]
+# [1.2.4-3-final]
 
 - Fixed map crash after airports procedures have been opened, but nothing was selected
 - Fixed "show pilot stats" toggle not being saved
