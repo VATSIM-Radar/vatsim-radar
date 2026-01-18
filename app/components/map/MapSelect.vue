@@ -38,6 +38,7 @@ type Definition = {
     click: (feature: Feature) => void;
 } & PartialRecord<Exclude<EventType, 'click'>, (feature: Feature) => void>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const definitions = {
     aircraft: {
         click: handleAircraftClick,
@@ -46,6 +47,7 @@ const definitions = {
 
 type SelectableFeatures = keyof typeof definitions;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const priorities: Record<EventType, Array<SelectableFeatures | 'multi'>> = {
     click: ['multi'],
     hover: ['aircraft'],
@@ -87,6 +89,6 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .select-result {
-
+  display: block;
 }
 </style>
