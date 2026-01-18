@@ -49,6 +49,7 @@ const store = useStore();
     color: $lightgray50;
     text-decoration: none;
 
+
     &_icon {
         width: v-bind(width);
         color: $lightgray100;

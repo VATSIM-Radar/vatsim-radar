@@ -34,7 +34,7 @@ import GpsLost from 'assets/icons/errors/gps-lost.svg?component';
 
     padding: 23.5dvh 0 10dvh;
 
-    font-family: $openSansFont;
+
     color: $error500;
     text-align: center;
 

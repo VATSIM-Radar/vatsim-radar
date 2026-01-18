@@ -177,7 +177,7 @@ useClickOutside({
         background: $darkgray1000;
 
         &_title {
-            font-family: $openSansFont;
+
             font-size: 16px;
             font-weight: 700;
             line-height: 100%;

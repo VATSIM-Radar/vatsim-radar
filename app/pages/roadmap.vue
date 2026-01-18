@@ -539,7 +539,7 @@ function getRoadmapGroups(items: Array<string | Item>, isCompleted = false): Roa
         &_title {
             margin-bottom: 16px;
 
-            font-family: $openSansFont;
+
             font-size: 24px;
             font-weight: 700;
             text-align: center;

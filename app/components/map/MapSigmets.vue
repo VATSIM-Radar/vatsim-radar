@@ -210,7 +210,7 @@ function buildStyle(color: ColorsList, type: string) {
         }),
         text: new Text({
             text: `${ type }`,
-            font: `bold ${ isMobile.value ? 10 : 12 }px Montserrat`,
+            font: `bold ${ isMobile.value ? 10 : 12 }px LibreFranklin`,
             fill: new Fill({
                 color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, 0.5)`,
             }),

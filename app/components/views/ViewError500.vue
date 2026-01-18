@@ -41,7 +41,7 @@ useRadarError(props.error);
 
     padding-top: 25dvh;
 
-    font-family: $openSansFont;
+
     font-size: 2vw;
     color: $error500;
     text-align: center;

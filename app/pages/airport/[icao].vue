@@ -964,7 +964,7 @@ await setupDataFetch({
             gap: 8px;
             align-items: center;
 
-            font-family: $openSansFont;
+
             font-size: 16px;
             line-height: 100%;
             text-transform: uppercase;
@@ -1132,7 +1132,7 @@ await setupDataFetch({
             margin-left: -16px;
             padding: 4px 0 4px 16px;
 
-            font-family: $openSansFont;
+
             font-size: 17px;
             font-weight: 700;
             color: $lightgray150;

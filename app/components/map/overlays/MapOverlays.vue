@@ -59,7 +59,7 @@ const MapPopupAirport = defineAsyncComponent(() => import('./MapOverlayAirport.v
         gap: 8px;
         align-items: center;
 
-        font-family: $openSansFont;
+
         font-size: 17px;
         font-weight: 700;
 

@@ -344,7 +344,7 @@ function initAirport() {
 
     feature.setStyle(new Style({
         text: new Text({
-            font: '12px Montserrat',
+            font: '12px LibreFranklin',
             text: airportName.value,
             offsetY: -10,
             fill: new Fill({
@@ -361,7 +361,7 @@ watch(getAirportColor, () => {
 
     feature.setStyle(new Style({
         text: new Text({
-            font: '12px Montserrat',
+            font: '12px LibreFranklin',
             text: airportName.value,
             offsetY: -10,
             fill: new Fill({
@@ -412,7 +412,7 @@ function setLabelFeatureStyle(feature: Feature) {
     const style = [
         new Style({
             text: new Text({
-                font: 'bold 10px Montserrat',
+                font: 'bold 10px LibreFranklin',
                 text: isTWR
                     ? (!feature.getProperties()?._traconId || feature.getProperties()?._traconId === airportName.value) ? 'TWR' : feature.getProperties()?._traconId
                     : feature.getProperties()?._traconId || airportName.value,
@@ -658,7 +658,7 @@ onMounted(async () => {
                 if (style.getText()?.getFill()?.getColor() !== color) {
                     existingFeature.setStyle(new Style({
                         text: new Text({
-                            font: '11px Montserrat',
+                            font: '11px LibreFranklin',
                             text: gate.name || gate.gate_identifier,
                             textAlign: 'center',
                             fill: new Fill({
@@ -685,7 +685,7 @@ onMounted(async () => {
 
                 feature.setStyle(new Style({
                     text: new Text({
-                        font: '11px Montserrat',
+                        font: '11px LibreFranklin',
                         text: gate.name || gate.gate_identifier,
                         textAlign: 'center',
                         fill: new Fill({
@@ -789,7 +789,7 @@ onMounted(async () => {
 
             runwayFeature.setStyle(new Style({
                 text: new Text({
-                    font: 'bold 12px Montserrat',
+                    font: 'bold 12px LibreFranklin',
                     text: feature.runway_identifier.replace('RW', ''),
                     rotation: toRadians(feature.runway_true_bearing),
                     rotateWithView: true,
