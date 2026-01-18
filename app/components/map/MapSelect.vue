@@ -89,6 +89,6 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .select-result {
-  display: block;
+    display: block;
 }
 </style>
