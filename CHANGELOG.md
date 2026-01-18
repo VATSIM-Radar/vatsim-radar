@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-alpha.1]
+
+## Developer changes
+
+- Reworked components and methods structure
+
 # [1.2.4-3-final]
 
 - Fixed map crash after airports procedures have been opened, but nothing was selected
