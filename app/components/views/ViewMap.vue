@@ -97,7 +97,6 @@
                     v-if="store.localSettings.filters?.layers?.terminator"
                     :key="(store.theme ?? 'default') + 'terminator'"
                 />
-                <map-select/>
                 <map-sigmets v-if="store.localSettings.filters?.layers?.sigmets?.enabled"/>
                 <map-settings v-if="!store.config.hideHeader"/>
             </client-only>
@@ -313,7 +312,6 @@ import MapAirportsList from '~/components/map/airports/MapAirportsList.vue';
 import MapDistance from '~/components/map/MapDistance.vue';
 import MapControls from '~/components/map/MapControls.vue';
 import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
-import MapSelect from '~/components/map/MapSelect.vue';
 
 defineProps({
     mode: {
