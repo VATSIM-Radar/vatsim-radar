@@ -258,7 +258,6 @@ const store = useStore();
         }
 
         &_title {
-
             font-size: 40px;
             font-weight: 700;
 
@@ -337,7 +336,6 @@ const store = useStore();
 
         &_title {
             margin-bottom: 32px;
-
             font-size: 32px;
             font-weight: 700;
 
