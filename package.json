@@ -94,7 +94,7 @@
     "@nuxt/eslint": "^1.12.1",
     "@nuxtjs/stylelint-module": "5.2.0",
     "@stylistic/eslint-plugin": "^5.6.1",
-    "@stylistic/stylelint-plugin": "^4.0.0",
+    "@stylistic/stylelint-plugin": "^5.0.0",
     "@types/adm-zip": "^0.5.7",
     "@types/deep-equal": "^1.0.4",
     "@types/geojson": "^7946.0.16",
