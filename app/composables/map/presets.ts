@@ -5,7 +5,6 @@ import type { MapAircraftMode } from '~/types/map';
 const saPreset: SiteConfig = {
     hideAirports: false,
     hideSectors: false,
-    theme: 'sa',
     hideHeader: true,
     hideFooter: true,
     allAircraftGreen: true,

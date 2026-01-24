@@ -6,7 +6,7 @@ import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
 import { Icon, Stroke, Style, Text, Fill } from 'ol/style.js';
 import { useStore } from '~/store';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsList } from '~/utils/colors';
 import { colorPresets } from '~/utils/shared/flight';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import { getUserList } from '~/composables/fetchers/lists';
@@ -449,7 +449,6 @@ export function getFlightRowColor(index: number | null | undefined, theme = useS
     const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
 
     switch (theme) {
-        case 'sa':
         case 'default':
             return colorPresets[turnsTheme].dark[index];
         case 'light':

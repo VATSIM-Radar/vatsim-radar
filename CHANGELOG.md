@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.0-alpha.1.3]
+
+- New color palette is not used anywhere besides page background and connections count in footer. But you can preview it in Map Settings -> Colors!
+
+## Developer changes
+
+- Implemented new color palette
+
 # [2.0.0-alpha.1.2]
 
 ## Alpha changes

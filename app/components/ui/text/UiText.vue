@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { RouteLocationRaw } from '#vue-router';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsList } from '~/utils/colors';
 import { NuxtLink } from '#components';
 
 const props = defineProps({

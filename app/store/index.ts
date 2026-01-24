@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import type { FullUser } from '~/utils/server/user';
 import type { MapAircraftMode, UserLocalSettings } from '~/types/map';
 
-import type { ThemesList } from '~/utils/server/styles';
+import type { ThemesList } from '~/utils/colors';
 import type { VatDataVersions } from '~/types/data';
 import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
@@ -137,11 +137,6 @@ export const useStore = defineStore('index', {
             return this.device !== 'desktop';
         },
         getCurrentTheme(): 'light' | 'default' {
-            switch (this.theme) {
-                case 'sa':
-                    return 'default';
-            }
-
             return this.theme;
         },
         lists(): UserListLive[] {
