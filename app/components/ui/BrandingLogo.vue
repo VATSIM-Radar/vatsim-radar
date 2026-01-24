@@ -14,22 +14,21 @@
             class="logo_icon"
             src="~/assets/icons/basic/logo.svg"
         >
-        <div class="logo_text">
-            VATSIM<br>
-            Radar
-        </div>
+        <logo-text class="logo_text"/>
     </div>
 </template>
 
 <script setup lang="ts">
+import LogoText from '@/assets/icons/basic/logo-text.svg?component';
+
 defineProps({
     width: {
         type: String,
-        default: '40px',
+        default: '48px',
     },
-    fontSize: {
+    textWidth: {
         type: String,
-        default: '12px',
+        default: '56px',
     },
 });
 
@@ -44,23 +43,15 @@ const store = useStore();
     gap: 8px;
     align-items: center;
 
-    font-size: v-bind(fontSize);
-    font-weight: 700;
     color: $lightgray50;
     text-decoration: none;
 
-
     &_icon {
         width: v-bind(width);
-        color: $lightgray100;
+    }
 
-        :deep(> rect) {
-            color: $primary500;
-        }
-
-        :deep(.wifi) {
-            color: $darkgray950;
-        }
+    &_text {
+        width: v-bind(textWidth);
     }
 }
 </style>

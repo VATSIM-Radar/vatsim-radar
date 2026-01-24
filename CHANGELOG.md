@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-alpha.1.2]
+
+## Alpha changes
+
+- Updated "VATSIM Radar" text in header
+
+## Developer changes
+
+- Added standard typography component
+
 # [2.0.0-alpha.1.1]
 
 ## Alpha changes
