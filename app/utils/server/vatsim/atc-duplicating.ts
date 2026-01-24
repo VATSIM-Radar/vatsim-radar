@@ -162,7 +162,7 @@ export const duplicatingSettings = [
             POE: 'POE_APP',
         },
     },
-        /**
+    /**
     * @description ZJX Center and TRACONs
     * @author 1487925
     */
@@ -184,7 +184,7 @@ export const duplicatingSettings = [
             'SSC RAPCON': 'SSC_APP',
             'CAE TRACON': 'CAE_N_APP',
             'MYR TRACON': 'MYR_E_APP',
-            'FLO TRACON': "FLO_APP",
+            'FLO TRACON': 'FLO_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
