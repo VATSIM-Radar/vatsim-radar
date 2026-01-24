@@ -2,9 +2,9 @@
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import { XYZ } from 'ol/source';
-import type { UrlFunction } from 'ol/Tile';
+import TileLayer from 'ol/layer/Tile.js';
+import { XYZ } from 'ol/source.js';
+import type { UrlFunction } from 'ol/Tile.js';
 import type { MapWeatherLayer } from '~/types/map';
 
 const store = useStore();

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
-import { Point } from 'ol/geom';
+import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import { useMapStore } from '~/store/map';
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');

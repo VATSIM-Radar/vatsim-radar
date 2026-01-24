@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-alpha.1.1]
+
+## Alpha changes
+
+- Favicon has been fixed
+- Light theme logo has been fixed
+
+## Developer changes
+
+- Slightly reduced bundle size by optimizing map engine imports
+
 # [2.0.0-alpha.1]
 
 ## Redesign

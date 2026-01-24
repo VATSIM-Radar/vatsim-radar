@@ -16,12 +16,12 @@
 import type { ShallowRef } from 'vue';
 import { Collection } from 'ol';
 import type { Feature, Map } from 'ol';
-import Select from 'ol/interaction/Select';
+import Select from 'ol/interaction/Select.js';
 import { singleClick, always } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import { handleAircraftClick } from '~/composables/vatsim/events';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let select: Select | undefined;

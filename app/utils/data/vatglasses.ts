@@ -1,9 +1,9 @@
-import type Feature from 'ol/Feature';
-import type Polygon from 'ol/geom/Polygon';
+import type Feature from 'ol/Feature.js';
+import type Polygon from 'ol/geom/Polygon.js';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, Position } from 'geojson';
 
 import { polygon } from '@turf/helpers';
-import { GeoJSON } from 'ol/format';
+import { GeoJSON } from 'ol/format.js';
 import type {
     RadarStorage,
     VatglassesAirspace,

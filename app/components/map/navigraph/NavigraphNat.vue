@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import { Feature } from 'ol';
 import { buildNATWaypoints } from '~/composables/navigraph';
 import greatCircle from '@turf/great-circle';
-import { Point } from 'ol/geom';
+import { Point } from 'ol/geom.js';
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const store = useStore();

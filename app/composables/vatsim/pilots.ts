@@ -4,7 +4,7 @@ import type { Feature, Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
-import { Icon, Stroke, Style, Text, Fill } from 'ol/style';
+import { Icon, Stroke, Style, Text, Fill } from 'ol/style.js';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/server/styles';
 import { colorPresets } from '~/utils/shared/flight';
@@ -13,7 +13,7 @@ import { getUserList } from '~/composables/fetchers/lists';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
-import type { Pixel } from 'ol/pixel';
+import type { Pixel } from 'ol/pixel.js';
 import { isHideMapObject } from '~/composables/settings';
 import { collapsingWithOverlay } from '~/composables';
 

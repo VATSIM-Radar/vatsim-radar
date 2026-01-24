@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import { convertToOpenLayersFeatures, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesActivePosition } from '~/utils/data/vatglasses';
 import type { Feature } from 'ol';

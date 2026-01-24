@@ -1,12 +1,12 @@
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import type { Options as TextOptions } from 'ol/style/Text';
-import type { Coordinate } from 'ol/coordinate';
-import { LineString, Point } from 'ol/geom';
+import type { Coordinate } from 'ol/coordinate.js';
+import { LineString, Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
 import { point } from '@turf/helpers';
-import { transform } from 'ol/proj';
-import { Fill, Text, Style } from 'ol/style';
+import { transform } from 'ol/proj.js';
+import { Fill, Text, Style } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import type { GeometryFunction } from 'ol/interaction/Draw';
 

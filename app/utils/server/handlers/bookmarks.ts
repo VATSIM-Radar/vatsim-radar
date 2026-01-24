@@ -6,7 +6,7 @@ import { UserPresetType } from '#prisma';
 import { isObject, MAX_BOOKMARKS } from '~/utils/shared';
 import { radarStorage } from '~/utils/server/storage';
 import { validateRandomObjectKeys } from '~/utils/server/handlers/index';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type { UserPreset } from '#prisma';
 
 export interface IUserBookmark {

@@ -11,7 +11,7 @@ import { clientDB } from '~/composables/render/idb';
 import type { IDBNavigraphProcedures } from '~/composables/render/idb';
 import { useStore } from '~/store';
 import { isFetchError } from '~/utils/shared';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import { StorageSerializers } from '@vueuse/core';
 import distance from '@turf/distance';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
@@ -175,8 +175,7 @@ export interface EnroutePath {
 
 export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, { serializer: StorageSerializers.object });
 
-// @ts-expect-error Checking for an invalid local storage
-if (typeof window !== 'undefined' && enroutePath.value === '[object Object]') enroutePath.value = null;
+if (typeof window !== 'undefined' && localStorage.getItem('enroute-path') === '[object Object]') enroutePath.value = null;
 
 export const enrouteAircraftPath = useStorageLocal<Record<string, {
     departure: EnroutePath;

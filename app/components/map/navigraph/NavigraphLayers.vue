@@ -207,15 +207,15 @@
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import VectorSource from 'ol/source/Vector';
-import { Fill, Style, Text, Icon, Stroke } from 'ol/style';
+import { Fill, Style, Text, Icon, Stroke } from 'ol/style.js';
 import { getCurrentThemeRgbColor } from '~/composables';
 import NavigraphNdb from '~/components/map/navigraph/NavigraphNdb.vue';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import { useStore } from '~/store';
 import NavigraphAirways from '~/components/map/navigraph/NavigraphAirways.vue';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import CircleStyle from 'ol/style/Circle';
-import type { FeatureLike } from 'ol/Feature';
+import type { FeatureLike } from 'ol/Feature.js';
 import NavigraphWaypoints from '~/components/map/navigraph/NavigraphWaypoints.vue';
 import NavigraphHoldings from '~/components/map/navigraph/NavigraphHoldings.vue';
 import type { NavigraphGetData, NavigraphNavData } from '~/utils/server/navigraph/navdata/types';

@@ -15,22 +15,22 @@
 </template>
 
 <script setup lang="ts">
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector.js';
+import VectorLayer from 'ol/layer/Vector.js';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
-import type { Pixel } from 'ol/pixel';
+import type { Pixel } from 'ol/pixel.js';
 import type { VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { attachMoveEnd, isPointInExtent, useUpdateInterval } from '~/composables';
 import { useMapStore } from '~/store/map';
 import MapAircraft from '~/components/map/aircraft/MapAircraft.vue';
 import { useStore } from '~/store';
 import type { MapAircraftKeys } from '~/types/map';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { isHideMapObject } from '~/composables/settings';
-import { Heatmap } from 'ol/layer';
+import { Heatmap } from 'ol/layer.js';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 
 let vectorLayer: VectorLayer<any>;

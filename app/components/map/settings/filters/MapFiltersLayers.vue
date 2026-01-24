@@ -418,7 +418,7 @@
 
 <script setup lang="ts">
 import UiTabs from '~/components/ui/data/UiTabs.vue';
-import type { Units } from 'ol/control/ScaleLine';
+import type { Units } from 'ol/control/ScaleLine.js';
 import type { MapLayoutLayer, MapLayoutLayerExternalOptions } from '~/types/map';
 import UiNotification from '~/components/ui/data/UiNotification.vue';
 import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';

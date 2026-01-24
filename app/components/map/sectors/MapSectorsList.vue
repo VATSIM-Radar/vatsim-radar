@@ -79,13 +79,13 @@
 </template>
 
 <script setup lang="ts">
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent } from 'ol';
 import { Feature } from 'ol';
-import { Fill, Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style } from 'ol/style.js';
 import MapVatglassesPosition from '~/components/map/sectors/MapVatglassesPosition.vue';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { useStore } from '~/store';
 import MapSector from '~/components/map/sectors/MapSector.vue';
 import { attachMoveEnd, collapsingWithOverlay } from '~/composables';
@@ -95,11 +95,11 @@ import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatglassesSectorProperties } from '~/utils/data/vatglasses';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 
-import type { Pixel } from 'ol/pixel';
+import type { Pixel } from 'ol/pixel.js';
 import VatsimControllerInfo from '~/components/features/vatsim/controllers/VatsimControllerInfo.vue';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import { useMapStore } from '~/store/map';
-import { MultiPolygon } from 'ol/geom';
+import { MultiPolygon } from 'ol/geom.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 
