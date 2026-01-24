@@ -170,7 +170,7 @@ import ViewFooter from '~/components/features/footer/ViewFooter.vue';
 import { checkAndSetMapPreset } from '~/composables/map/presets';
 import ViewRestrictedAuth from '~/components/views/ViewRestrictedAuth.vue';
 
-import type { ThemesList } from '~/utils/server/styles';
+import type { ThemesList } from '~/utils/colors';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { UAParser } from 'ua-parser-js';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
@@ -285,8 +285,11 @@ useHead(() => {
             ...radarColors,
             ...(theme === 'default' ? {} : radarThemes[theme]),
         })
-        .filter(([key]) => key.endsWith('Rgb'))
-        .map(([key, value]) => `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`)
+        .filter(([key]) => key.endsWith('Rgb') || (key.endsWith('Hex') && key.includes('Alpha')))
+        .map(([key, value]) => {
+            if (key.endsWith('Rgb')) return `--${ key.replace('Rgb', '') }: ${ (value as number[]).join(',') }`;
+            return `--${ key.replace('Hex', '') }: ${ value }`;
+        })
         .join(';');
 
     const script: ResolvableScript[] = [];
@@ -556,7 +559,7 @@ html, body {
     text-size-adjust: 100%;
 
     color-scheme: dark;
-    background: $darkgray1000;
+    background: $black;
 
     &:not(.iframe) {
         scrollbar-gutter: stable;
@@ -586,7 +589,7 @@ img {
 *,
 *::before,
 *::after {
-    scrollbar-color: $darkgray800 var(--bg-color, $darkgray1000);
+    scrollbar-color: $darkgray800 var(--bg-color, $black);
     scrollbar-width: thin;
     box-sizing: border-box;
 }
@@ -599,13 +602,13 @@ img {
     }
 
     &::-webkit-scrollbar-thumb {
-        border: 3px solid var(--bg-color, $darkgray1000);
+        border: 3px solid var(--bg-color, $black);
         border-radius: 10px;
         background: $darkgray800;
     }
 
     &::-webkit-scrollbar-track {
-        background: var(--bg-color, $darkgray1000);
+        background: var(--bg-color, $black);
     }
 }
 
@@ -738,14 +741,14 @@ img {
 }
 
 .__link {
-    color: $primary500;
+    color: var(--text-primary-color, #{$primary500});
     text-decoration: underline;
 
     @include hover {
         transition: 0.3s;
 
         &:hover {
-            color: $primary400;
+            color: var(--text-hover-color, #{$primary400});
         }
     }
 }

@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsListRgb } from '~/utils/colors';
 import type { SigmetType } from '~/types/map';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import SettingsTransparency from '~/components/features/settings/SettingsTransparency.vue';
@@ -49,7 +49,7 @@ const store = useStore();
 
 interface Button {
     text: string;
-    color: ColorsList;
+    color: ColorsListRgb;
 }
 
 const buttons: Record<SigmetType, Button> = {

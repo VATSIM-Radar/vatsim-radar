@@ -84,10 +84,7 @@
                         href="https://vatsim-radar.com"
                         target="_blank"
                     >
-                        <branding-logo
-                            font-size="14px"
-                            width="50px"
-                        />
+                        <branding-logo width="50px"/>
                     </a>
                 </client-only>
             </div>

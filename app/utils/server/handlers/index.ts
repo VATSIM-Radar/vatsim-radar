@@ -1,4 +1,4 @@
-import { colorsList } from '~/utils/server/styles';
+import { colorsList } from '~/utils/colors';
 import { hexColorRegex, isObject } from '~/utils/shared';
 import type { PartialRecord } from '~/types';
 

@@ -68,7 +68,7 @@ import type { Map, MapBrowserEvent } from 'ol';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsListRgb } from '~/utils/colors';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -132,7 +132,7 @@ watch([showConfig, geojson, source, hideUnchanged], () => {
     immediate: true,
 });
 
-function buildStyle(color: ColorsList, fillOpacity = 0.2, strokeOpacity = 1) {
+function buildStyle(color: ColorsListRgb, fillOpacity = 0.2, strokeOpacity = 1) {
     return new Style({
         fill: new Fill({ color: `rgba(${ radarColors[`${ color }Rgb`].join(',') }, ${ fillOpacity })` }),
         stroke: new Stroke({
@@ -180,7 +180,7 @@ watch(map, val => {
                         text: properties.id,
                         font: 'bold 12px LibreFranklin',
                         fill: new Fill({
-                            color: `rgba(${ radarColors[`${ properties.fill as ColorsList }Rgb`].join(',') }, 0.5)`,
+                            color: `rgba(${ radarColors[`${ properties.fill as ColorsListRgb }Rgb`].join(',') }, 0.5)`,
                         }),
                         backgroundFill: new Fill({
                             color: `rgba(${ getCurrentThemeRgbColor('darkgray950').join(',') }, 1)`,

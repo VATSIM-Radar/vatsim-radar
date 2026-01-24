@@ -8,6 +8,18 @@ export function shortHexToLong(hex: string) {
     });
 }
 
+export function hexToHexa(hex: string, alpha: number): string {
+    hex = shortHexToLong(hex);
+
+    if (alpha === 1) return hex;
+
+    const alphaHex = Math.round(alpha * 255)
+        .toString(16)
+        .padStart(2, '0');
+
+    return `${ hex }${ alphaHex }`;
+}
+
 export function hexToRgb(hex: string): string {
     if (hex.startsWith('rgb')) {
         return `${ hex.split('(')[1].split(')')[0].split(',').slice(0, 3) }`;
