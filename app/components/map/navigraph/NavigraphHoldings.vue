@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
-import { LineString, Point } from 'ol/geom';
+import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import type { Coordinate } from 'ol/coordinate';
+import type VectorSource from 'ol/source/Vector.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import { useMapStore } from '~/store/map';
 import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types';
 import { debounce } from '~/utils/shared';

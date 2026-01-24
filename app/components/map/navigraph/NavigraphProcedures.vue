@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import { LineString, Point } from 'ol/geom';
-import type { Coordinate } from 'ol/coordinate';
+import type VectorSource from 'ol/source/Vector.js';
+import { LineString, Point } from 'ol/geom.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import greatCircle from '@turf/great-circle';
 import type { NavigraphNavDataAirportWaypoint } from '~/utils/server/navigraph/navdata/types';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';

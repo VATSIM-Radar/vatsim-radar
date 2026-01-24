@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import { Feature } from 'ol';
-import { Point } from 'ol/geom';
+import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import greatCircle from '@turf/great-circle';
 import { useMapStore } from '~/store/map';
-import type { ObjectWithGeometry } from 'ol/Feature';
-import type { Coordinate } from 'ol/coordinate';
+import type { ObjectWithGeometry } from 'ol/Feature.js';
+import type { Coordinate } from 'ol/coordinate.js';
 import { checkFlightLevel } from '~/composables/render/storage';
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');

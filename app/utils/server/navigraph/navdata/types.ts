@@ -1,4 +1,4 @@
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type sqlite3 from 'sqlite3';
 
 export interface NavigraphNavDataVHF {

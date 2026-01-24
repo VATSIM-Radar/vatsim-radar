@@ -161,10 +161,10 @@
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
 import type { VatsimMandatoryPilot } from '~/types/data/vatsim';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import { Feature } from 'ol';
-import { Stroke, Style } from 'ol/style';
-import { LineString, MultiLineString, Point } from 'ol/geom';
+import { Stroke, Style } from 'ol/style.js';
+import { LineString, MultiLineString, Point } from 'ol/geom.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import {
     getAircraftStatusColor,
@@ -193,7 +193,7 @@ import UiBubble from '~/components/ui/data/UiBubble.vue';
 import VatsimPilotDestination from '~/components/features/vatsim/pilots/VatsimPilotDestination.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
 import { useRadarError } from '~/composables/errors';
-import type { Positioning } from 'ol/Overlay';
+import type { Positioning } from 'ol/Overlay.js';
 import { getZoomScaleMultiplier } from '~/utils/map/aircraft-scale';
 
 const props = defineProps({

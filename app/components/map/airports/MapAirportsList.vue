@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import VectorSource from 'ol/source/Vector';
+import VectorSource from 'ol/source/Vector.js';
 import type { ShallowRef } from 'vue';
 import type { Map, MapBrowserEvent, Feature } from 'ol';
 import { attachMoveEnd, isPointInExtent, useIsMobileOrTablet } from '~/composables';
@@ -37,15 +37,15 @@ import type {
 import { checkIsPilotInGate, getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import { useMapStore } from '~/store/map';
 import MapAirport from '~/components/map/airports/MapAirport.vue';
-import type { Coordinate } from 'ol/coordinate';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON';
+import type { Coordinate } from 'ol/coordinate.js';
+import type { GeoJSONFeature } from 'ol/format/GeoJSON.js';
 import type { VatSpyAirport, VatSpyData, VatSpyDataLocalATC } from '~/types/data/vatspy';
-import { intersects } from 'ol/extent';
+import { intersects } from 'ol/extent.js';
 import { useStore } from '~/store';
 import type { GeoJsonProperties, MultiPolygon, Feature as GeoFeature, Polygon } from 'geojson';
-import VectorLayer from 'ol/layer/Vector';
-import type { FeatureLike } from 'ol/Feature';
-import VectorImageLayer from 'ol/layer/VectorImage';
+import VectorLayer from 'ol/layer/Vector.js';
+import type { FeatureLike } from 'ol/Feature.js';
+import VectorImageLayer from 'ol/layer/VectorImage.js';
 import { airportLayoutStyles } from '~/composables/navigraph/layouts';
 import type { AmdbLayerName } from '@navigraph/amdb';
 

@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
-import type { Options } from 'ol/Overlay';
+import type { Options } from 'ol/Overlay.js';
 import { Overlay } from 'ol';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';

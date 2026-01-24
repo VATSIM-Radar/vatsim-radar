@@ -250,7 +250,7 @@ import { getPilotStatus, showPilotOnMap } from '~/composables/vatsim/pilots';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import PilotOverlayFlightPlan from '~/components/map/overlays/pilot/PilotOverlayFlightPlan.vue';
-import { boundingExtent, getCenter } from 'ol/extent';
+import { boundingExtent, getCenter } from 'ol/extent.js';
 import MapOverlayPinIcon from '~/components/map/overlays/MapOverlayPinIcon.vue';
 import { useCopyText } from '~/composables';
 import UiButton from '~/components/ui/buttons/UiButton.vue';

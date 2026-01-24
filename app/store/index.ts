@@ -7,7 +7,7 @@ import type { VatDataVersions } from '~/types/data';
 import type { VatsimBooking, VatsimLiveData, VatsimLiveDataShort, VatsimMandatoryData } from '~/types/data/vatsim';
 import { setVatsimDataStore } from '~/composables/render/storage';
 import { useMapStore } from '~/store/map';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type { UserMapPreset, UserMapSettings } from '~/utils/server/handlers/map-settings';
 import type { TurnsBulkReturn } from '~~/server/api/data/vatsim/pilot/turns';
 import type {

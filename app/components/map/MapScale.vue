@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import { ScaleLine } from 'ol/control';
+import { ScaleLine } from 'ol/control.js';
 import { useStore } from '~/store';
 
 const map = inject<ShallowRef<Map | null>>('map')!;

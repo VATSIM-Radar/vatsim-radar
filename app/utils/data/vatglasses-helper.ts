@@ -5,7 +5,7 @@ import difference from '@turf/difference';
 import intersect from '@turf/intersect';
 import kinks from '@turf/kinks';
 import mergeRanges from 'merge-ranges';
-import { fromLonLat, toLonLat } from 'ol/proj';
+import { fromLonLat, toLonLat } from 'ol/proj.js';
 import type { Feature as TurfFeature, Polygon as TurfPolygon, MultiPolygon as TurfMultiPolygon, LineString, Point } from 'geojson';
 import type { VatglassesSectorProperties } from './vatglasses';
 
