@@ -375,7 +375,7 @@ function cancelBookingOverride() {
         display: flex;
         padding: 8px 12px;
         border-radius: 8px;
-        background: $darkgray950;
+        background: $darkGray900;
 
         span {
             font-weight: 600;

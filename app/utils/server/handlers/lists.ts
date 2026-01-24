@@ -5,7 +5,7 @@ import type { UserTrackingList } from '#prisma';
 import { prisma } from '~/utils/server/prisma';
 import { UserTrackingListType } from '#prisma';
 import { isObject, MAX_LISTS_USERS, MAX_USER_LISTS } from '~/utils/shared';
-import { colorsList } from '~/utils/server/styles';
+import { colorsList } from '~/utils/colors';
 import type {
     VatsimShortenedAircraft,
     VatsimShortenedController, VatsimShortenedData,

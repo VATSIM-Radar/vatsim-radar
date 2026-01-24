@@ -70,7 +70,7 @@
                     v-for="(hex, color) in colorsList"
                     :key="color"
                     class="color-picker_list_item"
-                    :class="{ 'color-picker_list_item--active': color === model.color }"
+                    :class="[{ 'color-picker_list_item--active': color === model.color }, `color-picker_list_item--color-${ color }`]"
                     :style="{ '--color': hex }"
                     @click="model = { ...model, color }"
                 />
@@ -122,7 +122,7 @@ const getHexColor = computed(() => {
 
 const tooltipOpened = ref(false);
 
-const colorsList = Object.fromEntries(Object.entries(radarColors).filter(([key]) => key.endsWith('Hex')).map(([key, value]) => [key.replace('Hex', ''), getCurrentThemeHexColor(key.replace('Hex', '') as any)])) as Record<string, string>;
+const colorsList = Object.fromEntries(Object.entries(radarColors).filter(([key]) => key.endsWith('Hex') && !key.includes('Alpha')).map(([key, value]) => [key.replace('Hex', ''), getCurrentThemeHexColor(key.replace('Hex', '') as any)])) as Record<string, string>;
 
 const transparencyOptions = computed<SelectItem[]>(() => {
     const options: SelectItem[] = [];

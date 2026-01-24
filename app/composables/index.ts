@@ -6,7 +6,7 @@ import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
 import type { Style } from 'ol/style.js';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsList, ColorsListRgb } from '~/utils/colors';
 import type { Pixel } from 'ol/pixel.js';
 import { createDefu } from 'defu';
 import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
@@ -28,7 +28,7 @@ export function getCurrentThemeHexColor(color: ColorsList) {
     // @ts-expect-error It will always be string
     return radarThemes[theme][`${ color as ColorsList }Hex`] ?? radarColors[`${ color }Hex`];
 }
-export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsList): T {
+export function getCurrentThemeRgbColor<T = [number, number, number]>(color: ColorsListRgb): T {
     const store = useStore();
     const theme = store.theme ?? 'default';
     if (theme === 'default') return radarColors[`${ color }Rgb`] as T;

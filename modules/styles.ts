@@ -1,9 +1,11 @@
 import { addImports, addTemplate, createResolver, defineNuxtModule } from '@nuxt/kit';
 import type { PartialRecord } from '~/types';
-import type { ColorsList, ThemesList } from '~/utils/server/styles';
-import { colorsList, themesList } from '~/utils/server/styles';
+import type { ColorsList, ThemesList } from '~/utils/colors';
+import { colorsList, themesList } from '~/utils/colors';
 
-function colorToRgb(hex: string): [r: number, g: number, b: number] {
+function colorToRgb(hex: string): [r: number, g: number, b: number] | null {
+    if (hex.length > 7) return null;
+
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, function(m, r, g, b) {
         return r + r + g + g + b + b;
     }));
@@ -31,33 +33,44 @@ export default defineNuxtModule((_, nuxt) => {
 
         for (const [color, value] of Object.entries(colorsList) as [ColorsList, string][]) {
             const rgb = colorToRgb(value);
-            const rgbString = rgb.join(', ');
+            const rgbString = rgb ? rgb.join(', ') : rgb;
 
             if (i === 0) {
-                variables[color] = `rgba(var(--${ color }, ${ rgbString }))`;
-                variables[`${ color }Rgb`] = rgb;
+                variables[color] = rgbString ? `rgba(var(--${ color }, ${ rgbString }))` : `var(--${ color }, ${ value })`;
+
+                if (rgb) {
+                    variables[`${ color }Rgb`] = rgb;
+                }
+
                 variables[`${ color }Hex`] = value;
 
                 for (const [theme, colors] of Object.entries(themesList) as [ThemesList, PartialRecord<ColorsList, string>][]) {
                     if (!themes[theme]) themes[theme] = {};
                     if (!themes[theme][color] && colors[color]) {
                         const rgb = colorToRgb(colors[color]!);
-                        const rgbString = rgb.join(', ');
-                        themes[theme][color] = `rgba(var(--${ color }, ${ rgbString }))`;
-                        themes[theme][`${ color }Rgb`] = rgb;
+                        const rgbString = rgb ? rgb.join(', ') : null;
+                        themes[theme][color] = rgbString ? `rgba(var(--${ color }, ${ rgbString }))` : `var(--${ color }, ${ colors[color]! })`;
+
+                        if (rgb) {
+                            themes[theme][`${ color }Rgb`] = rgb;
+                        }
+
                         themes[theme][`${ color }Hex`] = colors[color]!;
                     }
                 }
 
-                scss += `\n$${ color }Raw: toRawRGB(${ value });`;
+                if (rgb) {
+                    scss += `\n$${ color }Raw: toRawRGB(${ value });`;
+                }
+
                 scss += `\n$${ color }Orig: ${ value };`;
             }
             else if (i === 1) {
-                scss += `\ni${ color }: var(--${ color }, $${ color }Raw),`;
+                scss += `\ni${ color }: var(--${ color }, $${ color }${ !rgb ? 'Orig' : 'Raw' }),`;
             }
             else if (i === 2) {
                 const mapGet = `map.get($colorsMap, i${ color })`;
-                const value = `rgb(${ mapGet })`;
+                const value = !rgb ? mapGet : `rgb(${ mapGet })`;
                 scss += `\n$${ color }: ${ value };`;
             }
         }

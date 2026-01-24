@@ -44,7 +44,7 @@ import type { Sigmet, Sigmets } from '~/utils/server/storage';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
-import type { ColorsList } from '~/utils/server/styles';
+import type { ColorsListRgb } from '~/utils/colors';
 import type { Coordinate } from 'ol/coordinate.js';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
@@ -198,7 +198,7 @@ const jsonFeatures = computed(() => {
     });
 });
 
-function buildStyle(color: ColorsList, type: string) {
+function buildStyle(color: ColorsListRgb, type: string) {
     return new Style({
         fill: new Fill({
             color: `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ store.localSettings.filters?.layers?.transparencySettings?.sigmets || '0.15' })`,

@@ -121,7 +121,7 @@ export default withNuxt([
             'stylistic/space-in-parens': 'error',
             'stylistic/space-infix-ops': 'error',
             'stylistic/space-unary-ops': 'error',
-            'stylistic/spaced-comment': 'error',
+            'stylistic/spaced-comment': ['error', 'always', { markers: ['#region', '#endregion'] }],
             'stylistic/switch-colon-spacing': 'error',
             'stylistic/type-annotation-spacing': 'error',
             'stylistic/type-generic-spacing': 'error',

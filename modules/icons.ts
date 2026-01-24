@@ -6,7 +6,7 @@ import { join } from 'path';
 import sharp from 'sharp';
 import type { PartialRecord } from '~/types';
 import { optimize } from 'svgo';
-import { colorsList } from '~/utils/server/styles';
+import { colorsList } from '~/utils/colors';
 
 export default defineNuxtModule(async (_, nuxt) => {
     const resolver = createResolver(import.meta.url);
@@ -44,10 +44,10 @@ export default defineNuxtModule(async (_, nuxt) => {
 
         for (let i = 0; i < 2; i++) {
             let iconContent = iconContents
-                .replaceAll('white', colorsList.primary500)
-                .replaceAll('#F8F8FA', colorsList.primary500)
-                .replaceAll('#FFFFFF', colorsList.primary500)
-                .replaceAll('#FFF', colorsList.primary500);
+                .replaceAll('white', colorsList.blue500)
+                .replaceAll('#F8F8FA', colorsList.blue500)
+                .replaceAll('#FFFFFF', colorsList.blue500)
+                .replaceAll('#FFF', colorsList.blue500);
             const iconKey = i === 1 ? '-light' : '';
             if (i === 1) {
                 iconContent = iconContent
