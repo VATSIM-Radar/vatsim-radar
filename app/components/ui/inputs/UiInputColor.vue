@@ -70,7 +70,7 @@
                     v-for="(hex, color) in colorsList"
                     :key="color"
                     class="color-picker_list_item"
-                    :class="{ 'color-picker_list_item--active': color === model.color }"
+                    :class="[{ 'color-picker_list_item--active': color === model.color }, `color-picker_list_item--color-${ color }`]"
                     :style="{ '--color': hex }"
                     @click="model = { ...model, color }"
                 />

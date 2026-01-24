@@ -49,5 +49,6 @@ module.exports = {
         'no-duplicate-selectors': null,
         'declaration-property-value-no-unknown': null,
         'at-rule-descriptor-value-no-unknown': null,
+        'color-hex-length': null,
     },
 };
