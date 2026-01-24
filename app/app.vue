@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import type { Map } from 'ol';
 import type { WatchStopHandle } from 'vue';
-import type LayerGroup from 'ol/layer/Group';
+import type LayerGroup from 'ol/layer/Group.js';
 
 const route = useRoute();
 

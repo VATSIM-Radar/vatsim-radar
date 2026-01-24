@@ -69,10 +69,10 @@ import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import type { FeatureCollection } from 'geojson';
 import type { ColorsList } from '~/utils/server/styles';
-import { Fill, Stroke, Style, Text } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import UiToggle from '~/components/ui/inputs/UiToggle.vue';
-import type { Coordinate } from 'ol/coordinate';
-import { Point } from 'ol/geom';
+import type { Coordinate } from 'ol/coordinate.js';
+import { Point } from 'ol/geom.js';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 

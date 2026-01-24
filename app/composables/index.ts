@@ -1,20 +1,20 @@
-import type { Coordinate } from 'ol/coordinate';
-import { containsCoordinate } from 'ol/extent';
+import type { Coordinate } from 'ol/coordinate.js';
+import { containsCoordinate } from 'ol/extent.js';
 import { useStore } from '~/store';
 import type { ComputedGetter, DebuggerOptions, ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
 import { useMapStore } from '~/store/map';
-import type { Style } from 'ol/style';
+import type { Style } from 'ol/style.js';
 import type { ColorsList } from '~/utils/server/styles';
-import type { Pixel } from 'ol/pixel';
+import type { Pixel } from 'ol/pixel.js';
 import { createDefu } from 'defu';
 import { addLeadingZero, getVACallsign, getVAWebsite } from '~/utils/shared';
 import type { RadarDataAirline } from '~/utils/server/storage';
 import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
-import { GeoJSON } from 'ol/format';
+import { GeoJSON } from 'ol/format.js';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     return containsCoordinate(extent, point);

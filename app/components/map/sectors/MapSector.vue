@@ -59,7 +59,7 @@
 <script setup lang="ts">
 import type { PropType, ShallowRef } from 'vue';
 import { onMounted } from 'vue';
-import type VectorSource from 'ol/source/Vector';
+import type VectorSource from 'ol/source/Vector.js';
 import type { Feature } from 'ol';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { useMapStore } from '~/store/map';

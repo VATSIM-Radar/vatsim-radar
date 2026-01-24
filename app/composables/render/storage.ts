@@ -27,7 +27,7 @@ import {
 } from '~/utils/data/vatglasses';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/settings/filter';
-import { useGeographic } from 'ol/proj';
+import { useGeographic } from 'ol/proj.js';
 import { useRadarError } from '~/composables/errors';
 
 import type {
@@ -47,7 +47,7 @@ import type { PartialRecord } from '~/types';
 import type { UserList } from '~/utils/server/handlers/lists';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();

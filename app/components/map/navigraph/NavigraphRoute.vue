@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
-import type VectorSource from 'ol/source/Vector';
-import { Point } from 'ol/geom';
+import type VectorSource from 'ol/source/Vector.js';
+import { Point } from 'ol/geom.js';
 import greatCircle from '@turf/great-circle';
 import { getNavigraphParsedData, waypointDiff } from '~/composables/navigraph';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import turfBearing from '@turf/bearing';
 import { debounce } from '~/utils/shared';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { ObjectWithGeometry } from 'ol/Feature';
+import type { ObjectWithGeometry } from 'ol/Feature.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');

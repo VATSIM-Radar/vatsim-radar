@@ -1,4 +1,4 @@
-import type { Pixel } from 'ol/pixel';
+import type { Pixel } from 'ol/pixel.js';
 import type { PartialRecord } from '~/types';
 import type { FeatureCollection } from 'geojson';
 import type { AmdbLayerName } from '@navigraph/amdb';

@@ -3,7 +3,7 @@ import { prisma } from '~/utils/server/prisma';
 import { defaultRedis, getRedisSync } from '~/utils/server/redis';
 import { UserPresetType } from '#prisma';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
-import { toLonLat } from 'ol/proj';
+import { toLonLat } from 'ol/proj.js';
 
 export default defineNitroPlugin(async app => {
     app.hooks.hook('request', async event => {

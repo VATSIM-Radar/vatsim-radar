@@ -6,9 +6,9 @@ import type {
     Polygon as GeoPolygon,
     Point as GeoPoint,
 } from 'geojson';
-import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom';
-import type { Coordinate } from 'ol/coordinate';
-import Polygon from 'ol/geom/Polygon';
+import { LineString, MultiLineString, MultiPolygon, Point } from 'ol/geom.js';
+import type { Coordinate } from 'ol/coordinate.js';
+import Polygon from 'ol/geom/Polygon.js';
 import type { VatsimBooking, VatsimBookingAtc, VatsimShortenedController } from '~/types/data/vatsim';
 import type { VatSpyDataFeature } from '~/types/data/vatspy';
 

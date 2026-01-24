@@ -83,7 +83,7 @@ import RotateReset from '@/assets/icons/kit/reset.svg?component';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
-import { toDegrees, toRadians } from 'ol/math';
+import { toDegrees, toRadians } from 'ol/math.js';
 import RulerIcon from '@/assets/icons/kit/ruler.svg?component';
 import UiButton from '~/components/ui/buttons/UiButton.vue';
 import { useStore } from '~/store';

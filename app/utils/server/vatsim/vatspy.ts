@@ -3,7 +3,7 @@ import { ofetch } from 'ofetch';
 import type { VatSpyData, VatSpyResponse } from '~/types/data/vatspy';
 import { radarStorage } from '~/utils/server/storage';
 import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
-import { MultiPolygon as OlMultiPolygon } from 'ol/geom';
+import { MultiPolygon as OlMultiPolygon } from 'ol/geom.js';
 import { getVATSIMIdentHeaders } from '~/utils/server';
 import type { RedisData } from '~/utils/server/redis';
 import { setRedisData } from '~/utils/server/redis';

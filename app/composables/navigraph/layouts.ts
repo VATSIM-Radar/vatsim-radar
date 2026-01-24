@@ -1,7 +1,7 @@
-import { Fill, Stroke, Style, Text } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { PartialRecord } from '~/types';
-import type { FeatureLike } from 'ol/Feature';
-import { toRadians } from 'ol/math';
+import type { FeatureLike } from 'ol/Feature.js';
+import { toRadians } from 'ol/math.js';
 import { useStore } from '~/store';
 import type { Options as StyleOptions } from 'ol/style/Style';
 import type { AmdbLayerName } from '@navigraph/amdb';

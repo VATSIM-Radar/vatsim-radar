@@ -1,5 +1,5 @@
-import type { Coordinate } from 'ol/coordinate';
-import { toRadians } from 'ol/math';
+import type { Coordinate } from 'ol/coordinate.js';
+import { toRadians } from 'ol/math.js';
 import type { UserMapSettingsTurns } from '~/utils/server/handlers/map-settings';
 
 export function calculateDistanceInNauticalMiles([lon1, lat1]: Coordinate, [lon2, lat2]: Coordinate): number {

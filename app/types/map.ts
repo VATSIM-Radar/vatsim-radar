@@ -5,9 +5,9 @@ import type {
     VatsimShortenedController,
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
-import type { Coordinate } from 'ol/coordinate';
+import type { Coordinate } from 'ol/coordinate.js';
 import type { VatSpyAirport } from '~/types/data/vatspy';
-import type { Units } from 'ol/control/ScaleLine';
+import type { Units } from 'ol/control/ScaleLine.js';
 
 export interface MapAirport {
     icao: string;
