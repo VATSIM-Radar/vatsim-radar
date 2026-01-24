@@ -745,7 +745,7 @@ img {
         transition: 0.3s;
 
         &:hover {
-          color: var(--text-hover-color, #{$primary400});
+            color: var(--text-hover-color, #{$primary400});
         }
     }
 }
