@@ -175,8 +175,7 @@ export interface EnroutePath {
 
 export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, { serializer: StorageSerializers.object });
 
-// @ts-expect-error Checking for an invalid local storage
-if (typeof window !== 'undefined' && enroutePath.value === '[object Object]') enroutePath.value = null;
+if (typeof window !== 'undefined' && localStorage.getItem('enroute-path') === '[object Object]') enroutePath.value = null;
 
 export const enrouteAircraftPath = useStorageLocal<Record<string, {
     departure: EnroutePath;
