@@ -5,6 +5,10 @@ import VectorLayer from 'ol/layer/Vector.js';
 import DayNight from 'ol-ext/source/DayNight';
 import { Circle, Fill, Stroke, Style } from 'ol/style.js';
 
+defineOptions({
+    render: () => null,
+});
+
 const store = useStore();
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();

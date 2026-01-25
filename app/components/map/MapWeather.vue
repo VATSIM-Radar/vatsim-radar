@@ -7,6 +7,10 @@ import { XYZ } from 'ol/source.js';
 import type { UrlFunction } from 'ol/Tile.js';
 import type { MapWeatherLayer } from '~/types/map';
 
+defineOptions({
+    render: () => null,
+});
+
 const store = useStore();
 
 const weather = computed(() => {

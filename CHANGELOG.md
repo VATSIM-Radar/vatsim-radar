@@ -1,5 +1,13 @@
 # Changelog
 
+# [2.0.0-alpha.2]
+
+## Redesign
+
+- Map on-click info popup redesign
+
+## Developer changes
+
 # [2.0.0-alpha.1.3]
 
 - New color palette is not used anywhere besides page background and connections count in footer. But you can preview it in Map Settings -> Colors!

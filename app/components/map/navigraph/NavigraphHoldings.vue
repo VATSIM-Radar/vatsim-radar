@@ -11,6 +11,10 @@ import { debounce } from '~/utils/shared';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const store = useStore();

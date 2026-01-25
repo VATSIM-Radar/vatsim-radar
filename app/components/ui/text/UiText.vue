@@ -22,7 +22,8 @@ import { NuxtLink } from '#components';
 
 const props = defineProps({
     type: {
-        type: String as PropType<any>,
+        type: String as PropType<UiTextTypes>,
+        required: true,
     },
     tag: {
         type: String,
@@ -94,7 +95,7 @@ const getTag = computed(() => {
     &[class^='text--type-h'], &[class*=' text--type-h'] {
         margin: 0;
         font-weight: 500;
-        letter-spacing: -1%;
+        letter-spacing: -0.01em;
     }
 
     &--type-h1 {
@@ -156,7 +157,7 @@ const getTag = computed(() => {
         font-size: 12px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 2%;
+        letter-spacing: 0.02em;
     }
 
     &--type-caption {
@@ -167,7 +168,7 @@ const getTag = computed(() => {
         font-family: $juraFont;
         font-size: 11px;
         font-weight: normal;
-        letter-spacing: -4%;
+        letter-spacing: -0.04em;
     }
 
     &--type-caption-medium {
@@ -180,7 +181,7 @@ const getTag = computed(() => {
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 2%;
+        letter-spacing: 0.02em;
     }
 }
 </style>

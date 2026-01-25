@@ -7,6 +7,10 @@ import type { VatglassesActivePosition } from '~/utils/data/vatglasses';
 import type { Feature } from 'ol';
 import { useStore } from '~/store';
 
+defineOptions({
+    render: () => null,
+});
+
 const props = defineProps({
     position: {
         type: Object as PropType<VatglassesActivePosition>,

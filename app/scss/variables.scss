@@ -1,6 +1,10 @@
+@use "./colors" as *;
+
 $defaultFont: LibreFranklin, Arial, sans-serif;
 $juraFont: Jura, Arial, sans-serif;
 $defaultPageHeight: calc(32px + 56px);
+
+$strokeDefault: $darkGray400;
 
 @mixin mobile(){
     @media all and (max-width: 1365px) {
