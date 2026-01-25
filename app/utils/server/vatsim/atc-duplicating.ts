@@ -162,4 +162,27 @@ export const duplicatingSettings = [
             POE: 'POE_APP',
         },
     },
+
+    /**
+    * @description ZTL/A80 Center and TRACONs
+    * @author 1560654
+    */
+    {
+        regex: /^(ATL|A80)(_\w{0,3})?_(CTR|APP|DEP)$/,
+        mapping: {
+            ATL: 'ATL_APP',
+            AHN: 'AHN_APP',
+            CSG: 'CSG_APP',
+            MCN: 'MCN_APP',
+            CLT: 'CLT_APP',
+            AVL: 'AVL_APP',
+            BHM: 'BHM_APP',
+            CHA: 'CHA_APP',
+            GSO: 'GSO_APP',
+            GSP: 'GSP_APP',
+            MGM: 'MGM_APP',
+            TYS: 'TYS_APP',
+            TRI: 'TRY_APP',
+        },
+    }
 ] satisfies DuplicatingSetting[];
