@@ -5,6 +5,7 @@
 - Fixed an aircraft constantly going back and forward when tracked
 - Fix zdc atc duplication
 - Fix `[object Object]` error preventing of loading aircraft procedures
+- Fixed enroute VHFs not showing on map
 
 # [1.2.4-3]
 
