@@ -1,5 +1,11 @@
 # Changelog
 
+# [1.2.4-4]
+
+- Fixed an aircraft constantly going back and forward when tracked
+- Fix zdc atc duplication
+- Fix `[object Object]` error preventing of loading aircraft procedures
+
 # [1.2.4-3]
 
 - Fixed map crash after airports procedures have been opened, but nothing was selected
