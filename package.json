@@ -36,7 +36,6 @@
     "@protomaps/basemaps": "^5.7.0",
     "@sentry/nuxt": "^10.36.0",
     "@turf/bearing": "^7.3.2",
-    "@turf/boolean-point-in-polygon": "^7.3.3",
     "@turf/difference": "^7.3.2",
     "@turf/distance": "^7.3.2",
     "@turf/great-circle": "^7.3.2",
