@@ -228,7 +228,7 @@ async function initLayer() {
             updateWhileInteracting: false,
             renderMode: 'hybrid',
             zIndex: 0,
-            cacheSize: 0,
+            cacheSize: 128,
         });
 
         const url = store.theme === 'light' ? (layer.value.lightThemeUrl || layer.value.url) : layer.value.url;
@@ -271,7 +271,7 @@ async function initLayer() {
             updateWhileInteracting: false,
             renderMode: 'hybrid',
             zIndex: 0,
-            cacheSize: 0,
+            cacheSize: 128,
         });
 
         const isDetailed = layer.value.theme === 'light' || layer.value.theme === 'dark';
@@ -342,7 +342,7 @@ async function initLayer() {
         }),
         opacity: opacity.value,
         zIndex: 0,
-        cacheSize: 0,
+        cacheSize: 128,
     });
     map.value?.addLayer(tileLayer.value);
 }
