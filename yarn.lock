@@ -5534,6 +5534,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/boolean-point-in-polygon@npm:^7.3.3":
+  version: 7.3.3
+  resolution: "@turf/boolean-point-in-polygon@npm:7.3.3"
+  dependencies:
+    "@turf/helpers": "npm:7.3.3"
+    "@turf/invariant": "npm:7.3.3"
+    "@types/geojson": "npm:^7946.0.10"
+    point-in-polygon-hao: "npm:^1.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/28705a89779b7d769a18f5407cee8565a1c5bb2bfdbc9f32ca2aac4adf60f58691c44f6001ffe7c6341e75ea66d715ecece9b7f79085045c65bac67712f23cc0
+  languageName: node
+  linkType: hard
+
 "@turf/difference@npm:^7.3.2":
   version: 7.3.2
   resolution: "@turf/difference@npm:7.3.2"
@@ -5582,6 +5595,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/helpers@npm:7.3.3":
+  version: 7.3.3
+  resolution: "@turf/helpers@npm:7.3.3"
+  dependencies:
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/dd4ea19b6d6f93bb268a46846ecb731f731b1a8a0bc2e864dd9a74ac5aee6ba72cab34202d6ef4394793464aa5dc0c21a99aa12832a72e29150536a98bf18bce
+  languageName: node
+  linkType: hard
+
 "@turf/intersect@npm:^7.3.2":
   version: 7.3.2
   resolution: "@turf/intersect@npm:7.3.2"
@@ -5603,6 +5626,17 @@ __metadata:
     "@types/geojson": "npm:^7946.0.10"
     tslib: "npm:^2.8.1"
   checksum: 10c0/dbccec9d67071ed9a9f637fcf3ee466cc7b9a3ceef5d781f4706d59383e58676ffc9a199b966e245f40e742a6f3ee2032da594244ff1e04b970b9f2cce735291
+  languageName: node
+  linkType: hard
+
+"@turf/invariant@npm:7.3.3":
+  version: 7.3.3
+  resolution: "@turf/invariant@npm:7.3.3"
+  dependencies:
+    "@turf/helpers": "npm:7.3.3"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/c64c13637b947afaeb7465c91cbb2dd920e397409e4183883996d59d32bc5cf773dbd02c42a5293a6d483b14a511fda6db642a1d4a02ac6e924d9d4556f3739f
   languageName: node
   linkType: hard
 
@@ -13775,6 +13809,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"point-in-polygon-hao@npm:^1.1.0":
+  version: 1.2.4
+  resolution: "point-in-polygon-hao@npm:1.2.4"
+  dependencies:
+    robust-predicates: "npm:^3.0.2"
+  checksum: 10c0/12badef8b15216acdae7d609a8aca1b916d6a9cac2f53ace2928e3b521bee57224489ea8fba41d001c0c05c50e64152c175e3d6583d8cad6fe7af929f082b49a
+  languageName: node
+  linkType: hard
+
 "polyclip-ts@npm:^0.16.8":
   version: 0.16.8
   resolution: "polyclip-ts@npm:0.16.8"
@@ -14880,6 +14923,13 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 10c0/9cb7757acb489bd83757ba1a274ab545eafd75598a9d817e0c3f8b164238dd90eba50d6b848bd4dcc5f3040912e882dc7ba71653e35af660d77b25c381d402e8
+  languageName: node
+  linkType: hard
+
+"robust-predicates@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "robust-predicates@npm:3.0.2"
+  checksum: 10c0/4ecd53649f1c2d49529c85518f2fa69ffb2f7a4453f7fd19c042421c7b4d76c3efb48bc1c740c8f7049346d7cb58cf08ee0c9adaae595cc23564d360adb1fde4
   languageName: node
   linkType: hard
 
@@ -17528,6 +17578,7 @@ __metadata:
     "@stylistic/eslint-plugin": "npm:^5.7.1"
     "@stylistic/stylelint-plugin": "npm:^5.0.1"
     "@turf/bearing": "npm:^7.3.2"
+    "@turf/boolean-point-in-polygon": "npm:^7.3.3"
     "@turf/difference": "npm:^7.3.2"
     "@turf/distance": "npm:^7.3.2"
     "@turf/great-circle": "npm:^7.3.2"
