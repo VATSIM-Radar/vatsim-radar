@@ -184,5 +184,5 @@ export const duplicatingSettings = [
             TYS: 'TYS_APP',
             TRI: 'TRY_APP',
         },
-    }
+    },
 ] satisfies DuplicatingSetting[];
