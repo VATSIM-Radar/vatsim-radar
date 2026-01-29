@@ -323,3 +323,22 @@ export interface IVatsimTransceiver {
     groundAlt?: number;
     seaAlt?: number;
 }
+
+interface VatsimAchievement {
+    provider_name: string;
+    provider_url: string;
+    name: string;
+    course_url: string;
+}
+
+export interface VatsimAchievementList extends VatsimAchievement {
+    description: string;
+    image_url: string;
+}
+
+export interface VatsimAchievementUser extends VatsimAchievement {
+    badge_name: string;
+    badge_image_url: string;
+    description?: string;
+}
+

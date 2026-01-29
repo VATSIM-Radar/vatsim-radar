@@ -272,7 +272,7 @@ import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/data';
 import MapPopup from '~/components/map/popups/MapPopup.vue';
 import { useMapStore } from '~/store/map';
-import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
+import type { StoreOverlayPilot, StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/pilots';
 import { findAtcByCallsign } from '~/composables/atc';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
@@ -302,6 +302,7 @@ import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/backend/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
 import MapTerminator from '~/components/map/MapTerminator.vue';
+import type { VatsimAchievementUser } from '~/types/data/vatsim';
 
 defineProps({
     mode: {
@@ -476,12 +477,17 @@ const restoreOverlays = async () => {
 
             if (!('value' in data[0])) return overlay;
 
-            return {
+            const resultOverlay = {
                 ...overlay,
                 data: {
                     pilot: data[0].value,
                 },
-            };
+            } as StoreOverlayPilot;
+            $fetch<VatsimAchievementUser[]>(`/api/data/vatsim/pilot/${ overlay.key }/achievements`).then(result => {
+                resultOverlay.data.achievements = result;
+            }).catch(console.error);
+
+            return resultOverlay;
         }
         else if (overlay.type === 'prefile') {
             const data = await Promise.allSettled([
