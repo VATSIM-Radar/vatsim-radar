@@ -40,7 +40,18 @@
 
 - Reworked components and methods structure
 
-# [1.2.4-3-final]
+# [1.2.4-4]
+
+- Fixed an aircraft constantly going back and forward when tracked
+- Fix zdc atc duplication
+- Fix `[object Object]` error preventing of loading aircraft procedures
+- Fixed enroute VHFs not showing on map
+- Fixed some ARTCC/CTR bookings not showing up
+- Added ZJX/ZTL/A80 to atc duplication
+- Added vatspy data matching by aeronav positions as fallback by Felix 1025793
+- Sectors are now shown in booking override mode by Felix 1025793
+
+# [1.2.4-3]
 
 - Fixed map crash after airports procedures have been opened, but nothing was selected
 - Fixed "show pilot stats" toggle not being saved

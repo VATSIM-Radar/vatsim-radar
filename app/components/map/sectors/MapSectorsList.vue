@@ -138,7 +138,7 @@ const firs = computed(() => {
             atc: dataStore.vatsim.data.firs.value.filter(x => x.firs.some(x => x.boundaryId === fir.feature.id && (fir.icao === x.icao || (fir.callsign && fir.callsign === x.callsign)))) ?? [],
         }));
 
-        allFirs.push(...(firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex))));
+        allFirs.push(...(firs.filter((x, xIndex) => !firs.some((y, yIndex) => y.fir.icao === x.fir.icao && y.fir.callsign === x.fir.callsign && x.fir.feature.id === y.fir.feature.id && yIndex < xIndex))));
     }
 
     const bookingFirs = store.bookingOverride ? dataStore.vatspy.value!.data.firs : allFirs;
@@ -151,8 +151,8 @@ const firs = computed(() => {
         const fir = 'fir' in _fir ? _fir.fir : _fir;
 
         const booking = bookingsData.value.find(
-            x => (!fir.isOceanic && x.atc.callsign === (fir.callsign ?? fir.boundary)?.replaceAll('-', '_') + '_CTR') ||
-                (fir.isOceanic && x.atc.callsign === (fir.callsign ?? fir.boundary)?.replaceAll('-', '_') + '_FSS'),
+            x => (!fir.isOceanic && (x.atc.callsign === fir.callsign?.replaceAll('-', '_') + '_CTR' || x.atc.callsign === fir.icao?.replaceAll('-', '_') + '_CTR')) ||
+                (fir.isOceanic && (x.atc.callsign === fir.callsign?.replaceAll('-', '_') + '_FSS' || x.atc.callsign === fir.icao?.replaceAll('-', '_') + '_FSS')),
         );
 
         if (booking) {
