@@ -8,6 +8,7 @@
 - Fixed enroute VHFs not showing on map
 - Fixed some ARTCC/CTR bookings not showing up
 - Added ZJX/ZTL/A80 to atc duplication
+- Added vatspy data matching by aeronav positions as fallback
 
 # [1.2.4-3]
 
