@@ -6,6 +6,7 @@
 - Fix zdc atc duplication
 - Fix `[object Object]` error preventing of loading aircraft procedures
 - Fixed enroute VHFs not showing on map
+- Fixed some ARTCC/CTR bookings not showing up
 
 # [1.2.4-3]
 
