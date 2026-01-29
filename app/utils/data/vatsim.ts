@@ -160,6 +160,19 @@ function findUirOrFir(splittedName: string[], atc: VatsimShortenedController, ui
                 if (feature.length) break;
             }
         }
+
+        // We try to find the correct FIR by getting the normal station name from the aeronavPosition database. This if for cases when the controller logs in with a slightly different callsign, like for example EDGG_D8B_CTR, but the callsign of the vatspy data is EDGG_DKB_CTR
+        if (!feature.length) {
+            let matchingPosition = null;
+            if (radarStorage.aeronavPositions) {
+                matchingPosition = radarStorage.aeronavPositions.find(x => x.fir === firstName && x.freq === atc.frequency);
+            }
+            if (matchingPosition) {
+                const matchingCallsign = matchingPosition.fir + '_' + matchingPosition.ml;
+                feature = findFacility(matchingCallsign, atc);
+            }
+        }
+
         if (!feature.length) feature = findFacility(firstName, atc);
         return feature;
     }

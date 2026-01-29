@@ -30,6 +30,31 @@ initKafka();
 
 const redisPublisher = getRedis();
 
+await defineCronJob('15 */2 * * *', async () => {
+    if (!process.env.AERONAV_API_TOKEN) return;
+
+    const response = await $fetch<{ success: boolean; data: { station: string; station_ap: string; station_mid: string; station_facility: string; frequency: string }[] }>('https://api.aero-nav.com/gng/positions?station_facility=CTR,FSS', {
+        headers: {
+            Authorization: `Bearer ${ process.env.AERONAV_API_TOKEN }`,
+        },
+        timeout: 1000 * 60,
+        retry: 3,
+    });
+
+    if (!response.data || !Array.isArray(response.data)) {
+        console.error('Invalid response received:', response);
+        return;
+    }
+
+    radarStorage.aeronavPositions = response.data.map(item => ({
+        fir: item.station_ap,
+        ml: item.station_mid,
+        freq: item.frequency,
+    }));
+
+    console.info(`Aeronav Positions Update Complete`);
+});
+
 function excludeKeys<S extends {
     [K in keyof D]?: D[K] extends Array<any> ? {
         [KK in keyof D[K][0]]?: true
