@@ -39,7 +39,7 @@ Please do not use vim to develop this project.
 ## Getting it done
 
 1. Copy `.env.example` to `.env` with no changes
-2. **Working on Mac ARM64**? Run `docker compose build -f docker-compose.yml -f docker-compose.arm64.yml`. Others skip this step
+2. **Working on Mac ARM64**? Run `docker compose -f docker-compose.yml -f docker-compose.arm64.yml build`. Others skip this step
 3. Run `docker compose up`
 4. Visit `localhost:8080` in a few minutes. You should now be ready to do it
 
