@@ -7,6 +7,7 @@
 - Fix `[object Object]` error preventing of loading aircraft procedures
 - Fixed enroute VHFs not showing on map
 - Fixed some ARTCC/CTR bookings not showing up
+- Added ZJX/ZTL/A80 to atc duplication
 
 # [1.2.4-3]
 
