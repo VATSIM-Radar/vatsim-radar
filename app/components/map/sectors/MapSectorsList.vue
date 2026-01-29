@@ -120,7 +120,7 @@ const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.co
 
 const facilities = useFacilitiesIds();
 
-const bookingsData = computed(() => ((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) ? store.bookings.filter(x => x.atc.facility === facilities.CTR) : []);
+const bookingsData = computed(() => (((store.mapSettings.visibility?.bookings ?? true) && !store.config.hideBookings) || store.bookingOverride) ? store.bookings.filter(x => x.atc.facility === facilities.CTR) : []);
 
 const firs = computed(() => {
     interface Fir {
