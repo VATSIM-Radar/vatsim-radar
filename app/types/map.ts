@@ -6,7 +6,7 @@ import type {
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { VatSpyAirport } from '~/types/data/vatspy';
+import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
 import type { Units } from 'ol/control/ScaleLine.js';
 
 export interface MapAirport {
@@ -21,6 +21,15 @@ export interface MapAirport {
         departures: number[];
         arrivals: number[];
     }>;
+}
+
+export interface MapAirportVatspy extends MapAirport {
+    data: VatSpyAirport;
+}
+
+export interface MapAirportRender {
+    airport: MapAirportVatspy;
+    visible: boolean;
 }
 
 export type MapAircraftKeys = keyof MapAirport['aircraft'];

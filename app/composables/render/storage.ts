@@ -11,7 +11,7 @@ import type {
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirlinesAllList, Sigmets,
-    SimAwareAPIData,
+    SimAwareAPIData, SimAwareDataFeature,
     VatglassesDynamicAPIData,
 } from '~/utils/server/storage';
 import { View } from 'ol';
@@ -57,7 +57,6 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
     virtual: {},
     all: {},
 });
-const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
@@ -178,7 +177,7 @@ export interface UseDataStore {
             date: number;
         } | null>;
     };
-    simaware: ShallowRef<SimAwareAPIData | undefined>;
+    simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
     vatglasses: ShallowRef<string>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
@@ -212,7 +211,17 @@ const dataStore: UseDataStore = {
     versions,
     vatspy,
     vatsim,
-    simaware,
+    simaware: async (icao, iata) => {
+        const request = [icao]
+        if(iata) request.push(iata);
+
+        const icaoResult = await clientDB.keyVal.get(`simaware-${icao}`) as SimAwareDataFeature[] ?? []
+        const iataResult = iata ? await clientDB.keyVal.get(`simaware-${iata}`) as SimAwareDataFeature[] ?? [] : []
+
+        icaoResult.push(...iataResult);
+        iataResult.length = 0;
+        return icaoResult
+    },
     vatglasses,
     vatglassesActivePositions,
     vatglassesActiveRunways,

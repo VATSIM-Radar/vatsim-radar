@@ -20,6 +20,7 @@ import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
+import {clientDB} from "~/composables/render/idb";
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -281,10 +282,10 @@ export const useStore = defineStore('index', {
                     dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
 
                     if (
-                        dataStore.simaware.value?.version && dataStore.vatspy.value?.version &&
+                        await clientDB.keyVal.get('simawareVersion') && dataStore.vatspy.value?.version &&
                         (
                             (dataStore.vatglasses.value && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value) ||
-                            dataStore.versions.value.simaware !== dataStore.simaware.value?.version ||
+                            dataStore.versions.value.simaware !==  await clientDB.keyVal.get('simawareVersion') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
                     ) location.reload();

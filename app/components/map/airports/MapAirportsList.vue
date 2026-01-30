@@ -103,6 +103,7 @@ watch(mapSettings, val => {
     end.value = d;
 }, { immediate: true });
 
+
 const getShownAirports = computed(() => {
     let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
 
@@ -664,7 +665,8 @@ const getAirportsList = computed(() => {
         airports: typeof airports;
     }[] = [];
 
-    for (const sector of dataStore.simaware.value?.data.features ?? []) {
+    // SIMAWARE was there
+    for (const sector of []) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
         const airports = findSectorAirport(sector);
@@ -802,7 +804,8 @@ async function setVisibleAirports() {
             if (!airport) return null;
 
             if (x.isSimAware) {
-                const simawareFeature = dataStore.simaware.value?.data.features.find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao) || y === (x.iata ?? x.icao)));
+                // SIMAWARE features
+                const simawareFeature = [].find(y => getTraconPrefixes(y).some(y => y.split('_')[0] === (x.iata ?? x.icao) || y === (x.iata ?? x.icao)));
                 if (simawareFeature) {
                     const feature = cachedSimAwareFeatures[x.icao] ?? geoJson.readFeature(simawareFeature) as Feature<any>;
                     cachedSimAwareFeatures[x.icao] ??= feature;

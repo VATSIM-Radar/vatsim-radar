@@ -13118,9 +13118,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol@npm:10.7.1-dev.1769283338779":
-  version: 10.7.1-dev.1769283338779
-  resolution: "ol@npm:10.7.1-dev.1769283338779"
+"ol@npm:10.7.1-dev.1769543384843":
+  version: 10.7.1-dev.1769543384843
+  resolution: "ol@npm:10.7.1-dev.1769543384843"
   dependencies:
     "@types/rbush": "npm:4.0.0"
     earcut: "npm:^3.0.0"
@@ -13128,7 +13128,7 @@ __metadata:
     pbf: "npm:4.0.1"
     rbush: "npm:^4.0.0"
     zarrita: "npm:^0.5.4"
-  checksum: 10c0/b66c070764964b25dd2c248dd1fcd22c32df5d108e38edb060e1fc16d34e55c1910df92a82235fcd9c83f4cab9a758ad3f98a183086034e25517f005b188554d
+  checksum: 10c0/d86fc3ca817c492d9c0c6f5cc726dd67d008663c6ce442dd7ff64ac616ba1da6cc8f5dfbb28002b5cb6aeeffb3c43139f39c79e67e6d2bd95a8082de6bc892f0
   languageName: node
   linkType: hard
 
@@ -17605,7 +17605,7 @@ __metadata:
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.3.0"
-    ol: "npm:10.7.1-dev.1769283338779"
+    ol: "npm:10.7.1-dev.1769543384843"
     ol-ext: "npm:^4.0.37"
     ol-mapbox-style: "npm:^13.2.0"
     pinia: "npm:^3.0.4"

@@ -17,6 +17,7 @@ import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format.js';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
+    if (!point[0] || !point[1]) return false;
     return containsCoordinate(extent, point);
 }
 

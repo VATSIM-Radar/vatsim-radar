@@ -8,6 +8,8 @@ import PathIcon from 'assets/icons/kit/path.svg?component';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import type {ShallowRef} from "vue";
+import type {Map} from "ol";
 
 export interface HeaderItem {
     text: string;
@@ -217,4 +219,8 @@ export function buildAttributions(attribution: string | false, link: string) {
     if (!attribution) return _attribution;
 
     return `${ _attribution } © <a href="http://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> © <a href="${ link }" target="_blank">${ attribution }</a>`;
+}
+
+export function injectMap() {
+    return inject<ShallowRef<Map | null>>('map')!;
 }

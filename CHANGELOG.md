@@ -6,6 +6,11 @@
 
 - Map on-click info popup redesign
 
+## Performance Improvements
+
+- Improved performance of airports/ATC data update
+- Removed memory consumption on SimAware data
+
 ## Developer changes
 
 # [2.0.0-alpha.1.3]
