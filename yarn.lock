@@ -17599,7 +17599,6 @@ __metadata:
     vue: "npm:^3.5.27"
     vue-chartjs: "npm:^5.3.3"
     vue-draggable-plus: "npm:^0.6.1"
-    vue-router: "npm:^4.6.4"
     vue-tsc: "npm:3.2.4"
     ws: "npm:^8.19.0"
   languageName: unknown
