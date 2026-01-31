@@ -110,7 +110,7 @@ const data: VatsimData = {
     notam,
 };
 
-const vatsim = {
+const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
     parsedAirports: shallowRef<AirportsList[]>([]),
@@ -129,6 +129,7 @@ const vatsim = {
     updateTimestamp: ref(''),
     updateTime: ref(0),
     localUpdateTime: ref(0),
+    shortUpdateTime: ref(0),
     selfCoordinate: ref<{ coordinate: Coordinate; heading: number; date: number } | null>(null),
     notam,
 };
@@ -169,11 +170,13 @@ export interface UseDataStore {
         updateTimestamp: Ref<string>;
         updateTime: Ref<number>;
         localUpdateTime: Ref<number>;
+        shortUpdateTime: Ref<number>;
         selfCoordinate: Ref<{
             coordinate: Coordinate;
             heading: number;
             date: number;
         } | null>;
+        notam: Ref<RadarNotam | null>;
     };
     simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
     vatglasses: ShallowRef<string>;
@@ -249,6 +252,7 @@ export function useDataStore(): UseDataStore {
     return dataStore;
 }
 
+// Short data
 export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
     const filteredControllers = filterVatsimControllers(vatsimData.locals, vatsimData.firs);
 

@@ -635,7 +635,7 @@ const getAirportsList = computed(() => {
     }
 
     function findSectorAirport(sector: GeoJSONFeature) {
-        const prefixes = getTraconPrefixes(sector);
+        const prefixes = getTraconPrefixes(sector as any);
 
         let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport!.tracon && prefixes.includes(x.airport!.tracon)));
 

@@ -1,6 +1,7 @@
 import type { Coordinate } from 'ol/coordinate.js';
 import { containsCoordinate } from 'ol/extent.js';
 import { useStore } from '~/store';
+import { getCurrentScope } from 'vue';
 import type { ComputedGetter, DebuggerOptions, ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import { copyText, sleep } from '~/utils';
@@ -15,6 +16,7 @@ import type { SelectItem } from '~/types/components/select';
 import type { SigmetType } from '~/types/map';
 import { useRadarError } from '~/composables/errors';
 import { GeoJSON } from 'ol/format.js';
+import type { WatchOptions } from '@vue/runtime-core';
 
 export function isPointInExtent(point: Coordinate, extent = useMapStore().extent) {
     if (!point[0] || !point[1]) return false;
@@ -143,6 +145,9 @@ export function getFeatureStyle<T extends Style | Style[] = Style>(feature: Feat
     return feature.getStyle() as T | null;
 }
 
+/**
+ * @deprecated
+ */
 export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
     if (!getCurrentInstance()) throw new Error('Vue instance is unavailable in useUpdateInterval');
     const store = useStore();
@@ -162,6 +167,27 @@ export function useUpdateInterval(callback: () => any, interval = 15 * 1000) {
             setUpdate();
         });
     }
+}
+
+const mapExtent = globalComputed(() => useMapStore().extent);
+const mapZoom = globalComputed(() => useMapStore().zoom);
+const mapCenter = globalComputed(() => useMapStore().center);
+
+export function useUpdateCallback<T extends 'short' | 'mandatory' | 'extent' | 'zoom' | 'center' | Ref, A extends T[]>(conditions: A, callback: (newValue: A, oldValue?: undefined | A) => any, options?: WatchOptions) {
+    if (!getCurrentScope()) throw new Error('Vue instance is unavailable in useUpdateCallback');
+    const dataStore = useDataStore();
+
+    const watchers: Ref[] = [];
+    for (const condition of conditions) {
+        if (condition === 'short') watchers.push(dataStore.vatsim.shortUpdateTime);
+        else if (condition === 'mandatory') watchers.push(dataStore.vatsim.localUpdateTime);
+        else if (condition === 'extent') watchers.push(mapExtent());
+        else if (condition === 'zoom') watchers.push(mapZoom());
+        else if (condition === 'center') watchers.push(mapCenter());
+        else watchers.push(condition);
+    }
+
+    watch(watchers as unknown as any, callback, options);
 }
 
 export function useScrollExists(element: Ref<Element | null | undefined>): Ref<boolean> {

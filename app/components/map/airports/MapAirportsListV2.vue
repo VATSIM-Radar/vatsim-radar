@@ -6,14 +6,16 @@
 import { injectMap } from '~/composables/map';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import VectorLayer from 'ol/layer/Vector';
-import VectorImageLayer from 'ol/layer/VectorImage';
 import VectorSource from 'ol/source/Vector';
 import { FEATURES_Z_INDEX } from '~/composables/render';
+import type { MapAirportRender, MapAirportVatspy } from '~/types/map';
+import { setVisibleAirports } from '~/composables/render/airports';
+import type { AirportListItem } from '~/composables/render/airports';
+import { useUpdateCallback } from '~/composables';
 
 if (!getCurrentScope()) throw new Error('Airports list should only be initiated in runtime');
 
 const store = useStore();
-const dataStore = useDataStore();
 const mapStore = useMapStore();
 const map = injectMap();
 const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
@@ -37,6 +39,10 @@ const now = new Date();
 const end = ref(new Date());
 const mapSettings = computed(() => store.mapSettings);
 
+const airportsList = shallowRef<MapAirportRender[]>([]);
+const visibleAirports = shallowRef<MapAirportVatspy[]>([]);
+const airports = shallowRef<AirportListItem[]>([]);
+
 watch(mapSettings, val => {
     const currentDate = new Date();
     currentDate.setTime(now.getTime() + ((((val.bookingHours ?? 0.5) * 60) * 60) * 1000));
@@ -46,32 +52,36 @@ watch(mapSettings, val => {
 });
 
 const getShownAirports = computed(() => {
-    // TODO
-    /* let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
+    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
 
-  switch (store.mapSettings.airportsMode) {
-      case 'staffedOnly':
-          list = list.filter(x => {
-              const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+    switch (store.mapSettings.airportsMode) {
+        case 'staffedOnly':
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
 
-              return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length;
-          });
-          break;
-      case 'staffedAndGroundTraffic':
-          list = list.filter(x => {
-              const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length;
+            });
+            break;
+        case 'staffedAndGroundTraffic':
+            list = list.filter(x => {
+                const hasForAircraft = mapStore.overlays.some(y => y.type === 'pilot' && (y.data.pilot.flight_plan?.departure === x.airport.icao || y.data.pilot.flight_plan?.arrival === x.airport.icao));
 
-              return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length;
-          });
-          break;
-  }
+                return hasForAircraft || mapStore.overlays.some(y => y.type === 'airport' && y.key === x.airport.icao) || x.arrAtc.length || x.localAtc.length || x.aircraftList.groundArr?.length || x.aircraftList.groundDep?.length;
+            });
+            break;
+    }
 
-  return list;*/
+    return list;
 });
 
-function setVisibleAirports() {
+const updateRelatedSettings = computed(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback));
 
-}
+useUpdateCallback(['short', 'extent', updateRelatedSettings], async newValue => {
+    const result = await setVisibleAirports({ navigraphData });
+    if (!result) return;
+    airportsList.value = result.all;
+    visibleAirports.value = result.visible;
+});
 
 watch(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback), () => {
     navigraphData.value = {};

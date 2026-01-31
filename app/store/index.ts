@@ -20,7 +20,7 @@ import type { IEngine } from 'ua-parser-js';
 import { isFetchError } from '~/utils/shared';
 import type { UserBookmarkPreset } from '~/utils/server/handlers/bookmarks';
 import { useIsDebug } from '~/composables';
-import {clientDB} from "~/composables/render/idb";
+import { clientDB } from '~/composables/render/idb';
 
 export interface SiteConfig {
     hideSectors?: boolean;
@@ -285,7 +285,7 @@ export const useStore = defineStore('index', {
                         await clientDB.keyVal.get('simawareVersion') && dataStore.vatspy.value?.version &&
                         (
                             (dataStore.vatglasses.value && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value) ||
-                            dataStore.versions.value.simaware !==  await clientDB.keyVal.get('simawareVersion') ||
+                            dataStore.versions.value.simaware !== await clientDB.keyVal.get('simawareVersion') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
                     ) location.reload();
@@ -298,6 +298,7 @@ export const useStore = defineStore('index', {
                         timeout: 1000 * 60,
                     });
                     await setVatsimDataStore(data);
+                    dataStore.vatsim.shortUpdateTime.value = Date.now();
 
                     if (String(config.public.DISABLE_WEBSOCKETS) === 'true' || this.localSettings.traffic?.disableFastUpdate || !dataStore.vatsim.mandatoryData.value) {
                         const mandatoryData = await $fetch<VatsimMandatoryData>(`/api/data/vatsim/data/mandatory`, {

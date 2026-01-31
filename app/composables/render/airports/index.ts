@@ -83,7 +83,7 @@ export interface AirportListItem {
 export const getAirportsList = async ({ airports, visibleAirports }: {
     airports: MapAirportRender[];
     visibleAirports: MapAirportVatspy[];
-}) => {
+}): Promise<AirportListItem[]> => {
     const store = useStore();
     const dataStore = useDataStore();
 
