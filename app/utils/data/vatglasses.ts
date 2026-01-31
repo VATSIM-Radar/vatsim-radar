@@ -82,7 +82,7 @@ export interface VatglassesSectorProperties {
 let vatglassesActiveAirspaces: VatglassesActiveAirspaces = {};
 let updatedVatglassesPositions: { [countryGroupId: string]: { [vatglassesPositionId: string]: null } } = {};
 
-const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', ['56', 'NY']];
+const ignoredPositions = ['ASIAW', 'ASEAN', 'ASEAS', 'RU-SC', 'RU-CEN', 'RU-WSC', 'RU-ESC', 'RU-WRC', 'RU-ERC', ['56', 'NY']];
 
 function checkIgnoredPosition(id: string, callsign: string) {
     return ignoredPositions.some(x => typeof x === 'string' ? id === x : x[0] === id && callsign.startsWith(x[1]));
@@ -173,8 +173,9 @@ async function updateVatglassesPositionsAndAirspaces() {
                     if (checkIgnoredPosition(vatglassesPositionId, atc.callsign)) continue;
                     const vatglassesPosition = countryGroup.positions[vatglassesPositionId];
                     if (vatglassesPosition.frequency && vatglassesPosition.frequency !== atc.frequency) continue;
-                    if (!atc.callsign.endsWith(vatglassesPosition.type)) continue;
-                    if (!vatglassesPosition.pre.some((prefix: string) => atc.callsign.startsWith(prefix))) continue;
+                    if (!atc.callsign.endsWith(vatglassesPosition.type) || !vatglassesPosition.pre) continue;
+                    const pre = typeof vatglassesPosition.pre === 'string' ? [vatglassesPosition.pre] : vatglassesPosition.pre;
+                    if (!pre.some((prefix: string) => atc.callsign.startsWith(prefix))) continue;
 
                     if (!vatglassesActiveControllers[countryGroupId]) {
                         vatglassesActiveControllers[countryGroupId] = {};
