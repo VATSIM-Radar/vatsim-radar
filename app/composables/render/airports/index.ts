@@ -85,7 +85,6 @@ export const getAirportsList = async ({ airports, visibleAirports }: {
     visibleAirports: MapAirportVatspy[];
 }) => {
     const store = useStore();
-    const mapStore = useMapStore();
     const dataStore = useDataStore();
 
     const airportsMap: Record<string, AirportListItem> = {};

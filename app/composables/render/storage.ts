@@ -11,7 +11,7 @@ import type {
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirlinesAllList, Sigmets,
-    SimAwareAPIData, SimAwareDataFeature,
+    SimAwareDataFeature,
     VatglassesDynamicAPIData,
 } from '~/utils/server/storage';
 import { View } from 'ol';
@@ -22,8 +22,6 @@ import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import {
     isVatGlassesActive,
-
-
 } from '~/utils/data/vatglasses';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/settings/filter';
@@ -212,15 +210,15 @@ const dataStore: UseDataStore = {
     vatspy,
     vatsim,
     simaware: async (icao, iata) => {
-        const request = [icao]
-        if(iata) request.push(iata);
+        const request = [icao];
+        if (iata) request.push(iata);
 
-        const icaoResult = await clientDB.keyVal.get(`simaware-${icao}`) as SimAwareDataFeature[] ?? []
-        const iataResult = iata ? await clientDB.keyVal.get(`simaware-${iata}`) as SimAwareDataFeature[] ?? [] : []
+        const icaoResult = await clientDB.keyVal.get(`simaware-${ icao }`) as SimAwareDataFeature[] ?? [];
+        const iataResult = iata ? await clientDB.keyVal.get(`simaware-${ iata }`) as SimAwareDataFeature[] ?? [] : [];
 
         icaoResult.push(...iataResult);
         iataResult.length = 0;
-        return icaoResult
+        return icaoResult;
     },
     vatglasses,
     vatglassesActivePositions,

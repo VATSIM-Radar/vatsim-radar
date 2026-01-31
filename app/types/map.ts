@@ -6,7 +6,7 @@ import type {
     VatsimShortenedPrefile,
 } from '~/types/data/vatsim';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { VatSpyAirport, VatSpyData } from '~/types/data/vatspy';
+import type { VatSpyAirport } from '~/types/data/vatspy';
 import type { Units } from 'ol/control/ScaleLine.js';
 
 export interface MapAirport {

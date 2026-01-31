@@ -1,9 +1,8 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON.js';
 import type { AmdbLayerName } from '@navigraph/amdb';
-import type {SimAwareDataFeature} from "~/utils/server/storage";
+import type { SimAwareDataFeature } from '~/utils/server/storage';
 
 export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot): Coordinate {
     let lonAdjustment = 0;
