@@ -72,7 +72,7 @@ export interface VatglassesData {
                     online?: string[] | string;
                     hex: string;
                 }[];
-                pre: string[];
+                pre?: string | string[];
                 type: string;
                 frequency?: string;
                 callsign: string;
