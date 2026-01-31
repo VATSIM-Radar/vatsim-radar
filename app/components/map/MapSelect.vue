@@ -67,11 +67,12 @@ watch(map, val => {
         toggleCondition: always,
         multi: true,
         hitTolerance: 4,
+        style: null,
         features: collection,
     });
 
-    select.on('select', () => {
-        console.log(collection.getLength());
+    select.on('select', arg => {
+        console.log(arg.mapBrowserEvent.coordinate, collection.getArray().map(x => x.getProperties()));
     });
 
     map.value?.addInteraction(select);

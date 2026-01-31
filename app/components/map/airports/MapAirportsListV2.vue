@@ -1,19 +1,23 @@
-<template>
-    <slot/>
-</template>
-
 <script setup lang="ts">
 import { injectMap } from '~/composables/map';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
-import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
 import { FEATURES_Z_INDEX } from '~/composables/render';
 import type { MapAirportRender, MapAirportVatspy } from '~/types/map';
-import { setVisibleAirports } from '~/composables/render/airports';
+import { getRenderAirportsList, getInitialAirportsList } from '~/composables/render/airports';
 import type { AirportListItem } from '~/composables/render/airports';
 import { useUpdateCallback } from '~/composables';
+import { Feature } from 'ol';
+import { Point } from 'ol/geom.js';
+import { Fill, Style, Text } from 'ol/style.js';
+import { setMapAirports } from '~/composables/render/airports/map';
 
-if (!getCurrentScope()) throw new Error('Airports list should only be initiated in runtime');
+defineOptions({
+    render: () => null,
+});
+
+export type AirportNavigraphData = Record<string, NavigraphAirportData>;
 
 const store = useStore();
 const mapStore = useMapStore();
@@ -52,7 +56,7 @@ watch(mapSettings, val => {
 });
 
 const getShownAirports = computed(() => {
-    let list = getAirportsList.value.filter(x => visibleAirports.value.some(y => y.vatspyAirport.icao === x.airport.icao || x.bookings.length > 0));
+    let list = airports.value.filter(x => airportsList.value.some(y => y.airport.icao === x.airport.icao || x.bookings.length > 0));
 
     switch (store.mapSettings.airportsMode) {
         case 'staffedOnly':
@@ -74,27 +78,14 @@ const getShownAirports = computed(() => {
     return list;
 });
 
-const updateRelatedSettings = computed(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback));
-
-useUpdateCallback(['short', 'extent', updateRelatedSettings], async newValue => {
-    const result = await setVisibleAirports({ navigraphData });
-    if (!result) return;
-    airportsList.value = result.all;
-    visibleAirports.value = result.visible;
-});
-
-watch(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback), () => {
-    navigraphData.value = {};
-
-    setVisibleAirports();
-});
+const updateRelatedSettings = computed(() => String(store.mapSettings.navigraphLayers?.disable) + String(store.mapSettings.navigraphLayers?.gatesFallback) + String(store.mapSettings.airportsMode));
 
 onMounted(() => {
     if (!map.value) throw new Error('Map is not initialized');
 
     airportsSource = new VectorSource<any>({
         features: [],
-        wrapX: false,
+        wrapX: true,
     });
 
     traconsSource = new VectorSource<any>({
@@ -123,6 +114,7 @@ onMounted(() => {
         properties: {
             type: 'airports',
         },
+        declutter: 'airports',
     });
 
     traconsLayer = new VectorLayer<any>({
@@ -162,6 +154,26 @@ onMounted(() => {
     map.value.addLayer(labelsLayer);
     map.value.addLayer(navigraphLayer);
     map.value.addLayer(gatesLayer);
+
+    useUpdateCallback(['short', 'extent', updateRelatedSettings], async newValue => {
+        const result = await getInitialAirportsList({ navigraphData, source: airportsSource, map: map.value! });
+        if (!result) return;
+        airportsList.value = result.all;
+        visibleAirports.value = result.visible;
+    }, {
+        immediate: true,
+    });
+
+    watch(airportsList, async () => {
+        airports.value = await getRenderAirportsList({ airports: airportsList.value, visibleAirports: visibleAirports.value });
+
+        setMapAirports({
+            airports: getShownAirports.value,
+            navigraphData: navigraphData.value,
+            layer: airportsLayer,
+            source: airportsSource,
+        });
+    });
 });
 
 // TODO can be useful for BARS v2

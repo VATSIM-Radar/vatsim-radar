@@ -75,7 +75,8 @@
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-distance v-if="store.localSettings.distance?.enabled"/>
-                    <map-airports-list v-if="!store.config.hideAirports"/>
+                    <map-airports-list-v2 v-if="!store.config.hideAirports"/>
+                    <map-select/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
                     <a
@@ -305,10 +306,11 @@ import MapSigmets from '~/components/map/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
 import MapWeather from '~/components/map/MapWeather.vue';
-import MapAirportsList from '~/components/map/airports/MapAirportsList.vue';
 import MapDistance from '~/components/map/MapDistance.vue';
 import MapControls from '~/components/map/MapControls.vue';
 import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
+import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
+import MapSelect from '~/components/map/MapSelect.vue';
 
 defineProps({
     mode: {
@@ -895,7 +897,7 @@ await setupDataFetch({
         const view = new View({
             center: [37.617633, 55.755820],
             zoom: 2,
-            multiWorld: false,
+            multiWorld: true,
         });
 
         let projectionExtent = view.getProjection().getExtent().slice();
@@ -981,7 +983,7 @@ await setupDataFetch({
                 zoom,
                 minZoom: 2,
                 maxZoom: MAX_MAP_ZOOM,
-                multiWorld: false,
+                multiWorld: true,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),

@@ -120,7 +120,7 @@ export async function getSimAwareData(pr: number) {
 
 export function compileSimAware(file: ArrayBuffer) {
     const zip = new AdmZip(Buffer.from(file));
-    const geojson: FeatureCollection<MultiPolygon | Polygon> = {
+    const geojson: SimAwareData = {
         type: 'FeatureCollection',
         // @ts-expect-error Dynamic name
         name: Date.now().toString(),

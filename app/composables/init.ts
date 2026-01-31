@@ -150,7 +150,7 @@ export function checkForSimAware() {
                 }
             }
 
-            await clientDB.keyVal.bulkAdd(Object.values(groups), Object.keys(groups));
+            await clientDB.keyVal.bulkAdd(Object.values(groups), Object.keys(groups).map(x => `simaware-${ x }`));
             await clientDB.keyVal.put(data.version, 'simawareVersion');
             notRequired = false;
         }

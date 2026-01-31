@@ -5,34 +5,50 @@ import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
 
 export interface FeatureAirportProperties {
     type: 'airport';
     icao: string;
-    iata: string;
+    iata?: string;
     name: string;
-    id: string;
+    color: string;
+    lat: number;
+    lon: number;
+    localsLength: number;
+
+    id: `airport-${ string }`;
 }
 
 export interface FeatureAirportApproachProperties {
     type: 'airport-circle' | 'airport-tracon';
     icao: string;
     iata: string;
-    id: string;
+    id: `airport-${ string }-${ string }`;
+    traconId?: string;
+    atc: VatsimShortenedController[];
+    isTWR: boolean;
+    isDuplicated: boolean;
+    isBooked: boolean;
 }
 
 export interface FeatureAirportApproachTextProperties {
     type: 'airport-circle-label' | 'airport-tracon-label';
     icao: string;
     iata: string;
-    id: string;
+    name: string;
+    id: `airport-${ string }-${ string }`;
     traconId?: string;
+    atc: VatsimShortenedController[];
+    isTWR: boolean;
+    isDuplicated: boolean;
+    isBooked: boolean;
 }
 
 export interface FeatureAirportGateProperties {
     type: 'airport-gate' | 'airport-runway';
     identifier: string;
-    id: string;
+    id: `airport-${ string }-${ string }`;
 }
 
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
@@ -81,5 +97,5 @@ export function getMapFeature<T extends MapFeaturesType>(
 }
 
 export function isMapFeature<T extends MapFeaturesType>(type: T, properties: Record<string, any>): properties is MapFeatureProperties<T> {
-    return properties.id === type;
+    return properties.type === type;
 }

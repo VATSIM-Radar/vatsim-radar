@@ -3,16 +3,19 @@ import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vats
 import type { MapAircraft, MapAircraftList, MapAirportRender, MapAirportVatspy } from '~/types/map';
 import type { VatSpyAirport, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { globalComputed, isPointInExtent } from '~/composables';
+import { globalComputed } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
-import type { Feature } from 'ol';
-import { intersects } from 'ol/extent';
+import type { Feature, Map } from 'ol';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
+import type VectorSource from 'ol/source/Vector.js';
+import { isMapFeature } from '~/utils/map/entities';
+import { wrapAndSliceX, wrapX } from 'ol/extent.js';
+import { transformExtent } from 'ol/proj';
 
 export interface AirportTraconFeature {
     id: string;
-    traconFeature: GeoJSONFeature;
+    traconFeature: SimAwareDataFeature;
     controllers: VatsimShortenedController[];
 }
 
@@ -60,8 +63,6 @@ export const activeAirportsList = globalComputed(() => {
     return list;
 });
 
-const cachedSimAwareFeatures: Record<string, Feature> = {};
-
 interface VisibleAirportsResult {
     all: MapAirportRender[];
     visible: MapAirportVatspy[];
@@ -80,7 +81,7 @@ export interface AirportListItem {
     isSimAware: boolean;
 }
 
-export const getAirportsList = async ({ airports, visibleAirports }: {
+export const getRenderAirportsList = async ({ airports, visibleAirports }: {
     airports: MapAirportRender[];
     visibleAirports: MapAirportVatspy[];
 }): Promise<AirportListItem[]> => {
@@ -93,7 +94,7 @@ export const getAirportsList = async ({ airports, visibleAirports }: {
     const keyedPrefiles = Object.fromEntries(dataStore.vatsim.data.prefiles.value.map(x => ([x.cid, x])));
 
     for (const { airport, visible } of airports) {
-        if (!visible && !store.fullAirportsUpdate) continue;
+        // if (!visible && !store.fullAirportsUpdate) continue;
         airportsMap[airport.icao] = {
             aircraft: {
                 departures: airport.aircraft.departures?.map(x => dataStore.vatsim.data.keyedPilots.value[x]),
@@ -140,7 +141,7 @@ export const getAirportsList = async ({ airports, visibleAirports }: {
 
     const facilities = useFacilitiesIds();
 
-    const vgFallbackPositions = Object.keys(dataStore.vatglassesActivePositions.value['fallback']);
+    const vgFallbackPositions = isVatGlassesActive.value ? Object.keys(dataStore.vatglassesActivePositions.value['fallback'] ?? {}) : [];
 
     if (!store.bookingOverride) {
         for (const atc of dataStore.vatsim.data.locals.value) {
@@ -322,8 +323,10 @@ export const getAirportsList = async ({ airports, visibleAirports }: {
     return airportsArr;
 };
 
-export async function setVisibleAirports({ navigraphData}: {
+/*
+export async function getInitialAirportsList({ navigraphData, source}: {
     navigraphData: Ref<Record<string, NavigraphAirportData>>;
+    source: VectorSource;
 }): Promise<VisibleAirportsResult | null> {
     if (settingAirports) return null;
     settingAirports = true;
@@ -398,6 +401,116 @@ export async function setVisibleAirports({ navigraphData}: {
                     list.push(result);
                 }
             }
+
+            if (result.visible) visibleAirports.push(result.airport);
+            else delete navigraphData.value[result.airport.icao];
+
+            list.push(result);
+        }));
+
+        // Cleaning up
+        airports.length = 0;
+
+        if (mapStore.zoom > 12) {
+            await Promise.all(visibleAirports.map(async airport => {
+                if (airport.isPseudo || navigraphData.value[airport.icao]) return {};
+
+                const params = new URLSearchParams();
+                params.set('v', store.version);
+                params.set('layout', (store.user?.hasCharts && store.user?.hasFms && !store.mapSettings.navigraphLayers?.disable) ? '1' : '0');
+                params.set('originalData', store.mapSettings.navigraphLayers?.gatesFallback ? '1' : '0');
+
+                navigraphData.value[airport.icao] = await $fetch<NavigraphAirportData>(`/api/data/navigraph/airport/${ airport.icao }?${ params.toString() }`);
+            }));
+        }
+        else if (mapStore.zoom < 10) {
+            navigraphData.value = {};
+        }
+
+        return {
+            all: list,
+            visible: visibleAirports,
+        };
+    }
+    finally {
+        settingAirports = false;
+    }
+}
+ */
+
+export async function getInitialAirportsList({ navigraphData, source, map }: {
+    navigraphData: Ref<Record<string, NavigraphAirportData>>;
+    source: VectorSource;
+    map: Map;
+}): Promise<VisibleAirportsResult | null> {
+    if (settingAirports) return null;
+    settingAirports = true;
+
+    const store = useStore();
+    const mapStore = useMapStore();
+    const dataStore = useDataStore();
+    const overlays = airportOverlays().value;
+
+    try {
+        const extent = mapStore.extent.slice();
+        extent[0] -= 0.9;
+        extent[1] -= 0.9;
+        extent[2] += 0.9;
+        extent[3] += 0.9;
+
+        const realExtent = wrapAndSliceX(transformExtent(mapStore.extent, 'EPSG:4326', 'EPSG:3857'), map.getView().getProjection(), true);
+
+        const _visibleFeatures = realExtent.flatMap(x => source.getFeaturesInExtent(transformExtent(x, 'EPSG:3857', 'EPSG:4326'), map.getView().getProjection()));
+
+        const visibleFeatures = new Set(_visibleFeatures.map(x => {
+            const properties = x.getProperties();
+            if (isMapFeature('airport', properties)) {
+                return properties.icao;
+            }
+
+            return null;
+        }).filter(x => x));
+
+        const airports = [...activeAirportsList().value];
+        const icaoSet = new Set(airports.map(x => x.icao));
+
+        for (const airport of airportOverlays().value) {
+            if (!icaoSet.has(airport)) {
+                airports.push({
+                    icao: airport,
+                    isPseudo: false,
+                    isSimAware: false,
+                    aircraft: {},
+                });
+            }
+        }
+
+        const visibleAirports: MapAirportVatspy[] = [];
+        const list: MapAirportRender[] = [];
+
+        await Promise.all(airports.map(async x => {
+            const vatAirport = dataStore.vatspy.value!.data.keyAirports.realIata[x.iata ?? ''] ??
+                dataStore.vatspy.value!.data.keyAirports.realIcao[x.icao ?? ''] ??
+                dataStore.vatspy.value!.data.keyAirports.iata[x.iata ?? ''] ??
+                dataStore.vatspy.value!.data.keyAirports.icao[x.icao ?? ''];
+
+            let airport = x.isSimAware ? vatAirport || x : vatAirport;
+            if (!x.isSimAware && airport?.icao !== x.icao) {
+                airport = {
+                    ...airport,
+                    icao: x.icao,
+                    isIata: true,
+                };
+            }
+            if (!airport) return null;
+
+            const result: MapAirportRender = {
+                airport: {
+                    ...x,
+                    data: airport,
+                },
+                visible: overlays.includes(airport.icao) || visibleFeatures.has(airport.icao),
+            };
 
             if (result.visible) visibleAirports.push(result.airport);
             else delete navigraphData.value[result.airport.icao];
