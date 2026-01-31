@@ -10,6 +10,7 @@
 - Added ZJX/ZTL/A80 to atc duplication
 - Added vatspy data matching by aeronav positions as fallback by Felix 1025793
 - Sectors are now shown in booking override mode by Felix 1025793
+- Fixed VATGlasses data not working in certain conditions
 
 # [1.2.4-3]
 
