@@ -280,7 +280,12 @@ export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
         data[key].value = vatsimData[key];
     }
 
-    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), pilot]));
+    data.keyedPilots.value = Object.fromEntries(vatsimData.pilots.map(pilot => [pilot.cid.toString(), {
+        ...pilot,
+        longitude: data.keyedPilots.value[pilot.cid.toString()]?.longitude ?? pilot.longitude,
+        latitude: data.keyedPilots.value[pilot.cid.toString()]?.latitude ?? pilot.latitude,
+        heading: data.keyedPilots.value[pilot.cid.toString()]?.heading ?? pilot.heading,
+    }]));
 }
 
 export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {

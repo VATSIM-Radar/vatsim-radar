@@ -162,4 +162,52 @@ export const duplicatingSettings = [
             POE: 'POE_APP',
         },
     },
+
+    /**
+    * @description ZTL/A80 Center and TRACONs
+    * @author 1560654
+    */
+    {
+        regex: /^(ATL|A80|AHN|MCN|CSG)(_\w{0,3})?_(CTR|APP|DEP)$/,
+        mapping: {
+            ATL: 'ATL_APP',
+            AHN: 'AHN_APP',
+            CSG: 'CSG_APP',
+            MCN: 'MCN_APP',
+            CLT: 'CLT_APP',
+            AVL: 'AVL_APP',
+            BHM: 'BHM_APP',
+            CHA: 'CHA_APP',
+            GSO: 'GSO_APP',
+            GSP: 'GSP_APP',
+            MGM: 'MGM_APP',
+            TYS: 'TYS_APP',
+            TRI: 'TRY_APP',
+        },
+    },
+    /**
+    * @description ZJX Center and TRACONs
+    * @author 1487925
+    */
+    {
+        regex: /^(F11|ZJX|DAB|JAX|VAD|TLH|PAM|VPS|OZR|P31|SAV|NBC|CHS|SSC|CAE|MYR|FLO)(_\w{0,3})?_(CTR|TMU|APP|DEP)$$/,
+        mapping: {
+            'F11 TRACON': 'MCO_E_APP',
+            'DAB TRACON': 'DAB_N_APP',
+            'JAX TRACON': 'JAX_S_APP',
+            'VAD RAPCON': 'VAD_APP',
+            'TLH TRACON': 'TLH_W_APP',
+            'PAM RAPCON': 'PAM_APP',
+            'VPS RAPCON': 'VPS_S_APP',
+            'OZR RAPCON': 'OZR_APP',
+            'P31 TRACON': 'PNS_E_APP',
+            'SAV TRACON': 'SAV_N_APP',
+            'NBC RAPCON': 'NBC_APP',
+            'CHS TRACON': 'CHS_W_APP',
+            'SSC RAPCON': 'SSC_APP',
+            'CAE TRACON': 'CAE_N_APP',
+            'MYR TRACON': 'MYR_E_APP',
+            'FLO TRACON': 'FLO_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];

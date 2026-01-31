@@ -61,7 +61,7 @@ export async function initKafka() {
 
         consumer.run({
             autoCommitInterval: 5000,
-            partitionsConsumedConcurrently: 10,
+            partitionsConsumedConcurrently: 1,
             eachMessage: async ({
                 topic,
                 partition,
