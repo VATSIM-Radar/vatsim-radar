@@ -268,8 +268,8 @@ async function update() {
                         if (!disableWaypoints) {
                             let type = 'airway-waypoint';
 
-                            const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
-                            const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? {}).find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? '').find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
+                            const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? '').find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
 
                             if (ndb) {
                                 type = 'enroute-ndb';

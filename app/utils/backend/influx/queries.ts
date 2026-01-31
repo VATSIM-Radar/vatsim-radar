@@ -89,9 +89,13 @@ export async function getInfluxFlightsForCid({
 }) {
     const fluxQuery =
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
-  |> range(start: ${ Math.round(startDate / 1000) }, stop: ${ endDate ? Math.round(endDate / 1000) : 'now()' })
-  |> filter(fn: (r) => r["_measurement"] == "data")
-  |> filter(fn: (r) => r["cid"] == "${ cid }")`;
+  |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
+  |> filter(fn: (r) =>
+    r._measurement == "data" and
+    r.cid == "${ cid }" and
+    r._field == "callsign"
+  )
+  |> keep(columns: ["_time","_field","_value","cid"])`;
 
     const rows = await getFlightRows(fluxQuery);
 
@@ -147,7 +151,7 @@ export async function getInfluxOnlineFlightTurns(cid: string, start?: string) {
 
     const fluxQuery =
         `from(bucket: "${ process.env.INFLUX_BUCKET_MAIN }")
-  |> range(start: ${ start || row._time })
+  |> range(start: time(v: ${ start || row._time }))
   |> filter(fn: (r) => r["_measurement"] == "data")
   |> filter(fn: (r) => r["cid"] == "${ cid }")`;
 
