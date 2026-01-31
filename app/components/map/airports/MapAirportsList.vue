@@ -666,7 +666,7 @@ const getAirportsList = computed(() => {
     }[] = [];
 
     // SIMAWARE was there
-    for (const sector of []) {
+    for (const sector of allAirportsArray) {
         const prefixes = getTraconPrefixes(sector);
         const suffix = getTraconSuffix(sector);
         const airports = findSectorAirport(sector);

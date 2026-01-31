@@ -5,9 +5,10 @@ import type { VatSpyAirport, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { globalComputed, isPointInExtent } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
-import { getTraconPrefixes } from '~/utils/shared/vatsim';
+import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { Feature } from 'ol';
 import { intersects } from 'ol/extent';
+import type { SimAwareDataFeature } from '~/utils/server/storage';
 
 export interface AirportTraconFeature {
     id: string;
@@ -79,7 +80,7 @@ export interface AirportListItem {
     isSimAware: boolean;
 }
 
-export const getAirportsList = ({ airports, visibleAirports }: {
+export const getAirportsList = async ({ airports, visibleAirports }: {
     airports: MapAirportRender[];
     visibleAirports: MapAirportVatspy[];
 }) => {
@@ -88,7 +89,7 @@ export const getAirportsList = ({ airports, visibleAirports }: {
     const dataStore = useDataStore();
 
     const airportsMap: Record<string, AirportListItem> = {};
-    const airportsArr: AirportListItem[] = [];
+    let airportsArr: AirportListItem[] = [];
 
     const keyedPrefiles = Object.fromEntries(dataStore.vatsim.data.prefiles.value.map(x => ([x.cid, x])));
 
@@ -117,7 +118,7 @@ export const getAirportsList = ({ airports, visibleAirports }: {
         airportsArr.push(airportsMap[airport.icao]);
     }
 
-    function addFeatureToAirport(sector: GeoJSONFeature, airport: AirportListItem, controller: VatsimShortenedController) {
+    function addFeatureToAirport(sector: SimAwareDataFeature, airport: AirportListItem, controller: VatsimShortenedController) {
         const id = JSON.stringify(sector.properties);
         let existingSector = airport.features.find(x => x.id === id) ||
             airportsArr.find(x => x.features.some(x => x.id === id))?.features.find(x => x.id === id);
@@ -274,30 +275,52 @@ export const getAirportsList = ({ airports, visibleAirports }: {
         });
     }
 
-    // TODO: optimize
-    function findSectorAirport(sector: GeoJSONFeature) {
-        const prefixes = getTraconPrefixes(sector);
+    for (const airport of airportsArr) {
+        if (!airport.arrAtc.length) continue;
 
-        let foundAirports = airports.filter(x => x.arrAtcInfo.some(x => x.airport!.tracon && prefixes.includes(x.airport!.tracon)));
+        const callsigns = Array.from(new Set(airport.arrAtc.map(x => x.callsign.split('_')[0])));
 
-        if (!foundAirports.length) {
-            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && prefixes.some(y => y.split('_')[0] === x.airport.iata));
+        const traconFeatures = (await Promise.all(callsigns.map(callsign => dataStore.simaware(callsign)))).flat();
+
+        const backupFeatures: [controller: VatsimShortenedController, sector: SimAwareDataFeature][] = [];
+
+        for (const sector of traconFeatures) {
+            const prefixes = getTraconPrefixes(sector);
+            const suffix = getTraconSuffix(sector);
+
+            for (const { atc: controller, airport: airportInfo } of airport.arrAtcInfo) {
+                const tracon = airportInfo!.tracon;
+                const splittedCallsign = controller.callsign.split('_');
+
+                if (
+                    (!suffix || controller.callsign.endsWith(suffix)) &&
+                    (
+                        (tracon && prefixes.includes(tracon)) ||
+                        // Match AIRPORT_TYPE_NAME
+                        prefixes.includes(splittedCallsign.slice(0, 2).join('_')) ||
+                        // Match AIRPORT_NAME
+                        (splittedCallsign.length === 2 && prefixes.includes(splittedCallsign[0])) ||
+                        // Match AIRPORT_TYPERANDOMSTRING_NAME
+                        (splittedCallsign.length === 3 && prefixes.some(x => x.split('_').length === 2 && controller.callsign.startsWith(x)))
+                    )
+                ) {
+                    addFeatureToAirport(sector, airport, controller);
+                    continue;
+                }
+
+                if (!backupFeatures?.some(x => x[0].cid === controller.cid) && prefixes.some(x => controller.callsign.startsWith(x)) && (!suffix || controller.callsign.endsWith(suffix))) {
+                    backupFeatures.push([controller, sector]);
+                }
+            }
         }
 
-        if (!foundAirports.length) {
-            foundAirports = airports.filter(x => x.arrAtc.length && prefixes.some(y => y.split('_')[0] === x.airport.icao));
-        }
-
-        if (!foundAirports.length) {
-            foundAirports = airports.filter(x => x.arrAtc.length && x.airport.iata && sector.properties!.id === x.airport.iata);
-        }
-
-        if (!foundAirports.length) {
-            foundAirports = airports.filter(x => x.arrAtc.length && sector.properties!.id === x.airport.icao);
-        }
-
-        return foundAirports;
+        backupFeatures.forEach(([controller, sector]) => addFeatureToAirport(sector, airport, controller));
     }
+
+    const overlays = airportOverlays().value;
+    airportsArr = airportsArr.filter(x => x.localAtc.length || x.arrAtc.length || x.aircraftCids.length || overlays.includes(x.airport.icao));
+    dataStore.vatsim.parsedAirports.value = airportsArr;
+    return airportsArr;
 };
 
 export async function setVisibleAirports({ navigraphData}: {
