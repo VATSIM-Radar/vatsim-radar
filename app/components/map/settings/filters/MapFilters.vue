@@ -361,7 +361,7 @@
                 <ui-input-color
                     :model-value="{ transparency: store.filter.others.othersOpacity ?? 1 }"
                     transparency-only
-                    @update:modelValue="setUserFilter({ others: { othersOpacity: $event.transparency } })"
+                    @update:modelValue="setUserFilter({ others: { othersOpacity: $event!.transparency } })"
                 >
                     Non-filtered transparency
                 </ui-input-color>

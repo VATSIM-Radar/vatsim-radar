@@ -1,8 +1,8 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { NavigraphGate } from '~/types/data/navigraph';
 import type { Coordinate } from 'ol/coordinate.js';
-import type { GeoJSONFeature } from 'ol/format/GeoJSON.js';
 import type { AmdbLayerName } from '@navigraph/amdb';
+import type { SimAwareDataFeature } from '~/utils/server/storage';
 
 export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot): Coordinate {
     let lonAdjustment = 0;
@@ -103,15 +103,13 @@ export function getPilotTrueAltitude(pilot: Pick<VatsimShortenedAircraft, 'altit
     return Math.round(pilot.altitude - ((pilot.qnh_mb - 1013) * 28.9));
 }
 
-export function getTraconPrefixes(tracon: GeoJSONFeature): string[] {
-    if (typeof tracon.properties?.prefix === 'string') return [tracon.properties.prefix];
-
+export function getTraconPrefixes(tracon: SimAwareDataFeature): string[] {
     if (typeof tracon.properties?.prefix === 'object' && Array.isArray(tracon.properties.prefix)) return tracon.properties.prefix;
 
     return [];
 }
 
-export function getTraconSuffix(tracon: GeoJSONFeature): string | null {
+export function getTraconSuffix(tracon: SimAwareDataFeature): string | null {
     if (typeof tracon.properties?.suffix === 'string') return tracon.properties.suffix;
 
     return null;

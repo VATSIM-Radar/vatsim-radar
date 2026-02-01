@@ -75,7 +75,8 @@
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-distance v-if="store.localSettings.distance?.enabled"/>
-                    <map-airports-list v-if="!store.config.hideAirports"/>
+                    <map-airports-list-v2 v-if="!store.config.hideAirports"/>
+                    <map-select/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
                     <a
@@ -305,10 +306,12 @@ import MapSigmets from '~/components/map/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
 import MapWeather from '~/components/map/MapWeather.vue';
-import MapAirportsList from '~/components/map/airports/MapAirportsList.vue';
 import MapDistance from '~/components/map/MapDistance.vue';
 import MapControls from '~/components/map/MapControls.vue';
 import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
+import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
+import MapSelect from '~/components/map/MapSelect.vue';
+import { isMapFeature } from '~/utils/map/entities';
 
 defineProps({
     mode: {
@@ -746,6 +749,7 @@ async function handleMoveEnd() {
     mapStore.zoom = view.getZoom() ?? 0;
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
     mapStore.extent = view.calculateExtent(map.value!.getSize());
+
     mapStore.center = view.getCenter()!;
 
     const query = {
@@ -895,15 +899,17 @@ await setupDataFetch({
         const view = new View({
             center: [37.617633, 55.755820],
             zoom: 2,
-            multiWorld: false,
+            multiWorld: true,
         });
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        projectionExtent[0] *= 2.5;
-        projectionExtent[1] *= 2;
-        projectionExtent[2] *= 2.5;
-        projectionExtent[3] *= 2;
+        console.log(projectionExtent);
+
+        projectionExtent[0] = projectionExtent[0] * 10000;
+        projectionExtent[1] *= 1.5;
+        projectionExtent[2] = projectionExtent[2] * 10000;
+        projectionExtent[3] *= 1.5;
 
         let center = store.localSettings.location ?? [37.617633, 55.755820];
         let zoom = store.localSettings.zoom ?? 3;
@@ -975,13 +981,12 @@ await setupDataFetch({
                 }),
             ],
             interactions: [],
-            maxTilesLoading: 128,
             view: new View({
                 center,
                 zoom,
                 minZoom: 2,
                 maxZoom: MAX_MAP_ZOOM,
-                multiWorld: false,
+                multiWorld: true,
                 showFullExtent: (!!store.config.airports?.length || !!store.config.area) && (!store.config.center && !store.config.zoom),
                 extent: transformExtent(projectionExtent, 'EPSG:3857', 'EPSG:4326'),
             }),
@@ -1002,6 +1007,20 @@ await setupDataFetch({
             map.value!.getTargetElement().style.cursor = 'grabbing';
         });
         map.value.on('pointermove', updateMapCursor);
+        map.value.on('postrender', event => {
+            const features = event.frameState;
+            const rbush = features?.declutter?.airports;
+            if (!rbush) return;
+
+            const list = rbush.all();
+            const set = new Set<string>();
+            for (const feature of list) {
+                const properties = feature.value.getProperties();
+                if (isMapFeature('airport', properties)) set.add(properties.icao);
+            }
+
+            mapStore.renderedAirports = Array.from(set);
+        });
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());
         mapStore.center = map.value!.getView().getCenter()!;

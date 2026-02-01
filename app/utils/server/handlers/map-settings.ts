@@ -242,10 +242,10 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
 };
 
-export interface UserMapSettingsColor {
+export type UserMapSettingsColor = {
     color: string;
     transparency?: number;
-}
+} | null;
 
 export interface UserMapSettingsColors {
     firs?: UserMapSettingsColor;

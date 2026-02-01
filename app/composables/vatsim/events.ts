@@ -1,13 +1,16 @@
-import type { Feature } from 'ol';
 import { safeRef } from '~/composables';
+import type { Coordinate } from 'ol/coordinate';
+import type { FeatureAirport, MapFeatures } from '~/utils/map/entities';
+
+export interface RadarEventPayload<T = MapFeatures> { feature: T; coordinate: Coordinate }
 
 export const hoveredAircraft = safeRef<number | null>(null);
 
 // TODO: replace everything with Feature<type>
-export async function handleAircraftClick(aircraft: Feature) {
+export async function handleAircraftClick({ feature }: RadarEventPayload<FeatureAirport>) {
     const store = useStore();
     const mapStore = useMapStore();
-    const cid: string = aircraft.getProperties().id.toString();
+    const cid: string = feature.getProperties().id.toString();
 
     const existingOverlay = mapStore.overlays.find(x => x.key === cid);
     if (existingOverlay) {

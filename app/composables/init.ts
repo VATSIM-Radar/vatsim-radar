@@ -8,7 +8,7 @@ import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
     RadarDataAirlinesAllList,
-    SimAwareAPIData,
+    SimAwareAPIData, SimAwareDataFeature,
     VatglassesAPIData,
     VatglassesDynamicAPIData,
 } from '~/utils/server/storage';
@@ -134,15 +134,27 @@ export async function checkForTracks() {
 
 export function checkForSimAware() {
     return initCheck('simaware', async ({ dataStore }) => {
-        let simaware = await clientDB.data.get('simaware') as SimAwareAPIData | undefined;
+        const simaware = await clientDB.keyVal.get('simawareVersion') as string | undefined;
         let notRequired = true;
-        if (!simaware || simaware.version !== dataStore.versions.value!.simaware) {
-            simaware = await $fetch<SimAwareAPIData>('/api/data/simaware');
-            await clientDB.data.put(simaware, 'simaware');
+        if (!simaware || simaware !== dataStore.versions.value!.simaware) {
+            const data = await $fetch<SimAwareAPIData>('/api/data/simaware');
+
+            const groups: Record<string, SimAwareDataFeature[]> = {};
+            for (const feature of data.data.features) {
+                for (let prefix of feature.properties.prefix) {
+                    const index = prefix.indexOf('_');
+                    if (index !== -1) prefix = prefix.slice(0, index);
+
+                    groups[prefix] ??= [];
+                    groups[prefix].push(feature);
+                }
+            }
+
+            await clientDB.keyVal.bulkAdd(Object.values(groups), Object.keys(groups).map(x => `simaware-${ x }`));
+            await clientDB.keyVal.put(data.version, 'simawareVersion');
             notRequired = false;
         }
 
-        dataStore.simaware.value = simaware;
         if (notRequired) return 'notRequired';
     });
 }

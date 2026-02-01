@@ -16,7 +16,17 @@ import type { PatreonInfo } from '~/types/data/patreon';
 
 import type { RadarNotam } from '~/utils/shared/vatsim';
 
-export type SimAwareData = FeatureCollection<MultiPolygon | Polygon>;
+export interface SimAwareProperties {
+    id: string;
+    prefix: string[];
+    suffix: string;
+    name: string;
+    label_lat: number;
+    label_lon: number;
+}
+
+export type SimAwareDataFeature = Feature<MultiPolygon | Polygon, SimAwareProperties>;
+export type SimAwareData = FeatureCollection<MultiPolygon | Polygon, SimAwareProperties>;
 export interface SimAwareAPIData {
     version: string;
     data: SimAwareData;

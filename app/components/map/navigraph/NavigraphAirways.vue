@@ -10,6 +10,10 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import { checkFlightLevel } from '~/composables/render/storage';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const store = useStore();

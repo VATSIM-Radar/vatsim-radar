@@ -23,6 +23,15 @@ export interface MapAirport {
     }>;
 }
 
+export interface MapAirportVatspy extends MapAirport {
+    data: VatSpyAirport;
+}
+
+export interface MapAirportRender {
+    airport: MapAirportVatspy;
+    visible: boolean;
+}
+
 export type MapAircraftKeys = keyof MapAirport['aircraft'];
 export type MapAircraftList = MapAirport['aircraft'];
 export type MapAircraftMode = 'all' | 'ground' | MapAircraftKeys;

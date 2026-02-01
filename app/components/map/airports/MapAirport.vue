@@ -208,6 +208,22 @@ const airportsSource = inject<ShallowRef<VectorSource | null>>('airports-source'
 const layerSource = inject<ShallowRef<VectorSource | null>>('layer-source')!;
 const labelSource = inject<ShallowRef<VectorSource | null>>('label-source')!;
 const gatesSource = inject<ShallowRef<VectorSource | null>>('gates-source')!;
+
+let feature: Feature | null = null;
+let hoverFeature: Feature | null = null;
+interface ArrFeature {
+    id: string;
+    controllers: VatsimShortenedController[];
+    feature: Feature;
+    traconFeature?: GeoJSONFeature;
+}
+
+const arrFeatures = shallowRef<ArrFeature[]>([]);
+let gatesFeatures: Feature[] = [];
+let layoutFeatures: Feature[] = [];
+let labelFeatures: Feature[] = [];
+let runwaysFeatures: Feature[] = [];
+
 const atcPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const approachPopup = ref<{ $el: HTMLDivElement } | null>(null);
 const hoveredFacility = ref<boolean | number>(false);
@@ -215,11 +231,11 @@ const hoveredController = ref<boolean>(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
-    return atcPopup.value?.$el.querySelector('.controllers-popup_list');
+    return atcPopup.value?.$el.querySelector('.atc-popup_list');
 }));
 
 const approachScroll = useScrollExists(computed(() => {
-    return approachPopup.value?.$el.querySelector('.controllers-popup_list');
+    return approachPopup.value?.$el.querySelector('.atc-popup_list');
 }));
 
 const hoveredFacilities = computed(() => {
@@ -306,22 +322,6 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
         atc: [],
     };
 }
-
-let feature: Feature | null = null;
-let hoverFeature: Feature | null = null;
-
-interface ArrFeature {
-    id: string;
-    controllers: VatsimShortenedController[];
-    feature: Feature;
-    traconFeature?: GeoJSONFeature;
-}
-
-const arrFeatures = shallowRef<ArrFeature[]>([]);
-let gatesFeatures: Feature[] = [];
-let layoutFeatures: Feature[] = [];
-let labelFeatures: Feature[] = [];
-let runwaysFeatures: Feature[] = [];
 
 const airportName = computed(() => (props.airport.isPseudo && props.airport.iata) ? props.airport.iata : props.airport.icao);
 const hoveredFeature = computed(() => {

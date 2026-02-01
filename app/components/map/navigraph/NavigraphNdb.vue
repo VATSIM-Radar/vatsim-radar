@@ -6,6 +6,10 @@ import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { useMapStore } from '~/store/map';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const store = useStore();

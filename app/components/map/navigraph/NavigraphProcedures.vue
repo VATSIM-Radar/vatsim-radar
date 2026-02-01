@@ -8,6 +8,10 @@ import greatCircle from '@turf/great-circle';
 import type { NavigraphNavDataAirportWaypoint } from '~/utils/server/navigraph/navdata/types';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const dataStore = useDataStore();

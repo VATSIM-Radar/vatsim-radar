@@ -14,6 +14,10 @@ import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 
 const dataStore = useDataStore();

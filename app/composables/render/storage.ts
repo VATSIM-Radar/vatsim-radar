@@ -11,7 +11,7 @@ import type {
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirlinesAllList, Sigmets,
-    SimAwareAPIData,
+    SimAwareDataFeature,
     VatglassesDynamicAPIData,
 } from '~/utils/server/storage';
 import { View } from 'ol';
@@ -22,8 +22,6 @@ import { useStore } from '~/store';
 import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import {
     isVatGlassesActive,
-
-
 } from '~/utils/data/vatglasses';
 import type { VatglassesActivePositions, VatglassesActiveRunways } from '~/utils/data/vatglasses';
 import { filterVatsimControllers, filterVatsimPilots, hasActivePilotFilter } from '~/composables/settings/filter';
@@ -57,7 +55,6 @@ const airlines = shallowRef<RadarDataAirlinesAllList>({
     virtual: {},
     all: {},
 });
-const simaware = shallowRef<SimAwareAPIData>();
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
@@ -113,7 +110,7 @@ const data: VatsimData = {
     notam,
 };
 
-const vatsim = {
+const vatsim: UseDataStore['vatsim'] = {
     data,
     tracks: shallowRef([]),
     parsedAirports: shallowRef<AirportsList[]>([]),
@@ -132,6 +129,7 @@ const vatsim = {
     updateTimestamp: ref(''),
     updateTime: ref(0),
     localUpdateTime: ref(0),
+    shortUpdateTime: ref(0),
     selfCoordinate: ref<{ coordinate: Coordinate; heading: number; date: number } | null>(null),
     notam,
 };
@@ -172,13 +170,15 @@ export interface UseDataStore {
         updateTimestamp: Ref<string>;
         updateTime: Ref<number>;
         localUpdateTime: Ref<number>;
+        shortUpdateTime: Ref<number>;
         selfCoordinate: Ref<{
             coordinate: Coordinate;
             heading: number;
             date: number;
         } | null>;
+        notam: Ref<RadarNotam | null>;
     };
-    simaware: ShallowRef<SimAwareAPIData | undefined>;
+    simaware: (icao: string, iata?: string) => Promise<SimAwareDataFeature[]>;
     vatglasses: ShallowRef<string>;
     vatglassesActivePositions: ShallowRef<VatglassesActivePositions>;
     vatglassesActiveRunways: ShallowRef<VatglassesActiveRunways>;
@@ -212,7 +212,17 @@ const dataStore: UseDataStore = {
     versions,
     vatspy,
     vatsim,
-    simaware,
+    simaware: async (icao, iata) => {
+        const request = [icao];
+        if (iata) request.push(iata);
+
+        const icaoResult = await clientDB.keyVal.get(`simaware-${ icao }`) as SimAwareDataFeature[] ?? [];
+        const iataResult = iata ? await clientDB.keyVal.get(`simaware-${ iata }`) as SimAwareDataFeature[] ?? [] : [];
+
+        icaoResult.push(...iataResult);
+        iataResult.length = 0;
+        return icaoResult;
+    },
     vatglasses,
     vatglassesActivePositions,
     vatglassesActiveRunways,
@@ -242,6 +252,7 @@ export function useDataStore(): UseDataStore {
     return dataStore;
 }
 
+// Short data
 export function setVatsimDataStore(vatsimData: VatsimLiveDataShort) {
     const filteredControllers = filterVatsimControllers(vatsimData.locals, vatsimData.firs);
 

@@ -6,6 +6,10 @@ import { buildNATWaypoints } from '~/composables/navigraph';
 import greatCircle from '@turf/great-circle';
 import { Point } from 'ol/geom.js';
 
+defineOptions({
+    render: () => null,
+});
+
 const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const store = useStore();
 const dataStore = useDataStore();

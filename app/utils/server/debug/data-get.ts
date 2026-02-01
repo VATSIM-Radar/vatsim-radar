@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import type { Feature, FeatureCollection } from 'geojson';
 import githubRequest from '~/utils/server/github';
 import type { SimAwareData } from '~/utils/server/storage';
 import type { VatSpyData } from '~/types/data/vatspy';
@@ -120,7 +120,7 @@ export async function getSimAwareData(pr: number) {
 
 export function compileSimAware(file: ArrayBuffer) {
     const zip = new AdmZip(Buffer.from(file));
-    const geojson: FeatureCollection<MultiPolygon | Polygon> = {
+    const geojson: SimAwareData = {
         type: 'FeatureCollection',
         // @ts-expect-error Dynamic name
         name: Date.now().toString(),

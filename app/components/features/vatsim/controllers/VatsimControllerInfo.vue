@@ -1,122 +1,101 @@
 <template>
-    <ui-text-block
+    <ui-text
         class="atc"
-        :class="{ 'atc--small': small }"
-        is-button
-        :top-items="[
-            controller.callsign,
-            controller.name,
-            controller.frequency,
-            (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
-        ]"
+        type="caption"
         @click="handleClick"
     >
-        <template #top="{ item, index }">
-            <template v-if="index === 0">
-                <div
-                    class="atc__position"
-                    :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
-                >
-                    <div
-                        v-if="showFacility"
-                        class="atc__position_facility"
-                        :style="{ background: !controller.booking ? getControllerPositionColor(controller) : radarColors.darkgray800 }"
-                    >
-                        {{ controller.isATIS ? 'ATIS' : controller.facility === -2 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
-                    </div>
-                    <div class="atc__position_name">
-                        {{ item }}
-                    </div>
-                </div>
-            </template>
-            <template v-else-if="index === 1">
+        <div class="atc_content">
+            <ui-chip
+                v-if="showFacility"
+                :atc-facility="controller.isATIS ? -1 : controller.facility"
+                class="atc_facility"
+            >
+                {{ controller.isATIS ? 'ATIS' : controller.facility === -2 ? 'CTAF' : dataStore.vatsim.data.facilities.value.find(x => x.id === controller.facility)?.short }}
+            </ui-chip>
+            <ui-text
+                class="atc_callsign"
+                type="3b"
+            >
                 <ui-spoiler
                     v-if="!controller.booking"
                     type="controller"
                 >
-                    <div
-                        class="atc__controller"
-                        :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
-                    >
-                        <div class="atc__controller_name">
-                            {{ item }}
-                        </div>
-                        <ui-bubble class="atc__controller_rating">
-                            {{
-                                dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
-                            }}
-                        </ui-bubble>
-                    </div>
-
-                    <template #name>
-                        Controller
-                    </template>
+                    {{ controller.callsign }}
                 </ui-spoiler>
-            </template>
-            <template v-else-if="index === 2 && !controller.booking">
+                <template v-else>
+                    {{controller.callsign}}
+                </template>
+            </ui-text>
+            <template v-if="!controller.booking">
                 <div
-                    class="atc__frequency"
-                    @click.stop="[copy(item as string), copiedFor = controller.callsign]"
+                    class="atc_frequency"
+                    :class="{ 'atc_frequency--not-tuned-up': notTunedUp }"
+                    @click.stop="[copy(controller.frequency as string), copiedFor = controller.callsign]"
                 >
-                    <template v-if="!isCopied(controller.callsign)  && !controller.booking">
-                        {{ item }}
-                        <div
-                            v-if="!controller.isATIS && !controller.frequencies?.some(x => x === controller.frequency || x[1] === '.')"
-                            class="atc__frequency_error"
-                        >
-                            Not tuned up!
-                        </div>
-
-                        <save-icon width="12"/>
+                    <template v-if="isCopied(controller.callsign)">
+                        Copied
                     </template>
                     <template v-else>
-                        Copied!
+                        {{controller.frequency}}
                     </template>
                 </div>
-            </template>
-            <template v-else-if="index === 3 && (!showAtis || !controller.text_atis?.length) && !controller.booking">
+                <div class="__spacer"/>
                 <div
-                    v-if="!isMobile"
-                    class="atc__time"
+                    class="atc_name"
+                    :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                 >
-                    {{ getATCTime(controller) }}
+                    <ui-spoiler type="controller">
+                        {{controller.name}}
+                    </ui-spoiler>
                 </div>
-            </template>
-            <template v-else>
-                {{ item }}
-            </template>
-        </template>
-        <template
-            v-if="showAtis && controller.text_atis?.length"
-            #bottom
-        >
-            <ul class="atc__atis">
-                <li
-                    v-for="atis in getATIS(controller)"
-                    :key="atis"
-                    class="atc__atis_line"
-                    v-html="`${ atis }<br>`"
+                <div class="atc_rating">
+                    <ui-chip variant="accent">
+                        {{
+                            dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
+                        }}
+                    </ui-chip>
+                </div>
+                <ui-separator distance="0"/>
+                <ui-chip
+                    v-if="showAtis && controller.atis_code"
+                    text-type="caption-medium-alt"
+                >
+                    Info {{controller.atis_code}}
+                </ui-chip>
+                <ui-chip
+                    v-else-if="!showAtis || !controller.text_atis?.length"
+                    :time="getATCTime(controller)"
+                    time-variant="time"
                 />
-            </ul>
-            <vatsim-controller-time-online
-                v-if="controller.logon_time"
-                :controller="controller"
-            />
-            <template v-if="controller.booking">
-                Booked
-                <template v-if="store.mapSettings.bookingsLocalTimezone">
-                    {{ controller.booking?.end_local }}
-                </template>
-                <template v-else>
-                    {{ controller.booking?.end_z }}Z
+            </template>
+        </div>
+        <div class="atc_atis">
+            <template v-if="showAtis && controller.text_atis?.length">
+                <ui-text type="caption-medium-alt">
+                    <ul class="atc__atis">
+                        <li
+                            v-for="atis in getATIS(controller)"
+                            :key="atis"
+                            class="atc__atis_line"
+                            v-html="`${ atis }<br>`"
+                        />
+                    </ul>
+                </ui-text>
+                <vatsim-controller-time-online
+                    v-if="controller.logon_time"
+                    :controller="controller"
+                />
+                <template v-if="controller.booking">
+                    Booked
+                    <template v-if="store.mapSettings.bookingsLocalTimezone">
+                        {{ controller.booking?.end_local }}
+                    </template>
+                    <template v-else>
+                        {{ controller.booking?.end_z }}Z
+                    </template>
                 </template>
             </template>
-        </template>
-        <template
-            v-else-if="controller.booking"
-            #bottom
-        >
-            <div>
+            <template v-else-if="controller.booking">
                 Booked from
                 <template v-if="store.mapSettings.bookingsLocalTimezone">
                     {{ controller.booking?.start_local }} to {{ controller.booking?.end_local }}
@@ -124,9 +103,9 @@
                 <template v-else>
                     {{ controller.booking?.start_z }}Z to {{ controller.booking?.end_z }}Z
                 </template>
-            </div>
-        </template>
-    </ui-text-block>
+            </template>
+        </div>
+    </ui-text>
 </template>
 
 
@@ -134,14 +113,14 @@
 import type { PropType } from 'vue';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
 import { useMapStore } from '~/store/map';
-import UiBubble from '~/components/ui/data/UiBubble.vue';
-import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import VatsimControllerTimeOnline from '~/components/features/vatsim/controllers/VatsimControllerTimeOnline.vue';
 import UiSpoiler from '~/components/ui/text/UiSpoiler.vue';
-import SaveIcon from '~/assets/icons/kit/save.svg?component';
 import { getStringColorFromSettings } from '~/composables/settings/colors';
 import { useStore } from '~/store';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
+import UiChip from '~/components/ui/text/UiChip.vue';
+import UiSeparator from '~/components/ui/data/UiSeparator.vue';
+import UiText from '~/components/ui/text/UiText.vue';
 
 const props = defineProps({
     controller: {
@@ -178,13 +157,15 @@ const emit = defineEmits({
 
 defineSlots<{ title?(): any; additionalTitle?(): any }>();
 
-const isMobile = useIsMobile();
-
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const { copy, copyState } = useCopyText();
 const copiedFor = ref('');
 const store = useStore();
+
+const notTunedUp = computed(() => {
+    return !props.controller.isATIS && !props.controller.frequencies?.some(x => x === props.controller.frequency && x[3] === '.');
+});
 
 const handleClick = () => {
     if (!findAtcByCallsign(props.controller.callsign)) {
@@ -208,9 +189,31 @@ const isCopied = (key: string) => {
 
 <style scoped lang="scss">
 .atc {
+    cursor: pointer;
+
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+
+    padding: 6px 12px;
+    border: dashed $strokeDefault;
+    border-width: 1px 0;
+
+    transition: 0.3s;
+
+    @include hover {
+        &:hover {
+            background: $whiteAlpha4;
+        }
+    }
+
+    &:first-child, +.atc {
+        border-top: 0;
+    }
+
+    &:last-child {
+        border-bottom: 0;
+    }
 
     &--small {
         max-width: min(450px, 100%);
@@ -220,86 +223,33 @@ const isCopied = (key: string) => {
         }
     }
 
-    @at-root .atc-popup-container:not(.atc-popup-container--small) & {
-        :deep(.info-block__separator:nth-child(2)) {
-            flex: 1 0 auto;
-
-            svg {
-                display: none;
-            }
-        }
-
-        :deep(.info-block_top) {
-            flex-wrap: nowrap;
-        }
-    }
-
-    &__position {
+    &_content {
         display: flex;
         gap: 8px;
         align-items: center;
-
-        &_name {
-            color: var(--color, currentColor);
-        }
-
-        &_facility {
-            width: 40px;
-            padding: 2px 4px;
-            border-radius: 4px;
-
-            color: $lightgray0Orig;
-            text-align: center;
-        }
-    }
-
-    &__controller {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-
-        font-weight: 400;
         overflow-wrap: anywhere;
+    }
 
-        &_name {
-            color: var(--color, currentColor);
+    &_frequency {
+        cursor: pointer;
+
+        margin-top: 4px;
+        padding-bottom: 4px;
+        border-bottom: 1px dashed currentColor;
+
+        color: $blue400;
+
+        transition: 0.3s;
+
+        &--not-tuned-up {
+            color: $red500;
         }
     }
 
-    &__frequency {
-        display: flex;
-        gap: 4px;
-        align-items: center;
-        color: $primary400;
-
-        &_error {
-            font-size: 10px;
-            font-weight: normal;
-            color: $error300;
-        }
-    }
-
-    &__time {
-        padding: 2px 4px;
-        border-radius: 4px;
-        background: $darkgray950;
-    }
-
-
-    &__atis {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-
+    ul {
         margin: 0;
-        padding-left: 16px;
-
-        overflow-wrap: anywhere;
-
-        &_line:only-child {
-            margin-left: -16px;
-            list-style: none;
-        }
+        padding: 0;
+        list-style: none;
     }
 }
 </style>

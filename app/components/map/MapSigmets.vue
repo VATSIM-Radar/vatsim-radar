@@ -8,6 +8,7 @@
     >
         <popup-map-info
             class="sigmets"
+            content-full-height
             @mouseleave="openSigmet = null"
         >
             <template #title>
@@ -339,7 +340,10 @@ onBeforeUnmount(() => {
         font-size: 13px;
         overflow-wrap: anywhere;
 
-        background: $darkgray900;
+        &:not(:only-child) {
+            padding: 0;
+            background: $darkGray800;
+        }
 
         @include mobileOnly {
             max-width: 70dvw;
@@ -351,7 +355,7 @@ onBeforeUnmount(() => {
             &:not(:only-child) {
                 padding: 8px;
                 border-radius: 8px;
-                background: $darkgray850;
+                background: $darkGray600;
             }
         }
     }

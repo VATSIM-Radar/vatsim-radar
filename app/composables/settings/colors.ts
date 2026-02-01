@@ -47,7 +47,7 @@ export function rgbToHex(r: number, g: number, b: number): `#${ string }` {
 }
 
 export function getColorFromSettings(setting: UserMapSettingsColor, raw?: boolean) {
-    if (!setting.color) return '#000';
+    if (!setting?.color) return '#000';
     const rgb = getCurrentThemeRgbColor(setting.color as any) ?? setting.color.split(',').map(x => +x) as [number, number, number];
     if (rgb.length !== 3 || rgb.some(x => isNaN(x))) throw new Error(`Color ${ setting.color } contains invalid rgb`);
 

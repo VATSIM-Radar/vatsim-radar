@@ -18,6 +18,10 @@ import { layers, namedFlavor } from '@protomaps/basemaps';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { buildAttributions } from '~/composables/map';
 
+defineOptions({
+    render: () => null,
+});
+
 const store = useStore();
 
 interface Layer {
