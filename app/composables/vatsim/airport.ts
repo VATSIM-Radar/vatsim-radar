@@ -3,10 +3,12 @@ import type { MaybeRef, Ref } from 'vue';
 import type { VatsimShortenedAircraft, VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import { calculateArrivalTime, calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type {
+    MapAircraft,
     MapAircraftKeys,
 } from '~/types/map';
 import { getAircraftDistance } from '~/composables/vatsim/pilots';
 import { debounce } from '~/utils/shared';
+import type { PartialRecord } from '~/types';
 
 /**
  * @note data must be reactive object or a computed
@@ -230,3 +232,125 @@ export const getAirportCountry = (icao?: string | null) => {
 
     return useDataStore().vatspy.value?.data.countries.find(x => x.code === icao.slice(0, 2));
 };
+
+type AircraftType = MapAircraftKeys | 'training';
+
+export function getAirportCounters(counters: MapAircraft) {
+    const store = useStore();
+    const list: PartialRecord<AircraftType, VatsimShortenedPrefile[]> = {};
+
+    const departuresMode = store.mapSettings.airportsCounters?.departuresMode ?? 'ground';
+    const arrivalsMode = store.mapSettings.airportsCounters?.syncDeparturesArrivals ? departuresMode : store.mapSettings.airportsCounters?.arrivalsMode ?? 'ground';
+    const prefilesMode = store.mapSettings.airportsCounters?.horizontalCounter ?? 'prefiles';
+
+    let departures: VatsimShortenedAircraft[] = [];
+    let arrivals: VatsimShortenedAircraft[] = [];
+    let prefiles: Array<VatsimShortenedPrefile | VatsimShortenedAircraft> = [];
+    let training: VatsimShortenedAircraft[] = [];
+
+    let groundDep = counters.groundDep;
+
+    if (!store.mapSettings.airportsCounters?.disableTraining) {
+        training = counters?.groundDep?.filter(x => x.departure && x.departure === x.arrival) ?? [];
+        if (groundDep) groundDep = groundDep.filter(x => !training.some(y => y.cid === x.cid));
+    }
+
+    if (departuresMode !== 'hide') {
+        switch (departuresMode) {
+            case 'total':
+                departures = [
+                    ...groundDep ?? [],
+                    ...counters.departures ?? [],
+                ];
+                break;
+            case 'totalMoving':
+                departures = [
+                    ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
+                    ...counters.departures?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+            case 'totalLanded':
+                departures = [
+                    ...groundDep?.filter(x => x.status !== 'depGate') ?? [],
+                    ...counters.departures ?? [],
+                ];
+                break;
+            case 'airborne':
+                departures = counters.departures?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+            case 'ground':
+                departures = groundDep ?? [];
+                break;
+            case 'groundMoving':
+                departures = groundDep?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+        }
+    }
+
+    if (arrivalsMode !== 'hide') {
+        switch (arrivalsMode) {
+            case 'total':
+                arrivals = [
+                    ...counters.groundArr ?? [],
+                    ...counters.arrivals ?? [],
+                ];
+                break;
+            case 'totalMoving':
+                arrivals = [
+                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...counters.arrivals?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+            case 'totalLanded':
+                arrivals = [
+                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                    ...counters.arrivals ?? [],
+                ];
+                break;
+            case 'airborne':
+                arrivals = counters.arrivals?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+            case 'ground':
+                arrivals = counters.groundArr ?? [];
+                break;
+            case 'groundMoving':
+                arrivals = counters.groundArr?.filter(x => x.groundspeed > 0) ?? [];
+                break;
+        }
+    }
+
+    if (prefilesMode !== 'hide') {
+        switch (prefilesMode) {
+            case 'total':
+                prefiles = [
+                    ...groundDep ?? [],
+                    ...counters.departures ?? [],
+                    ...counters.groundArr ?? [],
+                    ...counters.arrivals ?? [],
+                ];
+                break;
+            case 'prefiles':
+                prefiles = counters.prefiles ?? [];
+                break;
+            case 'ground':
+                prefiles = [
+                    ...groundDep ?? [],
+                    ...counters.groundArr ?? [],
+                ];
+                break;
+            case 'groundMoving':
+                prefiles = [
+                    ...groundDep?.filter(x => x.groundspeed > 0) ?? [],
+                    ...counters.groundArr?.filter(x => x.groundspeed > 0) ?? [],
+                ];
+                break;
+        }
+    }
+
+    list.groundDep = departures;
+    list.training = training;
+    list.prefiles = prefiles;
+    list.groundArr = arrivals;
+
+    return list;
+}

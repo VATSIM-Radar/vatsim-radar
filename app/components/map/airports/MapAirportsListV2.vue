@@ -8,9 +8,6 @@ import type { MapAirportRender, MapAirportVatspy } from '~/types/map';
 import { getRenderAirportsList, getInitialAirportsList } from '~/composables/render/airports';
 import type { AirportListItem } from '~/composables/render/airports';
 import { useUpdateCallback } from '~/composables';
-import { Feature } from 'ol';
-import { Point } from 'ol/geom.js';
-import { Fill, Style, Text } from 'ol/style.js';
 import { setMapAirports } from '~/composables/render/airports/map';
 
 defineOptions({
@@ -196,9 +193,3 @@ onBeforeUnmount(() => {
     map.value?.removeLayer(gatesLayer);
 });
 </script>
-
-<style scoped lang="scss">
-.airport {
-
-}
-</style>

@@ -1,4 +1,3 @@
-import type { GeoJSONFeature } from 'ol/format/GeoJSON';
 import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vatsim';
 import type { MapAircraft, MapAircraftList, MapAirportRender, MapAirportVatspy } from '~/types/map';
 import type { VatSpyAirport, VatSpyDataLocalATC } from '~/types/data/vatspy';
@@ -6,11 +5,11 @@ import { isVatGlassesActive } from '~/utils/data/vatglasses';
 import { globalComputed } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
-import type { Feature, Map } from 'ol';
+import type { Map } from 'ol';
 import type { SimAwareDataFeature } from '~/utils/server/storage';
 import type VectorSource from 'ol/source/Vector.js';
 import { isMapFeature } from '~/utils/map/entities';
-import { wrapAndSliceX, wrapX } from 'ol/extent.js';
+import { wrapAndSliceX } from 'ol/extent.js';
 import { transformExtent } from 'ol/proj';
 
 export interface AirportTraconFeature {
@@ -93,7 +92,7 @@ export const getRenderAirportsList = async ({ airports, visibleAirports }: {
 
     const keyedPrefiles = Object.fromEntries(dataStore.vatsim.data.prefiles.value.map(x => ([x.cid, x])));
 
-    for (const { airport, visible } of airports) {
+    for (const { airport } of airports) {
         // if (!visible && !store.fullAirportsUpdate) continue;
         airportsMap[airport.icao] = {
             aircraft: {

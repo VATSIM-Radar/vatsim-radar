@@ -78,7 +78,7 @@ defineSlots<{ title?(): any; additionalTitle?(): any }>();
 .atc-popup {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 0;
 
     &-container {
         cursor: initial;

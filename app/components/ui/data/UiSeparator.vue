@@ -81,6 +81,10 @@ const slots = useSlots();
         margin: 0 v-bind(distance);
         padding: 0 v-bind(distance);
 
+        &:last-child {
+            display: none;
+        }
+
         &.separator--horizontal {
             margin: v-bind(distance) 0;
             padding: v-bind(distance) 0;

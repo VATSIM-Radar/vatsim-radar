@@ -231,11 +231,11 @@ const hoveredController = ref<boolean>(false);
 const isMobileOrTablet = useIsMobileOrTablet();
 
 const facilityScroll = useScrollExists(computed(() => {
-    return atcPopup.value?.$el.querySelector('.controllers-popup_list');
+    return atcPopup.value?.$el.querySelector('.atc-popup_list');
 }));
 
 const approachScroll = useScrollExists(computed(() => {
-    return approachPopup.value?.$el.querySelector('.controllers-popup_list');
+    return approachPopup.value?.$el.querySelector('.atc-popup_list');
 }));
 
 const hoveredFacilities = computed(() => {

@@ -274,9 +274,13 @@ export const customDefu = createDefu((obj, key, value) => {
         return true;
     }
 
-    if (value === null) {
-        // @ts-expect-error Dunno why it says that
-        obj[key] = null;
+    if (value === null || value === undefined) {
+        obj[key] = value;
+        return true;
+    }
+
+    if (typeof value === 'object') {
+        Object.assign(obj[key], value);
         return true;
     }
 });

@@ -25,24 +25,24 @@
                         />
                     </div>
                     <reset-icon
-                        v-if="defaultColor && ((defaultColor.color !== model.color) || (!defaultColor.transparency ? (model.transparency && model.transparency !== 1) : model.transparency !== defaultColor.transparency))"
-                        @click.stop="model = { transparency: 1, ...defaultColor }"
+                        v-if="modelValue"
+                        @click.stop="emit('update:modelValue', null)"
                     />
                     <ui-select
                         class="color-picker__transparency"
                         :class="{ 'color-picker__hidden': colorOnly }"
                         :items="transparencyOptions"
                         max-dropdown-height="150px"
-                        :model-value="model.transparency ?? 1"
+                        :model-value="modelValue?.transparency ?? defaultColor?.transparency ?? 1"
                         placeholder="Transparency"
                         width="150px"
                         @click.stop="tooltipOpened = false"
-                        @update:modelValue="model = { ...model, transparency: +($event as string) }"
+                        @update:modelValue="emit('update:modelValue', { ...modelValue, transparency: +($event as string) })"
                     />
                     <div
                         class="color-picker__preview"
                         :class="{ 'color-picker__hidden': transparencyOnly }"
-                        :style="{ '--color': model.color && getColorFromSettings(model as UserMapSettingsColor) }"
+                        :style="{ '--color': modelValue?.color ? getColorFromSettings(modelValue as UserMapSettingsColor) : defaultColor?.color ? getColorFromSettings(defaultColor as UserMapSettingsColor) : undefined }"
                     />
                 </div>
             </template>
@@ -51,13 +51,13 @@
                 <ui-input-text
                     :model-value="getHexColor ?? ''"
                     placeholder="Custom #HEX"
-                    @change="hexColorRegex.test(($event.target as HTMLInputElement).value) && (model = { ...model, color: hexToRgb(($event.target as HTMLInputElement).value) })"
+                    @change="hexColorRegex.test(($event.target as HTMLInputElement).value) && emit('update:modelValue', { ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
                 />
                 <input
                     class="color-picker_input_color"
                     type="color"
                     :value="getHexColor ? shortHexToLong(getHexColor) : '#000000'"
-                    @change="model = { ...model, color: hexToRgb(($event.target as HTMLInputElement).value) }"
+                    @change="emit('update:modelValue', { ...modelValue, color: hexToRgb(($event.target as HTMLInputElement).value) })"
                 >
             </div>
 
@@ -70,9 +70,9 @@
                     v-for="(hex, color) in colorsList"
                     :key="color"
                     class="color-picker_list_item"
-                    :class="[{ 'color-picker_list_item--active': color === model.color }, `color-picker_list_item--color-${ color }`]"
+                    :class="[{ 'color-picker_list_item--active': color === modelValue?.color }, `color-picker_list_item--color-${ color }`]"
                     :style="{ '--color': hex }"
-                    @click="model = { ...model, color }"
+                    @click="emit('update:modelValue', { ...modelValue, color })"
                 />
             </div>
         </ui-tooltip>
@@ -89,7 +89,10 @@ import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/settings
 import { hexColorRegex } from '~/utils/shared';
 import ResetIcon from '~/assets/icons/kit/reset.svg?component';
 
-defineProps({
+const props = defineProps({
+    modelValue: {
+        type: Object as PropType<Partial<UserMapSettingsColor> | null | undefined>,
+    },
     defaultColor: {
         type: Object as PropType<Partial<UserMapSettingsColor> | null>,
         default: null,
@@ -104,15 +107,19 @@ defineProps({
     },
 });
 
+const emit = defineEmits({
+    'update:modelValue'(data: Partial<UserMapSettingsColor> | null) {
+        return true;
+    },
+});
+
 defineSlots<{ default: () => any }>();
 
-const model = defineModel({ type: Object as PropType<Partial<UserMapSettingsColor>>, default: () => ({} as Partial<UserMapSettingsColor>) });
-
-const themeColor = computed(() => getCurrentThemeHexColor(model.value.color as any));
+const themeColor = computed(() => props.modelValue ? getCurrentThemeHexColor(props.modelValue.color as any) : props.defaultColor);
 
 const getColor = computed(() => {
     if (themeColor.value) return themeColor.value as string;
-    return model.value.color ?? null;
+    return props.modelValue?.color ?? null;
 });
 
 const getHexColor = computed(() => {

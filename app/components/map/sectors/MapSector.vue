@@ -90,7 +90,7 @@ defineSlots<{ default: () => any }>();
 const controllerInfo = ref<{ $el: HTMLDivElement } | null>(null);
 
 const hasScroll = useScrollExists(computed(() => {
-    return controllerInfo.value?.$el.querySelector('.controllers-popup_list');
+    return controllerInfo.value?.$el.querySelector('.atc-popup_list');
 }));
 
 const mapStore = useMapStore();

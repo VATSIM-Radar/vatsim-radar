@@ -39,34 +39,39 @@ export const useRatingsIds = () => {
     };
 };
 
-export function getControllerPositionColor(controller: VatsimShortenedController) {
+export function getFacilityPositionColor(facility: number) {
     const ids = useFacilitiesIds();
 
-    if (controller.isATIS || controller.facility === ids.ATIS) {
-        return radarColors.warning500;
+    if (facility === ids.ATIS) {
+        return radarColors.yellow600;
     }
 
-    if (controller.facility === ids.DEL) {
-        return radarColors.primary700;
+    if (facility === ids.DEL) {
+        return radarColors.blue400;
     }
 
-    if (controller.facility === ids.TWR) {
-        return radarColors.error700;
+    if (facility === ids.TWR) {
+        return radarColors.red500;
     }
 
-    if (controller.facility === ids.GND) {
-        return radarColors.success500;
+    if (facility === ids.GND) {
+        return radarColors.green600;
     }
 
-    if (controller.facility === ids.APP) {
-        return radarColors.error300;
+    if (facility === ids.APP) {
+        return radarColors.citrus600;
     }
 
-    if (controller.facility === ids.CTR) {
-        return radarColors.primary300;
+    if (facility === ids.CTR || facility === ids.FSS) {
+        return radarColors.teal500;
     }
 
-    return radarColors.darkgray800;
+    return radarColors.darkGray200;
+}
+
+export function getControllerPositionColor(controller: VatsimShortenedController) {
+    if (controller.isATIS) return getFacilityPositionColor(-1);
+    return getFacilityPositionColor(controller.facility);
 }
 
 export function sortControllersByPosition<T extends { facility: number; isATIS?: boolean; [key: string]: any }>(facilities: T[]): T[] {
@@ -272,7 +277,7 @@ function addATISLinks(lines: string[]) {
 }
 
 export function getATIS(controller: VatsimShortenedController, parseLinks = true) {
-    let atis = controller.text_atis?.map(x => parseEncoding(x.replace(/<\/?[^>]+>/g, ''), controller.callsign)) ?? null;
+    let atis = controller.text_atis?.filter(x => x.trim()).map(x => parseEncoding(x.replace(/<\/?[^>]+>/g, ''), controller.callsign)) ?? null;
     if (atis && parseLinks) atis = addATISLinks(atis);
 
     if (!controller.isATIS) return atis;

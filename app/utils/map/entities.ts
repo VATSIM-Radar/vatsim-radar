@@ -6,6 +6,7 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { MapAircraftKeys } from '~/types/map';
 
 export interface FeatureAirportProperties {
     type: 'airport';
@@ -15,16 +16,16 @@ export interface FeatureAirportProperties {
     color: string;
     lat: number;
     lon: number;
+    atc: VatsimShortenedController[];
     localsLength: number;
 
     id: `airport-${ string }`;
 }
 
-export interface FeatureAirportApproachProperties {
-    type: 'airport-circle' | 'airport-tracon';
+interface FeatureAirportApproachPropertiesDefault {
     icao: string;
-    iata: string;
-    id: `airport-${ string }-${ string }`;
+    iata?: string;
+    featureId?: string;
     traconId?: string;
     atc: VatsimShortenedController[];
     isTWR: boolean;
@@ -32,17 +33,43 @@ export interface FeatureAirportApproachProperties {
     isBooked: boolean;
 }
 
-export interface FeatureAirportApproachTextProperties {
-    type: 'airport-circle-label' | 'airport-tracon-label';
-    icao: string;
-    iata: string;
-    name: string;
+export interface FeatureAirportApproachProperties extends FeatureAirportApproachPropertiesDefault {
+    type: 'airport-circle' | 'airport-tracon';
     id: `airport-${ string }-${ string }`;
-    traconId?: string;
+}
+
+export interface FeatureAirportApproachTextProperties extends FeatureAirportApproachPropertiesDefault {
+    type: 'airport-circle-label' | 'airport-tracon-label';
+    name?: string;
+    id: `airport-${ string }-${ string }`;
+}
+
+export interface FeatureAirportFacility {
+    facility: number;
+    booked: boolean;
     atc: VatsimShortenedController[];
-    isTWR: boolean;
-    isDuplicated: boolean;
-    isBooked: boolean;
+}
+
+export interface FeatureAirportAirportAtcProperties {
+    type: 'airport-atc';
+    icao: string;
+    iata?: string;
+    index: number;
+    totalCount: number;
+    id: `airport-${ string }-${ number }`;
+    facility: FeatureAirportFacility;
+}
+
+export interface FeatureAirportAirportCounterProperties {
+    type: 'airport-counter';
+    icao: string;
+    iata?: string;
+    index: number;
+    totalCount: number;
+    counter: number;
+    counterType: MapAircraftKeys | 'training';
+    localsLength: number;
+    id: `airport-${ string }-${ MapAircraftKeys | 'training' }`;
 }
 
 export interface FeatureAirportGateProperties {
@@ -55,6 +82,8 @@ export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
 export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
+export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
+export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -63,6 +92,8 @@ export type MapFeatures =
     | FeatureAirportApproach
     | FeatureAirportApproachLabel
     | FeatureAirportGate
+    | FeatureAirportAtc
+    | FeatureAirportCounter
     | FeatureSimAware;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
@@ -84,7 +115,7 @@ export function createMapFeature<T extends MapFeaturesType>(
     settings: ObjectWithGeometry<MapFeatureGeometry<T>, MapFeatureProperties<T>>,
 ): FeatureForType<T> {
     const feature = new Feature(settings);
-    if ('id' in settings) feature.setId(`${ type }-${ settings.id }`);
+    if ('id' in settings) feature.setId(settings.id);
     return feature as FeatureForType<T>;
 }
 
@@ -93,7 +124,7 @@ export function getMapFeature<T extends MapFeaturesType>(
     source: VectorSource,
     id: MapFeatureProperties<T>['id'],
 ): FeatureForType<T> | null {
-    return source.getFeatureById(`${ type }-${ id }`) as FeatureForType<T> | null;
+    return source.getFeatureById(id) as FeatureForType<T> | null;
 }
 
 export function isMapFeature<T extends MapFeaturesType>(type: T, properties: Record<string, any>): properties is MapFeatureProperties<T> {

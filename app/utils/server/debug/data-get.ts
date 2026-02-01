@@ -1,5 +1,5 @@
 import AdmZip from 'adm-zip';
-import type { Feature, FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import type { Feature, FeatureCollection } from 'geojson';
 import githubRequest from '~/utils/server/github';
 import type { SimAwareData } from '~/utils/server/storage';
 import type { VatSpyData } from '~/types/data/vatspy';

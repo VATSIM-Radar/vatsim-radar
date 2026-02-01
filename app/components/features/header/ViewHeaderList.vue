@@ -114,7 +114,7 @@
                 <ui-input-color
                     color-only
                     :model-value="{ color: list.color }"
-                    @update:modelValue="list.id === -1 ? list.color = $event.color as string : editUserList({ id: list.id, color: $event.color })"
+                    @update:modelValue="list.id === -1 ? list.color = $event!.color as string : editUserList({ id: list.id, color: $event!.color })"
                 >
                     Color
                 </ui-input-color>

@@ -2,13 +2,24 @@
 
 # [2.0.0-alpha.2]
 
+This is initial "Selects v2" build. It has only been done for airports layers and nothing else. ALL feedback is welcome. Counters hover is INOP.
+
+## Improvements and changes
+
+- Map is now infinite (QA: FOR AIRPORTS ONLY)
+- Settings color reset now respects all further color changes
+- Airports are now "decluttered" when zoomed out
+
 ## Redesign
 
 - Map on-click info popup redesign
+- ATC icons redesign
+- Controller info redesign
 
 ## Performance Improvements
 
 - Improved performance of airports/ATC data update
+- Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
 
 ## Developer changes
