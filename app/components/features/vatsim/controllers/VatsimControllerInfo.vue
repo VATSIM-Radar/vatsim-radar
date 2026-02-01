@@ -2,7 +2,7 @@
     <ui-text
         class="atc"
         type="caption"
-        @click="handleClick"
+        @click.stop="handleClick"
     >
         <div class="atc_content">
             <ui-chip
@@ -30,7 +30,7 @@
                 <div
                     class="atc_frequency"
                     :class="{ 'atc_frequency--not-tuned-up': notTunedUp }"
-                    @click.stop="[copy(controller.frequency as string), copiedFor = controller.callsign]"
+                    @click.prevent.stop="[copy(controller.frequency as string), copiedFor = controller.callsign]"
                 >
                     <template v-if="isCopied(controller.callsign)">
                         Copied
@@ -69,9 +69,12 @@
                 />
             </template>
         </div>
-        <div class="atc_atis">
+        <div
+            v-if="(showAtis && controller.text_atis?.length) || controller.booking"
+            class="atc_atis"
+        >
             <template v-if="showAtis && controller.text_atis?.length">
-                <ui-text type="caption-medium-alt">
+                <ui-text type="3b-medium-alt">
                     <ul class="atc__atis">
                         <li
                             v-for="atis in getATIS(controller)"
@@ -225,8 +228,10 @@ const isCopied = (key: string) => {
 
     &_content {
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         align-items: center;
+
         overflow-wrap: anywhere;
     }
 
@@ -247,9 +252,26 @@ const isCopied = (key: string) => {
     }
 
     ul {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
         margin: 0;
         padding: 0;
+
+        overflow-wrap: anywhere;
         list-style: none;
+    }
+
+    &__atis {
+        line-height: normal;;
+        text-transform: none;
+    }
+
+    &_atis {
+        .atc-time {
+            margin-top: 10px;
+        }
     }
 }
 </style>

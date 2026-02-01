@@ -206,6 +206,10 @@ watch(map, val => {
         condition: pointerMove,
         hitTolerance: 4,
         style: null,
+        filter: (_, layer) => {
+            // TODO
+            return layer.getProperties().type.startsWith('airports');
+        },
         /* toggleCondition: always,
       multi: true,
 

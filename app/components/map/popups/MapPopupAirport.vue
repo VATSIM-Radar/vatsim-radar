@@ -10,7 +10,7 @@
                 payload.feature.getGeometry()?.getCoordinates()[1] ?? payload.coordinate[1],
             ],
             offset: [0, getOffsetY],
-            stopEvent: scrollable,
+            stopEvent: true,
             positioning: type === 'airport' ? 'bottom-center' : 'top-center',
         }"
         :z-index="20"
@@ -57,7 +57,6 @@ import {
 import type { FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc } from '~/utils/map/entities';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
-import { useScrollExists } from '~/composables';
 
 const props = defineProps({
     payload: {
@@ -91,9 +90,9 @@ const getOffsetY = computed(() => {
 
 const overlay = ref<{ $el: HTMLDivElement } | null>(null);
 
-const scrollable = useScrollExists(computed(() => {
+/* const scrollable = useScrollExists(computed(() => {
     return overlay.value?.$el.querySelector('.atc-popup_list');
-}));
+}));*/
 
 const getATC = computed(() => {
     if (isMapFeature('airport-atc', properties.value)) return properties.value.facility.atc;

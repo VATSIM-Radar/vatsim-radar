@@ -33,6 +33,7 @@
 
             <popup-map-info
                 class="atc-popup"
+                content-padding="0"
                 @mouseleave="vatglassesPopupIsShown = false"
             >
                 <template #title>

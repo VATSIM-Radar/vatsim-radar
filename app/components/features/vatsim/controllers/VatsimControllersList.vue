@@ -6,7 +6,10 @@
             'atc-popup-container--small': small,
         }"
     >
-        <popup-map-info class="atc-popup">
+        <popup-map-info
+            class="atc-popup"
+            content-padding="0"
+        >
             <template
                 v-if="$slots.title"
                 #title
@@ -106,8 +109,6 @@ defineSlots<{ title?(): any; additionalTitle?(): any }>();
         overflow: auto;
         display: flex;
         flex-direction: column;
-        gap: 8px;
-
         max-height: v-bind(maxHeight);
     }
 }
