@@ -12,6 +12,7 @@
 - Dots are no longer shown on 100+ airports in sight
 - Overlays are no longer removed from map on moving on mobile devices
 - Fixed TRACONs showing incorrect label name
+- You can once again hover on counters. Yay!
 
 # [2.0.0-alpha.2]
 

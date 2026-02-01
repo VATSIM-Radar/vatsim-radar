@@ -137,7 +137,6 @@ const model = defineModel({ type: Boolean as PropType<boolean | null>, default: 
     &, &_content {
         display: flex;
         flex-direction: column;
-        gap: 8px;
     }
 
     &_content {

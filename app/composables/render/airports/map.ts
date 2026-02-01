@@ -371,6 +371,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     existingCounter.setProperties({
                         ...existingCounter.getProperties(),
                         counter: value.length,
+                        aircraft: value,
                         totalCount,
                         index,
                         localsLength,
@@ -388,6 +389,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                         counter: value.length,
                         localsLength,
                         counterType: key,
+                        aircraft: value,
                     });
                     source.addFeature(feature);
                 }
