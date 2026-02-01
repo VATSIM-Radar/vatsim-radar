@@ -6,7 +6,7 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
-import type { MapAircraft, MapAircraftKeys } from '~/types/map';
+import type { MapAircraftKeys } from '~/types/map';
 
 export interface FeatureAirportProperties {
     type: 'airport';
