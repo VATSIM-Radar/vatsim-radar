@@ -78,7 +78,7 @@
         <template
             v-for="i in ['center', 'atis', 'app', 'ground', 'ctaf']"
             :key="i"
-            #[`atc-${i}`]="{ section }"
+            #[`controllers-${i}`]="{ section }"
         >
             <div class="pilot__content __info-sections">
                 <!-- @vue-ignore -->

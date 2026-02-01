@@ -1,5 +1,19 @@
 # Changelog
 
+# [2.0.0-alpha.2.1]
+
+## Alpha changes 
+
+- It's now much easier to hover for airport controllers popup
+- Controller and frequency are now clickable in airport controllers popup
+- Fixed controller card design & layout
+- "Hide info when only ATIS" functionaility has been restored
+- Slightly changed counters weight
+- Dots are no longer shown on 100+ airports in sight
+- Overlays are no longer removed from map on moving on mobile devices
+- Fixed TRACONs showing incorrect label name
+- You can once again hover on counters. Yay!
+
 # [2.0.0-alpha.2]
 
 This is initial "Selects v2" build. It has only been done for airports layers and nothing else. ALL feedback is welcome. Counters hover is INOP.
@@ -21,8 +35,6 @@ This is initial "Selects v2" build. It has only been done for airports layers an
 - Improved performance of airports/ATC data update
 - Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
-
-## Developer changes
 
 # [2.0.0-alpha.1.3]
 

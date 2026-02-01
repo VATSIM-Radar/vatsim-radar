@@ -16,7 +16,7 @@
             v-if="openedOverlay"
             :payload="openedOverlay?.payload"
             @close="openedOverlay = null"
-            @id="openedOverlay.id = $event"
+            @id="openedOverlay && (openedOverlay.id = $event)"
         />
     </div>
 </template>
@@ -34,6 +34,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import { isMapFeature } from '~/utils/map/entities';
 import type { MapFeatures, MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
+import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
@@ -65,6 +66,7 @@ const interactableElements = {
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
+        overlayComponent: MapPopupAirportCounter,
     },
 } satisfies Record<string, Overlay>;
 
@@ -78,7 +80,7 @@ watch(() => mapStore.openOverlayId, id => {
 
 function openOverlay(key: OverlayKey, payload: RadarEventPayload<any>) {
     const element = interactableElements[key];
-    if (openedOverlay.value?.key === key || !('overlayComponent' in element)) return;
+    if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
 
     openedOverlay.value = {
         key,
@@ -122,6 +124,7 @@ const definitions = {
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
+        hover: payload => openOverlay('airportCounter', payload),
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
@@ -206,6 +209,10 @@ watch(map, val => {
         condition: pointerMove,
         hitTolerance: 4,
         style: null,
+        filter: (_, layer) => {
+            // TODO
+            return layer.getProperties().type.startsWith('airports');
+        },
         /* toggleCondition: always,
       multi: true,
 

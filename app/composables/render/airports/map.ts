@@ -75,14 +75,15 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
         styleFillCache = {};
         styleStrokeCache = {};
         layer.setStyle(feature => {
-            const properties = feature.getProperties();
+            const showAirportDetails = mapStore.renderedAirports.length < (store.mapSettings.airportCounterLimit ?? 100);
 
+            const properties = feature.getProperties();
             if (isMapFeature('airport', properties)) {
                 return [
                     new Style({
                         text: new Text({
                             font: getTextFont('3b-medium'),
-                            text: `${ properties.icao }${ !properties.localsLength ? '\n•' : '' }`,
+                            text: `${ properties.icao }${ !properties.localsLength && showAirportDetails ? '\n•' : '' }`,
                             offsetY: -12,
                             textBaseline: 'top',
                             fill: getCachedFill(properties.color),
@@ -126,8 +127,8 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     text: new Text({
                         font: getTextFont('caption-medium'),
                         text: properties.isTWR
-                            ? (!feature.getProperties()?._traconId || feature.getProperties()?._traconId === properties.icao) ? 'TWR' : feature.getProperties()?._traconId
-                            : feature.getProperties()?._traconId || properties.icao,
+                            ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
+                            : feature.getProperties()?.traconId || properties.icao,
                         placement: 'point',
                         overflow: true,
                         fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex)),
@@ -177,7 +178,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     return styleCache[styleCacheKey];
                 }
 
-                if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && store.mapSettings.airportsCounters?.showCounters !== false && mapStore.renderedAirports.length < (store.mapSettings.airportCounterLimit ?? 100)) {
+                if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && store.mapSettings.airportsCounters?.showCounters !== false && showAirportDetails) {
                     const height = 12;
                     let offsetX = 30;
                     if (properties.localsLength > 3) offsetX = 40;
@@ -203,11 +204,11 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     if (!styleCache[cacheKey]) {
                         styleCache[cacheKey] = new Style({
                             text: new Text({
-                                font: getTextFont('caption-medium'),
+                                font: getTextFont('caption-light'),
                                 text: '1',
-                                offsetX: offsetX + 10,
-                                offsetY: offsetY - 12,
-                                padding: [2, 12, 0, 12],
+                                offsetX: offsetX + 11,
+                                offsetY: offsetY - 11,
+                                padding: [2, 1, 0, 10],
                                 fill: getCachedFill('transparent'),
                                 // backgroundFill: getCachedFill('red'),
                                 declutterMode: 'obstacle',
@@ -289,6 +290,17 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
         airport.localAtc.forEach(local => {
             const facilityId = local.isATIS ? -1 : local.facility;
             let facility = facilitiesMap.get(facilityId);
+            if (local.isATIS && store.mapSettings.hideATISOnly && !airport.localAtc.some(x => !x.isATIS)) {
+                let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.airport.icao }--1`);
+
+                if (existingFacility) {
+                    source.removeFeature(existingFacility);
+                    existingFacility.dispose();
+                    existingFacility = null;
+                }
+
+                return;
+            }
 
             if (!facility) {
                 const booking = airport.bookings.find(x => facilityId === (x.atc.isATIS ? -1 : x.atc.facility));
@@ -359,6 +371,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     existingCounter.setProperties({
                         ...existingCounter.getProperties(),
                         counter: value.length,
+                        aircraft: value,
                         totalCount,
                         index,
                         localsLength,
@@ -376,6 +389,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                         counter: value.length,
                         localsLength,
                         counterType: key,
+                        aircraft: value,
                     });
                     source.addFeature(feature);
                 }

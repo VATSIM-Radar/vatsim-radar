@@ -40,3 +40,12 @@ $variants: Black, ExtraBold, Bold, SemiBold, Medium, Regular, Light, ExtraLight,
     font-display: swap;
     src: url("@/assets/fonts/jura/Jura-SemiBold.ttf");
 }
+
+@font-face {
+    font-family: Jura;
+    font-weight: 500;
+    font-style: normal;
+
+    font-display: swap;
+    src: url("@/assets/fonts/jura/Jura-Bold.ttf");
+}

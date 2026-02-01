@@ -5,7 +5,7 @@ import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
-import type { VatsimShortenedController } from '~/types/data/vatsim';
+import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys } from '~/types/map';
 
 export interface FeatureAirportProperties {
@@ -67,6 +67,7 @@ export interface FeatureAirportAirportCounterProperties {
     index: number;
     totalCount: number;
     counter: number;
+    aircraft: VatsimShortenedPrefile[];
     counterType: MapAircraftKeys | 'training';
     localsLength: number;
     id: `airport-${ string }-${ MapAircraftKeys | 'training' }`;

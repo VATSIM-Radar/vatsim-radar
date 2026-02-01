@@ -152,6 +152,14 @@ const getTag = computed(() => {
         font-weight: 600;
     }
 
+    &--type-3b-medium-alt {
+        font-family: $juraFont;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
     &--type-3b-alt {
         font-family: $juraFont;
         font-size: 12px;
@@ -181,7 +189,7 @@ const getTag = computed(() => {
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.02em;
+        // letter-spacing: 0.02em;
     }
 }
 </style>

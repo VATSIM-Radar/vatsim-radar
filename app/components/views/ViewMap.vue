@@ -904,8 +904,6 @@ await setupDataFetch({
 
         let projectionExtent = view.getProjection().getExtent().slice();
 
-        console.log(projectionExtent);
-
         projectionExtent[0] = projectionExtent[0] * 10000;
         projectionExtent[1] *= 1.5;
         projectionExtent[2] = projectionExtent[2] * 10000;

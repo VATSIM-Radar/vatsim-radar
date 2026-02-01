@@ -173,9 +173,9 @@ export interface EnroutePath {
     setBy: DataStoreNavigraphProceduresAirport['setBy'];
 }
 
-export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, { serializer: StorageSerializers.object });
+if (typeof window !== 'undefined' && localStorage.getItem('enroute-path') === '[object Object]') localStorage.removeItem('enroute-path');
 
-if (typeof window !== 'undefined' && localStorage.getItem('enroute-path') === '[object Object]') enroutePath.value = null;
+export const enroutePath = useStorageLocal<Record<string, EnroutePath> | null>('enroute-path', null, undefined, { serializer: StorageSerializers.object });
 
 export const enrouteAircraftPath = useStorageLocal<Record<string, {
     departure: EnroutePath;
