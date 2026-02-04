@@ -13143,9 +13143,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol@npm:10.7.1-dev.1769880357980":
-  version: 10.7.1-dev.1769880357980
-  resolution: "ol@npm:10.7.1-dev.1769880357980"
+"ol@npm:10.7.1-pr.17308.1":
+  version: 10.7.1-pr.17308.1
+  resolution: "ol@npm:10.7.1-pr.17308.1"
   dependencies:
     "@types/rbush": "npm:4.0.0"
     earcut: "npm:^3.0.0"
@@ -13153,7 +13153,7 @@ __metadata:
     pbf: "npm:4.0.1"
     rbush: "npm:^4.0.0"
     zarrita: "npm:^0.6.0"
-  checksum: 10c0/2d11f189b132db3106b2b75bb4c219254fb8d6cd28cd62cdf1536ca25d125738a90898cdc1577a8bc838622d204021634dadabf65f139fa5cc04d2c46f674bee
+  checksum: 10c0/10352c64a0dcb50f321f0281a567c890e7fb9602d29f4eb753f4671bf88203c1871b9b32f09d5739ef1ec9254feca7c90f4a5a5b82c8943c5ca59f442ceb9205
   languageName: node
   linkType: hard
 
@@ -16383,9 +16383,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.1.0":
-  version: 17.1.0
-  resolution: "stylelint@npm:17.1.0"
+"stylelint@npm:^17.1.1":
+  version: 17.1.1
+  resolution: "stylelint@npm:17.1.1"
   dependencies:
     "@csstools/css-parser-algorithms": "npm:^4.0.0"
     "@csstools/css-syntax-patches-for-csstree": "npm:^1.0.25"
@@ -16427,7 +16427,7 @@ __metadata:
     write-file-atomic: "npm:^7.0.0"
   bin:
     stylelint: bin/stylelint.mjs
-  checksum: 10c0/c7f468122d1ccdebba6012963faa27320dcd48a9eeac389afed94a4adb4c9fce1d447eee996194523cb23ca81ff3fcc2a54ae94bcd3486dec205ede097917e25
+  checksum: 10c0/641d02449cfd8c3abd356cb38a9c7499a934015d7905fb78ef5af454f742527fb30c14e4084bebfb0b03ec0107659cc59020b0aebace2342604dade6b9a0a510
   languageName: node
   linkType: hard
 
@@ -16941,16 +16941,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:2.0.8":
-  version: 2.0.8
-  resolution: "ua-parser-js@npm:2.0.8"
+"ua-parser-js@npm:2.0.9":
+  version: 2.0.9
+  resolution: "ua-parser-js@npm:2.0.9"
   dependencies:
     detect-europe-js: "npm:^0.1.2"
     is-standalone-pwa: "npm:^0.1.1"
     ua-is-frozen: "npm:^0.1.2"
   bin:
     ua-parser-js: script/cli.js
-  checksum: 10c0/8f19abe945043c60e49be261c307e5ed657f4d32aca4d705fc51f933d427fcefa07d7641d484c8ed4238d6738f7322af43a2b26183761569ac6c8fb5ffc27cca
+  checksum: 10c0/6287fb9e0d332b139bd039cbd606f909bdc3337681b7e6ec2ce9c427d1f39a040a65e03620b82bd3bc4a7d7681be70dd2fa75125fd8c72c01bd9cedb729e5683
   languageName: node
   linkType: hard
 
@@ -17630,7 +17630,7 @@ __metadata:
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.3.0"
-    ol: "npm:10.7.1-dev.1769880357980"
+    ol: "npm:10.7.1-pr.17308.1"
     ol-ext: "npm:^4.0.37"
     ol-mapbox-style: "npm:^13.2.0"
     pinia: "npm:^3.0.4"
@@ -17642,7 +17642,7 @@ __metadata:
     sharp: "npm:^0.34.5"
     sqlite3: "npm:^5.1.7"
     srvx: "npm:^0.10.1"
-    stylelint: "npm:^17.1.0"
+    stylelint: "npm:^17.1.1"
     stylelint-config-clean-order: "npm:^8.0.0"
     stylelint-config-recommended-scss: "npm:^17.0.0"
     stylelint-config-recommended-vue: "npm:^1.6.1"
@@ -17651,7 +17651,7 @@ __metadata:
     svgo: "npm:^4.0.0"
     tsx: "npm:4.21.0"
     typescript: "npm:5.9.3"
-    ua-parser-js: "npm:2.0.8"
+    ua-parser-js: "npm:2.0.9"
     vite-plugin-eslint2: "npm:^5.0.4"
     vite-plugin-pwa: "npm:^1.2.0"
     vite-svg-loader: "npm:^5.1.0"
