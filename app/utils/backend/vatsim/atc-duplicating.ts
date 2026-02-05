@@ -210,4 +210,21 @@ export const duplicatingSettings = [
             'FLO TRACON': 'FLO_APP',
         },
     },
+    /**
+     * @description ZKC Center and TRACONs
+     * @author 1190916
+     */
+    {
+        regex: /^(KC)(_\w{0,3})?_(CTR)$/,
+        mapping: {
+            T75: 'T75_APP',
+            TUL: 'TUL_APP',
+            ICT: 'ICT_APP',
+            SGF: 'SGF_S_APP',
+            MZU: 'MZU_APP',
+            MCI: 'KC_APP',
+            END: 'END_APP',
+            SZL: 'SZL_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];

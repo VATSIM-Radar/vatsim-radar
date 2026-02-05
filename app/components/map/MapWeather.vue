@@ -24,10 +24,18 @@ const weather = computed(() => {
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let tileLayer: TileLayer<XYZ> | undefined;
-const timestamp = ref(0);
+const rainviewerHost = ref<string>('');
+const rainviewerPath = ref<string>('');
 
 async function loadTimestamp() {
-    timestamp.value = (await $fetch<number[]>('https://tilecache.rainviewer.com/api/maps.json'))[0];
+    const result = (await $fetch<{
+        host: string;
+        radar: {
+            past: { time: number; path: string }[];
+        };
+    }>('https://api.rainviewer.com/public/weather-maps.json'));
+    rainviewerHost.value = result.host;
+    rainviewerPath.value = result.radar.past[result.radar.past.length - 1]?.path;
 }
 
 interface Layer {
@@ -41,7 +49,7 @@ function getLayer(id: MapWeatherLayer): Layer {
     if (id === 'rainViewer') {
         return {
             attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
-            tileUrlFunction: coord => `https://tilecache.rainviewer.com/v2/radar/${ timestamp.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/3/1_1.png`,
+            tileUrlFunction: coord => `${ rainviewerHost.value }${ rainviewerPath.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/2/1_1.png`,
             maxZoom: 10,
         };
     }
