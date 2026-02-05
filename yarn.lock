@@ -9669,7 +9669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.3.3":
+"fast-xml-parser@npm:^5.3.4":
   version: 5.3.4
   resolution: "fast-xml-parser@npm:5.3.4"
   dependencies:
@@ -17635,7 +17635,7 @@ __metadata:
     dexie: "npm:^4.3.0"
     discord.js: "npm:^14.25.1"
     eslint: "npm:^9.39.2"
-    fast-xml-parser: "npm:^5.3.3"
+    fast-xml-parser: "npm:^5.3.4"
     ioredis: "npm:^5.9.2"
     jsonwebtoken: "npm:^9.0.3"
     jwks-rsa: "npm:^3.2.2"
