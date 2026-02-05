@@ -340,13 +340,17 @@ const xmlParser = new XMLParser({
     attributeNamePrefix: '',
 });
 
-export async function updateAustraliaData() {
-    const sectors = await $fetch('https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml', {
+export async function updateSectorsData() {
+    const auSectors = $fetch('https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml', {
+        responseType: 'text',
+    });
+    const nzSectors = $fetch('https://raw.githubusercontent.com/vatSys/new-zealand-dataset/refs/heads/master/Sectors.xml', {
         responseType: 'text',
     });
 
-    const json = xmlParser.parse(sectors);
-    radarStorage.vatsim.australia = json.Sectors.Sector.map((sector: Record<string, any>) => ({
+    const au = xmlParser.parse(await auSectors);
+    const nz = xmlParser.parse(await nzSectors);
+    radarStorage.vatsim.sectorsDataset = [...au.Sectors.Sector, ...nz.Sectors.Sector].map((sector: Record<string, any>) => ({
         fullName: sector.FullName,
         name: sector.Name,
         callsign: sector.Callsign,

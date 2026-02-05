@@ -2,9 +2,9 @@
 
 Following rules only apply to specific regions / FIRs / ARTCC and allow for ATC duplicating when certain rules are followed.
 
-## Australia
+## Australia/NZ
 
-- Data is fetched from Sectors.xml: https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml
+- Data is fetched from Sectors.xml: https://raw.githubusercontent.com/vatSys/australia-dataset/master/Sectors.xml and https://raw.githubusercontent.com/vatSys/new-zealand-dataset/refs/heads/master/Sectors.xml
 - Rules are only applied to _CTR, _APP and _DEP
 - Controller's ATIS should include both: `Frequency` of duplicated sector and `Name` of duplicated sector (s). For example, `EXT ASW 131.800` or `EXT ASW 131.8`
 
