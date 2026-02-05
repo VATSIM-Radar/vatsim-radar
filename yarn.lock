@@ -15965,12 +15965,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"srvx@npm:^0.10.0, srvx@npm:^0.10.1":
+"srvx@npm:^0.10.0":
   version: 0.10.1
   resolution: "srvx@npm:0.10.1"
   bin:
     srvx: bin/srvx.mjs
   checksum: 10c0/48774e37eb2d8ebfc29ba7f16bb761040c8664d665bd9cddd2be25f82506dd6a17d4b0567b9bf862f0b4865c0f67ae846be62149af0214b00d49aa02f140940c
+  languageName: node
+  linkType: hard
+
+"srvx@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "srvx@npm:0.11.0"
+  bin:
+    srvx: bin/srvx.mjs
+  checksum: 10c0/4dd49272e47739b2f9e83411c076693758e23a96a5469fed26e1507e898f17d9561e0d0502fdd93901e51d2fd5c82359e55aa3f753838c2f18d2fe7efbc8e8a1
   languageName: node
   linkType: hard
 
@@ -17641,7 +17650,7 @@ __metadata:
     sass-embedded: "npm:^1.97.3"
     sharp: "npm:^0.34.5"
     sqlite3: "npm:^5.1.7"
-    srvx: "npm:^0.10.1"
+    srvx: "npm:^0.11.0"
     stylelint: "npm:^17.1.1"
     stylelint-config-clean-order: "npm:^8.0.0"
     stylelint-config-recommended-scss: "npm:^17.0.0"
