@@ -425,8 +425,8 @@ defineCronJob('* * * * * *', async () => {
 
         const length = radarStorage.vatsim.data!.controllers.length;
 
-        const allowedAustraliaFacilities = ['CTR', 'APP', 'DEP'];
-        const allowedAustraliaSectors = radarStorage.vatsim.australia.filter(x => allowedAustraliaFacilities.some(y => x.callsign.endsWith(y)));
+        const allowedDuplicatingFacilities = ['FSS', 'CTR', 'APP', 'DEP'];
+        const allowedDuplicatingSectors = radarStorage.vatsim.sectorsDataset.filter(x => allowedDuplicatingFacilities.some(y => x.callsign.endsWith(y)));
 
         for (let i = 0; i < length; i++) {
             const controller = radarStorage.vatsim.data!.controllers[i];
@@ -482,7 +482,7 @@ defineCronJob('* * * * * *', async () => {
                 if (controller.text_atis?.length && !match) testedCallsigns.add(controller.callsign);
             }
 
-            const australiaSectors = allowedAustraliaSectors.filter(x => {
+            const duplicatedSectors = allowedDuplicatingSectors.filter(x => {
                 const freq = parseFloat(x.frequency).toString();
 
                 return controller.text_atis?.some(
@@ -493,9 +493,9 @@ defineCronJob('* * * * * *', async () => {
                     );
             });
 
-            if (!australiaSectors) continue;
+            if (!duplicatedSectors) continue;
 
-            for (const sector of australiaSectors) {
+            for (const sector of duplicatedSectors) {
                 const freq = parseFloat(sector.frequency).toString();
                 if (freq === controller.frequency || sector.frequency === controller.frequency) continue;
 
@@ -772,7 +772,7 @@ defineCronJob('* * * * * *', async () => {
                 airports: radarStorage.vatsim.airports,
                 transceivers: radarStorage.vatsim.transceivers,
                 notam: radarStorage.vatsim.notam,
-            } satisfies Omit<VatsimStorage, 'kafka' | 'australia'>), err => {
+            } satisfies Omit<VatsimStorage, 'kafka' | 'sectorsDataset'>), err => {
                 clearTimeout(timeout);
                 if (err) return reject(err);
                 resolve();

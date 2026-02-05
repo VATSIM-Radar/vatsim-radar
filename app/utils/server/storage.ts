@@ -128,7 +128,7 @@ interface KafkaExtension {
     deleted: boolean;
 }
 
-export interface AustraliaSector {
+export interface DatasetSector {
     name: string;
     fullName: string;
     frequency: string;
@@ -214,7 +214,7 @@ export interface VatsimStorage {
     airports: MapAirport[];
     transceivers: Record<string, VatsimTransceiverFrequency[]>;
     notam: RadarNotam | null;
-    australia: AustraliaSector[];
+    sectorsDataset: DatasetSector[];
     kafka: {
         pilots: Record<string, Partial<VatsimData['pilots'][0]> & KafkaExtension>;
         atc: Record<string, Partial<VatsimData['controllers'][0]> & KafkaExtension>;
@@ -297,7 +297,7 @@ export const radarStorage: RadarStorage = {
         locals: [],
         airports: [],
         transceivers: {},
-        australia: [],
+        sectorsDataset: [],
         notam: null,
         kafka: {
             pilots: {},

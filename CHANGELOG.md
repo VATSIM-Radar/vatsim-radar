@@ -76,6 +76,12 @@ This is initial "Selects v2" build. It has only been done for airports layers an
 
 - Reworked components and methods structure
 
+# [1.2.4-5]
+
+- Added NZ sector duplicating
+- Restored RainViewer weather layer
+- Add ZKC Center and TRACONs to ATC duplicating
+
 # [1.2.4-4]
 
 - Fixed an aircraft constantly going back and forward when tracked

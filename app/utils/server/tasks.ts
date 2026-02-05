@@ -15,7 +15,7 @@ import { getRedis, getRedisData, getRedisSync, setRedisData } from '~/utils/serv
 import type { VatsimDivision, VatsimEvent, VatsimSubDivision } from '~/types/data/vatsim';
 import {
     updateAirlines,
-    updateAustraliaData,
+    updateSectorsData,
     updateBookings,
     updateNattrak,
     updateTransceivers,
@@ -81,7 +81,7 @@ async function vatsimTasks() {
 
     await defineCronJob('15 0 * * *', fetchDivisions).catch(console.error);
     await defineCronJob('* * * * * *', updateTransceivers).catch(console.error);
-    await defineCronJob('15 * * * *', updateAustraliaData).catch(console.error);
+    await defineCronJob('15 * * * *', updateSectorsData).catch(console.error);
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
     await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
