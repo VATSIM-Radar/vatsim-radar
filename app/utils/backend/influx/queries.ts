@@ -90,12 +90,8 @@ export async function getInfluxFlightsForCid({
     const fluxQuery =
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
   |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
-  |> filter(fn: (r) =>
-    r._measurement == "data" and
-    r.cid == "${ cid }" and
-    r._field == "callsign"
-  )
-  |> keep(columns: ["_time","_field","_value","cid"])`;
+  |> filter(fn: (r) => r["_measurement"] == "data")
+  |> filter(fn: (r) => r["cid"] == "${ cid }")`;
 
     const rows = await getFlightRows(fluxQuery);
 
@@ -115,7 +111,7 @@ export async function getInfluxLatestFlightForCids({
 }) {
     const fluxQuery =
         `from(bucket: "${ process.env.INFLUX_BUCKET_PLANS }")
-  |> range(start: ${ Math.round(startDate / 1000) }, stop: ${ endDate ? Math.round(endDate / 1000) : 'now()' })
+  |> range(start: time(v: "${ new Date(startDate).toISOString() }"), stop: ${ endDate ? `time(v: "${ new Date(endDate).toISOString() }")` : 'now()' })
   |> filter(fn: (r) => r["_measurement"] == "data")
   |> filter(fn: (r) => ${ cids.map(x => `r["cid"] == "${ x }"`).join(' or ') })`;
 
