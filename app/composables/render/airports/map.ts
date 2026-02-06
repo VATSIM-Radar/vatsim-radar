@@ -219,7 +219,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                                 offsetY: offsetY - 11,
                                 padding: [2, 10, 0, 10],
                                 fill: getCachedFill('transparent'),
-                                backgroundFill: getCachedFill('red'),
+                                // backgroundFill: getCachedFill('red'),
                                 declutterMode: 'obstacle',
                             }),
                             zIndex: properties.localsLength ? 3 : 2,
