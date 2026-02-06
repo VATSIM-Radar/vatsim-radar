@@ -233,6 +233,16 @@ const isCopied = (key: string) => {
         align-items: center;
 
         overflow-wrap: anywhere;
+
+        @include mobileOnly{
+            row-gap: 0;
+
+            > .__spacer {
+                position: relative;
+                width: 100%;
+                margin-bottom: 8px;
+            }
+        }
     }
 
     &_frequency {

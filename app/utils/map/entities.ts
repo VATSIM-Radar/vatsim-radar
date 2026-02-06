@@ -8,6 +8,10 @@ import type { SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys } from '~/types/map';
 
+export const globalMapEntities = {
+    airports: null as VectorSource | null,
+};
+
 export interface FeatureAirportProperties {
     type: 'airport';
     icao: string;
@@ -31,6 +35,7 @@ interface FeatureAirportApproachPropertiesDefault {
     isTWR: boolean;
     isDuplicated: boolean;
     isBooked: boolean;
+    selected?: boolean;
 }
 
 export interface FeatureAirportApproachProperties extends FeatureAirportApproachPropertiesDefault {
@@ -56,6 +61,7 @@ export interface FeatureAirportAirportAtcProperties {
     iata?: string;
     index: number;
     totalCount: number;
+    selected?: boolean;
     id: `airport-${ string }-${ number }`;
     facility: FeatureAirportFacility;
 }

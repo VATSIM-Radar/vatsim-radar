@@ -15,7 +15,7 @@
             </div>
             <ui-separator
                 v-if="$slots.additionalTitle"
-                distance="0"
+                distance="-4px"
             />
             <ui-text
                 v-if="$slots.additionalTitle"

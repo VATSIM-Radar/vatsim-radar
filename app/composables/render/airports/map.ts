@@ -94,8 +94,14 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
             }
 
             if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
-                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(properties.isDuplicated) }`;
+                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
                 if (!styleCache[key]) {
+                    let fill: string | undefined;
+
+                    if (properties.selected) {
+                        fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`);
+                    }
+
                     styleCache[key] = new Style({
                         stroke: new Stroke({
                             color: (store.bookingOverride || properties.isBooked) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.purple500Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.citrus600Rgb.join(',') }, 0.7)`),
@@ -103,6 +109,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                             lineDash: properties.isDuplicated ? [8, 5] : undefined,
                             lineJoin: 'round',
                         }),
+                        fill: fill ? getCachedFill(fill) : undefined,
                     });
                 }
 
@@ -162,12 +169,14 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                     const width = 14;
                     const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * (width - 2);
 
-                    const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount);
+                    const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected);
                     if (!styleCache[styleCacheKey]) {
+                        if (properties.selected) console.log('test');
+
                         styleCache[styleCacheKey] = new Style({
                             image: new Icon({
                                 src: `/icons/atc/${ letter }${ properties.facility.booked ? '-booked' : '' }.png`,
-                                width: width,
+                                width: width + (properties.selected ? 2 : 0),
                                 displacement: [offsetX, -width],
                                 declutterMode: 'none',
                             }),
@@ -206,14 +215,14 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                             text: new Text({
                                 font: getTextFont('caption-light'),
                                 text: '1',
-                                offsetX: offsetX + 11,
+                                offsetX: offsetX + 5,
                                 offsetY: offsetY - 11,
-                                padding: [2, 1, 0, 10],
+                                padding: [2, 10, 0, 10],
                                 fill: getCachedFill('transparent'),
-                                // backgroundFill: getCachedFill('red'),
+                                backgroundFill: getCachedFill('red'),
                                 declutterMode: 'obstacle',
                             }),
-                            zIndex: 5,
+                            zIndex: properties.localsLength ? 3 : 2,
                         });
                     }
 
@@ -248,18 +257,15 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
             const color = colorForAirport(airport);
             const properties = existingFeature.getProperties();
 
-            if (properties.localsLength !== airport.localAtc.length || properties.color !== color) {
-                existingFeature.setProperties({
-                    ...properties,
-                    color,
-                    localsLength: airport.localAtc.length,
-                    atc: [
-                        ...airport.localAtc,
-                        ...airport.arrAtc,
-                    ],
-                });
-                existingFeature.changed();
-            }
+            existingFeature.setProperties({
+                ...properties,
+                color,
+                localsLength: airport.localAtc.length,
+                atc: [
+                    ...airport.localAtc,
+                    ...airport.arrAtc,
+                ],
+            });
         }
         else {
             source.addFeature(createMapFeature('airport', {
@@ -280,9 +286,9 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
             }));
         }
 
-        const isTWR = airport.arrAtc.every(x => x.isTWR);
-        const isDuplicated = airport.arrAtc.every(x => x.duplicated);
-        const isBooked = airport.arrAtc.every(x => x.isBooking);
+        let isTWR = airport.arrAtc.every(x => x.isTWR);
+        let isDuplicated = airport.arrAtc.every(x => x.duplicated);
+        let isBooked = airport.arrAtc.every(x => x.isBooking);
 
         // Locals
         const facilitiesMap = new Map<number, Facility>();
@@ -290,6 +296,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
         airport.localAtc.forEach(local => {
             const facilityId = local.isATIS ? -1 : local.facility;
             let facility = facilitiesMap.get(facilityId);
+
             if (local.isATIS && store.mapSettings.hideATISOnly && !airport.localAtc.some(x => !x.isATIS)) {
                 let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.airport.icao }--1`);
 
@@ -317,7 +324,8 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
         const facilities = sortControllersByPosition(Array.from(facilitiesMap.values()));
 
         facilities.forEach((facility, index) => {
-            let existingFacility = getMapFeature('airport-atc', source, `airport-${ airport.airport.icao }-${ facility.facility }`);
+            const key = `airport-${ airport.airport.icao }-${ facility.facility }` as const;
+            let existingFacility = getMapFeature('airport-atc', source, key);
 
             if (existingFacility && facility.booked !== existingFacility?.getProperties().facility.booked) {
                 source.removeFeature(existingFacility);
@@ -336,7 +344,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
             else {
                 const feature = createMapFeature('airport-atc', {
                     geometry: new Point([airport.airport.lon, airport.airport.lat]),
-                    id: `airport-${ airport.airport.icao }-${ facility.facility }`,
+                    id: key,
                     facility,
                     icao: airport.airport.icao,
                     iata: airport.airport.iata,
@@ -444,8 +452,14 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
                 const leftAtc = airport.arrAtc.filter(x => (isDuplicated || !x.duplicated) && !airport.features.some(y => y.controllers.some(y => y.cid === x.cid && y.callsign === x.callsign)));
 
                 for (const atc of airport.features) {
-                    const existingTracon = getMapFeature('airport-tracon', source, `airport-${ airport.airport.icao }-${ atc.traconFeature }`);
-                    const existingTraconLabel = getMapFeature('airport-tracon-label', source, `airport-${ airport.airport.icao }-${ atc.traconFeature }Label`);
+                    const existingTraconId = `airport-${ airport.airport.icao }-${ atc.id }` as const;
+
+                    const existingTracon = getMapFeature('airport-tracon', source, existingTraconId);
+                    const existingTraconLabel = getMapFeature('airport-tracon-label', source, `${ existingTraconId }Label`);
+
+                    isTWR = atc.controllers.every(x => x.isTWR);
+                    isDuplicated = atc.controllers.every(x => x.duplicated);
+                    isBooked = atc.controllers.every(x => x.isBooking);
 
                     const controllers = [
                         ...atc.controllers,
@@ -461,7 +475,7 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
 
                         const tracon = createMapFeature('airport-tracon', {
                             geometry,
-                            id: `airport-${ airport.airport.icao }-${ atc.id }`,
+                            id: existingTraconId,
                             type: 'airport-tracon',
                             icao: airport.airport.icao,
                             iata: airport.airport.icao,
@@ -482,11 +496,11 @@ export function setMapAirports({ source, airports, navigraphData, layer}: {
 
                         const traconLabel = createMapFeature('airport-tracon-label', {
                             geometry: new Point(textCoord),
-                            id: `airport-${ airport.airport.icao }-${ atc.id }Label`,
+                            id: `${ existingTraconId }Label`,
                             type: 'airport-tracon-label',
                             icao: airport.airport.icao,
                             iata: airport.airport.icao,
-                            atc: airport.arrAtc,
+                            atc: controllers,
                             name: atc.traconFeature.properties.name,
                             isTWR,
                             isDuplicated,

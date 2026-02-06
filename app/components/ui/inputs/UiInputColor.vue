@@ -88,6 +88,7 @@ import UiInputText from '~/components/ui/inputs/UiInputText.vue';
 import { getColorFromSettings, hexToRgb, rgbToHex } from '~/composables/settings/colors';
 import { hexColorRegex } from '~/utils/shared';
 import ResetIcon from '~/assets/icons/kit/reset.svg?component';
+import { setCustomDefuMergeAsIs } from '~/composables';
 
 const props = defineProps({
     modelValue: {
@@ -109,6 +110,7 @@ const props = defineProps({
 
 const emit = defineEmits({
     'update:modelValue'(data: Partial<UserMapSettingsColor> | null) {
+        setCustomDefuMergeAsIs();
         return true;
     },
 });

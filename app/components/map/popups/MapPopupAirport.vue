@@ -95,8 +95,10 @@ const overlay = ref<{ $el: HTMLDivElement } | null>(null);
 }));*/
 
 const getATC = computed(() => {
-    if (isMapFeature('airport-atc', properties.value)) return properties.value.facility.atc;
-    else return properties.value.atc;
+    const props = properties.value;
+
+    if (isMapFeature('airport-atc', props)) return props.facility.atc;
+    else return props.atc;
 });
 </script>
 

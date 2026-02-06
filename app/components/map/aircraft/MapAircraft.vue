@@ -18,6 +18,7 @@
             <popup-map-info
                 v-if="pilot && !store.isTouch"
                 class="aircraft-hover"
+                content-padding="0"
                 @mouseleave="hoveredOverlay = false"
                 @mouseover="handleMouseEnter($event as MouseEvent)"
             >
@@ -998,6 +999,11 @@ onBeforeUnmount(() => {
     overflow-wrap: anywhere;
 
     background: $darkgray1000;
+
+    :deep(.popup-block_title) {
+        padding-right: 0;
+        padding-left: 0;
+    }
 
     &__frequency {
         font-size: 12px;

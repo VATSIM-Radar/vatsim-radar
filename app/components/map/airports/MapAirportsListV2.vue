@@ -9,6 +9,7 @@ import { getRenderAirportsList, getInitialAirportsList } from '~/composables/ren
 import type { AirportListItem } from '~/composables/render/airports';
 import { useUpdateCallback } from '~/composables';
 import { setMapAirports } from '~/composables/render/airports/map';
+import { globalMapEntities } from '~/utils/map/entities';
 
 defineOptions({
     render: () => null,
@@ -84,6 +85,8 @@ onMounted(() => {
         features: [],
         wrapX: true,
     });
+
+    globalMapEntities.airports = airportsSource;
 
     traconsSource = new VectorSource<any>({
         features: [],
@@ -185,6 +188,13 @@ onBeforeUnmount(() => {
     labelsLayer?.dispose();
     navigraphLayer?.dispose();
     gatesLayer?.dispose();
+
+    airportsSource?.clear();
+    globalMapEntities.airports = null;
+    traconsSource?.clear();
+    labelsSource?.clear();
+    navigraphSource?.clear();
+    gatesSource?.clear();
 
     map.value?.removeLayer(airportsLayer);
     map.value?.removeLayer(traconsLayer);

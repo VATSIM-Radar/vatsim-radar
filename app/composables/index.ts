@@ -268,6 +268,15 @@ export function getAirlineFromCallsign(callsign: string, remarks?: string): Rada
     };
 }
 
+let customDefuMergeAsIs = false;
+
+/**
+ * @description one-time setter to merge object as is
+ */
+export function setCustomDefuMergeAsIs() {
+    customDefuMergeAsIs = true;
+}
+
 export const customDefu = createDefu((obj, key, value) => {
     if (Array.isArray(obj[key]) && Array.isArray(value)) {
         obj[key] = value;
@@ -279,8 +288,9 @@ export const customDefu = createDefu((obj, key, value) => {
         return true;
     }
 
-    if (typeof value === 'object') {
+    if (customDefuMergeAsIs && typeof value === 'object') {
         Object.assign(obj[key], value);
+        customDefuMergeAsIs = false;
         return true;
     }
 });

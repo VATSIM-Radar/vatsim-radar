@@ -1,5 +1,19 @@
 # Changelog
 
+# [2.0.0-alpha.2.2]
+
+## Alpha changes
+
+- Fixed settings save not working as expected for most settings
+- Fixed approach controllers not updating
+- Restored airport tracon/facility hovering effect
+- Fixed inverted counters hover zone
+- Fixed priority for unstaffed airports showing above staffed. More to come
+
+## Improvements and changes
+
+- Approach transition will now be automatically parsed from flight plan
+
 # [2.0.0-alpha.2.1]
 
 ## Alpha changes 

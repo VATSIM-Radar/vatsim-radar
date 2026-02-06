@@ -101,7 +101,7 @@ defineSlots<{ title?(): any; additionalTitle?(): any }>();
         }
 
         @include mobileOnly {
-            max-width: 80vw;
+            max-width: 100%;
         }
     }
 

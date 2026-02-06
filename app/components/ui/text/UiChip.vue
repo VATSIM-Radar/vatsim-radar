@@ -105,7 +105,7 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
     padding: 4px;
     border-radius: 2px;
 
-    color: $lightGray200;
+    color: $lightGray200Orig;
 
     background: $darkGray600;
 

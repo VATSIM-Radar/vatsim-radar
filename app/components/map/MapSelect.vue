@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
+import type { Feature, Map } from 'ol';
 import type { SelectEvent } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
 import { pointerMove, click, always } from 'ol/events/condition.js';
@@ -31,7 +31,7 @@ import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import type { Coordinate } from 'ol/coordinate.js';
-import { isMapFeature } from '~/utils/map/entities';
+import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
 import type { MapFeatures, MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
@@ -94,6 +94,24 @@ type Definition = {
     featureTypes: MapFeaturesType[];
 } & PartialRecord<Exclude<EventType, 'click'>, (payload: RadarEventPayload<any>) => void | boolean>;
 
+let previouslySelected: Feature | undefined;
+
+function selectFeature(feature: false): void;
+function selectFeature(feature: Feature, selected: boolean): void;
+function selectFeature(feature: Feature | false, selected?: boolean) {
+    if (previouslySelected) {
+        const feature = previouslySelected;
+        previouslySelected = undefined;
+        selectFeature(feature, false);
+    }
+
+    if (!feature) return;
+
+    feature.setProperties({ ...feature.getProperties(), selected });
+    previouslySelected = feature;
+    feature.changed();
+}
+
 const definitions = {
     airportControllers: {
         featureTypes: ['airport'],
@@ -117,14 +135,25 @@ const definitions = {
     },
     airportApproach: {
         featureTypes: ['airport-tracon-label', 'airport-circle-label'],
-        hover: payload => openOverlay('airportControllers', payload),
+        hover: payload => {
+            openOverlay('airportControllers', payload);
+            const id = payload.feature.getProperties().id;
+            const circle = getMapFeature('airport-circle', globalMapEntities.airports!, id.slice(0, id.length - 5));
+            if (circle) {
+                selectFeature(circle, true);
+                circle.changed();
+            }
+        },
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
     },
     airportCounter: {
         featureTypes: ['airport-counter'],
-        hover: payload => openOverlay('airportCounter', payload),
+        hover: payload => {
+            console.log(payload.feature);
+            return openOverlay('airportCounter', payload);
+        },
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
@@ -154,6 +183,7 @@ function createSelectHandler(type: EventType) {
         if (!changed.length) {
             openedOverlay.value = null;
             mapStore.mapCursorPointerTrigger = 0;
+            selectFeature(false);
         }
 
         let tookAction = false;
@@ -177,6 +207,8 @@ function createSelectHandler(type: EventType) {
                     triggerRef(openedOverlay);
                 }
 
+                if (type === 'hover') selectFeature(feature, true);
+
                 const result = (definition as any)[type]({
                     feature,
                     coordinate: arg.mapBrowserEvent.coordinate,
@@ -198,6 +230,7 @@ function createSelectHandler(type: EventType) {
         if (!tookAction) {
             mapStore.mapCursorPointerTrigger = 0;
             openedOverlay.value = null;
+            selectFeature(false);
         }
     };
 }
