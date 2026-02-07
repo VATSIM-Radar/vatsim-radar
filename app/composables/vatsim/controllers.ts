@@ -39,33 +39,40 @@ export const useRatingsIds = () => {
     };
 };
 
-export function getFacilityPositionColor(facility: number) {
+export function getFacilityPositionColor(facility: number, raw?: boolean) {
     const ids = useFacilitiesIds();
 
     if (facility === ids.ATIS) {
+        if (raw) return radarColors.yellow600Hex;
         return radarColors.yellow600;
     }
 
     if (facility === ids.DEL) {
+        if (raw) return radarColors.blue400Hex;
         return radarColors.blue400;
     }
 
     if (facility === ids.TWR) {
+        if (raw) return radarColors.red500Hex;
         return radarColors.red500;
     }
 
     if (facility === ids.GND) {
+        if (raw) return radarColors.green600Hex;
         return radarColors.green600;
     }
 
     if (facility === ids.APP) {
+        if (raw) return radarColors.citrus600Hex;
         return radarColors.citrus600;
     }
 
     if (facility === ids.CTR || facility === ids.FSS) {
+        if (raw) return radarColors.teal500Hex;
         return radarColors.teal500;
     }
 
+    if (raw) return radarColors.darkGray200Hex;
     return radarColors.darkGray200;
 }
 

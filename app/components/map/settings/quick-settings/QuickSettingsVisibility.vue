@@ -39,6 +39,20 @@
                 </template>
             </ui-toggle>
 
+            <ui-select
+                :items="[
+                    { text: 'Unstaffed only (default)', value: 'unstaffed' },
+                    { text: 'Always', value: 'all' },
+                    { text: 'Never', value: 'none' },
+                ]"
+                :model-value="store.mapSettings.airportsHide ?? 'unstaffed'"
+                @update:modelValue="setUserMapSettings({ airportsHide: $event as any })"
+            >
+                <template #label>
+                    Hide airports on zoom
+                </template>
+            </ui-select>
+
             <ui-block-title>
                 Tracks (turns)
             </ui-block-title>

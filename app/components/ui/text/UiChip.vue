@@ -100,12 +100,14 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
     display: flex;
     gap: 4px;
     align-items: center;
+    justify-content: center;
 
     min-height: 16px;
     padding: 4px;
     border-radius: 2px;
 
     color: $lightGray200Orig;
+    text-align: center;
 
     background: $darkGray600;
 
@@ -130,9 +132,14 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
 
     &--type-atc {
         --atc-color: #{$darkGray200};
+
+
+        width: 32px;
         height: 16px;
-        padding: 0 4px;
+        padding: 0;
+
         text-shadow: 0 1px 0 $blackAlpha24;
+
         background: var(--atc-color);
     }
 }

@@ -1,21 +1,22 @@
 import type { Coordinate } from 'ol/coordinate.js';
-import type Map from 'ol/Map.js';
-
-
-export function getOriginalCoordinate(coordinate: Coordinate, eventCoordinate: Coordinate) {
-
-}
 
 function modPositive(x: number, m: number) {
     return ((x % m) + m) % m;
 }
 
-export function getCurrentWorldCoordinate({ coordinate, eventCoordinate, map}: {
-    coordinate: Coordinate; eventCoordinate: Coordinate; map: Map;
+export function getOriginalWorldCoordinate({ eventCoordinate }: {
+    eventCoordinate: Coordinate;
 }) {
-    const size = map.getSize()![0];
-    const worldIndex = Math.floor(eventCoordinate[0] / size);
-    const localCoordinate = modPositive(coordinate[0], size);
+    const originalX = modPositive(eventCoordinate[0], 360);
 
-    return localCoordinate + (worldIndex * size);
+    return [originalX, eventCoordinate[1]];
+}
+
+export function getCurrentWorldCoordinate({ coordinate, eventCoordinate }: {
+    coordinate: Coordinate; eventCoordinate: Coordinate;
+}) {
+    const worldIndex = Math.floor(eventCoordinate[0] / 360);
+    const localCoordinate = modPositive(coordinate[0], 360);
+
+    return localCoordinate + (worldIndex * 360);
 }

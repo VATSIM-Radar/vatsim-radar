@@ -1,7 +1,8 @@
 <template>
     <div
         v-if="model"
-        v-show="false"
+        v-show="isInteraction && isMobile"
+        class="map-overlay-block"
     >
         <div
             v-show="persistent || canShowOverlay"
@@ -47,6 +48,10 @@ const props = defineProps({
     activeZIndex: {
         type: Number,
     },
+    isInteraction: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits({
@@ -72,6 +77,8 @@ const overlay = defineModel('overlay', {
     type: Object as PropType<Overlay | null>,
     default: null,
 });
+
+const isMobile = useIsMobile();
 
 const mapStore = useMapStore();
 
@@ -135,7 +142,7 @@ function removeOverlay() {
 }
 
 watch([model, popup, openOverlayId, overlayElement], async ([, popupVal], [, oldPopupVal, oldOverlayId]) => {
-    if (!overlayElement.value) return;
+    if (!overlayElement.value || (props.isInteraction && isMobile.value)) return;
     await nextTick();
     if (model.value && !overlay.value) {
         if (!props.persistent && mapStore.openOverlayId && mapStore.openOverlayId !== id) {
@@ -208,3 +215,27 @@ onBeforeUnmount(() => {
     if (mapStore.openOverlayId === popupId) mapStore.openOverlayId = null;
 });
 </script>
+
+<style lang="scss" scoped>
+@include mobileOnly {
+    .map-overlay-block {
+        position: absolute;
+        z-index: 10;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+
+        width: 100%;
+        max-height: 30dvh;
+        padding: 0 20px;
+
+        .map-overlay {
+            width: 100%;
+        }
+    }
+}
+</style>

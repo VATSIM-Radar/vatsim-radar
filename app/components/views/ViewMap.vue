@@ -274,9 +274,8 @@ import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/vatsim/pilots';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import { boundingExtent, buffer, getCenter } from 'ol/extent.js';
+import { boundingExtent, buffer, getCenter, getWidth } from 'ol/extent.js';
 import { toDegrees } from 'ol/math.js';
-import type { Coordinate } from 'ol/coordinate.js';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';
 import UiInputText from '~/components/ui/inputs/UiInputText.vue';
@@ -312,6 +311,7 @@ import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
 import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
 import MapSelect from '~/components/map/MapSelect.vue';
 import { isMapFeature } from '~/utils/map/entities';
+import { getOriginalWorldCoordinate } from '~/composables/map/world';
 
 defineProps({
     mode: {
@@ -750,7 +750,7 @@ async function handleMoveEnd() {
     mapStore.rotation = toDegrees(view.getRotation() ?? 0);
     mapStore.extent = view.calculateExtent(map.value!.getSize());
 
-    mapStore.center = view.getCenter()!;
+    mapStore.center = getOriginalWorldCoordinate({ eventCoordinate: view.getCenter()! });
 
     const query = {
         ...route.query,
@@ -1028,7 +1028,7 @@ await setupDataFetch({
             if (!target.nodeName.toLowerCase().includes('canvas')) return;
 
             if (event.button === 1) {
-                const center = fromLonLat(map.value!.getView().getCenter() as Coordinate);
+                const center = fromLonLat(mapStore.center);
                 const resolution = map.value!.getView().getResolution();
                 let increaseX = window.innerWidth / 2;
                 let increaseY = window.innerHeight / 2;
@@ -1071,6 +1071,9 @@ await setupDataFetch({
         map.value.on('movestart', () => {
             moving = true;
             mapStore.moving = true;
+        });
+        map.value?.getView().on('change:resolution', () => {
+            mapStore.preciseZoom = map.value?.getView().getZoom() ?? 0;
         });
         map.value.on('moveend', async () => {
             moving = false;

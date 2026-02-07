@@ -1,16 +1,5 @@
 <template>
     <div>
-        <map-html-overlay
-            class="select-result"
-            :model-value="!!eventGroupType && !!lastCoords"
-            :settings="{
-                position: lastCoords!,
-            }"
-            :z-index="20"
-            @update:overlay="!$event && (eventGroupType = null)"
-        >
-            {{features.map(x => x.getProperties())}}
-        </map-html-overlay>
         <component
             :is="openedOverlay.component"
             v-if="openedOverlay"
@@ -29,10 +18,8 @@ import Select from 'ol/interaction/Select.js';
 import { pointerMove, click, always } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
-import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
-import type { Coordinate } from 'ol/coordinate.js';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { MapFeatures, MapFeaturesType } from '~/utils/map/entities';
+import type { MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 
@@ -42,10 +29,6 @@ let clickSelect: Select | undefined;
 
 type EventType = 'click' | 'hover' | 'rightClick';
 
-// TODO: replace to generic features when ready
-const features = shallowRef<MapFeatures[]>([]);
-const eventGroupType = ref<EventType | null>(null);
-const lastCoords = ref<Coordinate | null>(null);
 const mapStore = useMapStore();
 
 interface Overlay {
@@ -244,7 +227,7 @@ watch(map, val => {
         style: null,
         filter: (_, layer) => {
             // TODO
-            return layer.getProperties().type.startsWith('airports');
+            return layer.getProperties().type?.startsWith('airports');
         },
         /* toggleCondition: always,
       multi: true,

@@ -6,7 +6,7 @@ import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
-import type { MapAircraftKeys } from '~/types/map';
+import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
@@ -21,7 +21,8 @@ export interface FeatureAirportProperties {
     lat: number;
     lon: number;
     atc: VatsimShortenedController[];
-    localsLength: number;
+    atcLength: number;
+    aircraftList: MapAircraftList;
 
     id: `airport-${ string }`;
 }
@@ -47,6 +48,8 @@ export interface FeatureAirportApproachTextProperties extends FeatureAirportAppr
     type: 'airport-circle-label' | 'airport-tracon-label';
     name?: string;
     id: `airport-${ string }-${ string }`;
+    atcLength: number;
+    aircraftList: MapAircraftList;
 }
 
 export interface FeatureAirportFacility {
@@ -74,8 +77,10 @@ export interface FeatureAirportAirportCounterProperties {
     totalCount: number;
     counter: number;
     aircraft: VatsimShortenedPrefile[];
-    counterType: MapAircraftKeys | 'training';
+    atcLength: number;
     localsLength: number;
+    aircraftList: MapAircraftList;
+    counterType: MapAircraftKeys | 'training';
     id: `airport-${ string }-${ MapAircraftKeys | 'training' }`;
 }
 
@@ -85,12 +90,30 @@ export interface FeatureAirportGateProperties {
     id: `airport-${ string }-${ string }`;
 }
 
+export interface FeatureAirportNavigraphProperties {
+    type: 'airport-navigraph';
+    identifier?: string;
+    ident?: string;
+    idlin?: string;
+    color?: number;
+    style?: number;
+    catstop?: number;
+    idthr?: string;
+    brngtrue?: number;
+    plysttyp?: number;
+    idrwy?: string;
+    idapron?: string;
+    airport: string;
+    id: `airport-${ string }-${ 'gate' | 'runway' | 'layer' }-${ string }`;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
 export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
+export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -101,6 +124,7 @@ export type MapFeatures =
     | FeatureAirportGate
     | FeatureAirportAtc
     | FeatureAirportCounter
+    | FeatureAirportNavigraph
     | FeatureSimAware;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];

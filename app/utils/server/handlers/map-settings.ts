@@ -113,6 +113,9 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     shortAircraftView: val => {
         return typeof val === 'boolean';
     },
+    airportsHide: val => {
+        return typeof val === 'boolean';
+    },
     heatmapLayer: val => {
         return typeof val === 'boolean';
     },
@@ -330,6 +333,7 @@ export interface IUserMapSettings {
     aircraftScale: number;
     dynamicAircraftScale?: boolean;
     airportsMode: 'staffedOnly' | 'staffedAndGroundTraffic' | 'all';
+    airportsHide: 'unstaffed' | 'all' | 'none';
     tracks: {
         mode?: 'arrivalsOnly' | 'arrivalsAndLanded' | 'departures' | 'allAirborne' | 'ground' | 'all';
         showOutOfBounds?: boolean;

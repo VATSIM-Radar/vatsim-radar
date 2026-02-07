@@ -1,10 +1,10 @@
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { PartialRecord } from '~/types';
-import type { FeatureLike } from 'ol/Feature.js';
 import { toRadians } from 'ol/math.js';
 import { useStore } from '~/store';
 import type { Options as StyleOptions } from 'ol/style/Style';
 import type { AmdbLayerName } from '@navigraph/amdb';
+import type { FeatureAirportNavigraph } from '~/utils/map/entities';
 
 const taxiwayNameRegex = new RegExp('^((Main TWY)|Main|Route) ', 'i');
 
@@ -17,7 +17,7 @@ function getIntersectionStatus(airport: string, label: string) {
     return bars.find(x => x.bars.find(x => x[0].split('--')[0] === label))?.bars.find(x => x[0].split('--')[0] === label)?.[1] ?? null;
 }
 
-export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Style[] | ((feature: FeatureLike) => Style | Style[] | undefined)> => {
+export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Style[] | ((feature: FeatureAirportNavigraph) => Style | Style[] | undefined)> => {
     const theme = useStore().getCurrentTheme;
 
     const themeStyles = {
@@ -219,7 +219,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
 
             if (feature.getProperties().idlin) {
                 style.setText(new Text({
-                    text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
+                    text: feature.getProperties().idlin!.replace(taxiwayNameRegex, ''),
                     font: 'bold 10px LibreFranklin',
                     placement: 'line',
                     fill: new Fill({
@@ -257,13 +257,13 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                     width: style === 1 ? 1 : 2,
                     lineDash: style === 1 ? [4, 4] : undefined,
                 }),
-                zIndex: 2,
+                zIndex: 3,
             })];
 
             if (feature.getProperties().idlin) {
                 styles.push(new Style({
                     text: new Text({
-                        text: feature.getProperties().idlin.replace(taxiwayNameRegex, ''),
+                        text: feature.getProperties().idlin!.replace(taxiwayNameRegex, ''),
                         font: 'bold 12px LibreFranklin',
                         // placement: 'line',
                         fill: new Fill({
@@ -306,7 +306,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 options.text?.getFill()!.setColor(`rgba(${ getCurrentThemeRgbColor('error500').join(',') }, 0.6)`);
             }
 
-            const barsStatus = getIntersectionStatus(properties.airport, properties.idlin);
+            const barsStatus = getIntersectionStatus(properties.airport, properties.idlin!);
 
             if (properties.idlin && typeof barsStatus === 'boolean') {
                 options.stroke?.setWidth(2);
@@ -353,7 +353,7 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
                 fill: new Fill({
                     color: getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`,
                 }),
-                rotation: toRadians(feature.getProperties().brngtrue),
+                rotation: toRadians(feature.getProperties().brngtrue!),
                 rotateWithView: true,
                 padding: [2, 0, 2, 2],
             }),
@@ -404,9 +404,11 @@ export const airportLayoutStyles = (): PartialRecord<AmdbLayerName, Style | Styl
         },
 
         verticalpolygonalstructure: feature => {
-            if (feature.getProperties().plysttyp > 4) return;
+            const plysttyp = feature.getProperties().plysttyp;
 
-            if (feature.getProperties().plysttyp === 1) {
+            if (typeof plysttyp === 'number' && plysttyp > 4) return;
+
+            if (typeof plysttyp === 'number' && plysttyp === 1) {
                 return new Style({
                     fill: new Fill({
                         color: `rgba(${ themeStyles.terminal[theme] }, 1)`,

@@ -2,7 +2,7 @@ import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vats
 import type { MapAircraft, MapAircraftList, MapAirportRender, MapAirportVatspy } from '~/types/map';
 import type { VatSpyAirport, VatSpyDataLocalATC } from '~/types/data/vatspy';
 import { isVatGlassesActive } from '~/utils/data/vatglasses';
-import { globalComputed } from '~/composables';
+import { globalComputed, isPointInExtent } from '~/composables';
 import type { NavigraphAirportData } from '~/types/data/navigraph';
 import { getTraconPrefixes, getTraconSuffix } from '~/utils/shared/vatsim';
 import type { Map } from 'ol';
@@ -523,16 +523,18 @@ export async function getInitialAirportsList({ navigraphData, source, map }: {
             }
             if (!airport) return null;
 
+            const coordinates = 'lon' in airport ? [airport.lon, airport.lat] : [];
+
             const result: MapAirportRender = {
                 airport: {
                     ...x,
                     data: airport,
                 },
-                visible: overlays.includes(airport.icao) || visibleFeatures.has(airport.icao),
+                visible: overlays.includes(airport.icao) || visibleFeatures.has(airport.icao) || isPointInExtent(coordinates, extent),
             };
 
             if (result.visible) visibleAirports.push(result.airport);
-            else delete navigraphData.value[result.airport.icao];
+            else if (mapStore.zoom < 10) delete navigraphData.value[result.airport.icao];
 
             list.push(result);
         }));

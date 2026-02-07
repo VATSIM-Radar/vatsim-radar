@@ -1,5 +1,31 @@
 # Changelog
 
+# [2.0.0-alpha.2.3]
+
+## Improvements and changes
+
+- Added compact facility view when too much info is shown (`Max counters to show` setting value)
+- (PROVIDE FEEDBACK) mobile on-hover overlays are now fixed to bottom of the screen and centered. Wow!
+
+## Alpha changes
+
+- Unstaffed airport priority is now determined based on aircraft length
+- Staffed airports are now never hidden, unless a setting is set
+- Added a setting "Hide airports on zoom" with values: Unstaffed only (default), Always, Never
+- Airport counters are now always hidden on zoom level 5.5 or less
+- ATC facility width is now stable for a perfectionist list display
+- Fixed staffed approach facilities displaying as booked
+- Improved facility icon hover effect
+- Fixed airports without SimAware TRACON data not being displayed
+- Map data (counters and stuff) is now loaded much faster initially
+- Counters are now centered over airport point rather than label
+- Fixed rare case when select interaction crashed and always solved cursor pointer
+- Navigraph layouts, gates and runways are put in operation. Layout can have some bugs, report everything that is different from production
+
+## Performance Improvements
+
+- Reduced gates memory consumption on render
+
 # [2.0.0-alpha.2.2]
 
 ## Alpha changes

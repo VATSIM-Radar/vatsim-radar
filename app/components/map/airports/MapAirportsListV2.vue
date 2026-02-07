@@ -8,8 +8,12 @@ import type { MapAirportRender, MapAirportVatspy } from '~/types/map';
 import { getRenderAirportsList, getInitialAirportsList } from '~/composables/render/airports';
 import type { AirportListItem } from '~/composables/render/airports';
 import { useUpdateCallback } from '~/composables';
-import { setMapAirports } from '~/composables/render/airports/map';
+import { setMapAirports } from '~/composables/render/airports/layers/airport';
 import { globalMapEntities } from '~/utils/map/entities';
+import { setMapGatesRunways } from '~/composables/render/airports/layers/gates';
+import type { AmdbLayerName } from '@navigraph/amdb';
+import { airportLayoutStyles } from '~/composables/navigraph/layouts';
+import { setMapNavigraphLayout } from '~/composables/render/airports/layers/layout';
 
 defineOptions({
     render: () => null,
@@ -27,9 +31,6 @@ let airportsSource: VectorSource;
 
 let traconsLayer: VectorLayer<any>;
 let traconsSource: VectorSource;
-
-let labelsLayer: VectorLayer<any>;
-let labelsSource: VectorSource;
 
 let navigraphLayer: VectorLayer<any>;
 let navigraphSource: VectorSource;
@@ -93,11 +94,6 @@ onMounted(() => {
         wrapX: false,
     });
 
-    labelsSource = new VectorSource<any>({
-        features: [],
-        wrapX: false,
-    });
-
     navigraphSource = new VectorSource<any>({
         features: [],
         wrapX: false,
@@ -125,25 +121,33 @@ onMounted(() => {
         },
     });
 
-    labelsLayer = new VectorLayer<any>({
-        source: labelsSource,
-        zIndex: FEATURES_Z_INDEX.AIRPORTS_LABELS,
-        properties: {
-            type: 'airports-labels',
-        },
-    });
+    const styles = airportLayoutStyles();
 
     navigraphLayer = new VectorLayer<any>({
         source: navigraphSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_NAVIGRAPH,
+        declutter: true,
         properties: {
             type: 'airports-navigraph',
+        },
+        minZoom: 12,
+        style: function(feature) {
+            const type = feature.getProperties().type as AmdbLayerName;
+            if ((type === 'taxiwayintersectionmarking' || type === 'taxiwayguidanceline' || type === 'deicingarea' || type === 'finalapproachandtakeoffarea') && mapStore.preciseZoom < 14.5) return;
+
+            const style = styles[type];
+
+            if (typeof style === 'function') return style(feature as any);
+
+            return style;
         },
     });
 
     gatesLayer = new VectorLayer<any>({
         source: gatesSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
+        minZoom: 15,
+        declutter: 'gates',
         properties: {
             type: 'airports-gates',
         },
@@ -151,7 +155,6 @@ onMounted(() => {
 
     map.value.addLayer(airportsLayer);
     map.value.addLayer(traconsLayer);
-    map.value.addLayer(labelsLayer);
     map.value.addLayer(navigraphLayer);
     map.value.addLayer(gatesLayer);
 
@@ -164,14 +167,30 @@ onMounted(() => {
         immediate: true,
     });
 
-    watch(airportsList, async () => {
+    const mapSettings = computed(() => store.mapSettings);
+    const mapRender = computed(() => mapStore.renderedAirports.length === 0);
+
+    watch([airportsList, mapSettings, mapRender], async () => {
         airports.value = await getRenderAirportsList({ airports: airportsList.value, visibleAirports: visibleAirports.value });
 
         setMapAirports({
             airports: getShownAirports.value,
-            navigraphData: navigraphData.value,
             layer: airportsLayer,
             source: airportsSource,
+        });
+
+        setMapGatesRunways({
+            airports: getShownAirports.value,
+            layer: gatesLayer,
+            source: gatesSource,
+            navigraphData: navigraphData.value,
+        });
+
+        setMapNavigraphLayout({
+            airports: getShownAirports.value,
+            layer: navigraphLayer,
+            source: navigraphSource,
+            navigraphData: navigraphData.value,
         });
     });
 });
@@ -185,20 +204,17 @@ onMounted(() => {
 onBeforeUnmount(() => {
     airportsLayer?.dispose();
     traconsLayer?.dispose();
-    labelsLayer?.dispose();
     navigraphLayer?.dispose();
     gatesLayer?.dispose();
 
     airportsSource?.clear();
     globalMapEntities.airports = null;
     traconsSource?.clear();
-    labelsSource?.clear();
     navigraphSource?.clear();
     gatesSource?.clear();
 
     map.value?.removeLayer(airportsLayer);
     map.value?.removeLayer(traconsLayer);
-    map.value?.removeLayer(labelsLayer);
     map.value?.removeLayer(navigraphLayer);
     map.value?.removeLayer(gatesLayer);
 });

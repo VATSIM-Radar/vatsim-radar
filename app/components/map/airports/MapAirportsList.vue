@@ -274,7 +274,7 @@ watch(map, val => {
                 const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
-                if (typeof style === 'function') return style(feature);
+                if (typeof style === 'function') return style(feature as any);
 
                 return style;
             },
@@ -302,7 +302,7 @@ watch(map, val => {
                 const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
-                if (typeof style === 'function') return style(feature);
+                if (typeof style === 'function') return style(feature as any);
 
                 return style;
             },
@@ -327,7 +327,7 @@ watch(map, val => {
                 const type = feature.getProperties().type as AmdbLayerName;
                 const style = styles[type];
 
-                if (typeof style === 'function') return style(feature);
+                if (typeof style === 'function') return style(feature as any);
 
                 return style;
             },

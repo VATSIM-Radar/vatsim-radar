@@ -69,6 +69,7 @@ export const useMapStore = defineStore('map', {
         extent: [0, 0, 0, 0] as Extent,
         center: [0, 0] as Coordinate,
         zoom: 0,
+        preciseZoom: 0,
         rotation: 0,
         moving: false,
         openOverlayId: null as string | null,

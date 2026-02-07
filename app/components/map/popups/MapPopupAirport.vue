@@ -2,6 +2,7 @@
     <map-html-overlay
         ref="overlay"
         class="select-result"
+        is-interaction
         model-value
         :settings="{
             //position: payload.coordinate,
@@ -102,4 +103,8 @@ const getATC = computed(() => {
 });
 </script>
 
-
+<style lang="scss" scoped>
+.airport_atc-popup {
+    width: 100%;
+}
+</style>
