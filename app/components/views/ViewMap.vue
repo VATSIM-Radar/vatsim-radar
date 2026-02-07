@@ -274,7 +274,7 @@ import type { StoreOverlayAirport, StoreOverlay } from '~/store/map';
 import { observerFlight, ownFlight, showPilotOnMap, skipObserver } from '~/composables/vatsim/pilots';
 import { findAtcByCallsign } from '~/composables/vatsim/controllers';
 import type { VatsimAirportData } from '~~/server/api/data/vatsim/airport/[icao]';
-import { boundingExtent, buffer, getCenter, getWidth } from 'ol/extent.js';
+import { boundingExtent, buffer, getCenter } from 'ol/extent.js';
 import { toDegrees } from 'ol/math.js';
 import BrandingLogo from '~/components/ui/BrandingLogo.vue';
 import { setUserLocalSettings } from '~/composables/fetchers/map-settings';

@@ -2,21 +2,10 @@ import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
 import type { AirportListItem } from '~/composables/render/airports';
 import type { AirportNavigraphData } from '~/components/map/airports/MapAirportsListV2.vue';
-import { getCurrentThemeRgbColor } from '~/composables';
-import type { Fill, Stroke } from 'ol/style';
-import { Style, Text } from 'ol/style';
-import { toRadians } from 'ol/math';
-import { Point } from 'ol/geom';
-import { createMapFeature, getMapFeature } from '~/utils/map/entities';
-import { getSelectedColorFromSettings } from '~/composables/settings/colors';
-import { checkIsPilotInGate, supportedNavigraphLayouts } from '~/utils/shared/vatsim';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import { supportedNavigraphLayouts } from '~/utils/shared/vatsim';
 import type { AmdbLayerName } from '@navigraph/amdb';
 
 const setAirports = new Set<string>();
-
-const styleFillCache: Record<string, Fill> = {};
-const styleStrokeCache: Record<string, Stroke> = {};
 
 export function setMapNavigraphLayout({ source, airports, navigraphData, layer}: {
     source: VectorSource;
