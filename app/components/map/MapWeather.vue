@@ -50,7 +50,7 @@ function getLayer(id: MapWeatherLayer): Layer {
         return {
             attributions: '© <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a>',
             tileUrlFunction: coord => `${ rainviewerHost.value }${ rainviewerPath.value }/256/${ coord[0] }/${ coord[1] }/${ coord[2] }/2/1_1.png`,
-            maxZoom: 10,
+            maxZoom: 7,
         };
     }
 
