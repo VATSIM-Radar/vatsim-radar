@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-alpha.3]
+
+## Improvements and changes
+
+- Implement on-hover delay
+
 # [2.0.0-alpha.2.4]
 
 ## Alpha changes
