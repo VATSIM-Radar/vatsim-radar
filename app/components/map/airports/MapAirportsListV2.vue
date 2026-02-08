@@ -29,9 +29,6 @@ const navigraphData = shallowRef<Record<string, NavigraphAirportData>>({});
 let airportsLayer: VectorLayer<any>;
 let airportsSource: VectorSource;
 
-let traconsLayer: VectorLayer<any>;
-let traconsSource: VectorSource;
-
 let navigraphLayer: VectorLayer<any>;
 let navigraphSource: VectorSource;
 
@@ -89,36 +86,25 @@ onMounted(() => {
 
     globalMapEntities.airports = airportsSource;
 
-    traconsSource = new VectorSource<any>({
-        features: [],
-        wrapX: false,
-    });
-
     navigraphSource = new VectorSource<any>({
         features: [],
-        wrapX: false,
+        wrapX: true,
     });
 
     gatesSource = new VectorSource<any>({
         features: [],
-        wrapX: false,
+        wrapX: true,
     });
 
     airportsLayer = new VectorLayer<any>({
         source: airportsSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS,
+        updateWhileAnimating: false,
+        updateWhileInteracting: false,
         properties: {
             type: 'airports',
         },
         declutter: 'airports',
-    });
-
-    traconsLayer = new VectorLayer<any>({
-        source: traconsSource,
-        zIndex: FEATURES_Z_INDEX.AIRPORTS_TRACONS,
-        properties: {
-            type: 'airports-tracons',
-        },
     });
 
     const styles = airportLayoutStyles();
@@ -127,6 +113,8 @@ onMounted(() => {
         source: navigraphSource,
         zIndex: FEATURES_Z_INDEX.AIRPORTS_NAVIGRAPH,
         declutter: true,
+        updateWhileAnimating: false,
+        updateWhileInteracting: false,
         properties: {
             type: 'airports-navigraph',
         },
@@ -148,13 +136,14 @@ onMounted(() => {
         zIndex: FEATURES_Z_INDEX.AIRPORTS_GATES,
         minZoom: 15,
         declutter: 'gates',
+        updateWhileAnimating: false,
+        updateWhileInteracting: false,
         properties: {
             type: 'airports-gates',
         },
     });
 
     map.value.addLayer(airportsLayer);
-    map.value.addLayer(traconsLayer);
     map.value.addLayer(navigraphLayer);
     map.value.addLayer(gatesLayer);
 
@@ -203,18 +192,15 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     airportsLayer?.dispose();
-    traconsLayer?.dispose();
     navigraphLayer?.dispose();
     gatesLayer?.dispose();
 
     airportsSource?.clear();
     globalMapEntities.airports = null;
-    traconsSource?.clear();
     navigraphSource?.clear();
     gatesSource?.clear();
 
     map.value?.removeLayer(airportsLayer);
-    map.value?.removeLayer(traconsLayer);
     map.value?.removeLayer(navigraphLayer);
     map.value?.removeLayer(gatesLayer);
 });
