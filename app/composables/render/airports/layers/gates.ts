@@ -46,7 +46,7 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer}: {
 
         if (!runways?.length && !gates?.length) continue;
 
-        for (const pilot of [...airportsMap[icao].groundDep ?? [], ...airportsMap[icao].groundArr ?? []] as VatsimShortenedAircraft[]) {
+        for (const pilot of [...airportsMap[icao]?.groundDep ?? [], ...airportsMap[icao]?.groundArr ?? []] as VatsimShortenedAircraft[]) {
             checkIsPilotInGate(pilot, gates);
         }
 
