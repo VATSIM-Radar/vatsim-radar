@@ -8,8 +8,6 @@ import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
 import type { MapAircraftList } from '~/types/map';
 
 let styleFillCache: Record<string, Fill> = {};
-let styleStrokeCache: Record<string, Stroke> = {};
-let styleIconCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};
 
 function getCachedFill(color: string) {
@@ -36,8 +34,6 @@ export function setAirportStyle(layer: VectorLayer) {
 
     styleCache = {};
     styleFillCache = {};
-    styleStrokeCache = {};
-    styleIconCache = {};
 
     // TODO: rework cache https://stackoverflow.com/questions/59032715/how-to-cache-styles-but-still-set-individual-text
 
@@ -46,25 +42,33 @@ export function setAirportStyle(layer: VectorLayer) {
 
         const properties = feature.getProperties();
         if (isMapFeature('airport', properties)) {
+            if (properties.isPseudo) return;
             let declutterMode: DeclutterMode = properties.atcLength ? 'obstacle' : 'declutter';
 
             if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
             else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = properties.atcLength ? 'obstacle' : 'declutter';
             else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
+            const zIndex = calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength });
+            const key = `${ properties.icao }-${ declutterMode }`;
 
-            return [
-                new Style({
+            if (!styleCache[key]) {
+                styleCache[key] = new Style({
                     text: new Text({
                         font: getTextFont('3b-medium'),
-                        text: `${ properties.icao }${ !properties.atcLength && showAirportDetails ? '\n•' : '' }`,
+                        text: '',
                         offsetY: -12,
                         textBaseline: 'top',
                         fill: getCachedFill(properties.color),
                         declutterMode,
                     }),
-                    zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }),
-                }),
-            ];
+                    zIndex,
+                });
+            }
+
+            styleCache[key].getText()!.setText(`${ properties.icao }${ !properties.atcLength && showAirportDetails ? '\n•' : '' }`);
+            styleCache[key].setZIndex(zIndex);
+
+            return [styleCache[key]];
         }
 
         if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
@@ -93,32 +97,33 @@ export function setAirportStyle(layer: VectorLayer) {
         if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
             const strokeKey = String(store.bookingOverride || properties.isBooked) + String(properties.isTWR);
 
-            if (!styleStrokeCache[strokeKey]) {
-                styleStrokeCache[strokeKey] = new Stroke({
-                    width: 2,
-                    lineDash: properties.isTWR ? [4, 8] : undefined,
-                    lineJoin: 'round',
-                    color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex),
+            if (!styleCache[strokeKey]) {
+                styleCache[strokeKey] = new Style({
+                    text: new Text({
+                        font: getTextFont('caption-medium'),
+                        text: '',
+                        placement: 'point',
+                        overflow: true,
+                        fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex)),
+                        backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                        backgroundStroke: new Stroke({
+                            width: 2,
+                            lineDash: properties.isTWR ? [4, 8] : undefined,
+                            lineJoin: 'round',
+                            color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex),
+                        }),
+                        padding: [3, 1, 3, 3],
+                    }),
+                    zIndex: 0,
                 });
             }
 
-            const stroke = styleStrokeCache[strokeKey];
+            styleCache[strokeKey].getText()!.setText(properties.isTWR
+                ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
+                : feature.getProperties()?.traconId || properties.icao);
+            styleCache[strokeKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1);
 
-            return new Style({
-                text: new Text({
-                    font: getTextFont('caption-medium'),
-                    text: properties.isTWR
-                        ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
-                        : feature.getProperties()?.traconId || properties.icao,
-                    placement: 'point',
-                    overflow: true,
-                    fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex)),
-                    backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
-                    backgroundStroke: stroke,
-                    padding: [3, 1, 3, 3],
-                }),
-                zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1,
-            });
+            return styleCache[strokeKey];
         }
 
         if (mapStore.renderedAirports.includes(properties.icao)) {
@@ -182,7 +187,6 @@ export function setAirportStyle(layer: VectorLayer) {
                 let offsetX = 35;
                 if (properties.localsLength > 3) offsetX = 40;
                 const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 1));
-                const zIndex = 5;
 
                 let textColor = getCachedFill(radarColors.green600Hex);
 
@@ -190,46 +194,50 @@ export function setAirportStyle(layer: VectorLayer) {
                 if (properties.counterType === 'training') textColor = getCachedFill(getCurrentThemeHexColor('purple500'));
                 if (properties.counterType === 'groundArr') textColor = getCachedFill(getCurrentThemeHexColor('red500'));
 
-                const cacheKey = String(properties.counterType) + String(offsetX) + String(offsetY) + zIndex;
-                if (!styleIconCache[cacheKey]) {
+                const cacheKey = String(properties.counterType);
+                const fakeCacheKey = `${ cacheKey }-fake`;
+
+                // TODO I stopped here
+
+                if (!styleCache[fakeCacheKey]) {
+                    styleCache[fakeCacheKey] = new Style({
+                        text: new Text({
+                            font: getTextFont('caption-light'),
+                            text: '1',
+                            offsetX: 0,
+                            offsetY: 0,
+                            padding: [-2, 10, 0, 10],
+                            fill: getCachedFill('transparent'),
+                            backgroundFill: getCachedFill('transparent'),
+                            declutterMode: 'obstacle',
+                        }),
+                        zIndex: 0,
+                    });
+                }
+
+                styleCache[fakeCacheKey].getText()!.setOffsetX(offsetX + 7);
+                styleCache[fakeCacheKey].getText()!.setOffsetY(offsetY);
+                styleCache[fakeCacheKey].setZIndex(calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) + 1);
+
+                if (!styleCache[cacheKey]) {
                     let key;
                     if (properties.counterType === 'groundDep') key = 'departure';
                     else if (properties.counterType === 'groundArr') key = 'arrived';
                     else if (properties.counterType === 'training') key = 'locals';
                     else if (properties.counterType === 'prefiles') key = 'prefile';
 
-                    styleIconCache[cacheKey] = new Icon({
-                        src: `/icons/atc/${ key }.png`,
-                        height: 5,
-                        displacement: [offsetX, -offsetY],
-                        declutterMode: 'none',
-                    });
-                }
-
-                if (!styleCache[cacheKey]) {
                     styleCache[cacheKey] = new Style({
-                        text: new Text({
-                            font: getTextFont('caption-light'),
-                            text: '1',
-                            offsetX: offsetX + 7,
-                            offsetY: offsetY,
-                            padding: [-2, 10, 0, 10],
-                            fill: getCachedFill('transparent'),
-                            backgroundFill: getCachedFill('transparent'),
-                            declutterMode: 'obstacle',
+                        image: new Icon({
+                            src: `/icons/atc/${ key }.png`,
+                            height: 5,
+                            displacement: [0, -0],
+                            declutterMode: 'none',
                         }),
-                        zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) + 1,
-                    });
-                }
-
-                return [
-                    new Style({
-                        image: styleIconCache[cacheKey],
                         text: new Text({
                             font: getTextFont('caption-medium').replace('11px', '10px'),
-                            text: properties.counter.toString(),
-                            offsetX: offsetX + 9,
-                            offsetY: offsetY + 5,
+                            text: '',
+                            offsetX: 0,
+                            offsetY: 0,
                             textBaseline: 'bottom',
                             textAlign: 'left',
                             backgroundFill: getCachedFill('transparent'),
@@ -238,8 +246,17 @@ export function setAirportStyle(layer: VectorLayer) {
                             declutterMode: 'none',
                         }),
                         zIndex: 0,
-                    }),
+                    });
+                }
+
+                styleCache[cacheKey].getImage()!.setDisplacement([offsetX, -offsetY]);
+                styleCache[cacheKey].getText()!.setOffsetX(offsetX + 9);
+                styleCache[cacheKey].getText()!.setOffsetY(offsetY + 5);
+                styleCache[cacheKey].getText()!.setText(properties.counter.toString());
+
+                return [
                     styleCache[cacheKey],
+                    styleCache[fakeCacheKey],
                 ];
             }
         }

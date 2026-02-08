@@ -2,6 +2,13 @@
 
 # [2.0.0-alpha.3]
 
+## Alpha changes
+
+- Significantly improved memory usage for airports style
+- Controllers in airport overlay are now sorted by position
+- Fixed overlays enabling on mobile even when map is moving
+- Fixed airports buttons not clickable on mobile
+
 ## Improvements and changes
 
 - Implement on-hover delay

@@ -22,6 +22,7 @@ export interface FeatureAirportProperties {
     lon: number;
     atc: VatsimShortenedController[];
     atcLength: number;
+    isPseudo: boolean;
     aircraftList: MapAircraftList;
 
     id: `airport-${ string }`;

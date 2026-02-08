@@ -15,7 +15,7 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import type { SelectEvent } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
-import { pointerMove, click, always } from 'ol/events/condition.js';
+import { pointerMove, click, always, singleClick } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
@@ -261,8 +261,8 @@ watch(map, val => {
     map.value?.addInteraction(hoverSelect);
 
     clickSelect = new Select({
-        condition: click,
-        hitTolerance: 4,
+        condition: singleClick,
+        hitTolerance: 10,
         toggleCondition: always,
         style: null,
     /* toggleCondition: always,

@@ -67,10 +67,10 @@ export function setMapAirports({ source, airports, layer}: {
                 color,
                 aircraftList: airport.aircraftList,
                 atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
-                atc: [
+                atc: sortControllersByPosition([
                     ...airport.localAtc,
                     ...airport.arrAtc,
-                ],
+                ]),
             });
         }
         else {
@@ -81,15 +81,16 @@ export function setMapAirports({ source, airports, layer}: {
                 icao: airport.airport.icao,
                 iata: airport.airport.iata,
                 name: airport.airport.name,
+                isPseudo: airport.airport.isPseudo,
                 lon: airport.airport.lon,
                 lat: airport.airport.lat,
                 atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                 aircraftList: airport.aircraftList,
                 color: colorForAirport(airport),
-                atc: [
+                atc: sortControllersByPosition([
                     ...airport.localAtc,
                     ...airport.arrAtc,
-                ],
+                ]),
             }));
         }
 
@@ -377,7 +378,7 @@ export function setMapAirports({ source, airports, layer}: {
             }
 
             if (isMapFeature('airport-atc', properties)) {
-                if (!airport.localAtc.length || !airport.localAtc.some(x => (properties.facility.facility === -1 ? x.isATIS : x.facility === properties.facility.facility) && !!x.booking === properties.facility.booked)) {
+                if (!airport.localAtc.length || !airport.localAtc.some(x => (properties.facility.facility === -1 ? x.isATIS : (x.facility === properties.facility.facility && !x.isATIS)) && !!x.booking === properties.facility.booked)) {
                     source.removeFeature(feature);
                     feature.dispose();
                 }
