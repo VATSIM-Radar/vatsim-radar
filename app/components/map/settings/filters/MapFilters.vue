@@ -560,12 +560,14 @@ const applyFilter = () => {
     store.getVATSIMData(true);
 };
 
-const pilotSuggestions = computed<{ airline: SelectItem[]; aircraft: SelectItem[] }>(() => {
+const pilotSuggestions = shallowRef<{ airline: SelectItem[]; aircraft: SelectItem[] }>({ airline: [], aircraft: [] });
+
+const setPilotSuggestions = async () => {
     const airlines: Record<string, { airline: RadarDataAirline; count: number }> = {};
     const aircraft: Record<string, { aircraft: string; count: number }> = {};
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        const airline = getAirlineFromCallsign(pilot.callsign);
+        const airline = await getAirlineFromCallsign(pilot.callsign);
         const aircraftShort = pilot.aircraft_short?.split('/')[0];
 
         if (airline) {
@@ -589,7 +591,7 @@ const pilotSuggestions = computed<{ airline: SelectItem[]; aircraft: SelectItem[
         }
     }
 
-    return {
+    pilotSuggestions.value = {
         aircraft: Object.entries(aircraft).sort((a, b) => b[1].count - a[1].count).map(x => ({
             value: x[1].aircraft,
         })),
@@ -598,6 +600,12 @@ const pilotSuggestions = computed<{ airline: SelectItem[]; aircraft: SelectItem[
             text: x[1].airline.name,
         })),
     };
+};
+
+watch(dataStore.vatsim.data.pilots, () => {
+    setPilotSuggestions();
+}, {
+    immediate: true,
 });
 
 const airportsSuggestions = computed<SelectItem[]>(() => {

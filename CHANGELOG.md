@@ -6,6 +6,10 @@
 
 - Implement on-hover delay
 
+## Performance Improvements
+
+- Reduced memory usage for airlines icao codes
+
 # [2.0.0-alpha.2]
 
 ## Improvements and changes

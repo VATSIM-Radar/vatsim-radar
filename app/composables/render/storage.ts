@@ -10,6 +10,7 @@ import type {
 } from '~/types/data/vatsim';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
+    RadarDataAirline,
     RadarDataAirlinesAllList, Sigmets,
     SimAwareDataFeature,
     VatglassesDynamicAPIData,
@@ -50,11 +51,6 @@ import type { Coordinate } from 'ol/coordinate.js';
 const versions = ref<null | VatDataVersions>(null);
 const vatspy = shallowRef<VatSpyAPIData>();
 const navigraphVersion = ref<string | null>(null);
-const airlines = shallowRef<RadarDataAirlinesAllList>({
-    airlines: {},
-    virtual: {},
-    all: {},
-});
 const sigmets = shallowRef<Sigmets>({ type: 'FeatureCollection', features: [] });
 const vatglasses = shallowRef('');
 const visiblePilots = shallowRef<VatsimMandatoryPilot[]>([]);
@@ -189,7 +185,7 @@ export interface UseDataStore {
     visiblePilotsObj: ShallowRef<Record<string, VatsimMandatoryPilot>>;
     time: Ref<number>;
     sigmets: ShallowRef<Sigmets>;
-    airlines: ShallowRef<RadarDataAirlinesAllList>;
+    airlines: (icao: string, virtual?: boolean) => Promise<RadarDataAirline | null>;
     navigraphWaypoints: Ref<Record<string, {
         pilot: VatsimShortenedAircraft;
         coordinates: Coordinate;
@@ -233,7 +229,9 @@ const dataStore: UseDataStore = {
     visiblePilots,
     visiblePilotsObj,
     sigmets,
-    airlines,
+    airlines: (icao, virtual?: boolean) => {
+        return clientDB.keyVal.get(`airline-${ icao }${ virtual ? '-virtual' : '' }`) as Promise<RadarDataAirline>;
+    },
     navigraphWaypoints: waypoints,
     navigraphProcedures,
     navigraphAircraftProcedures,

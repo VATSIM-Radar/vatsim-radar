@@ -107,17 +107,19 @@ export interface FeatureAirportNavigraphProperties {
     id: `airport-${ string }-${ 'gate' | 'runway' | 'layer' }-${ string }`;
 }
 
-interface FeatureAirportSectorDefaultProperties {
+export interface FeatureAirportSectorDefaultProperties {
     id: `sector-${ string }`;
     type: 'sector';
     sectorType: 'empty' | 'fir' | 'uir';
     selected?: boolean;
+    booked?: boolean;
+    duplicated?: boolean;
     atc: VatsimShortenedController[];
 }
 
-interface FeatureAirportSectorVGProperties {
+export interface FeatureAirportSectorVGProperties {
     id: `sector-${ string }`;
-    type: 'sector';
+    type: 'sector-vatglasses';
     sectorType: 'vatglasses';
     selected?: boolean;
     min: number;
@@ -127,9 +129,6 @@ interface FeatureAirportSectorVGProperties {
     atc: VatsimShortenedController[];
     colour: string;
 }
-
-export type FeatureSectorProperties = FeatureAirportSectorDefaultProperties | FeatureAirportSectorVGProperties;
-
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -137,7 +136,8 @@ export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
-export type FeatureSector = Feature<Point, FeatureSectorProperties>;
+export type FeatureSector = Feature<Point, FeatureAirportSectorDefaultProperties>;
+export type FeatureSectorVG = Feature<Point, FeatureAirportSectorVGProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -150,6 +150,7 @@ export type MapFeatures =
     | FeatureAirportCounter
     | FeatureAirportNavigraph
     | FeatureSector
+    | FeatureSectorVG
     | FeatureSimAware;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];

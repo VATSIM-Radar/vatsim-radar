@@ -230,6 +230,7 @@ import { getAirlineFromCallsign } from '~/composables';
 import UiBubble from '~/components/ui/data/UiBubble.vue';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
+import type { RadarDataAirline } from '~/utils/server/storage';
 
 const props = defineProps({
     pilot: {
@@ -266,8 +267,14 @@ const arrAirport = computed(() => {
     return getAirportByIcao(props.pilot.flight_plan?.arrival);
 });
 
-const airline = computed(() => getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks));
+const airline = shallowRef<RadarDataAirline | null>(null);
 const friend = computed(() => store.friends.find(x => x.cid === props.pilot.cid));
+
+watch(() => `${ props.pilot.callsign }-${ props.pilot?.flight_plan?.remarks }`, async () => {
+    airline.value = await getAirlineFromCallsign(props.pilot.callsign, props.pilot.flight_plan?.remarks);
+}, {
+    immediate: true,
+});
 
 const datetime = computed(() => new Intl.DateTimeFormat('en-GB', {
     hourCycle: store.user?.settings.timeFormat === '12h' ? 'h12' : 'h23',
