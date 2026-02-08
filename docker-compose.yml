@@ -11,6 +11,7 @@ services:
             - 8080
             - 9229
         command: /radar/.config/command.sh
+        restart: unless-stopped
         ports:
             - "8080:8080"
             - "9229:9229"

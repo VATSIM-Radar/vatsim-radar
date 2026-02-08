@@ -1,13 +1,11 @@
 <template>
     <map-html-overlay
+        is-interaction
         model-value
         :settings="{
             //position: payload.coordinate,
-            position: [
-                payload.coordinate[0],
-                payload.coordinate[1],
-            ],
-            offset: [0, 5],
+            position: coordinate,
+            offset: [getOffsetX, 5],
             stopEvent: true,
             positioning: 'center-left',
         }"
@@ -117,7 +115,21 @@ const emit = defineEmits({
 
 const store = useStore();
 const mapStore = useMapStore();
+const dataStore = useDataStore();
 const properties = computed(() => props.payload.feature.getProperties());
+const coordinate = computed(() => {
+    return getCurrentWorldCoordinate({
+        coordinate: [dataStore.vatspy.value?.data.keyAirports.icao[properties.value.icao]?.lon ?? 0, dataStore.vatspy.value?.data.keyAirports.icao[properties.value.icao]?.lat ?? 0],
+        eventCoordinate: props.payload.coordinate,
+    });
+});
+
+const getOffsetX = computed(() => {
+    let baseOffset = properties.value.localsLength > 3 ? 57 : 52;
+    if (properties.value.counter > 9) baseOffset += 7;
+    if (properties.value.counter > 99) baseOffset += 12;
+    return baseOffset;
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,14 @@
 # Changelog
 
+# [2.0.0-alpha.2.4]
+
+## Alpha changes
+
+- Airport "A" counter placeholder has been replaced with proper icons
+- Fixed an issue when counters were always hidden when airports were always decluttered
+- ATIS-only airports will now be decluttered when "staffed only" setting is active
+- Counters popup "X" position is now fixed
+
 # [2.0.0-alpha.2.3]
 
 ## Improvements and changes

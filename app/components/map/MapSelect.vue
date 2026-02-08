@@ -134,7 +134,6 @@ const definitions = {
     airportCounter: {
         featureTypes: ['airport-counter'],
         hover: payload => {
-            console.log(payload.feature);
             return openOverlay('airportCounter', payload);
         },
         click: payload => {

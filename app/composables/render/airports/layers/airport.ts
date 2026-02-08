@@ -90,7 +90,7 @@ export function setMapAirports({ source, airports, layer}: {
 
                 if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
                 else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = properties.atcLength ? 'obstacle' : 'declutter';
-                else if (store.mapSettings.airportsHide === 'none') declutterMode = 'none';
+                else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
 
                 return [
                     new Style({
@@ -221,7 +221,7 @@ export function setMapAirports({ source, airports, layer}: {
                     const height = 12;
                     let offsetX = 35;
                     if (properties.localsLength > 3) offsetX = 40;
-                    const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height + 2));
+                    const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 1));
                     const zIndex = 5;
 
                     let textColor = getCachedFill(radarColors.green600Hex);
@@ -232,10 +232,16 @@ export function setMapAirports({ source, airports, layer}: {
 
                     const cacheKey = String(properties.counterType) + String(offsetX) + String(offsetY) + zIndex;
                     if (!styleIconCache[cacheKey]) {
+                        let key;
+                        if (properties.counterType === 'groundDep') key = 'departure';
+                        else if (properties.counterType === 'groundArr') key = 'arrived';
+                        else if (properties.counterType === 'training') key = 'locals';
+                        else if (properties.counterType === 'prefiles') key = 'prefile';
+
                         styleIconCache[cacheKey] = new Icon({
-                            src: `/icons/atc/A-booked.png`,
-                            height: 12,
-                            displacement: [offsetX, offsetY],
+                            src: `/icons/atc/${ key }.png`,
+                            height: 5,
+                            displacement: [offsetX, -offsetY],
                             declutterMode: 'none',
                         });
                     }
@@ -245,11 +251,11 @@ export function setMapAirports({ source, airports, layer}: {
                             text: new Text({
                                 font: getTextFont('caption-light'),
                                 text: '1',
-                                offsetX: offsetX + 5,
-                                offsetY: offsetY - 11,
-                                padding: [2, 10, 0, 10],
+                                offsetX: offsetX + 7,
+                                offsetY: offsetY,
+                                padding: [-2, 10, 0, 10],
                                 fill: getCachedFill('transparent'),
-                                // backgroundFill: getCachedFill('red'),
+                                backgroundFill: getCachedFill('transparent'),
                                 declutterMode: 'obstacle',
                             }),
                             zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) + 1,
@@ -260,12 +266,14 @@ export function setMapAirports({ source, airports, layer}: {
                         new Style({
                             image: styleIconCache[cacheKey],
                             text: new Text({
-                                font: getTextFont('caption-medium'),
+                                font: getTextFont('caption-medium').replace('11px', '10px'),
                                 text: properties.counter.toString(),
-                                offsetX: offsetX + 10,
-                                offsetY: offsetY + 6,
+                                offsetX: offsetX + 9,
+                                offsetY: offsetY + 5,
                                 textBaseline: 'bottom',
                                 textAlign: 'left',
+                                backgroundFill: getCachedFill('transparent'),
+                                padding: [-2, 0, -2, 7],
                                 fill: textColor,
                                 declutterMode: 'none',
                             }),
@@ -291,7 +299,7 @@ export function setMapAirports({ source, airports, layer}: {
                 ...properties,
                 color,
                 aircraftList: airport.aircraftList,
-                atcLength: airport.localAtc.length + airport.arrAtc.length,
+                atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                 atc: [
                     ...airport.localAtc,
                     ...airport.arrAtc,
@@ -308,7 +316,7 @@ export function setMapAirports({ source, airports, layer}: {
                 name: airport.airport.name,
                 lon: airport.airport.lon,
                 lat: airport.airport.lat,
-                atcLength: airport.localAtc.length + airport.arrAtc.length,
+                atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                 aircraftList: airport.aircraftList,
                 color: colorForAirport(airport),
                 atc: [
@@ -415,7 +423,7 @@ export function setMapAirports({ source, airports, layer}: {
                         totalCount,
                         index,
                         localsLength,
-                        atcLength: airport.localAtc.length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         aircraftList: airport.aircraftList,
                     });
                 }
@@ -432,7 +440,7 @@ export function setMapAirports({ source, airports, layer}: {
                         localsLength,
                         counterType: key,
                         aircraft: value,
-                        atcLength: airport.localAtc.length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         aircraftList: airport.aircraftList,
                     });
                     source.addFeature(feature);
@@ -454,7 +462,7 @@ export function setMapAirports({ source, airports, layer}: {
                         isTWR,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.localAtc.length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         aircraftList: airport.aircraftList,
                     });
                 }
@@ -486,7 +494,7 @@ export function setMapAirports({ source, airports, layer}: {
                         isTWR,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.localAtc.length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         aircraftList: airport.aircraftList,
                     });
 
@@ -521,7 +529,7 @@ export function setMapAirports({ source, airports, layer}: {
                             isDuplicated,
                             isBooked,
                             aircraftList: airport.aircraftList,
-                            atcLength: airport.localAtc.length + airport.arrAtc.length,
+                            atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         });
                     }
                     else {
@@ -562,7 +570,7 @@ export function setMapAirports({ source, airports, layer}: {
                             featureId: atc.id,
                             traconId: atc.traconFeature.properties?.id,
                             aircraftList: airport.aircraftList,
-                            atcLength: airport.localAtc.length + airport.arrAtc.length,
+                            atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                         });
 
                         source.addFeature(tracon);
