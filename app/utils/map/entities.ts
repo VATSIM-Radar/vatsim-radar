@@ -107,6 +107,29 @@ export interface FeatureAirportNavigraphProperties {
     id: `airport-${ string }-${ 'gate' | 'runway' | 'layer' }-${ string }`;
 }
 
+interface FeatureAirportSectorDefaultProperties {
+    id: `sector-${ string }`;
+    type: 'sector';
+    sectorType: 'empty' | 'fir' | 'uir';
+    selected?: boolean;
+    atc: VatsimShortenedController[];
+}
+
+interface FeatureAirportSectorVGProperties {
+    id: `sector-${ string }`;
+    type: 'sector';
+    sectorType: 'vatglasses';
+    selected?: boolean;
+    min: number;
+    max: number;
+    countryGroupId: string;
+    positionId: string;
+    atc: VatsimShortenedController[];
+    colour: string;
+}
+
+export type FeatureSectorProperties = FeatureAirportSectorDefaultProperties | FeatureAirportSectorVGProperties;
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -114,6 +137,7 @@ export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
+export type FeatureSector = Feature<Point, FeatureSectorProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -125,6 +149,7 @@ export type MapFeatures =
     | FeatureAirportAtc
     | FeatureAirportCounter
     | FeatureAirportNavigraph
+    | FeatureSector
     | FeatureSimAware;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
