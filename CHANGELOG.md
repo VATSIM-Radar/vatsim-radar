@@ -1,129 +1,31 @@
 # Changelog
 
-# [2.0.0-alpha.2.4]
-
-## Alpha changes
-
-- Airport "A" counter placeholder has been replaced with proper icons
-- Fixed an issue when counters were always hidden when airports were always decluttered
-- ATIS-only airports will now be decluttered when "staffed only" setting is active
-- Counters popup "X" position is now fixed
-
-# [2.0.0-alpha.2.3]
-
-## Improvements and changes
-
-- Added compact facility view when too much info is shown (`Max counters to show` setting value)
-- (PROVIDE FEEDBACK) mobile on-hover overlays are now fixed to bottom of the screen and centered. Wow!
-
-## Alpha changes
-
-- Unstaffed airport priority is now determined based on aircraft length
-- Staffed airports are now never hidden, unless a setting is set
-- Added a setting "Hide airports on zoom" with values: Unstaffed only (default), Always, Never
-- Airport counters are now always hidden on zoom level 5.5 or less
-- ATC facility width is now stable for a perfectionist list display
-- Fixed staffed approach facilities displaying as booked
-- Improved facility icon hover effect
-- Fixed airports without SimAware TRACON data not being displayed
-- Map data (counters and stuff) is now loaded much faster initially
-- Counters are now centered over airport point rather than label
-- Fixed rare case when select interaction crashed and always solved cursor pointer
-- Navigraph layouts, gates and runways are put in operation. Layout can have some bugs, report everything that is different from production
-
-## Performance Improvements
-
-- Reduced gates memory consumption on render
-
-# [2.0.0-alpha.2.2]
-
-## Alpha changes
-
-- Fixed settings save not working as expected for most settings
-- Fixed approach controllers not updating
-- Restored airport tracon/facility hovering effect
-- Fixed inverted counters hover zone
-- Fixed priority for unstaffed airports showing above staffed. More to come
-
-## Improvements and changes
-
-- Approach transition will now be automatically parsed from flight plan
-
-# [2.0.0-alpha.2.1]
-
-## Alpha changes 
-
-- It's now much easier to hover for airport controllers popup
-- Controller and frequency are now clickable in airport controllers popup
-- Fixed controller card design & layout
-- "Hide info when only ATIS" functionaility has been restored
-- Slightly changed counters weight
-- Dots are no longer shown on 100+ airports in sight
-- Overlays are no longer removed from map on moving on mobile devices
-- Fixed TRACONs showing incorrect label name
-- You can once again hover on counters. Yay!
-
 # [2.0.0-alpha.2]
 
-This is initial "Selects v2" build. It has only been done for airports layers and nothing else. ALL feedback is welcome. Counters hover is INOP.
-
 ## Improvements and changes
 
-- Map is now infinite (QA: FOR AIRPORTS ONLY)
+- Map is now infinite
 - Settings color reset now respects all further color changes
 - Airports are now "decluttered" when zoomed out
+- Added compact facility view when too much info is shown (`Max counters to show` setting value)
+- Mobile on-hover overlays are now fixed to bottom of the screen and centered. Wow!
+- Approach transition will now be automatically parsed from flight plan
+- Approach transition will now be automatically parsed from flight plan
 
 ## Redesign
 
 - Map on-click info popup redesign
 - ATC icons redesign
 - Controller info redesign
+- New logo
+- New font
 
 ## Performance Improvements
 
 - Improved performance of airports/ATC data update
 - Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
-
-# [2.0.0-alpha.1.3]
-
-- New color palette is not used anywhere besides page background and connections count in footer. But you can preview it in Map Settings -> Colors!
-
-## Developer changes
-
-- Implemented new color palette
-
-# [2.0.0-alpha.1.2]
-
-## Alpha changes
-
-- Updated "VATSIM Radar" text in header
-
-## Developer changes
-
-- Added standard typography component
-
-# [2.0.0-alpha.1.1]
-
-## Alpha changes
-
-- Favicon has been fixed
-- Light theme logo has been fixed
-
-## Developer changes
-
-- Slightly reduced bundle size by optimizing map engine imports
-
-# [2.0.0-alpha.1]
-
-## Redesign
-
-- New logo (favicon will be adjusted later)
-- New font (all website font sizes/weights will be adjusted later)
-
-## Developer changes
-
-- Reworked components and methods structure
+- Reduced gates memory consumption on render
 
 # [1.2.4-5]
 
