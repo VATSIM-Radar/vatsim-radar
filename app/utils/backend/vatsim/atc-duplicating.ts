@@ -168,9 +168,10 @@ export const duplicatingSettings = [
     * @author 1560654
     */
     {
-        regex: /^(ATL|A80|AHN|MCN|CSG)(_\w{0,3})?_(CTR|APP|DEP)$/,
+        regex: /^(ATL|A80|AHN|MCN|CSG)(?:_\w{1,3})?_(CTR|APP|DEP)$/,
         mapping: {
             ATL: 'ATL_APP',
+            AGS: 'AGS_APP',
             AHN: 'AHN_APP',
             CSG: 'CSG_APP',
             MCN: 'MCN_APP',
