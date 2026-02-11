@@ -50,7 +50,7 @@ import { getFacilityPositionColor } from '~/composables/vatsim/controllers';
 
 const props = defineProps({
     variant: {
-        type: String as PropType<'accent' | 'default'>,
+        type: String as PropType<'accent' | 'default' | 'warning'>,
         default: 'default',
     },
     time: {
@@ -128,6 +128,11 @@ const zuluTime = computed(() => new Intl.DateTimeFormat(['en-GB'], {
 
     &--variant-accent {
         background: $blue500;
+    }
+
+    &--variant-warning {
+        color: $darkGray900;
+        background: $orange500;
     }
 
     &--type-atc {
