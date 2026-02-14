@@ -4,4 +4,6 @@ export const FEATURES_Z_INDEX = {
     AIRPORTS_TRACONS: 7,
     AIRPORTS_LABELS: 5,
     AIRPORTS_GATES: 6,
+
+    SECTORS: 2,
 };

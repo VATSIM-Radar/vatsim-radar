@@ -113,15 +113,18 @@ export interface FeatureAirportSectorDefaultProperties {
     type: 'sector';
     sectorType: 'empty' | 'fir' | 'uir';
     selected?: boolean;
-    booked?: boolean;
-    duplicated?: boolean;
+    booked: boolean;
+    duplicated: boolean;
+    icao: string;
+    uir?: string;
     atc: VatsimShortenedController[];
 }
 
 export interface FeatureAirportSectorVGProperties {
-    id: `sector-${ string }`;
     type: 'sector-vatglasses';
     sectorType: 'vatglasses';
+    id?: never;
+    vgSectorId: string;
     selected?: boolean;
     min: number;
     max: number;
@@ -130,6 +133,7 @@ export interface FeatureAirportSectorVGProperties {
     atc: VatsimShortenedController[];
     colour: string;
 }
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -137,8 +141,8 @@ export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
-export type FeatureSector = Feature<Point, FeatureAirportSectorDefaultProperties>;
-export type FeatureSectorVG = Feature<Point, FeatureAirportSectorVGProperties>;
+export type FeatureSector = Feature<Polygon | MultiPolygon, FeatureAirportSectorDefaultProperties>;
+export type FeatureSectorVG = Feature<Polygon | MultiPolygon, FeatureAirportSectorVGProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -182,7 +186,7 @@ export function getMapFeature<T extends MapFeaturesType>(
     source: VectorSource,
     id: MapFeatureProperties<T>['id'],
 ): FeatureForType<T> | null {
-    return source.getFeatureById(id) as FeatureForType<T> | null;
+    return source.getFeatureById(id!) as FeatureForType<T> | null;
 }
 
 export function isMapFeature<T extends MapFeaturesType>(type: T, properties: Record<string, any>): properties is MapFeatureProperties<T> {

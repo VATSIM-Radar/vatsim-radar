@@ -46,8 +46,8 @@ export interface VatglassesActiveData {
 
 export interface VatglassesActivePosition {
     atc: VatsimShortenedController[];
-    sectors: TurfFeature<TurfPolygon>[] | null;
-    sectorsCombined: TurfFeature<TurfPolygon>[] | null;
+    sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
+    sectorsCombined: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] | null;
     airspaceKeys: string | null;
     lastUpdated: Ref<string | null> | null;
 }
@@ -73,6 +73,7 @@ export interface VatglassesSectorProperties {
     min: number;
     max: number;
     countryGroupId: string;
+    altrange?: number[][];
     vatglassesPositionId: string;
     atc: VatsimShortenedController[];
     colour: string;
@@ -459,7 +460,7 @@ function convertSectorToGeoJson(vatglassesData: VatglassesData, sector: Vatglass
             }
         }
 
-        const geoJsonPolygon: TurfFeature<TurfPolygon> = polygon([convertedPoints], {
+        const geoJsonPolygon: TurfFeature<TurfPolygon, VatglassesSectorProperties> = polygon([convertedPoints], {
             // id: airspace.id,
             min: sector.min ?? 0,
             max: sector.max ?? 999,
@@ -468,7 +469,7 @@ function convertSectorToGeoJson(vatglassesData: VatglassesData, sector: Vatglass
             atc: atc,
             colour: colour,
             type: 'vatglasses',
-        } as VatglassesSectorProperties);
+        });
         return geoJsonPolygon;
     }
     catch (e) {
@@ -769,6 +770,7 @@ export async function initVatglasses(inputMode: string = 'local', serverDataStor
         }
     }
     else {
+        if (worker || !getCurrentScope()) return;
         mode = 'local';
         dataStore = useDataStore();
         store = useStore();

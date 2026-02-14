@@ -10,12 +10,11 @@ import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
-import { isVatGlassesActive } from '~/utils/data/vatglasses';
+import { initVatglasses } from '~/utils/data/vatglasses';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { makeFakeAtcFeatureFromBooking } from '~/utils';
-import { isMapFeature } from '~/utils/map/entities';
-import { setSectorStyle } from '~/composables/render/sectors/style';
+import { setMapSectors } from '~/composables/render/sectors';
 
 let vectorLayer: VectorLayer<any>;
 let vectorSource: VectorSource;
@@ -23,10 +22,6 @@ const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const store = useStore();
-const sectorsList = ref([]);
-
-const vatGlassesActive = isVatGlassesActive;
-const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
 
 const facilities = useFacilitiesIds();
 
@@ -81,7 +76,7 @@ const firs = computed(() => {
     return allFirs;
 });
 
-onMounted(() => {
+onMounted(async () => {
     if (!map.value) throw new Error('Map is not initialized');
 
     vectorSource = new VectorSource<any>({
@@ -91,20 +86,32 @@ onMounted(() => {
 
     vectorLayer = new VectorLayer<any>({
         source: vectorSource,
-        zIndex: FEATURES_Z_INDEX.AIRPORTS,
+        zIndex: FEATURES_Z_INDEX.SECTORS,
         properties: {
             type: 'airports',
         },
-        declutter: 'airports',
+        declutter: 'sectors',
     });
 
     map.value.addLayer(vectorLayer);
 
     const mapSettings = computed(() => store.mapSettings);
-    const mapRender = computed(() => mapStore.renderedAirports.length === 0);
+    const mapLevel = computed(() => store.localSettings.vatglassesLevel);
+    await initVatglasses();
 
-    watch([sectorsList, mapSettings, mapRender], async () => {
-
+    watch([firs, mapSettings, dataStore.vatglassesActivePositions, mapLevel], async () => {
+        if (hideAtc.value || hideOnZoom.value) {
+            vectorSource.clear();
+        }
+        else {
+            setMapSectors({
+                source: vectorSource,
+                layer: vectorLayer,
+                firs: firs.value,
+            });
+        }
+    }, {
+        immediate: true,
     });
 });
 
@@ -116,9 +123,3 @@ onBeforeUnmount(() => {
     map.value?.removeLayer(vectorLayer);
 });
 </script>
-
-<style scoped lang="scss">
-div {
-
-}
-</style>

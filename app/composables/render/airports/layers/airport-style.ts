@@ -197,8 +197,6 @@ export function setAirportStyle(layer: VectorLayer) {
                 const cacheKey = String(properties.counterType);
                 const fakeCacheKey = `${ cacheKey }-fake`;
 
-                // TODO I stopped here
-
                 if (!styleCache[fakeCacheKey]) {
                     styleCache[fakeCacheKey] = new Style({
                         text: new Text({
