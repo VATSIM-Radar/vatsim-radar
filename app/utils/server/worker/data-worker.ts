@@ -12,7 +12,7 @@ import { $fetch } from 'ofetch';
 import { initKafka } from '~/utils/server/worker/kafka';
 import { initWebsocket, wss } from '~/utils/server/vatsim/ws';
 import { getPlanInfluxDataForPilots, getShortInfluxDataForPilots } from '~/utils/server/influx/converters';
-import { getRedis } from '~/utils/server/redis';
+import { defaultRedis, getRedis } from '~/utils/server/redis';
 import { defineCronJob, getVATSIMIdentHeaders } from '~/utils/server';
 import { initWholeBunchOfBackendTasks, navigraphUpdating } from '~/utils/server/tasks';
 import { getLocalText, isDebug } from '~/utils/server/debug';
@@ -515,6 +515,45 @@ defineCronJob('* * * * * *', async () => {
             if (newerData.deleted) return toDelete.atc.add(controller.callsign);
 
             objectAssign(controller, newerData);
+        });
+
+        const atisByIcao: Record<string, Record<string, any>> = {};
+        radarStorage.vatsim.data!.atis.forEach(controller => {
+            if (!controller.callsign.endsWith('_ATIS') || !controller.text_atis?.length) return;
+            const icao = controller.callsign.split('_')[0];
+            if (!icao) return;
+
+            atisByIcao[icao] ??= {};
+            atisByIcao[icao][controller.callsign] = {
+                text_atis: controller.text_atis,
+                atis_code: controller.atis_code,
+                timestamp: Date.now(),
+                name: controller.name,
+                rating: controller.rating,
+            };
+        });
+
+        Object.entries(atisByIcao).forEach(([icao, newAtis]) => {
+            defaultRedis.get(`atis:last:${ icao }`).then(existing => {
+                let data = existing ? JSON.parse(existing) : {};
+                data = { ...data, ...newAtis };
+
+                const threeHoursAgo = Date.now() - (1000 * 60 * 60 * 3);
+                const filteredData: Record<string, any> = {};
+
+                Object.entries(data).forEach(([key, value]: [string, any]) => {
+                    if (key.endsWith('_ATIS') && value.timestamp > threeHoursAgo) {
+                        filteredData[key] = value;
+                    }
+                });
+
+                if (Object.keys(filteredData).length > 0) {
+                    defaultRedis.set(`atis:last:${ icao }`, JSON.stringify(filteredData), 'EX', 60 * 60 * 3).catch(console.error);
+                }
+                else {
+                    defaultRedis.del(`atis:last:${ icao }`).catch(console.error);
+                }
+            }).catch(console.error);
         });
 
         const pilotCallsigns = new Set(data.pilots.map(p => p.callsign));
