@@ -15,11 +15,11 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import type { SelectEvent } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
-import { pointerMove, click, always } from 'ol/events/condition.js';
+import { pointerMove, click, always, singleClick } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { MapFeaturesType } from '~/utils/map/entities';
+import type { MapFeatures, MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 
@@ -144,23 +144,39 @@ const definitions = {
 
 type SelectableFeatures = keyof typeof definitions;
 
-const priorities: Record<EventType, Array<SelectableFeatures | 'multi'>> = {
-    click: [
-        'airportControllers',
-        'airportCounter',
-        'airportApproach',
-        'airportLocal',
-        'multi',
-    ],
-    hover: [
-        'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal',
-    ],
-    rightClick: ['multi'],
+const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Feature[] }> = {
+    click: {
+        priorities: [
+            'airportControllers',
+            'airportCounter',
+            'airportApproach',
+            'airportLocal',
+            'multi',
+        ],
+        multiSelect: {},
+        selectedFeatures: [],
+    },
+    hover: {
+        priorities: [
+            'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal',
+        ],
+        multiSelect: {},
+        selectedFeatures: [],
+    },
+    rightClick: {
+        priorities: ['multi'],
+        multiSelect: {},
+        selectedFeatures: [],
+    },
 };
 
+let hoverAwaiting = false;
+
 function createSelectHandler(type: EventType) {
-    return (arg: SelectEvent) => {
+    return async (arg: SelectEvent) => {
         const changed = arg.selected;
+        if (hoverAwaiting && changed.length && changed.every(x => states[type].selectedFeatures.includes(x))) return;
+        states[type].selectedFeatures = changed;
 
         if (!changed.length) {
             openedOverlay.value = null;
@@ -173,7 +189,7 @@ function createSelectHandler(type: EventType) {
         for (const feature of changed) {
             const properties = feature.getProperties();
 
-            for (const priority of priorities[type]) {
+            for (const priority of states[type].priorities) {
                 // TODO
                 if (priority === 'multi') break;
                 const definition = definitions[priority];
@@ -189,7 +205,13 @@ function createSelectHandler(type: EventType) {
                     triggerRef(openedOverlay);
                 }
 
-                if (type === 'hover') selectFeature(feature, true);
+                if (type === 'hover') {
+                    hoverAwaiting = true;
+                    await sleep(50);
+                    hoverAwaiting = false;
+                    if (states[type].selectedFeatures[0] !== feature) break;
+                    selectFeature(feature, true);
+                }
 
                 const result = (definition as any)[type]({
                     feature,
@@ -239,8 +261,8 @@ watch(map, val => {
     map.value?.addInteraction(hoverSelect);
 
     clickSelect = new Select({
-        condition: click,
-        hitTolerance: 4,
+        condition: singleClick,
+        hitTolerance: 10,
         toggleCondition: always,
         style: null,
     /* toggleCondition: always,

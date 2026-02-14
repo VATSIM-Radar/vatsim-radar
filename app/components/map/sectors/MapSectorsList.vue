@@ -254,7 +254,6 @@ async function handleClick(e: MapBrowserEvent<any>) {
     vatglassesPopupIsShown.value = !!sectorsAtClick.value.length;
 }
 
-
 attachMoveEnd(() => {
     // Change of map position
     sectorsAtClick.value = [];

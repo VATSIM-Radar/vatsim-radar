@@ -1,21 +1,18 @@
 import type VectorSource from 'ol/source/Vector.js';
 import type { AirportListItem } from '~/composables/render/airports';
-import { getCurrentThemeHexColor, getCurrentThemeRgbColor } from '~/composables';
-import { Fill, Style, Text, Stroke, Icon } from 'ol/style.js';
+import { getCurrentThemeRgbColor } from '~/composables';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import { Point } from 'ol/geom.js';
 import type VectorLayer from 'ol/layer/Vector.js';
 import { createDefaultStyle } from 'ol/style/Style.js';
-import type { DeclutterMode } from 'ol/style/Style.js';
 import { createCircle } from '~/utils';
-import { getSelectedColorFromSettings } from '~/composables/settings/colors';
 import {
-    getFacilityPositionColor,
     sortControllersByPosition,
 } from '~/composables/vatsim/controllers';
 import type { VatsimBooking, VatsimShortenedController } from '~/types/data/vatsim';
-import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
+import type { MapAircraftKeys } from '~/types/map';
 import { getAirportCounters } from '~/composables/vatsim/airport';
+import { setAirportStyle } from '~/composables/render/airports/layers/airport-style';
 
 function colorForAirport(airport: AirportListItem) {
     const store = useStore();
@@ -32,23 +29,6 @@ function colorForAirport(airport: AirportListItem) {
     return `rgba(${ radarColors.orange500Rgb.join(',') }, ${ opacity ?? 0.9 })`;
 }
 
-let styleFillCache: Record<string, Fill> = {};
-let styleStrokeCache: Record<string, Stroke> = {};
-const styleIconCache: Record<string, Icon> = {};
-let styleCache: Record<string, Style> = {};
-
-function getCachedFill(color: string) {
-    let cachedFill = styleFillCache[color];
-    if (!cachedFill) {
-        cachedFill = new Fill({
-            color,
-        });
-        styleFillCache[color] = cachedFill;
-    }
-
-    return cachedFill;
-}
-
 interface Facility {
     facility: number;
     booked: boolean;
@@ -63,11 +43,6 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
     };
 }
 
-function calculateZIndex({ aircraft, atc}: { aircraft: MapAircraftList; atc: number }) {
-    if (atc) return 1000;
-    return Object.values(aircraft).reduce((acc, x) => acc + x.length, 0);
-}
-
 export function setMapAirports({ source, airports, layer}: {
     source: VectorSource;
     layer: VectorLayer;
@@ -75,216 +50,8 @@ export function setMapAirports({ source, airports, layer}: {
 }) {
     const store = useStore();
     const mapStore = useMapStore();
-    const facilities = useFacilitiesIds();
 
-    if (layer.getStyle() === createDefaultStyle) {
-        styleCache = {};
-        styleFillCache = {};
-        styleStrokeCache = {};
-        layer.setStyle(feature => {
-            const showAirportDetails = mapStore.renderedAirports.length < (store.mapSettings.airportCounterLimit ?? 100) && mapStore.zoom > 5.5;
-
-            const properties = feature.getProperties();
-            if (isMapFeature('airport', properties)) {
-                let declutterMode: DeclutterMode = properties.atcLength ? 'obstacle' : 'declutter';
-
-                if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
-                else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = properties.atcLength ? 'obstacle' : 'declutter';
-                else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
-
-                return [
-                    new Style({
-                        text: new Text({
-                            font: getTextFont('3b-medium'),
-                            text: `${ properties.icao }${ !properties.atcLength && showAirportDetails ? '\n•' : '' }`,
-                            offsetY: -12,
-                            textBaseline: 'top',
-                            fill: getCachedFill(properties.color),
-                            declutterMode,
-                        }),
-                        zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }),
-                    }),
-                ];
-            }
-
-            if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
-                const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
-                if (!styleCache[key]) {
-                    let fill: string | undefined;
-
-                    if (properties.selected) {
-                        fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`);
-                    }
-
-                    styleCache[key] = new Style({
-                        stroke: new Stroke({
-                            color: (store.bookingOverride || properties.isBooked) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.purple500Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.citrus600Rgb.join(',') }, 0.7)`),
-                            width: 2,
-                            lineDash: properties.isDuplicated ? [8, 5] : undefined,
-                            lineJoin: 'round',
-                        }),
-                        fill: fill ? getCachedFill(fill) : undefined,
-                    });
-                }
-
-                return styleCache[key];
-            }
-
-            if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
-                const strokeKey = String(store.bookingOverride || properties.isBooked) + String(properties.isTWR);
-
-                if (!styleStrokeCache[strokeKey]) {
-                    styleStrokeCache[strokeKey] = new Stroke({
-                        width: 2,
-                        lineDash: properties.isTWR ? [4, 8] : undefined,
-                        lineJoin: 'round',
-                        color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex),
-                    });
-                }
-
-                const stroke = styleStrokeCache[strokeKey];
-
-                return new Style({
-                    text: new Text({
-                        font: getTextFont('caption-medium'),
-                        text: properties.isTWR
-                            ? (!feature.getProperties()?.traconId || feature.getProperties()?.traconId === properties.icao) ? 'TWR' : feature.getProperties()?.traconId
-                            : feature.getProperties()?.traconId || properties.icao,
-                        placement: 'point',
-                        overflow: true,
-                        fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex)),
-                        backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
-                        backgroundStroke: stroke,
-                        padding: [3, 1, 3, 3],
-                    }),
-                    zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) - 1,
-                });
-            }
-
-            if (mapStore.renderedAirports.includes(properties.icao)) {
-                if (isMapFeature('airport-atc', properties)) {
-                    let letter: string | undefined;
-
-                    switch (properties.facility.facility) {
-                        case facilities.ATIS:
-                            letter = 'A';
-                            break;
-                        case facilities.TWR:
-                            letter = 'T';
-                            break;
-                        case facilities.DEL:
-                            letter = 'D';
-                            break;
-                        case facilities.GND:
-                            letter = 'G';
-                            break;
-                    }
-
-                    const width = 14;
-                    const offsetX = (properties.index - ((properties.totalCount - 1) / 2)) * (width - 2);
-
-                    const styleCacheKey = String(properties.index) + String(letter) + String(properties.facility.booked) + String(properties.totalCount) + String(properties.selected) + String(showAirportDetails);
-
-                    if (!styleCache[styleCacheKey]) {
-                        if (!showAirportDetails) {
-                            styleCache[styleCacheKey] = new Style({
-                                text: new Text({
-                                    font: 'normal 1px/100% Jura, Arial, sans-serif',
-                                    text: letter,
-                                    offsetX: offsetX,
-                                    offsetY: 10,
-                                    padding: [2, 5, 0, 5],
-                                    fill: getCachedFill('transparent'),
-                                    backgroundFill: getCachedFill(properties.facility.booked ? getCurrentThemeHexColor('lightGray800') : getFacilityPositionColor(properties.facility.facility, true)),
-                                    declutterMode: 'obstacle',
-                                }),
-                                zIndex: properties.index + (properties.selected ? 5 : 0),
-                            });
-                        }
-                        else {
-                            styleCache[styleCacheKey] = new Style({
-                                image: new Icon({
-                                    src: `/icons/atc/${ letter }${ properties.facility.booked ? '-booked' : '' }.png`,
-                                    width: width + (properties.selected ? 2 : 0),
-                                    displacement: [offsetX, -width],
-                                    declutterMode: 'none',
-                                }),
-                                zIndex: properties.index + (properties.selected ? 5 : 0),
-                            });
-                        }
-                    }
-
-                    return styleCache[styleCacheKey];
-                }
-
-                if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && store.mapSettings.airportsCounters?.showCounters !== false && showAirportDetails) {
-                    const height = 12;
-                    let offsetX = 35;
-                    if (properties.localsLength > 3) offsetX = 40;
-                    const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 1));
-                    const zIndex = 5;
-
-                    let textColor = getCachedFill(radarColors.green600Hex);
-
-                    if (properties.counterType === 'prefiles') textColor = getCachedFill(getCurrentThemeHexColor('lightGray900'));
-                    if (properties.counterType === 'training') textColor = getCachedFill(getCurrentThemeHexColor('purple500'));
-                    if (properties.counterType === 'groundArr') textColor = getCachedFill(getCurrentThemeHexColor('red500'));
-
-                    const cacheKey = String(properties.counterType) + String(offsetX) + String(offsetY) + zIndex;
-                    if (!styleIconCache[cacheKey]) {
-                        let key;
-                        if (properties.counterType === 'groundDep') key = 'departure';
-                        else if (properties.counterType === 'groundArr') key = 'arrived';
-                        else if (properties.counterType === 'training') key = 'locals';
-                        else if (properties.counterType === 'prefiles') key = 'prefile';
-
-                        styleIconCache[cacheKey] = new Icon({
-                            src: `/icons/atc/${ key }.png`,
-                            height: 5,
-                            displacement: [offsetX, -offsetY],
-                            declutterMode: 'none',
-                        });
-                    }
-
-                    if (!styleCache[cacheKey]) {
-                        styleCache[cacheKey] = new Style({
-                            text: new Text({
-                                font: getTextFont('caption-light'),
-                                text: '1',
-                                offsetX: offsetX + 7,
-                                offsetY: offsetY,
-                                padding: [-2, 10, 0, 10],
-                                fill: getCachedFill('transparent'),
-                                backgroundFill: getCachedFill('transparent'),
-                                declutterMode: 'obstacle',
-                            }),
-                            zIndex: calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength }) + 1,
-                        });
-                    }
-
-                    return [
-                        new Style({
-                            image: styleIconCache[cacheKey],
-                            text: new Text({
-                                font: getTextFont('caption-medium').replace('11px', '10px'),
-                                text: properties.counter.toString(),
-                                offsetX: offsetX + 9,
-                                offsetY: offsetY + 5,
-                                textBaseline: 'bottom',
-                                textAlign: 'left',
-                                backgroundFill: getCachedFill('transparent'),
-                                padding: [-2, 0, -2, 7],
-                                fill: textColor,
-                                declutterMode: 'none',
-                            }),
-                            zIndex: 0,
-                        }),
-                        styleCache[cacheKey],
-                    ];
-                }
-            }
-        });
-    }
+    if (layer.getStyle() === createDefaultStyle) setAirportStyle(layer);
 
     const map: Record<string, AirportListItem> = {};
 
@@ -300,10 +67,10 @@ export function setMapAirports({ source, airports, layer}: {
                 color,
                 aircraftList: airport.aircraftList,
                 atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
-                atc: [
+                atc: sortControllersByPosition([
                     ...airport.localAtc,
                     ...airport.arrAtc,
-                ],
+                ]),
             });
         }
         else {
@@ -314,15 +81,16 @@ export function setMapAirports({ source, airports, layer}: {
                 icao: airport.airport.icao,
                 iata: airport.airport.iata,
                 name: airport.airport.name,
+                isPseudo: airport.airport.isPseudo,
                 lon: airport.airport.lon,
                 lat: airport.airport.lat,
                 atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
                 aircraftList: airport.aircraftList,
                 color: colorForAirport(airport),
-                atc: [
+                atc: sortControllersByPosition([
                     ...airport.localAtc,
                     ...airport.arrAtc,
-                ],
+                ]),
             }));
         }
 
@@ -610,29 +378,11 @@ export function setMapAirports({ source, airports, layer}: {
             }
 
             if (isMapFeature('airport-atc', properties)) {
-                if (!airport.localAtc.length || !airport.localAtc.some(x => (properties.facility.facility === -1 ? x.isATIS : x.facility === properties.facility.facility) && !!x.booking === properties.facility.booked)) {
+                if (!airport.localAtc.length || !airport.localAtc.some(x => (properties.facility.facility === -1 ? x.isATIS : (x.facility === properties.facility.facility && !x.isATIS)) && !!x.booking === properties.facility.booked)) {
                     source.removeFeature(feature);
                     feature.dispose();
                 }
             }
         }
     }
-
-/*
-feature = new Feature({
-        geometry: new Point([props.airport.lon, props.airport.lat + (props.airport.isIata ? 300 : 0)]),
-        type: 'airport',
-        icao: props.airport.icao,
-    });
-
-    feature.setStyle(new Style({
-        text: new Text({
-            font: '12px LibreFranklin',
-            text: airportName.value,
-            offsetY: -10,
-            fill: new Fill({
-                color: getAirportColor.value,
-            }),
-        }),
- */
 }

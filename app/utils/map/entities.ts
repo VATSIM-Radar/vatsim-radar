@@ -22,6 +22,7 @@ export interface FeatureAirportProperties {
     lon: number;
     atc: VatsimShortenedController[];
     atcLength: number;
+    isPseudo: boolean;
     aircraftList: MapAircraftList;
 
     id: `airport-${ string }`;
@@ -107,6 +108,32 @@ export interface FeatureAirportNavigraphProperties {
     id: `airport-${ string }-${ 'gate' | 'runway' | 'layer' }-${ string }`;
 }
 
+export interface FeatureAirportSectorDefaultProperties {
+    id: `sector-${ string }`;
+    type: 'sector';
+    sectorType: 'empty' | 'fir' | 'uir';
+    selected?: boolean;
+    booked: boolean;
+    duplicated: boolean;
+    icao: string;
+    uir?: string;
+    atc: VatsimShortenedController[];
+}
+
+export interface FeatureAirportSectorVGProperties {
+    type: 'sector-vatglasses';
+    sectorType: 'vatglasses';
+    id?: never;
+    vgSectorId: string;
+    selected?: boolean;
+    min: number;
+    max: number;
+    countryGroupId: string;
+    positionId: string;
+    atc: VatsimShortenedController[];
+    colour: string;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -114,6 +141,8 @@ export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
+export type FeatureSector = Feature<Polygon | MultiPolygon, FeatureAirportSectorDefaultProperties>;
+export type FeatureSectorVG = Feature<Polygon | MultiPolygon, FeatureAirportSectorVGProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
@@ -125,6 +154,8 @@ export type MapFeatures =
     | FeatureAirportAtc
     | FeatureAirportCounter
     | FeatureAirportNavigraph
+    | FeatureSector
+    | FeatureSectorVG
     | FeatureSimAware;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
@@ -155,7 +186,7 @@ export function getMapFeature<T extends MapFeaturesType>(
     source: VectorSource,
     id: MapFeatureProperties<T>['id'],
 ): FeatureForType<T> | null {
-    return source.getFeatureById(id) as FeatureForType<T> | null;
+    return source.getFeatureById(id!) as FeatureForType<T> | null;
 }
 
 export function isMapFeature<T extends MapFeaturesType>(type: T, properties: Record<string, any>): properties is MapFeatureProperties<T> {

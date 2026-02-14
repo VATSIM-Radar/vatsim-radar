@@ -107,7 +107,7 @@ export const useMapStore = defineStore('map', {
     }),
     getters: {
         canShowOverlay(): boolean {
-            return (!this.moving || useStore().isTouch) && !this.distance.pixel;
+            return !this.moving && !this.distance.pixel;
         },
     },
     actions: {

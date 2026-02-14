@@ -7,6 +7,7 @@ import { clientDB } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
+    RadarDataAirline,
     RadarDataAirlinesAllList,
     SimAwareAPIData, SimAwareDataFeature,
     VatglassesAPIData,
@@ -271,19 +272,17 @@ export function checkForNavigraph() {
 
 export function checkForAirlines() {
     return initCheck('airlines', async ({ dataStore }) => {
-        let airlines = await clientDB.data.get('airlines') as IDBAirlinesData | undefined;
+        const airlines = await clientDB.keyVal.get('airlinesVersion') as string | undefined;
         let notRequired = true;
-        if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
+        if (!airlines || Date.now() > new Date(airlines).getTime()) {
             const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
-            airlines = {
-                expireDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
-                airlines: data,
-            };
-            await clientDB.data.put(airlines, 'airlines');
+
+            await clientDB.keyVal.bulkAdd(Object.values(data.all), Object.keys(data.all).map(x => `airline-${ x }`));
+            await clientDB.keyVal.bulkAdd(Object.values(data.virtual), Object.keys(data.virtual).map(x => `airline-${ x }-virtual`));
+            await clientDB.keyVal.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'airlinesVersion');
             notRequired = false;
         }
 
-        dataStore.airlines.value = airlines.airlines;
         if (notRequired) return 'notRequired';
     });
 }
