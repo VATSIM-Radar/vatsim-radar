@@ -99,6 +99,7 @@ const source = shallowRef<VectorSource | undefined>();
 const type = computed(() => route.params.type as string);
 const id = computed(() => +route.params.id);
 
+// eslint-disable-next-line vue/no-ref-object-reactivity-loss
 const { data: geojson } = useAsyncData(`compare-data-${ type.value }-${ id.value }`, () => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
     watch: [type, id],
     server: false,
