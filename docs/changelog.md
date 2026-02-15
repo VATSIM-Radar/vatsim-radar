@@ -8,7 +8,11 @@ outline: [2, 3]
 [[toc]]
 :::
 
-# [1.2.4-5.1]
+# 1.2.4-5.2
+
+- Added automatic VATSIM Status Monitoring
+
+# 1.2.4-5.1
 
 - Fixed tracks data resetting on each disconnect or "next" version update
 
