@@ -1,53 +1,55 @@
 <template>
-    <view-map
-        mode="sigmets"
-        @map="$emit('map', $event)"
-    >
-        <popup-overlay
-            v-model:collapsed="collapsed"
-            class="date"
-            collapsible
-            disabled
-            max-height="100%"
-            model-value
-            :sections="[{ key: 'content' }]"
+    <client-only>
+        <view-map
+            mode="sigmets"
+            @map="$emit('map', $event)"
         >
-            <template #title>
-                Settings
-            </template>
-            <template #content>
-                <div class="__info-sections">
-                    <ui-radio-group
-                        :items="sigmetDatesList"
-                        :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
-                        @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
-                    >
-                        <template #label>
-                            Active date
-                        </template>
-                    </ui-radio-group>
+            <popup-overlay
+                v-model:collapsed="collapsed"
+                class="date"
+                collapsible
+                disabled
+                max-height="100%"
+                model-value
+                :sections="[{ key: 'content' }]"
+            >
+                <template #title>
+                    Settings
+                </template>
+                <template #content>
+                    <div class="__info-sections">
+                        <ui-radio-group
+                            :items="sigmetDatesList"
+                            :model-value="store.localSettings.filters?.layers?.sigmets?.activeDate ?? 'current'"
+                            @update:modelValue="setUserLocalSettings({ filters: { layers: { sigmets: { activeDate: $event as string } } } })"
+                        >
+                            <template #label>
+                                Active date
+                            </template>
+                        </ui-radio-group>
 
-                    <settings-sigmets/>
+                        <settings-sigmets/>
 
-                    <div class="__partner-info date_info">
-                        <div class="__partner-info_image">
-                            <img
-                                alt="NWS"
-                                src="~/assets/images/NWS-logo.svg"
-                            >
+                        <div class="__partner-info date_info">
+                            <div class="__partner-info_image">
+                                <img
+                                    alt="NWS"
+                                    src="~/assets/images/NWS-logo.svg"
+                                >
+                            </div>
+                            <span>
+                                Data provided by <a
+                                    class="__link"
+                                    href="https://aviationweather.gov/"
+                                    target="_blank"
+                                >Aviation Weather Center</a>
+                            </span>
                         </div>
-                        <span>
-                            Data provided by <a
-                                class="__link"
-                                href="https://aviationweather.gov/"
-                                target="_blank"
-                            >Aviation Weather Center</a>
-                        </span>
                     </div>
-                </div>
-            </template>
-        </popup-overlay>
-    </view-map>
+                </template>
+            </popup-overlay>
+        </view-map>
+    </client-only>
 </template>
 
 <script setup lang="ts">

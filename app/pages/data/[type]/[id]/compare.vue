@@ -1,61 +1,63 @@
 <template>
-    <view-map mode="map">
-        <popup-overlay
-            class="compare"
-            disabled
-            max-height="100%"
-            model-value
-            :sections="[{ key: 'content' }]"
-        >
-            <template #title>
-                Settings
-            </template>
-            <template #content>
-                <ui-radio-group
-                    v-model="showConfig"
-                    :items="[{ value: 'all' }, { value: 'previous' }, { value: 'changed' }, { value: 'added' }, { value: 'removed' }]"
-                />
-                <ui-toggle v-model="hideUnchanged">
-                    Hide unchanged
-                </ui-toggle>
-            </template>
-        </popup-overlay>
-        <map-html-overlay
-            v-if="openProps"
-            :settings="{ position: openProps.pixel, stopEvent: true }"
-            :z-index="5"
-            @update:modelValue="openProps = null"
-        >
-            <popup-map-info
-                class="props"
-                @mouseleave="openProps = null"
+    <client-only>
+        <view-map mode="map">
+            <popup-overlay
+                class="compare"
+                disabled
+                max-height="100%"
+                model-value
+                :sections="[{ key: 'content' }]"
             >
                 <template #title>
-                    Properties
+                    Settings
                 </template>
-                <div class="props_list">
-                    <div
-                        v-for="(props, index) in openProps.properties"
-                        :key="index"
-                        class="props__item"
-                    >
+                <template #content>
+                    <ui-radio-group
+                        v-model="showConfig"
+                        :items="[{ value: 'all' }, { value: 'previous' }, { value: 'changed' }, { value: 'added' }, { value: 'removed' }]"
+                    />
+                    <ui-toggle v-model="hideUnchanged">
+                        Hide unchanged
+                    </ui-toggle>
+                </template>
+            </popup-overlay>
+            <map-html-overlay
+                v-if="openProps"
+                :settings="{ position: openProps.pixel, stopEvent: true }"
+                :z-index="5"
+                @update:modelValue="openProps = null"
+            >
+                <popup-map-info
+                    class="props"
+                    @mouseleave="openProps = null"
+                >
+                    <template #title>
+                        Properties
+                    </template>
+                    <div class="props_list">
                         <div
-                            v-for="[key, value] in Object.entries(props).filter(x => x[0] !== 'geometry' && x[0] !== 'fill')"
-                            :key
-                            class="__grid-info-sections __grid-info-sections--vertical"
+                            v-for="(props, index) in openProps.properties"
+                            :key="index"
+                            class="props__item"
                         >
-                            <div class="__grid-info-sections_title">
-                                {{ key }}
+                            <div
+                                v-for="[key, value] in Object.entries(props).filter(x => x[0] !== 'geometry' && x[0] !== 'fill')"
+                                :key
+                                class="__grid-info-sections __grid-info-sections--vertical"
+                            >
+                                <div class="__grid-info-sections_title">
+                                    {{ key }}
+                                </div>
+                                <span>
+                                    {{ value }}
+                                </span>
                             </div>
-                            <span>
-                                {{ value }}
-                            </span>
                         </div>
                     </div>
-                </div>
-            </popup-map-info>
-        </map-html-overlay>
-    </view-map>
+                </popup-map-info>
+            </map-html-overlay>
+        </view-map>
+    </client-only>
 </template>
 
 <script setup lang="ts">
@@ -97,7 +99,7 @@ const source = shallowRef<VectorSource | undefined>();
 const type = computed(() => route.params.type as string);
 const id = computed(() => +route.params.id);
 
-const { data: geojson } = useAsyncData(() => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
+const { data: geojson } = useAsyncData(`compare-data-${ type.value }-${ id.value }`, () => $fetch<FeatureCollection>(`/api/data/debug/${ type.value }/${ id.value }/compare`), {
     watch: [type, id],
     server: false,
 });
