@@ -12960,7 +12960,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuxt@npm:^4.3.0":
+"nuxt@npm:^4.3.1":
   version: 4.3.1
   resolution: "nuxt@npm:4.3.1"
   dependencies:
@@ -17629,7 +17629,7 @@ __metadata:
     marked: "npm:^17.0.1"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
-    nuxt: "npm:^4.3.0"
+    nuxt: "npm:^4.3.1"
     ol: "npm:10.8.0"
     ol-ext: "npm:^4.0.37"
     ol-mapbox-style: "npm:^13.2.1"
