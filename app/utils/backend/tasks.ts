@@ -29,6 +29,8 @@ import { prisma } from '~/utils/backend/prisma';
 import { sleep } from '~/utils';
 import { isDebug } from '~/utils/backend/debug';
 import { watch } from 'chokidar';
+import { NotamType } from '~/utils/shared/vatsim';
+import type { RadarNotam } from '~/utils/shared/vatsim';
 
 const redisSubscriber = getRedis();
 
@@ -48,6 +50,37 @@ async function basicTasks() {
         }
     });
 }
+
+interface VatsimStatus {
+    page: {
+        name: string;
+        url: string;
+        status: 'UP' | 'HASISSUES' | 'UNDERMAINTENANCE';
+    };
+    activeIncidents?: {
+        name: string;
+        started: string;
+        status: 'INVESTIGATING' | 'IDENTIFIED' | 'MONITORING' | 'RESOLVED';
+        impact: string;
+        url: string;
+    }[];
+    activeMaintenances?: {
+        name: string;
+        start: string;
+        status: 'NOTSTARTEDYET' | 'INPROGRESS' | 'COMPLETED';
+        duration: string;
+        url: string;
+    }[];
+}
+
+const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
+    timeZone: 'UTC',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+});
 
 async function vatsimTasks() {
     async function fetchDivisions() {
@@ -85,6 +118,82 @@ async function vatsimTasks() {
     await defineCronJob('15 0 * * *', updateAirlines).catch(console.error);
     await defineCronJob('*/10 * * * *', updateBookings).catch(console.error);
     await defineCronJob('*/10 * * * *', updateNattrak).catch(console.error);
+    await defineCronJob('* * * * *', async () => {
+        const status = await $fetch<VatsimStatus>('https://vatsim.instatus.com/summary.json');
+        let notam: RadarNotam | undefined;
+
+        if (status.activeIncidents?.filter(x => x.status !== 'RESOLVED').length) {
+            let current = status.activeIncidents.find(x => x.status !== 'MONITORING' && x.status !== 'RESOLVED');
+            if (!current) current = status.activeIncidents[0];
+
+            if (current.status === 'INVESTIGATING' || current.status === 'IDENTIFIED') {
+                notam = {
+                    id: new Date(current.started ?? new Date().toISOString()).getTime(),
+                    type: NotamType.ERROR,
+                    text: `VATSIM is currently experiencing an outage. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information.`,
+                    active: true,
+                    activeFrom: null,
+                    activeTo: null,
+                    dismissable: false,
+                };
+            }
+            else if (current.status === 'MONITORING') {
+                notam = {
+                    id: new Date(current.started ?? new Date().toISOString()).getTime(),
+                    type: NotamType.ANNOUNCEMENT,
+                    text: `VATSIM outage has been resolved, team is monitoring. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information.`,
+                    active: true,
+                    activeFrom: null,
+                    activeTo: null,
+                    dismissable: true,
+                };
+            }
+        }
+        else if (status.activeMaintenances?.filter(x => x.status !== 'COMPLETED')?.length) {
+            let current = status.activeMaintenances.find(x => x.status !== 'COMPLETED');
+            if (!current) current = status.activeMaintenances[0];
+
+            const date = new Date(current.start ?? new Date().toISOString());
+            let minutes: string | number = parseInt(current.duration);
+            if (isNaN(minutes)) minutes = current.duration;
+
+            if (current.status === 'NOTSTARTEDYET') {
+                notam = {
+                    id: new Date(current.start ?? new Date().toISOString()).getTime(),
+                    type: NotamType.ANNOUNCEMENT,
+                    text: `VATSIM maintenance is planned to start at ${ zuluTime.format(date) } and continue for ${ typeof minutes === 'number' ? `${ minutes } minutes` : minutes }. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
+                    active: true,
+                    activeFrom: null,
+                    activeTo: null,
+                    dismissable: true,
+                };
+            }
+            else if (current.status === 'INPROGRESS') {
+                notam = {
+                    id: new Date(current.start ?? new Date().toISOString()).getTime(),
+                    type: NotamType.WARNING,
+                    text: `VATSIM maintenance is currently in progress - it scheduled to end at approx. ${ typeof minutes === 'number' ? zuluTime.format(date.getTime() + (1000 * 60 * minutes)) : `${ zuluTime.format(date) } + ${ minutes }` }. Visit <a href="${ current.url }" class="__link" target="_blank">status page</a> for more information`,
+                    active: true,
+                    activeFrom: null,
+                    activeTo: null,
+                    dismissable: false,
+                };
+            }
+        }
+        else if (status.page?.status !== 'UP') {
+            notam = {
+                id: -1,
+                type: NotamType.WARNING,
+                text: `${ status.page.status === 'UNDERMAINTENANCE' ? `VATSIM is currently under maintenance` : `VATSIM is currently experiencing an outage` }. Visit <a href="${ status.page.url }" class="__link" target="_blank">status page</a> for more information`,
+                active: true,
+                activeFrom: null,
+                activeTo: null,
+                dismissable: false,
+            };
+        }
+
+        radarStorage.vatsimNotam = notam ?? null;
+    }).catch(console.error);
 }
 
 let s3: S3 | undefined;
@@ -185,7 +294,9 @@ async function patreonTask() {
     });
 
     await defineCronJob('15 * * * *', async () => {
-        const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns');
+        const myAccount = await pFetch<PatreonAccount>('https://www.patreon.com/api/oauth2/api/current_user/campaigns', {
+            timeout: 1000 * 10,
+        });
         const campaign = myAccount.data[0].id;
         if (!campaign) return;
 
@@ -195,7 +306,9 @@ async function patreonTask() {
         const patrons: PatreonPledge[] = [];
 
         do {
-            const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`);
+            const data = await pFetch<PatreonPledges>(nextLink || `https://www.patreon.com/api/oauth2/api/campaigns/${ campaign }/pledges`, {
+                timeout: 1000 * 10,
+            });
             counter = data.data.length;
 
             for (const user of data.data) {

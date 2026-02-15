@@ -714,11 +714,13 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.airports = await getAirportsList();
         radarStorage.vatsim.locals = radarStorage.vatsim.locals.filter(x => !x.atc.isBooking);
 
-        radarStorage.vatsim.notam = await prisma.notams.findFirst({
+        const notams = await prisma.notams.findMany({
             where: {
                 active: true,
             },
-        }) as RadarNotam | null;
+        }) as RadarNotam[];
+
+        radarStorage.vatsim.notam = radarStorage.vatsimNotam ?? notams.find(x => (!x.activeTo || new Date(x.activeTo).getTime() > Date.now()) && (!x.activeFrom || new Date(x.activeFrom).getTime() < Date.now())) ?? null;
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();
