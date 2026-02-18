@@ -3017,7 +3017,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nuxt/devtools@npm:^3.1.1, @nuxt/devtools@npm:^3.2.0":
+"@nuxt/devtools@npm:^3.1.1, @nuxt/devtools@npm:^3.2.1":
   version: 3.2.1
   resolution: "@nuxt/devtools@npm:3.2.1"
   dependencies:
@@ -4405,7 +4405,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/adapter-mariadb@npm:^7.3.0":
+"@prisma/adapter-mariadb@npm:^7.4.0":
   version: 7.4.0
   resolution: "@prisma/adapter-mariadb@npm:7.4.0"
   dependencies:
@@ -4422,7 +4422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@prisma/client@npm:^7.3.0":
+"@prisma/client@npm:^7.4.0":
   version: 7.4.0
   resolution: "@prisma/client@npm:7.4.0"
   dependencies:
@@ -6876,14 +6876,14 @@ __metadata:
   linkType: hard
 
 "ajv@npm:^8.0.0, ajv@npm:^8.0.1, ajv@npm:^8.6.0, ajv@npm:^8.9.0":
-  version: 8.17.1
-  resolution: "ajv@npm:8.17.1"
+  version: 8.18.0
+  resolution: "ajv@npm:8.18.0"
   dependencies:
     fast-deep-equal: "npm:^3.1.3"
     fast-uri: "npm:^3.0.1"
     json-schema-traverse: "npm:^1.0.0"
     require-from-string: "npm:^2.0.2"
-  checksum: 10c0/ec3ba10a573c6b60f94639ffc53526275917a2df6810e4ab5a6b959d87459f9ef3f00d5e7865b82677cb7d21590355b34da14d1d0b9c32d75f95a187e76fff35
+  checksum: 10c0/e7517c426173513a07391be951879932bdf3348feaebd2199f5b901c20f99d60db8cd1591502d4d551dc82f594e82a05c4fe1c70139b15b8937f7afeaed9532f
   languageName: node
   linkType: hard
 
@@ -7628,9 +7628,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001759, caniuse-lite@npm:^1.0.30001766":
-  version: 1.0.30001769
-  resolution: "caniuse-lite@npm:1.0.30001769"
-  checksum: 10c0/161b8c30ab967371807d45d361f0d5bc06e38ef2dbf811493d70cd97c21e1522f5b91fd944c419a00047ee09c931ca64627f125a9ffa7a17a9fdff8dad9765b0
+  version: 1.0.30001770
+  resolution: "caniuse-lite@npm:1.0.30001770"
+  checksum: 10c0/02d15a8b723af65318cb4d888a52bb090076898da7b0de99e8676d537f8d1d2ae4797e81518e1e30cbfe84c33b048c322e8bfafc5b23cfee8defb0d2bf271149
   languageName: node
   linkType: hard
 
@@ -9245,8 +9245,8 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-jsdoc@npm:^62.5.4":
-  version: 62.5.4
-  resolution: "eslint-plugin-jsdoc@npm:62.5.4"
+  version: 62.5.5
+  resolution: "eslint-plugin-jsdoc@npm:62.5.5"
   dependencies:
     "@es-joy/jsdoccomment": "npm:~0.84.0"
     "@es-joy/resolve.exports": "npm:1.2.0"
@@ -9264,7 +9264,7 @@ __metadata:
     to-valid-identifier: "npm:^1.0.0"
   peerDependencies:
     eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
-  checksum: 10c0/576a3dd2279c09ec579cbb944afed78029d5525a18dbef37097d510a0241c3792a597c440e80a299240772d49a6d0624bc90ffec32a72fca1e806e0554ac2119
+  checksum: 10c0/1b7ebfe401031d28c1055898d1321deb8aff85c130d8c9f3975d2359627d7ba09202c47fbd4c43c34817c4a378e507f4cc7b8f80200fdb68e4800324eb1e17c3
   languageName: node
   linkType: hard
 
@@ -9667,7 +9667,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.3.5":
+"fast-xml-parser@npm:^5.3.6":
   version: 5.3.6
   resolution: "fast-xml-parser@npm:5.3.6"
   dependencies:
@@ -10330,9 +10330,9 @@ __metadata:
   linkType: hard
 
 "graphmatch@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "graphmatch@npm:1.1.0"
-  checksum: 10c0/4536c1fae054d205b3ae8038cd9dac08c3251443a6eca65cf8221dada78b9f370a1ac6476502483d9149e0dbb01141ee5c41d7b6604b15e0c76c123a78e5b294
+  version: 1.1.1
+  resolution: "graphmatch@npm:1.1.1"
+  checksum: 10c0/98570352e8e62f5e18e397fb9a1ca90a31f18c46240529d5f9ee0020efa3642857337643ae731bd2667957821956dc315badc98243db284d7e5c76aedcf49b4d
   languageName: node
   linkType: hard
 
@@ -10817,7 +10817,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ioredis@npm:^5.9.1, ioredis@npm:^5.9.2":
+"ioredis@npm:^5.9.1, ioredis@npm:^5.9.3":
   version: 5.9.3
   resolution: "ioredis@npm:5.9.3"
   dependencies:
@@ -11284,11 +11284,11 @@ __metadata:
   linkType: hard
 
 "is-wsl@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "is-wsl@npm:3.1.0"
+  version: 3.1.1
+  resolution: "is-wsl@npm:3.1.1"
   dependencies:
     is-inside-container: "npm:^1.0.0"
-  checksum: 10c0/d3317c11995690a32c362100225e22ba793678fe8732660c6de511ae71a0ff05b06980cf21f98a6bf40d7be0e9e9506f859abe00a1118287d63e53d0a3d06947
+  checksum: 10c0/7e5023522bfb8f27de4de960b0d82c4a8146c0bddb186529a3616d78b5bbbfc19ef0c5fc60d0b3a3cc0bf95a415fbdedc18454310ea3049587c879b07ace5107
   languageName: node
   linkType: hard
 
@@ -12139,7 +12139,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^17.0.1":
+"marked@npm:^17.0.2":
   version: 17.0.2
   resolution: "marked@npm:17.0.2"
   bin:
@@ -12960,7 +12960,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuxt@npm:^4.3.0":
+"nuxt@npm:^4.3.1":
   version: 4.3.1
   resolution: "nuxt@npm:4.3.1"
   dependencies:
@@ -14305,7 +14305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prisma@npm:^7.3.0":
+"prisma@npm:^7.4.0":
   version: 7.4.0
   resolution: "prisma@npm:7.4.0"
   dependencies:
@@ -15734,13 +15734,13 @@ __metadata:
   linkType: hard
 
 "simple-git@npm:^3.30.0":
-  version: 3.30.0
-  resolution: "simple-git@npm:3.30.0"
+  version: 3.31.1
+  resolution: "simple-git@npm:3.31.1"
   dependencies:
     "@kwsites/file-exists": "npm:^1.1.1"
     "@kwsites/promise-deferred": "npm:^1.1.1"
     debug: "npm:^4.4.0"
-  checksum: 10c0/ca123580944d55c7f93d17f7a89b39cd43245916b35ed3a8b1269d1f2ae9200e17f098e42af4a2572313726f1273641cbe0748a1ea37d8c803c181fb69068b1d
+  checksum: 10c0/8082ef7b3356e0ab01726aa6f614d2e04b6bcf0edf0949e184c49eeb546cb2c903347614a054c7da77021ddd869d52d952d9dab008c6986f614a1d91f16d0041
   languageName: node
   linkType: hard
 
@@ -16371,7 +16371,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint@npm:^17.2.0":
+"stylelint@npm:^17.3.0":
   version: 17.3.0
   resolution: "stylelint@npm:17.3.0"
   dependencies:
@@ -17576,13 +17576,13 @@ __metadata:
     "@influxdata/influxdb-client": "npm:^1.35.0"
     "@influxdata/influxdb-client-apis": "npm:^1.35.0"
     "@navigraph/amdb": "npm:^1.1.0"
-    "@nuxt/devtools": "npm:^3.2.0"
+    "@nuxt/devtools": "npm:^3.2.1"
     "@nuxt/eslint": "npm:^1.15.1"
     "@nuxt/image": "npm:2.0.0"
     "@nuxtjs/stylelint-module": "npm:5.2.0"
     "@pinia/nuxt": "npm:^0.11.3"
-    "@prisma/adapter-mariadb": "npm:^7.3.0"
-    "@prisma/client": "npm:^7.3.0"
+    "@prisma/adapter-mariadb": "npm:^7.4.0"
+    "@prisma/client": "npm:^7.4.0"
     "@protomaps/basemaps": "npm:^5.7.0"
     "@sentry/nuxt": "npm:^10.38.0"
     "@stylistic/eslint-plugin": "npm:^5.8.0"
@@ -17619,30 +17619,30 @@ __metadata:
     dexie: "npm:^4.3.0"
     discord.js: "npm:^14.25.1"
     eslint: "npm:^9.39.2"
-    fast-xml-parser: "npm:^5.3.5"
-    ioredis: "npm:^5.9.2"
+    fast-xml-parser: "npm:^5.3.6"
+    ioredis: "npm:^5.9.3"
     jsonwebtoken: "npm:^9.0.3"
     jwks-rsa: "npm:^3.2.2"
     kafkajs: "npm:^2.2.4"
     klona: "npm:^2.0.6"
     magvar: "npm:^2.0.1"
-    marked: "npm:^17.0.1"
+    marked: "npm:^17.0.2"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
-    nuxt: "npm:^4.3.0"
+    nuxt: "npm:^4.3.1"
     ol: "npm:10.8.0"
     ol-ext: "npm:^4.0.37"
     ol-mapbox-style: "npm:^13.2.1"
     pinia: "npm:^3.0.4"
     postcss: "npm:^8.5.6"
     postcss-html: "npm:^1.8.1"
-    prisma: "npm:^7.3.0"
+    prisma: "npm:^7.4.0"
     rou3: "npm:^0.7.12"
     sass-embedded: "npm:^1.97.3"
     sharp: "npm:^0.34.5"
     sqlite3: "npm:^5.1.7"
     srvx: "npm:^0.11.4"
-    stylelint: "npm:^17.2.0"
+    stylelint: "npm:^17.3.0"
     stylelint-config-clean-order: "npm:^8.0.1"
     stylelint-config-recommended-scss: "npm:^17.0.0"
     stylelint-config-recommended-vue: "npm:^1.6.1"
@@ -17656,7 +17656,7 @@ __metadata:
     vite-plugin-pwa: "npm:^1.2.0"
     vite-svg-loader: "npm:^5.1.0"
     vitepress: "npm:^1.6.4"
-    vue: "npm:^3.5.27"
+    vue: "npm:^3.5.28"
     vue-chartjs: "npm:^5.3.3"
     vue-draggable-plus: "npm:^0.6.1"
     vue-tsc: "npm:3.2.4"
@@ -18105,7 +18105,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue@npm:^3.5.13, vue@npm:^3.5.27":
+"vue@npm:^3.5.13, vue@npm:^3.5.27, vue@npm:^3.5.28":
   version: 3.5.28
   resolution: "vue@npm:3.5.28"
   dependencies:
