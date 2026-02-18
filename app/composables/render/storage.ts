@@ -212,8 +212,8 @@ const dataStore: UseDataStore = {
         const request = [icao];
         if (iata) request.push(iata);
 
-        const icaoResult = await clientDB.keyVal.get(`simaware-${ icao }`) as SimAwareDataFeature[] ?? [];
-        const iataResult = iata ? await clientDB.keyVal.get(`simaware-${ iata }`) as SimAwareDataFeature[] ?? [] : [];
+        const icaoResult = await clientDB.simaware.get(icao) as SimAwareDataFeature[] ?? [];
+        const iataResult = iata ? await clientDB.simaware.get(iata) as SimAwareDataFeature[] ?? [] : [];
 
         icaoResult.push(...iataResult);
         iataResult.length = 0;
@@ -230,7 +230,7 @@ const dataStore: UseDataStore = {
     visiblePilotsObj,
     sigmets,
     airlines: (icao, virtual?: boolean) => {
-        return clientDB.keyVal.get(`airline-${ icao }${ virtual ? '-virtual' : '' }`) as Promise<RadarDataAirline>;
+        return clientDB.airlines.get(`${ icao }${ virtual ? '-virtual' : '' }`) as Promise<RadarDataAirline>;
     },
     navigraphWaypoints: waypoints,
     navigraphProcedures,

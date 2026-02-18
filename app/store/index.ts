@@ -283,10 +283,10 @@ export const useStore = defineStore('index', {
                     dataStore.versions.value = await $fetch<VatDataVersions>('/api/data/versions');
 
                     if (
-                        await clientDB.keyVal.get('simawareVersion') && dataStore.vatspy.value?.version &&
+                        await clientDB.simaware.get('version') && dataStore.vatspy.value?.version &&
                         (
                             (dataStore.vatglasses.value && dataStore.versions.value.vatglasses !== dataStore.vatglasses.value) ||
-                            dataStore.versions.value.simaware !== await clientDB.keyVal.get('simawareVersion') ||
+                            dataStore.versions.value.simaware !== await clientDB.simaware.get('version') ||
                             dataStore.versions.value.vatspy !== dataStore.vatspy.value?.version
                         )
                     ) location.reload();

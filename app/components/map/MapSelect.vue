@@ -247,6 +247,8 @@ watch(map, val => {
         hitTolerance: 4,
         style: null,
         filter: (_, layer) => {
+            if (!layer) return false;
+
             // TODO
             return layer.getProperties().type?.startsWith('airports');
         },

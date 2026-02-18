@@ -54,9 +54,9 @@ export function setAirportStyle(layer: VectorLayer) {
             if (!styleCache[key]) {
                 styleCache[key] = new Style({
                     text: new Text({
-                        font: getTextFont('3b-medium'),
+                        font: getTextFont('caption-medium'),
                         text: '',
-                        offsetY: -12,
+                        offsetY: -8,
                         textBaseline: 'top',
                         fill: getCachedFill(properties.color),
                         declutterMode,
@@ -65,7 +65,7 @@ export function setAirportStyle(layer: VectorLayer) {
                 });
             }
 
-            styleCache[key].getText()!.setText(`${ properties.icao }${ !properties.atcLength && showAirportDetails ? '\n•' : '' }`);
+            styleCache[key].getText()!.setText(`${ properties.icao }${ !properties.atc.length && showAirportDetails ? '\n•' : '' }`);
             styleCache[key].setZIndex(zIndex);
 
             return [styleCache[key]];

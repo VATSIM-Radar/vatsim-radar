@@ -8,6 +8,8 @@
 - Controllers in airport overlay are now sorted by position
 - Fixed overlays enabling on mobile even when map is moving
 - Fixed airports buttons not clickable on mobile
+- Updated atc icons
+- Improved SimAware data update stability
 
 ## Improvements and changes
 
@@ -15,7 +17,7 @@
 
 ## Performance Improvements
 
-- Reduced memory usage for airlines icao codes
+- Significantly reduced memory usage for airlines icao codes
 
 # [2.0.0-alpha.2]
 

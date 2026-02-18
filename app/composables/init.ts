@@ -135,7 +135,7 @@ export async function checkForTracks() {
 
 export function checkForSimAware() {
     return initCheck('simaware', async ({ dataStore }) => {
-        const simaware = await clientDB.keyVal.get('simawareVersion') as string | undefined;
+        const simaware = await clientDB.simaware.get('version') as string | undefined;
         let notRequired = true;
         if (!simaware || simaware !== dataStore.versions.value!.simaware) {
             const data = await $fetch<SimAwareAPIData>('/api/data/simaware');
@@ -151,8 +151,8 @@ export function checkForSimAware() {
                 }
             }
 
-            await clientDB.keyVal.bulkPut(Object.values(groups), Object.keys(groups).map(x => `simaware-${ x }`));
-            await clientDB.keyVal.put(data.version, 'simawareVersion');
+            await clientDB.simaware.bulkPut(Object.values(groups), Object.keys(groups));
+            await clientDB.simaware.put(data.version, 'version');
             notRequired = false;
         }
 
@@ -272,14 +272,15 @@ export function checkForNavigraph() {
 
 export function checkForAirlines() {
     return initCheck('airlines', async ({ dataStore }) => {
-        const airlines = await clientDB.keyVal.get('airlinesVersion') as string | undefined;
+        const airlines = await clientDB.airlines.get('version') as string | undefined;
         let notRequired = true;
         if (!airlines || Date.now() > new Date(airlines).getTime()) {
             const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
 
-            await clientDB.keyVal.bulkAdd(Object.values(data.all), Object.keys(data.all).map(x => `airline-${ x }`));
-            await clientDB.keyVal.bulkAdd(Object.values(data.virtual), Object.keys(data.virtual).map(x => `airline-${ x }-virtual`));
-            await clientDB.keyVal.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'airlinesVersion');
+            await clientDB.airlines.clear();
+            await clientDB.airlines.bulkPut(Object.values(data.all), Object.keys(data.all).map(x => x));
+            await clientDB.airlines.bulkPut(Object.values(data.virtual), Object.keys(data.virtual).map(x => `${ x }-virtual`));
+            await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version');
             notRequired = false;
         }
 

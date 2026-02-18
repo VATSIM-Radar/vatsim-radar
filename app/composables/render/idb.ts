@@ -34,7 +34,9 @@ export type IDBNavigraphProcedures = {
 class VatsimRadarDB extends Dexie {
     data!: Table<VatSpyAPIData | SimAwareAPIData | VatglassesAPIData | IDBAirlinesData, string>;
 
-    keyVal!: Table<SimAwareDataFeature[] | RadarDataAirline | string, `simaware-${ string }` | 'airlinesVersion' | `airline-${ string }` | `airline-${ string }-virtual` | 'simawareVersion'>;
+    simaware!: Table<SimAwareDataFeature[] | string, string>;
+
+    airlines!: Table<RadarDataAirline | string, string>;
 
     navigraphAirports!: Table<IDBNavigraphProcedures, string>;
 
@@ -50,10 +52,11 @@ export async function initClientDB() {
     indexedDB.deleteDatabase('vatsim-radar');
     const db = new VatsimRadarDB('vatsim-radar-db');
 
-    db.version(2)
+    db.version(3)
         .stores({
             data: '',
-            keyVal: '',
+            simaware: '',
+            airlines: '',
             navigraphAirports: '',
             navigraphData: '',
             navigraphDB: '',

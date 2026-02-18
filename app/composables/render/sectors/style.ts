@@ -4,6 +4,7 @@ import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
 import type { ColorsListRgb } from '~/utils/colors';
 import type { SettingsColorType } from '~/composables/settings/colors';
+import { getCurrentThemeHexColor } from '~/composables';
 
 const styleFillCache: Record<string, Fill> = {};
 const styleCache: Record<string, Style | Style[]> = {};
@@ -60,13 +61,20 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             // TODO: rework text placement to be geometry based
             text: label
                 ? new Text({
-                    font: getTextFont('caption-medium'),
+                    font: getTextFont('3b-medium'),
                     text: label,
-                    padding: [10, 7, 9, 10],
-                    fill: getCachedFill(textColor ?? getCurrentThemeHexColor('lightGray200')),
-                    backgroundFill: getCachedFill(textBg ?? getCurrentThemeHexColor('darkGray800')),
+                    padding: [5, 4, 4, 7],
+                    fill: getCachedFill(textColor ?? getCurrentThemeHexColor('green700')),
+                    /* backgroundFill: getCachedFill(textBg ?? getCurrentThemeHexColor('darkGray800')),
                     backgroundStroke: new Stroke({
                         color: `rgba(${ textColor || getCurrentThemeRgbColor('lightGray200').join(',') }, 0.1)`,
+                        width: 1,
+                        lineCap: 'round',
+                        lineJoin: 'round',
+                    }),*/
+                    backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                    backgroundStroke: new Stroke({
+                        color: `rgba(${ textColor || getCurrentThemeRgbColor('green700').join(',') }, 1)`,
                         width: 1,
                         lineCap: 'round',
                         lineJoin: 'round',
@@ -158,7 +166,7 @@ export function setSectorStyle(layer: VectorLayer) {
 
         if (isMapFeature('sector', properties)) {
             return buildFirStyle({
-                color: properties.sectorType === 'empty' ? 'mapSectorBorder' : properties.sectorType === 'fir' ? 'success500' : 'info400',
+                color: properties.sectorType === 'empty' ? 'mapSectorBorder' : properties.sectorType === 'fir' ? 'green700' : 'purple600',
                 settingsColor: properties.sectorType === 'empty' ? undefined : properties.sectorType === 'fir' ? 'firs' : 'uirs',
                 dashed: properties.duplicated,
                 booking: properties.booked,
