@@ -68,6 +68,7 @@ export function setMapSectors({ source, firs, layer}: {
                 id,
                 sectorType,
                 booked: store.bookingOverride || !!fir.booking,
+                label: [fir.fir.lon, fir.fir.lat],
                 duplicated: !!controllers.length && controllers.every(x => x.controller.duplicated),
                 atc: controllers.map(x => x.controller),
                 icao: !firs.length ? uirs[0]?.icao ?? '' : fir.fir.icao,

@@ -7,6 +7,7 @@ import type VectorSource from 'ol/source/Vector';
 import type { SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
+import type { Coordinate } from 'ol/coordinate.js';
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
@@ -117,6 +118,7 @@ export interface FeatureAirportSectorDefaultProperties {
     duplicated: boolean;
     icao: string;
     uir?: string;
+    label: Coordinate;
     atc: VatsimShortenedController[];
 }
 

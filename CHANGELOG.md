@@ -14,6 +14,7 @@
 ## Improvements and changes
 
 - Implement on-hover delay
+- Added an ID for VATGlasses sectors
 
 ## Performance Improvements
 

@@ -81,11 +81,12 @@ onMounted(async () => {
 
     vectorSource = new VectorSource<any>({
         features: [],
-        wrapX: false,
+        wrapX: true,
     });
 
     vectorLayer = new VectorLayer<any>({
         source: vectorSource,
+        // TODO: move to solo features
         zIndex: FEATURES_Z_INDEX.SECTORS,
         properties: {
             type: 'airports',
