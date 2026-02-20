@@ -229,7 +229,7 @@ export const duplicatingSettings = [
     },
         /**
      * @description MHCC_CTR And Tracoons
-     * @author vatsim ID
+     * @author 1794201 and 1753002
      */
     {
         regex: /^MHCC(_\w{0,3})?_CTR$/,
