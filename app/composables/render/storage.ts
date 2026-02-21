@@ -11,7 +11,7 @@ import type {
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirline,
-    RadarDataAirlinesAllList, Sigmets,
+    Sigmets,
     SimAwareDataFeature,
     VatglassesDynamicAPIData,
 } from '~/utils/server/storage';

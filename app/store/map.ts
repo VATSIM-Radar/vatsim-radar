@@ -109,6 +109,13 @@ export const useMapStore = defineStore('map', {
         canShowOverlay(): boolean {
             return !this.moving && !this.distance.pixel;
         },
+        showAirportDetails(): boolean {
+            return this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
+        },
+        // TODO
+        compactAirportView(): boolean {
+            return !this.showAirportDetails;
+        },
     },
     actions: {
         addOverlay<O extends StoreOverlay = StoreOverlay>(overlay: Pick<O, 'key' | 'data' | 'type' | 'sticky'> & Partial<O>) {

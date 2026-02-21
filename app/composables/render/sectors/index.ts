@@ -12,9 +12,13 @@ import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entit
 import type { FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 import type { Feature } from 'ol';
 
-export function setMapSectors({ source, firs, layer}: {
+export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }: {
     source: VectorSource;
     layer: VectorLayer;
+
+    labelsSource: VectorSource;
+    labelsLayer: VectorLayer;
+
     firs: MapFir[];
 }) {
     const store = useStore();
@@ -22,6 +26,10 @@ export function setMapSectors({ source, firs, layer}: {
 
     if (layer.getStyle() === createDefaultStyle) {
         setSectorStyle(layer);
+    }
+
+    if (labelsLayer.getStyle() === createDefaultStyle) {
+        setSectorStyle(labelsLayer, true);
     }
 
     const fallbackPositions = isVatGlassesActive.value && useDataStore().vatglassesActivePositions.value['fallback'] && vgFallbackKeys.value;
@@ -32,10 +40,10 @@ export function setMapSectors({ source, firs, layer}: {
         const uirs: VatSpyDataFeature[] = [];
 
         fir.atc.forEach((x, index) => {
-            if (!x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign)) && !firs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
+            if (!x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign) || x.controller.booking) && !firs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
                 firs.push(x);
             }
-            else if (x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign)) && !uirs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
+            else if (x.icao && x.controller && (!fallbackPositions || fallbackPositions.includes(x.controller.callsign) || x.controller.booking) && !uirs.some((y, yIndex) => yIndex < index && y.controller.cid === x.controller.cid)) {
                 uirs.push(x);
             }
         });
@@ -75,6 +83,7 @@ export function setMapSectors({ source, firs, layer}: {
                 uir: uirs.length ? (firs.length ? uirs[0]?.icao : fir.fir.icao) : undefined,
             });
             source.addFeature(feature);
+            labelsSource.addFeature(feature);
         }
     }
 
@@ -118,7 +127,10 @@ export function setMapSectors({ source, firs, layer}: {
                         atc: position.atc,
                     }));
 
-                    features?.forEach(x => source.addFeature(x));
+                    features?.forEach(x => {
+                        source.addFeature(x);
+                        labelsSource.addFeature(x);
+                    });
                 }
                 else {
                     existingFeatures.forEach(x => x.setProperties({
@@ -137,6 +149,7 @@ export function setMapSectors({ source, firs, layer}: {
 
         if ((isMapFeature('sector', properties) && !activeIds.has(properties.id)) || (isMapFeature('sector-vatglasses', properties) && !activeIds.has(properties.vgSectorId))) {
             source.removeFeature(feature);
+            labelsSource.removeFeature(feature);
             feature.dispose();
         }
     }

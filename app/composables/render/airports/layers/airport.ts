@@ -43,7 +43,7 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
     };
 }
 
-export function setMapAirports({ source, airports, layer}: {
+export function setMapAirports({ source, airports, layer }: {
     source: VectorSource;
     layer: VectorLayer;
     airports: AirportListItem[];
@@ -218,19 +218,21 @@ export function setMapAirports({ source, airports, layer}: {
 
         // Approach
         if (airport.arrAtc.length) {
+            const atc = airport.arrAtc.filter(x => isDuplicated || !x.duplicated);
+
             if (!airport.features.length && 'lon' in airport.airport && !airport.airport.isPseudo) {
                 const existingCircle = getMapFeature('airport-circle', source, `airport-${ airport.airport.icao }-circle`);
                 const existingCircleLabel = getMapFeature('airport-circle-label', source, `airport-${ airport.airport.icao }-circleLabel`);
 
                 if (existingCircle && existingCircleLabel) {
-                    existingCircle.setProperties({ ...existingCircle.getProperties(), atc: airport.arrAtc, isTWR, isDuplicated, isBooked });
+                    existingCircle.setProperties({ ...existingCircle.getProperties(), atc, isTWR, isDuplicated, isBooked });
                     existingCircleLabel.setProperties({
                         ...existingCircleLabel.getProperties(),
-                        atc: airport.arrAtc,
+                        atc,
                         isTWR,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + atc.length,
                         aircraftList: airport.aircraftList,
                     });
                 }
@@ -243,7 +245,7 @@ export function setMapAirports({ source, airports, layer}: {
                         type: 'airport-circle',
                         icao: airport.airport.icao,
                         iata: airport.airport.iata,
-                        atc: airport.arrAtc,
+                        atc,
                         isTWR,
                         isDuplicated,
                         isBooked,
@@ -258,11 +260,11 @@ export function setMapAirports({ source, airports, layer}: {
                         type: 'airport-circle-label',
                         icao: airport.airport.icao,
                         iata: airport.airport.iata,
-                        atc: airport.arrAtc,
+                        atc,
                         isTWR,
                         isDuplicated,
                         isBooked,
-                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + airport.arrAtc.length,
+                        atcLength: airport.localAtc.filter(x => !x.isATIS).length + atc.length,
                         aircraftList: airport.aircraftList,
                     });
 
@@ -280,8 +282,8 @@ export function setMapAirports({ source, airports, layer}: {
                     const existingTraconLabel = getMapFeature('airport-tracon-label', source, `${ existingTraconId }Label`);
 
                     const controllers = [
-                        ...atc.controllers,
-                        ...leftAtc,
+                        ...atc.controllers.filter(x => isDuplicated || !x.duplicated),
+                        ...leftAtc.filter(x => isDuplicated || !x.duplicated),
                     ];
 
                     isTWR = controllers.every(x => x.isTWR);

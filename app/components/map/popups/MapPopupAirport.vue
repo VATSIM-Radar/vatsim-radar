@@ -6,10 +6,7 @@
         model-value
         :settings="{
             //position: payload.coordinate,
-            position: [
-                payload.coordinate[0],
-                payload.feature.getGeometry()?.getCoordinates()[1] ?? payload.coordinate[1],
-            ],
+            position: getPosition,
             offset: [0, getOffsetY],
             stopEvent: true,
             positioning: type === 'airport' ? 'bottom-center' : 'top-center',
@@ -50,18 +47,18 @@
 
 <script setup lang="ts">
 import type { RadarEventPayload } from '~/composables/vatsim/events';
+import type { FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc, FeatureSector, FeatureSectorVG } from '~/utils/map/entities';
 import {
-
-
     isMapFeature,
 } from '~/utils/map/entities';
-import type { FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc } from '~/utils/map/entities';
 import VatsimControllersList from '~/components/features/vatsim/controllers/VatsimControllersList.vue';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
+import { getCurrentWorldCoordinate } from '~/composables/map/world';
+import type { Coordinate } from 'ol/coordinate.js';
 
 const props = defineProps({
     payload: {
-        type: Object as PropType<RadarEventPayload<FeatureAirport | FeatureAirportAtc | FeatureAirportApproachLabel>>,
+        type: Object as PropType<RadarEventPayload<FeatureAirport | FeatureAirportAtc | FeatureAirportApproachLabel | FeatureSector | FeatureSectorVG>>,
         required: true,
     },
 });
@@ -76,6 +73,7 @@ const emit = defineEmits({
 });
 
 const dataStore = useDataStore();
+const mapStore = useMapStore();
 const properties = computed(() => props.payload.feature.getProperties());
 const type = computed(() => properties.value.type);
 const getOffsetY = computed(() => {
@@ -83,7 +81,7 @@ const getOffsetY = computed(() => {
         case 'airport':
             return -10;
         case 'airport-atc':
-            return 20;
+            return mapStore.compactAirportView ? 10 : 20;
         default:
             return 10;
     }
@@ -100,6 +98,26 @@ const getATC = computed(() => {
 
     if (isMapFeature('airport-atc', props)) return props.facility.atc;
     else return props.atc;
+});
+
+const getPosition = computed<Coordinate>(() => {
+    const featureProps = properties.value;
+
+    if (isMapFeature('sector-vatglasses', featureProps)) {
+        return props.payload.coordinate;
+    }
+
+    if (isMapFeature('sector', featureProps)) {
+        return [
+            getCurrentWorldCoordinate({ coordinate: featureProps.label, eventCoordinate: props.payload.coordinate })[0],
+            featureProps.label[1],
+        ];
+    }
+
+    return [
+        props.payload.coordinate[0],
+        (props.payload.feature.getGeometry()?.getCoordinates() as Coordinate)[1] ?? props.payload.coordinate[1],
+    ];
 });
 </script>
 

@@ -10,6 +10,9 @@
 - Fixed airports buttons not clickable on mobile
 - Updated atc icons
 - Improved SimAware data update stability
+- FIR/VG list v2 (render rework), no multiselect for now
+- Fixed controller duplication issues
+- "Max counters to show" and "Hide airports on zoom" now also affect TRACONs labels
 
 ## Improvements and changes
 

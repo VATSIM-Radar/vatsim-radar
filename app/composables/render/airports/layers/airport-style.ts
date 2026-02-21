@@ -22,14 +22,27 @@ function getCachedFill(color: string) {
     return cachedFill;
 }
 
-function calculateZIndex({ aircraft, atc}: { aircraft: MapAircraftList; atc: number }) {
+function calculateZIndex({ aircraft, atc }: { aircraft: MapAircraftList; atc: number }) {
     if (atc) return 1000;
     return Object.values(aircraft).reduce((acc, x) => acc + x.length, 0);
+}
+
+function getDeclutterMode(atcLength: number) {
+    let declutterMode: DeclutterMode = atcLength ? 'obstacle' : 'declutter';
+    const store = useStore();
+
+    if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
+    else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = atcLength ? 'obstacle' : 'declutter';
+    else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
+
+    return declutterMode;
 }
 
 export function setAirportStyle(layer: VectorLayer) {
     const store = useStore();
     const mapStore = useMapStore();
+    const dataStore = useDataStore();
+    const uirs = dataStore.vatspy.value?.data.uirs.map(x => x.icao) ?? [];
     const facilities = useFacilitiesIds();
 
     styleCache = {};
@@ -38,16 +51,13 @@ export function setAirportStyle(layer: VectorLayer) {
     // TODO: rework cache https://stackoverflow.com/questions/59032715/how-to-cache-styles-but-still-set-individual-text
 
     layer.setStyle(feature => {
-        const showAirportDetails = mapStore.renderedAirports.length < (store.mapSettings.airportCounterLimit ?? 100) && mapStore.zoom > 5.5;
+        const showAirportDetails = mapStore.showAirportDetails;
 
         const properties = feature.getProperties();
         if (isMapFeature('airport', properties)) {
             if (properties.isPseudo) return;
-            let declutterMode: DeclutterMode = properties.atcLength ? 'obstacle' : 'declutter';
+            const declutterMode = getDeclutterMode(properties.atcLength);
 
-            if (store.mapSettings.airportsHide === 'all') declutterMode = 'declutter';
-            else if (store.mapSettings.airportsHide === 'unstaffed') declutterMode = properties.atcLength ? 'obstacle' : 'declutter';
-            else if (store.mapSettings.airportsHide === 'none') declutterMode = 'obstacle';
             const zIndex = calculateZIndex({ aircraft: properties.aircraftList, atc: properties.atcLength });
             const key = `${ properties.icao }-${ declutterMode }`;
 
@@ -72,17 +82,32 @@ export function setAirportStyle(layer: VectorLayer) {
         }
 
         if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
-            const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
+            const isDuplicated = properties.isDuplicated && properties.atc.some(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+            const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
             if (!styleCache[key]) {
                 let fill: string | undefined;
 
+                let mainColor = (store.bookingOverride || properties.isBooked)
+                    ? getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',')
+                    : getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',');
+
+                if (isDuplicated) {
+                    const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+
+                    mainColor = isUir
+                        ? getSelectedColorFromSettings('uirs', true) || getCurrentThemeRgbColor('purple600').join(',')
+                        : getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('green700').join(',');
+                }
+
                 if (properties.selected) {
-                    fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') }, 0.25)` : (`rgba(${ getSelectedColorFromSettings('approach', true) || radarColors.error300Rgb.join(',') }, 0.25)`);
+                    fill = (store.bookingOverride || properties.isBooked) ? `rgba(${ mainColor }, 0.25)` : (`rgba(${ mainColor }, 0.25)`);
                 }
 
                 styleCache[key] = new Style({
                     stroke: new Stroke({
-                        color: (store.bookingOverride || properties.isBooked) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.purple500Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.citrus600Rgb.join(',') }, 0.7)`),
+                        color: (store.bookingOverride || properties.isBooked)
+                            ? getSelectedColorFromSettings('approachBookings') || `rgba(${ mainColor }, 0.7)`
+                            : ((isDuplicated ? undefined : getSelectedColorFromSettings('approach')) || `rgba(${ mainColor }, 0.7)`),
                         width: 2,
                         lineDash: properties.isDuplicated ? [8, 5] : undefined,
                         lineJoin: 'round',
@@ -95,23 +120,36 @@ export function setAirportStyle(layer: VectorLayer) {
         }
 
         if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
-            const strokeKey = String(store.bookingOverride || properties.isBooked) + String(properties.isTWR);
+            const declutterMode = getDeclutterMode(0);
+            const isDuplicated = properties.isDuplicated && properties.atc.some(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+            const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
 
             if (!styleCache[strokeKey]) {
+                let defaultColor = getSelectedColorFromSettings('approach') || radarColors.citrus600Hex;
+
+                if (isDuplicated) {
+                    const isUir = properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+
+                    defaultColor = isUir
+                        ? getSelectedColorFromSettings('uirs') || getCurrentThemeHexColor('purple600')
+                        : getSelectedColorFromSettings('firs') || getCurrentThemeHexColor('green700');
+                }
+
                 styleCache[strokeKey] = new Style({
                     text: new Text({
                         font: getTextFont('caption-medium'),
                         text: '',
                         placement: 'point',
                         overflow: true,
-                        fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex)),
+                        fill: getCachedFill((store.bookingOverride || properties.isBooked) ? getCurrentThemeHexColor('lightGray200') : defaultColor),
                         backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
                         backgroundStroke: new Stroke({
                             width: 2,
                             lineDash: properties.isTWR ? [4, 8] : undefined,
                             lineJoin: 'round',
-                            color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.citrus600Hex),
+                            color: (store.bookingOverride || properties.isBooked) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.purple500Rgb.join(',') })` : defaultColor,
                         }),
+                        declutterMode,
                         padding: [3, 1, 3, 3],
                     }),
                     zIndex: 0,

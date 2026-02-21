@@ -270,7 +270,6 @@ import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control.js';
-import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/render/storage';

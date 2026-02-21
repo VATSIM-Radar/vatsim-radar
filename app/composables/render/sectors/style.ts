@@ -8,11 +8,10 @@ import { getCurrentThemeHexColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';
-import { FEATURES_Z_INDEX } from '~/composables/render';
 
-const styleFillCache: Record<string, Fill> = {};
-const styleCache: Record<string, Style | Style[]> = {};
-const geometryCache: Record<string, Geometry> = {};
+let styleFillCache: Record<string, Fill> = {};
+let styleCache: Record<string, Style | Style[]> = {};
+let geometryCache: Record<string, Geometry> = {};
 
 function getCachedFill(color: string) {
     let cachedFill = styleFillCache[color];
@@ -26,7 +25,7 @@ function getCachedFill(color: string) {
     return cachedFill;
 }
 
-function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate }: {
+function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashed, booking, labelCoordinate, labelType }: {
     color: ColorsListRgb;
     settingsColor?: SettingsColorType;
     dashed: boolean;
@@ -35,6 +34,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     label?: string;
     secondLine?: string;
     labelCoordinate: Coordinate;
+    labelType: boolean;
 }) {
     let userColor = settingsColor ? getSelectedColorFromSettings(settingsColor) : null;
     let userColorRaw = settingsColor ? getSelectedColorFromSettings(settingsColor, true) : null;
@@ -44,40 +44,28 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
         userColorRaw = getSelectedColorFromSettings('centerBookings', true) || getCurrentThemeRgbColor('lightGray100').join(',');
     }
 
-    const key = String(color) + String(settingsColor) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine);
+    const key = String(color) + String(settingsColor) + String(booking) + String(dashed) + String(hovered) + String(!!label) + String(!!secondLine) + String(labelType);
 
     let cachedStyle = styleCache[key];
 
     if (!cachedStyle) {
-        const textBg = getSelectedColorFromSettings('centerBg', true);
-        const textColor = getSelectedColorFromSettings('centerText', true);
+        cachedStyle = [];
 
-        cachedStyle = [
-            new Style({
-                fill: label
-                    ? new Fill({
-                        color: userColor || `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ (hovered || booking) ? 0.2 : 0.07 })`,
-                    })
-                    : undefined,
-                stroke: new Stroke({
-                    color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ (hovered || booking) ? 0.6 : 0.5 })`,
-                    width: 1,
-                    lineDash: dashed ? [8, 5] : undefined,
-                    lineJoin: 'round',
-                }),
-                zIndex: FEATURES_Z_INDEX.SECTORS_LABEL,
-            }),
-            new Style({
+        if (labelType) {
+            const textFill = getCachedFill(`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`);
+            const textBg = getCachedFill(getCurrentThemeHexColor('darkGray900'));
+
+            cachedStyle.push(new Style({
                 geometry: new Point(labelCoordinate),
                 text: label
                     ? new Text({
                         font: getTextFont('caption-medium'),
                         text: label,
                         padding: [3, 2, 3, 4],
-                        fill: getCachedFill(userColor ?? getCurrentThemeHexColor(color)),
-                        backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+                        fill: hovered ? textBg : textFill,
+                        backgroundFill: hovered ? textFill : textBg,
                         backgroundStroke: new Stroke({
-                            color: `rgba(${ userColor || getCurrentThemeRgbColor(color).join(',') }, 1)`,
+                            color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`,
                             width: 1,
                             lineCap: 'round',
                             lineJoin: 'round',
@@ -85,54 +73,48 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                         declutterMode: 'declutter',
                     })
                     : undefined,
-                zIndex: FEATURES_Z_INDEX.SECTORS_LABEL,
-            }),
-        ];
+                zIndex: !label ? 1 : !hovered ? 3 : 5,
+            }));
+        }
+        else {
+            const fillOpacity = hovered ? 0.2 : booking ? 0.1 : 0.07;
+            const strokeOpacity = (hovered || booking) ? 0.6 : 0.5;
 
-        if (!label && useStore().localSettings.filters?.layers?.layer === 'basic') {
-            cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
+            cachedStyle.push(new Style({
+                fill: label
+                    ? new Fill({
+                        color: booking ? `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })` : (userColor || `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`),
+                    })
+                    : undefined,
+                stroke: new Stroke({
+                    color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ strokeOpacity })`,
+                    width: 1,
+                    lineDash: dashed ? [8, 5] : undefined,
+                    lineJoin: 'round',
+                }),
+                zIndex: !label ? 1 : !hovered ? 3 : 5,
+            }));
         }
 
-        if (secondLine) {
-            cachedStyle = [
-                ...cachedStyle,
-                new Style({
-                    geometry: new Point(labelCoordinate),
-                    text: label
-                        ? new Text({
-                            font: getTextFont('caption-medium'),
-                            text: label,
-                            offsetY: 17,
-                            fill: getCachedFill(userColor ?? getCurrentThemeHexColor(color)),
-                            declutterMode: 'declutter',
-                            backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
-                            padding: [1, 1, 1, 4],
-                        })
-                        : undefined,
-                    zIndex: !label ? 1 : !hovered ? 3 : 5,
-                }),
-            ];
+        if (!labelType && !label && useStore().localSettings.filters?.layers?.layer === 'basic') {
+            cachedStyle[0].getStroke()?.setColor(`rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.03)`);
         }
 
         styleCache[key] = cachedStyle;
     }
 
-    if (label) {
-        if (Array.isArray(cachedStyle)) {
-            const key = JSON.stringify(labelCoordinate);
-            geometryCache[key] ??= new Point(labelCoordinate);
+    if (label && labelType && Array.isArray(cachedStyle)) {
+        const key = JSON.stringify(labelCoordinate);
+        geometryCache[key] ??= new Point(labelCoordinate);
 
-            cachedStyle[1].getText()!.setText(label);
-            cachedStyle[1].setGeometry(geometryCache[key]);
-            cachedStyle[2]?.getText()!.setText(secondLine);
-            cachedStyle[2]?.setGeometry(geometryCache[key]);
-        }
+        cachedStyle[0].getText()!.setText(secondLine ? `${ label }\n${ secondLine }` : label);
+        cachedStyle[0].setGeometry(geometryCache[key]);
     }
 
     return cachedStyle;
 }
 
-const vatglassesStyle = ({ colour, max, vgSectorId, positionId }: FeatureAirportSectorVGProperties): Style => {
+const vatglassesStyle = ({ colour, max, positionId }: FeatureAirportSectorVGProperties): Style => {
     let rgba: string;
 
     try {
@@ -142,48 +124,51 @@ const vatglassesStyle = ({ colour, max, vgSectorId, positionId }: FeatureAirport
         rgba = getSelectedColorFromSettings('firs', true) || getCurrentThemeRgbColor('success500').join(',');
     }
 
-    if (!styleCache.vatglasses) {
-        styleCache.vatglasses = new Style({
-            fill: new Fill({
-                color: `rgba(${ rgba }, 0.2)`,
-            }),
-            stroke: new Stroke({
-                color: `rgba(${ rgba }, 0.6)`,
-                width: 1,
-            }),
-            zIndex: max,
-        });
-    }
+    const key = `vatglasses-${ String(!!positionId) }`;
 
-    return new Style({
-        fill: new Fill({
-            color: `rgba(${ rgba }, 0.2)`,
-        }),
-        stroke: new Stroke({
-            color: `rgba(${ rgba }, 0.6)`,
-            width: 1,
-        }),
-        text: positionId
-            ? new Text({
-                font: getTextFont('caption-medium'),
-                text: positionId,
-                padding: [3, 2, 3, 4],
-                fill: getCachedFill(`rgba(${ rgba }, 1)`),
-                /* backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
+    if (!styleCache[key]) {
+        styleCache[key] = new Style({
+            text: positionId
+                ? new Text({
+                    font: getTextFont('caption-medium'),
+                    text: positionId,
+                    padding: [3, 2, 3, 4],
+                    fill: getCachedFill(`rgba(${ rgba }, 1)`),
+                    /* backgroundFill: getCachedFill(getCurrentThemeHexColor('darkGray900')),
                 backgroundStroke: new Stroke({
                     color: `rgba(${ userColor || getCurrentThemeRgbColor(color).join(',') }, 1)`,
                     width: 1,
                     lineCap: 'round',
                     lineJoin: 'round',
                 }),*/
-                declutterMode: 'declutter',
-            })
-            : undefined,
-        zIndex: max,
-    });
+                    declutterMode: 'declutter',
+                })
+                : undefined,
+            zIndex: max,
+            fill: getCachedFill(`rgba(${ rgba }, 0.2)`),
+            stroke: new Stroke({
+                color: `rgba(${ rgba }, 0.6)`,
+                width: 1,
+            }),
+        });
+    }
+
+    if (positionId) {
+        (styleCache[key] as Style).getText()!.setFill(getCachedFill(`rgba(${ rgba }, 1)`));
+        (styleCache[key] as Style).getText()!.setText(positionId);
+    }
+
+    (styleCache[key] as Style).getFill()!.setColor(`rgba(${ rgba }, 0.2)`);
+    (styleCache[key] as Style).getStroke()!.setColor(`rgba(${ rgba }, 0.2)`);
+
+    return styleCache[key] as Style;
 };
 
-export function setSectorStyle(layer: VectorLayer) {
+export function setSectorStyle(layer: VectorLayer, labelType = false) {
+    styleFillCache = {};
+    styleCache = {};
+    geometryCache = {};
+
     layer.setStyle(feature => {
         const properties = feature.getProperties();
 
@@ -197,10 +182,11 @@ export function setSectorStyle(layer: VectorLayer) {
                 label: properties.sectorType !== 'empty' ? properties.icao : undefined,
                 secondLine: properties.sectorType !== 'empty' ? properties.uir : undefined,
                 labelCoordinate: properties.label,
+                labelType,
             });
         }
 
-        if (isMapFeature('sector-vatglasses', properties)) {
+        if (!labelType && isMapFeature('sector-vatglasses', properties)) {
             return vatglassesStyle(properties);
         }
     });

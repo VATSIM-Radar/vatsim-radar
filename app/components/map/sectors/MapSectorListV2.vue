@@ -15,9 +15,14 @@ import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { makeFakeAtcFeatureFromBooking } from '~/utils';
 import { setMapSectors } from '~/composables/render/sectors';
+import { debounce } from '~/utils/shared';
 
 let vectorLayer: VectorLayer<any>;
 let vectorSource: VectorSource;
+
+let labelsLayer: VectorLayer<any>;
+let labelsSource: VectorSource;
+
 const map = inject<ShallowRef<Map | null>>('map')!;
 const dataStore = useDataStore();
 const mapStore = useMapStore();
@@ -69,7 +74,10 @@ const firs = computed(() => {
         if (booking) {
             const atc = makeFakeAtcFeatureFromBooking(booking.atc, booking);
             const item = { booking, fir, atc };
-            allFirs.splice(i, 1, item);
+            if (store.bookingOverride) allFirs.push(item);
+            else {
+                allFirs.splice(i, 1, item);
+            }
         }
     }
 
@@ -86,21 +94,34 @@ onMounted(async () => {
 
     vectorLayer = new VectorLayer<any>({
         source: vectorSource,
-        // TODO: move to solo features
         zIndex: FEATURES_Z_INDEX.SECTORS,
         properties: {
-            type: 'airports',
+            type: 'sectors-list',
         },
-        declutter: 'sectors',
+    });
+
+    labelsSource = new VectorSource<any>({
+        features: [],
+        wrapX: true,
+    });
+
+    labelsLayer = new VectorLayer<any>({
+        source: labelsSource,
+        zIndex: FEATURES_Z_INDEX.SECTORS_LABEL,
+        declutter: 'airports',
+        properties: {
+            type: 'sectors-labels',
+        },
     });
 
     map.value.addLayer(vectorLayer);
+    map.value.addLayer(labelsLayer);
 
     const mapSettings = computed(() => store.mapSettings);
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
     await initVatglasses();
 
-    watch([firs, mapSettings, dataStore.vatglassesActivePositions, mapLevel], async () => {
+    const debouncedUpdate = debounce(() => {
         if (hideAtc.value || hideOnZoom.value) {
             vectorSource.clear();
         }
@@ -108,19 +129,28 @@ onMounted(async () => {
             setMapSectors({
                 source: vectorSource,
                 layer: vectorLayer,
+
+                labelsSource,
+                labelsLayer,
+
                 firs: firs.value,
             });
         }
-    }, {
+    }, 1000);
+
+    watch([firs, mapSettings, dataStore.vatglassesActivePositions, mapLevel], debouncedUpdate, {
         immediate: true,
     });
 });
 
 onBeforeUnmount(() => {
     vectorLayer?.dispose();
-
     vectorSource?.clear();
 
+    labelsLayer?.dispose();
+    labelsSource?.clear();
+
     map.value?.removeLayer(vectorLayer);
+    map.value?.removeLayer(labelsLayer);
 });
 </script>

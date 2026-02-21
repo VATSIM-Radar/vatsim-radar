@@ -2,12 +2,10 @@ import { useMapStore } from '~/store/map';
 import type { VatDataVersions } from '~/types/data';
 import type { VRInitStatus, VRInitStatusResult } from '~/store';
 import { useStore } from '~/store';
-import type { IDBAirlinesData } from '~/composables/render/idb';
 import { clientDB } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import type {
-    RadarDataAirline,
     RadarDataAirlinesAllList,
     SimAwareAPIData, SimAwareDataFeature,
     VatglassesAPIData,

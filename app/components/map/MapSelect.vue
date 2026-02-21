@@ -13,13 +13,13 @@
 <script lang="ts" setup>
 import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
-import type { SelectEvent } from 'ol/interaction/Select.js';
+import type { SelectEvent, FilterFunction } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
-import { pointerMove, click, always, singleClick } from 'ol/events/condition.js';
+import { pointerMove, always, singleClick } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
-import type { MapFeatures, MapFeaturesType } from '~/utils/map/entities';
+import type { MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 
@@ -41,12 +41,6 @@ const interactableElements = {
         featureTypes: ['airport'],
         overlayComponent: MapPopupAirport,
     },
-    airportLocal: {
-        featureTypes: ['airport-atc'],
-    },
-    airportApproach: {
-        featureTypes: ['airport-tracon-label', 'airport-circle-label'],
-    },
     airportCounter: {
         featureTypes: ['airport-counter'],
         overlayComponent: MapPopupAirportCounter,
@@ -55,27 +49,27 @@ const interactableElements = {
 
 type OverlayKey = keyof typeof interactableElements;
 
-const openedOverlay = shallowRef<{ key: OverlayKey; component: Component; payload: RadarEventPayload<any>; id?: string } | null>();
+const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFeatures; component: Component; payload: RadarEventPayload<any>; id?: string } | null>();
 
 watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
 });
 
-function openOverlay(key: OverlayKey, payload: RadarEventPayload<any>) {
+function openOverlay(key: OverlayKey, payload: RadarEventPayload<any>, interactionKey: SelectableFeatures) {
     const element = interactableElements[key];
     if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
 
     openedOverlay.value = {
         key,
+        interactionKey,
         component: element.overlayComponent,
         payload,
     };
 }
 
 type Definition = {
-    click: (payload: RadarEventPayload<any>) => void | boolean;
     featureTypes: MapFeaturesType[];
-} & PartialRecord<Exclude<EventType, 'click'>, (payload: RadarEventPayload<any>) => void | boolean>;
+} & PartialRecord<EventType, (payload: RadarEventPayload<any>) => void | boolean>;
 
 let previouslySelected: Feature | undefined;
 
@@ -102,7 +96,7 @@ const definitions = {
             const properties = payload.feature.getProperties();
 
             if (isMapFeature('airport', properties) && properties.atc.length) {
-                openOverlay('airportControllers', payload);
+                openOverlay('airportControllers', payload, 'airportControllers');
             }
         },
         click: payload => {
@@ -111,7 +105,7 @@ const definitions = {
     },
     airportLocal: {
         featureTypes: ['airport-atc'],
-        hover: payload => openOverlay('airportControllers', payload),
+        hover: payload => openOverlay('airportControllers', payload, 'airportLocal'),
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
@@ -119,7 +113,7 @@ const definitions = {
     airportApproach: {
         featureTypes: ['airport-tracon-label', 'airport-circle-label'],
         hover: payload => {
-            openOverlay('airportControllers', payload);
+            openOverlay('airportControllers', payload, 'airportApproach');
             const id = payload.feature.getProperties().id;
             const circle = getMapFeature('airport-circle', globalMapEntities.airports!, id.slice(0, id.length - 5));
             if (circle) {
@@ -134,15 +128,30 @@ const definitions = {
     airportCounter: {
         featureTypes: ['airport-counter'],
         hover: payload => {
-            return openOverlay('airportCounter', payload);
+            return openOverlay('airportCounter', payload, 'airportCounter');
         },
         click: payload => {
             mapStore.addAirportOverlay(payload.feature.getProperties().icao);
         },
     },
-} satisfies Record<string, Definition>;
+    sector: {
+        featureTypes: ['sector'],
+        hover: payload => {
+            return openOverlay('airportControllers', payload, 'sector');
+        },
+    },
+    sectorVG: {
+        featureTypes: ['sector-vatglasses'],
+        hover: () => {
+            return true;
+        },
+        click: payload => {
+            return openOverlay('airportControllers', payload, 'sectorVG');
+        },
+    },
+} satisfies Record<SelectableFeatures, Definition>;
 
-type SelectableFeatures = keyof typeof definitions;
+type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG';
 
 const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Feature[] }> = {
     click: {
@@ -151,6 +160,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportCounter',
             'airportApproach',
             'airportLocal',
+            'sectorVG',
             'multi',
         ],
         multiSelect: {},
@@ -158,7 +168,7 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
     },
     hover: {
         priorities: [
-            'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal',
+            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'sectorVG',
         ],
         multiSelect: {},
         selectedFeatures: [],
@@ -172,44 +182,52 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
 
 let hoverAwaiting = false;
 
-function createSelectHandler(type: EventType) {
+function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
-        const changed = arg.selected;
-        if (hoverAwaiting && changed.length && changed.every(x => states[type].selectedFeatures.includes(x))) return;
-        states[type].selectedFeatures = changed;
+        const selected = select.getFeatures().getArray();
 
-        if (!changed.length) {
+        if (hoverAwaiting && selected.length && selected.every(x => states[type].selectedFeatures.includes(x))) return;
+        states[type].selectedFeatures = selected;
+
+        if (!selected.length) {
             openedOverlay.value = null;
-            mapStore.mapCursorPointerTrigger = 0;
+            if (type === 'hover') {
+                sleep(100).then(() => {
+                    if (!select.getFeatures().getArray().length) mapStore.mapCursorPointerTrigger = 0;
+                });
+            }
             selectFeature(false);
         }
 
+        if (!arg.mapBrowserEvent) return;
+
         let tookAction = false;
 
-        for (const feature of changed) {
-            const properties = feature.getProperties();
+        const featuresWithProperties = selected.map(x => ({
+            feature: x,
+            properties: x.getProperties(),
+        }));
 
+        if (selected.length) {
             for (const priority of states[type].priorities) {
                 // TODO
                 if (priority === 'multi') break;
                 const definition = definitions[priority];
 
-                if (!properties.type || !(type in definition) || !(definition.featureTypes as any[]).includes(properties.type)) continue;
+                if (!(type in definition)) continue;
 
-                if (openedOverlay.value && priority !== openedOverlay.value?.key) openedOverlay.value = null;
-                else if (openedOverlay.value) {
-                    openedOverlay.value.payload = {
-                        feature,
-                        coordinate: arg.mapBrowserEvent.coordinate,
-                    };
-                    triggerRef(openedOverlay);
-                }
+                const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
+                if (!targetFeature) continue;
+
+                const { feature } = targetFeature;
+
+                if (openedOverlay.value && openedOverlay.value.payload.feature !== feature) openedOverlay.value = null;
 
                 if (type === 'hover') {
                     hoverAwaiting = true;
                     await sleep(50);
                     hoverAwaiting = false;
-                    if (states[type].selectedFeatures[0] !== feature) break;
+                    if (!selected.every(x => states[type].selectedFeatures.includes(x)) || selected.length !== states[type].selectedFeatures.length) break;
                     selectFeature(feature, true);
                 }
 
@@ -220,19 +238,37 @@ function createSelectHandler(type: EventType) {
 
                 tookAction = true;
 
-                if (result === false) {
+                if (type === 'hover' && result === false) {
                     mapStore.mapCursorPointerTrigger = 0;
                     continue;
                 }
 
-                mapStore.mapCursorPointerTrigger = 100;
+                if (type === 'hover') {
+                    mapStore.mapCursorPointerTrigger = 100;
+                }
+                else {
+                    hoverSelect?.selectFeature(feature);
+                }
+
+                const features = select.getFeatures();
+                for (const selectedFeature of features?.getArray() ?? []) {
+                    if (selectedFeature !== feature) {
+                        select.deselectFeature(selectedFeature);
+                    }
+                }
 
                 break;
             }
         }
 
         if (!tookAction) {
-            mapStore.mapCursorPointerTrigger = 0;
+            if (type === 'hover') {
+                mapStore.mapCursorPointerTrigger = 0;
+                select.clearSelection();
+            }
+            else if (type === 'click') {
+                select?.clearSelection();
+            }
             openedOverlay.value = null;
             selectFeature(false);
         }
@@ -242,38 +278,50 @@ function createSelectHandler(type: EventType) {
 watch(map, val => {
     if (!val) return;
 
+    const filter: FilterFunction = (feature, layer) => {
+        if (!layer) return false;
+        const type = layer.getProperties().type;
+        const featureType = feature.getProperties().type;
+
+        // TODO
+        return type?.startsWith('airports') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
+    };
+
     hoverSelect = new Select({
         condition: pointerMove,
-        hitTolerance: 4,
+        multi: true,
         style: null,
-        filter: (_, layer) => {
-            if (!layer) return false;
-
-            // TODO
-            return layer.getProperties().type?.startsWith('airports');
-        },
+        filter,
         /* toggleCondition: always,
       multi: true,
 
         features: collection,*/
     });
 
-    hoverSelect.on('select', createSelectHandler('hover'));
+    hoverSelect.on('select', createSelectHandler('hover', hoverSelect));
 
     map.value?.addInteraction(hoverSelect);
 
     clickSelect = new Select({
         condition: singleClick,
         hitTolerance: 10,
-        toggleCondition: always,
+        multi: true,
         style: null,
+        toggleCondition: always,
+        filter,
     /* toggleCondition: always,
   multi: true,
 
     features: collection,*/
     });
 
-    clickSelect.on('select', createSelectHandler('click'));
+    clickSelect.on('select', createSelectHandler('click', clickSelect));
+
+    watch(openedOverlay, val => {
+        if (!val) {
+            clickSelect?.clearSelection();
+        }
+    });
 
     map.value?.addInteraction(clickSelect);
 }, {
