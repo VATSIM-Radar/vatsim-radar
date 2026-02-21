@@ -16,7 +16,7 @@ const setAirports = new Set<string>();
 const styleFillCache: Record<string, Fill> = {};
 const styleStrokeCache: Record<string, Stroke> = {};
 
-export function setMapGatesRunways({ source, airports, navigraphData, layer}: {
+export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     source: VectorSource;
     layer: VectorLayer;
     airports: AirportListItem[];

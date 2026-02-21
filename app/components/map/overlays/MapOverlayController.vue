@@ -27,6 +27,9 @@
             </div>
         </template>
         <template #data>
+            <ui-notification v-if="atc.duplicatedBy">
+                This facility is owned and duplicated by {{atc.duplicatedBy}}
+            </ui-notification>
             <div class="atc__sections">
                 <div class="atc__info">
                     <ui-spoiler type="controller">

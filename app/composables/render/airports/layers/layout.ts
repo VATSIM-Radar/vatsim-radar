@@ -7,7 +7,7 @@ import type { AmdbLayerName } from '@navigraph/amdb';
 
 const setAirports = new Set<string>();
 
-export function setMapNavigraphLayout({ source, airports, navigraphData, layer}: {
+export function setMapNavigraphLayout({ source, airports, navigraphData, layer }: {
     source: VectorSource;
     layer: VectorLayer;
     airports: AirportListItem[];
