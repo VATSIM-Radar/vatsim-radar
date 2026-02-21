@@ -479,14 +479,13 @@ export async function updateBookings() {
             };
         }).filter(x => x) as VatsimBooking[];
 
-        /*
         const start = new Date();
         const end = new Date();
         start.setMinutes(start.getMinutes() + 60);
         end.setMinutes((end.getMinutes() + 60) * 3);
 
         const fakeBooking: VatsimBookingData = {
-            callsign: 'EDDV_APP',
+            callsign: 'UMMV_CTR',
             cid: 10000,
             start: start.getTime(),
             end: end.getTime(),
@@ -496,17 +495,16 @@ export async function updateBookings() {
             subdivision: '',
         };
 
-        const controllers = makeFakeAtc(fakeBooking);
+        const atc = makeFakeAtc(fakeBooking);
 
         bookings.push({
             ...fakeBooking,
-            controllers,
+            atc,
             start: start.getTime(),
             end: end.getTime(),
             division: undefined,
             subdivision: undefined,
         } as VatsimBooking);
-        */
 
         radarStorage.vatsimStatic.bookings = bookings;
 

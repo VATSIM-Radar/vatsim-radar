@@ -107,7 +107,14 @@ export const useMapStore = defineStore('map', {
     }),
     getters: {
         canShowOverlay(): boolean {
-            return (!this.moving || useStore().isTouch) && !this.distance.pixel;
+            return !this.moving && !this.distance.pixel;
+        },
+        showAirportDetails(): boolean {
+            return this.renderedAirports.length < (useStore().mapSettings.airportCounterLimit ?? 100) && this.zoom > 5.5;
+        },
+        // TODO
+        compactAirportView(): boolean {
+            return !this.showAirportDetails;
         },
     },
     actions: {

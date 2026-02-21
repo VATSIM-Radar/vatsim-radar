@@ -414,12 +414,12 @@ export function splitSectors(sectors: TurfFeature<TurfPolygon>[]) {
     return resultPolygons;
 }
 
-export function combineSectors(sectors: TurfFeature<TurfPolygon>[]) {
-    const groupedSectors: { [index: string]: TurfFeature<TurfPolygon>[] } = {};
+export function combineSectors(sectors: TurfFeature<TurfPolygon, VatglassesSectorProperties>[]) {
+    const groupedSectors: { [index: string]: TurfFeature<TurfPolygon, VatglassesSectorProperties>[] } = {};
 
     for (const sector of sectors) {
         if (sector.properties) {
-            for (const altrange of sector.properties.altrange) {
+            for (const altrange of sector.properties.altrange ?? []) {
                 const joinedAltrange = altrange.join('-');
                 if (groupedSectors[joinedAltrange]) {
                     groupedSectors[joinedAltrange].push(sector);
