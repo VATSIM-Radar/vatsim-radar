@@ -400,7 +400,7 @@ function setBorderFeatureStyle(feature: Feature) {
     const properties = feature.getProperties();
     const duplicated = isDuplicatedOnly(properties.controllers);
 
-    if (duplicated) {
+    if (duplicated && properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'))) {
         const uirs = useDataStore().vatspy.value?.data.uirs.map(x => x.icao);
         const isFss = properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy && uirs?.some(y => x.duplicatedBy!.startsWith(y)));
         defaultColor = isFss
@@ -425,9 +425,9 @@ function setLabelFeatureStyle(feature: Feature) {
     let defaultColor = getSelectedColorFromSettings('approach') || radarColors.error400Hex;
     const duplicated = isDuplicatedOnly(properties.controllers);
 
-    if (duplicated) {
+    if (duplicated && properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'))) {
         const uirs = useDataStore().vatspy.value?.data.uirs.map(x => x.icao);
-        const isFss = properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy && uirs?.some(y => x.duplicatedBy.startsWith(y)));
+        const isFss = properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy && uirs?.some(y => x.duplicatedBy!.startsWith(y)));
         defaultColor = isFss
             ? getSelectedColorFromSettings('uirs') || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 1)`
             : getSelectedColorFromSettings('firs') || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`;
