@@ -20,10 +20,10 @@
                     v-if="!controller.booking"
                     type="controller"
                 >
-                    {{ controller.callsign }}
+                    {{ controller.duplicatedBy || controller.callsign }}
                 </ui-spoiler>
                 <template v-else>
-                    {{controller.callsign}}
+                    {{controller.duplicatedBy || controller.callsign}}
                 </template>
             </ui-text>
             <template v-if="!controller.booking">

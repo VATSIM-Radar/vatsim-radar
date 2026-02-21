@@ -2,7 +2,6 @@ import { useMapStore } from '~/store/map';
 import type { VatDataVersions } from '~/types/data';
 import type { VRInitStatus, VRInitStatusResult } from '~/store';
 import { useStore } from '~/store';
-import type { IDBAirlinesData } from '~/composables/render/idb';
 import { clientDB } from '~/composables/render/idb';
 import type { VatSpyAPIData } from '~/types/data/vatspy';
 import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
@@ -134,7 +133,7 @@ export async function checkForTracks() {
 
 export function checkForSimAware() {
     return initCheck('simaware', async ({ dataStore }) => {
-        const simaware = await clientDB.keyVal.get('simawareVersion') as string | undefined;
+        const simaware = await clientDB.simaware.get('version') as string | undefined;
         let notRequired = true;
         if (!simaware || simaware !== dataStore.versions.value!.simaware) {
             const data = await $fetch<SimAwareAPIData>('/api/data/simaware');
@@ -150,8 +149,8 @@ export function checkForSimAware() {
                 }
             }
 
-            await clientDB.keyVal.bulkAdd(Object.values(groups), Object.keys(groups).map(x => `simaware-${ x }`));
-            await clientDB.keyVal.put(data.version, 'simawareVersion');
+            await clientDB.simaware.bulkPut(Object.values(groups), Object.keys(groups));
+            await clientDB.simaware.put(data.version, 'version');
             notRequired = false;
         }
 
@@ -271,19 +270,18 @@ export function checkForNavigraph() {
 
 export function checkForAirlines() {
     return initCheck('airlines', async ({ dataStore }) => {
-        let airlines = await clientDB.data.get('airlines') as IDBAirlinesData | undefined;
+        const airlines = await clientDB.airlines.get('version') as string | undefined;
         let notRequired = true;
-        if (!airlines || !airlines.expireDate || Date.now() > airlines.expireDate) {
+        if (!airlines || Date.now() > new Date(airlines).getTime()) {
             const data = await $fetch<RadarDataAirlinesAllList>('/api/data/airlines?v=1');
-            airlines = {
-                expireDate: Date.now() + (1000 * 60 * 60 * 24 * 7),
-                airlines: data,
-            };
-            await clientDB.data.put(airlines, 'airlines');
+
+            await clientDB.airlines.clear();
+            await clientDB.airlines.bulkPut(Object.values(data.all), Object.keys(data.all).map(x => x));
+            await clientDB.airlines.bulkPut(Object.values(data.virtual), Object.keys(data.virtual).map(x => `${ x }-virtual`));
+            await clientDB.airlines.put(new Date(Date.now() + (1000 * 60 * 60 * 24 * 7)).toISOString(), 'version');
             notRequired = false;
         }
 
-        dataStore.airlines.value = airlines.airlines;
         if (notRequired) return 'notRequired';
     });
 }

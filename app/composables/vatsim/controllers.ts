@@ -43,8 +43,8 @@ export function getFacilityPositionColor(facility: number, raw?: boolean) {
     const ids = useFacilitiesIds();
 
     if (facility === ids.ATIS) {
-        if (raw) return radarColors.yellow600Hex;
-        return radarColors.yellow600;
+        if (raw) return radarColors.orange600Hex;
+        return radarColors.orange600;
     }
 
     if (facility === ids.DEL) {

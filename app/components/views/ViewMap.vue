@@ -70,7 +70,13 @@
                 <client-only v-if="ready">
                     <map-selected-procedures/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
+                    <!--
                     <map-sectors-list
+                        v-if="!store.config.hideSectors"
+                        :key="String(store.localSettings.filters?.layers?.layer)"
+                    />
+-->
+                    <map-sector-list-v2
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
@@ -264,7 +270,6 @@ import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control.js';
-import MapSectorsList from '~/components/map/sectors/MapSectorsList.vue';
 import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/render/storage';
@@ -312,6 +317,7 @@ import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
 import MapSelect from '~/components/map/MapSelect.vue';
 import { isMapFeature } from '~/utils/map/entities';
 import { getOriginalWorldCoordinate } from '~/composables/map/world';
+import MapSectorListV2 from '~/components/map/sectors/MapSectorListV2.vue';
 
 defineProps({
     mode: {

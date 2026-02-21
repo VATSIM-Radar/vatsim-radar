@@ -66,7 +66,9 @@ export function getStringColorFromSettings(setting: string | null | undefined, r
     return `rgb(${ rgb.join(',') })`;
 }
 
-export function getSelectedColorFromSettings(color: Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>, raw?: boolean) {
+export type SettingsColorType = Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>;
+
+export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean) {
     const store = useStore();
     const themeKey = store.getCurrentTheme;
 

@@ -96,6 +96,7 @@ export interface VatsimController {
     booking?: VatsimBookingAtc;
     isBooking?: boolean;
     duplicated?: boolean;
+    duplicatedBy?: string;
     frequencies?: string[];
     isTWR?: boolean;
 }

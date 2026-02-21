@@ -252,6 +252,7 @@ export interface RadarStorage {
         bookings: VatsimBooking[];
         tracks: VatsimNattrak[];
     };
+    vatsimNotam: RadarNotam | null;
     vatsim: VatsimStorage;
     navigraph: typeof cycles;
     navigraphSetUp: boolean;
@@ -280,6 +281,7 @@ export const radarStorage: RadarStorage = {
         activeData: null,
     },
     aeronavPositions: [],
+    vatsimNotam: null,
     vatsimStatic: {
         divisions: [],
         subDivisions: [],

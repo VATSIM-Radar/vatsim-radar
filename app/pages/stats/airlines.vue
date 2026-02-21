@@ -8,7 +8,7 @@
 
         <ui-table
             v-model:sort="sort"
-            :data="pilotSuggestions.airlines"
+            :data="pilotSuggestions"
             :headers="[
                 { key: 'place', name: 'Place', width: 40 },
                 { key: 'icao', name: 'ICAO', width: 60, sort: true },
@@ -65,11 +65,13 @@ type Airline = RadarDataAirline & { count: number };
 
 const sort = ref<TableSort[]>([]);
 
-const pilotSuggestions = computed<{ airlines: Airline[] }>(() => {
+const pilotSuggestions = shallowRef<Airline[]>([]);
+
+const setPilotSuggestions = async () => {
     const airlines: Record<string, Airline> = {};
 
     for (const pilot of dataStore.vatsim.data.pilots.value) {
-        const airline = getAirlineFromCallsign(pilot.callsign);
+        const airline = await getAirlineFromCallsign(pilot.callsign);
 
         if (airline) {
             if (airlines[airline.icao]) airlines[airline.icao].count++;
@@ -82,8 +84,12 @@ const pilotSuggestions = computed<{ airlines: Airline[] }>(() => {
         }
     }
 
-    return {
-        airlines: Object.values(airlines).sort((a, b) => b.count - a.count),
-    };
+    pilotSuggestions.value = Object.values(airlines).sort((a, b) => b.count - a.count);
+};
+
+watch(dataStore.vatsim.data.pilots, () => {
+    setPilotSuggestions();
+}, {
+    immediate: true,
 });
 </script>

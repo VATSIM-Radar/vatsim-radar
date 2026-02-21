@@ -1,5 +1,28 @@
 # Changelog
 
+# [2.0.0-alpha.3]
+
+## Alpha changes
+
+- Significantly improved memory usage for airports style
+- Controllers in airport overlay are now sorted by position
+- Fixed overlays enabling on mobile even when map is moving
+- Fixed airports buttons not clickable on mobile
+- Updated atc icons
+- Improved SimAware data update stability
+- FIR/VG list v2 (render rework), no multiselect for now
+- Fixed controller duplication issues
+- "Max counters to show" and "Hide airports on zoom" now also affect TRACONs labels
+
+## Improvements and changes
+
+- Implement on-hover delay
+- Added an ID for VATGlasses sectors
+
+## Performance Improvements
+
+- Significantly reduced memory usage for airlines icao codes
+
 # [2.0.0-alpha.2]
 
 ## Improvements and changes
@@ -26,6 +49,24 @@
 - Reworked airports render for better memory usage
 - Removed memory consumption on SimAware data
 - Reduced gates memory consumption on render
+
+# [1.2.4-6]
+
+- Add AGS approach to ATC duplication
+- Add VLY_X_APP to ATC duplicating
+- Add MHCC_CTR mapping for ATC duplicating settings
+- Added Modelmatching for several BE36 Types
+- Duplicating TRACONs are now displayed in ARTCC/FIR colors
+- Original callsign is now shown for all duplicated facilities
+- Added a duplicated warning with orig callsign in ATC popup if facility is duplicated
+
+# [1.2.4-5.2]
+
+- Added automatic VATSIM Status Monitoring
+
+# [1.2.4-5.1]
+
+- Fixed tracks data resetting on each disconnect or "next" version update
 
 # [1.2.4-5]
 

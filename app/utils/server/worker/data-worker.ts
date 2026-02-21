@@ -443,6 +443,7 @@ defineCronJob('* * * * * *', async () => {
                     radarStorage.vatsim.data.controllers.push({
                         ...controller,
                         callsign: `ZMA_${ controllerSplit[1] }_CTR`,
+                        duplicatedBy: controller.callsign,
                     });
 
                     radarStorage.vatsim.data.controllers = radarStorage.vatsim.data.controllers.filter(
@@ -455,6 +456,7 @@ defineCronJob('* * * * * *', async () => {
                         ...controller,
                         callsign: `ZMO_${ controllerSplit[1] }_CTR`,
                         duplicated: true,
+                        duplicatedBy: controller.callsign,
                     });
                 }
             }
@@ -472,6 +474,7 @@ defineCronJob('* * * * * *', async () => {
                                 radarStorage.vatsim.data.controllers.push({
                                     ...controller,
                                     callsign: targetCallsign,
+                                    duplicatedBy: controller.callsign,
                                     duplicated: true,
                                 });
                             }
@@ -504,6 +507,7 @@ defineCronJob('* * * * * *', async () => {
                     callsign: sector.callsign,
                     frequency: sector.frequency,
                     duplicated: true,
+                    duplicatedBy: controller.callsign,
                 });
             }
         }
@@ -753,11 +757,13 @@ defineCronJob('* * * * * *', async () => {
         radarStorage.vatsim.airports = await getAirportsList();
         radarStorage.vatsim.locals = radarStorage.vatsim.locals.filter(x => !x.atc.isBooking);
 
-        radarStorage.vatsim.notam = await prisma.notams.findFirst({
+        const notams = await prisma.notams.findMany({
             where: {
                 active: true,
             },
-        }) as RadarNotam | null;
+        }) as RadarNotam[];
+
+        radarStorage.vatsim.notam = radarStorage.vatsimNotam ?? notams.find(x => (!x.activeTo || new Date(x.activeTo).getTime() > Date.now()) && (!x.activeFrom || new Date(x.activeFrom).getTime() < Date.now())) ?? null;
 
         if (String(process.env.INFLUX_ENABLE_WRITE) === 'true') {
             const plans = getPlanInfluxDataForPilots();

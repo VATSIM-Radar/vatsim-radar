@@ -151,6 +151,7 @@ export const duplicatingSettings = [
             AUS: 'AUS_W_APP',
             BTR: 'BTR_W_APP',
             CRP: 'CRP_N_APP',
+            VLY: 'VLY_X_APP',
             GPT: 'GPT_W_APP',
             LCH: 'LCH_E_APP',
             LFT: 'LFT_W_APP',
@@ -168,9 +169,10 @@ export const duplicatingSettings = [
     * @author 1560654
     */
     {
-        regex: /^(ATL|A80|AHN|MCN|CSG)(_\w{0,3})?_(CTR|APP|DEP)$/,
+        regex: /^(ATL|A80|AHN|MCN|CSG)(?:_\w{1,3})?_(CTR|APP|DEP)$/,
         mapping: {
             ATL: 'ATL_APP',
+            AGS: 'AGS_APP',
             AHN: 'AHN_APP',
             CSG: 'CSG_APP',
             MCN: 'MCN_APP',
@@ -225,6 +227,26 @@ export const duplicatingSettings = [
             MCI: 'KC_APP',
             END: 'END_APP',
             SZL: 'SZL_APP',
+        },
+    },
+    /**
+     * @description MHCC_CTR And Tracoons
+     * @author 1794201 and 1753002
+     */
+    {
+        regex: /^MHCC(_\w{0,3})?_CTR$/,
+        mapping: {
+            GUA: 'MGGT_APP',
+            FRS: 'MGMM_APP',
+            BZE: 'MZBZ_APP',
+            SAP: 'MHLM_DEP',
+            LCE: 'MHLC_APP',
+            RTB: 'MHRO_APP',
+            TGU: 'MHTG_APP',
+            SAL: 'MSLP_APP',
+            MGA: 'MNMG_APP',
+            LIR: 'MRLB_APP',
+            SJO: 'MROC_C_APP',
         },
     },
 ] satisfies DuplicatingSetting[];

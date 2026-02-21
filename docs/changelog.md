@@ -8,6 +8,24 @@ outline: [2, 3]
 [[toc]]
 :::
 
+# 1.2.4.6
+
+- Add AGS approach to ATC duplication
+- Add VLY_X_APP to ATC duplicating
+- Add MHCC_CTR mapping for ATC duplicating settings
+- Added Modelmatching for several BE36 Types
+- Duplicating TRACONs are now displayed in ARTCC/FIR colors
+- Original callsign is now shown for all duplicated facilities
+- Added a duplicated warning with orig callsign in ATC popup if facility is duplicated
+
+# 1.2.4.5.2
+
+- Added automatic VATSIM Status Monitoring
+
+# 1.2.4.5.1
+
+- Fixed tracks data resetting on each disconnect or "next" version update
+
 # 1.2.4.5
 
 - Added NZ sector duplicating
