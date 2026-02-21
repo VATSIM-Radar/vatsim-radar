@@ -1984,7 +1984,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'FOX':
         case 'UH1':
         case 'AEST':
-        case 'B36T':
         case 'E300':
         case 'FDCT':
         case 'IL18':
