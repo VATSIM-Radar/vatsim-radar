@@ -151,6 +151,7 @@ export const duplicatingSettings = [
             AUS: 'AUS_W_APP',
             BTR: 'BTR_W_APP',
             CRP: 'CRP_N_APP',
+            VLY: 'VLY_X_APP',
             GPT: 'GPT_W_APP',
             LCH: 'LCH_E_APP',
             LFT: 'LFT_W_APP',
