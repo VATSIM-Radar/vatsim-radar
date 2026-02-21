@@ -396,30 +396,54 @@ watch(hoveredFeature, val => {
 });
 
 function setBorderFeatureStyle(feature: Feature) {
+    let defaultColor = (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`);
+    const properties = feature.getProperties();
+    const duplicated = isDuplicatedOnly(properties.controllers);
+
+    if (duplicated && properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'))) {
+        const uirs = useDataStore().vatspy.value?.data.uirs.map(x => x.icao);
+        const isFss = properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy && uirs?.some(y => x.duplicatedBy!.startsWith(y)));
+        defaultColor = isFss
+            ? getSelectedColorFromSettings('uirs') || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 0.7)`
+            : getSelectedColorFromSettings('firs') || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 0.7)`;
+    }
+
     feature.setStyle(new Style({
         stroke: new Stroke({
-            color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : (getSelectedColorFromSettings('approach') || `rgba(${ radarColors.error300Rgb.join(',') }, 0.7)`),
+            color: (store.bookingOverride || isAppOnlyBooking(properties.controllers)) ? getSelectedColorFromSettings('approachBookings') || `rgba(${ radarColors.info300Rgb.join(',') }, 0.7)` : defaultColor,
             width: 2,
-            lineDash: isDuplicatedOnly(feature.getProperties().controllers) ? [8, 5] : undefined,
+            lineDash: duplicated ? [8, 5] : undefined,
             lineJoin: 'round',
         }),
     }));
 }
 
 function setLabelFeatureStyle(feature: Feature) {
-    const isTWR = isTWROnly(feature.getProperties().controllers);
+    const properties = feature.getProperties();
+    const isTWR = isTWROnly(properties.controllers);
+
+    let defaultColor = getSelectedColorFromSettings('approach') || radarColors.error400Hex;
+    const duplicated = isDuplicatedOnly(properties.controllers);
+
+    if (duplicated && properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'))) {
+        const uirs = useDataStore().vatspy.value?.data.uirs.map(x => x.icao);
+        const isFss = properties.controllers.some((x: VatsimShortenedController) => x.duplicatedBy && uirs?.some(y => x.duplicatedBy!.startsWith(y)));
+        defaultColor = isFss
+            ? getSelectedColorFromSettings('uirs') || `rgba(${ getCurrentThemeRgbColor('info400').join(',') }, 1)`
+            : getSelectedColorFromSettings('firs') || `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`;
+    }
 
     const style = [
         new Style({
             text: new Text({
                 font: 'bold 10px Montserrat',
                 text: isTWR
-                    ? (!feature.getProperties()?._traconId || feature.getProperties()?._traconId === airportName.value) ? 'TWR' : feature.getProperties()?._traconId
-                    : feature.getProperties()?._traconId || airportName.value,
+                    ? (!properties?._traconId || properties?._traconId === airportName.value) ? 'TWR' : properties?._traconId
+                    : properties?._traconId || airportName.value,
                 placement: 'point',
                 overflow: true,
                 fill: new Fill({
-                    color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? radarColors.lightgray125Hex : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
+                    color: (store.bookingOverride || isAppOnlyBooking(properties.controllers)) ? radarColors.lightgray125Hex : defaultColor,
                 }),
                 backgroundFill: new Fill({
                     color: getCurrentThemeHexColor('darkgray900'),
@@ -428,7 +452,7 @@ function setLabelFeatureStyle(feature: Feature) {
                     width: 2,
                     lineDash: isTWR ? [4, 8] : undefined,
                     lineJoin: 'round',
-                    color: (store.bookingOverride || isAppOnlyBooking(feature.getProperties().controllers)) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : (getSelectedColorFromSettings('approach') || radarColors.error400Hex),
+                    color: (store.bookingOverride || isAppOnlyBooking(properties.controllers)) ? `rgb(${ getSelectedColorFromSettings('approachBookings', true) || radarColors.info300Rgb.join(',') })` : defaultColor,
                 }),
                 padding: [3, 1, 2, 3],
             }),

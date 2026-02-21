@@ -1509,6 +1509,9 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'DG80':
         case 'DG1T':
             return aircraftIcons.glid;
+        case 'BT36':
+        case 'B36T':
+            return aircraftIcons.be36;
         case 'K35R':
             return aircraftIcons.k35e;
         case 'E3TF':
@@ -1981,7 +1984,6 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'FOX':
         case 'UH1':
         case 'AEST':
-        case 'B36T':
         case 'E300':
         case 'FDCT':
         case 'IL18':

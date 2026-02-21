@@ -173,7 +173,7 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
     return type === 'start' ? [headingStyle, arrowStyle] : [arrowStyle, headingStyle];
 }
 
-export function buildHeadingStyles({ map, headings, geometry: line, drawing}: {
+export function buildHeadingStyles({ map, headings, geometry: line, drawing }: {
     map: ShallowRef<Map | null>;
     geometry: LineString;
     headings?: HeadingPair | null;

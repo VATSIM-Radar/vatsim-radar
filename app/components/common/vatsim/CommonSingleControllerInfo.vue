@@ -4,7 +4,7 @@
         :class="{ 'atc--small': small }"
         is-button
         :top-items="[
-            controller.callsign,
+            controller.duplicatedBy || controller.callsign,
             controller.name,
             controller.frequency,
             (showAtis && controller.atis_code) ? `Info ${ controller.atis_code }` : (!showAtis || !controller.text_atis?.length) ? controller.logon_time : undefined,
