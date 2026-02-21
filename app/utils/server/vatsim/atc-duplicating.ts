@@ -229,4 +229,24 @@ export const duplicatingSettings = [
             SZL: 'SZL_APP',
         },
     },
+        /**
+     * @description MHCC_CTR And Tracoons
+     * @author 1794201 and 1753002
+     */
+    {
+        regex: /^MHCC(_\w{0,3})?_CTR$/,
+        mapping: {
+            'GUA': 'MGGT_APP',
+            'FRS': 'MGMM_APP',
+            'BZE': 'MZBZ_APP',
+            'SAP': 'MHLM_DEP',
+            'LCE': 'MHLC_APP',
+            'RTB': 'MHRO_APP',
+            'TGU': 'MHTG_APP',
+            'SAL': 'MSLP_APP',
+            'MGA': 'MNMG_APP',
+            'LIR': 'MRLB_APP',
+            'SJO': 'MROC_C_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
