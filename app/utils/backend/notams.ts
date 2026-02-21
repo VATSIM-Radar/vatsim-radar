@@ -2,42 +2,41 @@ import { $fetch } from 'ofetch';
 import { getRedisSync, setRedisSync } from '~/utils/backend/redis';
 
 export interface FAANotamsResponse {
-    pageSize: number;
-    pageNum: number;
-    totalCount: number;
-    totalPages: number;
-    items: {
-        properties: {
-            coreNOTAMData: {
-                notam: {
-                    id?: string;
-                    series?: string;
-                    number: string;
-                    type: string;
-                    issued: string;
-                    affectedFIR?: string;
-                    selectionCode?: string;
-                    traffic?: string;
-                    purpose?: string;
-                    scope?: string;
-                    minimumFL?: string;
-                    maximumFL?: string;
-                    location?: string;
-                    icaoLocation?: string;
-                    lastUpdated?: string;
-                    effectiveStart: string;
-                    effectiveEnd: string;
-                    text: string;
-                    classification: string;
-                    schedule?: string;
+    status: 'Success';
+    data: {
+        geojson: {
+            properties: {
+                coreNOTAMData: {
+                    notam: {
+                        id?: string;
+                        series?: string;
+                        number: string;
+                        type: string;
+                        issued: string;
+                        affectedFIR?: string;
+                        selectionCode?: string;
+                        traffic?: string;
+                        purpose?: string;
+                        scope?: string;
+                        minimumFL?: string;
+                        maximumFL?: string;
+                        location?: string;
+                        icaoLocation?: string;
+                        lastUpdated?: string;
+                        effectiveStart: string;
+                        effectiveEnd: string;
+                        text: string;
+                        classification: string;
+                        schedule?: string;
+                    };
+                    notamTranslation: {
+                        type: 'ICAO';
+                        formattedText: string;
+                    }[];
                 };
-                notamTranslation: {
-                    type: 'ICAO';
-                    formattedText: string;
-                }[];
             };
-        };
-    }[];
+        }[];
+    };
 }
 
 export interface VatsimAirportDataNotam {
@@ -70,8 +69,28 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
 export async function getAirportNotams(icao: string, formatted?: boolean): Promise<VatsimAirportDataNotam[] | string[]> {
     const config = useRuntimeConfig();
     const clientId = config.FAA_NOTAMS_CLIENT_ID ?? process.env.FAA_NOTAMS_CLIENT_ID;
+    const clientSecret = config.FAA_NOTAMS_CLIENT_SECRET ?? process.env.FAA_NOTAMS_CLIENT_SECRET;
 
-    if (!clientId) return [];
+    if (!clientId || !clientSecret) return [];
+
+    let faaToken = await getRedisSync('faa-token');
+    if (!faaToken) {
+        const params = new URLSearchParams();
+        params.set('grant_type', 'client_credentials');
+
+        const faaTokenRequest = await $fetch<{
+            access_token: string;
+            expires_in: string;
+        }>('https://api-staging.cgifederal-aim.com/v1/auth/token', {
+            method: 'POST',
+            body: params,
+            headers: {
+                Authorization: `Basic ${ btoa(`${ clientId }:${ clientSecret }`) }`,
+            },
+        });
+        faaToken = faaTokenRequest.access_token;
+        await setRedisSync('faa-token', faaToken, Date.now() + (1000 * 60 * (Number(faaTokenRequest.expires_in) - 5)));
+    }
 
     const cachedNotamsRedis = await getRedisSync(`${ icao }-notams`);
     const cachedNotams: VatsimAirportDataNotam[] | null = cachedNotamsRedis ? JSON.parse(cachedNotamsRedis) : null;
@@ -83,23 +102,20 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
     const notams: VatsimAirportDataNotam[] = [];
     const notamsText: string[] = [];
 
-    const url = new URL('https://external-api.faa.gov/notamapi/v1/notams');
-    url.searchParams.set('responseFormat', 'geoJson');
-    url.searchParams.set('icaoLocation', icao);
-    url.searchParams.set('sortBy', 'effectiveStartDate');
-    url.searchParams.set('sortOrder', 'Desc');
-    url.searchParams.set('pageSize', '1000');
+    const url = new URL('https://api-staging.cgifederal-aim.com/nmsapi/v1/notams');
+    url.searchParams.set('nmsResponseFormat', 'geoJson');
+    url.searchParams.set('location', icao);
 
     const data = await $fetch<FAANotamsResponse>(url.toString(), {
         headers: {
-            client_id: config.FAA_NOTAMS_CLIENT_ID,
-            client_secret: config.FAA_NOTAMS_CLIENT_SECRET,
+            Authorization: `Bearer ${ faaToken }`,
+            nmsResponseFormat: 'GEOJSON',
         },
     });
 
-    if (!Array.isArray(data?.items)) return [];
+    if (!Array.isArray(data?.data?.geojson)) return [];
 
-    for (const notam of data.items) {
+    for (const notam of data.data.geojson.toSorted((a, b) => new Date(b.properties.coreNOTAMData.notam.effectiveStart).getTime() - new Date(a.properties.coreNOTAMData.notam.effectiveStart).getTime())) {
         const data = notam.properties.coreNOTAMData.notam;
 
         if (data.effectiveEnd !== 'PERM' && data.effectiveEnd.startsWith('20') && new Date(data.effectiveEnd).getTime() < Date.now()) continue;
