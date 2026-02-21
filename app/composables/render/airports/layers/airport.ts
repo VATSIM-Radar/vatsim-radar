@@ -63,12 +63,12 @@ function createFacility(facilityId: number, booking: VatsimBooking | undefined):
     };
 }
 
-function calculateZIndex({ aircraft, atc}: { aircraft: MapAircraftList; atc: number }) {
+function calculateZIndex({ aircraft, atc }: { aircraft: MapAircraftList; atc: number }) {
     if (atc) return 1000;
     return Object.values(aircraft).reduce((acc, x) => acc + x.length, 0);
 }
 
-export function setMapAirports({ source, airports, layer}: {
+export function setMapAirports({ source, airports, layer }: {
     source: VectorSource;
     layer: VectorLayer;
     airports: AirportListItem[];
