@@ -81,7 +81,7 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
         const faaTokenRequest = await $fetch<{
             access_token: string;
             expires_in: string;
-        }>('https://api-staging.cgifederal-aim.com/v1/auth/token', {
+        }>('https://api-nms.aim.faa.gov/v1/auth/token', {
             method: 'POST',
             body: params,
             headers: {
@@ -102,7 +102,7 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
     const notams: VatsimAirportDataNotam[] = [];
     const notamsText: string[] = [];
 
-    const url = new URL('https://api-staging.cgifederal-aim.com/nmsapi/v1/notams');
+    const url = new URL('https://api-nms.aim.faa.gov/nmsapi/v1/notams');
     url.searchParams.set('nmsResponseFormat', 'geoJson');
     url.searchParams.set('location', icao);
 
