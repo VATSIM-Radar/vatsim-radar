@@ -222,8 +222,8 @@ export function setAirportStyle(layer: VectorLayer) {
 
             if (isMapFeature('airport-counter', properties) && mapStore.zoom > 4 && store.mapSettings.airportsCounters?.showCounters !== false && showAirportDetails) {
                 const height = 12;
-                let offsetX = 35;
-                if (properties.localsLength > 3) offsetX = 40;
+                let offsetX = 30;
+                if (properties.localsLength > 3) offsetX = 35;
                 const offsetY = ((properties.index - ((properties.totalCount - 1) / 2)) * (height - 1));
 
                 let textColor = getCachedFill(radarColors.green600Hex);

@@ -16,7 +16,49 @@
         @pointermove.stop
         @update:overlay="!$event && emit('close')"
     >
+        <popup-map-info
+            v-if="vatGlassesCombinedActive && payload.additionalPayload?.length"
+            class="airport_atc-vgList"
+        >
+            <template #title>
+                Positions
+            </template>
+            <div
+                v-for="(sector, index) in payload.additionalPayload"
+                :key="index"
+                class="atc-popup_list"
+            >
+                <template v-if="index === 0 || sector.max !== payload.additionalPayload[index - 1].min">
+                    <ui-text
+                        class="atc-popup_level"
+                        tag="span"
+                        type="2b"
+                    >{{ getPositionLevel(sector.max) }}</ui-text>
+                </template>
+
+                <vatsim-controller-info
+                    v-for="controller in sector.atc"
+                    :key="controller.cid"
+                    :controller
+                />
+                <template v-if="sector.min === 0">
+                    <ui-text
+                        class="atc-popup_level"
+                        tag="span"
+                        type="2b"
+                    >GND</ui-text>
+                </template>
+                <template v-else>
+                    <ui-text
+                        class="atc-popup_level"
+                        tag="span"
+                        type="2b"
+                    >{{ getPositionLevel(sector.min) }}</ui-text>
+                </template>
+            </div>
+        </popup-map-info>
         <vatsim-controllers-list
+            v-else
             class="airport_atc-popup"
             :controllers="getATC"
             max-height="400px"
@@ -25,21 +67,7 @@
             @click.stop
         >
             <template #title>
-                <template v-if="'name' in properties">
-                    {{properties.name}}
-                    <template v-if="type === 'airport'">
-                        Controllers
-                    </template>
-                </template>
-                <template v-else-if="'facility' in properties">
-                    {{ dataStore.vatspy.value?.data.keyAirports.icao[(properties as any).icao]?.name }}
-                    {{
-                        properties.facility.facility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === (properties as any).facility.facility)?.long
-                    }}
-                </template>
-                <template v-else>
-                    {{ dataStore.vatspy.value?.data.keyAirports.icao[(properties as any).icao]?.name }} Approach/Departure
-                </template>
+                {{getPopupName}}
             </template>
         </vatsim-controllers-list>
     </map-html-overlay>
@@ -47,7 +75,10 @@
 
 <script setup lang="ts">
 import type { RadarEventPayload } from '~/composables/vatsim/events';
-import type { FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc, FeatureSector, FeatureSectorVG } from '~/utils/map/entities';
+import type {
+    FeatureAirport, FeatureAirportApproachLabel, FeatureAirportAtc,
+    FeatureAirportSectorVGProperties, FeatureSector, FeatureSectorVG,
+} from '~/utils/map/entities';
 import {
     isMapFeature,
 } from '~/utils/map/entities';
@@ -55,10 +86,15 @@ import VatsimControllersList from '~/components/features/vatsim/controllers/Vats
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import { getCurrentWorldCoordinate } from '~/composables/map/world';
 import type { Coordinate } from 'ol/coordinate.js';
+import type { VatsimShortenedController } from '~/types/data/vatsim';
+import VatsimControllerInfo from '~/components/features/vatsim/controllers/VatsimControllerInfo.vue';
+import UiText from '~/components/ui/text/UiText.vue';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import { getAirportCountry } from '~/composables/vatsim/airport';
 
 const props = defineProps({
     payload: {
-        type: Object as PropType<RadarEventPayload<FeatureAirport | FeatureAirportAtc | FeatureAirportApproachLabel | FeatureSector | FeatureSectorVG>>,
+        type: Object as PropType<RadarEventPayload<FeatureAirport | FeatureAirportAtc | FeatureAirportApproachLabel | FeatureSector | FeatureSectorVG, FeatureAirportSectorVGProperties[]>>,
         required: true,
     },
 });
@@ -72,6 +108,14 @@ const emit = defineEmits({
     },
 });
 
+const store = useStore();
+const vatGlassesCombinedActive = computed(() => store.mapSettings.vatglasses?.combined);
+function getPositionLevel(_level: number) {
+    const level = _level.toString().padStart(3, '0');
+    if (level === '999') return 'UNL';
+    return `FL${ level }`;
+}
+
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 const properties = computed(() => props.payload.feature.getProperties());
@@ -79,7 +123,7 @@ const type = computed(() => properties.value.type);
 const getOffsetY = computed(() => {
     switch (properties.value.type) {
         case 'airport':
-            return -10;
+            return -5;
         case 'airport-atc':
             return mapStore.compactAirportView ? 10 : 20;
         default:
@@ -93,11 +137,52 @@ const overlay = ref<{ $el: HTMLDivElement } | null>(null);
     return overlay.value?.$el.querySelector('.atc-popup_list');
 }));*/
 
-const getATC = computed(() => {
-    const props = properties.value;
+const getPopupName = computed(() => {
+    const featureProps = properties.value;
 
-    if (isMapFeature('airport-atc', props)) return props.facility.atc;
-    else return props.atc;
+    if (isMapFeature('sector', featureProps)) {
+        if (featureProps.uir) {
+            return featureProps.name;
+        }
+
+        const country = getAirportCountry(featureProps.icao);
+        if (!country) return featureProps.name;
+
+        if (featureProps.isOceanic && !country.callsign) return `${ featureProps.name } Radio`;
+        return `${ featureProps.name } ${ country.callsign ?? 'Center' }`;
+    }
+
+    if (type.value === 'sector-vatglasses') return 'Positions';
+    if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' ? 'Controllers' : '' }`;
+    if ('facility' in featureProps) {
+        const airport = dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao]?.name;
+        let facility = featureProps.facility.facility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === (featureProps as any).facility?.facility)?.long;
+
+        if (featureProps.facility.facility === useFacilitiesIds().APP) facility = 'Approach / Departure';
+
+        return `${ airport } ${ facility }`;
+    }
+
+    return `${ dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao]?.name } Approach/Departure`;
+});
+
+const getATC = computed<VatsimShortenedController[]>(() => {
+    const featureProps = properties.value;
+
+    if (props.payload.additionalPayload?.length) {
+        const atc: Record<number, VatsimShortenedController> = {};
+        props.payload.additionalPayload.forEach(x => {
+            x.atc.forEach(controller => {
+                if (atc[controller.cid]) return;
+                atc[controller.cid] = controller;
+            });
+        });
+
+        return Object.values(atc);
+    }
+
+    if (isMapFeature('airport-atc', featureProps)) return featureProps.facility.atc;
+    else return featureProps.atc;
 });
 
 const getPosition = computed<Coordinate>(() => {
@@ -124,5 +209,23 @@ const getPosition = computed<Coordinate>(() => {
 <style lang="scss" scoped>
 .airport_atc-popup {
     width: 100%;
+}
+
+.airport_atc-vgList {
+    max-width: min(450px, 100%);
+
+    .atc-popup_list {
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        max-height: 400px;
+    }
+
+    .atc-popup_level {
+        font-size: 14px;
+        font-weight: 600;
+    }
 }
 </style>

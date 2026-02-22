@@ -1,5 +1,15 @@
 # Changelog
 
+# [2.0.0-alpha.3.1]
+
+## Alpha changes
+
+- Fixed VATGlasses level not updating
+- Renamed VATGlasses ATC popup to "Positions"
+- Fixed VATGlasses Combined Mode ATC display
+- Fixed VATSpy positions named "approach/departure"
+- Aircraft are no longer displayed "below" new sectors
+
 # [2.0.0-alpha.3]
 
 ## Alpha changes

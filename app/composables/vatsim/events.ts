@@ -2,7 +2,7 @@ import { safeRef } from '~/composables';
 import type { Coordinate } from 'ol/coordinate';
 import type { FeatureAirport, MapFeatures } from '~/utils/map/entities';
 
-export interface RadarEventPayload<T = MapFeatures> { feature: T; coordinate: Coordinate }
+export interface RadarEventPayload<T = MapFeatures, P = never> { feature: T; coordinate: Coordinate; additionalPayload: P }
 
 export const hoveredAircraft = safeRef<number | null>(null);
 

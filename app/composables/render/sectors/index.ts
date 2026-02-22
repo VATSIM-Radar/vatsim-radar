@@ -9,8 +9,7 @@ import {
     isVatGlassesActive,
 } from '~/utils/data/vatglasses';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
-import type { FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
-import type { Feature } from 'ol';
+import type { FeatureSectorVG, FeatureAirportSectorDefaultProperties } from '~/utils/map/entities';
 
 export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }: {
     source: VectorSource;
@@ -81,6 +80,8 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
                 atc: controllers.map(x => x.controller),
                 icao: !firs.length ? uirs[0]?.icao ?? '' : fir.fir.icao,
                 uir: uirs.length ? (firs.length ? uirs[0]?.icao : fir.fir.icao) : undefined,
+                name: (!firs.length && uirs.length) ? (uirs[0].name ?? fir.fir.name) : fir.fir.name,
+                isOceanic: fir.fir.isOceanic,
             });
             source.addFeature(feature);
             labelsSource.addFeature(feature);
@@ -88,9 +89,9 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
     }
 
     if (isVatGlassesActive.value && !store.bookingOverride) {
-        const features = source.getFeatures().slice(0);
+        const features = source.getFeatures().slice(0) as FeatureSectorVG[];
 
-        const vgMap: Record<string, Feature[]> = {};
+        const vgMap: Record<string, FeatureSectorVG[]> = {};
 
         for (const feature of features) {
             const properties = feature.getProperties();
@@ -98,6 +99,8 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
             vgMap[properties.vgSectorId] ??= [];
             vgMap[properties.vgSectorId].push(feature);
         }
+
+        const lastLevelOrCombined = store.mapSettings.vatglasses?.combined ? true : store.localSettings.vatglassesLevel ?? 999;
 
         for (const countryId in dataStore.vatglassesActivePositions.value) {
             const countryEntries = dataStore.vatglassesActivePositions.value[countryId];
@@ -107,13 +110,13 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
                 activeIds.add(id);
                 const existingFeatures = vgMap[id];
 
-                if (!existingFeatures) {
-                    const vgFeatures = store.mapSettings.vatglasses?.combined
-                        ? position.sectorsCombined
-                        : position.sectors?.filter(
-                            x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
-                        );
+                const vgFeatures = store.mapSettings.vatglasses?.combined
+                    ? position.sectorsCombined
+                    : position.sectors?.filter(
+                        x => x.properties?.min <= (store.localSettings.vatglassesLevel ?? 999) && x.properties?.max >= (store.localSettings.vatglassesLevel ?? 0),
+                    );
 
+                if (!existingFeatures?.length || existingFeatures.length !== vgFeatures?.length || !existingFeatures.every(x => x.getProperties().lastLevelOrCombined === lastLevelOrCombined)) {
                     const features = vgFeatures?.map(x => createMapFeature('sector-vatglasses', {
                         geometry: geoJson.readGeometry(x.geometry) as any,
                         type: 'sector-vatglasses',
@@ -125,7 +128,14 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
                         positionId,
                         colour: x.properties.colour,
                         atc: position.atc,
+                        lastLevelOrCombined,
                     }));
+
+                    existingFeatures?.forEach(x => {
+                        source.removeFeature(x);
+                        labelsSource.removeFeature(x);
+                        x.dispose();
+                    });
 
                     features?.forEach(x => {
                         source.addFeature(x);
@@ -142,7 +152,10 @@ export function setMapSectors({ source, firs, layer, labelsSource, labelsLayer }
         }
     }
 
-    const features = source.getFeatures().slice(0);
+    const features = [
+        ...source.getFeatures().slice(0),
+        ...labelsSource.getFeatures().slice(0),
+    ];
 
     for (const feature of features) {
         const properties = feature.getProperties();

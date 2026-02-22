@@ -118,6 +118,8 @@ export interface FeatureAirportSectorDefaultProperties {
     duplicated: boolean;
     icao: string;
     uir?: string;
+    name: string;
+    isOceanic: boolean;
     label: Coordinate;
     atc: VatsimShortenedController[];
 }
@@ -132,6 +134,7 @@ export interface FeatureAirportSectorVGProperties {
     max: number;
     countryGroupId: string;
     positionId: string;
+    lastLevelOrCombined: number | boolean;
     atc: VatsimShortenedController[];
     colour: string;
 }

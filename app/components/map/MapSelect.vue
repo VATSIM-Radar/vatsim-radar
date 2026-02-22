@@ -49,13 +49,13 @@ const interactableElements = {
 
 type OverlayKey = keyof typeof interactableElements;
 
-const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFeatures; component: Component; payload: RadarEventPayload<any>; id?: string } | null>();
+const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFeatures; component: Component; payload: RadarEventPayload<any, any>; id?: string } | null>();
 
 watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
 });
 
-function openOverlay(key: OverlayKey, payload: RadarEventPayload<any>, interactionKey: SelectableFeatures) {
+function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, interactionKey: SelectableFeatures) {
     const element = interactableElements[key];
     if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
 
@@ -146,7 +146,10 @@ const definitions = {
             return true;
         },
         click: payload => {
-            return openOverlay('airportControllers', payload, 'sectorVG');
+            return openOverlay('airportControllers', {
+                ...payload,
+                additionalPayload: states.click.selectedFeatures.filter(x => isMapFeature('sector-vatglasses', x.getProperties())).map(x => x.getProperties()),
+            }, 'sectorVG');
         },
     },
 } satisfies Record<SelectableFeatures, Definition>;

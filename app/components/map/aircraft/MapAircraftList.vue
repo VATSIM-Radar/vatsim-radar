@@ -32,6 +32,7 @@ import { Heatmap } from 'ol/layer.js';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
 import type { Coordinate } from 'ol/coordinate.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import { FEATURES_Z_INDEX } from '~/composables/render';
 
 let vectorLayer: VectorLayer<any>;
 const vectorSource = shallowRef<VectorSource | null>(null);
@@ -278,7 +279,7 @@ function initHeatmap() {
 
         heatmap = new Heatmap({
             source: vectorSource.value,
-            zIndex: 5,
+            zIndex: FEATURES_Z_INDEX.AIRCRAFT_HEATMAP,
             weight: () => 0.5,
         });
 
@@ -454,7 +455,7 @@ watch(map, val => {
             properties: {
                 type: 'aircraft',
             },
-            zIndex: 7,
+            zIndex: FEATURES_Z_INDEX.AIRCRAFT,
         });
     }
 
@@ -469,7 +470,7 @@ watch(map, val => {
             properties: {
                 type: 'aircraft-line',
             },
-            zIndex: 6,
+            zIndex: FEATURES_Z_INDEX.AIRCRAFT_LINE,
         });
     }
 
