@@ -148,7 +148,10 @@ const definitions = {
         click: payload => {
             return openOverlay('airportControllers', {
                 ...payload,
-                additionalPayload: states.click.selectedFeatures.filter(x => isMapFeature('sector-vatglasses', x.getProperties())).map(x => x.getProperties()),
+                additionalPayload: states.click.selectedFeatures.filter(x => {
+                    const properties = x.getProperties();
+                    return isMapFeature('sector-vatglasses', properties) && properties.atc;
+                }).map(x => x.getProperties()).sort((a, b) => b.min - a.min),
             }, 'sectorVG');
         },
     },
@@ -189,14 +192,18 @@ function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
         const selected = select.getFeatures().getArray();
 
-        if (hoverAwaiting && selected.length && selected.every(x => states[type].selectedFeatures.includes(x))) return;
-        states[type].selectedFeatures = selected;
+        if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.length && selected.every(x => states[type].selectedFeatures.includes(x))) return;
+        states[type].selectedFeatures = selected.slice(0);
 
         if (!selected.length) {
             openedOverlay.value = null;
             if (type === 'hover') {
                 sleep(100).then(() => {
-                    if (!select.getFeatures().getArray().length) mapStore.mapCursorPointerTrigger = 0;
+                    if (!select.getFeatures().getArray().length) {
+                        mapStore.mapCursorPointerTrigger = 0;
+                        openedOverlay.value = null;
+                        selectFeature(false);
+                    }
                 });
             }
             selectFeature(false);
@@ -230,7 +237,7 @@ function createSelectHandler(type: EventType, select: Select) {
                     hoverAwaiting = true;
                     await sleep(50);
                     hoverAwaiting = false;
-                    if (!selected.every(x => states[type].selectedFeatures.includes(x)) || selected.length !== states[type].selectedFeatures.length) break;
+                    if (!selected.every(x => states[type].selectedFeatures.includes(x)) || selected.length !== states[type].selectedFeatures.length) return;
                     selectFeature(feature, true);
                 }
 
@@ -294,6 +301,7 @@ watch(map, val => {
         condition: pointerMove,
         multi: true,
         style: null,
+        hitTolerance: 2,
         filter,
         /* toggleCondition: always,
       multi: true,

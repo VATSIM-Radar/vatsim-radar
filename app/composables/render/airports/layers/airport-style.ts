@@ -82,8 +82,10 @@ export function setAirportStyle(layer: VectorLayer) {
         }
 
         if (isMapFeature('airport-circle', properties) || isMapFeature('airport-tracon', properties)) {
-            const isDuplicated = properties.isDuplicated && properties.atc.some(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
-            const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
+            const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+            const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+            const key = `${ String(store.bookingOverride || properties.isBooked) }-${ String(isUir) }-${ String(isDuplicated) }-${ String(properties.isDuplicated) }-${ String(properties.selected) }`;
+
             if (!styleCache[key]) {
                 let fill: string | undefined;
 
@@ -121,8 +123,9 @@ export function setAirportStyle(layer: VectorLayer) {
 
         if (!store.mapSettings.visibility?.atcLabels && (isMapFeature('airport-circle-label', properties) || isMapFeature('airport-tracon-label', properties))) {
             const declutterMode = getDeclutterMode(0);
-            const isDuplicated = properties.isDuplicated && properties.atc.some(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
-            const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
+            const isDuplicated = properties.isDuplicated && properties.atc.every(x => x.duplicatedBy?.endsWith('_CTR') || x.duplicatedBy?.endsWith('_FSS'));
+            const isUir = isDuplicated && properties.atc.some(x => x.duplicatedBy && uirs.some(y => x.duplicatedBy!.startsWith(y)));
+            const strokeKey = String(store.bookingOverride || properties.isBooked) + String(isUir) + String(isDuplicated) + String(properties.isDuplicated) + String(properties.isTWR) + String(declutterMode);
 
             if (!styleCache[strokeKey]) {
                 let defaultColor = getSelectedColorFromSettings('approach') || radarColors.citrus600Hex;
@@ -199,9 +202,9 @@ export function setAirportStyle(layer: VectorLayer) {
                                 padding: [2, 5, 0, 5],
                                 fill: getCachedFill('transparent'),
                                 backgroundFill: getCachedFill(properties.facility.booked ? getCurrentThemeHexColor('lightGray800') : getFacilityPositionColor(properties.facility.facility, true)),
-                                declutterMode: 'obstacle',
+                                declutterMode: 'none',
                             }),
-                            zIndex: properties.index + (properties.selected ? 5 : 0),
+                            zIndex: 100,
                         });
                     }
                     else {
@@ -212,7 +215,7 @@ export function setAirportStyle(layer: VectorLayer) {
                                 displacement: [offsetX, -width],
                                 declutterMode: 'none',
                             }),
-                            zIndex: properties.index + (properties.selected ? 5 : 0),
+                            zIndex: 100,
                         });
                     }
                 }

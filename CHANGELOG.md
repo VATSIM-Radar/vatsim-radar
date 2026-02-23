@@ -1,5 +1,20 @@
 # Changelog
 
+# [2.0.0-alpha.3.2]
+
+## Alpha changes
+
+- Fixed new sectors slow init
+- Fixed new sectors potential memory leak
+- Fixed VATGlasses always initializing, even when disabled
+- Fixed overlays not hiding when hovered out
+- Fixed VATGlasses combined mode sorting
+- Removed VATSpy meridian gap since it is now infinite
+
+## Performance Improvements
+
+- VATGlasses will now detach and stop updating when disabled after being enabled
+
 # [2.0.0-alpha.3.1]
 
 ## Alpha changes
