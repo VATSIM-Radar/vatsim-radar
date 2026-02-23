@@ -134,7 +134,7 @@ export const duplicatingSettings = [
     * @author 1558357
     */
     {
-        regex: /^LECB_RW\d?_CTR$/,
+        regex: /^LECB_(?:RW[\d_]?|LLI|PPI)_CTR$/,
         mapping: {
             BCN: 'LEBL_APP',
             LEIB: 'LEIB_APP',
