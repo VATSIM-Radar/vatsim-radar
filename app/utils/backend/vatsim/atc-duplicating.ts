@@ -249,4 +249,18 @@ export const duplicatingSettings = [
             SJO: 'MROC_C_APP',
         },
     },
+    /**
+     * @description CZYZ FIR Terminal Sectors
+     * @author 1401686
+     */
+    {
+        regex: /^TOR(_\w{0,3})?_(DEP|APP|CTR)$/,
+        mapping: {
+            'XU Sector': 'TOR_XU_APP',
+            'WS Sector': 'TOR_WS_APP',
+            'ES Sector': 'TOR_ES_APP',
+            'CYTR MTCA': 'CYTR_APP',
+            'CYYZ TCA': 'TOR_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
