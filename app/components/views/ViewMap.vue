@@ -69,7 +69,7 @@
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
                     <map-selected-procedures/>
-                    <map-aircraft-list v-if="!store.bookingOverride"/>
+                    <map-aircraft-list-v2 v-if="!store.bookingOverride"/>
                     <!--
                     <map-sectors-list
                         v-if="!store.config.hideSectors"
@@ -270,7 +270,6 @@ import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control.js';
-import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/render/storage';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
@@ -318,6 +317,7 @@ import MapSelect from '~/components/map/MapSelect.vue';
 import { isMapFeature } from '~/utils/map/entities';
 import { getOriginalWorldCoordinate } from '~/composables/map/world';
 import MapSectorListV2 from '~/components/map/sectors/MapSectorListV2.vue';
+import MapAircraftListV2 from '~/components/map/aircraft/MapAircraftListV2.vue';
 
 defineProps({
     mode: {
@@ -1013,17 +1013,24 @@ await setupDataFetch({
         map.value.on('pointermove', updateMapCursor);
         map.value.on('postrender', event => {
             const features = event.frameState;
-            const rbush = features?.declutter?.airports;
-            if (!rbush) return;
+            const rbushAirports = features?.declutter?.airports;
+            const rbushAircraft = features?.declutter?.aircraft;
+            if (!rbushAirports && !rbushAircraft) return;
 
-            const list = rbush.all();
-            const set = new Set<string>();
+            const list = [
+                ...rbushAirports?.all() ?? [],
+                ...rbushAircraft?.all() ?? [],
+            ];
+            const airports = new Set<string>();
+            const aircraft = new Set<number>();
             for (const feature of list) {
                 const properties = feature.value.getProperties();
-                if (isMapFeature('airport', properties)) set.add(properties.icao);
+                if (isMapFeature('airport', properties)) airports.add(properties.icao);
+                if (isMapFeature('aircraft', properties)) aircraft.add(properties.id);
             }
 
-            mapStore.renderedAirports = Array.from(set);
+            mapStore.renderedAirports = Array.from(airports);
+            mapStore.renderedPilots = Array.from(aircraft);
         });
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());

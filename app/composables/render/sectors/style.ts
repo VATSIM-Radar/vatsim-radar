@@ -83,7 +83,9 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             cachedStyle.push(new Style({
                 fill: label
                     ? new Fill({
-                        color: booking ? `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })` : (userColor || `rgba(${ getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`),
+                        color: booking
+                            ? `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`
+                            : (`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ fillOpacity })`),
                     })
                     : undefined,
                 stroke: new Stroke({

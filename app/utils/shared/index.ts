@@ -125,6 +125,9 @@ export function addLeadingZero(str: string | number) {
     return `0${ str }`.slice(-2);
 }
 
+/**
+ * @deprecated
+ */
 export function debounce<T extends (...args: any) => any>(func: T, delay: number | Ref<number>): (...args: any[]) => void {
     let executed = true;
 

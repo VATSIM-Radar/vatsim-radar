@@ -1,5 +1,17 @@
 # Changelog
 
+# [2.0.0-alpha.4]
+
+## Alpha changes
+
+- Fixed gates occupied state not updating
+- Fixed bookings icons not greyed out
+
+## Performance Improvements
+
+- Reworked aircraft render for much better performance, including speed of render and reduced memory and cpu usage of both aircraft and tracks update
+- Improved performance in Airport Dashboard
+
 # [2.0.0-alpha.3.2]
 
 ## Alpha changes

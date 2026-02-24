@@ -11,6 +11,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import Polygon from 'ol/geom/Polygon.js';
 import type { VatsimBooking, VatsimBookingAtc, VatsimShortenedController } from '~/types/data/vatsim';
 import type { VatSpyDataFeature } from '~/types/data/vatspy';
+import type SimpleGeometry from 'ol/geom/SimpleGeometry';
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -58,6 +59,12 @@ export function serializeClass<T extends string | null | undefined>(className: T
     return className;
 }
 
+export function turfGeometryToOl(feature: Feature<GeoMultiPolygon>): MultiPolygon;
+export function turfGeometryToOl(feature: Feature<GeoPolygon>): Polygon;
+export function turfGeometryToOl(feature: Feature<GeoPoint>): Point;
+export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString>): LineString | MultiLineString;
+export function turfGeometryToOl(feature: Feature<GeoMultiLineString>): MultiLineString;
+export function turfGeometryToOl(feature: Feature<GeoLineString>): LineString;
 export function turfGeometryToOl(feature: Feature<GeoLineString | GeoMultiLineString | GeoPoint | GeoPolygon | GeoMultiPolygon>) {
     if (feature.geometry.type === 'LineString') return new LineString(feature.geometry.coordinates);
     if (feature.geometry.type === 'MultiLineString') return new MultiLineString(feature.geometry.coordinates);
