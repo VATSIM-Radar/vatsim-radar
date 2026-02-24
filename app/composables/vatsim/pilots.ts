@@ -60,6 +60,9 @@ export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExte
     });
 }
 
+/**
+ * @deprecated
+ */
 export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedPilot | VatsimMandatoryPilot) {
     const dataStore = useDataStore();
 
