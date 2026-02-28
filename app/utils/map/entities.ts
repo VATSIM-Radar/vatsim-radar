@@ -148,6 +148,7 @@ export interface FeatureAircraftProperties {
     scale: number;
     rotation: number;
     cid: number;
+    selected?: boolean;
     onGround: boolean;
 }
 
@@ -156,8 +157,9 @@ export interface FeatureAircraftLineProperties {
     type: 'aircraft-line';
     lineType: 'aircraft' | 'arrival-straight' | 'departure-straight' | 'departure-line' | 'loaded' | 'arrival-line';
     timestamp?: string;
-    color: string;
+    color: string | number | null;
     cid: number;
+    status: MapAircraftStatus;
 }
 
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;

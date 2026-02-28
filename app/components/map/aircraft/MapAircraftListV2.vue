@@ -98,6 +98,7 @@ const getShownPilots = computed(() => {
 
 const pilotsOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'pilot').map(x => +x.key));
 const airportOverlays = computed(() => useMapStore().overlays.filter(x => x.type === 'airport' && x.data.showTracks).map(x => x.key));
+const renderedPilots = computed(() => useMapStore().renderedPilots);
 
 function setVisiblePilots() {
     if (!map.value) return;
@@ -313,14 +314,14 @@ const debouncedUpdate = useThrottleFn(() => {
             tracks: showTracks.value,
         });
     }
-}, 1000);
+}, 1000, true);
 
 useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings], () => {
     if (!init) return;
     visibleSet();
 });
 
-watch([getShownPilots, canRender, showTracks], debouncedUpdate);
+watch([getShownPilots, canRender, showTracks, renderedPilots], debouncedUpdate);
 
 watch(map, val => {
     if (!val) return;
@@ -340,7 +341,8 @@ watch(map, val => {
 
         vectorLayer = new VectorLayer<any>({
             source: vectorSource,
-            updateWhileAnimating: true,
+            updateWhileAnimating: false,
+            updateWhileInteracting: false,
             declutter: 'aircraft',
             properties: {
                 type: 'aircraft',

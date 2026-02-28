@@ -274,7 +274,7 @@ watch([jsonFeatures, map, localDisabled], () => {
 
         source = new VectorSource<any>({
             features: [],
-            wrapX: false,
+            wrapX: true,
         });
 
         layer = new VectorImageLayer<any>({

@@ -170,6 +170,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     lineType: 'arrival-straight',
                     color: turnsColor,
                     cid: aircraft.cid,
+                    status,
                 });
 
                 linesSource.addFeature(arrLine);
@@ -225,10 +226,18 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             }
 
             const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
-            const timestamps = turns.features.map(x => x.features[x.features.length - 1].properties!.timestamp!).filter(x => x);
+            const timestamps = turns.features.map(x => x.features[0].properties!.timestamp!).filter(x => x);
+
+            updateState.timestamps ??= new Set();
+            timestamps.forEach(x => updateState.timestamps!.add(x));
 
             // Removing dep line and random timestamps
-            const toRemove = tracksFeatures.filter(x => x !== arrLine && !timestamps.includes(x.getProperties().timestamp ?? '_'));
+            const toRemove = tracksFeatures.filter(x => {
+                const { timestamp } = x.getProperties();
+
+                return x !== arrLine && (!updateState?.timestamps!.has(timestamp ?? '_') || timestamp === firstCollectionTimestamp);
+            });
+
             toRemove.forEach(x => {
                 linesSource.removeFeature(x);
                 x.dispose();
@@ -278,6 +287,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                             lineType: 'aircraft',
                             id,
                             cid: aircraft.cid,
+                            status,
                         });
 
                         linesSource.addFeature(lineFeature);
@@ -345,6 +355,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                             lineType: 'departure-line',
                             id,
                             cid: aircraft.cid,
+                            status,
                         });
 
                         linesSource.addFeature(lineFeature);
@@ -415,12 +426,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                     const lineFeature = createMapFeature('aircraft-line', {
                         geometry: new MultiLineString(newFeatures),
-                        timestamp: i === 0 ? updateState.turnsFirstGroupTimestamp : undefined,
+                        timestamp: collection.features[0].properties!.timestamp,
                         color: collection.features[0].properties!.color ?? turnsColor,
                         type: 'aircraft-line',
                         lineType: 'loaded',
                         id,
                         cid: aircraft.cid,
+                        status,
                     });
 
                     linesSource.addFeature(lineFeature);
@@ -447,6 +459,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                         lineType: 'departure-straight',
                         color: turnsColor,
                         cid: aircraft.cid,
+                        status,
                     });
 
                     linesSource.addFeature(depLine);

@@ -7,9 +7,14 @@
 - Fixed gates occupied state not updating
 - Fixed bookings icons not greyed out
 
+## Bug Fixes
+
+- Fixed map tiles not loading if weather tiles are frozen for some reason
+
 ## Performance Improvements
 
 - Reworked aircraft render for much better performance, including speed of render and reduced memory and cpu usage of both aircraft and tracks update
+- Significantly improved tracks render smoothness and delay
 - Improved performance in Airport Dashboard
 
 # [2.0.0-alpha.3.2]

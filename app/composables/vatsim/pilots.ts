@@ -447,7 +447,7 @@ export const useShowPilotStats = () => {
 };
 
 export function getFlightRowColor(index: number | null | undefined, theme = useStore().theme) {
-    if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
+    if (typeof index !== 'number' || index < 0) return radarColors.green600Hex;
 
     const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
 

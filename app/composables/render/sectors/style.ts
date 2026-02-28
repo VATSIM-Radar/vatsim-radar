@@ -3,6 +3,11 @@ import { Text, Stroke, Style, Fill } from 'ol/style';
 import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
 import type { ColorsListRgb } from '~/utils/colors';
+import {
+    getColorFromSettings,
+    getSelectedColorTransparencyFromSettings,
+
+} from '~/composables/settings/colors';
 import type { SettingsColorType } from '~/composables/settings/colors';
 import { getCurrentThemeHexColor } from '~/composables';
 import { Point } from 'ol/geom.js';
@@ -36,11 +41,10 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
     labelCoordinate: Coordinate;
     labelType: boolean;
 }) {
-    let userColor = settingsColor ? getSelectedColorFromSettings(settingsColor) : null;
     let userColorRaw = settingsColor ? getSelectedColorFromSettings(settingsColor, true) : null;
+    const userColorTransparency = settingsColor ? getSelectedColorTransparencyFromSettings(settingsColor) : null;
 
     if (booking) {
-        userColor = getSelectedColorFromSettings('centerBookings') || `rgba(${ getCurrentThemeRgbColor('lightGray100').join(',') }, 0.07)`;
         userColorRaw = getSelectedColorFromSettings('centerBookings', true) || getCurrentThemeRgbColor('lightGray100').join(',');
     }
 
@@ -53,7 +57,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
 
         if (labelType) {
             const textFill = getCachedFill(`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`);
-            const textBg = getCachedFill(getCurrentThemeHexColor('darkGray900'));
+            const textBg = getCachedFill(getCurrentThemeRgbColor('darkGray900'));
 
             cachedStyle.push(new Style({
                 geometry: new Point(labelCoordinate),
@@ -61,11 +65,11 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                     ? new Text({
                         font: getTextFont('caption-medium'),
                         text: label,
-                        padding: [3, 2, 3, 4],
+                        padding: [4, 1, 2, 4],
                         fill: hovered ? textBg : textFill,
                         backgroundFill: hovered ? textFill : textBg,
                         backgroundStroke: new Stroke({
-                            color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`,
+                            color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : userColorTransparency ?? 1 })`,
                             width: 1,
                             lineCap: 'round',
                             lineJoin: 'round',
@@ -77,7 +81,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
             }));
         }
         else {
-            const fillOpacity = hovered ? 0.2 : booking ? 0.1 : 0.07;
+            const fillOpacity = hovered ? 0.2 : booking ? 0.1 : (userColorTransparency ?? 0.07);
             const strokeOpacity = (hovered || booking) ? 0.6 : 0.5;
 
             cachedStyle.push(new Style({
