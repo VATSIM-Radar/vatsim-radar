@@ -984,6 +984,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            maxTilesLoading: 1000,
             interactions: [],
             view: new View({
                 center,
