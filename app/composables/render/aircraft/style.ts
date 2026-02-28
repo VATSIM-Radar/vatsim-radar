@@ -1,19 +1,21 @@
 import type VectorLayer from 'ol/layer/Vector';
 import type VectorImageLayer from 'ol/layer/VectorImage';
 import { isMapFeature } from '~/utils/map/entities';
-import type { Stroke } from 'ol/style';
-import { Fill, Icon, Style, Text } from 'ol/style';
+import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
 import { useStore } from '~/store';
-import { getUserList } from '~/composables/fetchers/lists';
 import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
-import { fetchAircraftIcon, getAircraftStatusColor, ownFlight, reColorSvg } from '~/composables/vatsim/pilots';
+import {
+    fetchAircraftIcon,
+    getAircraftStatusColor,
+    getFlightRowColor,
+    ownFlight,
+    reColorSvg,
+} from '~/composables/vatsim/pilots';
 import type { UserList } from '~/utils/server/handlers/lists';
 import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
 
-const styleFillCache: Record<string, Fill> = {};
-const styleStrokeCache: Record<string, Stroke> = {};
 const styleImageCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};
 
@@ -80,7 +82,12 @@ export function setAircraftStyle(layer: VectorLayer) {
     layer.setStyle(feature => {
         const properties = feature.getProperties();
         if (isMapFeature('aircraft', properties)) {
-            let { rotation, icon, scale, status, cid, onGround } = properties;
+            let { rotation, icon, scale, status, cid, callsign, onGround, selected } = properties;
+            const hovered = useMapStore().hoveredPilot === cid;
+
+            if (hovered) status = 'hover';
+            else if (selected) status = 'active';
+
             if (icon.icon === 'ball') rotation = 0;
 
             let resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
@@ -90,7 +97,7 @@ export function setAircraftStyle(layer: VectorLayer) {
                 textStyle = new Style({
                     text: new Text({
                         text: '',
-                        font: '600 11px LibreFranklin',
+                        font: getTextFont('caption-medium'),
                         declutterMode: 'declutter',
                         textBaseline: 'middle',
                         fill: new Fill({
@@ -105,9 +112,6 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             const list = favoritesMap.value[cid];
 
-            const image = imageStyle.getImage();
-
-            const featureProperties = feature.getProperties() ?? {};
             const zoom = useMapStore().zoom;
 
             const filter = getFilteredAircraftSettings(cid);
@@ -133,37 +137,15 @@ export function setAircraftStyle(layer: VectorLayer) {
                 resolvedScale = scaledWidth / icon.width;
             }
 
-            let text = textStyle.getText();
+            const hideText = scaledWidth < 10 || useMapStore().renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
+            const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
+            const textValue = hideText ? undefined : callsign;
+            const text = textStyle.getText()!;
 
-            const hideText = scaledWidth < 10 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
-            const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
-            const textValue = hideText ? undefined : featureProperties.callsign;
-
-            if (!text) {
-                textStyle.setText(new Text({
-                    text: textValue,
-                    font: '600 11px LibreFranklin',
-                    declutterMode: 'declutter',
-                    textBaseline: 'middle',
-                    fill: new Fill({
-                        color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
-                    }),
-                    offsetY: Math.ceil(offsetY),
-                }));
-
-                text = textStyle.getText();
-            }
-            else if (textValue !== text.getText()) {
-                text.setText(textValue);
-            }
-
-            const textFill = text!.getFill()!;
-
-            text?.setOffsetY(Math.ceil(offsetY));
-
-            if (ownFlight.value?.cid === cid && textStyle.getZIndex() !== 1) {
-                textStyle.setZIndex(1);
-            }
+            text.setText(textValue);
+            text.setOffsetY(Math.ceil(offsetY));
+            textStyle?.setZIndex(Number(ownFlight.value?.cid === cid));
+            text.getFill()!.setColor(getAircraftStatusColor(status, cid));
 
             let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
 
@@ -171,104 +153,107 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             const pngImage = (status === 'default' || status === 'ground') && !list;
 
-            const imageStyleKey = String(scaledWidth) +
-                String(pngImage) +
-                String(filterColor) +
-                String(filterOpacity) +
-                String(store.mapSettings.heatmapLayer) +
-                String(color?.transparency) +
-                String(color?.color) +
-                String(status) +
-                String(icon.icon);
-
             if (!styleCache.aircraftImage) {
                 styleCache.aircraftImage = new Style();
             }
 
+            const pngSrc = `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon.icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`;
+
+            let svg: string | null = null;
+
+            if (!pngImage) svg = scheduleIconForFetch(icon.icon);
+
+            const imageStyleKey = String(scaledWidth) + String(pngSrc) + String(!!svg);
+
             if (!styleImageCache[imageStyleKey]) {
-                let svg: string | null = null;
-
-                if (!pngImage) svg = scheduleIconForFetch(icon.icon);
-
-                if (pngImage || !svg) {
-                    styleImageCache[imageStyleKey] = new Icon({
-                        // TODO: add a setting
-                        declutterMode: 'obstacle',
-                        src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
-                        width: scaledWidth,
-                        rotation,
-                        rotateWithView: true,
-                        // @ts-expect-error Custom prop
-                        status,
-                        color: filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
-                        opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
-                    });
-                }
-                else {
-                    styleImageCache[imageStyleKey] = new Icon({
-                        declutterMode: 'obstacle',
-                        src: svgToDataURI(reColorSvg(svg, status, cid)),
-                        width: scaledWidth,
-                        rotation,
-                        rotateWithView: true,
-                        // @ts-expect-error Custom prop
-                        status,
-                        opacity: Number(!store.mapSettings.heatmapLayer),
-                    });
-                }
+                styleImageCache[imageStyleKey] = new Icon({
+                    src: svg ? svgToDataURI(reColorSvg(svg, status, cid)) : pngSrc,
+                    declutterMode: 'obstacle',
+                    width: scaledWidth,
+                    rotateWithView: true,
+                });
             }
 
-            styleCache.aicraftImage.setImage(styleImageCache[imageStyleKey]);
-            if (styleImageCache[imageStyleKey]) {
-
-            }
-
-            if (image &&
-                featureProperties.imageStatus === status &&
-                featureProperties.icon === icon &&
-                featureProperties.hadList === !!list &&
-                featureProperties.filterColor === filterColor &&
-                featureProperties.filterOpacity === filterOpacity &&
-                featureProperties.imageScale === resolvedScale) {
-                image.setRotation(rotation);
+            if (pngImage || !svg) {
+                styleImageCache[imageStyleKey].setSrc(pngSrc);
+                styleImageCache[imageStyleKey].setRotation(rotation);
+                styleImageCache[imageStyleKey].setColor(filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined));
+                styleImageCache[imageStyleKey].setOpacity(filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)));
             }
             else {
-                textFill.setColor(getAircraftStatusColor(status, cid));
-
-                if ((status === 'default' || status === 'ground') && !list) {
-                    let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
-
-                    if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
-
-                    imageStyle.setImage(new Icon({
-                        declutterMode: 'obstacle',
-                        src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
-                        width: scaledWidth,
-                        rotation,
-                        rotateWithView: true,
-                        // @ts-expect-error Custom prop
-                        status,
-                        color: filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
-                        opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
-                    }));
-                }
-                else {
-                    imageStyle.setImage(new Icon({
-                        declutterMode: 'obstacle',
-                        src: svgToDataURI(reColorSvg(svg, status, cid)),
-                        width: scaledWidth,
-                        rotation,
-                        rotateWithView: true,
-                        // @ts-expect-error Custom prop
-                        status,
-                        opacity: Number(!store.mapSettings.heatmapLayer),
-                    }));
-                }
+                styleImageCache[imageStyleKey].setSrc(svgToDataURI(reColorSvg(svg, status, cid)));
+                styleImageCache[imageStyleKey].setRotation(rotation);
+                styleImageCache[imageStyleKey].setColor(null);
+                styleImageCache[imageStyleKey].setOpacity(Number(!store.mapSettings.heatmapLayer));
             }
+
+            styleCache.aircraftImage.setImage(styleImageCache[imageStyleKey]);
+            return [styleCache.aircraftImage, styleCache.aircraftText];
         }
     });
 }
 
-export function setAircraftLineStyle(layer: VectorImageLayer) {
+function getAircraftDefaultTurnColor(status: MapAircraftStatus, cid: number) {
+    let color = getAircraftStatusColor(status, cid);
 
+    if (useStore().mapSettings.colors?.turnsTransparency) {
+        const rgb = hexToRgb(color);
+
+        color = `rgba(${ rgb }, ${ useStore().mapSettings.colors?.turnsTransparency })`;
+    }
+
+    return color;
+}
+
+export function setAircraftLineStyle(layer: VectorImageLayer) {
+    const store = useStore();
+
+    layer.setStyle(feature => {
+        const properties = feature.getProperties();
+        if (isMapFeature('aircraft-line', properties)) {
+            if (properties.lineType === 'departure-straight') {
+                if (!styleCache.depLine) {
+                    styleCache.depLine = new Style({
+                        stroke: new Stroke({
+                            color: getAircraftDefaultTurnColor(properties.status, properties.cid),
+                            width: 1,
+                        }),
+                    });
+                }
+
+                return styleCache.depLine;
+            }
+            if (properties.lineType === 'arrival-straight') {
+                if (!styleCache.arrLine) {
+                    styleCache.arrLine = new Style({
+                        stroke: new Stroke({
+                            color: getAircraftDefaultTurnColor(properties.status, properties.cid),
+                            width: 1,
+                            lineDash: [4, 8],
+                        }),
+                    });
+                }
+
+                return styleCache.arrLine;
+            }
+
+            if (!styleCache.defaultLineStyle) {
+                let hex = typeof properties.color === 'string' ? properties.color : getFlightRowColor(properties.color);
+
+                if (store.mapSettings.colors?.turnsTransparency) {
+                    const rgb = hexToRgb(hex);
+
+                    hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
+                }
+
+                const key = String(properties.color);
+
+                styleCache[`line${ key }`] ??= new Style({
+                    stroke: new Stroke({ color: hex, width: 2 }),
+                });
+
+                return styleCache[`line${ key }`];
+            }
+        }
+    });
 }

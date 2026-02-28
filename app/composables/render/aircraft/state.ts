@@ -7,6 +7,7 @@ export const aircraftState: Record<number, Partial<{
     turnsFirstGroupTimestamp: string;
     turnsStart: string;
     turnsSecondGroupPoint: GeoFeature<GeoPoint> | null;
+    timestamps: Set<string>;
     flightPlan: string;
     previousFlightPlan: string;
 }> | undefined> = {};
