@@ -1,5 +1,10 @@
 # Changelog
 
+# [1.2.4-6.1]
+
+- Fixed Map Layer stopping loading when weather is failing to load
+- Roadmap has been updated
+
 # [1.2.4-6]
 
 - Add AGS approach to ATC duplication

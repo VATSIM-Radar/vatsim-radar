@@ -26,6 +26,14 @@
                     <roadmap-aircraft height="32"/>
                 </div>
             </div>
+            <common-notification type="info">
+                Relevant real-time v2 progress is available on <a
+                    class="__link"
+                    href="https://github.com/orgs/VATSIM-Radar/projects/3"
+                    target="_blank"
+                >Github</a>
+            </common-notification>
+            <br>
             <div class="roadmap_cols">
                 <div
                     v-for="col in roadmap"
@@ -105,6 +113,7 @@
 import CommonPageBlock from '~/components/common/blocks/CommonPageBlock.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
+import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none';
 
@@ -267,6 +276,7 @@ const roadmap = reactive<Roadmap[]>([
         items: [
             {
                 title: 'Pilot/airport mouse context menu',
+                status: 'in-progress',
             },
             {
                 title: 'Oceanic Tracks integration',
@@ -274,6 +284,15 @@ const roadmap = reactive<Roadmap[]>([
             },
             {
                 title: 'Smart positioning for aircraft info popup',
+                status: 'next',
+            },
+            {
+                title: 'Select/Interaction/Render rework',
+                status: 'next',
+            },
+            {
+                title: 'Infinite Map',
+                status: 'next',
             },
             {
                 title: 'Waypoints, airways, CIDs, STARs, VORDME, holdings',
