@@ -2,6 +2,10 @@
 
 # [2.0.0-alpha.4]
 
+Known Issues: 
+- Distance tool is INOP in all worlds except original
+- Navigraph Data has not yet been reworked to use new select system and can conflict when clicking
+
 ## Alpha changes
 
 - Fixed gates occupied state not updating
@@ -14,6 +18,7 @@
 - Friend name is now always displayed in pilot hover popup
 - Implemented dynamic on-hover aircraft position (based on heading only)
 - Completely reworked map interactions with clear priorities and multiselect support
+- Significantly improved distance tool update speed when attach to an aircraft
 
 ## Bug Fixes
 

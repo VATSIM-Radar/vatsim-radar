@@ -21,6 +21,25 @@ const textTypes = {
     'caption-medium-alt': '600 11px Jura, Arial, sans-serif',
 } satisfies PartialRecord<UiTextTypes, string>;
 
-export function getTextFont(type: keyof typeof textTypes) {
-    return textTypes[type];
+export function getTextFont(type: keyof typeof textTypes, { fontSize, robotoMono }: {
+    fontSize?: number;
+    robotoMono?: boolean;
+} = {}) {
+    let text = textTypes[type];
+
+    if (fontSize || robotoMono) {
+        const arr = text.split(' ');
+
+        if (fontSize) {
+            arr[1] = `${ fontSize }px`;
+        }
+
+        if (robotoMono) {
+            arr[2] = `RobotoMono,`;
+        }
+
+        text = arr.join(' ');
+    }
+
+    return text;
 }

@@ -7,7 +7,7 @@ import { useMapStore } from '~/store/map';
 import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
 import {
     fetchAircraftIcon,
-    getAircraftStatusColor,
+    getAircraftStatusColor, getFilteredAircraftSettings,
     getFlightRowColor,
     ownFlight,
     reColorSvg,
@@ -52,17 +52,6 @@ const favoritesMap = computed(() => {
 
     return map;
 });
-
-const getFilteredAircraftSettings = (cid: number) => {
-    const store = useStore();
-    const dataStore = useDataStore();
-
-    if (hasActivePilotFilter() && typeof store.activeFilter.others === 'object' && (store.activeFilter.others.ourColor || typeof store.activeFilter.others.othersOpacity === 'number')) {
-        const pilot = dataStore.vatsim.data.keyedPilots.value?.[cid];
-        if (pilot?.filteredColor) return pilot.filteredColor;
-        else return pilot?.filteredOpacity;
-    }
-};
 
 function getMaxRotatedHeight(width: number, height: number): number {
     return Math.sqrt((width * width) + (height * height));

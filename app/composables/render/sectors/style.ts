@@ -4,12 +4,9 @@ import { isMapFeature } from '~/utils/map/entities';
 import type { FeatureAirportSectorVGProperties } from '~/utils/map/entities';
 import type { ColorsListRgb } from '~/utils/colors';
 import {
-    getColorFromSettings,
     getSelectedColorTransparencyFromSettings,
-
 } from '~/composables/settings/colors';
 import type { SettingsColorType } from '~/composables/settings/colors';
-import { getCurrentThemeHexColor } from '~/composables';
 import { Point } from 'ol/geom.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { Geometry } from 'ol/geom.js';

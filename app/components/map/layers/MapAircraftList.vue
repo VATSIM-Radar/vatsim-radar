@@ -59,9 +59,6 @@ function receiveMessage(event: MessageEvent) {
 
 const showTracks = shallowRef<Record<string, TrackData>>({});
 
-// TODO: re-implement
-const hoverDelay = computed(() => (store.mapSettings.aircraftHoverDelay === undefined || store.mapSettings.aircraftHoverDelay === true) ? 400 : store.mapSettings.aircraftHoverDelay);
-
 const getShownPilots = computed(() => {
     const groundTrafficHide = store.mapSettings.groundTraffic?.hide ?? 'lowZoom';
     if (groundTrafficHide === 'never') return dataStore.visiblePilots.value;

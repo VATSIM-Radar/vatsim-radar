@@ -10,6 +10,7 @@ import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import type { AircraftIconType } from '../icons';
+import type { HeadingPair } from '~/utils/map/distance';
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
@@ -169,6 +170,13 @@ export interface FeatureSIGMETProperties extends Omit<SigmetCombined, 'id'> {
     id: string;
 }
 
+export interface FeatureDistanceProperties {
+    type: 'distance';
+    id: number;
+    headings?: HeadingPair;
+    length: string;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -185,6 +193,7 @@ export type FeatureAircraft = Feature<Point, FeatureAircraftProperties>;
 export type FeatureAircraftLine = Feature<LineString | MultiLineString, FeatureAircraftLineProperties>;
 
 export type FeatureSigmet = Feature<Geometry, FeatureSIGMETProperties>;
+export type FeatureDistance = Feature<LineString, FeatureDistanceProperties>;
 
 export type MapFeatures =
     | FeatureAirport
@@ -198,7 +207,8 @@ export type MapFeatures =
     | FeatureSimAware
     | FeatureAircraft
     | FeatureAircraftLine
-    | FeatureSigmet;
+    | FeatureSigmet
+    | FeatureDistance;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
 
