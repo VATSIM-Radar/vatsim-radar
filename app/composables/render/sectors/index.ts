@@ -1,6 +1,6 @@
 import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
-import type { MapFir } from '~/components/map/sectors/MapSectorListV2.vue';
+import type { MapFir } from '~/components/map/layers/MapSectorList.vue';
 import { createDefaultStyle } from 'ol/style/Style.js';
 import { setSectorStyle } from '~/composables/render/sectors/style';
 import type { VatSpyDataFeature } from '~/types/data/vatspy';

@@ -1,5 +1,35 @@
 # Changelog
 
+# [2.0.0-alpha.4]
+
+Known Issues: 
+- Distance tool is INOP in all worlds except original
+- Navigraph Data has not yet been reworked to use new select system and can conflict when clicking
+
+## Alpha changes
+
+- Fixed gates occupied state not updating
+- Fixed bookings icons not greyed out
+
+## Improvements and changes
+
+- Significantly improved aircraft hovering stability and predictability
+- Removed aircraft on-hover delay separate setting in favor of global hover setting
+- Friend name is now always displayed in pilot hover popup
+- Implemented dynamic on-hover aircraft position (based on heading only)
+- Completely reworked map interactions with clear priorities and multiselect support
+- Significantly improved distance tool update speed when attach to an aircraft
+
+## Bug Fixes
+
+- Fixed map tiles not loading if weather tiles are frozen for some reason
+
+## Performance Improvements
+
+- Reworked aircraft render for much better performance, including speed of render and reduced memory and cpu usage of both aircraft and tracks update
+- Significantly improved tracks render smoothness and delay
+- Improved performance in Airport Dashboard
+
 # [2.0.0-alpha.3.2]
 
 ## Alpha changes

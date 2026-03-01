@@ -75,7 +75,10 @@ export const useMapStore = defineStore('map', {
         openOverlayId: null as string | null,
         openPilotOverlay: false,
         openApproachOverlay: false,
+
+        hoveredPilot: null as number | null,
         renderedAirports: [] as string[],
+        renderedPilots: [] as number[],
 
         dataReady: false,
         mapCursorPointerTrigger: false as false | number,
