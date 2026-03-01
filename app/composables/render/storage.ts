@@ -20,7 +20,6 @@ import { clientDB } from '~/composables/render/idb';
 import type { ClientNavigraphData } from '~/composables/render/idb';
 import { checkForWSData } from '~/composables/render/ws';
 import { useStore } from '~/store';
-import type { AirportsList } from '~/components/map/airports/MapAirportsList.vue';
 import {
     isVatGlassesActive,
 } from '~/utils/data/vatglasses';

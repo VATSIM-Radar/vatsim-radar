@@ -69,19 +69,13 @@
             <div :key="(store.theme ?? 'default') + JSON.stringify(store.mapSettings.colors ?? {})">
                 <client-only v-if="ready">
                     <map-selected-procedures/>
-                    <map-aircraft-list-v2 v-if="!store.bookingOverride"/>
-                    <!--
-                    <map-sectors-list
-                        v-if="!store.config.hideSectors"
-                        :key="String(store.localSettings.filters?.layers?.layer)"
-                    />
--->
-                    <map-sector-list-v2
+                    <map-aircraft-list v-if="!store.bookingOverride"/>
+                    <map-sector-list
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-distance v-if="store.localSettings.distance?.enabled"/>
-                    <map-airports-list-v2 v-if="!store.config.hideAirports"/>
+                    <map-airports-list v-if="!store.config.hideAirports"/>
                     <map-select/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
@@ -302,22 +296,22 @@ import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
-import MapTerminator from '~/components/map/MapTerminator.vue';
+import MapTerminator from '~/components/map/layers/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
-import MapLayer from '~/components/map/MapLayer.vue';
-import MapSigmets from '~/components/map/MapSigmets.vue';
+import MapLayer from '~/components/map/layers/MapLayer.vue';
+import MapSigmets from '~/components/map/layers/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
-import MapWeather from '~/components/map/MapWeather.vue';
+import MapWeather from '~/components/map/layers/MapWeather.vue';
 import MapDistance from '~/components/map/MapDistance.vue';
 import MapControls from '~/components/map/MapControls.vue';
 import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
-import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
-import MapSelect from '~/components/map/MapSelect.vue';
+import MapAirportsList from '~/components/map/layers/MapAirportsList.vue';
+import MapSelect from '~/components/map/layers/MapSelect.vue';
 import { isMapFeature } from '~/utils/map/entities';
 import { getOriginalWorldCoordinate } from '~/composables/map/world';
-import MapSectorListV2 from '~/components/map/sectors/MapSectorListV2.vue';
-import MapAircraftListV2 from '~/components/map/aircraft/MapAircraftListV2.vue';
+import MapSectorList from '~/components/map/layers/MapSectorList.vue';
+import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 
 defineProps({
     mode: {

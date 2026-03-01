@@ -39,7 +39,7 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import type { SelectEvent, FilterFunction } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
-import { pointerMove, always, never, singleClick } from 'ol/events/condition.js';
+import { pointerMove, always, singleClick } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
@@ -285,20 +285,38 @@ const definitions = {
             mapStore.addPilotOverlay(payload.feature.getProperties().cid);
         },
     },
+    distance: {
+        featureTypes: ['distance'],
+        hover: () => {
+            return true;
+        },
+        click: payload => {
+            const properties = payload.feature.getProperties();
+            if (isMapFeature('distance', properties)) {
+                const id = properties.id;
+                const index = mapStore.distance.items.findIndex(x => x.date === id);
+                if (index === -1) return;
+
+                clickSelect?.deselectFeature(payload.feature);
+                mapStore.distance.items.splice(index, 1);
+            }
+        },
+    },
 } satisfies Record<SelectableFeatures, Definition>;
 
-type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG' | 'aircraft' | 'sigmet';
+type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG' | 'aircraft' | 'sigmet' | 'distance';
 
 const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Ref<Feature[]> }> = {
     hover: {
         priorities: [
-            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'aircraft', 'sectorVG', 'sigmet',
+            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'aircraft', 'sectorVG', 'sigmet', 'distance',
         ],
         multiSelect: {},
         selectedFeatures: shallowRef([]),
     },
     click: {
         priorities: [
+            'distance',
             'airportControllers',
             'airportCounter',
             'airportApproach',
@@ -366,6 +384,7 @@ function createSelectHandler(type: EventType, select: Select) {
                 hoverAwaiting = false;
 
                 if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
+
                 selectFeature(feature, true);
             }
 

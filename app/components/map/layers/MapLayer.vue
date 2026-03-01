@@ -198,7 +198,7 @@ async function initLayer() {
     mapLayer?.dispose();
 
     if (layer.value.url === 'basic') {
-        const continents = (await import('@/assets/continents.json')).default;
+        const continents = (await import('~/assets/continents.json')).default;
 
         if (mapSource) {
             mapSource.clear();
