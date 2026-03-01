@@ -786,26 +786,19 @@ onBeforeUnmount(() => {
 
             width: 100%;
             max-width: 70px;
+            padding: 4px;
+            border: 1px solid $darkgray800;
+            border-radius: 8px;
 
             font-size: 10px;
             text-align: center;
 
-            &_title {
-                overflow: hidden;
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 2;
-
-                font-weight: 600;
-            }
+            background: $darkgray950;
 
             &_image {
                 aspect-ratio: $achievementAspectRatio;
                 height: 50px;
-                border: 1px solid $darkgray800;
-                border-radius: 8px;
 
-                background-color: $darkgray950;
                 background-repeat: no-repeat;
                 background-position: center;
                 background-size: contain;

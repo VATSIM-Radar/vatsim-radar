@@ -11,11 +11,13 @@
             v-if="model"
             class="achievement"
         >
-            <div
-                v-if="'image_url' in model || 'badge_image_url' in model"
-                class="achievement_image"
-                :style="{ backgroundImage: `url(${ 'image_url' in model ? model.image_url : model.badge_image_url })` }"
-            />
+            <div class="achievement_image">
+                <div
+                    v-if="'image_url' in model || 'badge_image_url' in model"
+                    class="achievement_image_item"
+                    :style="{ backgroundImage: `url(${ 'image_url' in model ? model.image_url : model.badge_image_url })` }"
+                />
+            </div>
             <div class="achievement_provider">
                 Provided by <a
                     class="__link"
@@ -80,15 +82,21 @@ const route = useRoute();
     text-align: center;
 
     &_image {
-        aspect-ratio: $achievementAspectRatio;
         width: 200px;
+        padding: 8px;
         border: 1px solid $darkgray800;
         border-radius: 8px;
 
-        background-color: $darkgray1000;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: contain;
+        background-color: $darkgray950;
+
+        &_item {
+            aspect-ratio: $achievementAspectRatio;
+            width: 100%;
+
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+        }
     }
 
     &_provider + &_description {

@@ -33,10 +33,12 @@
                         class="achievements__achievement"
                         @click="selectedAchievement = achievement"
                     >
-                        <div
-                            class="achievements__achievement_image"
-                            :style="{ backgroundImage: `url(${ achievement.image_url })` }"
-                        />
+                        <div class="achievements__achievement_image">
+                            <div
+                                class="achievements__achievement_image_item"
+                                :style="{ backgroundImage: `url(${ achievement.image_url })` }"
+                            />
+                        </div>
                         <div class="achievements__achievement_title">
                             {{achievement.name}}
                         </div>
@@ -119,15 +121,19 @@ const groups = computed(() => {
         background: $darkgray1000;
 
         &_image {
-            aspect-ratio: $achievementAspectRatio;
             width: 100%;
-            border: 1px solid $darkgray800;
+            padding: 8px;
             border-radius: 8px;
-
             background-color: $darkgray1000;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: contain;
+
+            &_item {
+                aspect-ratio: $achievementAspectRatio;
+                width: 100%;
+
+                background-repeat: no-repeat;
+                background-position: center;
+                background-size: contain;
+            }
         }
 
         &_title {
