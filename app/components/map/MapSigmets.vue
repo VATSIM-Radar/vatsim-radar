@@ -1,61 +1,20 @@
-<template>
-    <map-html-overlay
-        v-if="openSigmet"
-        class="sigmets-overlay"
-        :settings="{ position: openSigmet.pixel, stopEvent: true, offset: [5, 5]}"
-        :z-index="5"
-        @update:modelValue="openSigmet = null"
-    >
-        <popup-map-info
-            class="sigmets"
-            content-full-height
-            @mouseleave="openSigmet = null"
-        >
-            <template #title>
-                SIGMETs
-            </template>
-            <div class="sigmets_list">
-                <div
-                    v-for="(sigmet, index) in openSigmet.sigmets"
-                    :key="index"
-                    class="sigmets__sigmet"
-                >
-                    <div
-                        v-for="field in sigmetFields(sigmet)"
-                        :key="field[0]"
-                        class="__grid-info-sections __grid-info-sections--vertical"
-                    >
-                        <div class="__grid-info-sections_title">
-                            {{ field[0] }}
-                        </div>
-                        <span>
-                            {{ field[1] }}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </popup-map-info>
-    </map-html-overlay>
-</template>
-
 <script setup lang="ts">
 import type { ShallowRef } from 'vue';
-import type { Map, MapBrowserEvent } from 'ol';
+import type { Map } from 'ol';
 import type { Sigmet, Sigmets } from '~/utils/server/storage';
 import VectorSource from 'ol/source/Vector';
 import VectorImageLayer from 'ol/layer/VectorImage';
 import { Fill, Stroke, Style, Text } from 'ol/style.js';
 import type { ColorsListRgb } from '~/utils/colors';
-import type { Coordinate } from 'ol/coordinate.js';
 import { getCurrentThemeRgbColor, getSigmetType } from '~/composables';
 import { useStore } from '~/store';
 import { useRadarError } from '~/composables/errors';
-import { useMapStore } from '~/store/map';
-import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
-import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
+
+defineOptions({
+    render: () => null,
+});
 
 const store = useStore();
-const mapStore = useMapStore();
 const dataStore = useDataStore();
 let initialCall = false;
 
@@ -115,68 +74,7 @@ watch(dataStore.vatsim.updateTimestamp, () => {
     }
 });
 
-const zuluTime = new Intl.DateTimeFormat(['en-GB'], {
-    timeZone: 'UTC',
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
-const zuluDate = new Intl.DateTimeFormat(['en-GB'], {
-    timeZone: 'UTC',
-    day: '2-digit',
-    month: 'long',
-});
-
 const map = inject<ShallowRef<Map | null>>('map')!;
-const openSigmet = ref<{
-    sigmets: Array<Sigmet['properties']>;
-    pixel: Coordinate;
-} | null>(null);
-
-const sigmetFields = (sigmet: Sigmet['properties']): [string, string | number][] => {
-    const fields: [string, string][] = [];
-
-    if (store.localSettings?.filters?.layers?.sigmets?.raw && sigmet.raw && (sigmet.dataType === 'sigmet' || sigmet.dataType === 'airsigmet')) {
-        return [['', sigmet.raw]];
-    }
-
-    if (sigmet.region || sigmet.regionName) fields.push(['Region / FIR', `${ sigmet.region || sigmet.regionName || '' }`]);
-    if (sigmet.type || sigmet.hazard) fields.push(['Hazard / Type', `${ sigmet.hazard ?? '' } ${ sigmet.type ? ` / ${ sigmet.type }` : '' }`]);
-    if (sigmet.qualifier) fields.push(['Qualifier', `${ sigmet.qualifier ?? '' }`]);
-    if (sigmet.timeFrom) {
-        const from = new Date(sigmet.timeFrom);
-        const to = new Date(sigmet.timeTo ?? '');
-
-        let text = `${ zuluDate.format(from) } ${ zuluTime.format(from) }Z`;
-
-        if (sigmet.timeTo) text += ` - ${ zuluTime.format(to) }Z`;
-
-        fields.push(['Active', text]);
-    }
-
-    if ((sigmet.base !== null && sigmet.base !== undefined) || (sigmet.top !== null && sigmet.top !== undefined)) {
-        const text: string[] = [];
-
-        if (sigmet.base !== null && sigmet.base !== undefined) text.push(`From ${ sigmet.base }`);
-        if (sigmet.top !== null && sigmet.top !== undefined) text.push(`To ${ sigmet.top }`);
-
-        fields.push(['Level / Alt', text.join(' | ')]);
-    }
-
-    if (sigmet.dir || sigmet.spd || sigmet.change) {
-        const text: string[] = [];
-
-        if (sigmet.dir) text.push(`DIR ${ sigmet.dir }`);
-        if (sigmet.spd) text.push(`SPD ${ sigmet.spd }`);
-        if (sigmet.change) text.push(`${ sigmet.change }`);
-
-        fields.push(['Info', text.join(' / ')]);
-    }
-
-    if (sigmet.raw) fields.push(['Raw', sigmet.raw]);
-
-    return fields;
-};
 
 let layer: VectorImageLayer<any>;
 let source: VectorSource;
@@ -193,10 +91,17 @@ const jsonFeatures = computed(() => {
 
     geoData.features = geoData.features.filter(x => x.properties.hazard && (store.localSettings.filters?.layers?.sigmets?.showAirmets !== false || (x.properties.dataType !== 'airmet' && x.properties.dataType !== 'gairmet')) && !localDisabled.value?.some(y => x.properties.hazard!.includes(y) || (x.properties.hazard!.includes('WND') && y === 'WIND')));
 
-    return geoJson.readFeatures(geoData, {
+    const features = geoJson.readFeatures(geoData, {
         featureProjection: 'EPSG:4326',
         dataProjection: 'EPSG:4326',
     });
+
+    features.forEach(x => x.setProperties({
+        ...x.getProperties(),
+        type: 'sigmet',
+    }));
+
+    return features;
 });
 
 function buildStyle(color: ColorsListRgb, type: string) {
@@ -246,32 +151,10 @@ watch(() => store.localSettings.filters?.layers?.transparencySettings?.sigmets, 
     };
 });
 
-async function handleMapClick(event: MapBrowserEvent<any>) {
-    openSigmet.value = null;
-    const features = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2 });
-    if (features?.some(x => x.getProperties().type === 'aircraft' || x.getProperties().type === 'vatglasses')) return;
-
-    const sigmets = map.value?.getFeaturesAtPixel(event.pixel, { hitTolerance: 2, layerFilter: x => x === layer });
-    if (!sigmets?.length) return;
-
-    await sleep(0);
-    mapStore.openOverlayId = null;
-    await nextTick();
-
-    openSigmet.value = {
-        pixel: event.coordinate,
-        sigmets: sigmets.map(x => x.getProperties() as any),
-    };
-}
-
-attachMoveEnd(() => openSigmet.value = null);
-
 watch([jsonFeatures, map, localDisabled], () => {
     if (!map.value) return;
 
     if (!source) {
-        map.value.on('singleclick', handleMapClick);
-
         source = new VectorSource<any>({
             features: [],
             wrapX: true,
@@ -280,9 +163,10 @@ watch([jsonFeatures, map, localDisabled], () => {
         layer = new VectorImageLayer<any>({
             source: source,
             properties: {
+                selectable: true,
                 type: 'sigmets',
             },
-            declutter: true,
+            declutter: 'sigmets',
             zIndex: 2,
             style: function(_feature) {
                 const properties = _feature.getProperties() as Sigmet['properties'];
@@ -303,61 +187,15 @@ watch([jsonFeatures, map, localDisabled], () => {
         map.value.addLayer(layer);
     }
 
-    source.removeFeatures(source.getFeatures());
+    source.clear();
     source.addFeatures(jsonFeatures.value);
 }, {
     immediate: true,
 });
 
 onBeforeUnmount(() => {
+    source.clear();
     map.value?.removeLayer(layer);
-    map.value?.un('singleclick', handleMapClick);
+    layer.dispose();
 });
 </script>
-
-<style scoped lang="scss">
-.sigmets {
-    &_list {
-        cursor: initial;
-
-        overflow: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-
-        max-height: 300px;
-    }
-
-    &__sigmet {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-
-        max-width: 350px;
-        padding: 8px;
-        border-radius: 4px;
-
-        font-size: 13px;
-        overflow-wrap: anywhere;
-
-        &:not(:only-child) {
-            padding: 0;
-            background: $darkGray800;
-        }
-
-        @include mobileOnly {
-            max-width: 70dvw;
-        }
-
-        .__grid-info-sections {
-            gap: 0 !important;
-
-            &:not(:only-child) {
-                padding: 8px;
-                border-radius: 8px;
-                background: $darkGray600;
-            }
-        }
-    }
-}
-</style>
