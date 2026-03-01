@@ -179,8 +179,10 @@ export async function setMapAircraft(settings: {
             icon,
             callsign: pilot?.callsign,
             rotation: degreesToRadians(heading ?? 0),
+            heading,
             scale,
             onGround: isOnGround,
+            coordinates,
         };
 
         if (existingFeature) {

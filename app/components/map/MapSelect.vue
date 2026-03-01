@@ -22,6 +22,7 @@ import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/enti
 import type { MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
+import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
@@ -44,6 +45,10 @@ const interactableElements = {
     airportCounter: {
         featureTypes: ['airport-counter'],
         overlayComponent: MapPopupAirportCounter,
+    },
+    aircraft: {
+        featureTypes: ['aircraft'],
+        overlayComponent: MapPopupAircraft,
     },
 } satisfies Record<string, Overlay>;
 
@@ -148,41 +153,66 @@ const definitions = {
         click: payload => {
             return openOverlay('airportControllers', {
                 ...payload,
-                additionalPayload: states.click.selectedFeatures.filter(x => {
+                additionalPayload: states.click.selectedFeatures.value.filter(x => {
                     const properties = x.getProperties();
                     return isMapFeature('sector-vatglasses', properties) && properties.atc;
                 }).map(x => x.getProperties()).sort((a, b) => b.min - a.min),
             }, 'sectorVG');
         },
     },
+    aircraft: {
+        featureTypes: ['aircraft'],
+        hover: payload => {
+            const cid = payload.feature.getProperties().cid;
+
+            nextTick().then(() => {
+                if (!states.hover.selectedFeatures.value.includes(payload.feature)) return;
+
+                mapStore.hoveredPilot = cid;
+
+                const watcher = watch(states.hover.selectedFeatures, val => {
+                    if (!val.includes(payload.feature) && mapStore.hoveredPilot === cid) {
+                        mapStore.hoveredPilot = null;
+                        watcher();
+                    }
+                });
+
+                openOverlay('aircraft', payload, 'aircraft');
+            });
+        },
+        click: payload => {
+            mapStore.addPilotOverlay(payload.feature.getProperties().cid);
+        },
+    },
 } satisfies Record<SelectableFeatures, Definition>;
 
-type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG';
+type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG' | 'aircraft';
 
-const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Feature[] }> = {
+const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Ref<Feature[]> }> = {
+    hover: {
+        priorities: [
+            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'aircraft', 'sectorVG',
+        ],
+        multiSelect: {},
+        selectedFeatures: shallowRef([]),
+    },
     click: {
         priorities: [
             'airportControllers',
             'airportCounter',
             'airportApproach',
             'airportLocal',
-            'sectorVG',
             'multi',
+            'aircraft',
+            'sectorVG',
         ],
         multiSelect: {},
-        selectedFeatures: [],
-    },
-    hover: {
-        priorities: [
-            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'sectorVG',
-        ],
-        multiSelect: {},
-        selectedFeatures: [],
+        selectedFeatures: shallowRef([]),
     },
     rightClick: {
         priorities: ['multi'],
         multiSelect: {},
-        selectedFeatures: [],
+        selectedFeatures: shallowRef([]),
     },
 };
 
@@ -192,8 +222,8 @@ function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
         const selected = select.getFeatures().getArray();
 
-        if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.length && selected.every(x => states[type].selectedFeatures.includes(x))) return;
-        states[type].selectedFeatures = selected.slice(0);
+        if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
+        states[type].selectedFeatures.value = selected.slice(0);
 
         if (!selected.length) {
             openedOverlay.value = null;
@@ -237,7 +267,8 @@ function createSelectHandler(type: EventType, select: Select) {
                     hoverAwaiting = true;
                     await sleep(50);
                     hoverAwaiting = false;
-                    if (!selected.every(x => states[type].selectedFeatures.includes(x)) || selected.length !== states[type].selectedFeatures.length) return;
+
+                    if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
                     selectFeature(feature, true);
                 }
 
@@ -292,16 +323,17 @@ watch(map, val => {
         if (!layer) return false;
         const type = layer.getProperties().type;
         const featureType = feature.getProperties().type;
+        const selectable = layer.getProperties().selectable;
 
         // TODO
-        return type?.startsWith('airports') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
+        return selectable || type?.startsWith('airports') || (type === 'sectors-labels' && featureType !== 'sector-vatglasses') || (type === 'sectors-list' && featureType === 'sector-vatglasses');
     };
 
     hoverSelect = new Select({
         condition: pointerMove,
         multi: true,
         style: null,
-        hitTolerance: 2,
+        hitTolerance: 5,
         filter,
         /* toggleCondition: always,
       multi: true,

@@ -7,6 +7,13 @@
 - Fixed gates occupied state not updating
 - Fixed bookings icons not greyed out
 
+## Improvements and changes
+
+- Significantly improved aircraft hovering stability and predictability
+- Removed aircraft on-hover delay separate setting in favor of global hover setting
+- Friend name is now always displayed in pilot hover popup
+- Implemented dynamic on-hover aircraft position (based on heading only)
+
 ## Bug Fixes
 
 - Fixed map tiles not loading if weather tiles are frozen for some reason

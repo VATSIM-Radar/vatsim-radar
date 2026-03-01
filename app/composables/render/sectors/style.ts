@@ -65,6 +65,7 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                     ? new Text({
                         font: getTextFont('caption-medium'),
                         text: label,
+                        textAlign: 'center',
                         padding: [4, 1, 2, 4],
                         fill: hovered ? textBg : textFill,
                         backgroundFill: hovered ? textFill : textBg,
