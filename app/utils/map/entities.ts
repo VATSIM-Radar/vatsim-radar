@@ -1,10 +1,10 @@
 import { Feature } from 'ol';
-import type { LineString, MultiLineString, Point } from 'ol/geom.js';
+import type { Geometry, LineString, MultiLineString, Point } from 'ol/geom.js';
 import type Polygon from 'ol/geom/Polygon.js';
 import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
-import type { SimAwareProperties } from '~/utils/server/storage';
+import type { SigmetCombined, SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate.js';
@@ -164,6 +164,11 @@ export interface FeatureAircraftLineProperties {
     status: MapAircraftStatus;
 }
 
+export interface FeatureSIGMETProperties extends Omit<SigmetCombined, 'id'> {
+    type: 'sigmet';
+    id: string;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -179,6 +184,8 @@ export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties
 export type FeatureAircraft = Feature<Point, FeatureAircraftProperties>;
 export type FeatureAircraftLine = Feature<LineString | MultiLineString, FeatureAircraftLineProperties>;
 
+export type FeatureSigmet = Feature<Geometry, FeatureSIGMETProperties>;
+
 export type MapFeatures =
     | FeatureAirport
     | FeatureAirportApproach
@@ -190,7 +197,8 @@ export type MapFeatures =
     | FeatureSectorVG
     | FeatureSimAware
     | FeatureAircraft
-    | FeatureAircraftLine;
+    | FeatureAircraftLine
+    | FeatureSigmet;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
 

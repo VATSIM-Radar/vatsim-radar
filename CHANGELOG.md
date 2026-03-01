@@ -13,6 +13,7 @@
 - Removed aircraft on-hover delay separate setting in favor of global hover setting
 - Friend name is now always displayed in pilot hover popup
 - Implemented dynamic on-hover aircraft position (based on heading only)
+- Completely reworked map interactions with clear priorities and multiselect support
 
 ## Bug Fixes
 

@@ -178,7 +178,7 @@ watch(() => mapStore.distance.items, updateItems, {
     immediate: true,
 });
 
-watch(dataStore.vatsim.data.keyedPilots, updateItems);
+useUpdateCallback(['short', 'mandatory'], updateItems);
 
 watch(() => mapStore.distance.pixel, pixel => {
     if (drawing) {

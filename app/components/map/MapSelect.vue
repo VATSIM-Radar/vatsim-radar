@@ -1,8 +1,32 @@
 <template>
     <div>
+        <map-html-overlay
+            v-if="multiSelectCoordinate"
+            :key="String(multiSelectCoordinate)"
+            is-interaction
+            model-value
+            persistent
+            :settings="{
+                position: multiSelectCoordinate,
+                positioning: 'top-center',
+                stopEvent: true,
+            }"
+            :z-index="5"
+            @mouseleave="multiSelectCoordinate = null"
+            @pointermove.stop
+            @update:modelValue="multiSelectCoordinate = null"
+        >
+            <popup-map-info content-padding="0">
+                <template #title>
+                    Open overlay for...
+                </template>
+
+                <ui-menu :items="multiSelectMenu"/>
+            </popup-map-info>
+        </map-html-overlay>
         <component
             :is="openedOverlay.component"
-            v-if="openedOverlay"
+            v-else-if="openedOverlay"
             :payload="openedOverlay?.payload"
             @close="openedOverlay = null"
             @id="openedOverlay && (openedOverlay.id = $event)"
@@ -15,7 +39,7 @@ import type { ShallowRef } from 'vue';
 import type { Feature, Map } from 'ol';
 import type { SelectEvent, FilterFunction } from 'ol/interaction/Select.js';
 import Select from 'ol/interaction/Select.js';
-import { pointerMove, always, singleClick } from 'ol/events/condition.js';
+import { pointerMove, always, never, singleClick } from 'ol/events/condition.js';
 import type { PartialRecord } from '~/types';
 import type { RadarEventPayload } from '~/composables/vatsim/events';
 import { getMapFeature, globalMapEntities, isMapFeature } from '~/utils/map/entities';
@@ -23,32 +47,89 @@ import type { MapFeaturesType } from '~/utils/map/entities';
 import MapPopupAirport from '~/components/map/popups/MapPopupAirport.vue';
 import MapPopupAirportCounter from '~/components/map/popups/MapPopupAirportCounter.vue';
 import MapPopupAircraft from '~/components/map/popups/MapPopupAircraft.vue';
+import MapPopupSigmet from '~/components/map/popups/MapPopupSigmet.vue';
+import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
+import type { Coordinate } from 'ol/coordinate.js';
+import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
+import UiMenu from '~/components/ui/data/UiMenu.vue';
+import type { UIMenuItem } from '~/components/ui/data/UiMenu.vue';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 let hoverSelect: Select | undefined;
 let clickSelect: Select | undefined;
+
+function multiSelectCleanup() {
+    if (multiSelectFeatures.value.length === 1) return;
+
+    const features = clickSelect?.getFeatures()?.getArray() ?? [];
+    for (const selectedFeature of features) {
+        if (!multiSelectFeatures.value.some(x => x.feature === selectedFeature)) {
+            clickSelect?.deselectFeature(selectedFeature);
+        }
+    }
+
+    multiSelectCoordinate.value = null;
+    multiSelectFeatures.value = [];
+}
+
+const multiSelectCoordinate = shallowRef<Coordinate | null>(null);
+const multiSelectFeatures = shallowRef<{ definition: Definition; feature: Feature }[]>([]);
+const multiSelectMenu = computed<UIMenuItem[]>(() => {
+    return multiSelectFeatures.value.map(({ feature, definition }) => {
+        const properties = feature.getProperties();
+
+        const payload: RadarEventPayload<any> = {
+            coordinate: multiSelectCoordinate.value!,
+            feature,
+            additionalPayload: undefined,
+        };
+
+        if (isMapFeature('sigmet', properties)) {
+            return {
+                title: 'SIGMETs',
+                onClick: () => definition.click?.(payload),
+            };
+        }
+
+        if (isMapFeature('sector-vatglasses', properties)) {
+            return {
+                title: `VATGlasses sector ${ properties.positionId } for ${ properties.atc.map(x => x.callsign).join(', ') }`,
+                onClick: () => definition.click?.(payload),
+            };
+        }
+
+        return {
+            title: `Unknown feature ${ properties.type }`,
+            onClick: () => {
+                console.log(properties);
+            },
+        };
+    });
+});
+
+const rightClickCoordinate = shallowRef<Coordinate | null>(null);
+const rightClickFeature = shallowRef<Feature | null>(null);
 
 type EventType = 'click' | 'hover' | 'rightClick';
 
 const mapStore = useMapStore();
 
 interface Overlay {
-    featureTypes: MapFeaturesType[];
     overlayComponent?: Component;
 }
 
 const interactableElements = {
     airportControllers: {
-        featureTypes: ['airport'],
         overlayComponent: MapPopupAirport,
     },
     airportCounter: {
-        featureTypes: ['airport-counter'],
         overlayComponent: MapPopupAirportCounter,
     },
     aircraft: {
-        featureTypes: ['aircraft'],
         overlayComponent: MapPopupAircraft,
+    },
+    sigmet: {
+        overlayComponent: MapPopupSigmet,
     },
 } satisfies Record<string, Overlay>;
 
@@ -64,12 +145,17 @@ function openOverlay(key: OverlayKey, payload: RadarEventPayload<any, any>, inte
     const element = interactableElements[key];
     if (openedOverlay.value?.key === key || (openedOverlay.value?.id && openedOverlay.value?.id !== mapStore.openOverlayId) || !('overlayComponent' in element)) return;
 
+    rightClickCoordinate.value = null;
+    rightClickFeature.value = null;
+
     openedOverlay.value = {
         key,
         interactionKey,
         component: element.overlayComponent,
         payload,
     };
+
+    multiSelectCleanup();
 }
 
 type Definition = {
@@ -160,6 +246,21 @@ const definitions = {
             }, 'sectorVG');
         },
     },
+    sigmet: {
+        featureTypes: ['sigmet'],
+        hover: () => {
+            return true;
+        },
+        click: payload => {
+            return openOverlay('sigmet', {
+                ...payload,
+                additionalPayload: states.click.selectedFeatures.value.filter(x => {
+                    const properties = x.getProperties();
+                    return isMapFeature('sigmet', properties);
+                }).map(x => x.getProperties()),
+            }, 'sigmet');
+        },
+    },
     aircraft: {
         featureTypes: ['aircraft'],
         hover: payload => {
@@ -186,12 +287,12 @@ const definitions = {
     },
 } satisfies Record<SelectableFeatures, Definition>;
 
-type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG' | 'aircraft';
+type SelectableFeatures = 'airportControllers' | 'airportLocal' | 'airportApproach' | 'airportCounter' | 'sector' | 'sectorVG' | 'aircraft' | 'sigmet';
 
 const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'>; multiSelect: PartialRecord<SelectableFeatures, { title: string; priority?: number }>; selectedFeatures: Ref<Feature[]> }> = {
     hover: {
         priorities: [
-            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'aircraft', 'sectorVG',
+            'sector', 'airportControllers', 'airportCounter', 'airportApproach', 'airportLocal', 'aircraft', 'sectorVG', 'sigmet',
         ],
         multiSelect: {},
         selectedFeatures: shallowRef([]),
@@ -202,9 +303,10 @@ const states: Record<EventType, { priorities: Array<SelectableFeatures | 'multi'
             'airportCounter',
             'airportApproach',
             'airportLocal',
-            'multi',
             'aircraft',
+            'multi',
             'sectorVG',
+            'sigmet',
         ],
         multiSelect: {},
         selectedFeatures: shallowRef([]),
@@ -225,6 +327,11 @@ function createSelectHandler(type: EventType, select: Select) {
         if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
         states[type].selectedFeatures.value = selected.slice(0);
 
+        if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
+            multiSelectFeatures.value = [];
+            multiSelectCoordinate.value = null;
+        }
+
         if (!selected.length) {
             openedOverlay.value = null;
             if (type === 'hover') {
@@ -236,22 +343,68 @@ function createSelectHandler(type: EventType, select: Select) {
                     }
                 });
             }
+
             selectFeature(false);
         }
 
         if (!arg.mapBrowserEvent) return;
 
         let tookAction = false;
+        let multiselect = false;
 
         const featuresWithProperties = selected.map(x => ({
             feature: x,
             properties: x.getProperties(),
         }));
 
+        async function featureAction(feature: Feature, definition: Definition) {
+            if (openedOverlay.value && openedOverlay.value.payload.feature !== feature) openedOverlay.value = null;
+
+            if (type === 'hover') {
+                hoverAwaiting = true;
+                await sleep(50);
+                hoverAwaiting = false;
+
+                if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
+                selectFeature(feature, true);
+            }
+
+            const result = (definition as any)[type]({
+                feature,
+                coordinate: arg.mapBrowserEvent.coordinate,
+            });
+
+            tookAction = true;
+
+            if (type === 'hover' && result === false) {
+                mapStore.mapCursorPointerTrigger = 0;
+                return false;
+            }
+
+            if (type === 'hover') {
+                mapStore.mapCursorPointerTrigger = 100;
+            }
+            else {
+                hoverSelect?.selectFeature(feature);
+            }
+
+            const features = select.getFeatures();
+            for (const selectedFeature of features?.getArray() ?? []) {
+                if (selectedFeature !== feature) {
+                    select.deselectFeature(selectedFeature);
+                }
+            }
+        }
+
         if (selected.length) {
             for (const priority of states[type].priorities) {
                 // TODO
-                if (priority === 'multi') break;
+                if (priority === 'multi') {
+                    multiselect = true;
+
+                    continue;
+                }
+
                 const definition = definitions[priority];
 
                 if (!(type in definition)) continue;
@@ -259,46 +412,32 @@ function createSelectHandler(type: EventType, select: Select) {
                 const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
                 if (!targetFeature) continue;
 
-                const { feature } = targetFeature;
-
-                if (openedOverlay.value && openedOverlay.value.payload.feature !== feature) openedOverlay.value = null;
-
-                if (type === 'hover') {
-                    hoverAwaiting = true;
-                    await sleep(50);
-                    hoverAwaiting = false;
-
-                    if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
-                    selectFeature(feature, true);
-                }
-
-                const result = (definition as any)[type]({
-                    feature,
-                    coordinate: arg.mapBrowserEvent.coordinate,
-                });
-
-                tookAction = true;
-
-                if (type === 'hover' && result === false) {
-                    mapStore.mapCursorPointerTrigger = 0;
+                if (multiselect) {
+                    multiSelectFeatures.value.push({
+                        definition,
+                        feature: targetFeature.feature,
+                    });
                     continue;
                 }
 
-                if (type === 'hover') {
-                    mapStore.mapCursorPointerTrigger = 100;
-                }
-                else {
-                    hoverSelect?.selectFeature(feature);
-                }
+                const result = await featureAction(targetFeature.feature, definition);
 
-                const features = select.getFeatures();
-                for (const selectedFeature of features?.getArray() ?? []) {
-                    if (selectedFeature !== feature) {
-                        select.deselectFeature(selectedFeature);
-                    }
-                }
+                if (result === false) continue;
 
                 break;
+            }
+
+            if (multiselect && multiSelectFeatures.value.length) {
+                if (multiSelectFeatures.value.length === 1) {
+                    await featureAction(multiSelectFeatures.value[0].feature, multiSelectFeatures.value[0].definition);
+                    console.log(multiSelectFeatures.value.length);
+                    multiSelectCleanup();
+                    return;
+                }
+
+                multiSelectCoordinate.value = arg.mapBrowserEvent.coordinate;
+
+                return;
             }
         }
 
@@ -335,10 +474,6 @@ watch(map, val => {
         style: null,
         hitTolerance: 5,
         filter,
-        /* toggleCondition: always,
-      multi: true,
-
-        features: collection,*/
     });
 
     hoverSelect.on('select', createSelectHandler('hover', hoverSelect));
@@ -352,10 +487,6 @@ watch(map, val => {
         style: null,
         toggleCondition: always,
         filter,
-    /* toggleCondition: always,
-  multi: true,
-
-    features: collection,*/
     });
 
     clickSelect.on('select', createSelectHandler('click', clickSelect));
