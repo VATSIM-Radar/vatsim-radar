@@ -3,7 +3,6 @@ import VectorSource from 'ol/source/Vector.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import type { ShallowRef } from 'vue';
 import type { Map } from 'ol';
-import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { useUpdateCallback } from '~/composables';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
@@ -293,7 +292,7 @@ watch(() => store.mapSettings.heatmapLayer, async () => {
     initHeatmap();
 });
 
-const updateRelatedSettings = computed(() => JSON.stringify(store.mapSettings.tracks ?? {}));
+const updateRelatedSettings = computed(() => JSON.stringify(store.mapSettings.tracks ?? {}) + String(mapStore.hoveredPilot));
 
 let init = false;
 
@@ -346,6 +345,7 @@ watch(map, val => {
             declutter: 'aircraft',
             properties: {
                 type: 'aircraft',
+                selectable: true,
             },
             zIndex: FEATURES_Z_INDEX.AIRCRAFT,
         });

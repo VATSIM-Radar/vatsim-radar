@@ -467,6 +467,9 @@ export function getTimeRemains(eta: Date): string | null {
     return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
 }
 
+/**
+ * @deprecated
+ */
 export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 5, exitOnAnyOverlay = false) {
     if (!pixel || isHideMapObject('pilots')) return [];
 

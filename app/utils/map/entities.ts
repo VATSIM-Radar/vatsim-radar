@@ -144,9 +144,11 @@ export interface FeatureAircraftProperties {
     type: 'aircraft';
     status: MapAircraftStatus;
     icon: AircraftIconType;
+    coordinates: Coordinate;
     callsign?: string;
     scale: number;
     rotation: number;
+    heading: number;
     cid: number;
     selected?: boolean;
     onGround: boolean;

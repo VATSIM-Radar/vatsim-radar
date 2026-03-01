@@ -59,7 +59,7 @@ defineProps({
     },
     contentPadding: {
         type: String,
-        default: '8px',
+        default: '0 8px 8px',
     },
     asideContent: {
         type: Boolean,
