@@ -110,6 +110,7 @@ const props = defineProps({
 
 const emit = defineEmits({
     'update:modelValue'(data: Partial<UserMapSettingsColor> | null) {
+        // TODO this is not working
         setCustomDefuMergeAsIs();
         return true;
     },

@@ -167,7 +167,7 @@ const copiedFor = ref('');
 const store = useStore();
 
 const notTunedUp = computed(() => {
-    return !props.controller.isATIS && !props.controller.frequencies?.some(x => x === props.controller.frequency && x[3] === '.');
+    return !props.controller.isATIS && (!props.controller?.frequencies?.length || (props.controller.frequencies?.some(x => x[3] === '.') && !props.controller.frequencies?.some(x => x === props.controller.frequency)));
 });
 
 const handleClick = () => {

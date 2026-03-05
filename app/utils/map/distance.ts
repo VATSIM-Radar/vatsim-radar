@@ -141,7 +141,7 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
     const baseText = {
         textAlign: 'center' satisfies CanvasTextAlign,
         textBaseline: 'middle' satisfies CanvasTextBaseline,
-        font: '10px LibreFranklin',
+        font: getTextFont('caption-medium-alt'),
         fill,
         rotation: -info.rotation,
         offsetX: drawing && type === 'end'
@@ -167,6 +167,8 @@ export function makeHeadingStyles(type: 'start' | 'end', heading: string | null,
         text: new Text({
             ...baseText,
             text: heading,
+            textAlign: info.heading > 180 ? 'left' : 'right',
+            offsetX: baseText.offsetX - (info.heading > 180 ? 8 : -8),
         }),
     });
 

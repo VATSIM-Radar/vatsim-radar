@@ -1,21 +1,20 @@
-<template>
-    <div/>
-</template>
-
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import { FEATURES_Z_INDEX } from '~/composables/render';
-import type { ShallowRef } from 'vue';
+import type { EffectScope, ShallowRef } from 'vue';
 import type { Map } from 'ol';
 import { useMapStore } from '~/store/map';
 import { useStore } from '~/store';
-import { initVatglasses } from '~/utils/data/vatglasses';
+import { initVatglasses, isVatGlassesActive } from '~/utils/data/vatglasses';
 import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { makeFakeAtcFeatureFromBooking } from '~/utils';
 import { setMapSectors } from '~/composables/render/sectors';
-import { debounce } from '~/utils/shared';
+
+defineOptions({
+    render: () => null,
+});
 
 let vectorLayer: VectorLayer<any>;
 let vectorSource: VectorSource;
@@ -119,13 +118,27 @@ onMounted(async () => {
 
     const mapSettings = computed(() => store.mapSettings);
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
-    await initVatglasses();
+    let vgInit: false | EffectScope = false;
 
-    const debouncedUpdate = debounce(() => {
+    const debouncedUpdate = useThrottleFn(async () => {
         if (hideAtc.value || hideOnZoom.value) {
             vectorSource.clear();
         }
         else {
+            if (!vgInit && isVatGlassesActive.value) {
+                const scope = effectScope();
+                await scope.run(async () => {
+                    await initVatglasses().then(() => {
+                        vgInit = scope;
+                    }).catch(() => {
+                        scope.stop();
+                    });
+                });
+            }
+            else if (vgInit && !isVatGlassesActive.value) {
+                vgInit.stop();
+                vgInit = false;
+            }
             setMapSectors({
                 source: vectorSource,
                 layer: vectorLayer,

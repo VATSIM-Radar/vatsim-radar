@@ -10,7 +10,7 @@ import { setRedisData } from '~/utils/server/redis';
 import { getLocalText, isDebug } from '~/utils/server/debug';
 
 const revisions: Record<string, number> = {
-    'v2506.1': 1,
+    'v2602.1': 1,
 };
 
 function parseDatFile<S extends Record<string, { title: string; children: Record<string, true> }>>({
@@ -178,12 +178,12 @@ export function compileVatSpy(version: string, dat: string, geo: string, include
             });
 
             boundaries.forEach((boundary, index) => {
-                boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map(x => {
+                /* boundary.geometry.coordinates = boundary.geometry.coordinates.map(x => x.map(x => x.map(x => x.map(x => {
                     if (x === 0) return 0.01;
                     if (x === -180) return -179.9;
                     if (x === 180) return 179.9;
                     return x;
-                })))) as any;
+                })))) as any;*/
 
                 const coordinate = [+boundary.properties!.label_lon, +boundary.properties!.label_lat];
 
