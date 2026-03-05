@@ -251,7 +251,7 @@ export const duplicatingSettings = [
     },
     /**
      * @description CZYZ FIR Terminal Sectors
-     * @author 1401686
+     * @author 1401686 and 1448618
      */
     {
         regex: /^TOR(_\w{0,3})?_(DEP|APP|CTR)$/,
@@ -259,8 +259,8 @@ export const duplicatingSettings = [
             'XU Sector': 'TOR_XU_APP',
             'WS Sector': 'TOR_WS_APP',
             'ES Sector': 'TOR_ES_APP',
-            'CYTR MTCA': 'CYTR_APP',
-            'CYYZ TCA': 'TOR_APP',
+            'TR MTCA': 'CYTR_APP',
+            'YZ TCA': 'TOR_APP',
         },
     },
 ] satisfies DuplicatingSetting[];
