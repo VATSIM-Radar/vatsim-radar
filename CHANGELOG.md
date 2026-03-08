@@ -8,6 +8,7 @@
 - Added model matching: AN32→AN26, VL3T→VL3, PA30→PA39
 - Add CZYZ FIR Terminal Sectors to ATC Duplicating
 - Update regex for LECB area in ATC duplication
+- Add ZDV mapping for ATC Duplication
 
 # [1.2.4-6]
 
