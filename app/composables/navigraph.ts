@@ -636,6 +636,7 @@ export async function getFlightPlanWaypoints({
 
                         const startingAirway = neededAirways.find(x => x[1][2].some(x => x[0] === entries[i - 1]?.split('/')[0]));
                         const endAirway = neededAirways.find(x => x[1][2].some(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]));
+
                         let startAirwayEndingWaypoint = -1;
                         let endAirwayStartingWaypoint = -1;
                         const endIndex = endAirway?.[1][2].findIndex(x => !entries[i + 1] || x[0] === entries[i + 1]?.split('/')[0]);
@@ -644,6 +645,7 @@ export async function getFlightPlanWaypoints({
                         // Looking for airway start
                         for (let i = startingIndex ?? 0; i < (startingAirway?.[1][2].length ?? 0); i++) {
                             endAirwayStartingWaypoint = endAirway?.[1][2].findIndex(x => x[0] === startingAirway?.[1][2][i]?.[0]) ?? -1;
+
                             if (endAirwayStartingWaypoint !== -1) {
                                 startAirwayEndingWaypoint = i;
                                 break;
@@ -657,15 +659,16 @@ export async function getFlightPlanWaypoints({
                             neededAirway[1][2].push(...endAirway![1][2].slice(endAirwayStartingWaypoint, endIndex! + 1));
                         }
 
-                        if (endIndex === -1 || endAirwayStartingWaypoint === -1 || !startingAirway || !endAirway) neededAirway = undefined;
+                        if (endAirwayStartingWaypoint === -1 && startingAirway && endAirway) {
+                            neededAirway[1][2].push(...startingAirway![1][2]);
+                        }
+                        else if (endIndex === -1 || endAirwayStartingWaypoint === -1 || !startingAirway || !endAirway) neededAirway = undefined;
                     }
                 }
 
                 if (neededAirway && entries[i + 1] && entries[i - 1]) {
                     let startIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i - 1]?.split('/')[0]);
                     let endIndex = neededAirway[1][2].findIndex(x => x[0] === entries[i + 1]?.split('/')[0]);
-
-                    if (search === 'Q140') console.log(startIndex, endIndex);
 
                     neededAirway = JSON.parse(JSON.stringify(neededAirway)) as [string, ShortAirway];
 
