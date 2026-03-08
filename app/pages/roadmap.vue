@@ -26,13 +26,13 @@
                     <roadmap-aircraft height="32"/>
                 </div>
             </div>
-            <common-notification type="info">
+            <ui-notification type="info">
                 Relevant real-time v2 progress is available on <a
                     class="__link"
                     href="https://github.com/orgs/VATSIM-Radar/projects/3"
                     target="_blank"
                 >Github</a>
-            </common-notification>
+            </ui-notification>
             <br>
             <div class="roadmap_cols">
                 <div
@@ -113,7 +113,6 @@
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
-import CommonNotification from '~/components/common/basic/CommonNotification.vue';
 
 type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none';
 
