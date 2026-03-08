@@ -19,8 +19,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ShallowRef } from 'vue';
-import type { Map, MapBrowserEvent } from 'ol';
-import { Feature } from 'ol';
+import type { Map, MapBrowserEvent, Feature } from 'ol';
 import type { FeatureLike } from 'ol/Feature.js';
 import { useMapStore } from '~/store/map';
 import { Draw } from 'ol/interaction.js';
@@ -43,6 +42,7 @@ import {
 } from '~/utils/map/distance';
 import type { HeadingPair } from '~/utils/map/distance';
 import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
+import { createMapFeature } from '~/utils/map/entities';
 
 const map = inject<ShallowRef<Map | null>>('map')!;
 const mapStore = useMapStore();
@@ -54,7 +54,7 @@ let drawing: Draw | null = null;
 const tooltip = ref<Coordinate | null>(null);
 const tooltipRotation = ref(0);
 const source = new VectorSource();
-const distanceSource = new VectorSource();
+const distanceSource = new VectorSource({ wrapX: false });
 let layer: VectorLayer | undefined;
 const sketch = shallowRef<null | Feature>(null);
 const currentResult = ref<string | null>(null);
@@ -137,10 +137,11 @@ function updateItems() {
 
             const headings = calculateHeadingPair(map, geometry);
 
-            newFeatures.push(new Feature({
+            newFeatures.push(createMapFeature('distance', {
                 geometry,
                 id: item.date,
                 length: formatLength(geometry),
+                type: 'distance',
                 headings,
             }));
 
@@ -161,8 +162,9 @@ function updateItems() {
         const geometry = coordinate1 && coordinate2 ? toGeodesicLine(coordinate1, coordinate2) : null;
         if (!geometry) continue;
 
-        newFeatures.push(new Feature({
+        newFeatures.push(createMapFeature('distance', {
             geometry,
+            type: 'distance',
             id: item.date,
             length: formatLength(geometry),
         }));
@@ -178,7 +180,7 @@ watch(() => mapStore.distance.items, updateItems, {
     immediate: true,
 });
 
-watch(dataStore.vatsim.data.keyedPilots, updateItems);
+useUpdateCallback(['short', 'mandatory'], updateItems);
 
 watch(() => mapStore.distance.pixel, pixel => {
     if (drawing) {
@@ -258,27 +260,14 @@ watch(() => mapStore.distance.pixel, pixel => {
     drawing.appendCoordinates([pixel]);
 });
 
-function handleMapClick(e: MapBrowserEvent<any>) {
-    const handleFeatures = map.value?.getFeaturesAtPixel(e.pixel, { hitTolerance: 5, layerFilter: x => x === layer });
-
-    if (handleFeatures?.length !== 1) return;
-
-    const pilots = getPilotsForPixel(map.value!, e.pixel);
-
-    if (pilots.length) return;
-
-    const id = handleFeatures[0].getProperties().id;
-    const index = mapStore.distance.items.findIndex(x => x.date === id);
-    if (index === -1) return;
-
-    mapStore.distance.items.splice(index, 1);
-}
-
 watch(map, val => {
     if (!val || layer) return;
     layer = new VectorLayer({
         zIndex: 7,
         source: distanceSource,
+        properties: {
+            selectable: true,
+        },
         style: function(val) {
             const geometry = val.getGeometry();
             const stylesArr: Style[] = [lineStyle];
@@ -296,7 +285,7 @@ watch(map, val => {
                     placement: 'point',
                     textAlign: 'center',
                     textBaseline: 'middle',
-                    font: '10px LibreFranklin',
+                    font: getTextFont('caption-medium-alt'),
                     fill: new Fill({
                         color: `rgba(${ getCurrentThemeRgbColor('lightgray125').join(',') }, 0.8)`,
                     }),
@@ -316,7 +305,6 @@ watch(map, val => {
         },
     });
     val.addLayer(layer);
-    val.on('singleclick', handleMapClick);
 }, {
     immediate: true,
 });
@@ -330,8 +318,6 @@ onBeforeUnmount(() => {
     if (layer) {
         map.value?.removeLayer(layer);
     }
-
-    map.value?.un('singleclick', handleMapClick);
 });
 </script>
 

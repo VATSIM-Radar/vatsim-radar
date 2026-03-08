@@ -134,7 +134,7 @@ export const duplicatingSettings = [
     * @author 1558357
     */
     {
-        regex: /^LECB_RW\d?_CTR$/,
+        regex: /^LECB_(?:RW[\d_]?|LLI|PPI)_CTR$/,
         mapping: {
             BCN: 'LEBL_APP',
             LEIB: 'LEIB_APP',
@@ -264,6 +264,19 @@ export const duplicatingSettings = [
             CYS: 'CYS_APP',
             ASE: 'ASE_APP',
             CPR: 'CPR_APP',
+    },
+     /**
+     * @description CZYZ FIR Terminal Sectors
+     * @author 1401686 and 1448618
+     */
+    {
+        regex: /^TOR(_\w{0,3})?_(DEP|APP|CTR)$/,
+        mapping: {
+            'XU Sector': 'TOR_XU_APP',
+            'WS Sector': 'TOR_WS_APP',
+            'ES Sector': 'TOR_ES_APP',
+            'TR MTCA': 'CYTR_APP',
+            'YZ TCA': 'TOR_APP',
         },
     },
 ] satisfies DuplicatingSetting[];

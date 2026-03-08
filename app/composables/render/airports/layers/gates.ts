@@ -1,20 +1,22 @@
 import type VectorSource from 'ol/source/Vector';
 import type VectorLayer from 'ol/layer/Vector';
 import type { AirportListItem } from '~/composables/render/airports';
-import type { AirportNavigraphData } from '~/components/map/airports/MapAirportsListV2.vue';
+import type { AirportNavigraphData } from '~/components/map/layers/MapAirportsList.vue';
 import { getCurrentThemeRgbColor } from '~/composables';
 import { Fill, Stroke, Style, Text } from 'ol/style';
 import { toRadians } from 'ol/math';
 import { Point } from 'ol/geom';
-import { createMapFeature, getMapFeature } from '~/utils/map/entities';
+import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import { getSelectedColorFromSettings } from '~/composables/settings/colors';
-import { checkIsPilotInGate } from '~/utils/shared/vatsim';
+import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
+import { createDefaultStyle } from 'ol/style/Style';
 
 const setAirports = new Set<string>();
 
-const styleFillCache: Record<string, Fill> = {};
-const styleStrokeCache: Record<string, Stroke> = {};
+let styleFillCache: Record<string, Fill> = {};
+let styleStrokeCache: Record<string, Stroke> = {};
+let styleCache: Record<string, Style> = {};
 
 export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     source: VectorSource;
@@ -23,6 +25,75 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
     navigraphData: AirportNavigraphData;
 }) {
     const store = useStore();
+    styleFillCache = {};
+    styleStrokeCache = {};
+    styleCache = {};
+
+    if (layer.getStyle() === createDefaultStyle) {
+        layer.setStyle(feature => {
+            const properties = feature.getProperties();
+
+            if (isMapFeature('airport-navigraph', properties)) {
+                if (properties.featureType === 'gate') {
+                    if (!styleFillCache[`gate${ properties.gateColor }`]) {
+                        styleFillCache[`gate${ properties.gateColor }`] = new Fill({
+                            color: properties.gateColor,
+                        });
+                    }
+
+                    if (!styleCache.gates) {
+                        styleCache.gates = new Style({
+                            text: new Text({
+                                font: getTextFont('caption-light'),
+                                text: '',
+                                textAlign: 'center',
+                                fill: styleFillCache[`gate${ properties.gateColor }`],
+                                backgroundFill: styleFillCache.gateDefault,
+                                backgroundStroke: styleStrokeCache.gateDefault,
+                                rotation: toRadians(0),
+                                padding: [2, 0, 1, 2],
+                            }),
+                            zIndex: 0,
+                        });
+                    }
+
+                    if (styleCache.gates.getText()!.getFill() !== styleFillCache[`gate${ properties.gateColor }`]) {
+                        styleCache.gates.getText()!.setFill(styleFillCache[`gate${ properties.gateColor }`]);
+                    }
+                    styleCache.gates.getText()!.setText(properties.identifier!);
+                    styleCache.gates.setZIndex(properties.trulyOccupied ? 2 : properties.maybeOccupied ? 1 : 0);
+
+                    return styleCache.gates;
+                }
+                else if (properties.featureType === 'runway') {
+                    if (!styleFillCache[`runway${ properties.gateColor }`]) {
+                        styleFillCache[`runway${ properties.gateColor }`] = new Fill({
+                            color: properties.gateColor,
+                        });
+                    }
+
+                    if (!styleCache.runways) {
+                        styleCache.runways = new Style({
+                            text: new Text({
+                                font: 'bold 12px LibreFranklin',
+                                text: '',
+                                rotation: 0,
+                                rotateWithView: true,
+                                fill: styleFillCache[`runway${ properties.gateColor }`],
+                            }),
+                        });
+                    }
+
+                    if (styleCache.runways.getText()!.getFill() !== styleFillCache[`runway${ properties.gateColor }`]) {
+                        styleCache.runways.getText()!.setFill(styleFillCache[`runway${ properties.gateColor }`]);
+                    }
+                    styleCache.runways.getText()!.setText(properties.identifier!);
+
+                    return styleCache.runways;
+                }
+            }
+        });
+    }
 
     const newlySetAirports = new Set<string>();
 
@@ -46,39 +117,29 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         if (!runways?.length && !gates?.length) continue;
 
-        for (const pilot of [...airportsMap[icao]?.groundDep ?? [], ...airportsMap[icao]?.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            checkIsPilotInGate(pilot, gates);
-        }
+        const pilots = [
+            ...(airportsMap[icao]?.groundDep ?? []),
+            ...(airportsMap[icao]?.groundArr ?? []),
+        ] as VatsimShortenedAircraft[];
 
-        for (const gate of gates ?? []) {
+        const resolvedGates = gates ? getGatesMatch(gates, pilots) : [];
+
+        for (const gate of resolvedGates) {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
             const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
 
             const color = gate.trulyOccupied ? `rgba(${ getCurrentThemeRgbColor('error700').join(',') }, ${ opacitySetting ?? 1 })` : gate.maybeOccupied ? `rgba(${ getCurrentThemeRgbColor('warning700').join(',') }, ${ opacitySetting ?? 1 })` : `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, ${ opacitySetting ?? 1 })`;
-            if (!styleFillCache[`gate${ color }`]) {
-                styleFillCache[`gate${ color }`] = new Fill({
-                    color,
-                });
-            }
 
             const existingFeature = getMapFeature('airport-navigraph', source, id);
 
             if (existingFeature) {
-                const style = existingFeature.getStyle() as Style;
-                if (style.getText()?.getFill()?.getColor() !== color) {
-                    existingFeature.setStyle(new Style({
-                        text: new Text({
-                            font: '11px LibreFranklin',
-                            text: gate.name || gate.gate_identifier,
-                            textAlign: 'center',
-                            fill: styleFillCache[`gate${ color }`],
-                            backgroundFill: styleFillCache.gateDefault,
-                            backgroundStroke: styleStrokeCache.gateDefault,
-                            rotation: toRadians(0),
-                            padding: [2, 0, 2, 2],
-                        }),
-                        zIndex: gate.trulyOccupied ? 2 : gate.maybeOccupied ? 1 : 0,
-                    }));
+                if (existingFeature.getProperties().gateColor !== color) {
+                    existingFeature.setProperties({
+                        ...existingFeature.getProperties(),
+                        gateColor: color,
+                        trulyOccupied: gate.trulyOccupied,
+                        maybeOccupied: gate.maybeOccupied,
+                    });
                 }
             }
             else {
@@ -87,22 +148,12 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                     identifier: gate.name || gate.gate_identifier,
                     type: 'airport-navigraph',
                     geometry: new Point([gate.gate_longitude, gate.gate_latitude]),
+                    gateColor: color,
                     airport: icao,
+                    featureType: 'gate',
+                    trulyOccupied: gate.trulyOccupied,
+                    maybeOccupied: gate.maybeOccupied,
                 });
-
-                feature.setStyle(new Style({
-                    text: new Text({
-                        font: getTextFont('caption-light'),
-                        text: gate.name || gate.gate_identifier,
-                        textAlign: 'center',
-                        fill: styleFillCache[`gate${ color }`],
-                        backgroundFill: styleFillCache.gateDefault,
-                        backgroundStroke: styleStrokeCache.gateDefault,
-                        rotation: toRadians(0),
-                        padding: [2, 0, 1, 2],
-                    }),
-                    zIndex: gate.trulyOccupied ? 2 : gate.maybeOccupied ? 1 : 0,
-                }));
 
                 source.addFeature(feature);
             }
@@ -114,30 +165,25 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
             const existingFeature = getMapFeature('airport-navigraph', source, id);
             const color = getSelectedColorFromSettings('runways') || `rgba(${ getCurrentThemeRgbColor('error300').join(',') }, 0.7)`;
 
-            if (!styleFillCache[`runway${ color }`]) {
-                styleFillCache[`runway${ color }`] = new Fill({
-                    color,
-                });
+            if (existingFeature) {
+                if (existingFeature.getProperties().gateColor !== color) {
+                    existingFeature.setProperties({
+                        ...existingFeature.getProperties(),
+                        gateColor: color,
+                    });
+                }
+                continue;
             }
-
-            if (existingFeature) continue;
             else {
                 const feature = createMapFeature('airport-navigraph', {
                     id,
                     type: 'airport-navigraph',
                     geometry: new Point([runway.runway_longitude, runway.runway_latitude]),
                     airport: icao,
+                    featureType: 'runway',
+                    gateColor: color,
+                    identifier: runway.runway_identifier.replace('RW', ''),
                 });
-
-                feature.setStyle(new Style({
-                    text: new Text({
-                        font: 'bold 12px LibreFranklin',
-                        text: runway.runway_identifier.replace('RW', ''),
-                        rotation: toRadians(runway.runway_true_bearing),
-                        rotateWithView: true,
-                        fill: styleFillCache[`runway${ color }`],
-                    }),
-                }));
 
                 source.addFeature(feature);
             }

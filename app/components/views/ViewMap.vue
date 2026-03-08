@@ -70,18 +70,12 @@
                 <client-only v-if="ready">
                     <map-selected-procedures/>
                     <map-aircraft-list v-if="!store.bookingOverride"/>
-                    <!--
-                    <map-sectors-list
-                        v-if="!store.config.hideSectors"
-                        :key="String(store.localSettings.filters?.layers?.layer)"
-                    />
--->
-                    <map-sector-list-v2
+                    <map-sector-list
                         v-if="!store.config.hideSectors"
                         :key="String(store.localSettings.filters?.layers?.layer)"
                     />
                     <map-distance v-if="store.localSettings.distance?.enabled"/>
-                    <map-airports-list-v2 v-if="!store.config.hideAirports"/>
+                    <map-airports-list v-if="!store.config.hideAirports"/>
                     <map-select/>
                     <navigraph-layers v-if="dataStore.navigraph.version"/>
                     <map-weather/>
@@ -270,7 +264,6 @@ import '@@/node_modules/ol/ol.css';
 import { Map, View } from 'ol';
 import type { MapBrowserEvent } from 'ol';
 import { Attribution } from 'ol/control.js';
-import MapAircraftList from '~/components/map/aircraft/MapAircraftList.vue';
 import { useStore } from '~/store';
 import { setupDataFetch } from '~/composables/render/storage';
 import MapOverlays from '~/components/map/overlays/MapOverlays.vue';
@@ -303,21 +296,22 @@ import ErrorIcon from '~/assets/icons/kit/error.svg?component';
 import WarningIcon from '~/assets/icons/kit/warning.svg?component';
 import type { VatsimAirportDataNotam } from '~/utils/server/notams';
 import { MAX_MAP_ZOOM } from '~/utils/shared';
-import MapTerminator from '~/components/map/MapTerminator.vue';
+import MapTerminator from '~/components/map/layers/MapTerminator.vue';
 import MapScale from '~/components/map/MapScale.vue';
-import MapLayer from '~/components/map/MapLayer.vue';
-import MapSigmets from '~/components/map/MapSigmets.vue';
+import MapLayer from '~/components/map/layers/MapLayer.vue';
+import MapSigmets from '~/components/map/layers/MapSigmets.vue';
 import PopupFullscreen from '~/components/popups/PopupFullscreen.vue';
 import MapSettings from '~/components/map/settings/MapSettings.vue';
-import MapWeather from '~/components/map/MapWeather.vue';
+import MapWeather from '~/components/map/layers/MapWeather.vue';
 import MapDistance from '~/components/map/MapDistance.vue';
 import MapControls from '~/components/map/MapControls.vue';
 import MapMobileWindow from '~/components/map/MapMobileWindow.vue';
-import MapAirportsListV2 from '~/components/map/airports/MapAirportsListV2.vue';
-import MapSelect from '~/components/map/MapSelect.vue';
+import MapAirportsList from '~/components/map/layers/MapAirportsList.vue';
+import MapSelect from '~/components/map/layers/MapSelect.vue';
 import { isMapFeature } from '~/utils/map/entities';
 import { getOriginalWorldCoordinate } from '~/composables/map/world';
-import MapSectorListV2 from '~/components/map/sectors/MapSectorListV2.vue';
+import MapSectorList from '~/components/map/layers/MapSectorList.vue';
+import MapAircraftList from '~/components/map/layers/MapAircraftList.vue';
 
 defineProps({
     mode: {
@@ -984,6 +978,7 @@ await setupDataFetch({
                     collapsed: false,
                 }),
             ],
+            maxTilesLoading: 1000,
             interactions: [],
             view: new View({
                 center,
@@ -1013,17 +1008,24 @@ await setupDataFetch({
         map.value.on('pointermove', updateMapCursor);
         map.value.on('postrender', event => {
             const features = event.frameState;
-            const rbush = features?.declutter?.airports;
-            if (!rbush) return;
+            const rbushAirports = features?.declutter?.airports;
+            const rbushAircraft = features?.declutter?.aircraft;
+            if (!rbushAirports && !rbushAircraft) return;
 
-            const list = rbush.all();
-            const set = new Set<string>();
+            const list = [
+                ...rbushAirports?.all() ?? [],
+                ...rbushAircraft?.all() ?? [],
+            ];
+            const airports = new Set<string>();
+            const aircraft = new Set<number>();
             for (const feature of list) {
                 const properties = feature.value.getProperties();
-                if (isMapFeature('airport', properties)) set.add(properties.icao);
+                if (isMapFeature('airport', properties)) airports.add(properties.icao);
+                if (isMapFeature('aircraft', properties)) aircraft.add(properties.id);
             }
 
-            mapStore.renderedAirports = Array.from(set);
+            mapStore.renderedAirports = Array.from(airports);
+            mapStore.renderedPilots = Array.from(aircraft);
         });
 
         mapStore.extent = map.value!.getView().calculateExtent(map.value!.getSize());

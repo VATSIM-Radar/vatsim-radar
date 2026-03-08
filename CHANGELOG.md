@@ -1,43 +1,38 @@
 # Changelog
 
-# [2.0.0-alpha.3.2]
+# [2.0.0-alpha.4.1]
 
-## Alpha changes
+## Alpha Changes
 
-- Fixed new sectors slow init
-- Fixed new sectors potential memory leak
-- Fixed VATGlasses always initializing, even when disabled
-- Fixed overlays not hiding when hovered out
-- Fixed VATGlasses combined mode sorting
-- Removed VATSpy meridian gap since it is now infinite
+- Fixed Gates color not changing when they are no longer occupied
+- Performance improvements for gates occupation check
+- Fixed rare airports (KLAX as an example) having incorrect on-hover name
+- Fixed CTAF frequency showing as suspended and not tuned up
+- Fixed flight track not displayed when pilot overlay is opened
+- Fixed click action always opening same airport
+
+# [2.0.0-alpha.4]
+
+Known Issues: 
+- Distance tool is INOP in all worlds except original
+- Navigraph Data has not yet been reworked to use new select system and can conflict when clicking
+
+## Improvements and changes
+
+- Significantly improved aircraft hovering stability and predictability
+- Removed aircraft on-hover delay separate setting in favor of global hover setting
+- Friend name is now always displayed in pilot hover popup
+- Implemented dynamic on-hover aircraft position (based on heading only)
+- Completely reworked map interactions with clear priorities and multiselect support
+- Significantly improved distance tool update speed when attach to an aircraft
 
 ## Performance Improvements
 
-- VATGlasses will now detach and stop updating when disabled after being enabled
-
-# [2.0.0-alpha.3.1]
-
-## Alpha changes
-
-- Fixed VATGlasses level not updating
-- Renamed VATGlasses ATC popup to "Positions"
-- Fixed VATGlasses Combined Mode ATC display
-- Fixed VATSpy positions named "approach/departure"
-- Aircraft are no longer displayed "below" new sectors
+- Reworked aircraft render for much better performance, including speed of render and reduced memory and cpu usage of both aircraft and tracks update
+- Significantly improved tracks render smoothness and delay
+- Improved performance in Airport Dashboard
 
 # [2.0.0-alpha.3]
-
-## Alpha changes
-
-- Significantly improved memory usage for airports style
-- Controllers in airport overlay are now sorted by position
-- Fixed overlays enabling on mobile even when map is moving
-- Fixed airports buttons not clickable on mobile
-- Updated atc icons
-- Improved SimAware data update stability
-- FIR/VG list v2 (render rework), no multiselect for now
-- Fixed controller duplication issues
-- "Max counters to show" and "Hide airports on zoom" now also affect TRACONs labels
 
 ## Improvements and changes
 
@@ -47,6 +42,7 @@
 ## Performance Improvements
 
 - Significantly reduced memory usage for airlines icao codes
+- VATGlasses will now detach and stop updating when disabled after being enabled
 
 # [2.0.0-alpha.2]
 

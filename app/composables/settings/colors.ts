@@ -68,6 +68,15 @@ export function getStringColorFromSettings(setting: string | null | undefined, r
 
 export type SettingsColorType = Exclude<keyof UserMapSettingsColors, 'aircraft' | 'staffedAirport' | 'defaultAirport' | 'gates'>;
 
+export function getSelectedColorTransparencyFromSettings(color: SettingsColorType) {
+    const store = useStore();
+    const themeKey = store.getCurrentTheme;
+
+    const setting = store.mapSettings.colors?.[themeKey]?.[color];
+
+    return setting ? setting.transparency : null;
+}
+
 export function getSelectedColorFromSettings(color: SettingsColorType, raw?: boolean) {
     const store = useStore();
     const themeKey = store.getCurrentTheme;

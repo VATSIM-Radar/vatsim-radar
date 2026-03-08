@@ -1,13 +1,16 @@
 import { Feature } from 'ol';
-import type { Point } from 'ol/geom.js';
+import type { Geometry, LineString, MultiLineString, Point } from 'ol/geom.js';
 import type Polygon from 'ol/geom/Polygon.js';
 import type MultiPolygon from 'ol/geom/MultiPolygon.js';
 import type { ObjectWithGeometry } from 'ol/Feature.js';
 import type VectorSource from 'ol/source/Vector';
-import type { SimAwareProperties } from '~/utils/server/storage';
+import type { SigmetCombined, SimAwareProperties } from '~/utils/server/storage';
 import type { VatsimShortenedController, VatsimShortenedPrefile } from '~/types/data/vatsim';
 import type { MapAircraftKeys, MapAircraftList } from '~/types/map';
 import type { Coordinate } from 'ol/coordinate.js';
+import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
+import type { AircraftIconType } from '../icons';
+import type { HeadingPair } from '~/utils/map/distance';
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
@@ -86,18 +89,13 @@ export interface FeatureAirportAirportCounterProperties {
     id: `airport-${ string }-${ MapAircraftKeys | 'training' }`;
 }
 
-export interface FeatureAirportGateProperties {
-    type: 'airport-gate' | 'airport-runway';
-    identifier: string;
-    id: `airport-${ string }-${ string }`;
-}
-
 export interface FeatureAirportNavigraphProperties {
     type: 'airport-navigraph';
     identifier?: string;
     ident?: string;
     idlin?: string;
     color?: number;
+    gateColor?: string;
     style?: number;
     catstop?: number;
     idthr?: string;
@@ -106,6 +104,9 @@ export interface FeatureAirportNavigraphProperties {
     idrwy?: string;
     idapron?: string;
     airport: string;
+    trulyOccupied?: boolean;
+    maybeOccupied?: boolean;
+    featureType: 'gate' | 'runway' | 'layer';
     id: `airport-${ string }-${ 'gate' | 'runway' | 'layer' }-${ string }`;
 }
 
@@ -139,29 +140,75 @@ export interface FeatureAirportSectorVGProperties {
     colour: string;
 }
 
+export interface FeatureAircraftProperties {
+    id: number;
+    type: 'aircraft';
+    status: MapAircraftStatus;
+    icon: AircraftIconType;
+    coordinates: Coordinate;
+    callsign?: string;
+    scale: number;
+    rotation: number;
+    heading: number;
+    cid: number;
+    selected?: boolean;
+    onGround: boolean;
+}
+
+export interface FeatureAircraftLineProperties {
+    id: `${ number }-${ 'arrival' | 'departure' | `timestamp-${ string }` }`;
+    type: 'aircraft-line';
+    lineType: 'aircraft' | 'arrival-straight' | 'departure-straight' | 'departure-line' | 'loaded' | 'arrival-line';
+    timestamp?: string;
+    color: string | number | null;
+    cid: number;
+    status: MapAircraftStatus;
+}
+
+export interface FeatureSIGMETProperties extends Omit<SigmetCombined, 'id'> {
+    type: 'sigmet';
+    id: string;
+}
+
+export interface FeatureDistanceProperties {
+    type: 'distance';
+    id: number;
+    headings?: HeadingPair;
+    length: string;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
-export type FeatureAirportGate = Feature<Point, FeatureAirportGateProperties>;
 export type FeatureAirportAtc = Feature<Point, FeatureAirportAirportAtcProperties>;
 export type FeatureAirportCounter = Feature<Point, FeatureAirportAirportCounterProperties>;
 export type FeatureAirportNavigraph = Feature<Point, FeatureAirportNavigraphProperties>;
+
 export type FeatureSector = Feature<Polygon | MultiPolygon, FeatureAirportSectorDefaultProperties>;
 export type FeatureSectorVG = Feature<Polygon | MultiPolygon, FeatureAirportSectorVGProperties>;
 
 export type FeatureSimAware = Feature<Polygon | MultiPolygon, SimAwareProperties & { type: 'simaware' }>;
 
+export type FeatureAircraft = Feature<Point, FeatureAircraftProperties>;
+export type FeatureAircraftLine = Feature<LineString | MultiLineString, FeatureAircraftLineProperties>;
+
+export type FeatureSigmet = Feature<Geometry, FeatureSIGMETProperties>;
+export type FeatureDistance = Feature<LineString, FeatureDistanceProperties>;
+
 export type MapFeatures =
     | FeatureAirport
     | FeatureAirportApproach
     | FeatureAirportApproachLabel
-    | FeatureAirportGate
     | FeatureAirportAtc
     | FeatureAirportCounter
     | FeatureAirportNavigraph
     | FeatureSector
     | FeatureSectorVG
-    | FeatureSimAware;
+    | FeatureSimAware
+    | FeatureAircraft
+    | FeatureAircraftLine
+    | FeatureSigmet
+    | FeatureDistance;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
 

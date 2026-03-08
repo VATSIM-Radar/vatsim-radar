@@ -1,6 +1,16 @@
 import type { VatsimPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 
 export type AircraftIcon =
+    | 'vl3'
+    | 'p06t'
+    | 'leg2'
+    | 'l159'
+    | 'ga7c'
+    | 'c46'
+    | 'be33'
+    | 'b52'
+    | 'an26'
+    | 'aa5'
     | 'sw3'
     | 'shrk'
     | 's76'
@@ -297,14 +307,56 @@ function getAircraftSizeByCoef(coef: number, strict = false) {
     return Math.round(size);
 }
 
-type AircraftIcons = {
-    [K in AircraftIcon]: {
-        icon: K;
-        width: number;
-    }
+export interface AircraftIconType<K extends AircraftIcon = AircraftIcon> {
+    icon: K;
+    width: number;
+}
+
+export type AircraftIcons = {
+    [K in AircraftIcon]: AircraftIconType<K>
 };
 
 export const aircraftIcons: AircraftIcons = {
+    vl3: {
+        icon: 'vl3',
+        width: getAircraftSizeByCoef(0.14),
+    },
+    p06t: {
+        icon: 'p06t',
+        width: getAircraftSizeByCoef(0.19),
+    },
+    leg2: {
+        icon: 'leg2',
+        width: getAircraftSizeByCoef(0.13),
+    },
+    l159: {
+        icon: 'l159',
+        width: getAircraftSizeByCoef(0.16),
+    },
+    ga7c: {
+        icon: 'ga7c',
+        width: getAircraftSizeByCoef(0.52),
+    },
+    c46: {
+        icon: 'c46',
+        width: getAircraftSizeByCoef(0.55),
+    },
+    be33: {
+        icon: 'be33',
+        width: getAircraftSizeByCoef(0.17),
+    },
+    b52: {
+        icon: 'b52',
+        width: getAircraftSizeByCoef(0.94),
+    },
+    an26: {
+        icon: 'an26',
+        width: getAircraftSizeByCoef(0.49),
+    },
+    aa5: {
+        icon: 'aa5',
+        width: getAircraftSizeByCoef(0.16),
+    },
     sw3: {
         icon: 'sw3',
         width: getAircraftSizeByCoef(0.29),
@@ -1445,6 +1497,12 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
     if (faa?.startsWith('P28')) return aircraftIcons.p28x;
 
     switch (faa) {
+        case 'AN32':
+            return aircraftIcons.an26;
+        case 'VL3T':
+            return aircraftIcons.vl3;
+        case 'PA30':
+            return aircraftIcons.pa39;
         case 'IL38':
             return aircraftIcons.il18;
         case 'PTS2':
@@ -1993,6 +2051,16 @@ export function getAircraftIcon(aircraft: VatsimShortenedAircraft | VatsimPilot)
         case 'S76':
         case 'SHRK':
         case 'SW3':
+        case 'AA5':
+        case 'AN26':
+        case 'B52':
+        case 'BE33':
+        case 'C46':
+        case 'GA7C':
+        case 'L159':
+        case 'LEG2':
+        case 'P06T':
+        case 'VL3':
             return aircraftIcons[faa.toLowerCase() as AircraftIcon];
         default:
             return aircraftIcons.a320;
