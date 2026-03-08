@@ -136,6 +136,7 @@ const interactableElements = {
 type OverlayKey = keyof typeof interactableElements;
 
 const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFeatures; component: Component; payload: RadarEventPayload<any, any>; id?: string } | null>();
+const isMobileOrTablet = useIsMobileOrTablet();
 
 watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
@@ -340,136 +341,142 @@ let hoverAwaiting = false;
 
 function createSelectHandler(type: EventType, select: Select) {
     return async (arg: SelectEvent) => {
-        const selected = select.getFeatures().getArray();
+        try {
+            const selected = (arg.mapBrowserEvent && type !== 'hover') ? arg.selected : select.getFeatures().getArray();
 
-        if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
-        states[type].selectedFeatures.value = selected.slice(0);
+            if (hoverAwaiting && selected.length && selected.length === states[type].selectedFeatures.value.length && selected.every(x => states[type].selectedFeatures.value.includes(x))) return;
+            states[type].selectedFeatures.value = selected.slice(0);
 
-        if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
-            multiSelectFeatures.value = [];
-            multiSelectCoordinate.value = null;
-        }
-
-        if (!selected.length) {
-            openedOverlay.value = null;
-            if (type === 'hover') {
-                sleep(100).then(() => {
-                    if (!select.getFeatures().getArray().length) {
-                        mapStore.mapCursorPointerTrigger = 0;
-                        openedOverlay.value = null;
-                        selectFeature(false);
-                    }
-                });
+            if (arg.mapBrowserEvent && states[type].priorities.includes('multi')) {
+                multiSelectFeatures.value = [];
+                multiSelectCoordinate.value = null;
             }
 
-            selectFeature(false);
-        }
-
-        if (!arg.mapBrowserEvent) return;
-
-        let tookAction = false;
-        let multiselect = false;
-
-        const featuresWithProperties = selected.map(x => ({
-            feature: x,
-            properties: x.getProperties(),
-        }));
-
-        async function featureAction(feature: Feature, definition: Definition) {
-            if (openedOverlay.value && openedOverlay.value.payload.feature !== feature) openedOverlay.value = null;
-
-            if (type === 'hover') {
-                hoverAwaiting = true;
-                await sleep(50);
-                hoverAwaiting = false;
-
-                if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
-
-                selectFeature(feature, true);
-            }
-
-            const result = (definition as any)[type]({
-                feature,
-                coordinate: arg.mapBrowserEvent.coordinate,
-            });
-
-            tookAction = true;
-
-            if (type === 'hover' && result === false) {
-                mapStore.mapCursorPointerTrigger = 0;
-                return false;
-            }
-
-            if (type === 'hover') {
-                mapStore.mapCursorPointerTrigger = 100;
-            }
-            else {
-                hoverSelect?.selectFeature(feature);
-            }
-
-            const features = select.getFeatures();
-            for (const selectedFeature of features?.getArray() ?? []) {
-                if (selectedFeature !== feature) {
-                    select.deselectFeature(selectedFeature);
-                }
-            }
-        }
-
-        if (selected.length) {
-            for (const priority of states[type].priorities) {
-                // TODO
-                if (priority === 'multi') {
-                    multiselect = true;
-
-                    continue;
-                }
-
-                const definition = definitions[priority];
-
-                if (!(type in definition)) continue;
-
-                const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
-                if (!targetFeature) continue;
-
-                if (multiselect) {
-                    multiSelectFeatures.value.push({
-                        definition,
-                        feature: targetFeature.feature,
+            if (!selected.length) {
+                openedOverlay.value = null;
+                if (type === 'hover') {
+                    sleep(100).then(() => {
+                        if (!select.getFeatures().getArray().length) {
+                            mapStore.mapCursorPointerTrigger = 0;
+                            openedOverlay.value = null;
+                            selectFeature(false);
+                        }
                     });
-                    continue;
                 }
 
-                const result = await featureAction(targetFeature.feature, definition);
-
-                if (result === false) continue;
-
-                break;
+                selectFeature(false);
             }
 
-            if (multiselect && multiSelectFeatures.value.length) {
-                if (multiSelectFeatures.value.length === 1) {
-                    await featureAction(multiSelectFeatures.value[0].feature, multiSelectFeatures.value[0].definition);
-                    console.log(multiSelectFeatures.value.length);
-                    multiSelectCleanup();
+            if (!arg.mapBrowserEvent) return;
+
+            let tookAction = false;
+            let multiselect = false;
+
+            const featuresWithProperties = selected.map(x => ({
+                feature: x,
+                properties: x.getProperties(),
+            }));
+
+            async function featureAction(feature: Feature, definition: Definition) {
+                if (openedOverlay.value && openedOverlay.value.payload.feature !== feature) openedOverlay.value = null;
+
+                if (type === 'hover') {
+                    hoverAwaiting = true;
+                    await sleep(50);
+                    hoverAwaiting = false;
+
+                    if (!selected.length || !selected.every(x => states[type].selectedFeatures.value.includes(x)) || selected.length !== states[type].selectedFeatures.value.length) return;
+
+                    selectFeature(feature, true);
+                }
+
+                const result = (definition as any)[type]({
+                    feature,
+                    coordinate: arg.mapBrowserEvent.coordinate,
+                });
+
+                tookAction = true;
+
+                if (type === 'hover' && result === false) {
+                    mapStore.mapCursorPointerTrigger = 0;
+                    return false;
+                }
+
+                if (type === 'hover') {
+                    mapStore.mapCursorPointerTrigger = 100;
+                }
+                else {
+                    hoverSelect?.selectFeature(feature);
+                }
+
+                const features = select.getFeatures();
+                for (const selectedFeature of features?.getArray() ?? []) {
+                    if (selectedFeature !== feature) {
+                        select.deselectFeature(selectedFeature);
+                    }
+                }
+            }
+
+            if (selected.length) {
+                for (const priority of states[type].priorities) {
+                    // TODO
+                    if (priority === 'multi') {
+                        multiselect = true;
+
+                        continue;
+                    }
+
+                    const definition = definitions[priority];
+
+                    if (!(type in definition)) continue;
+
+                    const targetFeature = featuresWithProperties.find(x => (definition.featureTypes as any[]).includes(x.properties.type));
+                    if (!targetFeature) continue;
+
+                    if (multiselect) {
+                        multiSelectFeatures.value.push({
+                            definition,
+                            feature: targetFeature.feature,
+                        });
+                        continue;
+                    }
+
+                    const result = await featureAction(targetFeature.feature, definition);
+
+                    if (result === false) continue;
+
+                    break;
+                }
+
+                if (multiselect && multiSelectFeatures.value.length) {
+                    if (multiSelectFeatures.value.length === 1) {
+                        await featureAction(multiSelectFeatures.value[0].feature, multiSelectFeatures.value[0].definition);
+                        console.log(multiSelectFeatures.value.length);
+                        multiSelectCleanup();
+                        return;
+                    }
+
+                    multiSelectCoordinate.value = arg.mapBrowserEvent.coordinate;
+
                     return;
                 }
+            }
 
-                multiSelectCoordinate.value = arg.mapBrowserEvent.coordinate;
-
-                return;
+            if (!tookAction) {
+                if (type === 'hover') {
+                    mapStore.mapCursorPointerTrigger = 0;
+                    select.clearSelection();
+                }
+                else if (type === 'click') {
+                    select?.clearSelection();
+                }
+                openedOverlay.value = null;
+                selectFeature(false);
             }
         }
-
-        if (!tookAction) {
-            if (type === 'hover') {
-                mapStore.mapCursorPointerTrigger = 0;
-                select.clearSelection();
-            }
-            else if (type === 'click') {
-                select?.clearSelection();
-            }
-            openedOverlay.value = null;
-            selectFeature(false);
+        catch (e) {
+            alert('select error!');
+            throw e;
         }
     };
 }

@@ -130,7 +130,17 @@ function setVisiblePilots() {
     dataStore.visiblePilots.value.forEach(x => {
         const pilot = dataStore.vatsim.data.keyedPilots.value[x.cid.toString()];
 
-        const isShown = pilotsOverlays.value.includes(x.cid) || visibleFeatures.has(x.cid);
+        const isOverlay = pilotsOverlays.value.includes(x.cid);
+        const isShown = visibleFeatures.has(x.cid);
+
+        if (isOverlay) {
+            tracks[pilot.cid.toString()] = {
+                pilot,
+                show: 'full',
+                isShown: true,
+            };
+            return;
+        }
 
         if (!pilot || !isShown) return;
 

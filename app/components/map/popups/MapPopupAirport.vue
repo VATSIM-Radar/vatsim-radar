@@ -155,7 +155,7 @@ const getPopupName = computed(() => {
     if (type.value === 'sector-vatglasses') return 'Positions';
     if ('name' in featureProps) return `${ featureProps.name } ${ type.value === 'airport' ? 'Controllers' : '' }`;
     if ('facility' in featureProps) {
-        const airport = dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao]?.name;
+        const airport = (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name;
         let facility = featureProps.facility.facility === -1 ? 'ATIS' : dataStore.vatsim.data.facilities.value.find(x => x.id === (featureProps as any).facility?.facility)?.long;
 
         if (featureProps.facility.facility === useFacilitiesIds().APP) facility = 'Approach / Departure';
@@ -163,7 +163,7 @@ const getPopupName = computed(() => {
         return `${ airport } ${ facility }`;
     }
 
-    return `${ dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao]?.name } Approach/Departure`;
+    return `${ (dataStore.vatspy.value?.data.keyAirports.realIcao[(featureProps as any).icao] ?? dataStore.vatspy.value?.data.keyAirports.icao[(featureProps as any).icao])?.name } Approach/Departure`;
 });
 
 const getATC = computed<VatsimShortenedController[]>(() => {

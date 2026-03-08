@@ -16,7 +16,7 @@ import type {
 } from '~/types/data/vatsim';
 import { getAircraftIcon } from '~/utils/icons';
 import { getNavigraphGates } from '~/utils/server/navigraph';
-import { checkIsPilotInGate, getPilotTrueAltitude } from '~/utils/shared/vatsim';
+import { getPilotGateMatch, getPilotTrueAltitude } from '~/utils/shared/vatsim';
 import {
     calculateArrivalTime,
     calculateDistanceInNauticalMiles,
@@ -164,8 +164,8 @@ export async function updateVatsimExtendedPilots() {
             extendedPilot.airport = groundDep.icao;
             const gates = await getCachedGates(groundDep.icao);
 
-            const check = gates && checkIsPilotInGate(extendedPilot, gates);
-            if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
+            const check = gates && getPilotGateMatch(extendedPilot, gates);
+            if (check?.truly.size > 0 || check?.maybe.size > 0) {
                 extendedPilot.status = 'depGate';
             }
             else {
@@ -180,8 +180,8 @@ export async function updateVatsimExtendedPilots() {
 
             if (!gates) return;
 
-            const check = checkIsPilotInGate(extendedPilot, gates);
-            if ((check?.truly || check?.maybe) && extendedPilot.groundspeed === 0) {
+            const check = getPilotGateMatch(extendedPilot, gates);
+            if (check?.truly.size > 0 || check?.maybe.size > 0) {
                 extendedPilot.status = 'arrGate';
             }
             else {

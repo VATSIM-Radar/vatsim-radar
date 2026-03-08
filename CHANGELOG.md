@@ -1,5 +1,16 @@
 # Changelog
 
+# [2.0.0-alpha.4.1]
+
+## Alpha Changes
+
+- Fixed Gates color not changing when they are no longer occupied
+- Performance improvements for gates occupation check
+- Fixed rare airports (KLAX as an example) having incorrect on-hover name
+- Fixed CTAF frequency showing as suspended and not tuned up
+- Fixed flight track not displayed when pilot overlay is opened
+- Fixed click action always opening same airport
+
 # [2.0.0-alpha.4]
 
 Known Issues: 

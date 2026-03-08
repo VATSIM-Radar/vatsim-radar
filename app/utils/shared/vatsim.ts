@@ -32,70 +32,88 @@ export function adjustPilotLonLat(pilot: VatsimShortenedAircraft | VatsimPilot):
     return [pilot.longitude + lonAdjustment, pilot.latitude + latAdjustment];
 }
 
-export function checkIsPilotInGate(pilot: VatsimShortenedAircraft | VatsimPilot, gates: NavigraphGate[]): {
-    truly: boolean;
-    maybe: boolean;
-} {
-    const result = {
-        truly: false,
-        maybe: false,
+function getMatchedGateIds(
+    gates: NavigraphGate[],
+    lon: number,
+    lat: number,
+    threshold: number,
+): Set<string> {
+    const matched = new Set<string>();
+
+    for (const gate of gates) {
+        if (
+            Math.abs(gate.gate_longitude - lon) < threshold &&
+            Math.abs(gate.gate_latitude - lat) < threshold
+        ) {
+            matched.add(gate.gate_identifier);
+        }
+    }
+
+    return matched;
+}
+
+export interface GateMatchResult {
+    truly: Set<string>;
+    maybe: Set<string>;
+}
+
+export function getPilotGateMatch(
+    pilot: VatsimShortenedAircraft | VatsimPilot,
+    gates: NavigraphGate[],
+): GateMatchResult {
+    const empty: GateMatchResult = {
+        truly: new Set(),
+        maybe: new Set(),
     };
 
-    if (pilot.groundspeed > 1) return result;
-
-    let pilotLon = pilot.longitude;
-    let pilotLat = pilot.latitude;
-
-    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.00015 && Math.abs(x.gate_latitude - pilotLat) < 0.00015)) {
-        const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-        if (index === -1) continue;
-        gates[index] = {
-            ...gates[index],
-            trulyOccupied: true,
-        };
-        result.truly = true;
+    if (pilot.groundspeed > 3) {
+        return empty;
     }
 
-    const adjusted = adjustPilotLonLat(pilot);
+    const originalLon = pilot.longitude;
+    const originalLat = pilot.latitude;
+    const [adjustedLon, adjustedLat] = adjustPilotLonLat(pilot);
 
-    pilotLon = adjusted[0];
-    pilotLat = adjusted[1];
+    const trulyOriginal = getMatchedGateIds(gates, originalLon, originalLat, 0.00015);
+    const truly = trulyOriginal.size > 0
+        ? trulyOriginal
+        : getMatchedGateIds(gates, adjustedLon, adjustedLat, 0.00015);
 
-    if (!result.truly) {
-        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.00015 && Math.abs(x.gate_latitude - pilotLat) < 0.00015)) {
-            const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-            if (index === -1) continue;
-            gates[index] = {
-                ...gates[index],
-                trulyOccupied: true,
-            };
-            result.truly = true;
+    const maybeOriginal = getMatchedGateIds(gates, originalLon, originalLat, 0.0003);
+    const maybe = maybeOriginal.size > 0
+        ? maybeOriginal
+        : getMatchedGateIds(gates, adjustedLon, adjustedLat, 0.0003);
+
+    return {
+        truly,
+        maybe,
+    };
+}
+
+export function getGatesMatch(
+    gates: NavigraphGate[],
+    pilots: Array<VatsimShortenedAircraft | VatsimPilot>,
+): NavigraphGate[] {
+    const trulyOccupied = new Set<string>();
+    const maybeOccupied = new Set<string>();
+
+    for (const pilot of pilots) {
+        const match = getPilotGateMatch(pilot, gates);
+
+        for (const gateId of match.truly) {
+            trulyOccupied.add(gateId);
+        }
+
+        for (const gateId of match.maybe) {
+            maybeOccupied.add(gateId);
         }
     }
 
-    for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilot.longitude) < 0.0003 && Math.abs(x.gate_latitude - pilot.latitude) < 0.0003)) {
-        const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-        if (index === -1) continue;
-        gates[index] = {
-            ...gates[index],
-            maybeOccupied: true,
-        };
-        result.maybe = true;
-    }
-
-    if (!result.maybe) {
-        for (const gate of gates.filter(x => Math.abs(x.gate_longitude - pilotLon) < 0.0003 && Math.abs(x.gate_latitude - pilotLat) < 0.0003)) {
-            const index = gates.findIndex(x => x.gate_identifier === gate.gate_identifier);
-            if (index === -1) continue;
-            gates[index] = {
-                ...gates[index],
-                maybeOccupied: true,
-            };
-            result.maybe = true;
-        }
-    }
-
-    return result;
+    return gates.map(gate => ({
+        ...gate,
+        trulyOccupied: trulyOccupied.has(gate.gate_identifier),
+        maybeOccupied: maybeOccupied.has(gate.gate_identifier),
+    }));
 }
 
 export function getPilotTrueAltitude(pilot: Pick<VatsimShortenedAircraft, 'altitude' | 'qnh_mb'> & unknown): number {
