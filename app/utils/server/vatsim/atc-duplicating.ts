@@ -254,7 +254,7 @@ export const duplicatingSettings = [
     * @author 1378019
     */
     {
-        regex: /^(DEN|D01|GJT|PUB|RCA|COS|CYS|CPR|ASE)(_\w{0,3})?_(CTR|TMU|APP|DEP)$$/,
+        regex: /^(DEN|D01|GJT|PUB|RCA|COS|CYS|CPR|ASE)(_\w{0,3})?_(CTR|TMU|APP|DEP)$/,
         mapping: {
             DEN: 'DEN_APP',
             GJT: 'GJT_APP',
@@ -264,6 +264,7 @@ export const duplicatingSettings = [
             CYS: 'CYS_APP',
             ASE: 'ASE_APP',
             CPR: 'CPR_APP',
+        },
     },
      /**
      * @description CZYZ FIR Terminal Sectors
