@@ -136,7 +136,6 @@ const interactableElements = {
 type OverlayKey = keyof typeof interactableElements;
 
 const openedOverlay = shallowRef<{ key: OverlayKey; interactionKey: SelectableFeatures; component: Component; payload: RadarEventPayload<any, any>; id?: string } | null>();
-const isMobileOrTablet = useIsMobileOrTablet();
 
 watch(() => mapStore.openOverlayId, id => {
     if (openedOverlay.value?.id && openedOverlay.value?.id !== id) openedOverlay.value = null;
