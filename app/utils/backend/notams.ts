@@ -73,7 +73,7 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
 
     if (!clientId || !clientSecret) return [];
 
-    let faaToken = await getRedisSync('faa-token');
+    let faaToken = await getRedisSync('faa-nms-token');
     if (!faaToken) {
         const params = new URLSearchParams();
         params.set('grant_type', 'client_credentials');
@@ -89,7 +89,7 @@ export async function getAirportNotams(icao: string, formatted?: boolean): Promi
             },
         });
         faaToken = faaTokenRequest.access_token;
-        await setRedisSync('faa-token', faaToken, Date.now() + (1000 * (Number(faaTokenRequest.expires_in) - 5)));
+        await setRedisSync('faa-nms-token', faaToken, 1000 * (Number(faaTokenRequest.expires_in) - 1));
     }
 
     const cachedNotamsRedis = await getRedisSync(`${ icao }-notams`);
