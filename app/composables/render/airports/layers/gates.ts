@@ -8,7 +8,7 @@ import { toRadians } from 'ol/math';
 import { Point } from 'ol/geom';
 import { createMapFeature, getMapFeature, isMapFeature } from '~/utils/map/entities';
 import { getSelectedColorFromSettings } from '~/composables/settings/colors';
-import { checkIsPilotInGate } from '~/utils/shared/vatsim';
+import { getGatesMatch } from '~/utils/shared/vatsim';
 import type { VatsimShortenedAircraft } from '~/types/data/vatsim';
 import { createDefaultStyle } from 'ol/style/Style';
 
@@ -117,11 +117,14 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
 
         if (!runways?.length && !gates?.length) continue;
 
-        for (const pilot of [...airportsMap[icao]?.groundDep ?? [], ...airportsMap[icao]?.groundArr ?? []] as VatsimShortenedAircraft[]) {
-            checkIsPilotInGate(pilot, gates);
-        }
+        const pilots = [
+            ...(airportsMap[icao]?.groundDep ?? []),
+            ...(airportsMap[icao]?.groundArr ?? []),
+        ] as VatsimShortenedAircraft[];
 
-        for (const gate of gates ?? []) {
+        const resolvedGates = gates ? getGatesMatch(gates, pilots) : [];
+
+        for (const gate of resolvedGates) {
             const id = `airport-${ icao }-gate-${ gate.gate_identifier }` as const;
             const opacitySetting = store.mapSettings.colors?.[store.getCurrentTheme]?.gates;
 
@@ -148,6 +151,8 @@ export function setMapGatesRunways({ source, airports, navigraphData, layer }: {
                     gateColor: color,
                     airport: icao,
                     featureType: 'gate',
+                    trulyOccupied: gate.trulyOccupied,
+                    maybeOccupied: gate.maybeOccupied,
                 });
 
                 source.addFeature(feature);

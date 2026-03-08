@@ -41,6 +41,7 @@
                 </div>
                 <div class="__spacer"/>
                 <div
+                    v-if="controller.name"
                     class="atc_name"
                     :style="{ '--color': controllerColor(controller) ?? 'currentColor' }"
                 >
@@ -48,14 +49,20 @@
                         {{controller.name}}
                     </ui-spoiler>
                 </div>
-                <div class="atc_rating">
+                <div
+                    v-if="controller.rating"
+                    class="atc_rating"
+                >
                     <ui-chip variant="accent">
                         {{
                             dataStore.vatsim.data.ratings.value.find(x => x.id === controller.rating)?.short ?? ''
                         }}
                     </ui-chip>
                 </div>
-                <ui-separator distance="0"/>
+                <ui-separator
+                    class="atc_separator"
+                    distance="0"
+                />
                 <ui-chip
                     v-if="showAtis && controller.atis_code"
                     text-type="caption-medium-alt"
@@ -63,7 +70,7 @@
                     Info {{controller.atis_code}}
                 </ui-chip>
                 <ui-chip
-                    v-else-if="!showAtis || !controller.text_atis?.length"
+                    v-else-if="(!showAtis || !controller.text_atis?.length) && controller.logon_time"
                     :time="getATCTime(controller)"
                     time-variant="time"
                 />
@@ -167,7 +174,7 @@ const copiedFor = ref('');
 const store = useStore();
 
 const notTunedUp = computed(() => {
-    return !props.controller.isATIS && (!props.controller?.frequencies?.length || (props.controller.frequencies?.some(x => x[3] === '.') && !props.controller.frequencies?.some(x => x === props.controller.frequency)));
+    return props.controller?.rating && !props.controller.isATIS && (!props.controller?.frequencies?.length || (props.controller.frequencies?.some(x => x[3] === '.') && !props.controller.frequencies?.some(x => x === props.controller.frequency)));
 });
 
 const handleClick = () => {
@@ -276,6 +283,10 @@ const isCopied = (key: string) => {
         .atc-time {
             margin-top: 10px;
         }
+    }
+
+    &_separator:last-child {
+        display: none;
     }
 }
 </style>
