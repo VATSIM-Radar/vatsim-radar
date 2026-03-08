@@ -23,6 +23,31 @@ $variants: Black, ExtraBold, Bold, SemiBold, Medium, Regular, Light, ExtraLight,
     $weight: $weight - 100;
 }
 
+$weight: 800;
+$variants: Bold, SemiBold, Medium, Regular, Light, ExtraLight, Thin;
+
+@each $variant in $variants {
+    @font-face {
+        font-family: RobotoMono;
+        font-weight: $weight;
+        font-style: normal;
+
+        font-display: swap;
+        src: url(@/assets/fonts/roboto-mono/RobotoMono-#{$variant}.ttf);
+    }
+
+    @font-face {
+        font-family: RobotoMono;
+        font-weight: $weight;
+        font-style: italic;
+
+        font-display: swap;
+        src: url(@/assets/fonts/roboto-mono/RobotoMono-#{$variant}Italic.ttf);
+    }
+
+    $weight: $weight - 100;
+}
+
 @font-face {
     font-family: Jura;
     font-weight: normal;

@@ -1,15 +1,12 @@
 import type { VatsimExtendedPilot, VatsimMandatoryPilot, VatsimShortenedAircraft } from '~/types/data/vatsim';
 import type { VatSpyData } from '~/types/data/vatspy';
-import type { Feature, Map } from 'ol';
+import type { Map } from 'ol';
 import type { ShallowRef } from 'vue';
 import { computed } from 'vue';
 import type { AircraftIcon } from '~/utils/icons';
-import { Icon, Stroke, Style, Text, Fill } from 'ol/style.js';
 import { useStore } from '~/store';
 import type { ColorsList } from '~/utils/colors';
 import { colorPresets } from '~/utils/shared/flight';
-import { getColorFromSettings, hexToRgb } from '~/composables/settings/colors';
-import { getUserList } from '~/composables/fetchers/lists';
 import type { StoreOverlayPilot } from '~/store/map';
 import { useMapStore } from '~/store/map';
 import { useRadarError } from '~/composables/errors';
@@ -60,6 +57,9 @@ export async function showPilotOnMap(pilot: VatsimShortenedAircraft | VatsimExte
     });
 }
 
+/**
+ * @deprecated
+ */
 export function isPilotOnGround(pilot: VatsimShortenedAircraft | VatsimExtendedPilot | VatsimMandatoryPilot) {
     const dataStore = useDataStore();
 
@@ -152,7 +152,7 @@ export const aircraftSvgColors = (): Record<MapAircraftStatus, string> => {
     };
 };
 
-const getFilteredAircraftSettings = (cid: number) => {
+export const getFilteredAircraftSettings = (cid: number) => {
     const store = useStore();
     const dataStore = useDataStore();
 
@@ -214,13 +214,6 @@ export function reColorSvg(svg: string, status: MapAircraftStatus, cid?: number)
     return iconContent;
 }
 
-function svgToDataURI(svg: string) {
-    const encoded = encodeURIComponent(svg)
-        .replace(/'/g, '%27')
-        .replace(/"/g, '%22');
-    return `data:image/svg+xml,${ encoded }`;
-}
-
 export type MapAircraftStatus = 'default' | 'ground' | 'green' | 'active' | 'hover' | 'neutral' | 'arriving' | 'departing' | 'landed';
 
 export async function fetchAircraftIcon(icon: AircraftIcon) {
@@ -244,180 +237,6 @@ export async function fetchAircraftIcon(icon: AircraftIcon) {
     }
 
     return svg;
-}
-
-function getMaxRotatedHeight(width: number, height: number): number {
-    return Math.sqrt((width * width) + (height * height));
-}
-
-export async function loadAircraftIcon({ feature, icon, status, style: styles, rotation, force, cid, scale, onGround }: {
-    feature: Feature;
-    icon: AircraftIcon;
-    rotation: number;
-    status: MapAircraftStatus;
-    style: Style[];
-    force?: boolean;
-    onGround?: boolean;
-    cid: number;
-    scale?: number;
-}) {
-    if (icon === 'ball') rotation = 0;
-
-    const [textStyle, imageStyle] = styles;
-
-    const store = useStore();
-    let resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
-
-    const image = imageStyle.getImage();
-
-    const featureProperties = feature.getProperties() ?? {};
-    const list = getUserList(cid);
-    const zoom = useMapStore().zoom;
-
-    const filter = getFilteredAircraftSettings(cid);
-    let filterColor: string | undefined;
-    let filterOpacity: number | undefined;
-
-    if (filter) {
-        if (typeof filter === 'number') filterOpacity = filter;
-        else {
-            filterColor = getColorFromSettings(filter);
-        }
-    }
-
-    if (resolvedScale > 10) resolvedScale = 10;
-
-    let scaledWidth = radarIcons[icon].width * resolvedScale;
-    let minWidth: number = 0;
-
-    if (zoom > 8) minWidth = 15;
-
-    if (!onGround && scaledWidth < minWidth) {
-        scaledWidth = minWidth;
-        resolvedScale = scaledWidth / radarIcons[icon].width;
-    }
-
-    let text = textStyle.getText();
-
-    const hideText = scaledWidth < 10 || useDataStore().visiblePilots.value.length > (store.mapSettings.pilotLabelLimit ?? 100);
-    const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon].width, radarIcons[icon].height) * resolvedScale) / 2) + 6 + 2;
-    const textValue = hideText ? undefined : featureProperties.callsign;
-
-    if (!text) {
-        textStyle.setText(new Text({
-            text: textValue,
-            font: '600 11px LibreFranklin',
-            declutterMode: 'declutter',
-            textBaseline: 'middle',
-            fill: new Fill({
-                color: `rgba(${ getCurrentThemeRgbColor('success500').join(',') }, 1)`,
-            }),
-            offsetY: Math.ceil(offsetY),
-        }));
-
-        text = textStyle.getText();
-    }
-    else if (textValue !== text.getText()) {
-        text.setText(textValue);
-    }
-
-    const textFill = text!.getFill()!;
-
-    text?.setOffsetY(Math.ceil(offsetY));
-
-    if (ownFlight.value?.cid === cid && textStyle.getZIndex() !== 1) {
-        textStyle.setZIndex(1);
-    }
-
-    if (!force &&
-        image &&
-        featureProperties.imageStatus === status &&
-        featureProperties.icon === icon &&
-        featureProperties.hadList === !!list &&
-        featureProperties.filterColor === filterColor &&
-        featureProperties.filterOpacity === filterOpacity &&
-        featureProperties.imageScale === resolvedScale) {
-        image.setRotation(rotation);
-    }
-    else {
-        textFill.setColor(getAircraftStatusColor(status, cid));
-
-        if ((status === 'default' || status === 'ground') && !list) {
-            let color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.[status === 'ground' ? 'ground' : 'main'];
-
-            if (status === 'ground' && !color) color = store.mapSettings.colors?.[store.getCurrentTheme]?.aircraft?.main;
-
-            imageStyle.setImage(new Icon({
-                declutterMode: 'obstacle',
-                src: `/_ipx/w_${ Math.ceil(scaledWidth / 10) * 10 },quality_85,f_png/aircraft/${ icon }${ (filterColor || (color && color.color !== 'primary500')) ? '-white' : '' }${ store.theme === 'light' ? '-light' : '' }.png`,
-                width: scaledWidth,
-                rotation,
-                rotateWithView: true,
-                // @ts-expect-error Custom prop
-                status,
-                color: filterColor ? `rgb(${ hexToRgb(filterColor) })` : ((color && color.color !== 'primary500') ? getColorFromSettings(color) : undefined),
-                opacity: filterColor ? parseFloat(filterColor.split(',')[3]) : filterOpacity ?? (store.mapSettings.heatmapLayer ? 0 : (color?.transparency ?? 1)),
-            }));
-        }
-        else {
-            const svg = await fetchAircraftIcon(icon);
-
-            imageStyle.setImage(new Icon({
-                declutterMode: 'obstacle',
-                src: svgToDataURI(reColorSvg(svg, status, cid)),
-                width: scaledWidth,
-                rotation,
-                rotateWithView: true,
-                // @ts-expect-error Custom prop
-                status,
-                opacity: Number(!store.mapSettings.heatmapLayer),
-            }));
-        }
-    }
-
-    feature.setProperties({
-        ...featureProperties,
-        imageStatus: status,
-        icon,
-        hadList: !!list,
-        filterColor,
-        filterOpacity,
-        imageScale: resolvedScale,
-    });
-}
-
-const lineStyles: {
-    color: string;
-    style: Style;
-    lineDash?: string;
-    width: number;
-}[] = [];
-
-export function getAircraftLineStyle(color: string | number | null | undefined, width = 2, lineDash?: number[]): Style {
-    const store = useStore();
-
-    let hex = typeof color === 'string' ? color : getFlightRowColor(color);
-
-    if (store.mapSettings.colors?.turnsTransparency) {
-        const rgb = hexToRgb(hex);
-
-        hex = `rgba(${ rgb }, ${ store.mapSettings.colors?.turnsTransparency })`;
-    }
-
-    const existingStyle = lineStyles.find(x => x.color === hex && x.width === width && (!lineDash || x.lineDash === JSON.stringify(lineDash)));
-    if (existingStyle) return existingStyle.style;
-
-    const style = {
-        color: hex,
-        width,
-        lineDash: lineDash && JSON.stringify(lineDash),
-        style: new Style({
-            stroke: new Stroke({ color: hex, width, lineDash }),
-        }),
-    };
-
-    lineStyles.push(style);
-    return style.style;
 }
 
 export const useShowPilotStats = () => {
@@ -444,7 +263,7 @@ export const useShowPilotStats = () => {
 };
 
 export function getFlightRowColor(index: number | null | undefined, theme = useStore().theme) {
-    if (typeof index !== 'number' || index < 0) return radarColors.success700Hex;
+    if (typeof index !== 'number' || index < 0) return radarColors.green600Hex;
 
     const turnsTheme = useStore().mapSettings.colors?.turns ?? 'magma';
 
@@ -464,6 +283,9 @@ export function getTimeRemains(eta: Date): string | null {
     return `${ `0${ Math.floor(minutes / 60) }`.slice(-2) }:${ `0${ Math.floor(minutes % 60) }`.slice(-2) }h`;
 }
 
+/**
+ * @deprecated
+ */
 export function getPilotsForPixel(map: Map, pixel: Pixel, tolerance = 5, exitOnAnyOverlay = false) {
     if (!pixel || isHideMapObject('pilots')) return [];
 

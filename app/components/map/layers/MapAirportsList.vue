@@ -52,7 +52,7 @@ watch(mapSettings, val => {
 });
 
 const getShownAirports = computed(() => {
-    let list = airports.value.filter(x => airportsList.value.some(y => y.airport.icao === x.airport.icao || x.bookings.length > 0));
+    let list = airports.value.filter(x => x.bookings.length > 0 || airportsList.value.some(y => y.airport.icao === x.airport.icao));
 
     switch (store.mapSettings.airportsMode) {
         case 'staffedOnly':

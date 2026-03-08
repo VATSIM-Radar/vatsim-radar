@@ -1,7 +1,3 @@
-<template>
-    <div/>
-</template>
-
 <script setup lang="ts">
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
@@ -15,7 +11,10 @@ import type { VatsimBooking } from '~/types/data/vatsim';
 import type { VatSpyData, VatSpyDataFeature } from '~/types/data/vatspy';
 import { makeFakeAtcFeatureFromBooking } from '~/utils';
 import { setMapSectors } from '~/composables/render/sectors';
-import { debounce } from '~/utils/shared';
+
+defineOptions({
+    render: () => null,
+});
 
 let vectorLayer: VectorLayer<any>;
 let vectorSource: VectorSource;
@@ -121,7 +120,7 @@ onMounted(async () => {
     const mapLevel = computed(() => store.localSettings.vatglassesLevel);
     let vgInit: false | EffectScope = false;
 
-    const debouncedUpdate = debounce(async () => {
+    const debouncedUpdate = useThrottleFn(async () => {
         if (hideAtc.value || hideOnZoom.value) {
             vectorSource.clear();
         }
