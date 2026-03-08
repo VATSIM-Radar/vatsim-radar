@@ -267,9 +267,9 @@ export const duplicatingSettings = [
         },
     },
     /**
-     * @description CZYZ FIR Terminal Sectors
-     * @author 1401686 and 1448618
-     */
+    * @description CZYZ FIR Terminal Sectors
+    * @author 1401686 and 1448618
+    */
     {
         regex: /^TOR(_\w{0,3})?_(DEP|APP|CTR)$/,
         mapping: {
