@@ -60,13 +60,13 @@ export async function getRedisData<K extends keyof RedisData, D extends RedisDat
     return defaults || data || null;
 }
 
-export async function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireIn: number) {
-    await setRedisSync(key, JSON.stringify(data), expireIn);
+export async function setRedisData<K extends keyof RedisData>(key: K, data: RedisData[K], expireInMs: number) {
+    await setRedisSync(key, JSON.stringify(data), expireInMs);
     await defaultRedis.publish('update', key);
 }
 
-export function setRedisSync(key: string, data: string, expireIn: number) {
-    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expireIn, (err, result) => {
+export function setRedisSync(key: string, data: string, expireInMs: number) {
+    return new Promise<void>((resolve, reject) => defaultRedis.set(key, data, 'PX', expireInMs, (err, result) => {
         if (err) return reject(err);
         resolve();
     }));
