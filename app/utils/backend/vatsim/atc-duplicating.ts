@@ -280,4 +280,25 @@ export const duplicatingSettings = [
             'YZ TCA': 'TOR_APP',
         },
     },
+    /**
+     * @description ZAU Center and TRACONs
+     * @author 1634151
+     */
+    {
+        regex: /^CHI_\d{2}_CTR$/,
+        mapping: {
+            C90: 'CHI_Z_APP',
+            AZO: 'AZO_G_APP',
+            CID: 'CID_S_APP',
+            CMI: 'CMI_E_APP',
+            FWA: 'FWA_W_APP',
+            MKE: 'MKE_E_APP',
+            MLI: 'MLI_N_APP',
+            MSN: 'MSN_W_APP',
+            RFD: 'RFD_E_APP',
+            SBN: 'SBN_N_APP',
+            GUS: 'GUS_E_APP',
+            VOK: 'VOK_APP',
+        },
+    },
 ] satisfies DuplicatingSetting[];
