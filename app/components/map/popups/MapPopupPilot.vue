@@ -103,6 +103,7 @@
         <template #flight>
             <map-popup-flight-info
                 class="pilot__content __info-sections"
+                :ctaf="ctafFrequency"
                 :is-offline="isOffline"
                 :pilot
                 @viewRoute="viewRoute()"
@@ -285,6 +286,12 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 const config = useRuntimeConfig();
 const vatGlassesActive = isVatGlassesActive;
+
+const ctafFrequency = computed(() => {
+    const atcList = getAtcList.value.find(x => x.key === 'atc-ctaf');
+    if (atcList) return atcList.controllers?.[0]?.frequency;
+    return null;
+});
 
 const pilot = computed(() => props.overlay.data.pilot);
 const textCoords = computed(() => dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.longitude.toString() + dataStore.vatsim.data.keyedPilots.value[props.overlay.data.pilot.cid.toString()]?.latitude);

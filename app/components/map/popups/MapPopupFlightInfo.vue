@@ -193,6 +193,14 @@
                 </template>
             </common-info-block>
             <common-info-block
+                v-if="ctaf && !pilot.frequencies.some(x => x === ctaf)"
+                align-items="space-evenly"
+                :bottom-items="[ctaf]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="['CTAF']"
+            />
+            <common-info-block
                 v-for="(frequency, index) in pilot.frequencies"
                 :key="frequency+index"
                 align-items="space-evenly"
@@ -243,6 +251,10 @@ const props = defineProps({
     showStats: {
         type: Boolean,
         default: false,
+    },
+    ctaf: {
+        type: String as PropType<string | null | undefined>,
+        default: null,
     },
 });
 
