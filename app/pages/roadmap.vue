@@ -113,6 +113,7 @@
 import UiPageContainer from '~/components/ui/UiPageContainer.vue';
 import RoadmapRunway from 'assets/icons/roadmap/roadmap-runway.svg?component';
 import RoadmapAircraft from 'assets/icons/roadmap/roadmap-aircraft.svg?component';
+import UiNotification from '~/components/ui/data/UiNotification.vue';
 
 type ItemStatus = 'todo' | 'in-progress' | 'completed' | 'next' | 'none';
 
