@@ -152,7 +152,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
         return true;
     },
     aircraftScale: val => {
-        return isNumber(val, 1) && val > 0 && val < 5;
+        return isNumber(val, 2) && val > 0 && val < 5;
     },
     dynamicAircraftScale: val => {
         return typeof val === 'boolean';
@@ -163,7 +163,7 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     airportsCounters: val => {
         if (!isObject(val)) return false;
 
-        if ('showCounters' in val && typeof val.show !== 'boolean') return false;
+        if ('showCounters' in val && typeof val.showCounters !== 'boolean') return false;
         if ('syncDeparturesArrivals' in val && typeof val.syncDeparturesArrivals !== 'boolean') return false;
         if ('disableTraining' in val && typeof val.disableTraining !== 'boolean') return false;
         if ('syncWithOverlay' in val && typeof val.syncWithOverlay !== 'boolean') return false;
@@ -221,11 +221,12 @@ const validators: Record<keyof IUserMapSettings, (val: unknown) => boolean> = {
     },
     navigraphData: val => {
         if (!isObject(val)) return false;
-        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
+        if (!validateRandomObjectKeys(val, ['ndb', 'vordme', 'waypoints', 'terminalWaypoints', 'holdings', 'airways', 'isModeAuto', 'mode'])) return false;
 
         if ('ndb' in val && typeof val.ndb !== 'boolean') return false;
         if ('vordme' in val && typeof val.vordme !== 'boolean') return false;
         if ('waypoints' in val && typeof val.waypoints !== 'boolean') return false;
+        if ('terminalWaypoints' in val && typeof val.waypoints !== 'boolean') return false;
         if ('holdings' in val && typeof val.holdings !== 'boolean') return false;
         if ('isModeAuto' in val && typeof val.isModeAuto !== 'boolean') return false;
         if ('mode' in val && val.mode !== 'vfr' && val.mode !== 'ifr' && val.mode !== 'ifrHigh' && val.mode !== 'ifrLow' && val.mode !== 'both') return false;

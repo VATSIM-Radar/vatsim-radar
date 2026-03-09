@@ -5,10 +5,11 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
 import type { ShallowRef } from 'vue';
-import type { Map } from 'ol';
-import TileLayer from 'ol/layer/Tile';
-import { XYZ } from 'ol/source';
-import type { UrlFunction } from 'ol/Tile';
+import type { ImageTile, Map } from 'ol';
+import TileLayer from 'ol/layer/Tile.js';
+import { XYZ } from 'ol/source.js';
+import type { UrlFunction } from 'ol/Tile.js';
+import TileState from 'ol/TileState.js';
 import type { MapWeatherLayer } from '~/types/map';
 
 defineSlots<{ default: () => any }>();
@@ -116,6 +117,16 @@ async function initLayer() {
                 ...getLayer(weather.value),
                 wrapX: true,
                 tileSize: 256,
+                tileLoadFunction(imageTile, src) {
+                    const image = (imageTile as ImageTile).getImage() as HTMLImageElement;
+                    const timer = setTimeout(() => {
+                        imageTile.setState(TileState.ERROR);
+                        console.log('Weather tile load failed by timeout');
+                    }, 5000);
+                    image.addEventListener('load', () => clearTimeout(timer));
+                    image.addEventListener('error', () => clearTimeout(timer));
+                    image.src = src;
+                },
             }),
             opacity,
             zIndex: 1,

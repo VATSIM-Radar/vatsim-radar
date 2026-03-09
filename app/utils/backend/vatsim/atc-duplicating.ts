@@ -134,7 +134,7 @@ export const duplicatingSettings = [
     * @author 1558357
     */
     {
-        regex: /^LECB_RW\d?_CTR$/,
+        regex: /^LECB_(?:RW[\d_]?|LLI|PPI)_CTR$/,
         mapping: {
             BCN: 'LEBL_APP',
             LEIB: 'LEIB_APP',
@@ -247,6 +247,58 @@ export const duplicatingSettings = [
             MGA: 'MNMG_APP',
             LIR: 'MRLB_APP',
             SJO: 'MROC_C_APP',
+        },
+    },
+    /**
+     * @description ZDV Center and TRACONs
+     * @author 1378019
+     */
+    {
+        regex: /^(DEN|D01|GJT|PUB|RCA|COS|CYS|CPR|ASE)(_\w{0,3})?_(CTR|TMU|APP|DEP)$/,
+        mapping: {
+            DEN: 'DEN_APP',
+            GJT: 'GJT_APP',
+            PUB: 'PUB_APP',
+            RCA: 'RCA_APP',
+            COS: 'COS_APP',
+            CYS: 'CYS_APP',
+            ASE: 'ASE_APP',
+            CPR: 'CPR_APP',
+        },
+    },
+    /**
+    * @description CZYZ FIR Terminal Sectors
+    * @author 1401686 and 1448618
+    */
+    {
+        regex: /^TOR(_\w{0,3})?_(DEP|APP|CTR)$/,
+        mapping: {
+            'XU Sector': 'TOR_XU_APP',
+            'WS Sector': 'TOR_WS_APP',
+            'ES Sector': 'TOR_ES_APP',
+            'TR MTCA': 'CYTR_APP',
+            'YZ TCA': 'TOR_APP',
+        },
+    },
+    /**
+     * @description ZAU Center and TRACONs
+     * @author 1634151
+     */
+    {
+        regex: /^CHI_\d{2}_CTR$/,
+        mapping: {
+            C90: 'CHI_Z_APP',
+            AZO: 'AZO_G_APP',
+            CID: 'CID_S_APP',
+            CMI: 'CMI_E_APP',
+            FWA: 'FWA_W_APP',
+            MKE: 'MKE_E_APP',
+            MLI: 'MLI_N_APP',
+            MSN: 'MSN_W_APP',
+            RFD: 'RFD_E_APP',
+            SBN: 'SBN_N_APP',
+            GUS: 'GUS_E_APP',
+            VOK: 'VOK_APP',
         },
     },
 ] satisfies DuplicatingSetting[];

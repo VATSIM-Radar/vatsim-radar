@@ -1,5 +1,21 @@
 # Changelog
 
+# [1.2.4-6.1]
+
+- Fixed Map Layer stopping loading when weather is failing to load
+- Roadmap has been updated
+- New icons from DotWallop: AA5, AN26, B52, BE33, C46, GA7C, L159, LEG2, P06T, VL3
+- Added model matching: AN32→AN26, VL3T→VL3, PA30→PA39
+- Add CZYZ FIR Terminal Sectors to ATC Duplicating
+- Update regex for LECB area in ATC duplication
+- Add ZDV mapping for ATC Duplication
+- Fixed map settings impossible to save or import if counters were disabled at some point
+- Fixed map settings impossible to save or import if Navigraph Terminal Waypoints were enabled or disabled at some point
+- Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot (for example, 1.35)
+- Fixed some airways not showing as intended
+- Add ZAU Center and TRACONs to ATC duplication
+- Migrated to new FAA NMS API for NOTAMs
+
 # [1.2.4-6]
 
 - Add AGS approach to ATC duplication

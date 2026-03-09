@@ -9831,14 +9831,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-xml-parser@npm:^5.3.4":
-  version: 5.3.4
-  resolution: "fast-xml-parser@npm:5.3.4"
+"fast-xml-builder@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "fast-xml-builder@npm:1.0.0"
+  checksum: 10c0/2631fda265c81e8008884d08944eeed4e284430116faa5b8b7a43a3602af367223b7bf01c933215c9ad2358b8666e45041bc038d64877156a2f88821841b3014
+  languageName: node
+  linkType: hard
+
+"fast-xml-parser@npm:^5.4.2":
+  version: 5.4.2
+  resolution: "fast-xml-parser@npm:5.4.2"
   dependencies:
-    strnum: "npm:^2.1.0"
+    fast-xml-builder: "npm:^1.0.0"
+    strnum: "npm:^2.1.2"
   bin:
     fxparser: src/cli/cli.js
-  checksum: 10c0/d77866ca860ad185153e12f6ba12274d32026319ad8064e4681342b8a8e1ffad3f1f98daf04d77239fb12eb1d906ee7185fd328deda74529680e8dae0f3e9327
+  checksum: 10c0/83ea57fda336f3fdcc8938ecc8730236a3e084843cbe6c2fb009c3f2fe2811570316735c1c7e76a4d3dbce2b0387312b106444d5d603dc6135b4bcf0e07251bb
   languageName: node
   linkType: hard
 
@@ -12267,12 +12275,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"marked@npm:^17.0.1":
-  version: 17.0.1
-  resolution: "marked@npm:17.0.1"
+"marked@npm:^17.0.4":
+  version: 17.0.4
+  resolution: "marked@npm:17.0.4"
   bin:
     marked: bin/marked.js
-  checksum: 10c0/0197337aad33882308cea52d2c86d7b830a89be729a4010a26a488ae1c224cdc7520b8cce056832a81a127fc39a3827f45e3865c1ff257324cb553cb06ce0e57
+  checksum: 10c0/a6f6a2df8157835bc23b2bede31f1cae7af75af7a2cd2e070d640c5a490e6cfe5eb63309cf353d7b373f7aef04ead4f2de51a59905bb829c462d802484468cd9
   languageName: node
   linkType: hard
 
@@ -16305,10 +16313,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strnum@npm:^2.1.0":
-  version: 2.1.2
-  resolution: "strnum@npm:2.1.2"
-  checksum: 10c0/4e04753b793540d79cd13b2c3e59e298440477bae2b853ab78d548138385193b37d766d95b63b7046475d68d44fb1fca692f0a3f72b03f4168af076c7b246df9
+"strnum@npm:^2.1.2":
+  version: 2.2.0
+  resolution: "strnum@npm:2.2.0"
+  checksum: 10c0/9a656f5048047abff8d10d0bb57761a01916e368a71e95d4f5a962b57f64b738e20672e68ba10b7de3dc78e861c77bc0566bdeed7017abdda1caf0303c929a3f
   languageName: node
   linkType: hard
 
@@ -17676,14 +17684,14 @@ __metadata:
     dexie: "npm:^4.2.1"
     discord.js: "npm:^14.25.1"
     eslint: "npm:^9.39.2"
-    fast-xml-parser: "npm:^5.3.4"
+    fast-xml-parser: "npm:^5.4.2"
     ioredis: "npm:^5.8.2"
     jsonwebtoken: "npm:^9.0.3"
     jwks-rsa: "npm:^3.2.0"
     kafkajs: "npm:^2.2.4"
     klona: "npm:^2.0.6"
     magvar: "npm:^2.0.1"
-    marked: "npm:^17.0.1"
+    marked: "npm:^17.0.4"
     merge-ranges: "npm:^1.0.2"
     metar-taf-parser: "npm:^9.1.2"
     nuxt: "npm:^4.2.2"
