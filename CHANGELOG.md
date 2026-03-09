@@ -91,6 +91,7 @@ Known Issues:
 - Fixed map settings impossible to save or import if Aircraft scale settings is set to anything with 2 number after dot (for example, 1.35)
 - Fixed some airways not showing as intended
 - Add ZAU Center and TRACONs to ATC duplication
+- Migrated to new FAA NMS API for NOTAMs
 
 # [1.2.4-6]
 
