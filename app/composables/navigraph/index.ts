@@ -403,6 +403,7 @@ export async function getFlightPlanWaypoints({
 
                     if (depRunway) {
                         const runwayTransition = procedure?.transitions.runway.find(x => x.name === depRunway);
+
                         if (runwayTransition) {
                             waypoints.push(...runwayTransition.waypoints.map(x => ({
                                 identifier: x.identifier,
@@ -536,8 +537,6 @@ export async function getFlightPlanWaypoints({
 
                         if (fetchedProcedure) {
                             const transition = fetchedProcedure?.transitions.find(x => arrApproach?.transitions.includes(x.name) || x.name === starProcedure.waypoints[starProcedure.waypoints.length - 1]?.identifier);
-
-                            console.log(fetchedProcedure.waypoints);
 
                             if (transition) {
                                 deleteDoubleWaypoint(transition?.waypoints[0]?.identifier ?? '');
@@ -897,24 +896,24 @@ export async function updateCachedProcedures() {
             if (value.departure.icao) {
                 const selectedAirport = dataStore.navigraphAircraftProcedures.value[cid].departure;
 
-                const { data: procedures } = await useAsyncData(computed(() => `${ value.departure.icao }-aircraft-procedures-selected`), () => getNavigraphAirportProcedures(value.departure.icao!));
+                const procedures = await getNavigraphAirportProcedures(value.departure.icao!);
 
                 selectedAirport.runways = value.departure.runways;
                 selectedAirport.setBy = value.departure.setBy;
 
-                selectedAirport.sids = await getCachedSids(procedures.value!, value.departure.icao!, value.departure.sids);
+                selectedAirport.sids = await getCachedSids(procedures, value.departure.icao!, value.departure.sids);
             }
 
             if (value.arrival.icao) {
                 const selectedAirport = dataStore.navigraphAircraftProcedures.value[cid].arrival;
 
-                const { data: procedures } = await useAsyncData(computed(() => `${ value.departure.icao }-aircraft-procedures-selected`), () => getNavigraphAirportProcedures(value.arrival.icao!));
+                const procedures = await getNavigraphAirportProcedures(value.arrival.icao!);
 
                 selectedAirport.runways = value.arrival.runways;
                 selectedAirport.setBy = value.arrival.setBy;
 
-                selectedAirport.stars = await getCachedStars(procedures.value!, value.arrival.icao!, value.arrival.stars);
-                selectedAirport.approaches = await getCachedApproaches(procedures.value!, value.arrival.icao!, value.arrival.approaches);
+                selectedAirport.stars = await getCachedStars(procedures, value.arrival.icao!, value.arrival.stars);
+                selectedAirport.approaches = await getCachedApproaches(procedures, value.arrival.icao!, value.arrival.approaches);
             }
 
             if (

@@ -1,5 +1,6 @@
 // meters-per-pixel estimate for Web Mercator at given latitude and zoom
 import { MAX_MAP_ZOOM } from '~/utils/shared';
+import { useMapStore } from '~/store/map';
 
 const INITIAL_RESOLUTION = 156543.03392804097;
 
@@ -66,4 +67,24 @@ export function getZoomScaleMultiplier(params: GetZoomScaleMultiplier): number {
     if (resultMultiplier < minMultNeeded) resultMultiplier = minMultNeeded;
 
     return resultMultiplier;
+}
+
+export function getResolvedScale({ scale, width, height, onGround }: {
+    scale?: number | null; width: number; height: number; onGround?: boolean;
+}): [width: number, height: number, scale: number] {
+    let resolvedScale = typeof scale === 'number' ? scale : (useStore().mapSettings.aircraftScale ?? 1);
+
+    if (resolvedScale > 10) resolvedScale = 10;
+
+    let scaledWidth = width * resolvedScale;
+    let minWidth: number = 0;
+
+    if (useMapStore().zoom > 8) minWidth = 15;
+
+    if (!onGround && scaledWidth < minWidth) {
+        scaledWidth = minWidth;
+        resolvedScale = scaledWidth / width;
+    }
+
+    return [scaledWidth, height * resolvedScale, resolvedScale];
 }

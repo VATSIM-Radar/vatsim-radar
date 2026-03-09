@@ -1,5 +1,11 @@
 # Changelog
 
+# [2.0.0-alpha.4.2]
+
+## Alpha Changes
+
+- Fixed aircraft on-hover popup position
+
 # [2.0.0-alpha.4.1]
 
 ## Alpha Changes

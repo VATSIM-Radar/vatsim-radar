@@ -164,6 +164,7 @@ import MapHtmlOverlay from '~/components/map/MapHtmlOverlay.vue';
 import UiTextBlock from '~/components/ui/text/UiTextBlock.vue';
 import PopupMapInfo from '~/components/popups/PopupMapInfo.vue';
 import type { Options } from 'ol/Overlay';
+import { getResolvedScale } from '~/utils/map/aircraft-scale';
 
 const props = defineProps({
     payload: {
@@ -220,12 +221,17 @@ const getOverlaySettings = computed<Options>(() => {
 
     const [first, second] = positioning.split('-');
 
-    const safeOffset = 8;
+    const [safeOffsetX, safeOffsetY, scale] = getResolvedScale({
+        scale: properties.value.scale,
+        width: radarIcons[properties.value.icon.icon].width,
+        height: radarIcons[properties.value.icon.icon].height,
+        onGround: properties.value.onGround,
+    });
 
-    offset[1] = first === 'top' ? safeOffset : first === 'bottom' ? -safeOffset : 0;
-    offset[0] = second === 'left' ? -safeOffset : first === 'right' ? safeOffset : 0;
+    const backOffset = 7 * (radarIcons[properties.value.icon.icon].width / 30) * scale;
 
-    console.log(offset, positioning);
+    offset[1] = first === 'top' ? (safeOffsetY / 2) - backOffset : first === 'bottom' ? -(safeOffsetY / 2) + backOffset : 0;
+    offset[0] = second === 'left' ? (safeOffsetX / 2) - backOffset : second === 'right' ? -(safeOffsetX / 2) + backOffset : 0;
 
     return {
         position: [

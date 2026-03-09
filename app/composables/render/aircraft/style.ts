@@ -15,6 +15,7 @@ import {
 import type { UserList } from '~/utils/server/handlers/lists';
 import type { AircraftIcon } from '~/utils/icons';
 import type { PartialRecord } from '~/types';
+import { getResolvedScale } from '~/utils/map/aircraft-scale';
 
 const styleImageCache: Record<string, Icon> = {};
 let styleCache: Record<string, Style> = {};
@@ -79,8 +80,6 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             if (icon.icon === 'ball') rotation = 0;
 
-            let resolvedScale = typeof scale === 'number' ? scale : (store.mapSettings.aircraftScale ?? 1);
-
             let textStyle = styleCache.aircraftText;
             if (!textStyle) {
                 textStyle = new Style({
@@ -101,8 +100,6 @@ export function setAircraftStyle(layer: VectorLayer) {
 
             const list = favoritesMap.value[cid];
 
-            const zoom = useMapStore().zoom;
-
             const filter = getFilteredAircraftSettings(cid);
             let filterColor: string | undefined;
             let filterOpacity: number | undefined;
@@ -114,17 +111,12 @@ export function setAircraftStyle(layer: VectorLayer) {
                 }
             }
 
-            if (resolvedScale > 10) resolvedScale = 10;
-
-            let scaledWidth = icon.width * resolvedScale;
-            let minWidth: number = 0;
-
-            if (zoom > 8) minWidth = 15;
-
-            if (!onGround && scaledWidth < minWidth) {
-                scaledWidth = minWidth;
-                resolvedScale = scaledWidth / icon.width;
-            }
+            const [scaledWidth,,resolvedScale] = getResolvedScale({
+                width: radarIcons[icon.icon].width,
+                height: radarIcons[icon.icon].height,
+                onGround,
+                scale,
+            });
 
             const hideText = scaledWidth < 10 || useMapStore().renderedPilots.length > (store.mapSettings.pilotLabelLimit ?? 100);
             const offsetY = hideText ? 0 : ((getMaxRotatedHeight(radarIcons[icon.icon].width, radarIcons[icon.icon].height) * resolvedScale) / 2) + 6 + 2;
