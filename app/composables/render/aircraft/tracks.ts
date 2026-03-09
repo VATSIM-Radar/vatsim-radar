@@ -207,8 +207,10 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             updateState.flightPlan = turns.flightPlan;
         }
 
+        const firstUpdate = updateState.turnsStart && turns?.flightPlanTime !== updateState.turnsStart;
+
         // Doing a full update
-        if (updateState.turnsStart && turns?.flightPlanTime !== updateState.turnsStart) {
+        if (firstUpdate) {
             turns = await $fetch<InfluxGeojson | null | undefined>(`/api/data/vatsim/pilot/${ aircraft.cid }/turns?start=`, {
                 timeout: 1000 * 5,
             }).catch(console.error) ?? null;
@@ -226,16 +228,13 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
             }
 
             const firstCollectionTimestamp = turns.features[0].features[turns.features[0].features.length - 1].properties!.timestamp;
-            const timestamps = turns.features.map(x => x.features[0].properties!.timestamp!).filter(x => x);
 
-            updateState.timestamps ??= new Set();
-            timestamps.forEach(x => updateState.timestamps!.add(x));
-
-            // Removing dep line and random timestamps
             const toRemove = tracksFeatures.filter(x => {
-                const { timestamp } = x.getProperties();
+                // Clear all
+                if (firstUpdate) return true;
+                const { lineType, timestamp } = x.getProperties();
 
-                return x !== arrLine && (!updateState?.timestamps!.has(timestamp ?? '_') || timestamp === firstCollectionTimestamp);
+                return x !== arrLine && (lineType === 'aircraft' || timestamp === firstCollectionTimestamp);
             });
 
             toRemove.forEach(x => {
@@ -257,8 +256,6 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                 collection.features = [...collection.features];
 
-                const lastTimestamp = collection.features[collection.features.length - 1].properties!.timestamp;
-
                 const nextCollection = turns.features[i + 1];
 
                 if (i === 0) {
@@ -276,7 +273,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                         existing.setGeometry(geometry);
                         existing.setProperties({
                             ...existing.getProperties(),
-                            timestamp: collection.features[0].properties!.timestamp,
+                            timestamp: collection.features[collection.features.length - 1].properties!.timestamp,
                             color: collection.features[0].properties!.color ?? turnsColor,
                         });
                     }
@@ -364,13 +361,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     }
                 }
 
-                const id = `${ aircraft.cid }-timestamp-${ lastTimestamp }` as const;
-                const existing = getMapFeature('aircraft-line', linesSource, id);
-
-                if (existing) {
-                    linesSource.removeFeature(existing);
-                    existing.dispose();
-                }
+                const id = `${ aircraft.cid }-timestamp-${ collection.features[0].properties!.timestamp }` as const;
 
                 const newFeatures: Array<LineString | Position[]> = [];
 
@@ -425,7 +416,7 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                 const lineFeature = createMapFeature('aircraft-line', {
                     geometry: new MultiLineString(newFeatures),
-                    timestamp: collection.features[0].properties!.timestamp,
+                    timestamp: i === 0 ? updateState.turnsFirstGroupTimestamp : undefined,
                     color: collection.features[0].properties!.color ?? turnsColor,
                     type: 'aircraft-line',
                     lineType: 'loaded',
