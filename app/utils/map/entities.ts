@@ -11,6 +11,10 @@ import type { Coordinate } from 'ol/coordinate.js';
 import type { MapAircraftStatus } from '~/composables/vatsim/pilots';
 import type { AircraftIconType } from '../icons';
 import type { HeadingPair } from '~/utils/map/distance';
+import type {
+    NavDataFlightLevel,
+    NavigraphNavDataAirportWaypointConstraints,
+} from '~/utils/server/navigraph/navdata/types';
 
 export const globalMapEntities = {
     airports: null as VectorSource | null,
@@ -177,6 +181,34 @@ export interface FeatureDistanceProperties {
     length: string;
 }
 
+export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavDataAirportWaypointConstraints> {
+    type: 'navigraph';
+    id: string;
+    currentFlight?: boolean;
+    identifier?: string;
+    waypoint?: string;
+    key?: string;
+    routeType: 'airways' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'holdings';
+    usage?: string;
+    description?: string;
+    dataType: 'navdata';
+    self?: boolean;
+    kind?: string;
+    name?: string;
+    ident?: string;
+    dme?: string;
+    frequency?: string;
+    flightLevel?: NavDataFlightLevel;
+    inbound?: number;
+    outbound?: number;
+    procedure?: string;
+    time?: number;
+    course?: number;
+    turns?: 'L' | 'R';
+    icaoCode?: string;
+    areaCode?: string;
+}
+
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;
 export type FeatureAirportApproach = Feature<Polygon, FeatureAirportApproachProperties>;
 export type FeatureAirportApproachLabel = Feature<Point, FeatureAirportApproachTextProperties>;
@@ -194,6 +226,7 @@ export type FeatureAircraftLine = Feature<LineString | MultiLineString, FeatureA
 
 export type FeatureSigmet = Feature<Geometry, FeatureSIGMETProperties>;
 export type FeatureDistance = Feature<LineString, FeatureDistanceProperties>;
+export type FeatureNavigraph = Feature<Geometry, FeatureNavigraphItemProperties>;
 
 export type MapFeatures =
     | FeatureAirport
@@ -208,7 +241,8 @@ export type MapFeatures =
     | FeatureAircraft
     | FeatureAircraftLine
     | FeatureSigmet
-    | FeatureDistance;
+    | FeatureDistance
+    | FeatureNavigraph;
 
 export type MapFeaturesType = ReturnType<MapFeatures['getProperties']>['type'];
 

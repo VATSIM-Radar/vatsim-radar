@@ -497,7 +497,7 @@ watch(map, val => {
         condition: pointerMove,
         multi: true,
         style: null,
-        hitTolerance: 5,
+        hitTolerance: 3,
         filter,
     });
 

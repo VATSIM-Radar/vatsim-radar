@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.0.0-alpha.4.3]
+
+- Fixed graphical artifacts for aircraft tracks
+
 # [2.0.0-alpha.4.2]
 
 ## Alpha Changes

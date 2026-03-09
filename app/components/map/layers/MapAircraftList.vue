@@ -362,6 +362,7 @@ watch(map, val => {
         linesSource = new VectorSource<any>({
             features: [],
             wrapX: true,
+            overlaps: true,
         });
 
         linesLayer = new VectorImageLayer<any>({

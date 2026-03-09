@@ -257,6 +257,8 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
 
                 collection.features = [...collection.features];
 
+                const lastTimestamp = collection.features[collection.features.length - 1].properties!.timestamp;
+
                 const nextCollection = turns.features[i + 1];
 
                 if (i === 0) {
@@ -362,81 +364,77 @@ export async function updateAircraftTracksData(renderSettings: AircraftRenderSet
                     }
                 }
 
-                const id = `${ aircraft.cid }-timestamp-${ collection.features[0].properties!.timestamp }` as const;
+                const id = `${ aircraft.cid }-timestamp-${ lastTimestamp }` as const;
                 const existing = getMapFeature('aircraft-line', linesSource, id);
 
                 if (existing) {
-                    existing.setProperties({
-                        ...existing.getProperties(),
-                        timestamp: collection.features[0].properties!.timestamp,
-                        color: collection.features[0].properties!.color ?? turnsColor,
-                    });
+                    linesSource.removeFeature(existing);
+                    existing.dispose();
                 }
-                else {
-                    const newFeatures: Array<LineString | Position[]> = [];
 
-                    function addFeature(geometry: Position | Position[]) {
-                        if (typeof geometry[0] === 'number') {
-                            if (newFeatures.length) {
-                                const lineString = newFeatures.at(-1);
-                                if (lineString instanceof LineString) {
-                                    lineString.appendCoordinate(geometry as Position);
-                                }
+                const newFeatures: Array<LineString | Position[]> = [];
+
+                function addFeature(geometry: Position | Position[]) {
+                    if (typeof geometry[0] === 'number') {
+                        if (newFeatures.length) {
+                            const lineString = newFeatures.at(-1);
+                            if (lineString instanceof LineString) {
+                                lineString.appendCoordinate(geometry as Position);
                             }
-
-                            const lineString = new LineString([geometry as Position]);
-                            newFeatures.push(lineString);
                         }
-                        else newFeatures.push(new LineString(geometry as Position[]));
+
+                        const lineString = new LineString([geometry as Position]);
+                        newFeatures.push(lineString);
+                    }
+                    else newFeatures.push(new LineString(geometry as Position[]));
+                }
+
+                for (let i = 0; i < collection.features.length; i++) {
+                    const curPoint = collection.features[i];
+                    const nextPoint = collection.features[i + 1];
+                    if (!nextPoint) {
+                        addFeature(curPoint.geometry.coordinates);
+                        continue;
                     }
 
-                    for (let i = 0; i < collection.features.length; i++) {
-                        const curPoint = collection.features[i];
-                        const nextPoint = collection.features[i + 1];
-                        if (!nextPoint) {
-                            addFeature(curPoint.geometry.coordinates);
-                            continue;
-                        }
+                    if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
+                        addFeature(curPoint.geometry.coordinates);
+                        addFeature(nextPoint.geometry.coordinates);
+                        continue;
+                    }
 
-                        if (curPoint.geometry.coordinates[0] === nextPoint.geometry.coordinates[0] && curPoint.geometry.coordinates[1] === nextPoint.geometry.coordinates[1]) {
-                            addFeature(curPoint.geometry.coordinates);
-                            addFeature(nextPoint.geometry.coordinates);
-                            continue;
-                        }
+                    const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
 
-                        const coords = [curPoint.geometry.coordinates, nextPoint.geometry.coordinates];
+                    const points = coords.map(x => point(x));
 
-                        const points = coords.map(x => point(x));
+                    let npoints = 4;
 
-                        let npoints = 4;
-
-                        if (
-                            Math.abs(coords[0][0] - coords[1][0]) > 0.9 ||
+                    if (
+                        Math.abs(coords[0][0] - coords[1][0]) > 0.9 ||
                             Math.abs(coords[0][1] - coords[1][1]) > 0.9
-                        ) {
-                            npoints = 100;
-                        }
-
-                        const circle = greatCircle(points[0], points[1], {
-                            npoints,
-                        });
-
-                        circle.geometry.coordinates.map(x => addFeature(x));
+                    ) {
+                        npoints = 100;
                     }
 
-                    const lineFeature = createMapFeature('aircraft-line', {
-                        geometry: new MultiLineString(newFeatures),
-                        timestamp: collection.features[0].properties!.timestamp,
-                        color: collection.features[0].properties!.color ?? turnsColor,
-                        type: 'aircraft-line',
-                        lineType: 'loaded',
-                        id,
-                        cid: aircraft.cid,
-                        status,
+                    const circle = greatCircle(points[0], points[1], {
+                        npoints,
                     });
 
-                    linesSource.addFeature(lineFeature);
+                    circle.geometry.coordinates.map(x => addFeature(x));
                 }
+
+                const lineFeature = createMapFeature('aircraft-line', {
+                    geometry: new MultiLineString(newFeatures),
+                    timestamp: collection.features[0].properties!.timestamp,
+                    color: collection.features[0].properties!.color ?? turnsColor,
+                    type: 'aircraft-line',
+                    lineType: 'loaded',
+                    id,
+                    cid: aircraft.cid,
+                    status,
+                });
+
+                linesSource.addFeature(lineFeature);
             }
         }
         else {
