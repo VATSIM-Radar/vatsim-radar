@@ -192,7 +192,7 @@
                     </ui-tooltip>
                 </template>
             </ui-text-block>
-            <ui-info-block
+            <ui-text-block
                 v-if="ctaf && !pilot.frequencies.some(x => x === ctaf)"
                 align-items="space-evenly"
                 :bottom-items="[ctaf]"
