@@ -23,6 +23,7 @@ outline: [2, 3]
 - Fixed some airways not showing as intended
 - Add ZAU Center and TRACONs to ATC duplication
 - Migrated to new FAA NMS API
+- To improve CTAF frequency usage, CTAF frequency has been added to first tab of pilot ATC popup if no other ATC is available and pilot is not tuned up to CTAF frequency
 
 ## 1.2.4.6
 

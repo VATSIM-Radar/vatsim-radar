@@ -192,6 +192,14 @@
                     </ui-tooltip>
                 </template>
             </ui-text-block>
+            <ui-info-block
+                v-if="ctaf && !pilot.frequencies.some(x => x === ctaf)"
+                align-items="space-evenly"
+                :bottom-items="[ctaf]"
+                class="flight-info__card"
+                text-align="center"
+                :top-items="['CTAF']"
+            />
             <ui-text-block
                 v-for="(frequency, index) in pilot.frequencies"
                 :key="frequency+index"
@@ -244,6 +252,10 @@ const props = defineProps({
     showStats: {
         type: Boolean,
         default: false,
+    },
+    ctaf: {
+        type: String as PropType<string | null | undefined>,
+        default: null,
     },
 });
 
