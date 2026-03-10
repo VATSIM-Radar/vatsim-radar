@@ -4,6 +4,7 @@ import { getVatsimAirportInfo, validateAirportIcao } from '~/utils/server/vatsim
 import { getAirportWeather } from '~/utils/server/vatsim/weather';
 import { getFirsPolygons } from '~/utils/server/vatsim/vatspy';
 import type { VatsimBooking } from '~/types/data/vatsim';
+import { defaultRedis } from '~/utils/server/redis';
 
 export interface VatsimAirportData {
     metar?: string;
@@ -11,6 +12,14 @@ export interface VatsimAirportData {
     vatInfo?: VatsimAirportInfo | null;
     center: string[];
     bookings?: VatsimBooking[];
+    lastAtis?: {
+        callsign: string;
+        text_atis: string[];
+        atis_code: string;
+        timestamp: number;
+        name?: string;
+        rating?: number;
+    }[] | null;
 }
 
 export default defineEventHandler(async (event): Promise<VatsimAirportData | undefined> => {
@@ -53,6 +62,39 @@ export default defineEventHandler(async (event): Promise<VatsimAirportData | und
             }
         }));
     }
+
+    promises.push(new Promise<void>(async resolve => {
+        try {
+            const atis = await defaultRedis.get(`atis:last:${ icao }`);
+            if (atis) {
+                const parsed = JSON.parse(atis);
+
+                const isOldFormat = parsed.text_atis && parsed.atis_code && parsed.timestamp;
+
+                if (isOldFormat) {
+                    data.lastAtis = [{
+                        callsign: `${ icao }_ATIS`,
+                        text_atis: parsed.text_atis,
+                        atis_code: parsed.atis_code,
+                        timestamp: parsed.timestamp,
+                    }];
+                }
+                else {
+                    data.lastAtis = Object.entries(parsed)
+                        .filter(([callsign]) => callsign.endsWith('_ATIS'))
+                        .map(([callsign, value]: [string, any]) => ({
+                            callsign,
+                            ...value,
+                        }));
+                }
+            }
+            resolve();
+        }
+        catch (e) {
+            console.error(e);
+            resolve();
+        }
+    }));
 
     await Promise.allSettled(promises);
 
