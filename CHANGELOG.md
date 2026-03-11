@@ -1,5 +1,18 @@
 # Changelog
 
+# [2.0.0-alpha.4.4]
+
+## Alpha Changes
+
+- VATGlasses sector labels now declutter with airports (with airports having priority)
+- Repositioned aircraft hover to always be placed nicely, but you won't be able to hover it anymore. I mean, you could just click the aircraft! 
+
+## Performance improvements
+
+- Significantly reduced memory used by Navigraph Airways layer, added a cache for faster rendering and changed design a bit, so it's now worth giving this layer a go
+- Significantly improved performance and memory usage when rendering holdings. Previous code was terrible. Who wrote that? Jesus.
+- Improved performance of NBD & VORDME Layer
+
 # [2.0.0-alpha.4.3]
 
 - Fixed graphical artifacts for aircraft tracks

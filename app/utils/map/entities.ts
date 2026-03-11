@@ -188,10 +188,9 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     identifier?: string;
     waypoint?: string;
     key?: string;
-    routeType: 'airways' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'holdings';
+    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'holdings';
     usage?: string;
     description?: string;
-    dataType: 'navdata';
     self?: boolean;
     kind?: string;
     name?: string;
@@ -207,6 +206,7 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     turns?: 'L' | 'R';
     icaoCode?: string;
     areaCode?: string;
+    pointCoordinate?: Coordinate;
 }
 
 export type FeatureAirport = Feature<Point, FeatureAirportProperties>;

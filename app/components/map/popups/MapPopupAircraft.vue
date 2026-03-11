@@ -221,17 +221,17 @@ const getOverlaySettings = computed<Options>(() => {
 
     const [first, second] = positioning.split('-');
 
-    const [safeOffsetX, safeOffsetY, scale] = getResolvedScale({
+    const [safeOffsetX, safeOffsetY] = getResolvedScale({
         scale: properties.value.scale,
         width: radarIcons[properties.value.icon.icon].width,
         height: radarIcons[properties.value.icon.icon].height,
         onGround: properties.value.onGround,
     });
 
-    const backOffset = 7 * (radarIcons[properties.value.icon.icon].width / 30) * scale;
+    const backOffset = 0;
 
-    offset[1] = first === 'top' ? (safeOffsetY / 2) - backOffset : first === 'bottom' ? -(safeOffsetY / 2) + backOffset : 0;
-    offset[0] = second === 'left' ? (safeOffsetX / 2) - backOffset : second === 'right' ? -(safeOffsetX / 2) + backOffset : 0;
+    offset[1] = first === 'top' ? (safeOffsetY) - backOffset : first === 'bottom' ? -(safeOffsetY) + backOffset : 0;
+    offset[0] = second === 'left' ? (safeOffsetX) - backOffset : second === 'right' ? -(safeOffsetX) + backOffset : 0;
 
     return {
         position: [

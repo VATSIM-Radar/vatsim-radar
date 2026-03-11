@@ -206,10 +206,10 @@ export function setAirportStyle(layer: VectorLayer) {
                         styleCache[styleCacheKey] = new Style({
                             text: new Text({
                                 font: 'normal 1px/100% Jura, Arial, sans-serif',
-                                text: letter,
+                                text: 'A',
                                 offsetX: offsetX,
                                 offsetY: 10,
-                                padding: [2, 5, 0, 5],
+                                padding: [2, 4, 0, 5],
                                 fill: getCachedFill('transparent'),
                                 backgroundFill: getCachedFill(`rgba(${ getFacilityPositionColor(properties.facility.facility, true).join(',') }, ${ properties.facility.booked ? 0.5 : 1 })`),
                                 declutterMode: 'none',

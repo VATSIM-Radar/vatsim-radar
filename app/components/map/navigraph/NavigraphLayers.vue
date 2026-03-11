@@ -375,7 +375,7 @@ watch(map, val => {
     if (!val) return;
 
     if (!navigraphLayer) {
-        navigraphSource.value = new VectorSource();
+        navigraphSource.value = new VectorSource({ wrapX: true });
 
         const waypointsTypes = {
             default: new Style({

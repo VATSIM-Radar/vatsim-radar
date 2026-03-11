@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
-import { Feature } from 'ol';
-import { LineString, Point } from 'ol/geom.js';
+import { LineString } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import type { Coordinate } from 'ol/coordinate.js';
 import { useMapStore } from '~/store/map';
-import type { NavDataFlightLevel } from '~/utils/server/navigraph/navdata/types';
+import type { NavDataFlightLevel, NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 import { debounce } from '~/utils/shared';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
+import { createMapFeature, getMapFeature } from '~/utils/map/entities';
+import type { FeatureNavigraph } from '~/utils/map/entities';
 
 defineOptions({
     render: () => null,
@@ -22,7 +23,7 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings);
-let features: Feature[] = [];
+let features: FeatureNavigraph[] = [];
 
 // Dark magic from ChatGPT
 // Compute a destination point given start (lat,lon), distance (m), and bearing (° from north)
@@ -142,74 +143,87 @@ function generateHoldingPatternGeoJSON(
 const extent = computed(() => mapStore.extent);
 const level = computed(() => store.mapSettings.navigraphData?.mode);
 
-const starWaypoints = shallowRef<string[]>([]);
-const aircraftWaypoints = shallowRef<string[]>([]);
+const starWaypoints = shallowRef<Set<string>>(new Set());
+const aircraftWaypoints = shallowRef<Set<string>>(new Set());
 
 const debouncedUpdate = debounce(() => {
-    aircraftWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphWaypoints.value).map(x => x.disableHoldings ? [] : x.waypoints.filter(x => x.kind !== 'sids' && x.canShowHold).flatMap(x => x.identifier).filter(x => !!x)).flatMap(x => x)));
-    starWaypoints.value = Array.from(new Set(Object.values(dataStore.navigraphProcedures).flatMap(x => Object.values(x!.stars)).flatMap(x => [
-        x.procedure.waypoints.map(x => x.identifier),
-        x.procedure.transitions.enroute.flatMap(x => x.waypoints.map(x => x.identifier)),
-        x.procedure.transitions.runway.flatMap(x => x.waypoints.map(x => x.identifier)),
-    ]).flat()));
+    aircraftWaypoints.value.clear();
+    starWaypoints.value.clear();
+
+    for (const item of Object.values(dataStore.navigraphWaypoints.value)) {
+        if (item.disableHoldings) continue;
+
+        for (const waypoint of item.waypoints) {
+            if (waypoint.kind === 'sids' || !waypoint.canShowHold) continue;
+            aircraftWaypoints.value.add(waypoint.identifier);
+        }
+    }
+
+    for (const item of Object.values(dataStore.navigraphProcedures)) {
+        for (const star of Object.values(item!.stars)) {
+            star.procedure.waypoints.forEach(x => starWaypoints.value.add(x.identifier));
+            star.procedure.transitions.enroute.forEach(x => x.waypoints.forEach(x => starWaypoints.value.add(x.identifier)));
+            star.procedure.transitions.runway.forEach(x => x.waypoints.forEach(x => starWaypoints.value.add(x.identifier)));
+        }
+    }
 }, 1000);
 
 watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUpdate, {
     immediate: true,
 });
 
-watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
-    const newFeatures: Feature[] = [];
+let holdings: [string, NavigraphNavDataShort['holdings'][string]][] | null = null;
 
-    if (!enabled && !starWaypoints.value.length && !aircraftWaypoints.value.length) {
+watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
+    if (!enabled && !starWaypoints.value.size && !aircraftWaypoints.value.size) {
         source?.value.removeFeatures(features);
         features = [];
+        holdings = null;
         return;
     }
 
-    const entries = Object.entries(await dataStore.navigraph.data('holdings') ?? {}).filter(x => (enabled && x[1][8] === 'ENRT') || starWaypoints.value.includes(x[1][0]) || aircraftWaypoints.value.includes(x[1][0]));
+    if (!holdings) {
+        // TODO: refactor to keyval usage if not enabled
+        holdings = Object.entries(await dataStore.navigraph.data('holdings') ?? {});
+    }
 
-    entries.forEach(([key, [waypoint, course, time, length, turns, longitude, latitude, speed,, minLat, maxLat]], index) => {
+    for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of holdings) {
+        if ((!enabled && type !== 'ENRT') || !starWaypoints.value.has(waypoint) || !aircraftWaypoints.value.has(waypoint)) continue;
+
         let flightLevel: NavDataFlightLevel = 'B';
 
         if (maxLat && maxLat < 18000) flightLevel = 'L';
         if (minLat && minLat >= 18000) flightLevel = 'H';
 
-        if (!isPointInExtent([longitude, latitude], extent) || !checkFlightLevel(flightLevel)) return;
+        const id = `holding-${ key }`;
 
-        const existingFeatures = features.filter(x => x.getProperties().key === key);
-        if (existingFeatures.length) {
-            newFeatures.push(...existingFeatures);
+        const existingFeature = getMapFeature('navigraph', source!.value, id);
+
+        if (!checkFlightLevel(flightLevel) || !isPointInExtent([longitude, latitude], extent)) {
+            if (existingFeature) {
+                source?.value?.removeFeature(existingFeature);
+                existingFeature.dispose();
+            }
             return;
         }
+
+        if (existingFeature) continue;
 
         speed ??= 240;
         time ??= 0;
 
-        newFeatures.push(
-            new Feature({
-                geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
-                key,
-                turns,
-                time,
-                course,
-                dataType: 'navdata',
-                type: 'holdings',
-            }),
-            new Feature({
-                geometry: new Point([longitude, latitude]),
-                key,
-                waypoint,
-                flightLevel,
-                dataType: 'navdata',
-                type: 'holding-waypoint',
-            }),
-        );
-    });
-
-    source?.value.removeFeatures(features);
-    features = newFeatures;
-    source?.value.addFeatures(features);
+        source?.value.addFeature(createMapFeature('navigraph', {
+            geometry: new LineString(generateHoldingPatternGeoJSON([longitude, latitude], speed, course, turns, time || length || 0, !!time, 32)),
+            key,
+            turns,
+            time,
+            course,
+            featureType: 'holdings',
+            type: 'navigraph',
+            id,
+            pointCoordinate: [longitude, latitude],
+        }));
+    }
 }, {
     immediate: true,
 });
