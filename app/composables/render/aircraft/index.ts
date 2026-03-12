@@ -140,8 +140,8 @@ export async function setMapAircraft(settings: {
         }
 
         const coordinates = (isSelfFlight && dataStore.vatsim.selfCoordinate.value)
-            ? dataStore.vatsim.selfCoordinate.value.coordinate
-            : [aircraft.longitude, aircraft.latitude];
+            ? extrapolateCoordinates(dataStore.vatsim.selfCoordinate.value.coordinate, aircraft.heading, aircraft.groundspeed, aircraft.last_updated)
+            : extrapolateCoordinates([aircraft.longitude, aircraft.latitude], aircraft.heading, aircraft.groundspeed, aircraft.last_updated);
 
         const heading = (isSelfFlight && dataStore.vatsim.selfCoordinate.value)
             ? dataStore.vatsim.selfCoordinate.value.heading
@@ -210,4 +210,22 @@ export async function setMapAircraft(settings: {
             delete aircraftState[feature.getId() as number];
         }
     }
+}
+
+function extrapolateCoordinates(coordinates: Coordinate, heading: number, groundspeed: number, last_updated: string): Coordinate {
+    const lastUpdateTime = new Date(last_updated).getTime();
+    const currentTime = Date.now();
+    const deltaTimeHours = (currentTime - lastUpdateTime) / (1000 * 60 * 60);
+
+    const distanceNauticalMiles = groundspeed * deltaTimeHours;
+    const distanceDegrees = distanceNauticalMiles / 60;
+
+    const headingRadians = degreesToRadians(heading);
+
+    const [lon, lat] = coordinates;
+
+    const deltaLat = distanceDegrees * Math.cos(headingRadians);
+    const deltaLon = distanceDegrees * Math.sin(headingRadians) / Math.cos(degreesToRadians(lat));
+
+    return [lon + deltaLon, lat + deltaLat];
 }
