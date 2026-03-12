@@ -305,7 +305,8 @@ let init = false;
 
 const visibleSet = useThrottleFn(setVisiblePilots, 1000);
 
-const debouncedUpdate = useThrottleFn(() => {
+
+useRafFn(() => {
     if (!canRender.value) {
         vectorSource.clear();
         linesSource.clear();
@@ -320,14 +321,12 @@ const debouncedUpdate = useThrottleFn(() => {
             tracks: showTracks.value,
         });
     }
-}, 1000/20, true);
+});
 
 useUpdateCallback(['mandatory', 'short', 'extent', updateRelatedSettings], () => {
     if (!init) return;
     visibleSet();
 });
-
-watch([getShownPilots, canRender, showTracks, renderedPilots], debouncedUpdate);
 
 watch(map, val => {
     if (!val) return;
