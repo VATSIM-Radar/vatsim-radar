@@ -293,12 +293,13 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
     if (hasActivePilotFilter()) mandatoryData.pilots = mandatoryData.pilots.filter(x => vatsim.data.pilots.value.some(y => y.cid === x[0]));
 
     vatsim.mandatoryData.value = {
-        pilots: mandatoryData.pilots.map(([cid, lon, lat, icon, heading]) => {
+        pilots: mandatoryData.pilots.map(([cid, lon, lat, icon, heading, groundspeed, last_updated]) => {
             const cidString = cid.toString();
             if (data.keyedPilots.value?.[cidString]) {
                 data.keyedPilots.value[cidString].longitude = lon;
                 data.keyedPilots.value[cidString].latitude = lat;
                 data.keyedPilots.value[cidString].heading = heading;
+                data.keyedPilots.value[cidString].groundspeed = groundspeed;
             }
 
             return {
@@ -307,6 +308,8 @@ export function setVatsimMandatoryData(mandatoryData: VatsimMandatoryData) {
                 latitude: lat,
                 icon,
                 heading,
+                groundspeed,
+                last_updated,
             };
         }),
         controllers: mandatoryData.controllers.map(([cid, callsign, frequency, facility]) => ({
