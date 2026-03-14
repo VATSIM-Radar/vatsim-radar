@@ -94,6 +94,7 @@ onMounted(async () => {
     vectorLayer = new VectorLayer<any>({
         source: vectorSource,
         zIndex: FEATURES_Z_INDEX.SECTORS,
+        declutter: 'airports',
         properties: {
             type: 'sectors-list',
         },

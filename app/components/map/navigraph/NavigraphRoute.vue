@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { Point } from 'ol/geom.js';
@@ -11,8 +10,13 @@ import { debounce } from '~/utils/shared';
 import type { VatsimExtendedPilot } from '~/types/data/vatsim';
 import type { StoreOverlayPilot } from '~/store/map';
 import { calculateDistanceInNauticalMiles } from '~/utils/shared/flight';
-import type { ObjectWithGeometry } from 'ol/Feature.js';
 import { ownFlight } from '~/composables/vatsim/pilots';
+import {
+    createMapFeature,
+    getMapFeature,
+} from '~/utils/map/entities';
+import type { FeatureNavigraphItemProperties } from '~/utils/map/entities';
+import type { ObjectWithGeometry } from 'ol/Feature.js';
 
 defineOptions({
     render: () => null,
@@ -23,25 +27,52 @@ const source = inject<ShallowRef<VectorSource>>('navigraph-source');
 const dataStore = useDataStore();
 const mapStore = useMapStore();
 
-let features: Feature[] = [];
-
 let skipUpdate = false;
 
+function cleanup() {
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type.startsWith('enroute')) {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+}
+
 async function update() {
-    const newFeatures: Record<string, Feature> = {};
     let currentFlight = false;
 
-    function addFeature(id: string, feature: () => ObjectWithGeometry) {
-        if (newFeatures[id]) {
-            if (currentFlight) {
-                newFeatures[id].setProperties({
-                    ...newFeatures[id].getProperties(),
+    const keys = new Set<string>();
+
+    function addFeature(id: string, feature: () => ObjectWithGeometry<any, Omit<FeatureNavigraphItemProperties, 'id'>>) {
+        const existingFeature = getMapFeature('navigraph', source!.value, id);
+        keys.add(id);
+
+        if (existingFeature) {
+            const properties = existingFeature.getProperties();
+
+            if (properties.self) {
+                existingFeature.setGeometry(feature().geometry);
+            }
+
+            if (currentFlight && !properties.currentFlight) {
+                existingFeature.setProperties({
+                    ...properties,
                     currentFlight,
+                });
+            }
+            else if (properties.currentFlight) {
+                existingFeature.setProperties({
+                    ...properties,
+                    currentFlight: false,
                 });
             }
             return;
         }
-        newFeatures[id] = new Feature(Object.assign(feature(), { id, currentFlight }));
+
+        source?.value?.addFeature(createMapFeature('navigraph', Object.assign(feature(), { id, currentFlight })));
     }
 
     try {
@@ -163,11 +194,12 @@ async function update() {
                 }
 
                 if (pilot.groundspeed >= 50) {
-                    addFeature(callsign, () => ({
+                    addFeature(`enroute-${ callsign }`, () => ({
                         geometry: turfGeometryToOl(greatCircle(coordinate, newCoordinate, { npoints: 8 })),
                         key: '',
                         identifier: '',
-                        type: 'airways',
+                        type: 'navigraph',
+                        featureType: 'enroute',
                         dataType: 'navdata',
                         self: true,
                         kind,
@@ -197,16 +229,16 @@ async function update() {
                     }
 
                     if (!disableWaypoints) {
-                        addFeature(waypoint.identifier, () => ({
+                        addFeature(`enroute-${ waypoint.identifier }`, () => ({
                             geometry: new Point(waypoint.coordinate!),
                             identifier: disableLabels ? '' : waypoint.identifier,
                             waypoint: disableLabels ? '' : waypoint.identifier,
                             kind: waypoint.kind,
                             key: waypoint.key,
-                            type: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
+                            featureType: (waypoint.kind === 'ndb' || waypoint.kind === 'vhf') ? `enroute-${ waypoint.kind }` : 'enroute-waypoint',
                             usage: waypoint.type,
                             description: waypoint.description,
-                            dataType: 'navdata',
+                            type: 'navigraph',
 
                             altitude: disableLabels ? undefined : waypoint.altitude,
                             altitude1: disableLabels ? undefined : waypoint.altitude1,
@@ -226,12 +258,12 @@ async function update() {
                         applyAircraftDistance(waypoint.coordinate!, nextCoordinate as any);
                     }
 
-                    addFeature(`${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
+                    addFeature(`enroute-${ waypoint.identifier }-${ nextWaypoint.identifier }-connector`, () => ({
                         geometry: turfGeometryToOl(greatCircle(waypoint.coordinate!, nextCoordinate as any, { npoints: 8 })),
                         key: '',
                         identifier: disableLabels ? '' : waypoint.title ?? '',
-                        type: 'airways',
-                        dataType: 'navdata',
+                        featureType: 'enroute-airways',
+                        type: 'navigraph',
                         kind: nextWaypoint.kind,
                     }));
                 }
@@ -264,7 +296,7 @@ async function update() {
                         }
 
                         if (!disableWaypoints) {
-                            let type = 'airway-waypoint';
+                            let type: FeatureNavigraphItemProperties['featureType'] = 'airways-waypoint';
 
                             const ndb = Object.entries(await getNavigraphParsedData('ndb', currWaypoint[0]) ?? '').find(x => x[1][3] === currWaypoint[3] && x[1][4] === currWaypoint[4]);
                             const vhf = Object.entries(await getNavigraphParsedData('vhf', currWaypoint[0]) ?? '').find(x => x[1][4] === currWaypoint[3] && x[1][5] === currWaypoint[4]);
@@ -277,13 +309,13 @@ async function update() {
                                 type = 'enroute-vhf';
                             }
 
-                            addFeature(currWaypoint[0], () => ({
+                            addFeature(`enroute-${ currWaypoint[0] }`, () => ({
                                 geometry: new Point([currWaypoint[3], currWaypoint[4]]),
                                 identifier: disableLabels ? '' : currWaypoint[0],
                                 flightLevel: currWaypoint[5],
                                 waypoint: disableLabels ? '' : currWaypoint[0],
-                                type,
-                                dataType: 'navdata',
+                                featureType: type,
+                                type: 'navigraph',
                                 usage: currWaypoint[6],
 
                                 altitude: waypoint.altitude,
@@ -305,13 +337,13 @@ async function update() {
                             if (nextCoordinate?.[0]) {
                                 applyAircraftDistance([currWaypoint[3], currWaypoint[4]], nextCoordinate as any);
 
-                                addFeature(`${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`, () => ({
+                                addFeature(`enroute-${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`, () => ({
                                     geometry: turfGeometryToOl(greatCircle([currWaypoint[3], currWaypoint[4]], nextCoordinate as any, { npoints: 8 })),
                                     key: '',
                                     id: `${ waypoint.airway!.value[0] }-${ currWaypoint[0] }-last`,
                                     identifier: '',
-                                    type: 'airways',
-                                    dataType: 'navdata',
+                                    featureType: 'airways',
+                                    type: 'navigraph',
                                     kind: waypoint.kind,
                                     altitude: waypoint.altitude,
                                     altitude1: waypoint.altitude1,
@@ -334,8 +366,8 @@ async function update() {
                             outbound: currWaypoint[2],
                             waypoint: disableLabels ? '' : currWaypoint[0],
                             flightLevel: currWaypoint[5],
-                            type: 'airways',
-                            dataType: 'navdata',
+                            featureType: 'airways',
+                            type: 'navigraph',
                             kind: waypoint.kind,
                         }));
                     }
@@ -353,12 +385,15 @@ async function update() {
             }
         }
 
-        source?.value.removeFeatures(features);
-        features.forEach(x => x.dispose());
+        const features = source?.value.getFeatures() ?? [];
 
-        features = Object.values(newFeatures);
-
-        source?.value.addFeatures(features);
+        for (const feature of features) {
+            const type = feature.getProperties().featureType;
+            if (type.startsWith('enroute') && !keys.has(feature.getId() as string)) {
+                source?.value.removeFeature(feature);
+                feature.dispose();
+            }
+        }
 
         skipUpdate = true;
         triggerRef(dataStore.navigraphWaypoints);
@@ -380,7 +415,5 @@ watch(dataStore.navigraphWaypoints, () => {
     immediate: true,
 });
 
-onBeforeUnmount(() => {
-    source?.value.removeFeatures(features);
-});
+onBeforeUnmount(cleanup);
 </script>

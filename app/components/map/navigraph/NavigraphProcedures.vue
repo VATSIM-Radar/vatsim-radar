@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Feature } from 'ol';
+import type { Feature } from 'ol';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { LineString, Point } from 'ol/geom.js';
@@ -7,6 +7,7 @@ import type { Coordinate } from 'ol/coordinate.js';
 import greatCircle from '@turf/great-circle';
 import type { NavigraphNavDataAirportWaypoint } from '~/utils/server/navigraph/navdata/types';
 import type { DataStoreNavigraphProcedure, DataStoreNavigraphProceduresAirport } from '~/composables/render/storage';
+import { createMapFeature } from '~/utils/map/entities';
 
 defineOptions({
     render: () => null,
@@ -30,23 +31,25 @@ function addWaypoints(newFeatures: Feature[], waypoints: NavigraphNavDataAirport
         if (circle.geometry.type === 'LineString') coords = circle.geometry.coordinates;
         else coords = circle.geometry.coordinates.flatMap(x => x);
 
-        newFeatures.push(new Feature({
+        newFeatures.push(createMapFeature('navigraph', {
             geometry: new LineString(coords),
-            dataType: 'navdata',
             procedure,
             name,
-            type: 'enroute',
+            type: 'navigraph',
+            featureType: 'procedure',
+            id: `enroute-${ procedure }-${ name }`,
         }));
 
         if (constraints) {
-            newFeatures.push(...waypoints.map(x => new Feature({
+            newFeatures.push(...waypoints.map(x => createMapFeature('navigraph', {
                 geometry: new Point(x.coordinate),
-                dataType: 'navdata',
                 key: x.identifier,
                 waypoint: x.identifier,
                 description: x.description,
                 usage: x.type,
-                type: 'enroute-waypoint',
+                featureType: 'procedure-waypoint',
+                type: 'navigraph',
+                id: `procedure-waypoint-${ x.identifier }`,
 
                 altitude: x.altitude,
                 altitude1: x.altitude1,

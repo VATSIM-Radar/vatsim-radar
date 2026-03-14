@@ -240,6 +240,12 @@ export default defineNuxtConfig({
         },
     },
     vite: {
+        optimizeDeps: {
+            include: [
+                'deep-equal',
+                'vue-draggable-plus',
+            ],
+        },
         build: {
             cssMinify: 'esbuild',
             rollupOptions: {
@@ -260,7 +266,6 @@ export default defineNuxtConfig({
             },
         },
         plugins: [
-            // @ts-expect-error types error
             svgLoader({
                 defaultImport: 'url',
                 svgoConfig: {

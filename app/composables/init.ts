@@ -39,30 +39,42 @@ async function initCheck(key: keyof VRInitStatus, handler: (args: {
     }
 }
 
+let previousInProgress = false;
+
+async function checkStatus() {
+    if (previousInProgress) return;
+    try {
+        previousInProgress = true;
+        const { ready } = await $fetch<{ ready: boolean }>('/api/data/status', { timeout: 2000 });
+        if (ready) {
+            return true;
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
+    finally {
+        previousInProgress = false;
+    }
+}
+
 export function checkForUpdates() {
     return initCheck('updatesCheck', async ({ mapStore, dataStore }) => {
         // Data is not yet ready
         if (!mapStore.dataReady) {
-            await new Promise<void>(resolve => {
-                let previousInProgress = false;
-                const interval = setInterval(async () => {
-                    if (previousInProgress) return;
-                    try {
-                        previousInProgress = true;
-                        const { ready } = await $fetch<{ ready: boolean }>('/api/data/status');
-                        if (ready) {
+            const ready = await checkStatus();
+
+            if (!ready) {
+                await new Promise<void>(resolve => {
+                    const interval = setInterval(async () => {
+                        const status = await checkStatus();
+                        if (status) {
                             resolve();
                             clearInterval(interval);
                         }
-                    }
-                    catch (e) {
-                        console.error(e);
-                    }
-                    finally {
-                        previousInProgress = false;
-                    }
-                }, 1000);
-            });
+                    }, 1000);
+                });
+            }
         }
 
         if (!dataStore.versions.value) {
@@ -195,7 +207,7 @@ export function checkForVG() {
 }
 
 async function upsertBagsByIdentifier<D extends any[], T extends Record<string, D>>(
-    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb',
+    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb' | 'holdings',
     entries: T,
 ) {
     let groups: Record<string, Record<string, any>> = {};
@@ -245,6 +257,7 @@ export function checkForNavigraph() {
                 await upsertBagsByIdentifier('waypoints', fetchedData.waypoints);
                 await upsertBagsByIdentifier('vhf', fetchedData.vhf);
                 await upsertBagsByIdentifier('ndb', fetchedData.ndb);
+                await upsertBagsByIdentifier('holdings', fetchedData.holdings);
 
                 for (const key in fetchedData) {
                     await clientDB.navigraphData.put(fetchedData[key as keyof typeof fetchedData] as any, key as any);

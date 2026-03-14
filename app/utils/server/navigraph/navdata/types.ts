@@ -1,5 +1,5 @@
 import type { Coordinate } from 'ol/coordinate.js';
-import type sqlite3 from 'sqlite3';
+import type sqlite3 from 'better-sqlite3';
 
 export interface NavigraphNavDataVHF {
     elevation: number;
