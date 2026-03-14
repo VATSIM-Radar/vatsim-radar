@@ -176,19 +176,17 @@ export async function initNavigraph() {
 interface RequestSettings {
     db: sqlite3.Database;
     sql: string;
-    params?: Record<string, any>;
 }
 
 export function dbRequest<T extends Record<string, any>>({
     db,
     sql,
-    params = {},
 }: RequestSettings) {
     const req = db.prepare(sql);
-    return req.all(params) as T[];
+    return req.all() as T[];
 }
 
-export async function dbPartialRequest<T extends Record<string, any>>({ db, sql, params, table, count = 5000 }: RequestSettings & { table: string; count?: number }) {
+export async function dbPartialRequest<T extends Record<string, any>>({ db, sql, table, count = 5000 }: RequestSettings & { table: string; count?: number }) {
     const [{ count: totalCount }] = await dbRequest<{ count: number }>({
         db: db,
         sql: `SELECT COUNT(*) as count FROM ${ table }`,
@@ -200,7 +198,6 @@ export async function dbPartialRequest<T extends Record<string, any>>({ db, sql,
         rows.push(...await dbRequest<T>({
             db,
             sql: `${ sql } LIMIT ${ count } OFFSET ${ i }`,
-            params,
         }));
     }
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
-import { Feature } from 'ol';
 import { Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';
 import { useMapStore } from '~/store/map';
+import { createMapFeature, getMapFeature } from '~/utils/map/entities';
+import type { NavigraphNavDataShort } from '~/utils/server/navigraph/navdata/types';
 
 defineOptions({
     render: () => null,
@@ -17,44 +18,63 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.waypoints !== false);
-let features: Feature[] = [];
 
 const extent = computed(() => mapStore.extent);
 const terminal = computed(() => store.mapSettings.navigraphData?.terminalWaypoints);
 
+function cleanup() {
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type === 'waypoint') {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+}
+
+let waypointsList: NavigraphNavDataShort['waypoints'] | null = null;
+
 watch([isEnabled, extent, terminal], async ([enabled, extent, terminal]) => {
     if (!enabled) {
-        source?.value.removeFeatures(features);
-        features = [];
+        cleanup();
+        waypointsList = null;
         return;
     }
 
-    const newFeatures: Feature[] = [];
-    const entries = Object.entries(await dataStore.navigraph.data('waypoints') ?? {});
+    waypointsList ??= await dataStore.navigraph.data('waypoints') ?? {};
+
+    const entries = Object.entries(waypointsList);
 
     entries.forEach(([key, waypoint]) => {
         const coordinate = [waypoint[1], waypoint[2]];
-        if (!isPointInExtent(coordinate, extent)) return;
-        if (waypoint[4] && !terminal) return;
+        const existingWaypoint = getMapFeature('navigraph', source!.value, `waypoint-${ key }`);
 
-        newFeatures.push(new Feature({
+        if (!isPointInExtent(coordinate, extent)) {
+            if (existingWaypoint) {
+                source?.value.removeFeature(existingWaypoint);
+                existingWaypoint.dispose();
+            }
+            return;
+        }
+
+        if ((waypoint[4] && !terminal) || existingWaypoint) return;
+
+        source?.value.addFeature(createMapFeature('navigraph', {
             geometry: new Point([waypoint[1], waypoint[2]]),
             key,
+            id: `waypoint-${ key }`,
             identifier: waypoint[0],
             usage: waypoint[3],
             waypoint: waypoint[0],
-            dataType: 'navdata',
-            type: 'waypoint',
+            type: 'navigraph',
+            featureType: 'waypoint',
         }));
     });
-
-    source?.value.removeFeatures(features);
-    features.forEach(feature => feature.dispose());
-    features = newFeatures;
-    source?.value.addFeatures(features);
 }, {
     immediate: true,
 });
 
-onBeforeUnmount(() => source?.value.removeFeatures(features));
+onBeforeUnmount(cleanup);
 </script>

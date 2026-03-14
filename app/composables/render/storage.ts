@@ -8,6 +8,7 @@ import type {
     VatsimShortenedAircraft,
     VatsimShortenedController,
 } from '~/types/data/vatsim';
+import { getCurrentInstance } from 'vue';
 import type { Ref, ShallowRef, WatchStopHandle } from 'vue';
 import type {
     RadarDataAirline,

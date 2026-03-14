@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useStore } from '~/store';
-import type { Feature } from 'ol';
 import { LineString, Point } from 'ol/geom.js';
 import type { ShallowRef } from 'vue';
 import type VectorSource from 'ol/source/Vector.js';

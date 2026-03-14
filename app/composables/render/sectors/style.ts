@@ -53,8 +53,10 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
         cachedStyle = [];
 
         if (labelType) {
-            const textFill = getCachedFill(`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`);
-            const textBg = getCachedFill(getCurrentThemeRgbColor('darkGray900'));
+            const textFill = getCachedFill(`rgba(${ getSelectedColorFromSettings('centerText', true) || getCurrentThemeRgbColor('lightGray500').join(',') }, ${ booking ? 0.4 : 1 })`);
+            const textFillRaw = getSelectedColorFromSettings('centerText', true) || getCurrentThemeRgbColor('lightGray500').join(',');
+            const sectorBg = getCachedFill(`rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : 1 })`);
+            const textBg = getCachedFill(getSelectedColorFromSettings('centerBg') ?? getCurrentThemeRgbColor('darkGray900'));
 
             cachedStyle.push(new Style({
                 geometry: new Point(labelCoordinate),
@@ -64,10 +66,10 @@ function buildFirStyle({ color, settingsColor, hovered, label, secondLine, dashe
                         text: label,
                         textAlign: 'center',
                         padding: [4, 1, 2, 4],
-                        fill: hovered ? textBg : textFill,
-                        backgroundFill: hovered ? textFill : textBg,
+                        fill: hovered ? getCachedFill(radarColors.lightGray300Hex) : textFill,
+                        backgroundFill: hovered ? sectorBg : textBg,
                         backgroundStroke: new Stroke({
-                            color: `rgba(${ userColorRaw || getCurrentThemeRgbColor(color).join(',') }, ${ booking ? 0.4 : userColorTransparency ?? 1 })`,
+                            color: `rgba(${ textFillRaw }, ${ booking ? 0.1 : 0.2 })`,
                             width: 1,
                             lineCap: 'round',
                             lineJoin: 'round',
