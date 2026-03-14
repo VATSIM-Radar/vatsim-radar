@@ -145,7 +145,6 @@ export async function getNavigraphAirportProcedure<T extends NavigraphDataAirpor
 
 const replacementRegex = /[^a-zA-Z0-9\/]+/;
 const latRegex = /^(\d{2,4})([NS])/;
-const lonRegex = /^(\d{3,5})([EW])/;
 const sidstarRegex = /((?<start>[A-Z]{3,5})(?<end>[0-9]([A-Z])?))/;
 
 function getSidStarResult(route: string) {
