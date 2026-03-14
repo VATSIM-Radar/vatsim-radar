@@ -10,7 +10,7 @@
 ## Performance improvements
 
 - Significantly reduced memory used by Navigraph Airways layer, added a cache for faster rendering and changed design a bit, so it's now worth giving this layer a go
-- Significantly improved performance and memory usage when rendering holdings. Previous code was terrible. Who wrote that? Jesus.
+- Significantly improved performance and memory usage when rendering holdings, especially when rendering enroute holdings (all holdings layer is not enabled). Previous code was terrible. Who wrote that? Jesus.
 - Improved performance of NBD & VORDME Layer
 
 # [2.0.0-alpha.4.3]

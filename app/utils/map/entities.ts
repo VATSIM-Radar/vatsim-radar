@@ -188,15 +188,15 @@ export interface FeatureNavigraphItemProperties extends Partial<NavigraphNavData
     identifier?: string;
     waypoint?: string;
     key?: string;
-    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'holdings';
+    featureType: 'airways' | 'airways-waypoint' | 'waypoint' | 'nat-waypoint' | 'enroute' | `enroute-${ string }` | 'ndb' | 'vhf' | 'holdings';
     usage?: string;
     description?: string;
     self?: boolean;
     kind?: string;
     name?: string;
     ident?: string;
-    dme?: string;
-    frequency?: string;
+    dme?: string | null;
+    frequency?: number;
     flightLevel?: NavDataFlightLevel;
     inbound?: number;
     outbound?: number;

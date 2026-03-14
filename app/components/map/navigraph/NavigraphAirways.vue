@@ -22,7 +22,7 @@ const dataStore = useDataStore();
 const mapStore = useMapStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.airways?.enabled !== false);
-let geometries: ObjectWithGeometry<any, {
+const geometries: ObjectWithGeometry<any, {
     waypointCoordinate: Coordinate;
     airwayCoords: [Coordinate, Coordinate] | null;
     airwayKey: string;
@@ -38,11 +38,24 @@ const level = computed(() => store.mapSettings.navigraphData?.mode);
 
 let inProgress = false;
 
+function cleanup() {
+    geometries.length = 0;
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type === 'airways' || type === 'airways-waypoint') {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+}
+
 watch([isEnabled, extent, level], async ([enabled, extent]) => {
     if (inProgress) return;
 
     if (!enabled) {
-        geometries.length = 0;
+        cleanup();
         return;
     }
 
@@ -122,7 +135,5 @@ watch([isEnabled, extent, level], async ([enabled, extent]) => {
     immediate: true,
 });
 
-onBeforeUnmount(() => {
-    geometries = [];
-});
+onBeforeUnmount(cleanup);
 </script>

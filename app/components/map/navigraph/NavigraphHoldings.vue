@@ -10,7 +10,7 @@ import { debounce } from '~/utils/shared';
 // @ts-expect-error JS-only lib
 import { magvar } from 'magvar';
 import { createMapFeature, getMapFeature } from '~/utils/map/entities';
-import type { FeatureNavigraph } from '~/utils/map/entities';
+import { getNavigraphParsedData } from '~/composables/navigraph';
 
 defineOptions({
     render: () => null,
@@ -23,7 +23,6 @@ const mapStore = useMapStore();
 const dataStore = useDataStore();
 
 const isEnabled = computed(() => store.mapSettings.navigraphData?.holdings);
-let features: FeatureNavigraph[] = [];
 
 // Dark magic from ChatGPT
 // Compute a destination point given start (lat,lon), distance (m), and bearing (° from north)
@@ -143,27 +142,27 @@ function generateHoldingPatternGeoJSON(
 const extent = computed(() => mapStore.extent);
 const level = computed(() => store.mapSettings.navigraphData?.mode);
 
-const starWaypoints = shallowRef<Set<string>>(new Set());
-const aircraftWaypoints = shallowRef<Set<string>>(new Set());
+const starWaypoints = shallowRef<Record<string, Coordinate>>({});
+const aircraftWaypoints = shallowRef<Record<string, Coordinate>>({});
 
 const debouncedUpdate = debounce(() => {
-    aircraftWaypoints.value.clear();
-    starWaypoints.value.clear();
+    aircraftWaypoints.value = {};
+    starWaypoints.value = {};
 
     for (const item of Object.values(dataStore.navigraphWaypoints.value)) {
         if (item.disableHoldings) continue;
 
         for (const waypoint of item.waypoints) {
-            if (waypoint.kind === 'sids' || !waypoint.canShowHold) continue;
-            aircraftWaypoints.value.add(waypoint.identifier);
+            if (waypoint.kind === 'sids' || !waypoint.canShowHold || !waypoint.coordinate) continue;
+            aircraftWaypoints.value[waypoint.identifier] = waypoint.coordinate;
         }
     }
 
     for (const item of Object.values(dataStore.navigraphProcedures)) {
         for (const star of Object.values(item!.stars)) {
-            star.procedure.waypoints.forEach(x => starWaypoints.value.add(x.identifier));
-            star.procedure.transitions.enroute.forEach(x => x.waypoints.forEach(x => starWaypoints.value.add(x.identifier)));
-            star.procedure.transitions.runway.forEach(x => x.waypoints.forEach(x => starWaypoints.value.add(x.identifier)));
+            star.procedure.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate);
+            star.procedure.transitions.enroute.forEach(x => x.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate));
+            star.procedure.transitions.runway.forEach(x => x.waypoints.forEach(x => starWaypoints.value[x.identifier] = x.coordinate));
         }
     }
 }, 1000);
@@ -174,21 +173,49 @@ watch([dataStore.navigraphWaypoints, dataStore.navigraphProcedures], debouncedUp
 
 let holdings: [string, NavigraphNavDataShort['holdings'][string]][] | null = null;
 
+function cleanup() {
+    const features = source?.value.getFeatures() ?? [];
+
+    for (const feature of features) {
+        const type = feature.getProperties().featureType;
+        if (type === 'holdings') {
+            source?.value.removeFeature(feature);
+            feature.dispose();
+        }
+    }
+}
+
 watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enabled, extent]) => {
     if (!enabled && !starWaypoints.value.size && !aircraftWaypoints.value.size) {
-        source?.value.removeFeatures(features);
-        features = [];
         holdings = null;
+        cleanup();
         return;
     }
 
-    if (!holdings) {
-        // TODO: refactor to keyval usage if not enabled
+    if (!enabled && holdings) {
+        holdings = null;
+    }
+
+    if (!holdings && enabled) {
         holdings = Object.entries(await dataStore.navigraph.data('holdings') ?? {});
     }
 
-    for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of holdings) {
-        if ((!enabled && type !== 'ENRT') || !starWaypoints.value.has(waypoint) || !aircraftWaypoints.value.has(waypoint)) continue;
+    const list = holdings ?? [];
+
+    for (const [waypoint, coordinate] of Object.entries(starWaypoints.value)) {
+        const items = await getNavigraphParsedData('holdings', waypoint) ?? {};
+        const item = Object.entries(items).find(x => x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
+        if (item) list.push(item);
+    }
+
+    for (const [waypoint, coordinate] of Object.entries(aircraftWaypoints.value)) {
+        const items = await getNavigraphParsedData('holdings', waypoint) ?? {};
+        const item = Object.entries(items).find(x => x[1][8] === 'ENRT' && x[1][5] === coordinate[0] && x[1][6] === coordinate[1]);
+        if (item) list.push(item);
+    }
+
+    for (let [key, [waypoint, course, time, length, turns, longitude, latitude, speed, type, minLat, maxLat]] of list) {
+        if ((!enabled && type !== 'ENRT') || !starWaypoints.value[waypoint] || !aircraftWaypoints.value[waypoint]) continue;
 
         let flightLevel: NavDataFlightLevel = 'B';
 
@@ -228,5 +255,5 @@ watch([isEnabled, extent, level, starWaypoints, aircraftWaypoints], async ([enab
     immediate: true,
 });
 
-onBeforeUnmount(() => source?.value.removeFeatures(features));
+onBeforeUnmount(cleanup);
 </script>

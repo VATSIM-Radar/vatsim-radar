@@ -195,7 +195,7 @@ export function checkForVG() {
 }
 
 async function upsertBagsByIdentifier<D extends any[], T extends Record<string, D>>(
-    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb',
+    prefix: 'airways' | 'waypoints' | 'vhf' | 'ndb' | 'holdings',
     entries: T,
 ) {
     let groups: Record<string, Record<string, any>> = {};
@@ -245,6 +245,7 @@ export function checkForNavigraph() {
                 await upsertBagsByIdentifier('waypoints', fetchedData.waypoints);
                 await upsertBagsByIdentifier('vhf', fetchedData.vhf);
                 await upsertBagsByIdentifier('ndb', fetchedData.ndb);
+                await upsertBagsByIdentifier('holdings', fetchedData.holdings);
 
                 for (const key in fetchedData) {
                     await clientDB.navigraphData.put(fetchedData[key as keyof typeof fetchedData] as any, key as any);
