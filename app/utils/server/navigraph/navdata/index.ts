@@ -1,4 +1,4 @@
-import type sqlite3 from 'sqlite3';
+import type sqlite3 from 'better-sqlite3';
 import { dbPartialRequest } from '~/utils/server/navigraph/db';
 import type { H3Event } from 'h3';
 import { handleH3Error, handleH3Exception, validateDataReady } from '~/utils/server/h3';
