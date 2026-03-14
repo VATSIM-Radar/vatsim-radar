@@ -3,6 +3,7 @@
 # [1.2.4-6.2]
 
 - Added new coordinate format support: `570021N0380421E`
+- Speed up map loading by exactly one second (blushes)
 
 # [1.2.4-6.1]
 
